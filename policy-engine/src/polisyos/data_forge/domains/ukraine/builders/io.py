@@ -26,7 +26,8 @@ from polisyos.data_forge.kernel.io import atomic_write_bytes, atomic_write_text,
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef, InputRef
+    from polisyos.core.artifacts.manifest import SchemaInfo
 
 
 def _json_default(value: object) -> object:
@@ -216,12 +217,27 @@ def _select_procurement_frame(
     return _load_source_frame(config, "prozorro_full", columns=columns), "prozorro_full", warnings
 
 
-def _cas_put_json(store: FileSystemCAS, payload: object, *, kind: str) -> ArtifactRef:
-    """Persist JSON through the existing CAS canonicalization contract."""
+def _cas_put_json(
+    store: FileSystemCAS,
+    payload: object,
+    *,
+    kind: str,
+    media_type: str = "application/json",
+    return_selected_profile: bool = False,
+    schema: SchemaInfo | None = None,
+    inputs: Sequence[InputRef] | None = None,
+) -> ArtifactRef:
+    """Persist JSON through the existing CAS contract, optionally retaining its exact view."""
     return store.put_json(
         payload,
-        PutOptions(kind=kind, media_type="application/json"),
+        PutOptions(
+            kind=kind,
+            media_type=media_type,
+            schema=schema,
+            inputs=list(inputs or ()),
+        ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
 
 

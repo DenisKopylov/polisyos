@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import inspect
 import json
 import math
 import uuid
@@ -49,6 +51,7 @@ from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     BiasDirection,
+    MetricBiasDiagnostic,
     SystematicBias,
     persist_backtest_report,
 )
@@ -78,6 +81,45 @@ from polisyos.scientist.methods.backtesting.plan import (
 )
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 from polisyos.scientist.orchestration.engine.context import FoundryPort
+
+
+def _trust_scorer_profile(scorer: TrustScorer) -> dict[str, Any] | None:
+    """Bind the report to the concrete TrustScorer compute source and settings."""
+    scorer_type = type(scorer)
+    try:
+        source = inspect.getsource(scorer_type.compute)
+    except (OSError, TypeError, AttributeError):
+        return None
+    weights = getattr(getattr(scorer, "_scorer", None), "weights", None)
+    mapper = getattr(scorer, "_grade_mapper", None)
+    bands = getattr(mapper, "_bands", None)
+    default = getattr(mapper, "_default", None)
+    nominal = getattr(scorer, "_DEFAULT_NOMINAL_CONFIDENCE_LEVEL", None)
+    if (
+        not isinstance(weights, dict)
+        or not isinstance(bands, (list, tuple))
+        or not isinstance(default, str)
+    ):
+        return None
+    try:
+        grade_bands = [
+            {"min_score": float(row.min_score), "value": str(row.value)} for row in bands
+        ]
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return None
+    if not isinstance(nominal, (float, int)):
+        return None
+    return {
+        "profile_schema": "trust-scorer-profile-v1",
+        "implementation": f"{scorer_type.__module__}.{scorer_type.__qualname__}",
+        "compute_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+        "weights": {str(k): float(v) for k, v in sorted(weights.items())},
+        "grade_bands": grade_bands,
+        "grade_default": default,
+        "nominal_confidence_default": float(nominal),
+        "numpy_version": np.__version__,
+    }
+
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
@@ -161,6 +203,7 @@ class _BacktestReplicaFoundryPort:
     def execute(self, store: Any, request: ExecuteRequest) -> ExecuteResult:
         """Execute a copied request bound to the masked view and this replica seed."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             bindings_payload = load_core_json_artifact(store, request.input_bindings_ref)
             bindings = FoundryInputBindings.model_validate(bindings_payload)
@@ -239,6 +282,10 @@ class _TTestResult:
     test_name: str | None
     status: str
     reason: str | None = None
+    method_id: str | None = None
+    backend_id: str | None = None
+    backend_version: str | None = None
+    statistic: float | None = None
 
 
 def _default_backtest_store_factory(root: Path) -> BacktestStore:
@@ -487,6 +534,7 @@ class BacktestOrchestrator:
             degraded_reasons=degraded_reasons,
             trust_screening=resolved_trust_screening,
         )
+        report = self._validate_trust_projection_before_persist(report)
         report_inputs = list(manifest_inputs or [])
         for scenario in scenarios:
             cohort_payload = scenario.metadata.get("replica_cohort_ref")
@@ -569,6 +617,7 @@ class BacktestOrchestrator:
 
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if plan.historical_data_ref:
             artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
             payload = load_core_json_artifact(self._store, artifact_id)
@@ -613,6 +662,7 @@ class BacktestOrchestrator:
         masked_data: dict[str, Any],
     ) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         warnings: list[str] = []
         if plan.scientist_state is None:
             reason = "scientist_state_missing"
@@ -983,6 +1033,7 @@ class BacktestOrchestrator:
         plan: HistoricalValidationPlan,
     ) -> tuple[dict[str, list[tuple[float, float]]], dict[str, Any], tuple[str, ...]]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if "simulation_result_ref" not in artifacts:
             return {}, {}, ()
         sim_ref_payload = artifacts["simulation_result_ref"]
@@ -1282,6 +1333,32 @@ class BacktestOrchestrator:
             predictions[metric] = [baseline] * horizon
         return {"predictions": predictions, "intervals": {}, "warnings": warnings}
 
+    def _validate_trust_projection_before_persist(self, report: BacktestReport) -> BacktestReport:
+        """Recompute TrustScorer output from source rows before the CAS write."""
+        if not report.trust_eligible:
+            return report
+        profile = _trust_scorer_profile(self._trust_scorer)
+        score, grade = self._trust_scorer.compute(
+            scenarios=report.scenarios, biases=report.detected_biases
+        )
+        if (
+            profile is None
+            or report.metadata.get("trust_scorer_profile") != profile
+            or not report.has_source_bound_exact_zero_metrics()
+            or score is None
+            or grade is None
+            or report.trust_score is None
+            or not math.isclose(report.trust_score, score, rel_tol=0.0, abs_tol=1e-12)
+            or report.trust_grade != grade
+        ):
+            report.trust_eligible = False
+            report.trust_score = None
+            report.trust_grade = None
+            report.degraded = True
+            if "trust_score_source_reconciliation_failed" not in report.degraded_reasons:
+                report.degraded_reasons.append("trust_score_source_reconciliation_failed")
+        return report
+
     def _aggregate(
         self,
         *,
@@ -1386,9 +1463,15 @@ class BacktestOrchestrator:
             metadata_payload["interval_contracts"] = interval_contracts
         if trust_screening is not TrustScreeningMode.DEFAULT:
             metadata_payload["trust_screening"] = trust_screening.value
+        trust_profile = _trust_scorer_profile(self._trust_scorer)
+        metadata_payload["trust_scorer_profile"] = trust_profile
 
-        biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
+        biases, metric_diagnostics, statistical_degraded_reasons = self._detect_systematic_biases(
+            scenarios
+        )
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+        if trust_profile is None:
+            all_degraded_reasons.append("trust_scorer_profile_unavailable")
         if trust_screening is not TrustScreeningMode.DEFAULT:
             all_degraded_reasons.append(f"trust_screening:{trust_screening.value}")
 
@@ -1407,9 +1490,14 @@ class BacktestOrchestrator:
                 and len(scenario.outcome_comparisons) == scenario.compared_count
             )
 
+        candidate_diagnostic = metadata_payload.get("purpose") == "candidate_diagnostic"
+        if candidate_diagnostic:
+            all_degraded_reasons.append("candidate_diagnostic_not_for_trust")
+            degraded = True
         trust_eligible = (
             bool(scenarios)
             and not degraded
+            and not candidate_diagnostic
             and all(has_complete_point_comparisons(scenario) for scenario in scenarios)
         )
         trust_score, trust_grade = (None, None)
@@ -1435,7 +1523,8 @@ class BacktestOrchestrator:
                 "micro_rmse_with_explicit_equal_scenario_macro" if scenarios else None
             ),
             detected_biases=biases,
-            overall_bias_direction=self._aggregate_bias_direction(biases),
+            metric_diagnostics=metric_diagnostics,
+            overall_bias_direction=self._aggregate_bias_direction(biases, metric_diagnostics),
             prediction_mode_requested=prediction_mode_requested,
             prediction_mode_effective=prediction_mode_effective,
             degraded=degraded,
@@ -1449,78 +1538,118 @@ class BacktestOrchestrator:
     def _detect_systematic_biases(
         self,
         scenarios: list[BacktestScenario],
-    ) -> tuple[list[SystematicBias], list[str]]:
+    ) -> tuple[list[SystematicBias], list[MetricBiasDiagnostic], list[str]]:
         errors_by_metric: dict[str, list[float]] = {}
         for scenario in scenarios:
-            for comp in scenario.outcome_comparisons:
-                errors_by_metric.setdefault(comp.metric_name, []).append(comp.y_pred - comp.y_true)
+            for comparison in scenario.outcome_comparisons:
+                errors_by_metric.setdefault(comparison.metric_name, []).append(
+                    comparison.y_pred - comparison.y_true
+                )
 
         biases: list[SystematicBias] = []
+        diagnostics: list[MetricBiasDiagnostic] = []
         degraded_reasons: list[str] = []
-        for metric, errors in errors_by_metric.items():
-            arr = np.asarray(errors, dtype=float)
-            mean = float(np.mean(arr))
-            test_result = self._two_sided_ttest(arr)
+        for metric, errors in sorted(errors_by_metric.items()):
+            values = np.asarray(errors, dtype=float)
+            mean = float(np.mean(values))
+            exact_zero = bool(np.all(values == 0.0))
+            test_result = self._two_sided_ttest(values)
+            matching_scenarios = [
+                scenario
+                for scenario in scenarios
+                if any(item.metric_name == metric for item in scenario.outcome_comparisons)
+            ]
+            residual_sign = "positive" if mean > 0 else "negative" if mean < 0 else "zero"
+            diagnostics.append(
+                MetricBiasDiagnostic(
+                    metric_name=metric,
+                    status="exact_zero" if exact_zero else test_result.status,
+                    n=len(errors),
+                    mean_residual=mean,
+                    magnitude=float(abs(mean)),
+                    residual_sign="zero" if exact_zero else residual_sign,
+                    direction_status="not_applicable" if exact_zero else "not_established",
+                    scope={
+                        "scenario_ids": [scenario.scenario_id for scenario in matching_scenarios],
+                        "holdout_windows": sorted(
+                            {
+                                str(window)
+                                for scenario in matching_scenarios
+                                for window in scenario.metadata.get("holdout_windows", [])
+                            }
+                        ),
+                        "selected_training_roles": sorted(
+                            {
+                                str(scenario.metadata["selected_training_role"])
+                                for scenario in matching_scenarios
+                                if scenario.metadata.get("selected_training_role")
+                            }
+                        ),
+                        "selected_validation_roles": sorted(
+                            {
+                                str(scenario.metadata["selected_validation_role"])
+                                for scenario in matching_scenarios
+                                if scenario.metadata.get("selected_validation_role")
+                            }
+                        ),
+                        "selected_holdout_roles": sorted(
+                            {
+                                str(scenario.metadata["selected_holdout_role"])
+                                for scenario in matching_scenarios
+                                if scenario.metadata.get("selected_holdout_role")
+                            }
+                        ),
+                    },
+                    method_id=None if exact_zero else test_result.method_id,
+                    backend_id=None if exact_zero else test_result.backend_id,
+                    backend_version=None if exact_zero else test_result.backend_version,
+                    statistic=None if exact_zero else test_result.statistic,
+                    p_value=None if exact_zero else test_result.p_value,
+                    reason=None if exact_zero else test_result.reason,
+                    unresolved_assumptions=(
+                        ["residual_independence", "multiplicity_policy", "population_scope"]
+                        if exact_zero
+                        else [
+                            "residual_independence",
+                            "multiplicity_policy",
+                            "population_scope",
+                            "metric_direction",
+                        ]
+                    ),
+                )
+            )
+            if exact_zero:
+                continue
 
+            degraded_reasons.append(f"metric_direction_not_established:{metric}")
             if test_result.p_value is None:
-                # Exact agreement is an observed identity. A zero (or tiny)
-                # mean of nonzero errors cannot establish statistical support.
-                if np.all(arr == 0.0):
-                    continue
-                assert test_result.reason is not None
                 degraded_reasons.append(
                     f"bias_statistical_test_{test_result.status}:{metric}:{test_result.reason}"
                 )
-                if mean == 0.0:
-                    # There is no descriptive direction to assign, while the
-                    # unresolved test must still withhold aggregate trust.
-                    continue
-                biases.append(
-                    SystematicBias(
-                        bias_type="directional",
-                        direction=(
-                            BiasDirection.OPTIMISTIC if mean > 0 else BiasDirection.PESSIMISTIC
-                        ),
-                        magnitude=float(abs(mean)),
-                        affected_metrics=[metric],
-                        description=(
-                            "Model systematically "
-                            f"{'overestimates' if mean > 0 else 'underestimates'} "
-                            f"metric '{metric}'"
-                        ),
-                        statistical_test=test_result.test_name or "",
-                        p_value=None,
-                        metadata={
-                            "diagnostic": "descriptive_residual",
-                            "test_status": test_result.status,
-                            **(
-                                {"test_reason": test_result.reason}
-                                if test_result.reason is not None
-                                else {}
-                            ),
-                        },
-                    )
-                )
+            if mean == 0.0:
                 continue
-            if test_result.p_value >= 0.05:
-                continue
-            direction = BiasDirection.OPTIMISTIC if mean > 0 else BiasDirection.PESSIMISTIC
             biases.append(
                 SystematicBias(
-                    bias_type="directional",
-                    direction=direction,
+                    bias_type="descriptive_residual",
+                    direction=BiasDirection.UNKNOWN,
                     magnitude=float(abs(mean)),
                     affected_metrics=[metric],
                     description=(
-                        "Model systematically "
-                        f"{'overestimates' if mean > 0 else 'underestimates'} "
-                        f"metric '{metric}'"
+                        f"A signed residual was observed for metric '{metric}'; "
+                        "metric orientation is not established."
                     ),
-                    statistical_test=test_result.test_name or "",
-                    p_value=float(test_result.p_value),
+                    statistical_test=test_result.test_name or test_result.reason or "not_executed",
+                    p_value=test_result.p_value,
+                    metadata={
+                        "diagnostic": "descriptive_residual",
+                        "residual_sign": residual_sign,
+                        "direction_status": "not_established",
+                        "test_status": test_result.status,
+                        **({"test_reason": test_result.reason} if test_result.reason else {}),
+                    },
                 )
             )
-        return biases, degraded_reasons
+        return biases, diagnostics, degraded_reasons
 
     @staticmethod
     def _two_sided_ttest(errors: np.ndarray) -> _TTestResult:
@@ -1561,10 +1690,23 @@ class BacktestOrchestrator:
                     status="unavailable",
                     reason="scipy_ttest_1samp_invalid_result",
                 )
+            scipy = import_module("scipy")
+            statistic = float(result.statistic)
+            if not math.isfinite(statistic):
+                return _TTestResult(
+                    p_value=None,
+                    test_name=None,
+                    status="unavailable",
+                    reason="scipy_ttest_1samp_invalid_statistic",
+                )
             return _TTestResult(
                 p_value=p_value,
                 test_name="one-sample t-test H0(mean_error=0)",
                 status="available",
+                method_id="scipy.stats.ttest_1samp",
+                backend_id="scipy",
+                backend_version=str(getattr(scipy, "__version__", "")) or None,
+                statistic=statistic,
             )
         except Exception as exc:
             return _TTestResult(
@@ -1580,10 +1722,17 @@ class BacktestOrchestrator:
         return BacktestOrchestrator._two_sided_ttest(errors).p_value
 
     @staticmethod
-    def _aggregate_bias_direction(biases: list[SystematicBias]) -> BiasDirection:
+    def _aggregate_bias_direction(
+        biases: list[SystematicBias],
+        diagnostics: list[MetricBiasDiagnostic] | None = None,
+    ) -> BiasDirection:
+        if diagnostics and any(item.direction_status == "not_established" for item in diagnostics):
+            return BiasDirection.UNKNOWN
         if not biases:
             return BiasDirection.NEUTRAL
         directions = {item.direction for item in biases}
+        if BiasDirection.UNKNOWN in directions:
+            return BiasDirection.UNKNOWN
         if directions == {BiasDirection.OPTIMISTIC}:
             return BiasDirection.OPTIMISTIC
         if directions == {BiasDirection.PESSIMISTIC}:

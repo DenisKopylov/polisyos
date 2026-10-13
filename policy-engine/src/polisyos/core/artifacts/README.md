@@ -45,7 +45,9 @@ environment fingerprints.
   inside the write lease. The default stays profileless for a default view. Caching, cloud,
   IR, and timeout-aware async adapters forward the explicit request; unsupported wrappers
   refuse before cache-local mutation. This is a write result, not producer authority or
-  currentness.
+  currentness. The runtime authority-artifact owner requests the same write-selected
+  view for its linked diagnostic event, authority envelope, and payload, then retains
+  those exact profiles across the references. Historical profileless refs are not rebound.
 - producer-bound profile selection: `profile_bound_ref` resolves the supplied ref
   through the CAS store and returns the same typed ref pinned to the exact manifest
   view selected at this producer boundary. A profileless input binds the current
@@ -195,7 +197,7 @@ A published view is one whose manifest has a non-null stage in the durable owner
 
 ### Profiled Core JSON reads
 
-Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the Core-only tag policy remains separate from the IR codec facade.
+Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. The typed reader adapts the decoded value only through the requested Pydantic field schema, preserves Core-native tags, and performs terminal model validation with strict mode. Its union bridge reads direct model choices from Pydantic CoreSchema, selects a model only from a unique declared Literal tag or a unique required-key/extra-policy shape, and leaves final union-mode selection and validators to one terminal model validation. It supports both Core Python-mode writes and JSON-mode model dumps without changing the IR tag contract; unresolved ambiguous model mappings receive no inferred branch. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the Core-only tag policy remains separate from the IR codec facade.
 
 The confidence-ledger loaded-deployment identity follows source-declared lazy facade providers before it admits the source closure. Literal PEP 562 dictionaries and guarded name-set branches that import a literal module and return the requested attribute contribute provider edges. Dynamic or ambiguous provider expressions fail closed. After the facade API is frozen, from the repository root run `cd policy-engine && uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`, then run `cd policy-engine && uv run polisyos-tools architecture guardrails check`. Generated snapshots remain separate from this contract until that review is complete.
 

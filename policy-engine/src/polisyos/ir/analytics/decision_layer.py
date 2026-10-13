@@ -126,8 +126,16 @@ def persist_social_weight_manifest(
     artifact: SocialWeightManifestArtifact,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> SocialWeightManifestRef:
-    """Persist a state-dependent social-weight manifest."""
+    """Persist a state-dependent social-weight manifest.
+
+    Args:
+        store: Artifact store receiving the manifest.
+        artifact: Social-weight schedule and provenance payload.
+        inputs: Optional typed parent sources.
+        return_selected_profile: Return the profile chosen by this exact write.
+    """
 
     ref = put_json_artifact(
         store,
@@ -137,6 +145,7 @@ def persist_social_weight_manifest(
         schema_version=_SOCIAL_WEIGHT_MANIFEST_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return SocialWeightManifestRef.model_validate(ref)
 

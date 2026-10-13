@@ -173,3 +173,74 @@ def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, 
                 BacktestKind.CELL: unknown_bundle,
             }
         )
+
+
+def test_s1_backtest_matrix_preserves_selected_split_gap_and_basis_refs(
+    tmp_path, cas_store
+) -> None:
+    refs = [
+        cas_store.put_json(
+            {"source": role}, PutOptions(kind="test.s1.matrix-input", media_type="application/json")
+        )
+        for role in ("panel", "basis", "split")
+    ]
+    inputs = [
+        InputRef(artifact_id=refs[0].artifact_id, role="household_candidate_panel"),
+        InputRef(artifact_id=refs[1].artifact_id, role="household_source_basis"),
+        InputRef(artifact_id=refs[2].artifact_id, role="selected_split_manifest"),
+    ]
+    bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="household_bundle",
+            contract_fqn="polisyos.tests.BacktestPlanBundle",
+        ),
+        required_fields=["metric"],
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+        gap_reason="empty_named_holdout:fixture_holdout",
+    )
+    result = BacktestMatrixRunner(cas_store).run(
+        {BacktestKind.HOUSEHOLD: bundle},
+        inputs=inputs,
+        metadata={"purpose": "candidate_diagnostic"},
+    )
+    household = next(item for item in result.kind_results if item.kind is BacktestKind.HOUSEHOLD)
+    assert household.status == "gap" and household.gap_flag == "empty_named_holdout:fixture_holdout"
+    assert household.metadata["selected_training_role"] == "fixture_training"
+    assert household.metadata["selected_validation_role"] == "fixture_validation"
+    assert household.metadata["selected_holdout_role"] == "fixture_holdout"
+    assert household.metadata["gap_reason"] == "empty_named_holdout:fixture_holdout"
+    report_ref = result.backtest_report_ref
+    assert report_ref is not None
+    roles = {item.role for item in cas_store.get_manifest(report_ref.artifact_id).inputs}
+    assert {
+        "household_candidate_panel",
+        "household_source_basis",
+        "selected_split_manifest",
+    } <= roles
+    report = load_backtest_report(_ensure_ir_artifact_store(cas_store), report_ref)
+    assert report.trust_eligible is False
+
+
+def test_s1_backtest_matrix_refuses_conflicting_role_requests(cas_store) -> None:
+    def gap_bundle(kind: BacktestKind, validation_role: str) -> BacktestPlanBundle:
+        return BacktestPlanBundle(
+            contract_target=ContractCompatibilityTarget(
+                contract_id=f"{kind.value}_bundle",
+                contract_fqn="polisyos.tests.BacktestPlanBundle",
+            ),
+            required_fields=["metric"],
+            selected_training_role="fixture_training",
+            selected_validation_role=validation_role,
+            selected_holdout_role="fixture_holdout",
+            gap_reason="controlled_empty_holdout",
+        )
+
+    with pytest.raises(ValueError, match="disagree on the selected split role request"):
+        BacktestMatrixRunner(cas_store).run(
+            {
+                BacktestKind.HOUSEHOLD: gap_bundle(BacktestKind.HOUSEHOLD, "fixture_validation"),
+                BacktestKind.MACRO: gap_bundle(BacktestKind.MACRO, "other_validation"),
+            }
+        )

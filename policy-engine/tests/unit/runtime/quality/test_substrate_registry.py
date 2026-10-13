@@ -752,3 +752,19 @@ def test_substrate_registry_writer_returns_selected_profile_and_reader_rejects_d
     profileless_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
     with pytest.raises(SubstrateRegistryError, match="substrate_registry_profile_selector_missing"):
         load_substrate_registry(store, profileless_ref)
+
+
+def test_substrate_registry_reader_rejects_mutated_cas_bytes(tmp_path: Path) -> None:
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    store = FileSystemCAS(tmp_path / "cas")
+    selected_ref = persist_substrate_registry(store, registry)
+    blob_path, _manifest_path = store._paths(selected_ref.artifact_id)
+    original_bytes = blob_path.read_bytes()
+    try:
+        blob_path.write_bytes(original_bytes + b"\nmutation")
+        with pytest.raises(SubstrateRegistryError):
+            load_substrate_registry(store, selected_ref)
+    finally:
+        blob_path.write_bytes(original_bytes)
+
+    assert load_substrate_registry(store, selected_ref) == registry

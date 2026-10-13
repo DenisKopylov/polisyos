@@ -9,9 +9,10 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 from polisyos.data_forge.read_api import academic
 from polisyos.runtime.quality.production_grounding_calibration import (
+    _SOURCE_CANON,
     ProductionCG2CalibrationSource,
     SourceGroundingRequest,
 )
@@ -22,7 +23,11 @@ def request() -> SourceGroundingRequest:
     return SourceGroundingRequest(
         requirement_ref="requirement:avg-income",
         claim_ref="claim:avg-income",
-        compiled_requirement={"required_data_families": ["household_panel"]},
+        compiled_requirement={
+            "required_data_families": ["household_panel"],
+            "quality_min": 0.8,
+            "scope_filter": None,
+        },
         design_problem={
             "outcome_of_interest": {
                 "target_variable": "avg_income",
@@ -30,7 +35,7 @@ def request() -> SourceGroundingRequest:
             },
             "jurisdiction_time": {"jurisdiction": "UA"},
         },
-        world_snapshot={"world_ref": "world:current"},
+        world_snapshot={"world_ref": "world:current", "optional_basis": None},
     )
 
 
@@ -62,10 +67,19 @@ def test_source_matches_persist_and_replay_without_becoming_relation_calibration
     producer, store = owner
     ref = producer.produce(request)
     result = producer.replay(ref=ref, request=request)
-    assert store.get_bytes(ref.artifact_id)
+    manifest = store.get_manifest(ref)
+    assert manifest.canon == artifacts.CanonInfo.from_spec(_SOURCE_CANON)
+    assert ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(manifest)
+    assert artifacts.validate_core_model_json_artifact(
+        type(result), store, ref
+    ) == result
+    assert store.get_bytes(ref)
     assert result.source_population.row_count == 30
     assert len(result.source_population.literal_target_row_indices) == 30
     assert result.target_variable == "avg_income"
+    assert result.request.compiled_requirement["quality_min"] == 0.8
+    assert result.request.compiled_requirement["scope_filter"] is None
+    assert result.request.world_snapshot["optional_basis"] is None
     assert result.estimand == "average_treatment_effect"
     assert result.cg2_status == "cold_start"
     assert result.cg2_owner_ledger_id == "cg2_production_calibration_empty"
@@ -98,7 +112,7 @@ def test_valid_new_cas_cannot_launder_candidate_or_publication_data(
     request = source_request
     producer, store = owner
     ref = producer.produce(request)
-    payload = json.loads(store.get_bytes(ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(ref))
     if mutation == "source_row":
         payload["source_population"]["rows"][0]["canonical_name"] = "unrelated"
     elif mutation == "source_count":
@@ -115,8 +129,8 @@ def test_valid_new_cas_cannot_launder_candidate_or_publication_data(
         }
     else:
         payload["n8_admission"] = "certified"
-    forged = store.put_bytes(
-        json.dumps(payload).encode(),
+    forged = store.put_json(
+        payload,
         artifacts.ArtifactWriteOptions(
             kind="runtime.production_grounding_source_resolution",
             media_type="application/json",
@@ -125,6 +139,8 @@ def test_valid_new_cas_cannot_launder_candidate_or_publication_data(
             ),
             producer=artifacts.ProducerInfo(component="candidate", version="1.0"),
         ),
+        canon_spec=_SOURCE_CANON,
+        return_selected_profile=True,
     )
     with pytest.raises(ValueError):
         producer.replay(ref=forged, request=request)
@@ -142,3 +158,21 @@ def test_missing_source_and_exact_context_are_persisted_refusals(tmp_path, sourc
     assert "source_snapshot_unavailable" in result.refusal_reasons
     assert "exact_outcome_request_not_established" in result.refusal_reasons
     assert result.production_value_eligible is False
+
+
+def test_replay_refuses_same_payload_without_selected_canonical_profile(owner, source_request):
+    producer, store = owner
+    selected = producer.produce(source_request)
+    profileless = store.put_bytes(
+        store.get_bytes(selected),
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.production_grounding_source_resolution",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="runtime.production_grounding_source_resolution", version="1.0"
+            ),
+            producer=artifacts.ProducerInfo(component="candidate", version="1.0"),
+        ),
+    )
+    with pytest.raises(ValueError, match="canon_profile_absent"):
+        producer.replay(ref=profileless, request=source_request)

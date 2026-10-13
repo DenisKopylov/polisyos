@@ -10,6 +10,7 @@ from typing import Any, ClassVar
 
 import pytest
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
     CatalogRunProfile,
@@ -379,7 +380,9 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     production_authority_envelope_reads: list[object] = []
     observed_authority_ids: set[str] = set()
 
-    def _put_json_with_sibling_default(obj, write_options, canon_spec=None):
+    def _put_json_with_sibling_default(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if (
             write_options.kind == "runtime_quality.evidence_authority_envelope"
             and not authority_envelope_default_views
@@ -394,7 +397,12 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             authority_envelope_default_views.append(
                 original_put_json(obj, sibling_options, canon_spec)
             )
-        ref = original_put_json(obj, write_options, canon_spec)
+        ref = original_put_json(
+            obj,
+            write_options,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
         if write_options.kind == "runtime_quality.evidence_authority_envelope":
             authority_envelope_puts.append(ref)
         return ref
@@ -416,7 +424,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             assert writer_store is artifact_store
             readback = verify_runtime_authority_artifact_identity(
                 writer_store,
-                artifact_id=result.cas_ref.artifact_id,
+                artifact_id=result.cas_ref,
                 opts=writer_options,
                 expected_context=result.identity_context,
             )
@@ -646,6 +654,27 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
         for selected, sibling in authority_envelope_pairs
     )
     assert authority_envelope_default_views[0].manifest_profile_sha256 is None
+    for result, _options in authority_write_options:
+        selected_refs = (
+            result.cas_ref,
+            result.authority_envelope_ref,
+            result.diagnostic_event_ref,
+        )
+        assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
+        for ref in selected_refs:
+            assert ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+                original_get_manifest(ref)
+            )
+        payload_authority = original_get_manifest(result.cas_ref).authority
+        assert payload_authority is not None
+        assert (
+            payload_authority.authority_envelope_manifest_profile_sha256
+            == result.authority_envelope_ref.manifest_profile_sha256
+        )
+        assert (
+            payload_authority.diagnostic_event_manifest_profile_sha256
+            == result.diagnostic_event_ref.manifest_profile_sha256
+        )
 
 
 def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
@@ -694,9 +723,20 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         monetary_clients.append(client)
         return client
 
+    n4_producer_clients: list[_CancelCacheOwnerOnce] = []
+
+    def _build_n4_producer_client(**kwargs: Any) -> _CancelCacheOwnerOnce:
+        client = _build_monetary_client(**kwargs)
+        n4_producer_clients.append(client)
+        return client
+
     monkeypatch.setattr(
         "polisyos.runtime.http.services.control.nl_pipeline.create_traced_gateway_client",
         _build_monetary_client,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.factory.create_traced_gateway_client",
+        _build_n4_producer_client,
     )
     env = build_runtime_api_env(tmp_path, include_test_client=True)
     monkeypatch.setattr(
@@ -738,6 +778,14 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         candidate_artifact_ref = candidate_proposal_ref.get("artifact_ref")
         assert isinstance(candidate_artifact_ref, dict)
         assert candidate_artifact_ref.get("kind") == "runtime.quality.n4_candidate_proposal"
+        assert candidate_artifact_ref.get("manifest_profile_sha256") is not None
+        proposal_read = progress["generation_source_read_provenance"]
+        assert proposal_read["selected_artifact_id"] == candidate_artifact_ref["artifact_id"]
+        assert proposal_read["selected_manifest_profile_sha256"] == candidate_artifact_ref[
+            "manifest_profile_sha256"
+        ]
+        assert proposal_read["source_materialization"] == "reader_materialized"
+        assert proposal_read["producer_attestation_status"] == "not_established"
         assert progress["n5_status"] == "not_run"
         assert progress["n9_status"] == "not_run"
         assert progress["target_world_scope_currentness"] == "not_established"
@@ -770,7 +818,8 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert binding.cell_id == execution_scope.get("cell_id")
         record_ids = [record.event_id for record in records]
         assert len(record_ids) == len(set(record_ids))
-        assert any(client._used for client in monetary_clients)
+        assert n4_producer_clients
+        assert any(client._used for client in n4_producer_clients)
         assert monetary_providers
         actual_origins = {record.cost_origin for record in records}
         assert actual_origins == {"reported", "estimated", "unknown", "reuse"}

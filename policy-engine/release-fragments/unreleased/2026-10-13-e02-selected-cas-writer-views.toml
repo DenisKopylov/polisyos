@@ -1,0 +1,35 @@
+id = "2026-10-13-e02-selected-cas-writer-views"
+title = "Preserve exact selected CAS views across current candidate and authority writes"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Current N4 scenario-source, proposal and candidate-history writers, strict N5 input writers, and linked runtime authority writes return the manifest profile selected in that same write. Their served consumers retain and compare the exact selected ref."
+evidence = [
+  "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+  "tests/unit/runtime/quality/test_authority_reconciliation.py",
+  "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+  "tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
+]
+compatibility = "Payload bytes and schema versions do not change. Current selected refs now retain the exact manifest profile returned by their write. Historical profileless refs remain readable without being rebound or retroactively treated as producer attestations."
+change_class = "internal"
+surface_classification = "Internal CAS write/read lineage; existing ArtifactRef projections retain the selected profile where these current producers already expose refs. No schema or generated-client change."
+migration = "No persisted payload migration is required. Existing profileless refs continue through their historical read paths."
+api = "GenerationSourceRepository returns same-write selected views for guarded current N4/N5 producers, and the authority-artifact writer does so for the diagnostic event, envelope, and payload. Consumers compare the selected read profile to the producer ref. These view identifiers do not grant authority or currentness."
+limitations = "Historical profileless refs are not backfilled. Default-only context, model-declaration, NCM, and generic history refs keep their existing behavior. A selected profile identifies a CAS manifest view; it does not attest producer authority, issuer, or currentness."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-current-selected-cas-writer-view-r1"
+change_class = "internal"
+impact = "additive"
+surface = "internal: runtime GenerationSourceRepository and authority-artifact CAS links"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Current guarded writers return exact selected manifest profiles from the same CAS write; existing historical profileless refs remain readable and unmodified."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

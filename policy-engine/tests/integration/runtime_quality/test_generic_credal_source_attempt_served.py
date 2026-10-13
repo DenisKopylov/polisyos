@@ -243,6 +243,7 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         assert handoff.n4_child_profile_family_ref is None
         assert compiled.n4_recursive_source_result_status == "generation_unavailable"
         assert compiled.n4_credal_source_attempt_ref is not None
+        assert compiled.n4_credal_source_attempt_ref.manifest_profile_sha256 is not None
         source_repository = GenerationSourceRepository(runtime_api_context.store)
         assert compiled.n4_recursive_source_run_id is not None
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
@@ -312,6 +313,9 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         )
         assert projection["credal_source_attempt_ref"]["artifact_id"] == str(
             compiled.n4_credal_source_attempt_ref.artifact_id
+        )
+        assert projection["credal_source_attempt_ref"]["manifest_profile_sha256"] == (
+            compiled.n4_credal_source_attempt_ref.manifest_profile_sha256
         )
         assert projection["n5_observations"] == []
         assert "credal_reference_ref" not in projection

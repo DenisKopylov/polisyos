@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -19,7 +20,9 @@ from polisyos.core.contracts.control import (
     FetchPlan,
     FetchPlanFallback,
 )
+from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+from polisyos.data_forge.domains.catalog.batch.pipeline import run_content_stage_with_receipt
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -52,6 +55,7 @@ def build_real_fetch_owner(
     dataset_records=None,
     artifact_store=None,
     artifact_store_config=None,
+    catalog_publish_config: DatasetBatchConfig | None = None,
 ):
     """Use a real graph, with only the connector transport controlled."""
     from polisyos.data_forge.domains.catalog.knowledge.types import (
@@ -59,7 +63,11 @@ def build_real_fetch_owner(
         DistributionRecord,
     )
 
-    graph_path = tmp_path / "catalog.duckdb"
+    graph_path = (
+        catalog_publish_config.db_path
+        if catalog_publish_config is not None
+        else tmp_path / "catalog.duckdb"
+    )
     records = [
         DatasetRecord(
             id=f"catalog-{name}",
@@ -82,8 +90,16 @@ def build_real_fetch_owner(
         for name in dataset_names
     ]
     build_graph(records=records if dataset_records is None else dataset_records, db_path=graph_path)
+    if catalog_publish_config is not None:
+        _write_current_test_catalog_inputs(catalog_publish_config)
+        run_content_stage_with_receipt(catalog_publish_config, "publish")
     overlay_path = tmp_path / "overlay.duckdb"
-    graph = catalog_api.DatasetCatalogGraph(graph_path, tmp_path, overlay_path=overlay_path)
+    index_dir = (
+        catalog_publish_config.index_dir
+        if catalog_publish_config is not None
+        else tmp_path
+    )
+    graph = catalog_api.DatasetCatalogGraph(graph_path, index_dir, overlay_path=overlay_path)
     rows = [{"row_id": f"r-{index}", "value": index + 0.5, "optional": None} for index in range(12)]
     requests = []
     preview_reject = set()
@@ -179,6 +195,55 @@ def build_real_fetch_owner(
     graph.close()
 
 
+def _write_current_test_catalog_inputs(config: DatasetBatchConfig) -> None:
+    """Write controlled stage inputs consumed by the real catalog publisher."""
+    config.merged_records_path.write_text('{"title":"Recorded local file"}\n', encoding="utf-8")
+    config.duplicates_report_path.write_text(
+        "dataset_id,duplicate_id\n", encoding="utf-8"
+    )
+    config.qc_report_path.write_text(
+        json.dumps(
+            {
+                "scope": "datasets",
+                "passed": True,
+                "metrics": {
+                    "machine_readable_distribution_pct": 100.0,
+                    "parser_supported_distribution_pct": 100.0,
+                    "datasets_with_metric_binding_pct": 100.0,
+                    "datasets_with_schema_profile_pct": 100.0,
+                    "transport_ready_var_coverage_pct": 100.0,
+                    "execution_readiness_score_avg": 0.9,
+                },
+                "checks": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config.benchmark_report_path.write_text(
+        json.dumps(
+            {
+                "kind": "datasets_benchmark",
+                "evaluation_mode": "full-ready",
+                "metrics": {
+                    "benchmark_search_top5_relevance_pct": 100.0,
+                    "benchmark_retrieval_ready_pct": 100.0,
+                    "benchmark_transport_ready_pct": 100.0,
+                    "benchmark_foundry_fitness_pct": 100.0,
+                    "benchmark_source_preflight_ready_pct": 100.0,
+                    "benchmark_bulk_equivalence_mismatch_rate": 0.0,
+                    "benchmark_bulk_equivalence_blocking_sources_total": 0,
+                },
+                "source_preflight": {
+                    "sources": [
+                        {"source": "recorded_file", "status": "complete", "ready": True}
+                    ]
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 @contextmanager
 def build_recorded_file_fetch_owner(
     tmp_path,
@@ -186,6 +251,7 @@ def build_recorded_file_fetch_owner(
     canonicalize_catalog_source=False,
     catalog_source_locator=None,
     catalog_connector_params=None,
+    publish_current_catalog=False,
 ):
     """Run the actual registered FileTabularConnector against a local CSV.
 
@@ -200,6 +266,7 @@ def build_recorded_file_fetch_owner(
         DistributionRecord,
     )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 
@@ -231,6 +298,20 @@ def build_recorded_file_fetch_owner(
             configured_locator = primary_connector_params.get("path")
         if configured_locator is not None:
             assert Path(configured_locator).resolve(strict=True) == canonical_catalog_locator
+    profiles = SourceProfileRegistry()
+    selected_profile_id = "recorded_file_local" if publish_current_catalog else None
+    if selected_profile_id is not None:
+        profiles.register(
+            SourceProfile(
+                profile_id=selected_profile_id,
+                display_name="Recorded local file fixture",
+                description="Controlled local-file profile with no excluded auth inputs",
+                connector_family="files",
+                base_url=str(catalog_locator or csv_path),
+                headers={},
+                auth_policy="none",
+            )
+        )
     dataset_records = [
         DatasetRecord(
             id=f"catalog-{name}",
@@ -247,6 +328,7 @@ def build_recorded_file_fetch_owner(
                     source_locator=(
                         str(catalog_locator) if name == "primary" and catalog_locator else name
                     ),
+                    profile_id=selected_profile_id or "",
                     parser_supported=True,
                     machine_readable=True,
                     connector_params=(
@@ -266,7 +348,7 @@ def build_recorded_file_fetch_owner(
     registry.register(FileTabularConnector, config=ConnectionConfig(url=str(csv_path)))
     providers = RetrievalProviders(
         registry=registry,
-        profiles=SourceProfileRegistry(),
+        profiles=profiles,
         tracer=SimpleNamespace(start_as_current_span=lambda *a, **k: nullcontext()),
         metrics=SimpleNamespace(
             record_fabric_query=lambda **kwargs: None,
@@ -293,6 +375,32 @@ def build_recorded_file_fetch_owner(
             "load_catalog_source_registry",
             lambda: fixture_source_registry,
         )
+        publish_config = None
+        if publish_current_catalog:
+            patch.setattr(SourceProfileRegistry, "_instance", profiles)
+            registry_path = tmp_path / "current-catalog-sources.yaml"
+            registry_path.write_text(
+                "\n".join(
+                    [
+                        "version: 1",
+                        "sources:",
+                        "  - name: recorded_file",
+                        "    family: controlled_test_fixture",
+                        "    wave: T",
+                        "    endpoint: file://controlled-test-fixture",
+                        "    enabled: true",
+                        "    execution_tier: transport_ready",
+                        "    run_lane: empirical",
+                        "    publish_blocking: true",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            publish_config = DatasetBatchConfig(
+                snapshot_root=tmp_path / "current-catalog-snapshot",
+                registry_path=registry_path,
+            )
         with build_real_fetch_owner(
             tmp_path,
             connector_id="files.tabular",
@@ -300,6 +408,7 @@ def build_recorded_file_fetch_owner(
             source_location=str(csv_path),
             patch_fastlane=False,
             dataset_records=dataset_records,
+            catalog_publish_config=publish_config,
         ) as owner:
             owner.csv_path = csv_path
             owner.frame = frame

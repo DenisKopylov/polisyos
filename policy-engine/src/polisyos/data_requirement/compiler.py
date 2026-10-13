@@ -10,7 +10,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, get_args
 
 from polisyos.core import contracts
 from polisyos.ir import governance
@@ -42,6 +42,7 @@ from ._impl.models import (
     DataRequirementCompilationReport,
     DataRequirementScope,
     DataRequirementSpec,
+    DataRequirementTimeRole,
     data_requirement_authority_boundary,
 )
 
@@ -130,6 +131,9 @@ class _ScenarioScopeProfile:
     jurisdiction: str | None = None
     time_start: str | None = None
     time_end: str | None = None
+    time_role: DataRequirementTimeRole | None = None
+    granularity: str | None = None
+    unrepresented_fields: tuple[str, ...] = ()
     required_constructs: tuple[str, ...] = ()
     candidate_construct_proposals: tuple[str, ...] = ()
 
@@ -138,6 +142,17 @@ class ScenarioScopeProfileInputError(ValueError):
     """Typed refusal for a supplied scenario scope profile that cannot be admitted."""
 
     code = "scenario_scope_profile_invalid"
+
+    def __init__(self, reason_code: str, field_path: str) -> None:
+        self.reason_code = reason_code
+        self.field_path = field_path
+        super().__init__(f"{self.code}:{reason_code}:{field_path}")
+
+
+class ScenarioFamilyDeclarationInputError(ValueError):
+    """Typed refusal for a malformed or ambiguous legacy family declaration."""
+
+    code = "scenario_family_declaration_invalid"
 
     def __init__(self, reason_code: str, field_path: str) -> None:
         self.reason_code = reason_code
@@ -543,12 +558,7 @@ class DataRequirementCompiler:
         scenario_id: str,
         scope_profile: _ScenarioScopeProfile | None = None,
     ) -> DataRequirementCompilationReport:
-        expected = scenario.get("expected_evidence_contract")
-        families = (
-            _text_tuple(expected.get("admissible_data_source_families"))
-            if isinstance(expected, Mapping)
-            else ()
-        ) or ("production_data",)
+        families, family_declaration = _legacy_scenario_family_declaration(scenario)
         specs = tuple(
             _minimal_spec(
                 scenario_id=scenario_id,
@@ -592,6 +602,7 @@ class DataRequirementCompiler:
             metadata={
                 "producer": "data_requirement_compiler",
                 "fallback": "legacy_scenario_contract_when_universal_grammar_blocked",
+                "family_declaration": family_declaration,
                 "missing_capability_label": "bridge_missing",
                 "candidate_construct_proposals": (
                     scope_profile.candidate_construct_proposals if scope_profile else ()
@@ -782,7 +793,7 @@ def _scenario_scope_profile_metadata(
 ) -> dict[str, Any]:
     """Project the admitted declaration without resolving it as an authority."""
 
-    return {
+    metadata: dict[str, Any] = {
         "profile_id": scope_profile.profile_id,
         "jurisdiction": scope_profile.jurisdiction,
         "time_window": {
@@ -792,6 +803,13 @@ def _scenario_scope_profile_metadata(
         "required_constructs": list(scope_profile.required_constructs),
         "candidate_construct_proposals": list(scope_profile.candidate_construct_proposals),
     }
+    if scope_profile.time_role is not None:
+        metadata["time_role"] = scope_profile.time_role
+    if scope_profile.granularity is not None:
+        metadata["granularity"] = scope_profile.granularity
+    if scope_profile.unrepresented_fields:
+        metadata["unrepresented_fields"] = list(scope_profile.unrepresented_fields)
+    return metadata
 
 
 def _minimal_spec(
@@ -817,7 +835,11 @@ def _minimal_spec(
             population="scenario_population",
             geography="scenario_geography",
             time="scenario_time",
-            time_role="observation_time",
+            time_role=(
+                scope_profile.time_role
+                if scope_profile is not None and scope_profile.time_role is not None
+                else "observation_time"
+            ),
             jurisdiction=scope_profile.jurisdiction if scope_profile else None,
         ),
         recency_horizon="P90D",
@@ -1371,7 +1393,11 @@ def _scope_from_facets(
         population=population,
         geography=geography,
         time=time,
-        time_role="observation_time",
+        time_role=(
+            scope_profile.time_role
+            if scope_profile is not None and scope_profile.time_role is not None
+            else "observation_time"
+        ),
         jurisdiction=_jurisdiction_for_geography(
             geography,
             scope_profile=scope_profile,
@@ -1454,6 +1480,44 @@ def _scenario_adapter_input(scenario: Mapping[str, Any]) -> _ScenarioAdapterInpu
     )
 
 
+def _legacy_scenario_family_declaration(
+    scenario: Mapping[str, Any],
+) -> tuple[tuple[str, ...], str]:
+    """Keep a missing legacy family frontier distinct from an explicit empty one."""
+
+    contract = scenario.get("expected_evidence_contract")
+    if "expected_evidence_contract" not in scenario:
+        return (), "not_supplied"
+    if not isinstance(contract, Mapping):
+        raise ScenarioFamilyDeclarationInputError(
+            "family_contract_wrong_type", "expected_evidence_contract"
+        )
+    field = "admissible_data_source_families"
+    if field not in contract:
+        return (), "not_supplied"
+    raw = contract[field]
+    if isinstance(raw, str):
+        values: tuple[object, ...] = (raw,)
+    elif isinstance(raw, Sequence) and not isinstance(raw, bytes | bytearray):
+        values = tuple(raw)
+    else:
+        raise ScenarioFamilyDeclarationInputError(
+            "family_frontier_wrong_type", f"expected_evidence_contract.{field}"
+        )
+    families: list[str] = []
+    for index, value in enumerate(values):
+        if not isinstance(value, str) or not value.strip():
+            raise ScenarioFamilyDeclarationInputError(
+                "family_name_invalid", f"expected_evidence_contract.{field}[{index}]"
+            )
+        family = value.strip()
+        if family not in families:
+            families.append(family)
+    if families:
+        return tuple(families), "declared"
+    return (), "explicit_empty"
+
+
 def _scenario_scope_profile(
     scenario: Mapping[str, Any],
 ) -> _ScenarioScopeProfile | None:
@@ -1521,9 +1585,18 @@ def _scenario_scope_profile(
         primary.jurisdiction,
         primary.time_start,
         primary.time_end,
+        primary.time_role,
+        primary.granularity,
     )
     if any(
-        (profile.profile_id, profile.jurisdiction, profile.time_start, profile.time_end)
+        (
+            profile.profile_id,
+            profile.jurisdiction,
+            profile.time_start,
+            profile.time_end,
+            profile.time_role,
+            profile.granularity,
+        )
         != primary_scope
         for profile in parsed[1:]
     ):
@@ -1536,6 +1609,11 @@ def _scenario_scope_profile(
         jurisdiction=primary.jurisdiction,
         time_start=primary.time_start,
         time_end=primary.time_end,
+        time_role=primary.time_role,
+        granularity=primary.granularity,
+        unrepresented_fields=tuple(
+            sorted({field for profile in parsed for field in profile.unrepresented_fields})
+        ),
         required_constructs=tuple(
             dict.fromkeys(
                 construct
@@ -1639,6 +1717,24 @@ def _parse_scenario_scope_profile(
         tuple(end_values),
         conflict_code="profile_time_end_alias_conflict",
     )
+    time_role = _scenario_profile_text_alias(
+        tuple(
+            (f"{path}.time_role", mapping["time_role"])
+            for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+            if "time_role" in mapping
+        ),
+        conflict_code="profile_time_role_alias_conflict",
+    )
+    if time_role is not None and time_role not in get_args(DataRequirementTimeRole):
+        raise ScenarioScopeProfileInputError("profile_time_role_invalid", f"{source}.time_role")
+    granularity = _scenario_profile_text_alias(
+        tuple(
+            (f"{path}.granularity", mapping["granularity"])
+            for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+            if "granularity" in mapping
+        ),
+        conflict_code="profile_granularity_alias_conflict",
+    )
 
     required_constructs = _scenario_profile_construct_aliases(
         raw_profile,
@@ -1652,11 +1748,56 @@ def _parse_scenario_scope_profile(
         aliases=_SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES,
         conflict_code="profile_candidate_construct_alias_conflict",
     )
+    known_profile_fields = {
+        "profile_id",
+        "profile_ref",
+        "versioned_profile_id",
+        "id",
+        "name",
+        "scope",
+        "jurisdiction",
+        "time_window",
+        "temporal_interval",
+        "time_start",
+        "start",
+        "time_end",
+        "end",
+        "time_role",
+        "granularity",
+        *_SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES,
+        *_SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES,
+    }
+    unrepresented_fields = [
+        f"{source}.{key}" for key in raw_profile if key not in known_profile_fields
+    ]
+    known_scope_fields = {
+        "jurisdiction",
+        "time_window",
+        "temporal_interval",
+        "time_start",
+        "start",
+        "time_end",
+        "end",
+        "time_role",
+        "granularity",
+    }
+    unrepresented_fields.extend(
+        f"{source}.scope.{key}" for key in scope if key not in known_scope_fields
+    )
+    for interval_path, interval in interval_sources:
+        unrepresented_fields.extend(
+            f"{interval_path}.{key}"
+            for key in interval
+            if key not in {"start", "from", "end", "to"}
+        )
     return _ScenarioScopeProfile(
         profile_id=profile_id,
         jurisdiction=jurisdiction,
         time_start=time_start,
         time_end=time_end,
+        time_role=time_role,
+        granularity=granularity,
+        unrepresented_fields=tuple(sorted(set(unrepresented_fields))),
         required_constructs=required_constructs,
         candidate_construct_proposals=candidate_construct_proposals,
     )

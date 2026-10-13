@@ -200,6 +200,26 @@ def test_phase3_persisted_contracts_round_trip(tmp_path) -> None:
     assert loaded_feedback.ambiguity_certificate_ref == ambiguity_ref
 
 
+def test_social_weight_writer_returns_same_write_selected_profile(tmp_path) -> None:
+    ctx = _ctx(tmp_path)
+    ir_store = _ensure_ir_artifact_store(ctx.store)
+    artifact = SocialWeightManifestArtifact(
+        manifest_ref="swr://phase3/selected-profile@1.0.0#weights",
+        method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+        normalization="mean_one",
+        income_grid=(0.0, 1.0),
+        weights_on_grid=(1.2, 0.8),
+        state_keys=("income",),
+    )
+
+    legacy_ref = persist_social_weight_manifest(ir_store, artifact)
+    selected_ref = persist_social_weight_manifest(ir_store, artifact, return_selected_profile=True)
+
+    assert selected_ref.artifact_id == legacy_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert load_social_weight_manifest(ir_store, selected_ref) == artifact
+
+
 def test_phase3_status_accepts_legacy_payload_without_new_fields() -> None:
     status = Phase3CertificateStatus.model_validate({})
 

@@ -157,3 +157,6 @@ policy-engine/docs/superpowers/journals/correspondence/**/raw/
 
 # Measurement-plane oversized replay evidence (receipts cite path@sha).
 /policy-engine/docs/superpowers/journals/measurement-plane/**/raw/
+
+# Alternate local E02 packet root: raw evidence is retained by path@sha.
+/LOCAL/raw/

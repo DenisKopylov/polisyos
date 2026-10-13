@@ -443,6 +443,8 @@ class _MonteCarloDrawSet:
     welfare: list[float]
     welfare_pe: list[float]
     welfare_ge: list[float]
+    welfare_pe_component_draws: list[tuple[float, ...]]
+    welfare_total_component_draws: list[tuple[float, ...]]
     terminal_outcomes: list[dict[str, Any]]
     counters: _MonteCarloCounters
     requested_draw_count: int
@@ -454,6 +456,7 @@ class _MonteCarloDrawSet:
 class _DrawAttemptResult:
     terminal_outcome: dict[str, Any] | None
     values: tuple[float, float, float] | None
+    component_values: tuple[tuple[float, ...], tuple[float, ...]] | None = None
     retry: bool = False
 
 
@@ -507,6 +510,60 @@ def _validate_welfare_draw_outputs(
             attempt_index=attempt_index,
         )
         return _DrawAttemptResult(terminal, None)
+    component_keys = ("welfare_pe_components", "welfare_total_components")
+    component_presence = [key in outputs for key in component_keys]
+    if any(component_presence) and not all(component_presence):
+        terminal = _welfare_draw_terminal_outcome(
+            draw_index=draw_index,
+            sampled_input_sha256=sampled_input_sha256,
+            outcome_code="invalid_component_output",
+            execution_attempts=execution_attempts,
+            attempt_index=attempt_index,
+            details={"component_output_ids": component_keys},
+        )
+        return _DrawAttemptResult(terminal, None)
+    component_values = None
+    if all(component_presence):
+        raw_pe_components = outputs[component_keys[0]]
+        raw_total_components = outputs[component_keys[1]]
+        if not isinstance(raw_pe_components, (list, tuple)) or not isinstance(
+            raw_total_components, (list, tuple)
+        ):
+            terminal = _welfare_draw_terminal_outcome(
+                draw_index=draw_index,
+                sampled_input_sha256=sampled_input_sha256,
+                outcome_code="invalid_component_output",
+                execution_attempts=execution_attempts,
+                attempt_index=attempt_index,
+            )
+            return _DrawAttemptResult(terminal, None)
+        try:
+            pe_components = tuple(float(value) for value in raw_pe_components)
+            total_components = tuple(float(value) for value in raw_total_components)
+        except (TypeError, ValueError, OverflowError) as exc:
+            terminal = _welfare_draw_terminal_outcome(
+                draw_index=draw_index,
+                sampled_input_sha256=sampled_input_sha256,
+                outcome_code="non_numeric_component_output",
+                execution_attempts=execution_attempts,
+                attempt_index=attempt_index,
+                error=exc,
+            )
+            return _DrawAttemptResult(terminal, None)
+        if (
+            not pe_components
+            or len(pe_components) != len(total_components)
+            or not all(math.isfinite(value) for value in (*pe_components, *total_components))
+        ):
+            terminal = _welfare_draw_terminal_outcome(
+                draw_index=draw_index,
+                sampled_input_sha256=sampled_input_sha256,
+                outcome_code="invalid_component_output",
+                execution_attempts=execution_attempts,
+                attempt_index=attempt_index,
+            )
+            return _DrawAttemptResult(terminal, None)
+        component_values = (pe_components, total_components)
     terminal = _welfare_draw_terminal_outcome(
         draw_index=draw_index,
         sampled_input_sha256=sampled_input_sha256,
@@ -514,7 +571,7 @@ def _validate_welfare_draw_outputs(
         execution_attempts=execution_attempts,
         attempt_index=attempt_index,
     )
-    return _DrawAttemptResult(terminal, values)
+    return _DrawAttemptResult(terminal, values, component_values)
 
 
 def _evaluate_welfare_draw_attempt(
@@ -628,7 +685,11 @@ def _evaluate_welfare_draw(
     counters: _MonteCarloCounters,
     sample_domain_error_type: type[BaseException],
     sample_param_draw: Any,
-) -> tuple[dict[str, Any], tuple[float, float, float] | None]:
+) -> tuple[
+    dict[str, Any],
+    tuple[float, float, float] | None,
+    tuple[tuple[float, ...], tuple[float, ...]] | None,
+]:
     try:
         draw_params = sample_param_draw(
             rng,
@@ -670,7 +731,7 @@ def _evaluate_welfare_draw(
             continue
         if result.terminal_outcome is None:
             raise AssertionError("welfare draw attempt did not reach a terminal outcome")
-        return result.terminal_outcome, result.values
+        return result.terminal_outcome, result.values, result.component_values
     raise AssertionError("welfare Monte Carlo exhausted attempts without a terminal outcome")
 
 
@@ -693,10 +754,12 @@ def _run_welfare_monte_carlo_draws(
     welfare: list[float] = []
     welfare_pe: list[float] = []
     welfare_ge: list[float] = []
+    welfare_pe_component_draws: list[tuple[float, ...]] = []
+    welfare_total_component_draws: list[tuple[float, ...]] = []
     terminal_outcomes: list[dict[str, Any]] = []
     for draw_index in range(requested_draw_count):
         counters.attempted_draw_count += 1
-        terminal, values = _evaluate_welfare_draw(
+        terminal, values, component_values = _evaluate_welfare_draw(
             rng=rng,
             param_names=param_names,
             input_envelopes=input_envelopes,
@@ -713,12 +776,17 @@ def _run_welfare_monte_carlo_draws(
             welfare.append(values[0])
             welfare_pe.append(values[1])
             welfare_ge.append(values[2])
+            if component_values is not None:
+                welfare_pe_component_draws.append(component_values[0])
+                welfare_total_component_draws.append(component_values[1])
             terminal["sample_index"] = len(welfare) - 1
         terminal_outcomes.append(terminal)
     return _MonteCarloDrawSet(
         welfare=welfare,
         welfare_pe=welfare_pe,
         welfare_ge=welfare_ge,
+        welfare_pe_component_draws=welfare_pe_component_draws,
+        welfare_total_component_draws=welfare_total_component_draws,
         terminal_outcomes=terminal_outcomes,
         counters=counters,
         requested_draw_count=requested_draw_count,
@@ -907,10 +975,35 @@ def _validate_monte_carlo_values(
     except (TypeError, ValueError, OverflowError):
         values_finite = False
     value_counts = [len(draws.welfare), len(draws.welfare_pe), len(draws.welfare_ge)]
+    component_counts = [
+        len(draws.welfare_pe_component_draws),
+        len(draws.welfare_total_component_draws),
+    ]
+    component_dimensions = {
+        len(row)
+        for rows in (draws.welfare_pe_component_draws, draws.welfare_total_component_draws)
+        for row in rows
+    }
+    try:
+        component_values_finite = all(
+            math.isfinite(float(value))
+            for rows in (draws.welfare_pe_component_draws, draws.welfare_total_component_draws)
+            for row in rows
+            for value in row
+        )
+    except (TypeError, ValueError, OverflowError):
+        component_values_finite = False
+    components_complete_or_absent = component_counts in ([0, 0], [successful, successful])
+    component_shape_valid = not component_counts[0] or (
+        len(component_dimensions) == 1 and next(iter(component_dimensions)) > 0
+    )
     if (
         recorded_attempts != simulation_attempts
         or any(count != successful for count in value_counts)
         or not values_finite
+        or not components_complete_or_absent
+        or not component_shape_valid
+        or not component_values_finite
     ):
         raise _fail_error(
             _ERROR_MONTE_CARLO_NOT_CONVERGED,
@@ -918,6 +1011,7 @@ def _validate_monte_carlo_values(
             details={
                 "successful_draw_count": successful,
                 "value_counts": value_counts,
+                "component_value_counts": component_counts,
                 "simulation_attempt_count": simulation_attempts,
                 "recorded_attempt_count": recorded_attempts,
             },

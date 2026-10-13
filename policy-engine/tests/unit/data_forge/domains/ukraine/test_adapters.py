@@ -640,3 +640,58 @@ def test_tabular_adapter_normalizes_land_cadastre_proxy(tmp_path: Path) -> None:
     assert frame.loc[0, "region_code"] == "12"
     assert frame.loc[0, "period_id"] == "2020-11"
     assert frame.loc[0, "land_use_proxy"] > 0.0
+
+
+def test_s1_household_adapter_binds_complete_directory_snapshot(tmp_path: Path) -> None:
+    """Same labels cannot conceal changed, added, or removed raw workbook bytes."""
+    source_root = tmp_path / "manual_drop"
+    workbook_dir = source_root / "mic_doch_i_umovy_2023"
+    workbook_dir.mkdir(parents=True)
+    frame = pd.DataFrame(
+        {
+            "rik_fa_1": [2023, 2023],
+            "kvart_kd": [1, 2],
+            "code_fam": [101, 102],
+            "w_q": [1.0, 1.0],
+            "cod_obl": ["05", "05"],
+            "cashinc": [100.0, 100.0],
+            "totalinc": [100.0, 100.0],
+            "totalexp": [80.0, 80.0],
+        }
+    )
+    first_file = workbook_dir / "Households_microdani_anonimni_2023.xlsx"
+    second_file = workbook_dir / "Households_microdani_anonimni_2024.xlsx"
+    frame.to_excel(first_file, index=False)
+    frame.to_excel(second_file, index=False)
+    source = SourceConfig(
+        source_id="household_microdata",
+        display_name="Test-owned household panel",
+        stage_id=StageId.D3,
+        local_path=source_root,
+        normalized_artifact="household_synthetic_targets.parquet",
+        required_columns=["household_id", "cell_id", "period_id", "income", "weight"],
+    )
+    adapter = TabularSourceAdapter()
+    first = adapter.fetch(
+        source, SourceExecutionContext(BuildRootConfig(root=tmp_path / "build-a"))
+    )
+    assert isinstance(first, SourceSnapshotManifest)
+    initial = first.raw_artifacts[0].sha256
+    assert len(initial) == 64
+    assert {entry.relative_path for entry in first.raw_tree_entries} == {
+        "mic_doch_i_umovy_2023/Households_microdani_anonimni_2023.xlsx",
+        "mic_doch_i_umovy_2023/Households_microdani_anonimni_2024.xlsx",
+    }
+    frame.loc[0, "totalinc"] = 101.0
+    frame.to_excel(first_file, index=False)
+    changed = adapter.fetch(
+        source, SourceExecutionContext(BuildRootConfig(root=tmp_path / "build-b"))
+    )
+    assert isinstance(changed, SourceSnapshotManifest)
+    assert changed.raw_artifacts[0].sha256 != initial
+    first_file.unlink()
+    removed = adapter.fetch(
+        source, SourceExecutionContext(BuildRootConfig(root=tmp_path / "build-c"))
+    )
+    assert isinstance(removed, SourceSnapshotManifest)
+    assert removed.raw_artifacts[0].sha256 not in {initial, changed.raw_artifacts[0].sha256}

@@ -86,6 +86,9 @@ class HistoricalValidationPlan(BaseModel):
     n_simulation_runs: int = Field(default=1, ge=1)
     random_seed: int | None = None
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    selected_training_role: str | None = Field(default=None, min_length=1)
+    selected_validation_role: str | None = Field(default=None, min_length=1)
+    selected_holdout_role: str | None = Field(default=None, min_length=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -101,6 +104,26 @@ class HistoricalValidationPlan(BaseModel):
                 raise ValueError(f"target metric '{metric}' missing in ground_truth_outcomes")
         if self.prediction_source == PredictionSource.PROVIDED and not self.predicted_outcomes:
             raise ValueError("prediction_source=provided requires predicted_outcomes")
+        if (self.selected_training_role is None) != (self.selected_holdout_role is None):
+            raise ValueError("selected training and holdout roles must be supplied together")
+        if self.selected_validation_role is not None and (
+            self.selected_training_role is None or self.selected_holdout_role is None
+        ):
+            raise ValueError("validation role requires the complete three-role request")
+        selected = {
+            "selected_training_role": self.selected_training_role,
+            "selected_validation_role": self.selected_validation_role,
+            "selected_holdout_role": self.selected_holdout_role,
+        }
+        supplied = [value for value in selected.values() if value is not None]
+        if len(set(supplied)) != len(supplied):
+            raise ValueError("selected split roles must be distinct")
+        for key, role in selected.items():
+            metadata_role = self.metadata.get(key)
+            if metadata_role is not None and role is None:
+                raise ValueError(f"{key} metadata requires a typed role request")
+            if role is not None and metadata_role is not None and metadata_role != role:
+                raise ValueError(f"{key} metadata does not match the typed role request")
         return self
 
 

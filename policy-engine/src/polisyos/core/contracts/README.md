@@ -24,6 +24,7 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Compatibility facades** - analytics refs that migrated into `polisyos.ir.registry.refs` still have stable re-export paths here.
 - **Provenance payloads** - shared entity/agent/activity records keep audit and lineage data consistent.
 - **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
+- **Execution source identity** - `foundry.py` carries the opt-in `FoundryExecutionInputBasis` and schema 1.4 `SimulationResult` source status. It binds one actual single-step Foundry request and selected source graph; it has no risk, unit, time-validity, refinement, or authority semantics. Feedback composition remains explicitly uncomposed.
 - **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.
 - **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.
 - **Chronology proof contracts** - `chronology.py` defines the policy-free full-prefix wire
@@ -54,6 +55,7 @@ Main ref families:
 
 - `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
+- `foundry.py` includes the opt-in source-basis artifact/ref alongside existing compile and execute DTOs.
 - `runtime.py`, `control.py`, `cursor.py`
 - `provenance.py`
 - `bounded_liveness.py`
@@ -72,6 +74,7 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 ## Current State
 
 - Last updated: 2026-08-24
+- `FoundryExecutionInputBasis` is an identity-only artifact emitted by selected-profile opt-in. `SimulationResult` schema 1.4 distinguishes `single_step_basis` from `feedback_uncomposed`; the latter has no single-step basis. Neither label establishes risk meaning, refinement, unit, valid time, currentness, or authority.
 - The fixed `full_prefix_canon_json_0_2_0_sha256_256_v1` contract carries only commitment
   integrity. Family policy and authority remain outside the common header and verifier.
 - `FullPrefixVerificationStatement` is compact audit data, not a self-validating receipt;
@@ -93,3 +96,12 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
   write-once admission port. The capability remains `implemented_but_not_orchestrated`: no
   production verifier, provider, or reconciliation reader is appointed.
 - `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.
+
+
+## Owned artifact-schema descriptors for source-bound Foundry inputs
+
+The typed source reader compares each selected manifest's `artifact_schema` with the exact descriptor owned by the model producer. The descriptor travels as `ARTIFACT_SCHEMA_NAME` and `ARTIFACT_SCHEMA_VERSION` on these existing model owners; it is not a new central schema registry. The current source-bound quantity uses: `DataSnapshot` 0.2.0; `ProgramGraph` and `ExecPlan` 0.2.0; `FoundryExecutionInputBasis` 1.0; `SimulationResult` 1.4 for a captured single-step basis (legacy 1.3 remains distinct); `FoundryInputBindings`, `FeedbackConfig`, and `ParameterOverrideBundle` 1.0; `StateDelta` and `Metrics` 0.1.0; `TrinityBundle` 1.0; and `PolicyCandidateSchema` 1.0.
+
+These values identify serialization contracts. They do not establish risk meaning, units, a refinement relation, valid time/currentness, issuer authority, or historical supersession. Missing schema on a legacy ID-only reference remains unqualified; no old profile is inferred or backfilled. `ProgramGraph.schema_version` (0.2) is its model field and remains distinct from the artifact-manifest version (0.2.0).
+
+The same typed owner models declare literal `ARTIFACT_KIND` and `ARTIFACT_MEDIA_TYPE` values. The B161 source reader checks both the caller's typed ref and the exact selected manifest against those owner values before decoding bytes. Parent-edge resolution for `WelfareBundle.simulation_result` and `SimulationResult.state_delta` supplies the expected model owner explicitly; it does not treat a kind or media type read from the manifest as its own expected value. Wrong-kind or wrong-media aliases with unchanged bytes, schema, canonical profile, and lineage are refused. These serialization descriptors prove source type identity only; they add no risk, authority, unit, time, or refinement claim. The Ukraine DataSnapshot writer passes its owner media type through the existing `_cas_put_json(media_type=...)` option; its `application/json` default remains unchanged for other callers.

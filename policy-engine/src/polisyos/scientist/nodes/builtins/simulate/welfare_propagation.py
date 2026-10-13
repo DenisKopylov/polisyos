@@ -263,6 +263,8 @@ def _build_simulation_fn(
             "welfare": welfare_total,
             "welfare_pe": welfare_pe,
             "welfare_ge": welfare_total - welfare_pe,
+            "welfare_pe_components": tuple(float(value) for value in response),
+            "welfare_total_components": tuple(float(value) for value in total),
         }
 
     return evaluate, nominal_params, used_envelopes, pe_refs
@@ -468,6 +470,8 @@ def _propagate_monte_carlo(
     calibration_source: _CalibrationCovarianceSource | None,
     sample_domain_error_type: type[BaseException],
     sample_param_draw: Any,
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
 ) -> _PropagationOutcome:
     sampling = _resolve_monte_carlo_sampling(
         ctx,
@@ -505,6 +509,8 @@ def _propagate_monte_carlo(
         calibration_source=calibration_source,
         draws=draws,
         config_ref=config_ref,
+        execution_input_basis_ref=execution_input_basis_ref,
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -519,6 +525,8 @@ def _summarize_welfare_monte_carlo(
     calibration_source: _CalibrationCovarianceSource | None,
     draws: _MonteCarloDrawSet,
     config_ref: ArtifactRefModel,
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
 ) -> _PropagationOutcome:
     provenance = _draw_outcome_provenance(draws)
     complete_draws = _welfare_draw_set_is_complete(draws)
@@ -544,6 +552,8 @@ def _summarize_welfare_monte_carlo(
         context=context,
         requested_method=requested_method,
         provenance=provenance,
+        execution_input_basis_ref=execution_input_basis_ref,
+        return_selected_profile=return_selected_profile,
     )
     report_ref = _persist_welfare_mc_report(
         ctx,
@@ -557,6 +567,8 @@ def _summarize_welfare_monte_carlo(
         summary=summary,
         complete_draws=complete_draws,
         sample_bundle_ref=sample_bundle_ref,
+        execution_input_basis_ref=execution_input_basis_ref,
+        return_selected_profile=return_selected_profile,
     )
     return _PropagationOutcome(
         credible_interval=interval,
@@ -593,6 +605,8 @@ def _propagate_credible_interval(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     input_envelope_refs: Mapping[str, UncertaintyEnvelopeRef],
     calibration_source: _CalibrationCovarianceSource | None = None,
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
     sample_domain_error_type: type[BaseException],
     sample_param_draw: Any,
 ) -> _PropagationOutcome:
@@ -603,6 +617,12 @@ def _propagate_credible_interval(
         payload=config.model_dump(mode="json"),
         kind="foundry.welfare_method_config",
         schema_name="polisyos.foundry.WelfareMethodConfig",
+        inputs=(
+            [_input_ref(execution_input_basis_ref, role="execution_input_basis")]
+            if execution_input_basis_ref is not None
+            else None
+        ),
+        return_selected_profile=return_selected_profile,
     )
     if not input_envelopes:
         return _propagate_without_envelopes(
@@ -649,6 +669,8 @@ def _propagate_credible_interval(
         calibration_source=calibration_source,
         sample_domain_error_type=sample_domain_error_type,
         sample_param_draw=sample_param_draw,
+        execution_input_basis_ref=execution_input_basis_ref,
+        return_selected_profile=return_selected_profile,
     )
 
 

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
@@ -15,6 +16,13 @@ from ..artifacts.manifest import ArtifactRef, InputRef
 from .distributional import DistributionalReportRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
+
+
+class FoundryExecutionInputBasisRef(ArtifactRef):
+    """Selected CAS reference for the exact inputs passed to one Foundry step."""
+
+    kind: str = "foundry.execution_input_basis"
+    media_type: str = "application/json"
 
 
 class ProgramGraphRef(ArtifactRef):
@@ -318,6 +326,11 @@ class ProgramEdge(BaseModel):
 class ProgramGraph(BaseModel):
     """Program graph public type."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ProgramGraph"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.program_graph"]] = "foundry.program_graph"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("0.2", pattern=r"^\d+\.\d+$")
@@ -401,6 +414,11 @@ class LoweredIR(BaseModel):
 
 class ExecPlan(BaseModel):
     """Execution-order artifact that pairs a program graph with resolved runtime posture."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ExecPlan"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.exec_plan"]] = "foundry.exec_plan"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -491,6 +509,7 @@ class CompileRequest(BaseModel):
         default_factory=lambda: FoundryCompileConfig(schema_version="1.0")
     )
     validation_flags: FoundryValidationFlags = Field(default_factory=FoundryValidationFlags)
+    return_selected_profile: bool = False
 
     notes: list[str] = Field(default_factory=list)
 
@@ -568,6 +587,11 @@ class FoundryInputBindingRule(BaseModel):
 
 class FoundryInputBindings(BaseModel):
     """Foundry input bindings public type."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryInputBindings"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.input_bindings"]] = "foundry.input_bindings"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -692,6 +716,11 @@ class FeedbackSolverConfig(BaseModel):
 
 class FeedbackConfig(BaseModel):
     """Opt-in fixed-point solve configuration for feedback-consistent execution."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FeedbackConfig"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.feedback_config"]] = "foundry.feedback_config"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -1343,9 +1372,9 @@ class AttractorAnalysisRequest(BaseModel):
     trajectories: list[list[list[float]]] = Field(default_factory=list)
     initial_states: list[dict[str, float]] = Field(default_factory=list)
     seeds: list[int] = Field(default_factory=list)
-    analysis_modes: list[
-        Literal["attractors", "continuation", "basin_map", "lyapunov"]
-    ] = Field(default_factory=lambda: ["attractors"])
+    analysis_modes: list[Literal["attractors", "continuation", "basin_map", "lyapunov"]] = Field(
+        default_factory=lambda: ["attractors"]
+    )
     tolerance: float = Field(default=1.0e-6, ge=0.0)
     rtol: float = Field(default=1.0e-5, ge=0.0)
     window: int = Field(default=32, ge=2)
@@ -1396,6 +1425,13 @@ class AttractorAnalysisResponse(BaseModel):
 class ParameterOverrideBundle(BaseModel):
     """Collection of parameter overrides plus provenance for who supplied each change."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ParameterOverrideBundle"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.parameter_override_bundle"]] = (
+        "foundry.parameter_override_bundle"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -1445,6 +1481,59 @@ class ExecuteRequest(BaseModel):
         default_factory=lambda: FoundryExecConfig(schema_version="1.0")
     )
     notes: list[str] = Field(default_factory=list)
+    return_selected_profile: bool = False
+
+
+class FoundryExecutionInputBasis(BaseModel):
+    """Exact CAS-bound single-step inputs observed at the Foundry executor boundary.
+
+    This artifact identifies producer inputs and effective call arguments only. It
+    carries no risk interpretation, refinement, unit, valid-time, or authority claim.
+    """
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryExecutionInputBasis"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.execution_input_basis"]] = (
+        "foundry.execution_input_basis"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    authority_purpose: Literal["execution_input_identity_only"] = "execution_input_identity_only"
+    execution_mode: Literal["single_step"] = "single_step"
+    request: ExecuteRequest
+    request_fields_set: tuple[str, ...] = ()
+    request_exec_config_fields_set: tuple[str, ...] = ()
+    exec_plan_ref: ExecPlanRef
+    program_graph_ref: ProgramGraphRef
+    trinity_bundle_ref: ArtifactRef
+    candidate_ref: ArtifactRef
+    candidate_data_snapshot_ref: ArtifactRef
+    candidate_registry_bundle_ref: ArtifactRef
+    input_bindings_ref: FoundryInputBindingsRef
+    data_snapshot_ref: ArtifactRef
+    bound_state_snapshot_ref: StateSnapshotRef
+    binding_registry_ref: ArtifactRef
+    compile_registry_ref: ArtifactRef
+    runtime_registry_ref: ArtifactRef
+    binding_registry_members: RegistryBundlePayload
+    compile_registry_members: RegistryBundlePayload
+    runtime_registry_members: RegistryBundlePayload
+    base_state_snapshot_ref: StateSnapshotRef
+    parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None
+    observed_range_bundle_ref: ObservedRangeBundleRef | None = None
+    parameter_overrides: dict[str, dict[str, Any]] | None = None
+    effective_step: int = Field(ge=0, strict=True)
+    effective_seed: int = Field(strict=True)
+    effective_seed_source: str = Field(min_length=1)
+    effective_mode: str = Field(min_length=1)
+    effective_max_steps: int | None = None
+    effective_determinism_tier: str | None = None
+    effective_nan_guard_enabled: bool
+    effective_jit: bool
+    effective_capture_env: bool
 
 
 class ExecuteResult(BaseModel):
@@ -1588,6 +1677,11 @@ class PatchSet(BaseModel):
 class StateDelta(BaseModel):
     """State delta public type."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.StateDelta"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.state_delta"]] = "foundry.state_delta"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
     model_config = ConfigDict(extra="forbid")
 
     base_ref: StateSnapshotRef | None = None
@@ -1598,6 +1692,11 @@ class StateDelta(BaseModel):
 
 class Metrics(BaseModel):
     """Scalar metrics emitted by a Foundry execution, keyed by metric identifier."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.Metrics"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.metrics"]] = "foundry.metrics"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -1699,6 +1798,13 @@ class ConstraintReport(BaseModel):
 class SimulationResult(BaseModel):
     """Top-level execution artifact tying plans, metrics, traces, and optional reports together."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.SimulationResult"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.4"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.simulation_result"]] = "foundry.simulation_result"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    LEGACY_ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.3"
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.3", pattern=r"^\d+\.\d+$")
@@ -1719,4 +1825,23 @@ class SimulationResult(BaseModel):
     propagation_report_ref: ArtifactRef | None = None
     feedback_result_ref: FeedbackResultRef | None = None
     identifiability_diagnostic_ref: IdentifiabilityDiagnosticRef | None = None
+    execution_input_basis_ref: FoundryExecutionInputBasisRef | None = None
+    execution_source_status: Literal["not_recorded", "single_step_basis", "feedback_uncomposed"] = (
+        "not_recorded"
+    )
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_execution_source_basis(self) -> SimulationResult:
+        if self.schema_version == "1.4":
+            if self.execution_source_status == "single_step_basis":
+                if self.execution_input_basis_ref is None or self.feedback_result_ref is not None:
+                    raise ValueError("single_step_source_basis_requires_basis_without_feedback")
+            elif self.execution_source_status == "feedback_uncomposed":
+                if self.execution_input_basis_ref is not None or self.feedback_result_ref is None:
+                    raise ValueError("feedback_source_status_requires_feedback_without_basis")
+            elif self.execution_input_basis_ref is not None:
+                raise ValueError("execution_basis_ref_requires_single_step_status")
+        elif self.execution_input_basis_ref is not None:
+            raise ValueError("execution_basis_ref_requires_simulation_result_schema_1_4")
+        return self

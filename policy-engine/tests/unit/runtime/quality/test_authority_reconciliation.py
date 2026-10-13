@@ -202,7 +202,9 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     sibling_refs: list[object] = []
     payload_default_refs: list[object] = []
 
-    def _put_with_sibling_view(obj, write_options, canon_spec=None):
+    def _put_with_sibling_view(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if write_options.kind == opts.kind and not payload_default_refs:
             payload_default_refs.append(
                 original_put_json(
@@ -227,7 +229,9 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
                 ),
             )
             sibling_refs.append(original_put_json(obj, sibling_options, canon_spec))
-        ref = original_put_json(obj, write_options, canon_spec)
+        ref = original_put_json(
+            obj, write_options, canon_spec, return_selected_profile=return_selected_profile
+        )
         if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND:
             envelope_puts.append(ref)
         return ref
@@ -245,6 +249,14 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     assert first.authority_envelope_ref.manifest_profile_sha256 is not None
     assert first.cas_ref.manifest_profile_sha256 is not None
     assert first.diagnostic_event_ref.manifest_profile_sha256 is not None
+    for selected_ref in (
+        first.cas_ref,
+        first.authority_envelope_ref,
+        first.diagnostic_event_ref,
+    ):
+        assert selected_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            artifact_store.get_manifest(selected_ref)
+        )
     assert len(payload_default_refs) == 1
     assert payload_default_refs[0].artifact_id == first.cas_ref.artifact_id
     assert payload_default_refs[0].manifest_profile_sha256 is None
@@ -772,7 +784,9 @@ def test_runtime_authority_reader_rejects_same_schema_foreign_tenant_envelope_vi
     original_put_json = artifact_store.put_json
     foreign_refs = []
 
-    def _put_with_foreign_tenant_view(obj, write_options, canon_spec=None):
+    def _put_with_foreign_tenant_view(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not foreign_refs:
             foreign_options = replace(
                 write_options,
@@ -782,7 +796,9 @@ def test_runtime_authority_reader_rejects_same_schema_foreign_tenant_envelope_vi
                 ),
             )
             foreign_refs.append(original_put_json(obj, foreign_options, canon_spec))
-        return original_put_json(obj, write_options, canon_spec)
+        return original_put_json(
+            obj, write_options, canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(artifact_store, "put_json", _put_with_foreign_tenant_view)
     result = write_runtime_authority_artifact(
@@ -999,7 +1015,9 @@ def test_runtime_authority_reader_rejects_default_canon_envelope_view(
     original_put_json = artifact_store.put_json
     default_refs: list[ArtifactRef] = []
 
-    def _put_with_default_canon_view(obj, write_options, canon_spec=None):
+    def _put_with_default_canon_view(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not default_refs:
             default_spec = CanonSpec()
             default_options = replace(
@@ -1007,7 +1025,9 @@ def test_runtime_authority_reader_rejects_default_canon_envelope_view(
                 canon=CanonInfo.from_spec(default_spec),
             )
             default_refs.append(original_put_json(obj, default_options, default_spec))
-        return original_put_json(obj, write_options, canon_spec)
+        return original_put_json(
+            obj, write_options, canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(artifact_store, "put_json", _put_with_default_canon_view)
     result = write_runtime_authority_artifact(
@@ -1764,7 +1784,9 @@ def test_runtime_authority_reader_rejects_foreign_tenant_event_profile(tmp_path,
     original_put_json = artifact_store.put_json
     foreign_refs = []
 
-    def _put_with_foreign_event_view(obj, write_options, canon_spec=None):
+    def _put_with_foreign_event_view(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if write_options.kind == "runtime_quality.diagnostic_event" and not foreign_refs:
             foreign_options = replace(
                 write_options,
@@ -1774,7 +1796,9 @@ def test_runtime_authority_reader_rejects_foreign_tenant_event_profile(tmp_path,
                 ),
             )
             foreign_refs.append(original_put_json(obj, foreign_options, canon_spec))
-        return original_put_json(obj, write_options, canon_spec)
+        return original_put_json(
+            obj, write_options, canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(artifact_store, "put_json", _put_with_foreign_event_view)
     result = write_runtime_authority_artifact(
@@ -1881,7 +1905,9 @@ def test_runtime_authority_reader_rejects_same_byte_wrong_media_event_profile(
     wrong_media_refs: list[ArtifactRef] = []
     wrong_schema_refs: list[ArtifactRef] = []
 
-    def _put_with_invalid_event_views(obj, write_options, canon_spec=None):
+    def _put_with_invalid_event_views(
+        obj, write_options, canon_spec=None, *, return_selected_profile=False
+    ):
         if write_options.kind == "runtime_quality.diagnostic_event" and not wrong_media_refs:
             event_bytes = to_canonical_bytes(obj, canon_spec or CanonSpec())
             wrong_media_refs.append(
@@ -1902,7 +1928,9 @@ def test_runtime_authority_reader_rejects_same_byte_wrong_media_event_profile(
                     ),
                 )
             )
-        return original_put_json(obj, write_options, canon_spec)
+        return original_put_json(
+            obj, write_options, canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(artifact_store, "put_json", _put_with_invalid_event_views)
     result = write_runtime_authority_artifact(

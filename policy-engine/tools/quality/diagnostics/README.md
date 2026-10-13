@@ -13,7 +13,7 @@
 
 | Скрипт                                 | Назначение                                                                                                   | Контур                              |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| `gen_schema.py`                        | Генерация/проверка ABI snapshots в `schemas/snapshots` и generated IR reference pages                        | `pre-commit`, `arch.yml`, `abi.yml` |
+| `gen_schema.py`                        | Генерация/проверка ABI snapshots в `schemas/snapshots` (IR, Fabric и зарегистрированные Scientist payload variants) и generated IR reference pages | `pre-commit`, `arch.yml`, `abi.yml` |
 | `generate_ir_reference_catalog.py`     | Генерация/проверка `docs/reference/ir/schema-catalog.md` и `docs/reference/schemas.md` из reflection catalog | docs / ABI tooling                  |
 | `abi_diff.py`                          | Семантический diff baseline/current snapshots (`PASS/WARN/FAIL`)                                             | `abi.yml`                           |
 | `check_state_reads.py`                 | AST-проверка соответствия `state_reads` у Scientist builtin nodes                                            | `arch.yml`                          |
@@ -53,5 +53,5 @@ PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.
 
 - В кодовой базе отсутствуют `polisyos.fabric.udf.*` и `polisyos.fabric.io.graph_store`; поэтому `check_udf_perf.py` сейчас не соответствует текущей структуре `src/polisyos`.
 - `generate_ir_schema.py` оставлен только как backward-compatible alias к `gen_schema.py`.
-- `gen_schema.py` использует content-addressable schema cache; invalidation key включает source hash ABI model module, ABI metadata, generator version и версию `pydantic`.
+- `gen_schema.py` использует content-addressable schema cache; invalidation key включает source hash ABI model module, ABI metadata, schema mode/version variant, generator version и версию `pydantic`.
 - `gen_schema.py --changed-only` не урезает manifest correctness: unchanged модели читаются из cache, а run целиком skip-ается только если не изменились ABI sources или persisted successful baseline fingerprint совпадает.

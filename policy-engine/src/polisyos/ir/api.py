@@ -191,6 +191,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "AdmittedClaimAdjudicationBatch",
     ),
     "BacktestReport": ("polisyos.ir.analytics.backtest", "BacktestReport"),
+    "MetricBiasDiagnostic": ("polisyos.ir.analytics.backtest", "MetricBiasDiagnostic"),
     "BacktestScenario": ("polisyos.ir.analytics.backtest", "BacktestScenario"),
     "BiasDirection": ("polisyos.ir.analytics.backtest", "BiasDirection"),
     "AdministrativeMissingnessClass": (

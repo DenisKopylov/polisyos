@@ -76,6 +76,7 @@ from polisyos.runtime.quality.world_model_record import (
     load_world_model_record,
     persist_world_model_record,
     resolve_intervention_atom_world_binding,
+    world_model_artifact_views,
     world_model_record_content_hash,
 )
 
@@ -1014,6 +1015,93 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
     }
     assert len(registry_edges) == 1
     assert str(registry_edges[0].artifact_id) == str(persisted_registry_ref.artifact_id)
+    selected_registry_view = world_model_artifact_views(read_back).substrate_registry_ref
+    assert selected_registry_view is not None
+    assert selected_registry_view.manifest_profile_sha256 is not None
+    assert (
+        selected_registry_view.manifest_profile_sha256
+        == persisted_registry_ref.manifest_profile_sha256
+    )
+    assert (
+        registry_edges[0].manifest_profile_sha256
+        == selected_registry_view.manifest_profile_sha256
+    )
+
+
+def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
+    tmp_path: Path,
+) -> None:
+    """A valid sibling CAS manifest cannot replace the WMR-selected registry view."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.pdc import WorldModelArtifactViews
+
+    store, built, selected_registry_ref = _build_record_with_substrate_registry_ref(tmp_path)
+    loaded = load_world_model_record(store, built.record_ref)
+    base_views = world_model_artifact_views(loaded)
+    selected_registry_view = base_views.substrate_registry_ref
+    assert selected_registry_view is not None
+    assert selected_registry_view.manifest_profile_sha256 is not None
+
+    manifest = store.get_manifest(selected_registry_ref)
+    sibling_ref = store.put_bytes(
+        store.get_bytes(selected_registry_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+            warnings=[
+                WarningRecord(
+                    code="fixture.sibling_substrate_registry_view",
+                    msg="Same registry bytes, a different selected manifest profile.",
+                )
+            ],
+        ),
+    )
+    assert sibling_ref.artifact_id == selected_registry_ref.artifact_id
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert (
+        sibling_ref.manifest_profile_sha256
+        != selected_registry_view.manifest_profile_sha256
+    )
+    assert load_substrate_registry(store, sibling_ref) == load_substrate_registry(
+        store, selected_registry_view
+    )
+
+    sibling_view = ArtifactRef.model_validate(sibling_ref.model_dump(mode="python"))
+    changed_views = WorldModelArtifactViews.model_validate(
+        {
+            **base_views.model_dump(mode="python"),
+            "substrate_registry_ref": sibling_view,
+        }
+    )
+    draft = loaded.model_copy(
+        update={
+            "artifact_views": changed_views,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    forged_hash = world_model_record_content_hash(draft)
+    forged = WorldModelRecord.model_validate(
+        {
+            **loaded.model_dump(mode="json"),
+            "artifact_views": changed_views.model_dump(mode="json"),
+            "world_model_record_id": (
+                f"world_model_record_{forged_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": forged_hash,
+        }
+    )
+    original_manifest = store.get_manifest(built.record_ref)
+    forged_ref = persist_world_model_record(
+        store,
+        forged,
+        inputs=original_manifest.inputs,
+    )
+
+    with pytest.raises(WorldModelRecordError, match=r"lineage|integrity"):
+        load_world_model_record(store, forged_ref)
 
 
 def test_wmr_default_persistence_records_derived_lineage(tmp_path: Path) -> None:

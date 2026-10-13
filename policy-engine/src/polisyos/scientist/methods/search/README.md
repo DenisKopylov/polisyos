@@ -126,22 +126,74 @@ static service signatures instead of a reduced outcome view.
 
 ## Candidate-only source-bound welfare observation (B161)
 
-The runtime may carry an existing `ir.welfare_bundle` ref into the funnel. At ticket
-submission, the funnel can derive a `scientist.search.source_bound_risk_observation`
-from the selected welfare bundle, its Monte Carlo method config, propagation report,
-and sample bundle. The writer preserves each selected manifest profile and source
-edge. The `FunnelOrchestrator` then reopens that artifact and recomputes execution
-attempts, draw counts, report summaries, and welfare interval from persisted samples before
-adding its ref to the existing `FunnelOutcome.audit_refs` surface.
+The runtime may carry an existing `ir.welfare_bundle` ref into the funnel. For a
+new source-bound run, the producer chain opts into exact manifest-profile returns
+for the selected candidate, compiled `ProgramGraph` and `ExecPlan`, input
+bindings, and executed Foundry artifacts. Foundry persists a typed
+`FoundryExecutionInputBasis` from the actual `ExecuteRequest`, its selected
+source graph (`ModelSpec`/Trinity/candidate, data snapshot, input bindings, and
+registry members), and the recomputed effective posture. It emits no risk,
+refinement, unit, valid-time, or authority conclusion.
 
-This artifact records a nominal welfare point separately from the mean and spread
-of sampled draws, preserving the source distinction between the point run and the
-Monte Carlo distribution. Its authority purpose is
-`candidate_only_audit_measurement`; its welfare-to-search scope relation is
-`consumer_asserted`; unit, valid time, risk interpretation, and permitted refinement
-remain `not_established`. The manifest creation time is production time, not validity
-time. It never populates `current_uncertainty`, replaces a historical maximum, or
-changes routing/promotion. Monte Carlo sources without a coherent complete or
-partial draw record are withheld; other welfare methods remain outside this bounded
-measurement adapter. The existing artifact content route and `audit_refs` projection
-are reused.
+The welfare node carries the selected basis edge through method config, Monte
+Carlo sample bundle, propagation report, and `WelfareBundle`. It also emits
+schema 1.1 `WelfareSampleBundle` artifacts with the actual PE response and
+post-GE component vectors for every successful draw, using the same label order
+as the selected `ir.welfare_weights` payload. `WelfareBundle` schema 1.1 also
+stores the actual nominal PE and post-GE component operands returned by the same
+evaluator. The fresh reader recomputes nominal PE/GE/total and every MC
+PE/GE/total scalar from the exact selected weight payload. It reconciles all
+typed welfare source refs (policy, weights, social-weight manifest, baseline,
+PE/GE models, uncertainty/dependence/channel sources and method/sample refs)
+with their exact selected manifest roles. It also binds the report and sample
+to the same execution basis, report-to-sample edge, and sample-to-applied-weight
+edge, and checks the welfare bundle's SimulationResult and Metrics edges against
+the executed sources.
+
+The welfare context returns the same-write selected profile when it materializes
+a social-weight manifest; explicitly supplied profileless manifest refs remain
+unqualified. That manifest is provenance/context only; the actual applied vector
+is the separate `ir.welfare_weights` artifact. For the source-basis path, the
+existing single-component `[1.0]` fallback is persisted as the exact selected
+weight artifact; the ordinary legacy path retains its existing no-ref fallback.
+The reader resolves each content-bound weight artifact and recomputes the nominal
+outputs and every stored PE, total and GE draw from their raw component vectors
+and the exact persisted weight vector. It does
+not normalize weights. A detached policy or weight role edge, or a changed
+weight artifact paired with the old sample and report, cannot retain a candidate
+observation just because its status/count markers remain. It recomputes the
+candidate-to-execution source relation,
+draw attempts, counts, summary and interval before exposing schema 1.2
+`scientist.search.source_bound_risk_observation` through the existing
+`FunnelOutcome.audit_refs` surface. CAS identity results remain source
+identities only, not scientific scope or risk-refinement findings.
+
+The artifact keeps nominal welfare separate from sampled mean/spread and labels
+its authority purpose `candidate_only_audit_measurement`, admission
+`candidate_only`, and scope relation `consumer_asserted`. Unit, valid time, risk
+interpretation, and permitted refinement remain `not_established`. Manifest
+creation time is source production time only. It never populates
+`current_uncertainty`, changes routing or promotion, or lowers/supersedes a
+historical maximum. Feedback runs are explicitly `feedback_uncomposed` and
+withheld. Historical WelfareBundle schema 1.0 and sample schema 1.0 remain
+readable by the IR loader, but have no nominal operands or draw component vectors
+and cannot be promoted to a newly verified source-bound observation; no source
+or history is backfilled. Other welfare
+methods remain outside this adapter. Existing `audit_refs` and artifact
+content routes are reused.
+
+
+## Selected-profile CAN source intake (B161 S1)
+
+The Ukraine runtime-bundle producer carries the exact selected `DataSnapshotRef` returned by the CAS write through `runtime_bundle_manifest.json`, the intake receipt, Foundry bindings, and the execution-input basis. The source verifier resolves that selected manifest before parsing each typed Core JSON member. It checks the manifest's owner-declared artifact schema as well as canonical bytes and Pydantic content; a valid content hash, kind, field shape, or Monte Carlo marker alone does not establish the typed source contract.
+
+A selected DataSnapshot without its exact owner schema remains unqualified for this candidate source path. Legacy ID-only runtime bundles remain readable and profileless: intake never infers a selected profile or schema from the artifact ID. The observation remains candidate-only; no risk interpretation, same-subject refinement relation, unit, valid-time/currentness, issuer authority, normalization, routing, or historical-maximum change is inferred.
+
+The exact schema name and version come from the typed model owner, never from `model.__name__`, an artifact field name, or a caller-supplied alias. The candidate verifier applies one generic check to the complete typed Core JSON source quantity; the test alters both schema name and version while preserving bytes, canonical profile, role edges, and source markers.
+
+The selected-source identity check covers the full typed DTO quantity: each source model owns literal kind/media and artifact-schema descriptors, and the fresh reader compares both the selected ref and resolved manifest to those descriptors. It also enforces owner identity when reconstructing `SimulationResult` from the WelfareBundle edge and `StateDelta` from the SimulationResult edge. Tests keep bytes, schema, canonical settings, source edges, and candidate/Monte Carlo markers intact while changing only kind or media type. The fixed-step producer fixture passes a non-empty `tax_cut.rate` override through a selected `ParameterOverrideBundle`; it does not create a ref only for the test matrix. This remains candidate-only source measurement, with external risk/refinement meaning, unit, time/currentness, and authority not established.
+
+
+For this candidate-source path, the fresh reader also reconciles each selected DataSnapshot's data_ref and optional uncertainty_envelope_ref to one exact selected manifest edge. New Ukraine runtime snapshots persist their payload profile and data_ref edge. Existing snapshots without those edges remain readable by general artifact consumers but are withheld from this source-bound candidate observation; there is no historical backfill. A same-bytes, different-profile snapshot remains candidate-only only when its own source edges still match its typed payload.
+
+When a welfare producer receives feedback_uncomposed, it persists the measurement with the actual feedback-result edge and without an execution-basis edge. The source-bound consumer still withholds that observation because the typed execution status has no composed single-step basis. This does not change risk meaning, refinement, units, valid time/currentness, or authority: each remains not_established.

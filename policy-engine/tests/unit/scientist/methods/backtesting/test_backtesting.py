@@ -1403,3 +1403,66 @@ def test_scientist_backtest_retains_failed_replica_in_requested_denominator(
     assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
     assert result["degraded"] is True
     assert "scientist_replica_cohort_incomplete" in result["degraded_reasons"]
+
+
+def test_s1_backtesting_report_persists_nonsignificant_method_identity(tmp_path) -> None:
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.registry.refs import BacktestReportRef
+
+    pytest.importorskip("scipy.stats")
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps({"metric": [100.0, 100.0, 100.0]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="s1-available-ttest",
+        historical_data_path=str(history_path),
+        ground_truth_outcomes={"metric": [99.5, 98.5, 97.5]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [100.0, 100.0, 100.0]},
+    )
+    store = FileSystemCAS(tmp_path / "s1-cas")
+    report = BacktestOrchestrator(cas=store).run([plan])
+    fresh = load_backtest_report(
+        _ensure_ir_artifact_store(store),
+        BacktestReportRef(artifact_id=report.cas_artifact_id),
+    )
+    diagnostic = next(item for item in fresh.metric_diagnostics if item.metric_name == "metric")
+    assert diagnostic.status == "available"
+    assert diagnostic.method_id == "scipy.stats.ttest_1samp"
+    assert diagnostic.backend_id == "scipy" and diagnostic.backend_version
+    assert diagnostic.n == 3 and diagnostic.statistic is not None
+    assert diagnostic.p_value == pytest.approx(0.121690, abs=1e-6)
+
+
+def test_s1_historical_plan_retains_named_split_roles() -> None:
+    from pydantic import ValidationError
+
+    plan = HistoricalValidationPlan(
+        plan_id="s1-named-split",
+        historical_data_path="/unused/controlled-history.json",
+        ground_truth_outcomes={"metric": [1.0]},
+        target_metrics=["metric"],
+        selected_training_role="train_pre_2024",
+        selected_validation_role="validation_2024",
+        selected_holdout_role="test_2025",
+    )
+    restored = HistoricalValidationPlan.model_validate(plan.model_dump(mode="json"))
+    assert restored.selected_training_role == "train_pre_2024"
+    assert restored.selected_validation_role == "validation_2024"
+    assert restored.selected_holdout_role == "test_2025"
+    with pytest.raises(ValidationError, match="supplied together"):
+        HistoricalValidationPlan(
+            plan_id="s1-partial-split",
+            historical_data_path="/unused/controlled-history.json",
+            ground_truth_outcomes={"metric": [1.0]},
+            target_metrics=["metric"],
+            selected_holdout_role="test_2025",
+        )
+    with pytest.raises(ValidationError, match="complete three-role request"):
+        HistoricalValidationPlan(
+            plan_id="s1-validation-only",
+            historical_data_path="/unused/controlled-history.json",
+            ground_truth_outcomes={"metric": [1.0]},
+            target_metrics=["metric"],
+            selected_validation_role="validation_2024",
+        )

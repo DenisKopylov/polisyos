@@ -1504,7 +1504,11 @@ class GenerationSourceRepository:
             cell_id=cell_id,
             source_ref=record.profile_content_hash,
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def load_candidate_model_declaration(
         self,
@@ -1651,7 +1655,11 @@ class GenerationSourceRepository:
             model_declaration_ref=record.model_declaration_ref,
             ncm_ref=record.ncm_ref,
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def load_candidate_scenario_source_v2(
         self,
@@ -1850,6 +1858,7 @@ class GenerationSourceRepository:
         return self.store.put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
+            return_selected_profile=True,
         )
 
     def load_candidate_scenario_source_v3(
@@ -2108,6 +2117,7 @@ class GenerationSourceRepository:
         return self.store.put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
+            return_selected_profile=True,
         )
 
     def load_candidate_scenario_source_v1(
@@ -2272,7 +2282,11 @@ class GenerationSourceRepository:
                 ),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def persist_candidate_simulation_input_v5(
         self,
@@ -2309,7 +2323,11 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def persist_candidate_simulation_execution_v2(
         self,
@@ -2575,7 +2593,11 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def persist_candidate_simulation_execution_v5(
         self,
@@ -2678,7 +2700,11 @@ class GenerationSourceRepository:
                 ),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
 
     def resolve_candidate_simulation_v2(
         self,
@@ -3705,6 +3731,7 @@ class GenerationSourceRepository:
         return self.store.put_bytes(
             body,
             _n4_candidate_proposal_v3_write_options(artifact),
+            return_selected_profile=True,
         )
 
     def load_candidate_proposal(
@@ -4228,7 +4255,11 @@ class GenerationSourceRepository:
             source_ref=source.content_hash,
             input_refs=input_refs,
         )
-        ref = self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        ref = self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+            return_selected_profile=True,
+        )
         readback = self.load_candidate_credal_source_attempt(
             ref,
             n4_source_ref=n4_source_ref,

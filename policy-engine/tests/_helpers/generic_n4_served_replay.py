@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import copy
 import dataclasses
+import hashlib
 import json
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import duckdb
 import pytest
@@ -29,6 +31,22 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 _RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+_ORIGINAL_SECOND_CAPTURE_RECORDING_ID = "gy_n4_replay_20260704_095710_425807_7bf5552df372"
+_ORIGINAL_SECOND_CAPTURE_CONTENT_HASH = (
+    "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1"
+)
+_ORIGINAL_SECOND_CAPTURE_CONTRACT_SHA256 = (
+    "5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af"
+)
+_ORIGINAL_DISPOSITION_FIELDS = (
+    "proposal_id",
+    "candidate_id",
+    "disposition",
+    "shadow_atom_content_hash",
+    "identified_atom_id",
+    "status",
+    "selected_relation",
+)
 
 
 @dataclass(frozen=True)
@@ -113,6 +131,167 @@ def _emit_served_phase(
     """Emit one optional test-only lifecycle marker without recording payloads."""
     if phase_callback is not None:
         phase_callback(stage, job_id, run_id)
+
+
+def _contract_value_matches(observed: Any, expected: Any) -> bool:
+    """Compare a decoded fixture value with its typed JSON sequence shape."""
+    if isinstance(expected, list):
+        return (
+            isinstance(observed, (list, tuple))
+            and len(observed) == len(expected)
+            and all(
+                _contract_value_matches(actual, item)
+                for actual, item in zip(observed, expected, strict=True)
+            )
+        )
+    if isinstance(expected, dict):
+        return (
+            isinstance(observed, dict)
+            and set(observed) == set(expected)
+            and all(_contract_value_matches(observed[key], item) for key, item in expected.items())
+        )
+    return type(observed) is type(expected) and observed == expected
+
+
+def _original_second_capture_expected_output(
+    design_problem_ref: str,
+) -> dict[str, Any]:
+    """Load the unique pinned contract result selected by the recorded problem ref."""
+    path = REPO_ROOT / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != _ORIGINAL_SECOND_CAPTURE_CONTRACT_SHA256:
+        raise RuntimeError("original_second_capture_contract_bytes_changed")
+    contract = json.loads(raw)
+    matches = [
+        row
+        for row in contract.get("generation_results", ())
+        if row.get("design_problem_ref") == design_problem_ref
+    ]
+    if len(matches) != 1:
+        raise RuntimeError("original_second_capture_contract_result_not_unique")
+    result = matches[0]
+    candidate_semantics: dict[str, tuple[str, str, tuple[str, ...]]] = {}
+    for candidate in result.get("candidates", ()):
+        candidate_id = candidate.get("candidate_id")
+        atom = candidate.get("atom")
+        operator = atom.get("operator_kind") if isinstance(atom, dict) else None
+        targets = atom.get("target_world_slots") if isinstance(atom, dict) else None
+        if (
+            not isinstance(candidate_id, str)
+            or not isinstance(atom, dict)
+            or not isinstance(atom.get("content_hash"), str)
+            or not isinstance(operator, dict)
+            or not isinstance(operator.get("trinity_kind"), str)
+            or not isinstance(targets, list)
+            or not targets
+            or not all(isinstance(target, str) for target in targets)
+            or candidate_id in candidate_semantics
+        ):
+            raise RuntimeError("original_second_capture_contract_candidate_shape_invalid")
+        candidate_semantics[candidate_id] = (
+            atom["content_hash"],
+            operator["trinity_kind"],
+            tuple(targets),
+        )
+    dispositions: dict[str, tuple[Any, ...]] = {}
+    for row in result.get("grounding_dispositions", ()):
+        proposal_id = row.get("proposal_id")
+        if not isinstance(proposal_id, str) or proposal_id in dispositions:
+            raise RuntimeError("original_second_capture_contract_disposition_shape_invalid")
+        dispositions[proposal_id] = tuple(row.get(field) for field in _ORIGINAL_DISPOSITION_FIELDS)
+    if not candidate_semantics or not dispositions:
+        raise RuntimeError("original_second_capture_contract_denominator_missing")
+    return {
+        "candidate_semantics": candidate_semantics,
+        "dispositions": dispositions,
+        "diversity_report": result.get("diversity_report"),
+        "grounding_disposition_summary": result.get("grounding_disposition_summary"),
+    }
+
+
+def _original_second_capture_candidate_semantics(
+    result: Any,
+) -> dict[str, tuple[str, str, tuple[str, ...]]]:
+    """Project typed producer candidates to their complete semantic identity tuple."""
+    observed: dict[str, tuple[str, str, tuple[str, ...]]] = {}
+    for candidate in result.candidates:
+        candidate_id = str(candidate.candidate_id)
+        atom = candidate.atom
+        operator_kind = atom.operator_kind.trinity_kind
+        if hasattr(operator_kind, "value"):
+            operator_kind = operator_kind.value
+        targets = tuple(str(target) for target in atom.target_world_slots)
+        if candidate_id in observed or not targets:
+            raise AssertionError("original_second_capture_candidate_identity_not_unique")
+        observed[candidate_id] = (str(atom.content_hash), str(operator_kind), targets)
+    return observed
+
+
+def _assert_original_second_capture_generation_result(
+    result: Any,
+    *,
+    design_problem_ref: str,
+) -> dict[str, tuple[str, str, tuple[str, ...]]]:
+    """Require the exact pinned producer identities and all proposal dispositions."""
+    expected = _original_second_capture_expected_output(design_problem_ref)
+    if result.design_problem_ref != design_problem_ref:
+        raise AssertionError("original_second_capture_result_problem_ref_mismatch")
+    report = result.diversity_report
+    for field, value in expected["diversity_report"].items():
+        if not _contract_value_matches(getattr(report, field), value):
+            raise AssertionError("original_second_capture_diversity_contract_mismatch")
+    summary = result.grounding_disposition_summary
+    for field, value in expected["grounding_disposition_summary"].items():
+        if not _contract_value_matches(getattr(summary, field), value):
+            raise AssertionError("original_second_capture_summary_contract_mismatch")
+    observed_dispositions: dict[str, tuple[Any, ...]] = {}
+    for row in result.grounding_dispositions:
+        proposal_id = str(row.proposal_id)
+        if proposal_id in observed_dispositions:
+            raise AssertionError("original_second_capture_duplicate_disposition")
+        values = []
+        for field in _ORIGINAL_DISPOSITION_FIELDS:
+            value = getattr(row, field)
+            if hasattr(value, "value"):
+                value = value.value
+            values.append(value)
+        observed_dispositions[proposal_id] = tuple(values)
+    if observed_dispositions != expected["dispositions"]:
+        raise AssertionError("original_second_capture_complete_disposition_map_mismatch")
+    observed_candidates = _original_second_capture_candidate_semantics(result)
+    if observed_candidates != expected["candidate_semantics"]:
+        raise AssertionError("original_second_capture_candidate_atom_semantics_mismatch")
+    return observed_candidates
+
+
+def _original_second_capture_child_group(child: Any) -> tuple[tuple[str, str], ...]:
+    """Return the complete operator/target group represented by one typed child."""
+    levers = tuple(child.problem.candidate_lever_space.candidate_levers)
+    if not levers:
+        raise AssertionError("original_second_capture_child_has_no_candidate_levers")
+    return tuple(sorted((str(lever.operator_kind), str(lever.target_slot)) for lever in levers))
+
+
+def _assert_original_second_capture_child_semantic_join(
+    children: Any,
+    candidate_semantics: dict[str, tuple[str, str, tuple[str, ...]]],
+) -> dict[tuple[tuple[str, str], ...], tuple[str, ...]]:
+    """Bind every contract candidate atom to exactly its derived typed child group."""
+    expected: dict[tuple[tuple[str, str], ...], set[str]] = {}
+    for atom_ref, operator_kind, targets in candidate_semantics.values():
+        group = tuple(sorted((operator_kind, target) for target in targets))
+        expected.setdefault(group, set()).add(atom_ref)
+    observed: dict[tuple[tuple[str, str], ...], tuple[str, ...]] = {}
+    for child in children:
+        group = _original_second_capture_child_group(child)
+        refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+        if not refs or len(refs) != len(set(refs)) or group in observed:
+            raise AssertionError("original_second_capture_child_atom_group_not_unique")
+        observed[group] = refs
+    expected_normalized = {group: tuple(sorted(refs)) for group, refs in expected.items()}
+    if observed != expected_normalized:
+        raise AssertionError("original_second_capture_candidate_to_child_join_mismatch")
+    return observed
 
 
 def _hashed_model(model_type: type[Any], fields: dict[str, Any], *, hash_fn: Any):
@@ -728,13 +907,19 @@ async def prepare_generic_n4_served_replay(
     cell_id: str,
     recording_id: str = _RECORDING_ID,
     child_count: int = 2,
+    recording_mode: Literal["controlled_overlay", "original_second_capture"] = (
+        "controlled_overlay"
+    ),
     runtime_api_context: Any | None = None,
     phase_callback: Any | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
-    This helper builds controlled local bytes; it makes no claim about their
-    institutional authority, authenticity, or currentness.
+    Controlled-overlay mode retains the existing altered-fixture controls. The
+    original-second-capture mode replays the pinned source bytes unchanged and
+    requires the producer to preserve all three dispositions under the min-three
+    diversity gate before deriving its two semantic child groups. Neither mode
+    establishes institutional authority, authenticity, or currentness.
     """
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
@@ -763,27 +948,48 @@ async def prepare_generic_n4_served_replay(
     monkeypatch.setenv("JAX_PLATFORMS", "cpu")
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
 
-    source_recording = next(
-        item
-        for item in n4_contract._load_recordings(REPO_ROOT)
-        if item.get("design_problem_id") == recording_id
-    )
-    source_problem = _current_compiler_problem(source_recording)
+    source_recordings = n4_contract._load_recordings(REPO_ROOT)
+    if recording_mode == "original_second_capture":
+        if recording_id != _RECORDING_ID or child_count != 2:
+            raise ValueError("original_second_capture_selector_or_child_count_mismatch")
+        matches = [
+            item
+            for item in source_recordings
+            if item.get("recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+        ]
+        if len(matches) != 1:
+            raise RuntimeError("original_second_capture_recording_not_unique")
+        source_recording = matches[0]
+        if (
+            source_recording.get("design_problem_id") != recording_id
+            or source_recording.get("recording_content_hash")
+            != _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+        ):
+            raise RuntimeError("original_second_capture_identity_or_content_hash_mismatch")
+        recording = copy.deepcopy(source_recording)
+    elif recording_mode == "controlled_overlay":
+        source_recording = next(
+            item for item in source_recordings if item.get("design_problem_id") == recording_id
+        )
+        source_problem = _current_compiler_problem(source_recording)
+        if child_count == 2:
+            recording = _two_child_recording(
+                source_recording,
+                outcome_variable=source_problem.outcome_of_interest.target_variable,
+            )
+        elif child_count == 3:
+            recording = _three_child_recording(
+                source_recording,
+                outcome_variable=source_problem.outcome_of_interest.target_variable,
+            )
+        else:
+            raise ValueError("controlled_n4_child_count_unsupported")
+    else:
+        raise ValueError("controlled_n4_recording_mode_unsupported")
+    source_recording_snapshot = copy.deepcopy(source_recording)
     source_recording_id = str(source_recording["recording_id"])
     source_recording_content_hash = str(source_recording["recording_content_hash"])
-    if child_count == 2:
-        recording = _two_child_recording(
-            source_recording,
-            outcome_variable=source_problem.outcome_of_interest.target_variable,
-        )
-    elif child_count == 3:
-        recording = _three_child_recording(
-            source_recording,
-            outcome_variable=source_problem.outcome_of_interest.target_variable,
-        )
-    else:
-        raise ValueError("controlled_n4_child_count_unsupported")
-    if (
+    if recording_mode == "controlled_overlay" and (
         recording.get("recording_source")
         != (
             "synthetic_three_child_overlay_of_recorded_capture"
@@ -794,8 +1000,13 @@ async def prepare_generic_n4_served_replay(
         or recording.get("derived_from_content_hash") != source_recording_content_hash
     ):
         raise AssertionError("controlled_n4_recording_source_lineage_mismatch")
+    if recording_mode == "original_second_capture" and recording != source_recording_snapshot:
+        raise AssertionError("original_second_capture_recording_was_mutated")
     recorded_problem = _current_compiler_problem(recording)
-    controlled_candidate_gateway.set_fixture(recording, problem=recorded_problem)
+    controlled_candidate_gateway.set_fixture(
+        copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording,
+        problem=recorded_problem,
+    )
     model_id = str(recording["model_id"])
     cas_root = tmp_path / ".polisyos"
     if runtime_api_context is None:
@@ -846,7 +1057,9 @@ async def prepare_generic_n4_served_replay(
     _emit_served_phase(phase_callback, "fixture.n4_port.start")
     organ_run = await N4GenerationPort(
         model_id=model_id,
-        llm_client=n4_contract.RecordedGenerationReplayClient(recording),
+        llm_client=n4_contract.RecordedGenerationReplayClient(
+            copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording
+        ),
         repo_root=REPO_ROOT,
         cycle_substrate_context=preflight_context,
     )(recorded_problem, cycle_index=0)
@@ -869,6 +1082,14 @@ async def prepare_generic_n4_served_replay(
     generation_result = getattr(organ_run, "result", None)
     if generation_result is None:
         raise AssertionError("controlled_n4_generation_result_missing")
+    original_candidate_semantics: dict[str, tuple[str, str, tuple[str, ...]]] | None = None
+    if recording_mode == "original_second_capture":
+        if recording != source_recording_snapshot or source_recording != source_recording_snapshot:
+            raise AssertionError("original_second_capture_recording_was_mutated")
+        original_candidate_semantics = _assert_original_second_capture_generation_result(
+            generation_result,
+            design_problem_ref=cycle_job_design_problem_ref(recorded_problem),
+        )
     children = tuple(
         derive_n4_candidate_child_problems(
             recorded_problem,
@@ -881,6 +1102,13 @@ async def prepare_generic_n4_served_replay(
         or len({child.semantic_ref for child in children}) != child_count
     ):
         raise AssertionError("controlled_n4_child_family_not_complete_and_distinct")
+    if recording_mode == "original_second_capture":
+        if original_candidate_semantics is None:
+            raise AssertionError("original_second_capture_candidate_contract_not_loaded")
+        _assert_original_second_capture_child_semantic_join(
+            children,
+            original_candidate_semantics,
+        )
     parent_problem_ref = cycle_job_design_problem_ref(recorded_problem)
     child_keys = tuple(
         generic_n4_child_profile_selection_ref(
@@ -1366,8 +1594,13 @@ async def run_n4_budget_stop_worker_and_get(
             if isinstance(binding, dict) and isinstance(binding.get("node_ref"), str)
         )
     )
-    if len(child_node_refs) != 2 or len(set(child_node_refs)) != 2:
-        raise AssertionError("n4_budget_child_profile_denominator_not_two")
+    expected_child_count = len(prepared.children)
+    if (
+        expected_child_count < 1
+        or len(child_node_refs) != expected_child_count
+        or len(set(child_node_refs)) != expected_child_count
+    ):
+        raise AssertionError("n4_budget_child_profile_denominator_mismatch")
     return N4BudgetStopRunReceipt(
         accepted_payload=accepted,
         job_id=str(accepted["job_id"]),

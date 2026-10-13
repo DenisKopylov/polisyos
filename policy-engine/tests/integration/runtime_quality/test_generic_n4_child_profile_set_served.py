@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import shutil
+import uuid
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,11 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 from tests._helpers.generic_n4_served_replay import (
+    _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
+    _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
+    _assert_original_second_capture_child_semantic_join,
+    _assert_original_second_capture_generation_result,
+    _original_second_capture_child_group,
     _seed_controlled_selected_skg_source,
     prepare_generic_n4_served_replay,
     run_n4_budget_stop_worker_and_get,
@@ -106,17 +112,16 @@ def test_two_child_recording_lineage_tracks_selected_recorded_source() -> None:
         controlled_overlay = _controlled_procurement_recording(
             source_recording, outcome_variable=outcome_variable
         )
-        derived = _two_child_recording(
-            source_recording, outcome_variable=outcome_variable
-        )
+        derived = _two_child_recording(source_recording, outcome_variable=outcome_variable)
 
         assert controlled_overlay["recording_source"] == (
             "synthetic_controlled_overlay_of_recorded_capture"
         )
         assert controlled_overlay["derived_from_recording_id"] == source_recording["recording_id"]
-        assert controlled_overlay["derived_from_content_hash"] == source_recording[
-            "recording_content_hash"
-        ]
+        assert (
+            controlled_overlay["derived_from_content_hash"]
+            == source_recording["recording_content_hash"]
+        )
         n4_contract._validate_recording_fixture(controlled_overlay)
 
         assert derived["recording_source"] == "synthetic_two_child_overlay_of_recorded_capture"
@@ -124,10 +129,230 @@ def test_two_child_recording_lineage_tracks_selected_recorded_source() -> None:
         assert derived["derived_from_recording_id"] == source_recording["recording_id"]
         assert derived["derived_from_content_hash"] == source_recording["recording_content_hash"]
         assert derived["derived_from_recording_id"] != controlled_overlay["recording_id"]
-        assert derived["derived_from_content_hash"] != controlled_overlay[
-            "recording_content_hash"
-        ]
+        assert derived["derived_from_content_hash"] != controlled_overlay["recording_content_hash"]
         n4_contract._validate_recording_fixture(derived)
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_original_second_capture_serves_two_meaningful_children_through_fresh_get(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Replay the unchanged three-proposal capture through ordinary POST and fresh GET."""
+    pytest.importorskip("fastapi.testclient")
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    cell_id = "cell-v2-original-n4-capture"
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        recording_mode="original_second_capture",
+        child_count=2,
+    )
+    prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+
+    canonical_recording = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    )
+    assert prepared.recording == canonical_recording
+    assert prepared.source_recording_id == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    prepared_problem_snapshot = prepared.recorded_problem.model_dump(mode="json")
+    prepared_problem_ref = cycle_job_design_problem_ref(prepared.recorded_problem)
+
+    preflight_result = prepared.organ_run.result
+    preflight_candidate_semantics = _assert_original_second_capture_generation_result(
+        preflight_result,
+        design_problem_ref=prepared_problem_ref,
+    )
+    expected_child_atom_refs_by_group = _assert_original_second_capture_child_semantic_join(
+        prepared.children,
+        preflight_candidate_semantics,
+    )
+    assert preflight_result.status == "generated"
+    assert preflight_result.diversity_report.min_required == 3
+    assert preflight_result.diversity_report.candidate_count == 3
+    assert preflight_result.diversity_report.unique_diversity_key_count == 3
+    assert preflight_result.diversity_report.diverse_enough
+    assert preflight_result.grounding_disposition_summary.total_candidates == 3
+    assert preflight_result.grounding_disposition_summary.shadow_bound == 2
+    assert preflight_result.grounding_disposition_summary.abstain_or_blocked == 1
+    assert {
+        row.proposal_id: row.disposition for row in preflight_result.grounding_dispositions
+    } == {
+        "gy_n4.industrial_retention_tax_credit": "shadow_bound",
+        "gy_n4.procurement_distress_backstop": "shadow_bound",
+        "gy_n4.msme_working_capital_guarantee": "unknown_blocked",
+    }
+    assert len(preflight_result.candidates) == 2
+    assert len(prepared.children) == 2
+    assert len(prepared.generic_child_profiles) == 2
+    expected_profile_node_pairs: dict[str, str] = {}
+    expected_node_ref_by_atom_ref: dict[str, str] = {}
+    for child in prepared.children:
+        group = _original_second_capture_child_group(child)
+        source_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+        assert expected_child_atom_refs_by_group[group] == source_atom_refs
+        node_ref = "design-problem://" + cycle_job_design_problem_ref(child.problem).removeprefix(
+            "sha256:"
+        )
+        profile_selection_ref = generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=prepared_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        assert profile_selection_ref not in expected_profile_node_pairs
+        expected_profile_node_pairs[profile_selection_ref] = node_ref
+        for atom_ref in source_atom_refs:
+            assert atom_ref not in expected_node_ref_by_atom_ref
+            expected_node_ref_by_atom_ref[atom_ref] = node_ref
+    assert set(expected_node_ref_by_atom_ref) == {
+        semantics[0] for semantics in preflight_candidate_semantics.values()
+    }
+    expected_child_node_refs = set(expected_profile_node_pairs.values())
+    assert len(expected_child_node_refs) == len(expected_profile_node_pairs)
+    assert {profile.profile_selection_ref for profile in prepared.generic_child_profiles} == set(
+        expected_profile_node_pairs
+    )
+
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+    compiled_problems: list[Any] = []
+
+    async def run_real_compiler(**kwargs: Any):
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        compiled = await original_compiler(**kwargs)
+        compiled_problems.append(compiled)
+        return compiled
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    original_persist_ref = GenerationSourceRepository.persist_ref
+    served_parent_results: list[Any] = []
+
+    def observe_persisted_parent_result(repository: Any, **kwargs: Any):
+        if cycle_job_design_problem_ref(kwargs["problem"]) == prepared_problem_ref:
+            served_parent_results.append(kwargs["organ"].result)
+        return original_persist_ref(repository, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "persist_ref",
+        observe_persisted_parent_result,
+    )
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json=prepared.request_json,
+        )
+        assert response.status_code == 200, response.text
+        accepted = response.json()
+        assert accepted.get("status") == "accepted"
+        service = app.state._control_service
+        dispatched = dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=accepted["job_id"],
+        )
+        assert dispatched == accepted["job_id"]
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None and job.state == "completed"
+        run_id = str(job.progress["core_run_id"])
+        get_response = client.get(f"/api/v1/runs/{run_id}")
+        assert get_response.status_code == 200, get_response.text
+        run = get_response.json()["run"]
+        projection = run["generic_cycle_simulation"]
+
+        assert len(compiled_problems) == 1
+        assert cycle_job_profile_selection_ref(compiled_problems[0]) == (
+            prepared.root_profile.profile_selection_ref
+        )
+        assert len(served_parent_results) == 1
+        served_result = served_parent_results[0]
+        served_candidate_semantics = _assert_original_second_capture_generation_result(
+            served_result,
+            design_problem_ref=prepared_problem_ref,
+        )
+        assert served_candidate_semantics == preflight_candidate_semantics
+        assert served_result.status == "generated"
+        assert served_result.diversity_report.min_required == 3
+        assert served_result.diversity_report.candidate_count == 3
+        assert served_result.diversity_report.unique_diversity_key_count == 3
+        assert served_result.diversity_report.diverse_enough
+        assert served_result.grounding_disposition_summary.total_candidates == 3
+        assert served_result.grounding_disposition_summary.shadow_bound == 2
+        assert served_result.grounding_disposition_summary.abstain_or_blocked == 1
+        assert {
+            row.proposal_id: row.disposition for row in served_result.grounding_dispositions
+        } == {
+            "gy_n4.industrial_retention_tax_credit": "shadow_bound",
+            "gy_n4.procurement_distress_backstop": "shadow_bound",
+            "gy_n4.msme_working_capital_guarantee": "unknown_blocked",
+        }
+        assert prepared.recorded_problem.model_dump(mode="json") == prepared_problem_snapshot
+        assert prepared.recording == canonical_recording
+
+        assert projection["artifact_status"] == "resolved"
+        assert projection["publication_authority"] is False
+        assert projection["currentness_status"] == "not_established"
+        assert projection["child_profile_status"] == "resolved"
+        bindings = projection["child_profile_bindings"]
+        assert len(bindings) == 2
+        assert {row["profile_selection_ref"] for row in bindings} == set(
+            expected_profile_node_pairs
+        )
+        observed_profile_node_pairs = {
+            (row["profile_selection_ref"], row["node_ref"]) for row in bindings
+        }
+        assert len(observed_profile_node_pairs) == len(bindings)
+        assert observed_profile_node_pairs == set(expected_profile_node_pairs.items())
+        assert {row["node_ref"] for row in bindings} == expected_child_node_refs
+        assert all(row["currentness_status"] == "not_established" for row in bindings)
+        observations = [
+            row for row in projection["n5_observations"] if row["status"] == "joint_simulated"
+        ]
+        assert len(observations) == len(expected_child_node_refs)
+        assert len({row["node_ref"] for row in observations}) == len(observations)
+        assert {row["node_ref"] for row in observations} == expected_child_node_refs
+        assert set(expected_node_ref_by_atom_ref.values()) == expected_child_node_refs
+        assert all(
+            row["simulation_result_ref"]["kind"] == "polisyos.runtime.joint_simulation_result"
+            for row in observations
+        )
+        checkpoint = projection["recursive_cycle_checkpoint"]
+        assert checkpoint["budget_stop_node_ref"] is None
+        assert checkpoint["failed_branches"] == []
+        assert expected_child_node_refs.issubset(set(checkpoint["completed_design_refs"]))
 
 
 @pytest.mark.integration
@@ -262,14 +487,10 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     assert captured_candidate_ids == result_candidate_ids
     result_atom_refs = {candidate.atom.content_hash for candidate in generation_result.candidates}
     child_source_atom_refs = {
-        atom_ref
-        for child in prepared.children
-        for atom_ref in child.source_atom_refs
+        atom_ref for child in prepared.children for atom_ref in child.source_atom_refs
     }
     assert child_source_atom_refs == result_atom_refs
-    assert {profile.profile_selection_ref for profile in generic_child_profiles} == set(
-        child_keys
-    )
+    assert {profile.profile_selection_ref for profile in generic_child_profiles} == set(child_keys)
 
     assert selected_skg_source_profile.selection_owner == (
         "world_model_record.skg_causal_prior_ref"
@@ -559,9 +780,7 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         child_profile_rows = {
             row["profile_id"]: row for row in projection["child_profile_bindings"]
         }
-        assert set(child_profile_rows) == {
-            profile.profile_id for profile in generic_child_profiles
-        }
+        assert set(child_profile_rows) == {profile.profile_id for profile in generic_child_profiles}
         expected_child_node_refs = {
             "design-problem://"
             + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
@@ -595,9 +814,7 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert checkpoint["failed_branches"]
         assert checkpoint["failed_branches"][0]["error_code"] == failure_code
         assert successful["node_ref"] in checkpoint["completed_design_refs"]
-        completed_child_refs = (
-            set(checkpoint["completed_design_refs"]) & expected_child_node_refs
-        )
+        completed_child_refs = set(checkpoint["completed_design_refs"]) & expected_child_node_refs
         failed_child_refs = {
             row["failed_branch_ref"] for row in checkpoint["failed_branches"]
         } & expected_child_node_refs
@@ -612,16 +829,16 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert not (completed_child_refs & pending_child_refs)
         assert not (failed_child_refs & pending_child_refs)
         profile_id_by_child_ref = {
-            row["node_ref"]: profile_id
-            for profile_id, row in child_profile_rows.items()
+            row["node_ref"]: profile_id for profile_id, row in child_profile_rows.items()
         }
         attempted_child_refs = {
             child_profile_rows[profile_id]["node_ref"]
             for profile_id in receipt.child_attempt_profile_ids
         }
         assert attempted_child_refs == completed_child_refs | failed_child_refs
-        assert profile_id_by_child_ref[next(iter(failed_child_refs))] == (
-            receipt.child_attempt_profile_ids[-1]
+        assert (
+            profile_id_by_child_ref[next(iter(failed_child_refs))]
+            == (receipt.child_attempt_profile_ids[-1])
         )
         third_profile_id = generic_child_profiles[2].profile_id
         third_child_ref = child_profile_rows[third_profile_id]["node_ref"]

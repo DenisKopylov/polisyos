@@ -29,7 +29,7 @@ Source plan phases: D1-L4 Phase 2 estimand/uncertainty normalization, Phase 3 ve
 | `polisyos.ir.analytics.causal_ensemble`         | Structural uncertainty bundles across graph candidates                                                            | `EnsembleMember`, `CausalModelEnsemble`                                                                                                                      |
 | `polisyos.ir.analytics.ecosystem_bridges`       | Exchange contracts for DoWhy, EconML, CausalNex, pgmpy, and Tigramite                                             | `DoWhyGraphBridge`, `EconMLDesignBridge`, `PgmpyGraphBridge`, `TigramitePCMCIBridge`                                                                         |
 | `polisyos.ir.analytics.hte`                     | Heterogeneous treatment effects and targeting outputs                                                             | `HTEResult`, `SubgroupEffect`, `FeatureImportance`, `PolicyRecommendation`                                                                                   |
-| `polisyos.ir.analytics.backtest`                | Historical validation and trust diagnostics                                                                       | `BacktestReport`, `BacktestScenario`, `SystematicBias`                                                                                                       |
+| `polisyos.ir.analytics.backtest`                | Historical validation and trust diagnostics                                                                       | `BacktestReport`, `MetricBiasDiagnostic`, `BacktestScenario`, `SystematicBias`                                                                                                       |
 | `polisyos.ir.analytics.uncertainty`             | Unified interval semantics and propagation metadata                                                               | `UncertaintyEnvelope`, `DistributionFamily`, `PropagationMethod`                                                                                             |
 | `polisyos.ir.analytics.structural_causal_model` | Structural mechanism declarations                                                                                 | `MechanismFamily`, `MechanismSource`, `NodeMechanism`, `StructuralCausalModelSpec`                                                                           |
 | `polisyos.ir.analytics.abstraction`             | Micro-to-macro abstraction certificates, exact finite-state verification, and continuous approximate error bounds | `AbstractionCertificate`, `ContinuousApproximateAbstractionConfig`, `verify_finite_state_exact_abstraction`, `verify_continuous_approximate_abstraction`     |
@@ -335,3 +335,44 @@ unknown, so this signal is limited to candidate ranking and is not accepted by
 the separate protected-promotion gate. PAG/CPDAG and other non-identity profiles
 retain a typed skipped-family limitation. Partial-graph CI completion semantics
 remain held for the G decision.
+
+
+## Welfare nominal and Monte Carlo outputs with selected weights
+
+`WelfareBundle` schema 1.1 carries the nominal PE and post-GE component vectors
+returned by the real evaluator in the same label order as its selected
+`ir.welfare_weights` ref. A fresh candidate-only reader recomputes the nominal
+PE, GE, and total scalars from those vectors and the selected raw weight payload;
+old schema 1.0 bundles remain readable but cannot support this source-bound
+check.
+
+`WelfareSampleBundle` schema 1.1 retains the actual response-component and
+post-GE component vectors for each successful Monte Carlo draw, in the label
+order carried by the same producer's `ir.welfare_weights` artifact. The
+existing scalar welfare, PE and GE draw arrays remain available. A fresh
+candidate-only welfare reader resolves the typed `WelfareBundle` refs against
+its exact selected manifest roles and recomputes each weighted PE/total draw
+from those persisted vectors and the selected raw weight vector. It also checks
+the bundle's nominal PE/GE/total outputs against the separately persisted
+nominal component operands; MC draw means remain distinct from nominal values.
+The sample
+manifest also carries that exact selected weight ref as a `welfare_weights`
+input, which the fresh reader reconciles to the bundle's typed weight source. It
+applies the stored weights as produced; this check does not normalize them or
+assign units.
+The welfare context materializer requests the same-write selected profile for a
+newly persisted social-weight manifest; `ensure_social_weight_manifest_artifact()`
+and `persist_social_weight_manifest()` keep a false-by-default opt-in for other
+callers. That manifest is reconciled as a typed source role, not claimed to be
+the vector applied by the welfare loop: application is recomputed only from the
+separate `ir.welfare_weights` artifact. When the existing single-component
+path defaults to `[1.0]`, a source-basis welfare producer persists that exact
+existing vector and selected profile; ordinary calls keep the legacy no-ref
+default. A supplied profileless manifest handle remains unqualified.
+
+Historical WelfareBundle schema 1.0 and sample schema 1.0 remain readable by
+the IR loader, but lack the typed nominal operands or raw draw vectors needed by
+the source-bound reader's weight-application check. No old bundle or sample is
+backfilled. The source-bound risk
+observation remains candidate-only, with risk meaning, refinement, units,
+valid time/currentness, independence and authority `not_established`.

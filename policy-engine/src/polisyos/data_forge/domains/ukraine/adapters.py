@@ -22,11 +22,13 @@ import pandas as pd
 
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
+    DirectoryTreeEntry,
     NormalizedArtifactManifest,
     SkippedSourceManifest,
     SourceSnapshotManifest,
     ValidationFinding,
     _make_validation_finding,
+    directory_tree_entries,
     utc_now_iso,
     write_manifest,
 )
@@ -195,7 +197,8 @@ class TabularSourceAdapter:
         raw_dir = ctx.raw_dir(source.source_id)
         ensure_dirs(raw_dir, ctx.manifest_dir(source.source_id))
         raw_artifacts: list[ArtifactRecord] = []
-        for location in locations:
+        raw_tree_entries: list[DirectoryTreeEntry] = []
+        for artifact_index, location in enumerate(locations):
             if location.startswith("http://") or location.startswith("https://"):
                 destination = raw_dir / Path(location).name
                 urllib.request.urlretrieve(location, destination)  # noqa: S310
@@ -218,6 +221,10 @@ class TabularSourceAdapter:
                 elif source_path.resolve() != destination.resolve():
                     shutil.copy2(source_path, destination)
             raw_artifacts.append(ArtifactRecord.from_path(destination))
+            if destination.is_dir():
+                raw_tree_entries.extend(
+                    directory_tree_entries(destination, artifact_index=artifact_index)
+                )
 
         manifest = SourceSnapshotManifest(
             source_id=source.source_id,
@@ -225,6 +232,7 @@ class TabularSourceAdapter:
             status="fetched",
             discovered_at=utc_now_iso(),
             raw_artifacts=raw_artifacts,
+            raw_tree_entries=raw_tree_entries,
             endpoint=source.endpoint,
         )
         write_manifest(
@@ -856,6 +864,12 @@ class TabularSourceAdapter:
                     ],
                     "period_id": [
                         self._quarter_to_period_id(year, quarter)
+                        for year, quarter in zip(
+                            year_series.tolist(), quarter_series.tolist(), strict=False
+                        )
+                    ],
+                    "quarter_id": [
+                        f"{year}Q{quarter}"
                         for year, quarter in zip(
                             year_series.tolist(), quarter_series.tolist(), strict=False
                         )

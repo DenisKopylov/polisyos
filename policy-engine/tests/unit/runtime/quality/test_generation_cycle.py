@@ -29,6 +29,7 @@ from polisyos.data_requirement import (
     DataRequirementSpec,
 )
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+from polisyos.ir.kernel.time_semantics import TimeSemantics
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
 from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
@@ -134,6 +135,7 @@ from tests._helpers.controlled_candidate_profile import (
     _SameCandidateNewBasisGenerator,
     _StableShadowGrounding,
 )
+from tests._helpers.measurement_execution_binding import measurement_execution_binding
 from tools.quality.validation import (
     check_layer3_gy_generation_cycle_contract as contract,
 )
@@ -1455,11 +1457,14 @@ def test_completed_epoch_receipt_bytes_are_reloaded_before_n9(
     assert gate.completed_batch_receipt_ref is not None
     completed_id = gate.completed_batch_receipt_ref.artifact_id
     real_get_bytes = runtime.store.get_bytes
+    tamper_hits: list[object] = []
 
-    def _tamper_completed_receipt(artifact_id):
-        if artifact_id == completed_id:
+    def _tamper_completed_receipt(artifact_ref_or_id):
+        observed_id = getattr(artifact_ref_or_id, "artifact_id", artifact_ref_or_id)
+        if observed_id == completed_id:
+            tamper_hits.append(observed_id)
             return b'{"forged":"completed-receipt"}'
-        return real_get_bytes(artifact_id)
+        return real_get_bytes(artifact_ref_or_id)
 
     monkeypatch.setattr(runtime.store, "get_bytes", _tamper_completed_receipt)
     result = runtime.epoch_n9_evidence_resolver.resolve_verified(
@@ -1467,6 +1472,7 @@ def test_completed_epoch_receipt_bytes_are_reloaded_before_n9(
         expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
     )
 
+    assert tamper_hits, "the selected completed-receipt bytes were never corrupted"
     assert isinstance(result, core_contracts.EpochValidityGateNonReceipt)
     assert result.code == "epoch_validity_gate_evidence_unresolved"
 
@@ -1632,7 +1638,10 @@ def test_post_n9_packet_binds_exact_subject_and_gate_receipt(
         lambda repo_root: (),
     )
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
-    problem = _problem("post_n9_exact_epoch_binding")
+    # The canonical repo ledger is durable across invocations. Use a fresh owner
+    # key so previous source-version receipts cannot alias this exact-binding
+    # test and trigger the ledger's correct immutable-root refusal.
+    problem = _problem(f"post_n9_exact_epoch_binding_{uuid4().hex}")
     admitted = _positive_epoch_admitted_batch(
         runtime=runtime,
         problem=problem,
@@ -2285,7 +2294,7 @@ def _cyc01_owner_bound_n5_case(
 
     hints = {
         "joint_simulation_budget_ref": f"budget://cyc-01/{uuid4().hex}/n5",
-        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_resource": "ncm_parallel_worlds",
     }
     if runtime_hints:
@@ -2793,7 +2802,9 @@ def _owner_program_graph_n5_witness(
             if simulation.simulation_result_ref is None:
                 raise AssertionError(
                     "owner-built ProgramGraph N5 did not persist a result: "
-                    f"{simulation.authority_blockers!r}"
+                    f"status={simulation.status!r}; "
+                    f"blockers={simulation.authority_blockers!r}; "
+                    f"diagnostics={simulation.diagnostics!r}"
                 )
             result = load_joint_simulation_result(
                 simulation.simulation_result_ref,
@@ -3341,7 +3352,12 @@ def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
     unbound_store = FileSystemCAS(tmp_path / "unbound-program-store")
     request_seen: list[JointSimulationRequest] = []
     try:
-        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+            ncm_ref,
+            runtime_hints={
+                "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+            },
+        )
         owner_port = JointSimulationPort(
             repo_root=tmp_path / "empty-repo",
             cycle_substrate_context=context,
@@ -3519,6 +3535,7 @@ def test_n5_fresh_reader_binds_canonical_json_state_types(tmp_path: Path) -> Non
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.runtime.quality.joint_simulation_horizon import (
+        HorizonSpec,
         JointSimulationHorizonController,
         JointSimulationResult,
         build_content_bound_simulation_receipt,
@@ -3528,9 +3545,10 @@ def test_n5_fresh_reader_binds_canonical_json_state_types(tmp_path: Path) -> Non
         check_layer3_gy_joint_simulation_horizon_contract as contract,
     )
 
-    result = JointSimulationHorizonController().run(
-        _request().model_copy(update={"replications": 2})
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
     )
+    result = JointSimulationHorizonController().run(request)
     payload = copy.deepcopy(result.content_bound_payload())
     canon_spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
     cas = FileSystemCAS(tmp_path / "typed-state-fresh-cas")
@@ -3835,10 +3853,25 @@ def test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """N5 refuses a bare state_ref when the v2.2 lineage still selects its view."""
+    """A persisted selector-free snapshot cannot retain selected lineage markers."""
 
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.foundry import (
+        FoundryInputBindings,
+        FoundryInputBindingsRef,
+        StateSnapshot,
+        StateSnapshotRef,
+    )
     from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+    from polisyos.foundry.execute._internal.models import load_model
+    from polisyos.runtime.quality.world_model_record import (
+        WorldModelRecordError,
+        load_world_model_record,
+        persist_world_model_record,
+        world_model_artifact_views,
+        world_model_record_content_hash,
+    )
 
     witness = _owner_program_graph_n5_witness(
         tmp_path,
@@ -3847,35 +3880,232 @@ def test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers(
         monkeypatch=monkeypatch,
     )
     try:
+        record = witness.world_model_build.record
+        views = world_model_artifact_views(record)
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            request = witness.port._build_joint_simulation_request(
-                candidate=witness.candidate,
+            original_snapshot_ref = StateSnapshotRef.model_validate(
+                views.bound_state_snapshot_ref.model_dump(mode="python")
+            )
+            snapshot = load_model(witness.store, original_snapshot_ref, StateSnapshot)
+            selected_profile = snapshot.state_ref.manifest_profile_sha256
+            assert snapshot.schema_version == "2.2"
+            assert selected_profile is not None
+            assert snapshot.lineage_inputs is not None
+            assert snapshot.lineage_inputs[-1].manifest_profile_sha256 == selected_profile
+            assert (
+                witness.store.get_manifest(original_snapshot_ref).inputs == snapshot.lineage_inputs
+            )
+
+            # Persist a genuinely changed wrapper: the state_ref loses its
+            # selected manifest selector while the v2.2 lineage edge and
+            # wrapper manifest keep the original selected profile.
+            unselected_state_ref = snapshot.state_ref.model_copy(
+                update={"manifest_profile_sha256": None}
+            )
+            selector_removed_snapshot = snapshot.model_copy(
+                update={"state_ref": unselected_state_ref}
+            )
+            new_snapshot_raw_ref = witness.store.put_json(
+                selector_removed_snapshot,
+                PutOptions(
+                    kind="foundry.state_snapshot",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.core.StateSnapshot",
+                        version="2.2.0",
+                    ),
+                    inputs=selector_removed_snapshot.lineage_inputs,
+                ),
+            )
+            new_snapshot_ref = StateSnapshotRef.model_validate(
+                new_snapshot_raw_ref.model_dump(mode="python")
+            )
+            assert new_snapshot_ref.artifact_id != original_snapshot_ref.artifact_id
+            assert witness.store.verify(new_snapshot_ref).ok
+            persisted_snapshot = load_model(
+                witness.store,
+                new_snapshot_ref,
+                StateSnapshot,
+            )
+            assert persisted_snapshot.state_ref.manifest_profile_sha256 is None
+            assert persisted_snapshot.lineage_inputs is not None
+            assert persisted_snapshot.lineage_inputs[-1].manifest_profile_sha256 == selected_profile
+            assert witness.store.get_manifest(new_snapshot_ref).inputs == (
+                persisted_snapshot.lineage_inputs
+            )
+
+            original_bindings = load_model(
+                witness.store,
+                views.input_bindings_ref,
+                FoundryInputBindings,
+            )
+            selector_removed_bindings = original_bindings.model_copy(
+                update={"bound_state_snapshot_ref": new_snapshot_ref}
+            )
+            binding_inputs = [
+                input_ref_from_artifact_ref(
+                    selector_removed_bindings.data_snapshot_ref,
+                    role="input.data_snapshot_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    selector_removed_bindings.registry_bundle_ref,
+                    role="input.registry_bundle_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    new_snapshot_ref,
+                    role="artifact.bound_state_snapshot_ref",
+                ),
+            ]
+            if selector_removed_bindings.quality_report_ref is not None:
+                binding_inputs.append(
+                    input_ref_from_artifact_ref(
+                        selector_removed_bindings.quality_report_ref,
+                        role="input.quality_report_ref",
+                    )
+                )
+            new_bindings_raw_ref = witness.store.put_json(
+                selector_removed_bindings,
+                PutOptions(
+                    kind="foundry.input_bindings",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.core.FoundryInputBindings",
+                        version="1.0",
+                    ),
+                    inputs=binding_inputs,
+                ),
+            )
+            new_bindings_ref = FoundryInputBindingsRef.model_validate(
+                new_bindings_raw_ref.model_dump(mode="python")
+            )
+            assert witness.store.verify(new_bindings_ref).ok
+
+            report_payload = canon.from_canonical_bytes(
+                witness.store.get_bytes(views.input_binding_report_ref)
+            )
+            assert report_payload["schema_version"] == "1.1"
+            report_payload["bound_state_snapshot_ref"] = new_snapshot_ref.model_dump(mode="json")
+            report_inputs = [
+                input_ref_from_artifact_ref(
+                    new_bindings_ref,
+                    role="artifact.input_bindings_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    new_snapshot_ref,
+                    role="artifact.bound_state_snapshot_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    selector_removed_bindings.data_snapshot_ref,
+                    role="input.data_snapshot_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    selector_removed_bindings.registry_bundle_ref,
+                    role="input.registry_bundle_ref",
+                ),
+            ]
+            if selector_removed_bindings.quality_report_ref is not None:
+                report_inputs.append(
+                    input_ref_from_artifact_ref(
+                        selector_removed_bindings.quality_report_ref,
+                        role="input.quality_report_ref",
+                    )
+                )
+            new_report_ref = witness.store.put_json(
+                report_payload,
+                PutOptions(
+                    kind="foundry.input_binding_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.core.FoundryInputBindingReport",
+                        version="1.1",
+                    ),
+                    inputs=report_inputs,
+                ),
+            )
+            assert witness.store.verify(new_report_ref).ok
+
+        selector_removed_views = type(views).model_validate(
+            {
+                **views.model_dump(mode="python"),
+                "input_bindings_ref": new_bindings_ref,
+                "bound_state_snapshot_ref": new_snapshot_ref,
+                "input_binding_report_ref": new_report_ref,
+            }
+        )
+        state_slot_digest = gy_content_hash(
+            {
+                "bound_state_snapshot_ref": str(new_snapshot_ref.artifact_id),
+                "policy_slot_map": [
+                    item.model_dump(mode="json") for item in record.policy_slot_map
+                ],
+            }
+        )
+        foundry_binding_ref = record.foundry_binding_ref.model_copy(
+            update={
+                "input_bindings_ref": str(new_bindings_ref.artifact_id),
+                "bound_state_snapshot_ref": str(new_snapshot_ref.artifact_id),
+                "mapping_rules_ref": str(new_report_ref.artifact_id),
+                "state_slot_digest": state_slot_digest,
+            }
+        )
+        draft = record.model_copy(
+            update={
+                "artifact_views": selector_removed_views,
+                "foundry_binding_ref": foundry_binding_ref,
+                "world_model_record_id": "world_model_record_0000000000000000",
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        record_hash = world_model_record_content_hash(draft)
+        selector_removed_record = type(record).model_validate(
+            {
+                **draft.model_dump(mode="json"),
+                "world_model_record_id": (
+                    f"world_model_record_{record_hash.removeprefix('sha256:')[:16]}"
+                ),
+                "content_hash": record_hash,
+            }
+        )
+        assert selector_removed_record.artifact_views is not None
+        assert (
+            selector_removed_record.artifact_views.bound_state_snapshot_ref.artifact_id
+            == new_snapshot_ref.artifact_id
+        )
+        assert selector_removed_record.foundry_binding_ref.bound_state_snapshot_ref == str(
+            new_snapshot_ref.artifact_id
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            selector_removed_record_ref = persist_world_model_record(
+                witness.store,
+                selector_removed_record,
+            )
+            persisted_record = load_world_model_record(
+                witness.store,
+                selector_removed_record_ref,
+            )
+        assert persisted_record == selector_removed_record
+
+        context, candidate = _rebind_owner_cycle_record(
+            witness.context,
+            witness.candidate,
+            persisted_record,
+        )
+        port = JointSimulationPort(
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+            artifact_store=witness.store,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            request = port._build_joint_simulation_request(
+                candidate=candidate,
                 problem=witness.problem,
             )
-        snapshot_id = str(witness.world_model_build.bound_state_snapshot_ref.artifact_id)
-        original_get_bytes = witness.store.get_bytes
-        altered_once = False
-
-        def _remove_state_ref_selector_for_n5_once(ref: Any) -> bytes:
-            nonlocal altered_once
-            data = original_get_bytes(ref)
-            artifact_id = getattr(ref, "artifact_id", ref)
-            if str(artifact_id) != snapshot_id or altered_once:
-                return data
-            altered_once = True
-            payload = canon.from_canonical_bytes(data)
-            # Keep the state_ref, its ID, the v2.2 schema marker, and the exact
-            # selected lineage edge. Remove only the selector being checked.
-            payload["state_ref"].pop("manifest_profile_sha256", None)
-            return canon.to_canonical_bytes(payload)
-
-        monkeypatch.setattr(witness.store, "get_bytes", _remove_state_ref_selector_for_n5_once)
-        with (
-            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
-            pytest.raises(WorldModelRecordError, match="n5_bound_state_lineage_mismatch"),
-        ):
-            witness.port._bound_program_plan(request, request.engine_plan[0])
-        assert altered_once
+            assert request.engine_plan[0].engine_kind == "program_graph"
+            with pytest.raises(
+                WorldModelRecordError,
+                match="n5_bound_state_lineage_mismatch",
+            ):
+                port._bound_program_plan(request, request.engine_plan[0])
     finally:
         witness.store.close()
 
@@ -3951,7 +4181,7 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
         # with an explicit unit-survival reference of 1.0. This is a candidate-
         # only NCM control comparator, not observed or promotion evidence.
         ncm_control_hints = {
-            "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+            "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
             "joint_simulation_baseline_state": {"firm_survival": 1.0},
         }
         problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -4064,10 +4294,13 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
             assert "simulation_only_k_sim_not_world_evidence" in (
                 cycle.value_port.authority_blockers
             )
-            assert simulation_evaluation_input_ref(
-                cycle.simulation,
-                artifact_store=store,
-            ) is None
+            assert (
+                simulation_evaluation_input_ref(
+                    cycle.simulation,
+                    artifact_store=store,
+                )
+                is None
+            )
             persisted = load_joint_simulation_result(
                 cycle.simulation.simulation_result_ref,
                 store=store,
@@ -4111,7 +4344,7 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
-        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
         "joint_simulation_replications": 2,
     }
@@ -4205,7 +4438,11 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             )
 
             value = cycle.value_port
-            assert value.status == "value_conditional", (value.status, value.reason, value.authority_blockers)
+            assert value.status == "value_conditional", (
+                value.status,
+                value.reason,
+                value.authority_blockers,
+            )
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
@@ -4252,7 +4489,7 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
-        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
     }
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -5231,6 +5468,7 @@ def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
 
 @pytest.mark.asyncio
 async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """N7 remains requested when S0 is unavailable; N6 mints no registry."""
@@ -5251,6 +5489,7 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
         value_port=PendingN8ValuePort(),
         promotion_port=_NoPromotionPort(),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=REPO_ROOT,
     ).run(
@@ -6583,7 +6822,9 @@ async def test_revision_changes_when_prior_terminal_changes() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("route_marker", [None, "route-marker", ["not", "a", "route"]])
-async def test_production_n7_route_less_claim_cannot_reenter_n5(route_marker, monkeypatch) -> None:
+async def test_production_n7_route_less_claim_cannot_reenter_n5(
+    route_marker, monkeypatch, tmp_path: Path
+) -> None:
     """Route-less growth markers cannot replace native admission evidence."""
 
     data_spec = _n7_data_requirement_spec()
@@ -6674,6 +6915,7 @@ async def test_production_n7_route_less_claim_cannot_reenter_n5(route_marker, mo
         ),
         repo_root=Path(__file__).resolve().parents[4],
         authority_scope="production",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
@@ -6747,6 +6989,7 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
         value_port=PendingN8ValuePort(),
         repo_root=tmp_path,
         authority_scope="production",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     assert controller._n7_owner_gateway(problem) is None
@@ -6958,7 +7201,9 @@ def _assert_n7_reentered_in_candidate_band(
 
 
 @pytest.mark.asyncio
-async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
+async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
+    tmp_path: Path,
+) -> None:
     class _ObserveActionsController(GenerationCycleController):
         def __init__(self, **kwargs: Any) -> None:
             super().__init__(**kwargs)
@@ -7034,6 +7279,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
@@ -7063,7 +7309,9 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
 
 
 @pytest.mark.asyncio
-async def test_blocked_action_after_n7_reentry_is_terminal_before_n9() -> None:
+async def test_blocked_action_after_n7_reentry_is_terminal_before_n9(
+    tmp_path: Path,
+) -> None:
     class _BlockAfterReentryController(GenerationCycleController):
         def __init__(self, **kwargs: Any) -> None:
             super().__init__(**kwargs)
@@ -7145,6 +7393,7 @@ async def test_blocked_action_after_n7_reentry_is_terminal_before_n9() -> None:
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
@@ -7171,7 +7420,9 @@ async def test_blocked_action_after_n7_reentry_is_terminal_before_n9() -> None:
 
 @pytest.mark.asyncio
 @_requires_owner_catalog
-async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters() -> None:
+async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters(
+    tmp_path: Path,
+) -> None:
     compiled = compile_data_requirements_for_scenario(
         {
             "scenario_id": "generic_cycle_problem",
@@ -7227,6 +7478,7 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
@@ -8102,6 +8354,8 @@ def test_n7_compiler_preserves_a_valid_named_scope_profile_on_requirement_specs(
         "profile_id": "future:ua:2026",
         "jurisdiction": "UA",
         "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "time_role": "observation_time",
+        "granularity": "annual",
         "required_constructs": ["firm_survival"],
         "candidate_construct_proposals": ["future:construct"],
     }
@@ -8117,13 +8371,40 @@ def test_n7_compiler_preserves_a_valid_named_scope_profile_on_requirement_specs(
     assert len(specs) == 1
     assert specs[0].required_data_families == ("production_msme_panel",)
     assert specs[0].scope.jurisdiction == "UA"
+    assert specs[0].scope.time_role == "observation_time"
     assert specs[0].metadata["scope_profile"] == {
         "profile_id": "future:ua:2026",
         "jurisdiction": "UA",
         "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "time_role": "observation_time",
+        "granularity": "annual",
         "required_constructs": ["firm_survival"],
         "candidate_construct_proposals": ["future:construct"],
     }
+
+
+def test_n7_explicit_empty_family_frontier_does_not_invent_a_source() -> None:
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    specs = controller._n7_data_requirement_specs(
+        _problem("n7_explicit_empty_family_frontier"),
+        acquisition_request={
+            "required_data_families": [],
+            "scope_profile": {"profile_id": "profile:empty-frontier"},
+        },
+    )
+
+    assert specs == ()
+
+
+def test_n7_malformed_family_frontier_is_a_typed_refusal() -> None:
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    with pytest.raises(GenerationCycleError, match="n7_data_families_invalid"):
+        controller._n7_data_requirement_specs(
+            _problem("n7_invalid_family_frontier"),
+            acquisition_request={"required_data_families": ["health_panel", None]},
+        )
 
 
 def test_n7_with_no_requirement_families_keeps_the_existing_empty_noop() -> None:
@@ -8138,8 +8419,34 @@ def test_n7_with_no_requirement_families_keeps_the_existing_empty_noop() -> None
     )
 
 
+def test_n7_scope_profile_preserves_typed_frequency_without_inventing_time_role() -> None:
+    original = _problem("n7_typed_frequency")
+    jurisdiction_time = original.jurisdiction_time.model_copy(
+        update={
+            "time_semantics": TimeSemantics(
+                frequency="Q",
+                start_date="2026-01-01",
+                end_date="2027-01-01",
+            )
+        }
+    )
+    problem = original.model_copy(update={"jurisdiction_time": jurisdiction_time})
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    profile = controller._n7_scope_profile(problem, acquisition_request={})
+
+    assert profile["granularity"] == "Q"
+    assert profile["time_window"] == {
+        "start": "2026-01-01",
+        "end": "2027-01-01",
+    }
+    assert "time_role" not in profile
+
+
 @pytest.mark.asyncio
-async def test_malformed_n7_scope_profile_is_retained_as_typed_route_refusal() -> None:
+async def test_malformed_n7_scope_profile_is_retained_as_typed_route_refusal(
+    tmp_path: Path,
+) -> None:
     problem = _problem("n7_profile_refusal").model_copy(
         update={
             "runtime_hints": {
@@ -8153,6 +8460,7 @@ async def test_malformed_n7_scope_profile_is_retained_as_typed_route_refusal() -
         grounding_port=_AcquisitionGrounding(),
         value_port=PendingN8ValuePort(),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
 
     run = await controller.run(
@@ -10214,6 +10522,7 @@ def test_n7_profile_only_requirement_reaches_persisted_acquisition_record(
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=tmp_path,
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
     cycle = SimpleNamespace(
         terminal_kind="acquisition_required",
@@ -10289,6 +10598,7 @@ def test_n7_direct_construct_alias_reaches_persisted_acquisition_record(
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=tmp_path,
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
     cycle = SimpleNamespace(
         terminal_kind="acquisition_required",
@@ -10317,7 +10627,9 @@ def test_n7_direct_construct_alias_reaches_persisted_acquisition_record(
     ].capability_requirement_resolutions == (resolution,)
 
 
-def test_n7_direct_and_profile_construct_union_reaches_persisted_receipt() -> None:
+def test_n7_direct_and_profile_construct_union_reaches_persisted_receipt(
+    tmp_path: Path,
+) -> None:
     from types import SimpleNamespace
 
     from polisyos.runtime.quality.acquisition_planner import (
@@ -10333,6 +10645,7 @@ def test_n7_direct_and_profile_construct_union_reaches_persisted_receipt() -> No
     controller = GenerationCycleController(
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
     cycle = SimpleNamespace(
         terminal_kind="acquisition_required",
@@ -10405,6 +10718,7 @@ def test_n7_direct_and_profile_construct_union_reaches_persisted_receipt() -> No
 def test_n7_malformed_construct_alias_is_typed_refused(
     field_name: str,
     field_value: object,
+    tmp_path: Path,
 ) -> None:
     from types import SimpleNamespace
 
@@ -10422,6 +10736,7 @@ def test_n7_malformed_construct_alias_is_typed_refused(
     controller = GenerationCycleController(
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
     )
     cycle = SimpleNamespace(
         terminal_kind="acquisition_required",

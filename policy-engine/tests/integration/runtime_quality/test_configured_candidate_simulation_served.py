@@ -641,6 +641,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     from fastapi.testclient import TestClient
 
     from polisyos.core import canon
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
     from polisyos.core.artifacts.manifest import (
         ArtifactRef,
         artifact_ref_identity_key,
@@ -664,6 +665,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     from polisyos.runtime.quality import design_generation as design_generation_module
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioMaterializationV3,
+        CandidateSimulationN5InputV4,
+        CandidateSimulationN5InputV5,
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
@@ -688,6 +692,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateScenarioSourceRecordV2,
         N4CandidateScenarioSourceRecordV3,
         _candidate_simulation_write_options,
+        _generation_source_read_result,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         InterventionAtomBinding,
@@ -1010,11 +1015,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert isinstance(input_record.model_declaration_ref, ArtifactRef)
         assert isinstance(input_record.ncm_ref, ArtifactRef)
         assert isinstance(port_input_ref, ArtifactRef)
-        assert input_record.n4_source_ref.manifest_profile_sha256 is None
+        assert input_record.n4_source_ref.manifest_profile_sha256 is not None
         assert input_record.context_job_ref.manifest_profile_sha256 is None
         assert input_record.model_declaration_ref.manifest_profile_sha256 is None
         assert input_record.ncm_ref.manifest_profile_sha256 is None
-        assert port_input_ref.manifest_profile_sha256 is None
+        assert port_input_ref.manifest_profile_sha256 is not None
         assert str(input_record.ncm_ref.artifact_id) in (
             context_job.context.world_model_record.simulation_model_ref.ncm_refs
         )
@@ -1051,10 +1056,18 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert type(selected_source) is N4CandidateScenarioSourceRecordV3
         assert selected_source.origin_source_ref is None
+        selected_source_read = _generation_source_read_result(selected_source)
+        assert selected_source_read is not None
+        assert selected_source_read.provenance.selected_manifest_profile_sha256 == (
+            input_record.n4_source_ref.manifest_profile_sha256
+        )
         selected_source_manifest = read_private_artifact_in_job_scope(
             lambda: service._artifact_store.get_manifest(input_record.n4_source_ref),
             job_id=completed.job_id,
             run_id=str(completed.run_id),
+        )
+        assert input_record.n4_source_ref.manifest_profile_sha256 == (
+            artifact_manifest_profile_sha256(selected_source_manifest)
         )
         assert (
             input_ref_from_artifact_ref(
@@ -1071,6 +1084,179 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         selected_v2_source = selected_source.source_record
         selected_v1_source = selected_v2_source.source_record
+        source_repository = GenerationSourceRepository(service._artifact_store)
+        selected_v2_ref = selected_source.source_ref
+        assert selected_v2_ref.manifest_profile_sha256 is not None
+        selected_v2_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(selected_v2_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert selected_v2_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            selected_v2_manifest
+        )
+        selected_v2_replay = read_private_artifact_in_job_scope(
+            lambda: source_repository.load_candidate_scenario_source_v2(
+                selected_v2_ref,
+                expected_run_id=str(completed.run_id),
+                expected_job_id=completed.job_id,
+                expected_tenant_id=admitted_scope.tenant_id,
+                expected_cell_id=admitted_scope.cell_id,
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        selected_v2_read = _generation_source_read_result(selected_v2_replay)
+        assert selected_v2_read is not None
+        assert selected_v2_read.provenance.selected_manifest_profile_sha256 == (
+            selected_v2_ref.manifest_profile_sha256
+        )
+        selected_v1_ref = read_private_artifact_in_job_scope(
+            lambda: source_repository.persist_candidate_scenario_source_v1(
+                source_record=selected_v1_source
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert selected_v1_ref.manifest_profile_sha256 is not None
+        selected_v1_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(selected_v1_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert selected_v1_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            selected_v1_manifest
+        )
+        selected_v1_replay = read_private_artifact_in_job_scope(
+            lambda: source_repository.load_candidate_scenario_source_v1(
+                selected_v1_ref,
+                expected_run_id=str(completed.run_id),
+                expected_job_id=completed.job_id,
+                expected_tenant_id=admitted_scope.tenant_id,
+                expected_cell_id=admitted_scope.cell_id,
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        selected_v1_read = _generation_source_read_result(selected_v1_replay)
+        assert selected_v1_read is not None
+        assert selected_v1_read.provenance.selected_manifest_profile_sha256 == (
+            selected_v1_ref.manifest_profile_sha256
+        )
+        assert selected_v1_read.provenance.source_materialization == "reader_materialized"
+        assert selected_v1_read.provenance.producer_attestation_status == "not_established"
+
+        assert type(input_record) is CandidateSimulationN5InputV5
+        v5_input_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(port_input_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert port_input_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            v5_input_manifest
+        )
+        assert v5_input_manifest.artifact_schema is not None
+        assert v5_input_manifest.artifact_schema.version == "5.0"
+        v5_input_replay = read_private_artifact_in_job_scope(
+            lambda: source_repository._load_candidate_simulation_input_v5(port_input_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        v5_input_read = _generation_source_read_result(v5_input_replay)
+        assert v5_input_read is not None
+        assert v5_input_read.provenance.selected_manifest_profile_sha256 == (
+            port_input_ref.manifest_profile_sha256
+        )
+        assert v5_input_read.provenance.source_materialization == "reader_materialized"
+        assert v5_input_read.provenance.producer_attestation_status == "not_established"
+
+        v4_source_ref = selected_v1_ref
+        v5_materialization = input_record.materialization
+        v4_materialization_payload = {
+            "profile_hash": v5_materialization.profile_hash,
+            "problem_ref": v5_materialization.problem_ref,
+            "context_hash": v5_materialization.context_hash,
+            "context_job_ref": input_record.context_job_ref,
+            "world_model_record_hash": v5_materialization.world_model_record_hash,
+            "n4_source_ref": v4_source_ref,
+            "candidate_id": v5_materialization.candidate_id,
+            "original_candidate_hash": v5_materialization.original_candidate_hash,
+            "original_atom_hash": v5_materialization.original_atom_hash,
+            "operator_kind": v5_materialization.operator_kind,
+            "parameter_id": v5_materialization.parameter_id,
+            "value": v5_materialization.value,
+            "target_world_slot": v5_materialization.target_world_slot,
+            "unit_id": v5_materialization.unit_id,
+            "derived_n5_atom": v5_materialization.derived_n5_atom,
+        }
+        v4_materialization_draft = CandidateScenarioMaterializationV3.model_construct(
+            **v4_materialization_payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="json", exclude={"content_hash"})
+        v4_materialization = CandidateScenarioMaterializationV3.model_validate(
+            {
+                **v4_materialization_payload,
+                "content_hash": gy_content_hash(v4_materialization_draft),
+            }
+        )
+        v4_input_payload = {
+            "schema_version": "policyos.runtime.candidate_simulation.n5_input.v4",
+            "authority_purpose": "candidate_scenario_n5_only",
+            "source_role": "runtime-config:candidate-simulation",
+            "profile": input_record.profile,
+            "profile_config_ref": input_record.profile_config_ref,
+            "n4_source_ref": v4_source_ref,
+            "context_job_ref": input_record.context_job_ref,
+            "job_id": input_record.job_id,
+            "run_id": input_record.run_id,
+            "tenant_id": input_record.tenant_id,
+            "cell_id": input_record.cell_id,
+            "original_candidate_id": input_record.original_candidate_id,
+            "original_candidate_hash": input_record.original_candidate_hash,
+            "original_n4_atom_hash": input_record.original_n4_atom_hash,
+            "outcome_variable": input_record.outcome_variable,
+            "materialization": v4_materialization,
+            "n5": input_record.n5,
+        }
+        v4_input_draft = CandidateSimulationN5InputV4.model_construct(
+            **v4_input_payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="json", exclude={"content_hash"})
+        v4_input_record = CandidateSimulationN5InputV4.model_validate(
+            {
+                **v4_input_payload,
+                "content_hash": gy_content_hash(v4_input_draft),
+            }
+        )
+        v4_input_ref = read_private_artifact_in_job_scope(
+            lambda: source_repository.persist_candidate_simulation_input_v4(
+                input_record=v4_input_record
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert v4_input_ref.manifest_profile_sha256 is not None
+        v4_input_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(v4_input_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert v4_input_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            v4_input_manifest
+        )
+        v4_input_replay = read_private_artifact_in_job_scope(
+            lambda: source_repository._load_candidate_simulation_input_v4(v4_input_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        v4_input_read = _generation_source_read_result(v4_input_replay)
+        assert v4_input_read is not None
+        assert v4_input_read.provenance.selected_manifest_profile_sha256 == (
+            v4_input_ref.manifest_profile_sha256
+        )
+        assert v4_input_read.provenance.source_materialization == "reader_materialized"
+        assert v4_input_read.provenance.producer_attestation_status == "not_established"
+
         candidate_control_facets = {
             "authority_purpose": "candidate_scenario_n5_only",
             "n5_status": "not_run",

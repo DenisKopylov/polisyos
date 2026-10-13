@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from polisyos.core.canon.canon_json import CanonViolation, to_canonical_bytes
+from polisyos.core.canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
 
 
 def test_canonical_bytes_stable_for_key_order():
@@ -26,10 +26,11 @@ def test_float_forbidden():
 
 
 def test_nan_inf_forbidden_if_float_enabled():
-    with pytest.raises(CanonViolation):
-        to_canonical_bytes({"x": float("nan")})
-    with pytest.raises(CanonViolation):
-        to_canonical_bytes({"x": float("inf")})
+    spec = CanonSpec(forbid_floats=False)
+    assert b'"_type":"float"' in to_canonical_bytes({"x": 0.1}, spec)
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(CanonViolation, match="NaN/Inf forbidden"):
+            to_canonical_bytes({"x": value}, spec)
 
 
 def test_datetime_is_canonicalized_to_utc_z():

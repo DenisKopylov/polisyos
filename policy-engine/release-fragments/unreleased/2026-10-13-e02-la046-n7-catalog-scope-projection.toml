@@ -1,0 +1,30 @@
+id = "2026-10-13-e02-la046-n7-catalog-scope-projection"
+title = "Preserve typed N7 scope in candidate-only Catalog requests"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "The N7 compiler preserves explicit family-frontier state and scope declarations; the Catalog adapter projects only represented DataNeed fields and keeps unsupported requirements and resolver outcomes typed."
+evidence = [
+  "src/polisyos/data_requirement/compiler.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/acquisition_planner.py",
+  "src/polisyos/fabric/catalog/data_requirement_adapter.py",
+  "tests/unit/data_requirement/test_compiler.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/runtime/quality/test_acquisition_planner.py",
+  "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+]
+compatibility = "No typed DataNeed or acquisition artifact DTO fields change. The existing acquisition owner_response map adds an optional requirement_projection report for Fabric candidates and typed refusals. Missing scope/granularity and bounded intervals without an explicit role are refused before Catalog access; unbounded absent-role requests remain candidate-only and not_established. Explicit budget or availability controls unsupported by DataNeed are also refused."
+change_class = "n7-catalog-scope-projection"
+surface_classification = "additive projection report in the existing N7 acquisition owner_response payload; no schema or generated-client field changes"
+
+migration = "No stored artifact is rewritten. Missing and explicit-empty legacy family declarations no longer synthesize a production_data family. Missing required scope and unsupported bounded time roles are refused before Catalog access; unbounded or other unrepresented scope remains candidate-only and not_established."
+api = "The compiler retains explicit profile time role and granularity and the caller copies its existing typed TimeFrequency token when available. The adapter maps explicit geography, explicitly-role-bound interval, profile granularity, and minimum quality score into DataNeed; it binds matching capability-resolution scope and refuses malformed or conflicting scope. Catalog results remain candidate-only and do not create source binding, acquired data, or requirement satisfaction."
+limitations = "The existing DataNeed contract cannot express every DataRequirementSpec field. Unrepresented requirements, resolver absence, and Catalog-boundary budget or availability remain not_established; every control declared only by DataDiscoverRequest is compared against the actual N7 DataResolveRequest fields and an explicitly supplied value is refused before Catalog access, including malformed and zero-valued inputs. An interval from TimeSemantics has no established time-role mapping in this route and is refused unless the profile provides an explicit supported role. No external source authority, content admission, or formal LA046 occurrence closure is claimed. Runtime tests and integration execution remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/data_requirement/README.md",
+  "src/polisyos/fabric/catalog/README.md",
+]
+runbook_docs = []

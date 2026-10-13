@@ -491,9 +491,17 @@ def ensure_social_weight_manifest_artifact(
     ctx: ExecutionContext,
     *,
     welfare_params: Mapping[str, Any],
+    return_selected_profile: bool = False,
 ) -> SocialWeightManifestRef | None:
-    """Materialize the canonical social-weight artifact from current welfare params."""
+    """Materialize the canonical social-weight artifact from current welfare params.
 
+    Args:
+        ctx: Current welfare execution context.
+        welfare_params: Parameters that identify a social-weight manifest.
+        return_selected_profile: Return the exact manifest profile selected by this write.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
     if isinstance(welfare_params.get("welfare_social_weight_manifest"), Mapping):
         manifest_candidate, handle = _resolve_registered_social_weight_manifest(
             welfare_params["welfare_social_weight_manifest"]
@@ -545,7 +553,11 @@ def ensure_social_weight_manifest_artifact(
             "source_handle": handle,
         },
     )
-    return persist_social_weight_manifest(_ensure_ir_artifact_store(ctx.store), artifact)
+    return persist_social_weight_manifest(
+        _ensure_ir_artifact_store(ctx.store),
+        artifact,
+        return_selected_profile=return_selected_profile,
+    )
 
 
 def _resolve_candidate(
@@ -553,6 +565,7 @@ def _resolve_candidate(
     state: ExperimentState,
 ) -> PolicyCandidateSchema | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = state.params.get("policy_candidate_schema")
     if isinstance(payload, dict):
         try:
@@ -588,6 +601,7 @@ def _resolve_welfare_bundle_ref(
     state: ExperimentState,
 ) -> WelfareBundleRef | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = _coerce_ref(state.artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF), WelfareBundleRef)
     if ref is not None:
         return ref
@@ -871,6 +885,7 @@ def _mechanism_family_unsupported(
     state: ExperimentState,
 ) -> bool:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if (
         _pick_first_ref(
             state.artifacts_index,
@@ -897,9 +912,7 @@ def _mechanism_family_unsupported(
             report_refs.append(ref)
     for ref in report_refs:
         try:
-            report = ICVerificationReport.model_validate(
-                load_core_json_artifact(ctx.store, ref)
-            )
+            report = ICVerificationReport.model_validate(load_core_json_artifact(ctx.store, ref))
         except (OSError, RuntimeError, TypeError, ValueError):
             continue
         if report.verdict in {"unsupported_fragment", "semantic_validation_failure"}:
@@ -1068,6 +1081,7 @@ def _coerce_ref(value: Any, ref_cls):
 
 def _load_json_mapping(ctx: ExecutionContext, ref: ArtifactRef) -> dict[str, Any] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         payload = load_core_json_artifact(ctx.store, ref)
     except (OSError, RuntimeError, TypeError, ValueError):

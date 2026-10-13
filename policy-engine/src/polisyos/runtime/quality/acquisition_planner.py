@@ -1372,20 +1372,32 @@ class RealAcquisitionOwnerGateway:
         record: AcquisitionActionRecord,
         spec: Mapping[str, Any],
     ) -> AcquisitionOwnerArtifact | None:
-        from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+        from polisyos.core.contracts.control import DataResolveRequest
         from polisyos.data_forge.read_api import catalog as catalog_read_api
+        from polisyos.data_requirement import DataRequirementSpec
+        from polisyos.fabric.catalog.data_requirement_adapter import (
+            _project_data_requirement_to_catalog_needs,
+        )
         from polisyos.fabric.retrieval.service import RetrievalService
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
             require_active_catalog_source,
         )
 
+        capture_fetches = _fabric_fetch_capture_enabled(spec)
+        data_needs, requirement_projection = _project_data_requirement_to_catalog_needs(
+            compiled_requirement_spec=spec,
+        )
+        if requirement_projection.get("disposition") == "refused":
+            return _fabric_catalog_projection_refusal_artifact(
+                record=record,
+                spec=spec,
+                projection=requirement_projection,
+                captured_at=self._captured_at,
+            )
+        families = tuple(need.metric for need in data_needs)
         require_active_catalog_source(self._catalog_serving_source)
         curated_dir = self._repo_root / "production_data"
-        families = _required_families_for_spec(spec)
-        if not families:
-            return None
-        capture_fetches = _fabric_fetch_capture_enabled(spec)
         if capture_fetches and self._artifact_store is None:
             _LOGGER.warning(
                 "Fabric fetch capture refused: the owner-supplied artifact store is missing"
@@ -1405,14 +1417,7 @@ class RealAcquisitionOwnerGateway:
             )
         try:
             request = DataResolveRequest(
-                data_needs=[
-                    DataNeed(
-                        metric=family,
-                        purpose="n7_acquisition_owner_capture",
-                        quality_min=0.7,
-                    )
-                    for family in families
-                ],
+                data_needs=list(data_needs),
                 mode="hybrid",
                 allow_explore_fallback=False,
             )
@@ -1499,6 +1504,16 @@ class RealAcquisitionOwnerGateway:
             "candidate_count": len(response.candidates),
             "warnings": response.warnings,
             "families": list(families),
+            "requirement_projection": requirement_projection,
+            "compiled_requirement_spec_hash": _stable_content_hash(
+                {
+                    key: value
+                    for key, value in spec.items()
+                    if key in DataRequirementSpec.model_fields
+                }
+            ),
+            "data_needs": [need.model_dump(mode="json") for need in data_needs],
+            "candidate_only": True,
             "fetch_plans": [plan.model_dump(mode="json") for plan in response.fetch_plans],
             "candidates": [candidate.model_dump(mode="json") for candidate in response.candidates],
         }
@@ -2186,6 +2201,12 @@ def run_acquisition_closed_loop(
             "design_problem": design_problem.model_dump(mode="json") if design_problem else None,
             "world_snapshot": world.model_dump(mode="json"),
         }
+        if _owner_component_for_record(record, spec) == "fabric.retrieval":
+            owner_spec["capability_requirement_resolutions"] = [
+                resolution.model_dump(mode="json")
+                for resolution in (resolution_rows or ())
+            ]
+            owner_spec["catalog_request_context"] = _n7_catalog_request_context(request)
         artifact = gateway.acquire(record=record, compiled_requirement_spec=owner_spec)
         if artifact is None:
             reason = f"owner_artifact_missing:{requirement_ref}"
@@ -2749,6 +2770,48 @@ def _required_families_for_spec(spec: Mapping[str, Any]) -> tuple[str, ...]:
     return _text_tuple(spec.get("required_data_families"))
 
 
+def _n7_catalog_request_context(request: Mapping[str, Any]) -> dict[str, Any]:
+    """Carry request controls unsupported by the N7 Catalog route to its refusal gate."""
+
+    from polisyos.core.contracts.control import DataDiscoverRequest, DataResolveRequest
+
+    # N7 builds a DataResolveRequest, so every discovery-only control is unsupported here.
+    # Derive the full set from the existing typed contracts rather than selecting aliases.
+    discovery_control_fields = set(DataDiscoverRequest.model_fields) - set(
+        DataResolveRequest.model_fields
+    )
+    budget_keys = discovery_control_fields | {
+        "budget",
+        "budget_usd",
+        "cost_budget_usd",
+        "acquisition_budget_usd",
+        "max_cost_usd",
+    }
+    availability_keys = (
+        "availability_filters",
+        "source_availability_filters",
+        "available_sources",
+        "source_availability",
+    )
+
+    def selected(keys: Iterable[str]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key in sorted(keys):
+            if key not in request:
+                continue
+            value = request[key]
+            if value is None or isinstance(value, str | int | float | bool | list | dict):
+                result[key] = value
+            else:
+                result[key] = {"unsupported_value_type": type(value).__name__}
+        return result
+
+    return {
+        "budget_fields": selected(budget_keys),
+        "availability_fields": selected(availability_keys),
+    }
+
+
 def _owner_artifact_validation_issues(artifact: AcquisitionOwnerArtifact) -> tuple[str, ...]:
     issues: list[str] = []
     expected_hash = _stable_content_hash(artifact.payload)
@@ -3145,6 +3208,35 @@ def _validate_fabric_capture_ref(
     return manifest, ir_store.get_bytes(ref)
 
 
+def _fabric_catalog_projection_refusal_artifact(
+    *,
+    record: AcquisitionActionRecord,
+    spec: Mapping[str, Any],
+    projection: Mapping[str, Any],
+    captured_at: datetime,
+) -> AcquisitionOwnerArtifact:
+    """Persist a refusal when the Catalog API cannot represent the full need."""
+
+    response = {
+        "owner_response_kind": "fabric_requirement_projection_refusal",
+        "candidate_count": 0,
+        "fetch_plan_count": 0,
+        "reason_codes": list(projection.get("reason_codes", ())),
+        "requirement_projection": dict(projection),
+    }
+    payload = _fabric_response_payload(spec=spec, response=response)
+    return _artifact_from_owner_response(
+        owner_component="fabric.retrieval",
+        owner_endpoint="DataRequirementSpec-to-DataNeed projection refusal",
+        record=record,
+        spec=spec,
+        payload=payload,
+        captured_at=captured_at,
+        network_call=False,
+        cost_usd=0.0,
+    )
+
+
 def _fabric_response_payload(
     *,
     spec: Mapping[str, Any],
@@ -3205,6 +3297,7 @@ def _owner_response_has_acquired_content(response: Mapping[str, Any]) -> bool:
     if response.get("owner_response_kind") in {
         "fabric_catalog_resolution",
         "fabric_fetch_capture",
+        "fabric_requirement_projection_refusal",
     }:
         return False
     if "candidate_count" in response or "fetch_plan_count" in response:

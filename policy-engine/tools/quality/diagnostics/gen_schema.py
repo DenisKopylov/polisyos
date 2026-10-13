@@ -12,7 +12,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, get_args, get_origin
+
+from pydantic import Field, create_model
 
 from tools.lib.cache import (
     cache_path,
@@ -35,20 +37,24 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.schemas.abi_models import ABIModelEntry, select_abi_entries  # noqa: E402
+from polisyos.schemas.abi_models import (  # noqa: E402
+    ABIModelEntry,
+    SchemaMode,
+    select_abi_entries,
+)
 from tools.quality.diagnostics.generate_ir_reference_catalog import (  # noqa: E402
     generate_reference_docs,
 )
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "schemas" / "snapshots"
-GENERATOR_VERSION = "1.0.0"
+GENERATOR_VERSION = "1.1.0"
 METADATA_KEYS = {"title", "description", "$comment", "examples"}
 # These record where/when the snapshot was produced, not its ABI. If a supported
 # interpreter or Pydantic release changes a schema, the freshly generated payload
 # and its model hashes must expose that difference instead of the version header.
 MANIFEST_PROVENANCE_KEYS = {"generated_at", "python_version", "pydantic_version"}
 CACHE_NAMESPACE = "diagnostics.gen_schema"
-CACHE_VERSION = "2026.04.phase5"
+CACHE_VERSION = "2026.10.schema-variant"
 DEFAULT_BASELINE_LABEL = "default"
 MODULE_COMPATIBILITY: dict[str, dict[str, str]] = {
     "fabric": {
@@ -61,6 +67,13 @@ MODULE_COMPATIBILITY: dict[str, dict[str, str]] = {
     "ir": {
         "compatibility_class": "persisted-artifact-format",
         "version_owner": "team-ir",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "persisted-artifact-format",
+        "breaking_change_requires_fragment": "true",
+    },
+    "scientist": {
+        "compatibility_class": "persisted-artifact-format",
+        "version_owner": "team-scientist",
         "deprecation_window": "2 minor releases",
         "release_fragment_change_class": "persisted-artifact-format",
         "breaking_change_requires_fragment": "true",
@@ -218,6 +231,8 @@ def _schema_hash(payload: dict[str, Any]) -> str:
 
 
 def _schema_version_for(entry: ABIModelEntry, cls: type[Any]) -> str | None:
+    if entry.schema_variant_version is not None:
+        return entry.schema_variant_version
     if entry.version_field is None:
         return None
     model_fields = getattr(cls, "model_fields", None)
@@ -242,9 +257,52 @@ def _generate_enum_schema(cls: type[Enum]) -> dict[str, Any]:
     }
 
 
-def _generate_model_schema(cls: type[Any]) -> dict[str, Any]:
+def _schema_variant_model(entry: ABIModelEntry, cls: type[Any]) -> type[Any]:
+    """Bind a requested schema version to the source model's typed version field."""
+    requested_version = entry.schema_variant_version
+    if requested_version is None:
+        return cls
+
+    field_name = entry.version_field
+    model_fields = getattr(cls, "model_fields", None)
+    if field_name is None or not isinstance(model_fields, dict) or field_name not in model_fields:
+        raise GenerationError(
+            f"Schema variant {requested_version!r} for {entry.abi_key!r} "
+            "requires a declared version field"
+        )
+
+    field_info = model_fields[field_name]
+    annotation = getattr(field_info, "annotation", None)
+    if get_origin(annotation) is not Literal or requested_version not in get_args(annotation):
+        raise GenerationError(
+            f"Schema variant {requested_version!r} for {entry.abi_key!r} "
+            f"is not allowed by the typed {field_name!r} field"
+        )
+    if (
+        getattr(field_info, "alias", None) is not None
+        or getattr(field_info, "validation_alias", None) is not None
+        or getattr(field_info, "serialization_alias", None) is not None
+        or getattr(field_info, "metadata", ())
+        or getattr(field_info, "json_schema_extra", None) is not None
+    ):
+        raise GenerationError(
+            f"Schema variant field {field_name!r} on {entry.abi_key!r} "
+            "uses unsupported schema metadata"
+        )
+
+    return create_model(
+        cls.__name__,
+        __base__=cls,
+        __module__=cls.__module__,
+        **{field_name: (Literal[requested_version], Field(default=requested_version))},
+    )
+
+
+def _generate_model_schema(
+    cls: type[Any], *, mode: SchemaMode = SchemaMode.VALIDATION
+) -> dict[str, Any]:
     if hasattr(cls, "model_json_schema"):
-        return cls.model_json_schema(mode="validation", by_alias=True)
+        return cls.model_json_schema(mode=mode.value, by_alias=True)
     if isinstance(cls, type) and issubclass(cls, Enum):
         return _generate_enum_schema(cls)
     raise TypeError(f"Unsupported ABI class (not Pydantic model or Enum): {cls}")
@@ -342,6 +400,8 @@ def _entry_cache_key(
             "priority": resolved.entry.priority.value,
             "compat_mode": resolved.entry.compat_mode.value,
             "version_field": resolved.entry.version_field,
+            "schema_mode": resolved.entry.schema_mode.value,
+            "schema_variant_version": resolved.entry.schema_variant_version,
             "aliases": list(resolved.entry.aliases),
             "lifecycle": resolved.entry.lifecycle.value,
             "source_path": str(resolved.source_path) if resolved.source_path is not None else None,
@@ -359,7 +419,8 @@ def _load_or_generate_entry_payload(
     # A defining-file hash does not bind imported models, enums, base classes or
     # schema hooks. Recompute the complete runtime payload before consulting any
     # persisted candidate; the cache may avoid a write, never establish a schema.
-    schema_payload = _generate_model_schema(resolved.cls)
+    schema_model = _schema_variant_model(resolved.entry, resolved.cls)
+    schema_payload = _generate_model_schema(schema_model, mode=resolved.entry.schema_mode)
     semantic_payload = _strip_metadata(schema_payload)
     schema_version = _schema_version_for(resolved.entry, resolved.cls)
     payload = {
@@ -430,7 +491,7 @@ def _process_module(
             if _write_text_if_changed(target, content):
                 updated += 1
 
-        manifest_entries[entry.abi_key] = {
+        manifest_entry = {
             "fqn": entry.fqn,
             "schema_file": entry.schema_file,
             "schema_version": schema_version,
@@ -442,6 +503,13 @@ def _process_module(
             "sha256_full": str(payload["sha256_full"]),
             "sha256_semantic": str(payload["sha256_semantic"]),
         }
+        if (
+            entry.schema_mode is not SchemaMode.VALIDATION
+            or entry.schema_variant_version is not None
+        ):
+            manifest_entry["schema_mode"] = entry.schema_mode.value
+            manifest_entry["schema_variant_version"] = entry.schema_variant_version
+        manifest_entries[entry.abi_key] = manifest_entry
         seen_schema_files.add(entry.schema_file)
 
     manifest_payload = _build_manifest(
@@ -539,6 +607,8 @@ def _build_run_fingerprint(
                     "abi_key": resolved.entry.abi_key,
                     "module": resolved.entry.module,
                     "schema_file": resolved.entry.schema_file,
+                    "schema_mode": resolved.entry.schema_mode.value,
+                    "schema_variant_version": resolved.entry.schema_variant_version,
                     "fqn": resolved.entry.fqn,
                     "source_path": str(resolved.source_path) if resolved.source_path else None,
                     "source_hash": resolved.source_hash,

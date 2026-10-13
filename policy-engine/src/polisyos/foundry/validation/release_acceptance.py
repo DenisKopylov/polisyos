@@ -214,7 +214,9 @@ class ReleaseAcceptanceRunner:
             runtime_agents_bytes = self._store.get_bytes(runtime_agent_registry_ref)
             cell_registry_bytes = self._store.get_bytes(cell_registry_ref)
             trinity_bytes = self._store.get_bytes(trinity_bundle_ref)
-            trinity_bundle = validate_core_model_json_artifact(TrinityBundle, self._store, trinity_bundle_ref, raw_payload_bytes=trinity_bytes)
+            trinity_bundle = validate_core_model_json_artifact(
+                TrinityBundle, self._store, trinity_bundle_ref, raw_payload_bytes=trinity_bytes
+            )
             runtime_agents = pd.read_parquet(BytesIO(runtime_agents_bytes))
             cell_registry = pd.read_parquet(BytesIO(cell_registry_bytes))
         except Exception as exc:
@@ -264,9 +266,12 @@ class ReleaseAcceptanceRunner:
         data_snapshot_ref = self._store.put_json(
             DataSnapshot(data_ref=state_snapshot_ref),
             PutOptions(
-                kind="fabric.data_snapshot",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                ),
             ),
         )
         built = build_input_bindings(
@@ -299,11 +304,11 @@ class ReleaseAcceptanceRunner:
         effective_trinity_ref = self._store.put_json(
             effective_trinity,
             PutOptions(
-                kind="ir.trinity_bundle",
-                media_type="application/json",
+                kind=TrinityBundle.ARTIFACT_KIND,
+                media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
                 schema=SchemaInfo(
-                    name="polisyos.ir.TrinityBundle",
-                    version=effective_trinity.schema_version,
+                    name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                    version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
                 ),
             ),
         )
@@ -399,10 +404,18 @@ class ReleaseAcceptanceRunner:
             original_metrics_sha = _sha256_bytes(original_metrics_bytes)
             replay_metrics_sha = _sha256_bytes(replay_metrics_bytes)
             stable_original_metrics = _stable_metrics(
-                Metrics.model_validate(load_core_json_artifact(self._store, original_metrics_ref, raw_payload_bytes=original_metrics_bytes)).values
+                Metrics.model_validate(
+                    load_core_json_artifact(
+                        self._store, original_metrics_ref, raw_payload_bytes=original_metrics_bytes
+                    )
+                ).values
             )
             stable_replay_metrics = _stable_metrics(
-                Metrics.model_validate(load_core_json_artifact(self._store, replay_metrics_ref, raw_payload_bytes=replay_metrics_bytes)).values
+                Metrics.model_validate(
+                    load_core_json_artifact(
+                        self._store, replay_metrics_ref, raw_payload_bytes=replay_metrics_bytes
+                    )
+                ).values
             )
             metrics_exact = stable_original_metrics == stable_replay_metrics
         replay_verified = normalized_original == normalized_replay and metrics_exact

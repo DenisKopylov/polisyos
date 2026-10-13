@@ -32,6 +32,18 @@ resolve an in-repository FQN has an explicit whitelist.
    `allowed_targets`, and `verifier`. `target` names the intended import,
    extension point, or builtin loader; `verifier` names the gate, smoke test, or
    owner review that proves the dynamic edge remains intentional.
+7. The dynamic-import gate derives the expected registry from the complete
+   `collect_dynamic_imports` result rendered by `render_dynamic_imports_toml`.
+   It compares each current row's full field set and values, including the
+   collector-derived `id`, owner, target, verifier, allowed targets, and notes;
+   unknown, missing, duplicated, stale, malformed, and source-mismatched rows
+   fail closed. Stable header fields likewise match the canonical renderer.
+8. `review_owner`, `reviewed_at`, and `review_expires` remain external review
+   decisions: source inventory reconciliation neither issues nor renews them.
+   This gate requires them to remain present as nonempty strings but does not
+   authenticate the issuer. The separate repository closeout check continues
+   to reject an expired `review_expires`. A green inventory comparison is not
+   review approval, and empty `allowed_targets` remain review-required.
 
 ## Consequences
 

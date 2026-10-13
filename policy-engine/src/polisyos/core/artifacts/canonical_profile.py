@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, TypeVar
+import json
+import types
+from collections.abc import Mapping, Sequence
+from decimal import Decimal
+from enum import Enum
+from typing import Annotated, Any, Literal, TypeVar, Union, get_args, get_origin
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, RootModel, TypeAdapter, ValidationError
+from pydantic.errors import PydanticUserError
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileDeclaration,
@@ -112,8 +118,7 @@ def read_core_manifest_profile(
         or selector.media_type != typed_manifest.media_type
         or (
             selector.manifest_profile_sha256 is not None
-            and selector.manifest_profile_sha256
-            != artifact_manifest_profile_sha256(typed_manifest)
+            and selector.manifest_profile_sha256 != artifact_manifest_profile_sha256(typed_manifest)
         )
     ):
         raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
@@ -180,10 +185,7 @@ def read_core_json_artifact(
         and selected_ref.manifest_profile_sha256 != manifest_profile_sha256
     ):
         raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
-    if (
-        isinstance(selector, ArtifactRef)
-        and selector.manifest_profile_sha256 is not None
-    ):
+    if isinstance(selector, ArtifactRef) and selector.manifest_profile_sha256 is not None:
         payload_selector: object = selector
     elif declaration.status != "absent" or manifest_profile_sha256 is not None:
         payload_selector = selected_ref
@@ -222,7 +224,6 @@ def read_core_json_artifact(
     )
 
 
-
 def load_core_json_artifact(
     store: object,
     selector: object,
@@ -259,6 +260,450 @@ def read_core_json_artifact_bytes(
     return read.raw_payload_bytes
 
 
+def _without_annotated(annotation: Any) -> Any:
+    """Strip validation metadata for shape adaptation; the model applies it once."""
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Annotated:
+        return _without_annotated(args[0])
+    if not args:
+        return annotation
+    stripped = tuple(_without_annotated(argument) for argument in args)
+    if origin is types.UnionType:
+        result = stripped[0]
+        for option in stripped[1:]:
+            result = result | option
+        return result
+    try:
+        return origin[stripped[0] if len(stripped) == 1 else stripped]
+    except (AttributeError, TypeError):
+        return annotation
+
+
+def _core_type_adapter(annotation: Any, model_config: object) -> TypeAdapter[Any]:
+    """Build the public Pydantic adapter with the owning model's JSON settings."""
+    annotation = _without_annotated(annotation)
+    try:
+        return TypeAdapter(annotation, config=model_config)
+    except PydanticUserError:
+        # BaseModel-containing annotations own their configuration on the model class.
+        return TypeAdapter(annotation)
+
+
+def _unwrap_annotated(annotation: Any) -> Any:
+    """Return an annotation's structural type while leaving metadata on its adapter."""
+    while get_origin(annotation) is Annotated:
+        annotation = get_args(annotation)[0]
+    return annotation
+
+
+def _base_model_type(annotation: Any) -> type[BaseModel] | None:
+    """Return the BaseModel class at an annotation's structural root."""
+    annotation = _unwrap_annotated(annotation)
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return annotation
+    return None
+
+
+def _direct_alias_keys(alias: object) -> tuple[str, ...]:
+    """Collect direct string aliases from a Pydantic alias or AliasChoices."""
+    if isinstance(alias, str):
+        return (alias,)
+    choices = getattr(alias, "choices", ())
+    if not isinstance(choices, (tuple, list)):
+        return ()
+    return tuple(key for choice in choices for key in _direct_alias_keys(choice))
+
+
+_CORE_SCHEMA_WRAPPERS = frozenset(
+    {
+        "default",
+        "function-after",
+        "function-before",
+        "function-wrap",
+        "nullable",
+    }
+)
+
+
+def _core_schema_model_type(
+    schema: Any,
+    definitions: Mapping[str, Any],
+) -> type[BaseModel] | None:
+    """Resolve one CoreSchema branch to its declared model class without validating it."""
+    seen: set[str] = set()
+    while isinstance(schema, Mapping):
+        schema_type = schema.get("type")
+        if schema_type == "definition-ref":
+            reference = schema.get("schema_ref")
+            if not isinstance(reference, str) or reference in seen:
+                return None
+            seen.add(reference)
+            schema = definitions.get(reference)
+            continue
+        if schema_type in _CORE_SCHEMA_WRAPPERS:
+            schema = schema.get("schema")
+            continue
+        if schema_type == "json-or-python":
+            schema = schema.get("python_schema")
+            continue
+        if schema_type == "model":
+            model = schema.get("cls")
+            if isinstance(model, type) and issubclass(model, BaseModel):
+                return model
+            return None
+        return None
+    return None
+
+
+def _core_schema_union_model_types(schema: Any) -> tuple[type[BaseModel], ...]:
+    """Read direct model choices from Pydantic's schema for one union annotation."""
+    definitions: dict[str, Any] = {}
+    while isinstance(schema, Mapping):
+        schema_type = schema.get("type")
+        if schema_type == "definitions":
+            for definition in schema.get("definitions", ()):
+                if isinstance(definition, Mapping):
+                    reference = definition.get("ref")
+                    if isinstance(reference, str):
+                        definitions[reference] = definition
+            schema = schema.get("schema")
+            continue
+        if schema_type in _CORE_SCHEMA_WRAPPERS:
+            schema = schema.get("schema")
+            continue
+        if schema_type == "json-or-python":
+            schema = schema.get("python_schema")
+            continue
+        break
+
+    if not isinstance(schema, Mapping) or schema.get("type") not in {
+        "tagged-union",
+        "union",
+    }:
+        return ()
+    choices = schema.get("choices")
+    if isinstance(choices, Mapping):
+        branches = choices.values()
+    elif isinstance(choices, (tuple, list)):
+        branches = (choice[0] if isinstance(choice, tuple) else choice for choice in choices)
+    else:
+        return ()
+
+    models: list[type[BaseModel]] = []
+    for branch in branches:
+        model = _core_schema_model_type(branch, definitions)
+        if model is not None and model not in models:
+            models.append(model)
+    return tuple(models)
+
+
+def _literal_values(annotation: Any) -> tuple[Any, ...]:
+    """Return direct Literal values used as schema-discriminating descriptors."""
+    annotation = _unwrap_annotated(annotation)
+    return get_args(annotation) if get_origin(annotation) is Literal else ()
+
+
+def _literal_wire_value(value: Any) -> Any:
+    """Return the JSON-visible value of an Enum Literal without coercing its type."""
+    return value.value if isinstance(value, Enum) else value
+
+
+def _same_literal_value(candidate: Any, expected: Any) -> bool:
+    """Compare one decoded JSON value to a declared Literal value strictly."""
+    expected_wire = _literal_wire_value(expected)
+    return type(candidate) is type(expected_wire) and candidate == expected_wire
+
+
+def _model_field_keys(field_name: str, field: Any) -> tuple[str, ...]:
+    """Collect the direct JSON keys accepted by one declared Pydantic field."""
+    return tuple(
+        dict.fromkeys(
+            key
+            for alias in (
+                field.serialization_alias,
+                field.alias,
+                field.validation_alias,
+                field_name,
+            )
+            for key in _direct_alias_keys(alias)
+        )
+    )
+
+
+def _model_mapping_shape_matches(model: type[BaseModel], value: Mapping[Any, Any]) -> bool:
+    """Check only required keys and extra-field policy; leave values for terminal validation."""
+    if any(not isinstance(key, str) for key in value):
+        return False
+    allowed_keys: set[str] = set()
+    for field_name, field in model.model_fields.items():
+        field_keys = _model_field_keys(field_name, field)
+        allowed_keys.update(field_keys)
+        if field.is_required() and not any(key in value for key in field_keys):
+            return False
+    return not (model.model_config.get("extra") == "forbid" and set(value) - allowed_keys)
+
+
+def _core_union_model_branch(
+    schema: Any,
+    models: tuple[type[BaseModel], ...],
+    value: Mapping[Any, Any],
+    *,
+    discriminator: Any = None,
+) -> type[BaseModel] | None:
+    """Choose only a uniquely described union model; never validate a branch early."""
+    if not models:
+        return None
+
+    schema_discriminator = (
+        schema.get("discriminator")
+        if isinstance(schema, Mapping) and schema.get("type") == "tagged-union"
+        else None
+    )
+    explicit_discriminator = discriminator or schema_discriminator
+
+    literal_descriptors: dict[tuple[str, type[Any], Any], set[type[BaseModel]]] = {}
+    for model in models:
+        for field_name, field in model.model_fields.items():
+            values = _literal_values(field.annotation)
+            if not values:
+                continue
+            for key in _model_field_keys(field_name, field):
+                for literal in values:
+                    wire_value = _literal_wire_value(literal)
+                    try:
+                        descriptor = (key, type(wire_value), wire_value)
+                        literal_descriptors.setdefault(descriptor, set()).add(model)
+                    except TypeError:
+                        continue
+
+    if isinstance(explicit_discriminator, str):
+        if explicit_discriminator not in value:
+            return None
+        tag = value[explicit_discriminator]
+        matches: set[type[BaseModel]] = set()
+        for (key, _value_type, expected), owners in literal_descriptors.items():
+            if key == explicit_discriminator and _same_literal_value(tag, expected):
+                matches.update(owners)
+        if len(matches) == 1:
+            return next(iter(matches))
+        return None
+
+    unique_descriptors = {
+        descriptor: next(iter(owners))
+        for descriptor, owners in literal_descriptors.items()
+        if len(owners) == 1
+    }
+    matched_models: set[type[BaseModel]] = set()
+    for (key, _value_type, expected), model in unique_descriptors.items():
+        if key in value and _same_literal_value(value[key], expected):
+            matched_models.add(model)
+    if len(matched_models) == 1:
+        return next(iter(matched_models))
+    if len(matched_models) > 1:
+        raise _typed_union_refusal(
+            value, "Core union input matches multiple unique Literal branches"
+        )
+
+    shape_matches = [model for model in models if _model_mapping_shape_matches(model, value)]
+    if len(shape_matches) == 1:
+        return shape_matches[0]
+    return None
+
+
+def _typed_union_refusal(value: Any, reason: str) -> ValidationError:
+    """Create a normal Pydantic typed refusal for an ambiguous schema adaptation."""
+    return ValidationError.from_exception_data(
+        "Core typed union",
+        [
+            {
+                "type": "value_error",
+                "loc": (),
+                "input": value,
+                "ctx": {"error": ValueError(reason)},
+            }
+        ],
+    )
+
+
+def _core_model_payload(model: type[_ModelT], value: Any) -> Any:
+    """Reify one Core-decoded model mapping without running validators early."""
+    if issubclass(model, RootModel):
+        root_field = model.model_fields["root"]
+        return _core_typed_value(root_field.annotation, value, model.model_config)
+
+    if not isinstance(value, Mapping):
+        return value
+
+    normalized = dict(value)
+    for name, field in model.model_fields.items():
+        candidates = tuple(
+            dict.fromkeys(
+                key
+                for alias in (
+                    field.serialization_alias,
+                    field.alias,
+                    field.validation_alias,
+                    name,
+                )
+                for key in _direct_alias_keys(alias)
+            )
+        )
+        present = [key for key in candidates if key in value]
+        if len(present) > 1:
+            raise ValueError(f"ambiguous Core JSON aliases for field {name!r}")
+        if not present:
+            continue
+        source_key = present[0]
+        typed_value = _core_typed_value(
+            field.annotation,
+            value[source_key],
+            model.model_config,
+            discriminator=field.discriminator,
+        )
+        if source_key != name:
+            normalized.pop(source_key, None)
+        normalized[name] = typed_value
+
+    return normalized
+
+
+def _contains_base_model(annotation: Any) -> bool:
+    """Return whether an annotation contains a model that must wait for terminal validation."""
+    if _base_model_type(annotation) is not None:
+        return True
+    return any(
+        _contains_base_model(argument) for argument in get_args(_unwrap_annotated(annotation))
+    )
+
+
+def _core_typed_value(
+    annotation: Any,
+    value: Any,
+    model_config: object,
+    *,
+    discriminator: Any = None,
+) -> Any:
+    """Validate a decoded Core value using its declared Pydantic type and strict mode.
+
+    Core's decoder has already reconstructed its declared native tags. This helper
+    supplies the remaining JSON-to-Python shape adaptation (for example list to
+    tuple and JSON strings to Enum/date/bytes fields) from the requested annotation.
+    """
+    model_type = _base_model_type(annotation)
+    if model_type is not None:
+        return _core_model_payload(model_type, value)
+
+    adapter = _core_type_adapter(annotation, model_config)
+    contains_model = _contains_base_model(annotation)
+    python_error: ValidationError | None = None
+    if not contains_model:
+        try:
+            return adapter.validate_python(value, strict=True)
+        except ValidationError as exc:
+            python_error = exc
+
+    base = _unwrap_annotated(annotation)
+    origin = get_origin(base)
+    args = get_args(base)
+
+    if origin in (Union, types.UnionType):
+        if value is None:
+            return None
+        schema = adapter.core_schema
+        model_options = _core_schema_union_model_types(schema)
+        if isinstance(value, Mapping):
+            model_option = _core_union_model_branch(
+                schema,
+                model_options,
+                value,
+                discriminator=discriminator,
+            )
+            if model_option is not None:
+                return _core_model_payload(model_option, value)
+        for option in args:
+            if _contains_base_model(option):
+                continue
+            try:
+                return _core_typed_value(option, value, model_config)
+            except ValidationError:
+                continue
+
+    if origin is tuple and isinstance(value, (list, tuple)):
+        if len(args) == 2 and args[1] is Ellipsis:
+            item_annotations = (args[0],) * len(value)
+        elif len(args) == len(value):
+            item_annotations = args
+        else:
+            item_annotations = ()
+        if item_annotations or not args:
+            candidate = tuple(
+                _core_typed_value(
+                    item_annotation,
+                    item,
+                    model_config,
+                    discriminator=discriminator,
+                )
+                for item_annotation, item in zip(item_annotations, value, strict=True)
+            )
+            return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+
+    if isinstance(origin, type) and issubclass(origin, Sequence) and isinstance(value, list):
+        item_annotation = args[0] if args else Any
+        candidate = [
+            _core_typed_value(item_annotation, item, model_config, discriminator=discriminator)
+            for item in value
+        ]
+        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+
+    if isinstance(origin, type) and issubclass(origin, Mapping) and isinstance(value, Mapping):
+        key_annotation, item_annotation = args if len(args) == 2 else (Any, Any)
+        candidate = {
+            _core_typed_value(
+                key_annotation, key, model_config, discriminator=discriminator
+            ): _core_typed_value(
+                item_annotation,
+                item,
+                model_config,
+                discriminator=discriminator,
+            )
+            for key, item in value.items()
+        }
+        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+
+    if origin in (set, frozenset) and isinstance(value, (list, tuple, set, frozenset)):
+        item_annotation = args[0] if args else Any
+        items = (
+            _core_typed_value(item_annotation, item, model_config, discriminator=discriminator)
+            for item in value
+        )
+        candidate = set(items) if origin is set else frozenset(items)
+        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+
+    if contains_model:
+        return value
+
+    if python_error is None:
+        return value
+    if type(value) is float and _unwrap_annotated(annotation) is Decimal:
+        # JSON parsing must not turn a forbidden decimal float into an accepted Decimal.
+        raise python_error from None
+    try:
+        raw_json = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError, OverflowError):
+        raise python_error from None
+    try:
+        return adapter.validate_json(raw_json, strict=True)
+    except ValidationError:
+        raise python_error from None
+
+
 def validate_core_model_json_artifact(
     model: type[_ModelT],
     store: object,
@@ -268,14 +713,15 @@ def validate_core_model_json_artifact(
     manifest_profile_sha256: str | None = None,
 ) -> _ModelT:
     """Strictly validate a Pydantic model after selected-profile byte admission."""
-    return model.model_validate(
-        load_core_json_artifact(
-            store,
-            selector,
-            raw_payload_bytes=raw_payload_bytes,
-            manifest_profile_sha256=manifest_profile_sha256,
-        )
+    read = read_core_json_artifact(
+        store,
+        selector,
+        raw_payload_bytes=raw_payload_bytes,
+        manifest_profile_sha256=manifest_profile_sha256,
     )
+    value = require_declared_profile(read)
+    normalized = _core_model_payload(model, value)
+    return model.model_validate(normalized, strict=True, by_alias=False, by_name=True)
 
 
 def _split_core_json_frames(payload: bytes) -> list[bytes]:

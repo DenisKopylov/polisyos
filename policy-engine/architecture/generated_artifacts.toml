@@ -658,16 +658,18 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts"
+source_of_truth = "src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py"
 outputs = [
   "schemas/snapshots/ir/",
   "schemas/snapshots/fabric/edge_kind.schema.json",
   "schemas/snapshots/fabric/node_kind.schema.json",
   "schemas/snapshots/fabric/_manifest.json",
+  "schemas/snapshots/scientist/calibration_validation_bundle_v1_1.schema.json",
+  "schemas/snapshots/scientist/_manifest.json",
 ]
 regenerate_commands = ["uv run --extra ml polisyos-tools diagnostics gen-schema"]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever ABI-visible IR or Fabric contracts change."
+freshness_rule = "Regenerate and commit whenever ABI-visible IR, Fabric, or registered Scientist persisted-artifact contracts change."
 compatibility_class = "schema-openapi-abi"
 version_owner = "team-polisyos"
 deprecation_window = "2 minor releases"

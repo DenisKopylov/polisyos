@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from polisyos.core.artifacts import ArtifactRef, InputRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    InputRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts import (
     DistributionalReportRef,
@@ -262,8 +267,31 @@ def _build_backtest_section(
     try:
         report = load_backtest_report(
             _ensure_ir_artifact_store(ctx.store),
-            BacktestReportRef(artifact_id=backtest_ref.artifact_id),
+            BacktestReportRef(
+                artifact_id=backtest_ref.artifact_id,
+                manifest_profile_sha256=backtest_ref.manifest_profile_sha256,
+            ),
         )
+        from polisyos.scientist.governance.backtest_matrix import (
+            verify_backtest_diagnostic_projection,
+            verify_backtest_trust_projection,
+        )
+
+        diagnostic_projection = verify_backtest_diagnostic_projection(report)
+        diagnostics_source_bound = diagnostic_projection.metric_diagnostics is not None
+        trust_projection = verify_backtest_trust_projection(report)
+        trust_source_bound = trust_projection.eligible
+        degraded_reasons = list(report.degraded_reasons)
+        if not trust_source_bound:
+            reason = f"backtest_trust_unavailable:{trust_projection.reason}"
+            if reason not in degraded_reasons:
+                degraded_reasons.append(reason)
+        if not diagnostics_source_bound:
+            reason = "metric_diagnostics_not_source_bound"
+            if diagnostic_projection.reason:
+                reason = diagnostic_projection.reason
+            if reason not in degraded_reasons:
+                degraded_reasons.append(reason)
         payload.update(
             {
                 "report_id": report.report_id,
@@ -274,19 +302,41 @@ def _build_backtest_section(
                 "overall_mape": report.overall_mape,
                 "overall_coverage_probability": report.overall_coverage_probability,
                 "overall_bias_direction": report.overall_bias_direction.value,
-                "detected_biases": [
-                    bias.model_dump(mode="json") for bias in report.detected_biases
-                ],
+                "detected_biases": diagnostic_projection.detected_biases,
+                "backtest_report_status": "available",
+                "metric_diagnostics_status": (
+                    "unavailable"
+                    if not diagnostics_source_bound
+                    else diagnostic_projection.status
+                    if report.metric_diagnostics
+                    else "empty"
+                ),
+                "metric_diagnostics": diagnostic_projection.metric_diagnostics,
+                "metric_diagnostics_reason": diagnostic_projection.reason,
                 "prediction_mode_requested": report.prediction_mode_requested,
                 "prediction_mode_effective": report.prediction_mode_effective,
-                "degraded": report.degraded,
-                "degraded_reasons": list(report.degraded_reasons),
-                "trust_eligible": report.trust_eligible,
-                "trust_score": report.trust_score,
-                "trust_grade": report.trust_grade,
+                "degraded": report.degraded
+                or not diagnostics_source_bound
+                or not trust_source_bound,
+                "degraded_reasons": degraded_reasons,
+                "trust_score_status": trust_projection.status,
+                "trust_score_reason": trust_projection.reason,
+                "trust_eligible": trust_source_bound,
+                "trust_score": trust_projection.score,
+                "trust_grade": trust_projection.grade,
             }
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
+        payload["backtest_report_status"] = "unavailable"
+        payload["metric_diagnostics_status"] = "unavailable"
+        payload["metric_diagnostics"] = None
+        payload["trust_score_status"] = "unavailable"
+        payload["trust_score_reason"] = "backtest_report_load_failed"
+        payload["trust_eligible"] = False
+        payload["trust_score"] = None
+        payload["trust_grade"] = None
+        payload["degraded"] = True
+        payload["degraded_reasons"] = ["backtest_report_load_failed"]
         payload["parse_warning"] = "backtest_report_parse_failed"
         _record_decision_packet_section_degraded(
             packet_payload,
@@ -315,11 +365,114 @@ def _build_calibration_validation_section(
         )
 
         bundle = load_calibration_validation_bundle(ctx.store, bundle_ref)
+        readout = dict(bundle.readout_summary())
+        direct_backtest = (
+            packet_payload.get("backtest")
+            if packet_payload is not None and isinstance(packet_payload.get("backtest"), dict)
+            else None
+        )
+        direct_ref = artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF)
+        nested_ref = bundle.backtest_report_ref
+        nested_identity = (
+            None
+            if nested_ref is None
+            else artifact_ref_identity_key(
+                ArtifactRef(
+                    artifact_id=nested_ref.artifact_id,
+                    kind=nested_ref.kind,
+                    media_type=nested_ref.media_type,
+                    manifest_profile_sha256=nested_ref.manifest_profile_sha256,
+                )
+            )
+        )
+        if (
+            direct_backtest is not None
+            and direct_ref is not None
+            and nested_identity is not None
+            and artifact_ref_identity_key(direct_ref) != nested_identity
+        ):
+            direct_backtest.update(
+                {
+                    "backtest_report_status": "unavailable",
+                    "metric_diagnostics_status": "unavailable",
+                    "metric_diagnostics": None,
+                    "parse_warning": "backtest_report_binding_mismatch",
+                    "n_scenarios": None,
+                    "n_metrics_evaluated": None,
+                    "overall_rmse": None,
+                    "overall_mae": None,
+                    "overall_mape": None,
+                    "overall_coverage_probability": None,
+                    "overall_bias_direction": None,
+                    "detected_biases": [],
+                    "trust_eligible": False,
+                    "trust_score": None,
+                    "trust_grade": None,
+                    "degraded": True,
+                    "degraded_reasons": ["decision_packet_backtest_report_binding_mismatch"],
+                    "source_json_snapshot_binding_status": "unavailable",
+                }
+            )
+            readout.update(
+                {
+                    "backtest_report_status": "unavailable",
+                    "backtest_report_reason": "decision_packet_backtest_report_binding_mismatch",
+                    "backtest_metric_diagnostics_status": "unavailable",
+                    "backtest_metric_diagnostics": None,
+                    "eligible_for_promotion": False,
+                    "source_json_snapshot_binding_status": "unavailable",
+                    "source_json_snapshot_binding_reason": "decision_packet_backtest_report_binding_mismatch",
+                }
+            )
+        elif (
+            direct_backtest is not None
+            and bundle.purpose == "candidate_diagnostic"
+            and readout.get("source_json_snapshot_binding_status") != "available"
+        ):
+            binding_status = readout.get("source_json_snapshot_binding_status", "not_established")
+            binding_reason = readout.get("source_json_snapshot_binding_reason")
+            direct_backtest.update(
+                {
+                    "source_json_snapshot_binding_status": binding_status,
+                    "metric_diagnostics_status": "unavailable",
+                    "metric_diagnostics": None,
+                    "metric_diagnostics_reason": binding_reason,
+                    "detected_biases": [],
+                    "trust_eligible": False,
+                    "trust_score": None,
+                    "trust_grade": None,
+                    "degraded": True,
+                }
+            )
+            if readout.get("backtest_report_status") != "available":
+                direct_backtest.update(
+                    {
+                        "backtest_report_status": "unavailable",
+                        "parse_warning": "candidate_source_input_binding_unavailable",
+                    }
+                )
         payload.update(
             {
                 "status": bundle.status,
+                "purpose": bundle.purpose,
                 "governance_verdict": bundle.governance_verdict,
-                "summary": bundle.readout_summary(),
+                "backtest_report_ref": readout.get("backtest_report_ref"),
+                "backtest_report_status": readout.get("backtest_report_status"),
+                "backtest_metric_diagnostics_status": readout.get(
+                    "backtest_metric_diagnostics_status"
+                ),
+                "backtest_metric_diagnostics": readout.get("backtest_metric_diagnostics"),
+                "backtest_metric_diagnostics_reason": readout.get(
+                    "backtest_metric_diagnostics_reason"
+                ),
+                "source_json_snapshot_binding_status": readout.get(
+                    "source_json_snapshot_binding_status"
+                ),
+                "source_json_snapshot_binding_reason": readout.get(
+                    "source_json_snapshot_binding_reason"
+                ),
+                "source_json_snapshot_reads": readout.get("source_json_snapshot_reads", {}),
+                "summary": readout,
                 "governance_accountability_ref": (
                     None
                     if bundle.governance_accountability_ref is None
@@ -581,6 +734,7 @@ def _build_welfare_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     bundle_ref = artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
     if bundle_ref is None:
         sim_result_ref = artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
@@ -791,6 +945,7 @@ def _build_econometrics_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     result_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_RESULT_REF)
     evidence_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_EVIDENCE_REF)
     envelope_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_ENVELOPE_REF)

@@ -20,6 +20,11 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import (
+    _require_return_selected_profile_writer,
+    resolve_manifest_by_profile,
+)
+from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -41,17 +46,24 @@ from polisyos.core.contracts.foundry import (
     FeedbackStateSnapshot,
     FeedbackTrace,
     FeedbackTraceRef,
+    FoundryExecutionInputBasis,
+    FoundryExecutionInputBasisRef,
     FoundryInputBindingsRef,
     Metrics,
     MetricsRef,
     ParameterOverrideBundle,
     ParameterOverrideBundleRef,
+    ProgramGraph,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
-from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
+from polisyos.core.registry import (
+    RegistryBundleContent,
+    load_registry_bundle_content,
+    load_registry_bundle_payload,
+)
 from polisyos.foundry._registry import MissingRuntimeMechanismSupportError
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
@@ -81,6 +93,7 @@ from polisyos.foundry.feedback import (
     snapshot_from_vector,
     solve_fixed_point,
 )
+from polisyos.ir.trinity import TrinityBundle
 
 
 @dataclass(frozen=True)
@@ -98,6 +111,193 @@ class _FeedbackExecutionEvaluation:
 
     map_evaluation: MapEvaluation
     final_state: object
+
+
+def _selected_manifest(store: FileSystemCAS, ref: ArtifactRef):
+    """Resolve one exact selected manifest and verify its payload bytes."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_source_selected_profile_missing")
+    manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
+    if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+        raise ValueError("execution_source_manifest_contract_mismatch")
+    if not store.verify(ref).ok:
+        raise ValueError("execution_source_manifest_integrity_failure")
+    return manifest
+
+
+def _selected_ref_from_edge(
+    store: FileSystemCAS,
+    parent_ref: ArtifactRef,
+    role: str,
+    *,
+    expected_kind: str | None = None,
+) -> ArtifactRef:
+    """Resolve a unique content-bound parent edge without falling back to the default view."""
+    parent_manifest = _selected_manifest(store, parent_ref)
+    edges = [edge for edge in parent_manifest.inputs if edge.role == role]
+    if len(edges) != 1:
+        raise ValueError(f"execution_source_requires_one_edge:{role}")
+    edge = edges[0]
+    if edge.manifest_profile_sha256 is None:
+        raise ValueError(f"execution_source_edge_profile_missing:{role}")
+    manifest = resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
+    if expected_kind is not None and manifest.kind != expected_kind:
+        raise ValueError(f"execution_source_edge_kind_mismatch:{role}")
+    ref = ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    _selected_manifest(store, ref)
+    return ref
+
+
+def _execution_source_inventory(
+    store: FileSystemCAS,
+    sources: list[tuple[str, ArtifactRef]],
+) -> list[InputRef]:
+    """Inventory exact selected source manifests and each complete direct edge set."""
+    inventory: list[InputRef] = []
+    for source_role, source_ref in sources:
+        manifest = _selected_manifest(store, source_ref)
+        inventory.append(
+            input_ref_from_artifact_ref(source_ref, role=f"basis.source.{source_role}")
+        )
+        for edge in manifest.inputs:
+            if edge.manifest_profile_sha256 is None:
+                raise ValueError(f"execution_source_edge_profile_missing:{source_role}.{edge.role}")
+            resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
+            inventory.append(
+                InputRef(
+                    artifact_id=edge.artifact_id,
+                    role=f"basis.edge.{source_role}.{edge.role}",
+                    manifest_profile_sha256=edge.manifest_profile_sha256,
+                )
+            )
+    return inventory
+
+
+def _build_execution_input_basis(
+    store: FileSystemCAS,
+    *,
+    request: ExecuteRequest,
+    resolved_state: _ResolvedStateSource,
+    exec_plan: ExecPlan,
+    posture: ResolvedExecutionPosture,
+    current_step: int,
+    parameter_overrides: dict[str, dict[str, object]] | None,
+) -> FoundryExecutionInputBasisRef:
+    """Persist a selected source basis from the same objects used by the executor."""
+    bindings = load_input_bindings(store, request.input_bindings_ref)
+    graph_ref = exec_plan.program_ref
+    graph = _load_model(store, graph_ref, ProgramGraph)
+    trinity_ref = graph.ir_ref
+    trinity = _load_model(store, trinity_ref, TrinityBundle)
+    candidate_ref = _selected_ref_from_edge(
+        store, trinity_ref, "policy_candidate", expected_kind="scientist.policy_design.candidate"
+    )
+    candidate_data_snapshot_ref = _selected_ref_from_edge(
+        store, candidate_ref, "world_model_data_snapshot", expected_kind="fabric.data_snapshot"
+    )
+    candidate_registry_bundle_ref = _selected_ref_from_edge(
+        store, candidate_ref, "world_model_registry", expected_kind="core.registry_bundle"
+    )
+    compile_registry_ref = _selected_ref_from_edge(
+        store, graph_ref, "registry_bundle", expected_kind="core.registry_bundle"
+    )
+    if not isinstance(trinity, TrinityBundle):
+        raise TypeError("execution_source_trinity_contract_invalid")
+    if str(trinity.model_spec.registry_bundle_ref) != str(
+        candidate_registry_bundle_ref.artifact_id
+    ):
+        raise ValueError("execution_source_candidate_registry_edge_disagrees_with_trinity")
+    binding_registry_ref = bindings.registry_bundle_ref
+    runtime_registry_ref = request.registry_bundle_ref
+    if runtime_registry_ref is None:
+        raise ValueError("registry_bundle_ref is required for selected execution basis")
+    source_refs: list[tuple[str, ArtifactRef]] = [
+        ("exec_plan", request.exec_plan_ref),
+        ("program_graph", graph_ref),
+        ("trinity_bundle", trinity_ref),
+        ("candidate", candidate_ref),
+        ("candidate_data_snapshot", candidate_data_snapshot_ref),
+        ("candidate_registry_bundle", candidate_registry_bundle_ref),
+        ("input_bindings", request.input_bindings_ref),
+        ("actual_data_snapshot", bindings.data_snapshot_ref),
+        ("bound_state_snapshot", bindings.bound_state_snapshot_ref),
+        ("base_state_snapshot", resolved_state.state_snapshot_ref),
+        ("binding_registry_bundle", binding_registry_ref),
+        ("compile_registry_bundle", compile_registry_ref),
+        ("runtime_registry_bundle", runtime_registry_ref),
+    ]
+    registry_payloads: dict[str, RegistryBundlePayload] = {}
+    for role, ref in (
+        ("binding", binding_registry_ref),
+        ("compile", compile_registry_ref),
+        ("runtime", runtime_registry_ref),
+    ):
+        payload = load_registry_bundle_payload(store, ref)
+        registry_payloads[role] = payload
+        for member_role, member_ref in payload.model_dump(mode="python").items():
+            if member_ref is not None:
+                typed_ref = ArtifactRef.model_validate(member_ref)
+                source_refs.append((f"{role}_registry_member.{member_role}", typed_ref))
+    if request.parameter_override_bundle_ref is not None:
+        source_refs.append(("parameter_override_bundle", request.parameter_override_bundle_ref))
+    if request.observed_range_bundle_ref is not None:
+        source_refs.append(("observed_range_bundle", request.observed_range_bundle_ref))
+    if request.feedback_config_ref is not None:
+        source_refs.append(("feedback_config", request.feedback_config_ref))
+    inventory = _execution_source_inventory(store, source_refs)
+    basis = FoundryExecutionInputBasis(
+        request=request,
+        request_fields_set=tuple(sorted(request.model_fields_set)),
+        request_exec_config_fields_set=tuple(sorted(request.exec_config.model_fields_set)),
+        exec_plan_ref=request.exec_plan_ref,
+        program_graph_ref=graph_ref,
+        trinity_bundle_ref=trinity_ref,
+        candidate_ref=candidate_ref,
+        candidate_data_snapshot_ref=candidate_data_snapshot_ref,
+        candidate_registry_bundle_ref=candidate_registry_bundle_ref,
+        input_bindings_ref=request.input_bindings_ref,
+        data_snapshot_ref=bindings.data_snapshot_ref,
+        bound_state_snapshot_ref=bindings.bound_state_snapshot_ref,
+        binding_registry_ref=binding_registry_ref,
+        compile_registry_ref=compile_registry_ref,
+        runtime_registry_ref=runtime_registry_ref,
+        binding_registry_members=registry_payloads["binding"],
+        compile_registry_members=registry_payloads["compile"],
+        runtime_registry_members=registry_payloads["runtime"],
+        base_state_snapshot_ref=resolved_state.state_snapshot_ref,
+        parameter_override_bundle_ref=request.parameter_override_bundle_ref,
+        observed_range_bundle_ref=request.observed_range_bundle_ref,
+        parameter_overrides=parameter_overrides,
+        effective_step=current_step,
+        effective_seed=posture.seed,
+        effective_seed_source=posture.seed_source,
+        effective_mode=posture.mode,
+        effective_max_steps=posture.max_steps,
+        effective_determinism_tier=posture.determinism_tier,
+        effective_nan_guard_enabled=posture.nan_guard_enabled,
+        effective_jit=posture.jit,
+        effective_capture_env=posture.capture_env,
+    )
+    payload_ref = store.put_json(
+        basis,
+        PutOptions(
+            kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+            media_type=FoundryExecutionInputBasis.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME,
+                version=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=inventory,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return FoundryExecutionInputBasisRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
@@ -189,6 +389,9 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
                 role="parameter_override_bundle",
             )
         )
+    execution_input_basis_ref: FoundryExecutionInputBasisRef | None = None
+    if request.return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
     if request.feedback_config_ref is not None:
         feedback_config = _load_model(store, request.feedback_config_ref, FeedbackConfig)
         if feedback_config.mode == "fixed_point":
@@ -206,6 +409,16 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
                 parameter_override_inputs=parameter_override_inputs,
                 feedback_config=feedback_config,
             )
+    if request.return_selected_profile:
+        execution_input_basis_ref = _build_execution_input_basis(
+            store,
+            request=request,
+            resolved_state=resolved_state,
+            exec_plan=exec_plan,
+            posture=posture,
+            current_step=current_step,
+            parameter_overrides=parameter_overrides,
+        )
     try:
         exec_artifacts = execute_program_graph(
             store,
@@ -225,6 +438,8 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             parameter_override_bundle_ref=request.parameter_override_bundle_ref,
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
+            execution_input_basis_ref=execution_input_basis_ref,
+            return_selected_profile=request.return_selected_profile,
         )
     except MissingRuntimeMechanismSupportError as exc:
         return ExecuteResult(
@@ -267,12 +482,30 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         merge_registry=registry_content.merge_registry,
         step=current_step,
         base_ref=state_snapshot_ref,
+        return_selected_profile=request.return_selected_profile,
     )
 
     sim_result = SimulationResult(
+        schema_version=(
+            SimulationResult.ARTIFACT_SCHEMA_VERSION
+            if execution_input_basis_ref is not None
+            else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+        ),
         exec_plan_ref=request.exec_plan_ref,
-        metrics_ref=MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id),
-        state_snapshot_ref=StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id),
+        metrics_ref=(
+            MetricsRef.model_validate(exec_artifacts.metrics_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id)
+        ),
+        state_snapshot_ref=(
+            StateSnapshotRef.model_validate(applied.state_snapshot_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id)
+        ),
+        execution_input_basis_ref=execution_input_basis_ref,
+        execution_source_status=(
+            "single_step_basis" if execution_input_basis_ref is not None else "not_recorded"
+        ),
         environment_ref=exec_artifacts.environment_ref,
         environment_fingerprint=(
             exec_artifacts.environment_fingerprint or posture.current_environment_fingerprint
@@ -288,19 +521,35 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
+    if execution_input_basis_ref is not None:
+        sim_inputs.append(
+            input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
+        )
     sim_result_ref = store.put_json(
         sim_result,
         PutOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=(
+                    SimulationResult.ARTIFACT_SCHEMA_VERSION
+                    if execution_input_basis_ref is not None
+                    else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+                ),
+            ),
             inputs=sim_inputs,
         ),
+        return_selected_profile=request.return_selected_profile,
     )
 
     return ExecuteResult(
         ok=True,
-        simulation_result_ref=SimulationResultRef(artifact_id=sim_result_ref.artifact_id),
+        simulation_result_ref=(
+            SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
+        ),
         derived_refs=derived_refs,
         notes=execution_notes,
     )
@@ -338,6 +587,7 @@ def _load_model[ModelT: BaseModel](
 ) -> ModelT:
     """Deserialize a CAS JSON artifact into the requested Pydantic model."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
@@ -563,9 +813,12 @@ def _execute_with_feedback(
         state=final_injected_state,
         step=current_step,
         inputs=feedback_base_inputs,
+        return_selected_profile=request.return_selected_profile,
     )
-    feedback_base_state_snapshot_ref = StateSnapshotRef(
-        artifact_id=feedback_base_state_ref.artifact_id
+    feedback_base_state_snapshot_ref = (
+        StateSnapshotRef.model_validate(feedback_base_state_ref.model_dump(mode="python"))
+        if request.return_selected_profile
+        else StateSnapshotRef(artifact_id=feedback_base_state_ref.artifact_id)
     )
 
     try:
@@ -589,6 +842,7 @@ def _execute_with_feedback(
             else request.parameter_override_bundle_ref,
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
+            return_selected_profile=request.return_selected_profile,
         )
     except MissingRuntimeMechanismSupportError as exc:
         feedback_result_ref = _persist_feedback_result(
@@ -649,6 +903,7 @@ def _execute_with_feedback(
         merge_registry=registry_content.merge_registry,
         step=current_step,
         base_ref=feedback_base_state_snapshot_ref,
+        return_selected_profile=request.return_selected_profile,
     )
     final_metrics = _load_model(store, exec_artifacts.metrics_ref, Metrics)
     final_feedback_observed = extract_feedback_state(
@@ -711,9 +966,26 @@ def _execute_with_feedback(
         *multiplicity_notes,
     ]
     sim_result = SimulationResult(
+        schema_version=(
+            SimulationResult.ARTIFACT_SCHEMA_VERSION
+            if request.return_selected_profile
+            else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+        ),
         exec_plan_ref=request.exec_plan_ref,
-        metrics_ref=MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id),
-        state_snapshot_ref=StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id),
+        metrics_ref=(
+            MetricsRef.model_validate(exec_artifacts.metrics_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id)
+        ),
+        state_snapshot_ref=(
+            StateSnapshotRef.model_validate(applied.state_snapshot_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id)
+        ),
+        execution_input_basis_ref=None,
+        execution_source_status=(
+            "feedback_uncomposed" if request.return_selected_profile else "not_recorded"
+        ),
         environment_ref=exec_artifacts.environment_ref,
         environment_fingerprint=(
             exec_artifacts.environment_fingerprint or posture.current_environment_fingerprint
@@ -756,11 +1028,19 @@ def _execute_with_feedback(
     sim_result_ref = store.put_json(
         sim_result,
         PutOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=(
+                    SimulationResult.ARTIFACT_SCHEMA_VERSION
+                    if request.return_selected_profile
+                    else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+                ),
+            ),
             inputs=sim_inputs,
         ),
+        return_selected_profile=request.return_selected_profile,
     )
 
     if exec_artifacts.constraint_hard_fail:
@@ -773,7 +1053,11 @@ def _execute_with_feedback(
 
     return ExecuteResult(
         ok=True,
-        simulation_result_ref=SimulationResultRef(artifact_id=sim_result_ref.artifact_id),
+        simulation_result_ref=(
+            SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
+            if request.return_selected_profile
+            else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
+        ),
         derived_refs=derived_refs,
         notes=feedback_notes,
     )
@@ -916,9 +1200,12 @@ def _persist_parameter_override_bundle(
     ref = store.put_json(
         payload,
         PutOptions(
-            kind="foundry.parameter_override_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ParameterOverrideBundle", version="1.0"),
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=(
                 [
                     input_ref_from_artifact_ref(
@@ -986,6 +1273,7 @@ def _evaluate_welfare_bound_requirement(
     derived_refs: list[DerivedArtifact],
 ) -> list[str]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if not request.welfare_bound_required:
         return []
     if request.welfare_bound_mode not in {"ex_ante", "ex_post", "both"}:

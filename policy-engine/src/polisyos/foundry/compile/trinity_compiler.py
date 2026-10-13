@@ -23,6 +23,7 @@ from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     ExecPlan,
     ExecPlanRef,
+    ProgramGraph,
     ProgramGraphRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
@@ -54,6 +55,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         `treasury_plan` refs when compilation succeeds.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     policy_ref = request.policy_ref
     payload = load_core_json_artifact(store, policy_ref)
     bundle = TrinityBundle.model_validate(payload)
@@ -95,7 +97,12 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         allow_extra_params=request.validation_flags.allow_extra_params,
         strict=request.validation_flags.strict_link,
     )
-    link_report_ref = put_link_report(store, link_report, inputs=link_inputs)
+    link_report_ref = put_link_report(
+        store,
+        link_report,
+        inputs=link_inputs,
+        return_selected_profile=request.return_selected_profile,
+    )
     compile_notes = _link_warning_notes(link_report)
 
     if request.validation_flags.strict_link and not link_report.ok:
@@ -119,6 +126,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             linked_bundle=linked_bundle,
             registry_content=registry_content,
             strict=request.validation_flags.strict_schema,
+            return_selected_profile=request.return_selected_profile,
         )
     except Exception as exc:
         lowering_error = str(exc)
@@ -207,13 +215,17 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     program_ref = store.put_json(
         program_graph,
         PutOptions(
-            kind="foundry.program_graph",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2.0"),
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=program_inputs,
         ),
+        return_selected_profile=request.return_selected_profile,
     )
-    program_graph_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
+    program_graph_ref = ProgramGraphRef.model_validate(program_ref.model_dump(mode="python"))
 
     treasury_plan = build_treasury_plan(
         program_graph, root_seed=request.compile_config.random_seed or 0
@@ -228,6 +240,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             ),
             inputs=[input_ref_from_artifact_ref(program_ref, role="program_graph")],
         ),
+        return_selected_profile=request.return_selected_profile,
     )
 
     order = build_exec_order(program_graph)
@@ -247,16 +260,20 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     exec_plan_payload_ref = store.put_json(
         exec_plan,
         PutOptions(
-            kind="foundry.exec_plan",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
+            kind=ExecPlan.ARTIFACT_KIND,
+            media_type=ExecPlan.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+                version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=[
                 input_ref_from_artifact_ref(program_ref, role="program_graph"),
                 input_ref_from_artifact_ref(treasury_plan_ref, role="treasury_plan"),
             ],
         ),
+        return_selected_profile=request.return_selected_profile,
     )
-    exec_plan_ref = ExecPlanRef(artifact_id=exec_plan_payload_ref.artifact_id)
+    exec_plan_ref = ExecPlanRef.model_validate(exec_plan_payload_ref.model_dump(mode="python"))
 
     slot_layout = build_slot_layout(registry_content.slot_registry)
     slot_layout_ref = store.put_json(
@@ -269,6 +286,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             ),
             inputs=[input_ref_from_artifact_ref(program_graph_ref, role="program_graph")],
         ),
+        return_selected_profile=request.return_selected_profile,
     )
 
     compile_report = CompileReport(
@@ -294,7 +312,12 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         slot_layout_ref=slot_layout_ref,
         treasury_plan_ref=treasury_plan_ref,
     )
-    compile_report_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
+    compile_report_ref = put_compile_report(
+        store,
+        compile_report,
+        inputs=compile_inputs,
+        return_selected_profile=request.return_selected_profile,
+    )
 
     derived_refs = [
         DerivedArtifact(role="lowered_ir", ref=lowered_ir_ref),

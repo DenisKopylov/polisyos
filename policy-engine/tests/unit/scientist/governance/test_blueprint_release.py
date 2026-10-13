@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     D5ReleaseHandoffRequest,
     D5ReleaseProducerFacts,
     ReleaseManifest,
+    SourceSnapshotManifest,
     ValidationFinding,
     write_manifest,
 )
@@ -38,6 +40,7 @@ from polisyos.scientist.governance.calibration_leaderboard import (
 from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationBundle,
     CalibrationValidationRunnerResult,
+    load_calibration_validation_bundle,
     persist_calibration_validation_bundle,
 )
 
@@ -191,9 +194,9 @@ def _d5_release_fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
     runtime_dir.mkdir(parents=True)
     method_dir.mkdir(parents=True)
     runtime_agents = runtime_dir / "agent_registry_runtime.parquet"
-    pd.DataFrame(
-        {"agent_id": ["a1", "a2"], "cell_id": ["c1", "c2"]}
-    ).to_parquet(runtime_agents, index=False)
+    pd.DataFrame({"agent_id": ["a1", "a2"], "cell_id": ["c1", "c2"]}).to_parquet(
+        runtime_agents, index=False
+    )
     cell_registry = runtime_dir / "cell_registry_region_sector.parquet"
     pd.DataFrame(
         {
@@ -252,7 +255,7 @@ def _d5_release_fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
                         "status": "not_established",
                         "reason": "requires Scientist consumption",
                     },
-                }
+                },
             }
         ),
         encoding="utf-8",
@@ -454,9 +457,7 @@ def _rewrite_release_compression(
     compression["layers"][0]["degree_preservation_score"] = layer_degree
     compression["layers"][0]["edge_weight_reconstruction_error"] = layer_weight_error
     compression["fidelity_metrics"]["degree_preservation_score"] = aggregate_degree
-    compression["fidelity_metrics"][
-        "edge_weight_reconstruction_error"
-    ] = aggregate_weight_error
+    compression["fidelity_metrics"]["edge_weight_reconstruction_error"] = aggregate_weight_error
     compression_path.write_text(json.dumps(compression), encoding="utf-8")
     compression_record = ArtifactRecord.from_path(compression_path)
 
@@ -467,9 +468,7 @@ def _rewrite_release_compression(
             "producer_facts": handoff.producer_facts.model_copy(
                 update={
                     "graph_compression_degree_preservation_score": aggregate_degree,
-                    "graph_compression_edge_weight_reconstruction_error": (
-                        aggregate_weight_error
-                    ),
+                    "graph_compression_edge_weight_reconstruction_error": (aggregate_weight_error),
                 }
             ),
             "content_refs": {
@@ -733,7 +732,9 @@ def test_verified_ukraine_d5_release_recomputes_profileless_snapshot_refusals(
     assert predicates["d4_predicate_provenance"] == "not_established"
     assert predicates["d4_status"] == "not_established"
     assert predicates["manifest_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
-    assert predicates["compression_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    assert (
+        predicates["compression_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    )
     assert predicates["handoff_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
     assert predicates["json_snapshot_profile_conformance_provenance"] == "not_established"
     assert set(predicates["d4_source_json_snapshot_profile_statuses"]) == {
@@ -806,7 +807,9 @@ def test_verified_ukraine_d5_release_none_without_trace_never_approves(
 ) -> None:
     build_root, manifest_path, runtime_dir, method_dir = _d5_release_fixture(tmp_path)
     _install_admissible_d4_result(monkeypatch, build_root=build_root)
-    monkeypatch.setattr(blueprint_release, "postflight_checks", lambda state, profile=None: ({}, None))
+    monkeypatch.setattr(
+        blueprint_release, "postflight_checks", lambda state, profile=None: ({}, None)
+    )
 
     report = run_verified_ukraine_d5_release(
         build_root=build_root,
@@ -990,3 +993,539 @@ def test_release_receipt_scientist_check_rejects_forged_admitted_path(
             allowed_root=build_root,
             release_manifest_path=manifest_path,
         )
+
+
+def test_calibration_validation_schema_1_0_remains_readable_and_unbound(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+
+    store = blueprint_release.FileSystemCAS(tmp_path / "cas")
+    candidate_ref = store.put_json(
+        {"candidate": "legacy-schema-fixture"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+    )
+    legacy_bundle = CalibrationValidationBundle(
+        run_id="legacy-c5b-schema-1-0",
+        candidate_ref=candidate_ref,
+        governance_verdict="human_gate",
+        status="completed",
+    )
+    legacy_ref = persist_calibration_validation_bundle(store, legacy_bundle)
+    payload = json.loads(store.get_bytes(legacy_ref.artifact_id))
+    assert payload["schema_version"] == "1.0"
+    assert "source_json_snapshot_reads" not in payload
+    manifest = store.get_manifest(legacy_ref)
+    assert manifest.kind == "scientist.calibration_validation_bundle"
+    assert manifest.media_type == "application/json"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == (
+        "polisyos.scientist.governance.CalibrationValidationBundle"
+    )
+    assert manifest.artifact_schema.version == "1.0"
+    fresh = load_calibration_validation_bundle(store, legacy_ref)
+    summary = fresh.readout_summary()
+    assert summary["source_json_snapshot_binding_status"] == "not_established"
+    assert summary["source_json_snapshot_binding_reason"] == "source_json_snapshot_reads_absent"
+    assert summary["eligible_for_promotion"] is False
+
+    bad_manifests = (
+        PutOptions(
+            kind="scientist.other_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.governance.CalibrationValidationBundle",
+                version="1.0",
+            ),
+        ),
+        PutOptions(
+            kind="scientist.calibration_validation_bundle",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(
+                name="polisyos.scientist.governance.CalibrationValidationBundle",
+                version="1.0",
+            ),
+        ),
+        PutOptions(
+            kind="scientist.calibration_validation_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.wrong_schema", version="1.0"),
+        ),
+        PutOptions(
+            kind="scientist.calibration_validation_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.governance.CalibrationValidationBundle",
+                version="1.1",
+            ),
+        ),
+    )
+    for index, options in enumerate(bad_manifests):
+        mismatched_payload = {**payload, "run_id": f"manifest-mismatch-{index}"}
+        mismatched_ref = store.put_json(mismatched_payload, options)
+        with pytest.raises(ValueError, match="manifest schema"):
+            load_calibration_validation_bundle(store, mismatched_ref)
+
+
+def _s1_controlled_candidate_fixture(
+    tmp_path: Path,
+    holdout_truths: list[float],
+    *,
+    holdout_start: str = "2026-01-01",
+    holdout_end: str = "2026-12-31",
+    reverse_split_order: bool = False,
+):
+    from polisyos.data_forge.domains.ukraine.adapters import (
+        SourceExecutionContext,
+        TabularSourceAdapter,
+    )
+    from polisyos.data_forge.domains.ukraine.builders.demography import build_d3_stage
+
+    config = build_default_pipeline_config(root=tmp_path / "ukraine")
+    raw_root = tmp_path / "manual_drop"
+    workbook_dir = raw_root / "mic_doch_i_umovy_2023_2025"
+    workbook_dir.mkdir(parents=True)
+    values = [100.0] * 4 + [300.0] * 4 + [500.0] * 4 + [700.0] * 4 + [900.0] * 4 + holdout_truths
+    periods = [
+        (year, quarter) for year in (2021, 2022, 2023, 2024, 2025, 2026) for quarter in range(1, 5)
+    ]
+    source_rows = [
+        {
+            "rik_fa_1": year,
+            "kvart_kd": quarter,
+            "code_fam": index + 1,
+            "w_q": 1.0,
+            "cod_obl": "05",
+            "cashinc": value,
+            "totalinc": value,
+            "totalexp": value * 0.8,
+        }
+        for index, ((year, quarter), value) in enumerate(
+            zip(periods[: len(values)], values, strict=True)
+        )
+    ]
+    raw_workbook = workbook_dir / "Households_microdani_anonimni_controlled.xlsx"
+    pd.DataFrame(source_rows).to_excel(raw_workbook, index=False)
+    source = config.sources["household_microdata"].model_copy(update={"local_path": raw_root})
+    config.sources["household_microdata"] = source
+    adapter = TabularSourceAdapter()
+    snapshot = adapter.fetch(source, SourceExecutionContext(config.build_root))
+    assert isinstance(snapshot, SourceSnapshotManifest)
+    adapter.normalize(source, snapshot, SourceExecutionContext(config.build_root))
+    normalized = config.build_root.normalized_dir
+    other_sources = (
+        (
+            "labor_force_microdata",
+            pd.DataFrame(
+                {
+                    "household_id": ["lfs::1"],
+                    "cell_id": ["cell::05::labor_market"],
+                    "period_id": ["2023-03"],
+                    "participation_rate": [0.5],
+                    "weight": [1.0],
+                    "employment_flag": [0.5],
+                    "informal_employment_flag": [0.1],
+                    "region_code": ["05"],
+                }
+            ),
+        ),
+        (
+            "pfu_debt",
+            pd.DataFrame({"agent_id": ["a"], "period_id": ["2023-03"], "debt_amount": [1.0]}),
+        ),
+        (
+            "wage_arrears",
+            pd.DataFrame({"agent_id": ["a"], "period_id": ["2023-03"], "arrears_amount": [1.0]}),
+        ),
+        (
+            "distress_events",
+            pd.DataFrame(
+                {
+                    "agent_id": ["a"],
+                    "period_id": ["2023-03"],
+                    "months_to_event": [1],
+                    "event_flag": [0],
+                }
+            ),
+        ),
+    )
+    for source_id, frame in other_sources:
+        source_dir = normalized / source_id
+        source_dir.mkdir(parents=True, exist_ok=True)
+        frame.to_parquet(source_dir / config.sources[source_id].normalized_artifact, index=False)
+    d3_result = build_d3_stage(config)
+    _write_completed_stage_manifest(
+        config, stage_id=StageId.D3, outputs=list(d3_result.outputs.values())
+    )
+    d2_dir = config.build_root.calibration_dir / "d2"
+    d2_dir.mkdir(parents=True, exist_ok=True)
+    splits = {
+        "fixture_training": {"start": "2021-01-01", "end": "2021-12-31"},
+        "train_pre_2024": {"start": "2022-01-01", "end": "2022-12-31"},
+        "fixture_validation": {"start": "2023-01-01", "end": "2023-12-31"},
+        "validation_2024": {"start": "2024-01-01", "end": "2024-12-31"},
+        "test_2025": {"start": "2025-01-01", "end": "2025-12-31"},
+        "fixture_holdout": {"start": holdout_start, "end": holdout_end},
+    }
+    if reverse_split_order:
+        splits = dict(reversed(list(splits.items())))
+    split_path = d2_dir / "calibration_splits.json"
+    split_path.write_text(json.dumps(splits), encoding="utf-8")
+    _write_completed_stage_manifest(
+        config, stage_id=StageId.D2, outputs=[ArtifactRecord.from_path(split_path)]
+    )
+    copied_workbook = Path(snapshot.raw_artifacts[0].path) / workbook_dir.name / raw_workbook.name
+    return config, copied_workbook
+
+
+@pytest.mark.parametrize(
+    ("holdout_truths", "expected_status"),
+    [([90.0, 90.0, 90.0], "not_computable"), ([99.5, 98.5, 97.5], "available")],
+)
+def test_s1_b172_b173_test_owned_d4_diagnostic_backtest_cas_fresh_read(
+    tmp_path: Path,
+    holdout_truths: list[float],
+    expected_status: str,
+) -> None:
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.scientist.governance.calibration_validation import (
+        load_calibration_validation_bundle,
+    )
+
+    if expected_status == "available":
+        pytest.importorskip("scipy.stats")
+    config, raw_workbook = _s1_controlled_candidate_fixture(tmp_path, holdout_truths)
+    result = blueprint_release.run_verified_ukraine_d4_candidate_diagnostic(
+        build_root=config.build_root.root,
+        d2_manifest_path=config.build_root.manifests_dir / "build_run_d2.json",
+        d3_manifest_path=config.build_root.manifests_dir / "build_run_d3.json",
+        cas_root=config.build_root.resolved_cas_root,
+        test_owned_unit_label="fixture_unit",
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+    )
+    assert result.bundle.status == result.bundle.purpose == "candidate_diagnostic"
+    assert result.bundle.leaderboard_entry is None and result.bundle.stress_scenarios is None
+    assert result.bundle.governance_accountability_ref is None
+    store = blueprint_release.FileSystemCAS(config.build_root.resolved_cas_root)
+    fresh = load_calibration_validation_bundle(store, result.bundle_ref)
+    summary = fresh.readout_summary()
+    assert fresh.schema_version == "1.1"
+    bundle_manifest = store.get_manifest(result.bundle_ref)
+    assert bundle_manifest.kind == "scientist.calibration_validation_bundle"
+    assert bundle_manifest.media_type == "application/json"
+    assert bundle_manifest.artifact_schema is not None
+    assert bundle_manifest.artifact_schema.name == (
+        "polisyos.scientist.governance.CalibrationValidationBundle"
+    )
+    assert bundle_manifest.artifact_schema.version == fresh.schema_version
+    expected_source_contracts = {
+        "scientist.d3.household_candidate_basis",
+        "scientist.d4.calibration_splits",
+    }
+    assert set(fresh.source_json_snapshot_reads) == expected_source_contracts
+    expected_source_roles = {
+        "scientist.d3.household_candidate_basis": "household_source_basis",
+        "scientist.d4.calibration_splits": "selected_split_manifest",
+    }
+    for contract, role in expected_source_roles.items():
+        provenance = fresh.source_json_snapshot_reads[contract]
+        edges = [item for item in bundle_manifest.inputs if item.role == role]
+        assert len(edges) == 1
+        assert edges[0].artifact_id == provenance.artifact_ref.artifact_id
+        assert edges[0].manifest_profile_sha256 == provenance.selected_manifest_profile_sha256
+    legacy_schema_payload = json.loads(store.get_bytes(result.bundle_ref.artifact_id))
+    legacy_schema_payload["schema_version"] = "1.0"
+    with pytest.raises(
+        ValidationError, match="source JSON snapshot provenance requires bundle schema 1.1"
+    ):
+        CalibrationValidationBundle.model_validate(legacy_schema_payload)
+    assert summary["source_json_snapshot_binding_status"] == "available"
+    assert set(summary["source_json_snapshot_reads"]) == expected_source_contracts
+    for source_read in fresh.source_json_snapshot_reads.values():
+        assert source_read.profile_status == "profile_absent_raw_snapshot_candidate"
+        assert source_read.producer_attestation_status == "not_established"
+        assert source_read.currentness_provenance == "not_established"
+        assert source_read.authority_provenance == "not_established"
+    assert summary["eligible_for_promotion"] is False
+    assert summary["backtest_report_ref"] and summary["backtest_metric_diagnostics"]
+    if expected_status == "available":
+        fresh_diagnostic = next(
+            item
+            for item in summary["backtest_metric_diagnostics"]
+            if item["metric_name"] == "observed_value"
+        )
+        assert fresh_diagnostic["method_id"] == "scipy.stats.ttest_1samp"
+        assert fresh_diagnostic["backend_id"] == "scipy" and fresh_diagnostic["backend_version"]
+        assert fresh_diagnostic["p_value"] == pytest.approx(0.121690, abs=1e-6)
+    report = load_backtest_report(
+        blueprint_release._ensure_ir_artifact_store(store), fresh.backtest_report_ref
+    )
+    diagnostic = next(
+        item for item in report.metric_diagnostics if item.metric_name == "observed_value"
+    )
+    assert diagnostic.status == expected_status and diagnostic.scope["holdout_windows"]
+    assert diagnostic.scope["selected_training_roles"] == ["fixture_training"]
+    assert diagnostic.scope["selected_validation_roles"] == ["fixture_validation"]
+    assert diagnostic.scope["selected_holdout_roles"] == ["fixture_holdout"]
+    assert diagnostic.mean_residual == pytest.approx(10.0)
+    assert diagnostic.magnitude == pytest.approx(10.0)
+    assert (
+        diagnostic.residual_sign == "positive" and diagnostic.direction_status == "not_established"
+    )
+    assert result.bundle.selected_training_role == "fixture_training"
+    assert result.bundle.selected_validation_role == "fixture_validation"
+    assert result.bundle.selected_holdout_role == "fixture_holdout"
+    candidate_payload = json.loads(store.get_bytes(result.bundle.candidate_ref.artifact_id))
+    from io import BytesIO
+
+    panel_edge = next(
+        item
+        for item in store.get_manifest(result.bundle_ref.artifact_id).inputs
+        if item.role == "household_candidate_panel"
+    )
+    candidate_panel = pd.read_parquet(BytesIO(store.get_bytes(panel_edge.artifact_id)))
+    assert candidate_panel["unit"].isna().all()
+    assert candidate_panel["population_coverage"].isna().all()
+    assert candidate_panel["custody"].eq("not_established").all()
+    assert candidate_panel["currentness"].eq("not_established").all()
+    assert candidate_payload["metadata"]["selected_training_role"] == "fixture_training"
+    assert candidate_payload["metadata"]["selected_validation_role"] == "fixture_validation"
+    assert candidate_payload["metadata"]["selected_holdout_role"] == "fixture_holdout"
+    assert report.trust_eligible is False and report.degraded is True
+    required_roles = {
+        "candidate",
+        "household_candidate_panel",
+        "household_source_basis",
+        "selected_split_manifest",
+    }
+    assert required_roles <= {
+        item.role for item in store.get_manifest(result.bundle_ref.artifact_id).inputs
+    }
+    assert required_roles <= {
+        item.role for item in store.get_manifest(fresh.backtest_report_ref.artifact_id).inputs
+    }
+    raw_directory = raw_workbook.parent
+    before = {
+        p.relative_to(raw_directory).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in raw_directory.rglob("*")
+        if p.is_file()
+    }
+    declared = [
+        config.build_root.manifests_dir / "build_run_d2.json",
+        config.build_root.manifests_dir / "build_run_d3.json",
+        config.build_root.manifests_dir / "household_microdata" / "source_snapshot_manifest.json",
+        config.build_root.manifests_dir
+        / "household_microdata"
+        / config.sources["household_microdata"].manifest_name,
+    ]
+    declared_bytes = {p: p.read_bytes() for p in declared}
+    raw_workbook.write_bytes(raw_workbook.read_bytes() + b"\x00")
+    after = {
+        p.relative_to(raw_directory).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in raw_directory.rglob("*")
+        if p.is_file()
+    }
+    rel = raw_workbook.relative_to(raw_directory).as_posix()
+    assert before.keys() == after.keys() and before[rel] != after[rel]
+    assert {p: p.read_bytes() for p in declared} == declared_bytes
+    with pytest.raises(UkraineStageArtifactVerificationError, match="raw directory"):
+        blueprint_release.run_verified_ukraine_d4_candidate_diagnostic(
+            build_root=config.build_root.root,
+            d2_manifest_path=config.build_root.manifests_dir / "build_run_d2.json",
+            d3_manifest_path=config.build_root.manifests_dir / "build_run_d3.json",
+            cas_root=config.build_root.resolved_cas_root,
+            test_owned_unit_label="fixture_unit",
+            selected_training_role="fixture_training",
+            selected_validation_role="fixture_validation",
+            selected_holdout_role="fixture_holdout",
+        )
+
+
+@pytest.mark.parametrize(
+    ("stage_id", "output_name"),
+    [
+        ("d2", "calibration_splits.json"),
+        ("d3", "household_candidate_basis.json"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("profile_kind", "expected_code"),
+    [
+        ("declared_nonconformant", "canon_profile_payload_nonconformant"),
+        ("declared_unknown", "ukraine_snapshot_unknown_profile_raw_only"),
+    ],
+)
+def test_s1_candidate_diagnostic_refuses_present_nonconformant_or_unknown_json_profiles(
+    tmp_path: Path,
+    monkeypatch,
+    stage_id: str,
+    output_name: str,
+    profile_kind: str,
+    expected_code: str,
+) -> None:
+    from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
+    from polisyos.data_forge.read_api.ukraine import UkraineJSONSnapshotRefusalError
+
+    config, _ = _s1_controlled_candidate_fixture(tmp_path, [90.0, 90.0, 90.0])
+    store = blueprint_release.FileSystemCAS(config.build_root.resolved_cas_root)
+    original_load = blueprint_release.load_verified_stage_artifacts
+
+    def load_with_present_profile(
+        manifest_path,
+        *,
+        store,
+        allowed_root,
+        expected_stage,
+        required_outputs=(),
+    ):
+        receipt = original_load(
+            manifest_path,
+            store=store,
+            allowed_root=allowed_root,
+            expected_stage=expected_stage,
+            required_outputs=required_outputs,
+        )
+        if expected_stage != stage_id:
+            return receipt
+        output = receipt.outputs[output_name]
+        payload = store.get_bytes(output.content_ref)
+        canon = (
+            CoreCanonInfo()
+            if profile_kind == "declared_nonconformant"
+            else CoreCanonInfo(name="polisyos.canon.future", version="9.9.9")
+        )
+        declared_ref = store.put_bytes(
+            payload,
+            blueprint_release.PutOptions(
+                kind=output.content_ref.kind,
+                media_type=output.content_ref.media_type,
+                canon=canon,
+            ),
+            return_selected_profile=True,
+        )
+        outputs = dict(receipt.outputs)
+        outputs[output_name] = output.model_copy(update={"content_ref": declared_ref})
+        return receipt.model_copy(update={"outputs": outputs})
+
+    monkeypatch.setattr(
+        blueprint_release, "load_verified_stage_artifacts", load_with_present_profile
+    )
+    with pytest.raises(UkraineJSONSnapshotRefusalError) as refusal:
+        blueprint_release.run_verified_ukraine_d4_candidate_diagnostic(
+            build_root=config.build_root.root,
+            d2_manifest_path=config.build_root.manifests_dir / "build_run_d2.json",
+            d3_manifest_path=config.build_root.manifests_dir / "build_run_d3.json",
+            cas_root=config.build_root.resolved_cas_root,
+            test_owned_unit_label="fixture_unit",
+            selected_training_role="fixture_training",
+            selected_validation_role="fixture_validation",
+            selected_holdout_role="fixture_holdout",
+        )
+    assert refusal.value.code == expected_code
+
+
+def test_s1_empty_named_holdout_is_typed_gap_without_tail(tmp_path: Path) -> None:
+    config, _ = _s1_controlled_candidate_fixture(
+        tmp_path,
+        [90.0, 90.0, 90.0],
+        holdout_start="2027-01-01",
+        holdout_end="2027-12-31",
+        reverse_split_order=True,
+    )
+    result = blueprint_release.run_verified_ukraine_d4_candidate_diagnostic(
+        build_root=config.build_root.root,
+        d2_manifest_path=config.build_root.manifests_dir / "build_run_d2.json",
+        d3_manifest_path=config.build_root.manifests_dir / "build_run_d3.json",
+        cas_root=config.build_root.resolved_cas_root,
+        test_owned_unit_label="fixture_unit",
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+    )
+    household = next(
+        item
+        for item in result.bundle.backtest_matrix.kind_results
+        if item.kind.value == "household"
+    )
+    assert household.status == "gap"
+    assert household.gap_flag == "empty_named_holdout:fixture_holdout"
+    assert household.metadata["selected_training_role"] == "fixture_training"
+    assert household.metadata["selected_validation_role"] == "fixture_validation"
+    assert household.metadata["selected_holdout_role"] == "fixture_holdout"
+    assert household.metadata["gap_reason"] == "empty_named_holdout:fixture_holdout"
+    assert household.n_plans == 0
+    assert result.bundle.backtest_matrix.backtest_report_ref is not None
+
+
+@pytest.mark.parametrize(
+    ("case", "frame_rows", "expected_household_state"),
+    [
+        ("empty", [], "no_source_rows"),
+        (
+            "short",
+            [
+                ("2023-03-31", 10.0),
+                ("2025-03-31", 12.0),
+            ],
+            "insufficient_history",
+        ),
+        (
+            "full",
+            [
+                ("2023-03-31", 10.0),
+                ("2024-03-31", 11.0),
+                ("2025-03-31", 12.0),
+            ],
+            "plans",
+        ),
+    ],
+)
+def test_s1_named_split_bundle_denominator_covers_empty_short_and_full(
+    tmp_path: Path,
+    case: str,
+    frame_rows: list[tuple[str, float]],
+    expected_household_state: str,
+) -> None:
+    from polisyos.scientist.governance.backtest_matrix import BacktestKind
+
+    roles = ("fixture_training", "fixture_validation", "fixture_holdout")
+    splits = {
+        roles[0]: {"start": "2023-01-01", "end": "2023-12-31"},
+        roles[1]: {"start": "2024-01-01", "end": "2024-12-31"},
+        roles[2]: {"start": "2025-01-01", "end": "2025-12-31"},
+    }
+    panel = pd.DataFrame(
+        [
+            {
+                "family": "household_distribution",
+                "period_start": period,
+                "observed_value": value,
+            }
+            for period, value in frame_rows
+        ],
+        columns=["family", "period_start", "observed_value"],
+    )
+    bundles = blueprint_release.build_required_backtest_bundles(
+        panel,
+        stage_dir=tmp_path / case,
+        splits=splits,
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+    )
+    assert set(bundles) == set(BacktestKind)
+    for kind, bundle in bundles.items():
+        assert (
+            bundle.selected_training_role,
+            bundle.selected_validation_role,
+            bundle.selected_holdout_role,
+        ) == roles
+        if kind is BacktestKind.HOUSEHOLD and expected_household_state == "plans":
+            assert bundle.plans and bundle.gap_reason is None
+        elif kind is BacktestKind.HOUSEHOLD:
+            assert not bundle.plans and bundle.gap_reason.startswith(expected_household_state)
+        else:
+            assert not bundle.plans and bundle.gap_reason.startswith("no_source_rows")

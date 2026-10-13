@@ -8,7 +8,7 @@ import json
 import os
 from collections import Counter
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
@@ -152,6 +152,8 @@ if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
 
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
 else:
     try:  # pragma: no cover - optional runtime dependency
@@ -2035,6 +2037,25 @@ def _candidate_simulation_projection(
     )
 
 
+def _candidate_simulation_for_indexed_run(
+    run: IndexedRunRecord,
+    *,
+    store: ArtifactStore,
+    control_service: Any | None = None,
+) -> RunCandidateSimulationProjection | None:
+    """Resolve the current root-bound N5 projection used by run consumers."""
+    details = run.details
+    return _candidate_simulation_projection(
+        run_id=details.run_id,
+        tenant_id=details.tenant_id,
+        cell_id=details.cell_id,
+        control_job_id=details.control_job_id,
+        root_artifacts=tuple(details.root_artifacts),
+        store=store,
+        control_service=control_service,
+    )
+
+
 def _parent_joint_atom_matches_child_source(parent_atom: Any, child_source_atom: Any) -> bool:
     """Require exact producer-owned atom identity across the parent-child seam."""
 
@@ -3910,12 +3931,8 @@ if router is not None:
             run_id,
         )
         updates: dict[str, Any] = {}
-        candidate_simulation = _candidate_simulation_projection(
-            run_id=run.details.run_id,
-            tenant_id=run.details.tenant_id,
-            cell_id=run.details.cell_id,
-            control_job_id=run.details.control_job_id,
-            root_artifacts=tuple(run.details.root_artifacts),
+        candidate_simulation = _candidate_simulation_for_indexed_run(
+            run,
             store=ctx.store,
             control_service=control_service,
         )
@@ -3989,6 +4006,18 @@ if router is not None:
             raise service_unavailable(
                 "Run diagnostic event log is unavailable",
                 code="predictive_calibration_event_log_unavailable",
+            )
+        candidate_simulation = _candidate_simulation_for_indexed_run(
+            run,
+            store=ctx.store,
+            control_service=control_service,
+        )
+        if candidate_simulation is not None:
+            run = replace(
+                run,
+                details=run.details.model_copy(
+                    update={"candidate_simulation": candidate_simulation}
+                ),
             )
         try:
             association_ref, association = produce_run_predictive_calibration(

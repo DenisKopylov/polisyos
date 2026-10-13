@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 
 import pandas as pd
+import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
@@ -89,6 +90,9 @@ def _persist_calibration_candidate(store: FileSystemCAS) -> ArtifactRef:
         strategic_plausibility=0.8,
         governance_penalty=0.1,
         interference_fit_score=0.8,
+        selected_training_role="train_pre_2024",
+        selected_validation_role="validation_2024",
+        selected_holdout_role="test_2025",
     )
     candidate = next(
         item for item in run.candidates if item.candidate_id == run.selected_candidate_id
@@ -97,6 +101,7 @@ def _persist_calibration_candidate(store: FileSystemCAS) -> ArtifactRef:
         candidate.model_dump(mode="json"),
         PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return ArtifactRef.model_validate(persisted_ref.model_dump(mode="python"))
 
@@ -132,6 +137,9 @@ def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
         ),
         required_fields=["metric"],
         holdout_windows=["2024-Q4"],
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
         plans=[
             HistoricalValidationPlan(
                 plan_id=f"{kind.value}_plan",
@@ -140,6 +148,14 @@ def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
                 target_metrics=["metric"],
                 prediction_source=PredictionSource.PROVIDED,
                 predicted_outcomes={"metric": [0.98, 1.02]},
+                selected_training_role="fixture_training",
+                selected_validation_role="fixture_validation",
+                selected_holdout_role="fixture_holdout",
+                metadata={
+                    "selected_training_role": "fixture_training",
+                    "selected_validation_role": "fixture_validation",
+                    "selected_holdout_role": "fixture_holdout",
+                },
             ).model_dump(mode="json")
         ],
         historical_payloads={"metric": {"values": [1.0, 1.0, 1.0]}},
@@ -240,10 +256,11 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
 ) -> None:
     registry = LessonRegistry(root=tmp_path / "registry" / "lessons", store=cas_store)
     runner = CalibrationValidationRunner(cas_store)
+    candidate_ref = _persist_calibration_candidate(cas_store)
     result = runner.run(
         CalibrationValidationRunnerInput(
             run_id="R_c5b_full",
-            candidate_ref=_persist_calibration_candidate(cas_store),
+            candidate_ref=candidate_ref,
             governance_report=_governance_report(),
             calibration_fit_score=0.91,
             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
@@ -278,9 +295,40 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert result.bundle.lesson_card_ref is not None
     assert result.bundle.governance_accountability_ref is not None
     assert result.bundle.governance_accountability_summary["risk_weighted_verdict"] == "human_gate"
+    backtest_report_ref = result.bundle.backtest_report_ref
+    assert backtest_report_ref is not None
+    core_backtest_report_ref = ArtifactRef.model_validate(
+        backtest_report_ref.model_dump(mode="python")
+    )
+    expected_candidate_identity = (
+        str(candidate_ref.artifact_id),
+        candidate_ref.manifest_profile_sha256,
+    )
+    assert expected_candidate_identity[1] is not None
+    for selected_manifest in (
+        cas_store.get_manifest(result.bundle_ref),
+        cas_store.get_manifest(core_backtest_report_ref),
+    ):
+        candidate_edges = [item for item in selected_manifest.inputs if item.role == "candidate"]
+        assert len(candidate_edges) == 1
+        assert (
+            str(candidate_edges[0].artifact_id),
+            candidate_edges[0].manifest_profile_sha256,
+        ) == expected_candidate_identity
+    assert (
+        cas_store.get_manifest_by_profile(*expected_candidate_identity).artifact_id
+        == candidate_ref.artifact_id
+    )
 
     stored = load_calibration_validation_bundle(cas_store, result.bundle_ref)
-    assert stored.readout_summary()["composite_score"] is not None
+    readout = stored.readout_summary()
+    assert stored.backtest_report_ref is not None
+    assert readout["backtest_report_ref"] == str(stored.backtest_report_ref.artifact_id)
+    assert readout["backtest_report_status"] == "available"
+    assert readout["backtest_metric_diagnostics_status"] == "computed"
+    assert readout["backtest_metric_diagnostics"]
+    assert readout["eligible_for_promotion"] is False
+    assert readout["composite_score"] is not None
     assert stored.readout_summary()["accountability_ref"] is not None
     assert stored.readout_summary()["requires_human_review"] is True
     assert stored.readout_summary()["escalation_triggers"]
@@ -312,3 +360,173 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
     assert "missing_metric:transportability_score" in metrics.gap_flags
     assert "missing_metric:interference_fit" in metrics.gap_flags
     assert metrics.eligible_for_promotion is False
+
+
+def test_s1_candidate_diagnostic_is_never_promotable_and_binds_inputs(tmp_path, cas_store) -> None:
+    import hashlib
+
+    from polisyos.data_forge.domains.ukraine.manifests import HouseholdDiagnosticPanelBasis
+    from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
+
+    source_roles = (
+        "panel",
+        "basis",
+        "split",
+        "nested_report_source",
+        "duplicate_source_a",
+        "duplicate_source_b",
+    )
+    source_contract_by_role = {
+        "basis": "scientist.d3.household_candidate_basis",
+        "split": "scientist.d4.calibration_splits",
+    }
+    source_model_by_contract = {
+        "scientist.d3.household_candidate_basis": HouseholdDiagnosticPanelBasis,
+        "scientist.d4.calibration_splits": dict[str, dict[str, str]],
+    }
+    source_payload_by_contract = {
+        "scientist.d3.household_candidate_basis": HouseholdDiagnosticPanelBasis(
+            status="complete",
+            source_row_count=1,
+            panel_artifact={
+                "path": "controlled-panel.parquet",
+                "sha256": "a" * 64,
+                "size_bytes": 1,
+            },
+        ).model_dump(mode="json"),
+        "scientist.d4.calibration_splits": {
+            "fixture_training": {"start": "2023-01-01", "end": "2023-12-31"},
+            "fixture_validation": {"start": "2024-01-01", "end": "2024-12-31"},
+            "fixture_holdout": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+    }
+    payload_by_role = {
+        role: json.dumps(
+            source_payload_by_contract[source_contract_by_role[role]]
+            if role in source_contract_by_role
+            else {"source": role},
+            separators=(",", ":"),
+        ).encode("utf-8")
+        for role in source_roles
+    }
+    refs_by_role = {
+        role: cas_store.put_bytes(
+            payload,
+            PutOptions(
+                kind="data_forge.ukraine.stage_output_snapshot",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        for role, payload in payload_by_role.items()
+    }
+    source_input_roles = (
+        ("panel", "household_candidate_panel"),
+        ("basis", "household_source_basis"),
+        ("split", "selected_split_manifest"),
+        ("nested_report_source", "backtest_report"),
+        ("duplicate_source_a", "controlled_extension_source"),
+        ("duplicate_source_b", "controlled_extension_source"),
+    )
+    input_refs = [
+        InputRef(
+            artifact_id=refs_by_role[source_role].artifact_id,
+            role=input_role,
+            manifest_profile_sha256=refs_by_role[source_role].manifest_profile_sha256,
+        )
+        for source_role, input_role in source_input_roles
+    ]
+    source_json_snapshot_contracts = source_contract_by_role
+    source_json_snapshot_reads = {}
+    for source_role, contract in source_json_snapshot_contracts.items():
+        payload = payload_by_role[source_role]
+        read = read_ukraine_json_snapshot(
+            cas_store,
+            refs_by_role[source_role],
+            raw_payload_bytes=payload,
+            expected_sha256=hashlib.sha256(payload).hexdigest(),
+            expected_size_bytes=len(payload),
+            expected_kind="data_forge.ukraine.stage_output_snapshot",
+            consumer_contract=contract,
+            model_type=source_model_by_contract[contract],
+        )
+        source_json_snapshot_reads[contract] = read.provenance
+    result = CalibrationValidationRunner(cas_store).run(
+        CalibrationValidationRunnerInput(
+            run_id="s1-candidate-diagnostic",
+            candidate_ref=_persist_calibration_candidate(cas_store),
+            governance_report=_governance_report(),
+            backtest_plan_bundles={
+                BacktestKind.HOUSEHOLD: _plan_bundle(tmp_path, BacktestKind.HOUSEHOLD)
+            },
+            purpose="candidate_diagnostic",
+            input_refs=input_refs,
+            source_json_snapshot_reads=source_json_snapshot_reads,
+            selected_training_role="fixture_training",
+            selected_validation_role="fixture_validation",
+            selected_holdout_role="fixture_holdout",
+        )
+    )
+    assert result.bundle.status == result.bundle.purpose == "candidate_diagnostic"
+    assert result.bundle.leaderboard_entry is None
+    assert result.bundle.stress_scenarios is None
+    assert result.bundle.lesson_card_ref is None
+    assert result.bundle.governance_accountability_ref is None
+    assert result.bundle.readout_summary()["eligible_for_promotion"] is False
+    assert result.bundle.schema_version == "1.1"
+    assert set(result.bundle.source_json_snapshot_reads) == set(
+        source_json_snapshot_contracts.values()
+    )
+    for source_role, contract in source_json_snapshot_contracts.items():
+        provenance = result.bundle.source_json_snapshot_reads[contract]
+        assert provenance.profile_status == "profile_absent_raw_snapshot_candidate"
+        assert provenance.artifact_ref.artifact_id == refs_by_role[source_role].artifact_id
+        assert (
+            provenance.artifact_ref.manifest_profile_sha256
+            == refs_by_role[source_role].manifest_profile_sha256
+        )
+        assert provenance.producer_attestation_status == "not_established"
+        assert provenance.currentness_provenance == "not_established"
+    fresh = load_calibration_validation_bundle(cas_store, result.bundle_ref)
+    assert fresh.backtest_report_ref is not None
+    fresh_summary = fresh.readout_summary()
+    assert fresh_summary["source_json_snapshot_binding_status"] == "available"
+    assert fresh_summary["backtest_metric_diagnostics"]
+    assert fresh_summary["backtest_report_status"] == "available"
+    assert fresh_summary["backtest_metric_diagnostics_status"] == "computed"
+    assert (
+        fresh.selected_training_role == "fixture_training"
+        and fresh.selected_validation_role == "fixture_validation"
+    )
+    assert fresh.selected_holdout_role == "fixture_holdout"
+    from collections import Counter
+
+    persisted_inputs = cas_store.get_manifest(result.bundle_ref.artifact_id).inputs
+    roles = Counter(item.role for item in persisted_inputs)
+    assert {
+        "candidate",
+        "household_candidate_panel",
+        "household_source_basis",
+        "selected_split_manifest",
+    } <= set(roles)
+    assert roles["backtest_report"] == 2
+    assert roles["controlled_extension_source"] == 2
+
+
+def test_calibration_validation_runner_input_rejects_reserved_candidate_source_role(
+    cas_store,
+) -> None:
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    with pytest.raises(ValueError, match="candidate role is reserved"):
+        CalibrationValidationRunnerInput(
+            run_id="R_c5b_candidate-role-shadow",
+            candidate_ref=candidate_ref,
+            governance_report=_governance_report(),
+            input_refs=[
+                InputRef(
+                    artifact_id=candidate_ref.artifact_id,
+                    role="candidate",
+                    manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+                )
+            ],
+        )

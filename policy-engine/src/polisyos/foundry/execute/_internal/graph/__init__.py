@@ -6,8 +6,6 @@ import logging
 import time
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -93,6 +91,8 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 
+logger = logging.getLogger(__name__)
+
 __all__ = [
     "execute_program_graph",
 ]
@@ -155,8 +155,8 @@ def _execution_treasury(
     bound_program_ref = ArtifactRef(
         artifact_id=program_edge.artifact_id,
         manifest_profile_sha256=program_edge.manifest_profile_sha256,
-        kind="foundry.program_graph",
-        media_type="application/json",
+        kind=ProgramGraph.ARTIFACT_KIND,
+        media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
     )
     program_manifest = store.get_manifest(bound_program_ref)
     if program_manifest.kind != "foundry.program_graph":
@@ -227,6 +227,8 @@ def execute_program_graph(
     observed_range_bundle_ref: ArtifactRef | None = None,
     welfare_bound_mode: str = "ex_ante",
     persist_welfare_bound_reports: bool = True,
+    execution_input_basis_ref: ArtifactRef | None = None,
+    return_selected_profile: bool = False,
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
 ) -> ExecuteArtifacts:
     """Execute program graph."""
@@ -585,6 +587,10 @@ def execute_program_graph(
                 role="parameter_override_bundle",
             )
         )
+    if execution_input_basis_ref is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
+        )
     for op in ops:
         if op.value_ref is not None:
             inputs.append(input_ref_from_artifact_ref(op.value_ref, role="patch_value"))
@@ -593,11 +599,15 @@ def execute_program_graph(
     state_delta_ref = store.put_json(
         state_delta,
         PutOptions(
-            kind="foundry.state_delta",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.StateDelta", version="0.1.0"),
+            kind=StateDelta.ARTIFACT_KIND,
+            media_type=StateDelta.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=StateDelta.ARTIFACT_SCHEMA_NAME,
+                version=StateDelta.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=inputs,
         ),
+        return_selected_profile=return_selected_profile,
     )
 
     metrics = Metrics(
@@ -617,12 +627,16 @@ def execute_program_graph(
     metrics_ref = store.put_json(
         metrics,
         PutOptions(
-            kind="foundry.metrics",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.Metrics", version="0.1.0"),
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
 
     constraint_report_ref = None
@@ -635,8 +649,9 @@ def execute_program_graph(
                 schema=SchemaInfo(name="polisyos.core.ConstraintReport", version="1.0"),
                 inputs=inputs,
             ),
+            return_selected_profile=return_selected_profile,
         )
-        constraint_report_ref = ConstraintReportRef.model_validate(cref.model_dump())
+        constraint_report_ref = ConstraintReportRef.model_validate(cref.model_dump(mode="python"))
 
     frozen_provenance = {k: tuple(v) for k, v in provenance.items()}
     degradation_cards = tuple(

@@ -106,8 +106,11 @@ def test_default_gateway_uses_exact_tenant_store_for_skg_produce_and_replay(
             ref = artifacts.ArtifactRef.model_validate(
                 artifact.payload["owner_response"]["resolution_ref"]
             )
-            assert tenant_store.get_manifest(ref).kind == (
-                "runtime.production_grounding_source_resolution"
+            manifest = tenant_store.get_manifest(ref)
+            assert manifest.kind == "runtime.production_grounding_source_resolution"
+            assert manifest.canon is not None
+            assert ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(
+                manifest
             )
             assert tenant_store.get_bytes(ref)
 

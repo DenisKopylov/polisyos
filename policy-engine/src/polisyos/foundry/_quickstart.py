@@ -121,9 +121,12 @@ def put_trivial_trinity_bundle(store: FileSystemCAS, bundle: TrinityBundle) -> A
     return store.put_json(
         bundle,
         PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=bundle.schema_version),
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
     )
 
@@ -156,7 +159,10 @@ def prepare_trivial_input_bindings(
     state_snapshot_ref = StateSnapshotRef(artifact_id=state_ref.artifact_id)
     data_snapshot_ref = store.put_json(
         DataSnapshot(data_ref=state_snapshot_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+        ),
     )
     input_bindings_ref = store.put_json(
         FoundryInputBindings(
@@ -165,7 +171,10 @@ def prepare_trivial_input_bindings(
             rules=[],
             bound_state_snapshot_ref=state_snapshot_ref,
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+        ),
     )
     return FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id)
 
@@ -227,9 +236,12 @@ def prepare_trivial_feedback_config(
     ref = store.put_json(
         config,
         PutOptions(
-            kind="foundry.feedback_config",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.FeedbackConfig", version="1.0"),
+            kind=FeedbackConfig.ARTIFACT_KIND,
+            media_type=FeedbackConfig.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FeedbackConfig.ARTIFACT_SCHEMA_NAME,
+                version=FeedbackConfig.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=[InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -265,9 +277,12 @@ def prepare_trivial_multiplicity_config(
     ref = store.put_json(
         multiplicity_config,
         PutOptions(
-            kind="foundry.feedback_config",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.FeedbackConfig", version="1.0"),
+            kind=FeedbackConfig.ARTIFACT_KIND,
+            media_type=FeedbackConfig.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FeedbackConfig.ARTIFACT_SCHEMA_NAME,
+                version=FeedbackConfig.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=[InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),

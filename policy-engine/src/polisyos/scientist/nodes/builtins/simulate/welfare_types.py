@@ -291,6 +291,7 @@ def _persist_json_payload(
     kind: str,
     schema_name: str,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRefModel:
     schema_version = payload.get("schema_version", "1.0")
     if not isinstance(schema_version, str) or not schema_version.strip():
@@ -304,6 +305,7 @@ def _persist_json_payload(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return ArtifactRefModel.model_validate(ref.model_dump())
 

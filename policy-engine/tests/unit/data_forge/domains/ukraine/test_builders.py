@@ -926,9 +926,10 @@ def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(tmp
     assert "publication" in manifest["lineage"]["may_not_use_for"]
     assert "intervention_bundle_v1" not in manifest["bundles"]
     assert "governance_report_v1" not in manifest["bundles"]
-    assert "acceptance_contract_bundle.json" not in manifest["bundle_contents"][
-        "method_contract_bundle_v1"
-    ]
+    assert (
+        "acceptance_contract_bundle.json"
+        not in manifest["bundle_contents"]["method_contract_bundle_v1"]
+    )
     compression = json.loads(
         (config.build_root.bundles_dir / "d5" / "graph_compression_bundle.json").read_text(
             encoding="utf-8"
@@ -961,8 +962,7 @@ def test_d5_release_builder_has_no_lex_or_foundry_imports() -> None:
     """Keep D5 producer-only until a downstream bridge is explicitly wired."""
 
     release_path = (
-        Path(__file__).parents[5]
-        / "src/polisyos/data_forge/domains/ukraine/builders/release.py"
+        Path(__file__).parents[5] / "src/polisyos/data_forge/domains/ukraine/builders/release.py"
     )
     tree = ast.parse(release_path.read_text(encoding="utf-8"))
     imported_modules = {
@@ -973,4 +973,38 @@ def test_d5_release_builder_has_no_lex_or_foundry_imports() -> None:
 
     assert not any(
         module.startswith(("polisyos.lex", "polisyos.foundry")) for module in imported_modules
+    )
+
+
+def test_s1_d3_panel_binds_quarter_unit_and_contributors() -> None:
+    """The candidate panel keeps quarter identity, row lineage and unknown coverage."""
+    from polisyos.data_forge.domains.ukraine.builders.demography import (
+        _build_household_diagnostic_panel,
+    )
+
+    source_id = "a" * 64
+    source = pd.DataFrame(
+        {
+            "region_code": ["05", "05"],
+            "quarter_id": ["2023Q1", "2023Q1"],
+            "income": [90.0, 110.0],
+            "weight": [1.0, 1.0],
+            "source_snapshot_id": [source_id, source_id],
+            "record_hash": ["b" * 64, "c" * 64],
+        }
+    )
+    panel = _build_household_diagnostic_panel(source)
+    row = panel.iloc[0]
+    assert row["observed_value"] == pytest.approx(100.0)
+    assert row["time_grain"] == TimeFrequency.QUARTER.value
+    assert row["period_start"] == "2023-01-01" and row["period_end"] == "2023-03-31"
+    assert row["unit"] is None and row["population_coverage"] is None
+    assert row["custody"] == row["currentness"] == "not_established"
+    assert row["source_snapshot_id"] == source_id
+    assert row["source_record_hashes"] == ["b" * 64, "c" * 64]
+    changed = source.copy()
+    changed.loc[0, "record_hash"] = "d" * 64
+    assert (
+        _build_household_diagnostic_panel(changed).iloc[0]["source_record_hashes"]
+        != row["source_record_hashes"]
     )

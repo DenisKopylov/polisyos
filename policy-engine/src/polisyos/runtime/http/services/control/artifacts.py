@@ -25,6 +25,7 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
+from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,
@@ -297,6 +298,7 @@ def write_authority_artifact(
     )
     if existing is not None:
         return existing
+    _require_return_selected_profile_writer(store, "put_json")
     effective_attestation_ref = _persist_cas_writer_attestation(
         store,
         payload=attestation_payload,
@@ -340,8 +342,10 @@ def write_authority_artifact(
             same_input_closure=closure,
         ),
         canon_spec,
+        return_selected_profile=True,
     )
-    diagnostic_event_ref = core_artifacts.profile_bound_ref(store, diagnostic_event_ref)
+    if diagnostic_event_ref.manifest_profile_sha256 is None:
+        raise ValueError("authority_diagnostic_event_selected_profile_missing")
 
     authority_envelope = EvidenceAuthorityEnvelope.model_validate(
         {
@@ -400,7 +404,10 @@ def write_authority_artifact(
             same_input_closure=closure,
         ),
         canon_spec,
+        return_selected_profile=True,
     )
+    if authority_envelope_ref.manifest_profile_sha256 is None:
+        raise ValueError("authority_envelope_selected_profile_missing")
 
     cas_ref = store.put_json(
         payload,
@@ -417,7 +424,10 @@ def write_authority_artifact(
             payload_sha256=payload_sha256,
         ),
         canon_spec,
+        return_selected_profile=True,
     )
+    if cas_ref.manifest_profile_sha256 is None:
+        raise ValueError("authority_payload_selected_profile_missing")
     if str(cas_ref.artifact_id) != cas_ref_value:
         raise ValueError(
             "authority payload CAS ref changed during write: "

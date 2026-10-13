@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from tests._helpers.ukraine_foundry_intake import _ukraine_intake_manifests
 
 from polisyos.core.artifacts.manifest import (
     InputRef,
@@ -15,20 +16,15 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import FoundryInputBindingRule, StateSnapshot
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.data_forge.domains.ukraine.manifests import (
-    ArtifactRecord,
-    BuildRunManifest,
-    write_manifest,
-)
-from polisyos.data_forge.domains.ukraine.models import StageId
 from polisyos.data_forge.read_api import ukraine as ukraine_read_api
 from polisyos.foundry.data_plane.bindings import (
     _auto_rules_from_payload,
     _infer_entity_sizes,
     build_input_bindings,
+    load_input_bindings,
     load_ukraine_foundry_intake,
 )
 from polisyos.foundry.execute.executor import load_state_snapshot
@@ -99,147 +95,12 @@ SYNTHETIC_MULTISCALE_PAYLOAD = {
 }
 
 
-def _put_json(store: FileSystemCAS, payload, *, kind: str):
+def _put_json(store: FileSystemCAS, payload, *, kind: str, schema: SchemaInfo | None = None):
     return store.put_json(
         payload,
-        PutOptions(kind=kind, media_type="application/json"),
+        PutOptions(kind=kind, media_type="application/json", schema=schema),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-
-
-def _write_ukraine_stage(
-    root: Path,
-    *,
-    stage_id: StageId,
-    outputs: dict[str, dict[str, object]],
-) -> Path:
-    stage_dir = root / "stages" / stage_id.value
-    stage_dir.mkdir(parents=True, exist_ok=True)
-    records = []
-    for name, payload in outputs.items():
-        path = stage_dir / name
-        path.write_text(json.dumps(payload), encoding="utf-8")
-        records.append(ArtifactRecord.from_path(path))
-    manifest = BuildRunManifest(
-        run_id="ukraine-intake-test",
-        stage_id=stage_id,
-        status="completed",
-        started_at="2026-08-26T10:00:00+00:00",
-        finished_at="2026-08-26T10:01:00+00:00",
-        outputs=records,
-    )
-    manifest_path = root / "manifests" / f"build_{stage_id.value}.json"
-    write_manifest(manifest_path, manifest)
-    return manifest_path
-
-
-def _ukraine_intake_manifests(root: Path) -> dict[str, Path]:
-    adjacency = [[0.0, 1.0], [1.0, 0.0]]
-    network = {
-        "adjacency": adjacency,
-        "node_features": [[0.1], [0.2]],
-        "node_states": [0.1, 0.2],
-        "node_ids": ["a", "b"],
-        "metadata": {"producer_stage": "d1"},
-    }
-    network_causal = {
-        "outcome": [1.0, 2.0],
-        "treatment": [0, 1],
-        "covariates": [[0.1], [0.2]],
-        "adjacency_matrix": adjacency,
-        "metadata": {"producer_stage": "d1"},
-    }
-    proxy_bundle = {
-        "contract_target": {
-            "contract_id": "foundry.causal.proxy_measurement_data.v1",
-            "contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.ProxyMeasurementData",
-        },
-        "proxy_channels": [
-            {
-                "family": "distress_enforcement",
-                "proxy_variable": "C_star",
-                "latent_variable": "C",
-                "treatment_variable": "x",
-                "outcome_variable": "y",
-                "target_contract": {
-                    "contract_id": "foundry.causal.proxy_measurement_data.v1",
-                    "contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.ProxyMeasurementData",
-                },
-            }
-        ],
-        "proxy_map": {"C": "C_star"},
-    }
-    d1_outputs = {
-        "proxy_identification_bundle_v1.json": proxy_bundle,
-        "multiplex_network_data.json": {
-            "adjacency_layers": [adjacency, adjacency],
-            "node_features": [[0.1], [0.2]],
-            "node_ids": ["a", "b"],
-            "metadata": {"producer_stage": "d1"},
-        },
-    }
-    for layer in ("trade", "distress", "public_service"):
-        d1_outputs[f"{layer}_network_data.json"] = network
-        d1_outputs[f"{layer}_network_causal_data.json"] = network_causal
-    return {
-        "d0_p0": _write_ukraine_stage(
-            root,
-            stage_id=StageId.D0_P0,
-            outputs={
-                "runtime_bundle_manifest.json": {
-                    "data_snapshot_artifact_id": "sha256:" + ("1" * 64),
-                }
-            },
-        ),
-        "d1": _write_ukraine_stage(root, stage_id=StageId.D1, outputs=d1_outputs),
-        "d2": _write_ukraine_stage(
-            root,
-            stage_id=StageId.D2,
-            outputs={
-                "panel_observational_contract.json": {
-                    "outcome": [[1.0, 2.0], [2.0, 3.0]],
-                    "treatment": [0, 1],
-                    "time_treatment": 1,
-                    "metadata": {"producer_stage": "d2"},
-                },
-                "dynamic_treatment_contract.json": {
-                    "outcome": list(np.linspace(1.0, 2.0, 10)),
-                    "treatment_sequence": [[0, 1]] * 10,
-                    "covariate_sequence": [[[0.1], [0.2]]] * 10,
-                    "metadata": {"producer_stage": "d2"},
-                },
-                "microsim_survey_contract_preview.json": {
-                    "market_income": [100.0, 200.0],
-                    "weights": [1.0, 1.0],
-                    "metadata": {"producer_stage": "d2"},
-                },
-                "survival_contract.json": {
-                    "features": [[0.1], [0.2]],
-                    "durations": [1.0, 2.0],
-                    "events": [0, 1],
-                    "metadata": {"producer_stage": "d2"},
-                },
-                "panel_econometric_contract.json": {
-                    "dependent": list(np.linspace(1.0, 8.0, 8)),
-                    "exog": [[0.0], [1.0]] * 4,
-                    "entity_ids": ["a", "a", "b", "b", "c", "c", "d", "d"],
-                    "time_ids": [0, 1] * 4,
-                    "metadata": {"producer_stage": "d2"},
-                },
-            },
-        ),
-        "d3": _write_ukraine_stage(
-            root,
-            stage_id=StageId.D3,
-            outputs={
-                "microsim_survey_contract_v1.json": {
-                    "market_income": [100.0, 200.0],
-                    "weights": [1.0, 1.0],
-                    "metadata": {"producer_stage": "d3"},
-                }
-            },
-        ),
-    }
 
 
 def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_contracts(
@@ -297,17 +158,21 @@ def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_cont
         "method_validity",
     ]
     assert set(bundle["contracts"]) == set(intake.method_contracts)
-    assert {
-        entry["consumption_state"] for entry in bundle["contracts"].values()
-    } == {"exercised_workflow_consumer", "selectable_unselected"}
-    assert sum(
-        entry["consumption_state"] == "exercised_workflow_consumer"
-        for entry in bundle["contracts"].values()
-    ) == 1
-    assert sum(
-        entry["residual_state"] == "consumer_missing"
-        for entry in bundle["contracts"].values()
-    ) == 12
+    assert {entry["consumption_state"] for entry in bundle["contracts"].values()} == {
+        "exercised_workflow_consumer",
+        "selectable_unselected",
+    }
+    assert (
+        sum(
+            entry["consumption_state"] == "exercised_workflow_consumer"
+            for entry in bundle["contracts"].values()
+        )
+        == 1
+    )
+    assert (
+        sum(entry["residual_state"] == "consumer_missing" for entry in bundle["contracts"].values())
+        == 12
+    )
     assert (
         bundle["contracts"]["d2_panel_observational"]["workflow_consumer"]
         == "scientist_causal_full.run_causal_evaluation"
@@ -329,6 +194,285 @@ def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_cont
         roles = {item.role for item in stage_manifest.inputs}
         assert "verified_stage_manifest" in roles
         assert any(role.startswith("verified_stage_output:") for role in roles), stage_id
+
+
+def test_load_ukraine_foundry_intake_preserves_the_selected_snapshot_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "profiled-cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    raw_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    selected_snapshot_ref = DataSnapshotRef.model_validate(
+        raw_snapshot_ref.model_dump(mode="python")
+    )
+    stage_root = tmp_path / "stages"
+    intake = load_ukraine_foundry_intake(
+        store,
+        stage_manifests=_ukraine_intake_manifests(
+            stage_root,
+            data_snapshot_ref=selected_snapshot_ref,
+        ),
+        allowed_root=stage_root,
+    )
+
+    assert selected_snapshot_ref.manifest_profile_sha256 is not None
+    assert intake.data_snapshot_ref == selected_snapshot_ref
+    receipt = from_canonical_bytes(store.get_bytes(intake.receipt_ref))
+    assert receipt["data_snapshot_ref"] == selected_snapshot_ref.model_dump(mode="json")
+    receipt_manifest = store.get_manifest(intake.receipt_ref)
+    snapshot_edges = [edge for edge in receipt_manifest.inputs if edge.role == "data_snapshot"]
+    assert len(snapshot_edges) == 1
+    assert snapshot_edges[0].artifact_id == selected_snapshot_ref.artifact_id
+    assert (
+        snapshot_edges[0].manifest_profile_sha256 == selected_snapshot_ref.manifest_profile_sha256
+    )
+
+
+def test_load_ukraine_foundry_intake_rejects_same_bytes_with_false_snapshot_schema(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "schema-alias-cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    valid_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    valid_manifest = store.get_manifest(valid_ref)
+    alias_schema = SchemaInfo(
+        name=f"alias.{DataSnapshot.ARTIFACT_SCHEMA_NAME}",
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    alias_ref = store.put_bytes(
+        store.get_bytes(valid_ref),
+        PutOptions(
+            kind=valid_manifest.kind,
+            media_type=valid_manifest.media_type,
+            schema=alias_schema,
+            inputs=valid_manifest.inputs,
+            canon=valid_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert alias_ref.artifact_id == valid_ref.artifact_id
+    assert alias_ref.manifest_profile_sha256 != valid_ref.manifest_profile_sha256
+    assert store.verify(alias_ref).ok
+    alias_manifest = store.get_manifest(alias_ref)
+    assert alias_manifest.kind == valid_manifest.kind
+    assert alias_manifest.media_type == valid_manifest.media_type
+    assert alias_manifest.artifact_schema == alias_schema
+    assert alias_manifest.inputs == valid_manifest.inputs
+    assert store.get_bytes(alias_ref) == store.get_bytes(valid_ref)
+
+    stage_root = tmp_path / "stages"
+    runtime_bundle_payload = {
+        "data_snapshot_artifact_id": str(alias_ref.artifact_id),
+        "data_snapshot_ref": alias_ref.model_dump(mode="json"),
+    }
+    with pytest.raises(ValueError, match="schema"):
+        load_ukraine_foundry_intake(
+            store,
+            stage_manifests=_ukraine_intake_manifests(
+                stage_root,
+                runtime_bundle_payload=runtime_bundle_payload,
+            ),
+            allowed_root=stage_root,
+        )
+
+
+def test_load_ukraine_foundry_intake_keeps_profileless_legacy_snapshot_unqualified(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "legacy-cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    raw_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_snapshot_ref = DataSnapshotRef.model_validate(raw_snapshot_ref.model_dump(mode="python"))
+    assert legacy_snapshot_ref.manifest_profile_sha256 is None
+    stage_root = tmp_path / "stages"
+    intake = load_ukraine_foundry_intake(
+        store,
+        stage_manifests=_ukraine_intake_manifests(
+            stage_root,
+            data_snapshot_ref=legacy_snapshot_ref,
+        ),
+        allowed_root=stage_root,
+    )
+
+    assert intake.data_snapshot_ref == legacy_snapshot_ref
+    assert intake.data_snapshot_ref.manifest_profile_sha256 is None
+
+    binding = build_input_bindings(
+        store,
+        data_snapshot_ref=intake.data_snapshot_ref,
+        registry_bundle_ref=build_default_registry_bundle(store).bundle_ref,
+    )
+    persisted = load_input_bindings(store, binding.input_bindings_ref)
+    assert persisted.data_snapshot_ref.manifest_profile_sha256 is None
+    binding_edges = store.get_manifest(binding.input_bindings_ref).inputs
+    snapshot_edge = next(edge for edge in binding_edges if edge.role == "input.data_snapshot_ref")
+    assert snapshot_edge.manifest_profile_sha256 is None
+
+
+def test_load_ukraine_foundry_intake_rejects_a_foreign_typed_snapshot_ref(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "foreign-cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    first_raw_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    foreign_payload_ref = _put_json(
+        store,
+        {"agents": {"age": [22]}},
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    foreign_raw_ref = store.put_json(
+        DataSnapshot(data_ref=foreign_payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    first_ref = DataSnapshotRef.model_validate(first_raw_ref.model_dump(mode="python"))
+    foreign_ref = DataSnapshotRef.model_validate(foreign_raw_ref.model_dump(mode="python"))
+    runtime_bundle_payload = {
+        "data_snapshot_artifact_id": str(first_ref.artifact_id),
+        "data_snapshot_ref": foreign_ref.model_dump(mode="json"),
+    }
+    stage_root = tmp_path / "stages"
+    with pytest.raises(ValueError, match="does not match its artifact ID"):
+        load_ukraine_foundry_intake(
+            store,
+            stage_manifests=_ukraine_intake_manifests(
+                stage_root,
+                runtime_bundle_payload=runtime_bundle_payload,
+            ),
+            allowed_root=stage_root,
+        )
+
+
+def test_load_ukraine_foundry_intake_preserves_but_binding_rejects_a_foreign_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "foreign-profile-cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    selected_raw_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    foreign_payload_ref = _put_json(
+        store,
+        {"agents": {"age": [22]}},
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    foreign_raw_ref = store.put_json(
+        DataSnapshot(data_ref=foreign_payload_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    selected_ref = DataSnapshotRef.model_validate(selected_raw_ref.model_dump(mode="python"))
+    foreign_ref = DataSnapshotRef.model_validate(foreign_raw_ref.model_dump(mode="python"))
+    foreign_profile_ref = DataSnapshotRef.model_validate(
+        selected_ref.model_dump(mode="python")
+        | {"manifest_profile_sha256": foreign_ref.manifest_profile_sha256}
+    )
+    assert foreign_profile_ref.artifact_id == selected_ref.artifact_id
+    assert foreign_profile_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    runtime_bundle_payload = {
+        "data_snapshot_artifact_id": str(selected_ref.artifact_id),
+        "data_snapshot_ref": foreign_profile_ref.model_dump(mode="json"),
+    }
+    stage_root = tmp_path / "stages"
+    with pytest.raises((FileNotFoundError, ValueError), match="profile|manifest"):
+        load_ukraine_foundry_intake(
+            store,
+            stage_manifests=_ukraine_intake_manifests(
+                stage_root,
+                runtime_bundle_payload=runtime_bundle_payload,
+            ),
+            allowed_root=stage_root,
+        )
 
 
 def test_load_ukraine_foundry_intake_fails_closed_on_one_corrupted_method_artifact(
@@ -818,6 +962,10 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
         store,
         DataSnapshot(data_ref=payload_ref),
         kind="fabric.data_snapshot",
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
 

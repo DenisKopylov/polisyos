@@ -11,7 +11,9 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.control import DataDiscoverRequest, DataResolveRequest
 from polisyos.data_requirement import (
+    CapabilityRequirementResolution,
     DataQualityMinimums,
     DataRequirementScope,
     DataRequirementSpec,
@@ -99,6 +101,9 @@ from polisyos.scientist.methods.search.voi_models import (
 from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+_N7_DISCOVERY_CONTROL_FIELDS = tuple(
+    sorted(set(DataDiscoverRequest.model_fields) - set(DataResolveRequest.model_fields))
+)
 
 
 def _install_recorded_file_catalog_supplier(monkeypatch: pytest.MonkeyPatch) -> str:
@@ -1192,8 +1197,9 @@ def test_n7_missing_design_problem_refuses_grounding_rederive_without_crash() ->
 def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from polisyos.core import artifacts
+    from polisyos.core import artifacts, canon
     from polisyos.runtime.quality.production_grounding_calibration import (
+        _SOURCE_CANON,
         ProductionCG2CalibrationSource,
     )
 
@@ -1201,11 +1207,11 @@ def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(
 
     def tampered_produce(self, request):
         ref = original(self, request)
-        payload = json.loads(self._store.get_bytes(ref.artifact_id))
+        payload = canon.from_canonical_bytes(self._store.get_bytes(ref))
         # Leave purpose/status/provenance markers intact; substitute actual request bytes.
         payload["request"]["claim_ref"] = "claim:borrowed"
-        return self._store.put_bytes(
-            json.dumps(payload).encode(),
+        return self._store.put_json(
+            payload,
             artifacts.ArtifactWriteOptions(
                 kind="runtime.production_grounding_source_resolution",
                 media_type="application/json",
@@ -1214,6 +1220,8 @@ def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(
                 ),
                 producer=artifacts.ProducerInfo(component="candidate", version="1.0"),
             ),
+            canon_spec=_SOURCE_CANON,
+            return_selected_profile=True,
         )
 
     monkeypatch.setattr(ProductionCG2CalibrationSource, "produce", tampered_produce)
@@ -1287,6 +1295,9 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
     )
 
     assert receipt.status == "completed_no_results"
+    assert receipt.grown_world_added_slots == ()
+    assert receipt.grown_world_after_ref == world.world_ref
+    assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
     assert receipt.real_grounding_result_count == 0
     assert receipt.no_result_costed_gap is True
     assert receipt.useful_design_rate_after == 0.0
@@ -1615,9 +1626,20 @@ def test_every_skg_intake_rejects_acquired_projection_even_with_valid_markers(
     assert all(row.status == "rejected" for row in receipt.world_write_outcomes)
 
 
+@pytest.mark.parametrize(
+    ("scope_profile_id", "geography", "start", "end"),
+    [
+        ("scope-profile:8f1a", "UA", "2026-01-01", "2026-12-31"),
+        ("scope-profile:c3d4", "PL", "2027-01-01", "2027-12-31"),
+    ],
+)
 def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    scope_profile_id: str,
+    geography: str,
+    start: str,
+    end: str,
 ) -> None:
     from polisyos.core.contracts.control import FetchPlan, MetricCandidate
     from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
@@ -1655,12 +1677,27 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     monkeypatch.setattr(FetchExecutor, "execute", _unexpected_call)
 
     base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
-    base_spec["requirement_id"] = "data-requirement:catalog-plan-capture"
-    base_spec["claim_id"] = "claim-catalog-plan-capture"
+    base_spec["requirement_id"] = f"opaque:catalog-plan-capture:{scope_profile_id}"
+    base_spec["claim_id"] = f"opaque:claim:{scope_profile_id}"
     base_spec["required_data_families"] = (
         "msme_credit_access",
         "fixture_unresolved_metric",
     )
+    base_spec["scope"].update(
+        {
+            "geography": geography,
+            "jurisdiction": geography,
+        }
+    )
+    base_spec["metadata"]["scope_profile"] = {
+        "profile_id": scope_profile_id,
+        "jurisdiction": geography,
+        "time_window": {"start": start, "end": end},
+        "time_role": "observation_time",
+        "granularity": "firm-year",
+        "required_constructs": [],
+        "candidate_construct_proposals": [],
+    }
     gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
     report = plan_requirement_gap_acquisition(
         run_id="run-n7-catalog-plan-capture",
@@ -1688,11 +1725,22 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     ]
     assert raw_response["fetch_plan_count"] == len(raw_response["fetch_plans"])
     assert raw_response["candidate_count"] == len(raw_response["candidates"])
-    assert raw_response["fetch_plan_count"] > 0
+    assert raw_response["candidate_only"] is True
+    assert raw_response["requirement_projection"]["disposition"] == "candidate_only"
+    assert (
+        raw_response["requirement_projection"]["capability_resolution_status"]
+        == "not_established"
+    )
+    assert raw_response["data_needs"][0]["geography"] == geography
+    assert raw_response["data_needs"][0]["time_start"] == start
+    assert raw_response["data_needs"][0]["time_end"] == end
+    assert raw_response["data_needs"][0]["granularity"] == "firm-year"
+    assert raw_response["data_needs"][0]["quality_min"] == 0.8
     for raw_plan in raw_response["fetch_plans"]:
         plan = FetchPlan.model_validate(raw_plan)
         assert raw_plan == plan.model_dump(mode="json")
         assert plan.source_lane == "catalog"
+        assert plan.quality_min == 0.8
         assert plan.metadata["execution_tier"] in {"fetchable", "transport_ready"}
     for raw_candidate in raw_response["candidates"]:
         candidate = MetricCandidate.model_validate(raw_candidate)
@@ -1721,9 +1769,203 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     )
 
     assert receipt.status == "completed_no_results"
-    assert receipt.grown_world_added_slots == ()
-    assert receipt.grown_world_after_ref == "world://before/catalog-plan"
-    assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
+
+
+@pytest.mark.parametrize(
+    ("catalog_context", "reason_code"),
+    [
+        (
+            {"budget_fields": {"cost_budget_usd": 0}, "availability_fields": {}},
+            "catalog_zero_budget_unrepresentable",
+        ),
+        (
+            {"budget_fields": {}, "availability_fields": {"availability_filters": []}},
+            "catalog_availability_filter_unrepresentable",
+        ),
+    ],
+)
+def test_real_owner_gateway_refuses_unrepresentable_budget_or_availability_before_catalog(
+    tmp_path: Path,
+    catalog_context: dict[str, object],
+    reason_code: str,
+) -> None:
+    calls: list[str] = []
+
+    def forbidden_catalog_factory(_db_path: Path, _index_dir: Path) -> object:
+        calls.append("catalog_opened")
+        raise AssertionError("a refused requirement must not open the Catalog")
+
+    base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+    base_spec["requirement_id"] = f"data-requirement:projection-refusal:{reason_code}"
+    base_spec["scope"]["geography"] = "UA"
+    base_spec["scope"]["jurisdiction"] = "UA"
+    base_spec["metadata"]["scope_profile"] = {
+        "profile_id": "fixture:ua:2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "time_role": "observation_time",
+        "granularity": "annual",
+        "required_constructs": [],
+        "candidate_construct_proposals": [],
+    }
+    base_spec["catalog_request_context"] = catalog_context
+    gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+    report = plan_requirement_gap_acquisition(
+        run_id=f"run-projection-refusal-{reason_code}",
+        requirement_gaps=(gap,),
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        dataset_catalog_factory=forbidden_catalog_factory,
+        catalog_run_profile="prod_full",
+        captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+
+    artifact = gateway.acquire(
+        record=report.acquisition_records[0],
+        compiled_requirement_spec=base_spec,
+    )
+
+    assert artifact is not None
+    raw_response = artifact.payload["owner_response"]
+    assert raw_response["owner_response_kind"] == "fabric_requirement_projection_refusal"
+    assert raw_response["requirement_projection"]["reason_codes"] == [reason_code]
+    assert artifact.payload["acquired_substrate_registrations"] == []
+    assert artifact.payload["candidate_bindings"] == []
+    assert calls == []
+
+
+def test_n7_request_context_covers_all_declared_discovery_controls() -> None:
+    request = dict.fromkeys(_N7_DISCOVERY_CONTROL_FIELDS, None)
+
+    context = acquisition_owner._n7_catalog_request_context(request)
+
+    assert context["budget_fields"] == request
+    assert context["availability_fields"] == {}
+
+
+def test_n7_closed_loop_forwards_typed_resolution_and_request_limits_to_fabric_owner() -> None:
+    spec = _compiled_requirement_specs()[0]
+    resolution = CapabilityRequirementResolution.model_validate(
+        {
+            "scope_profile_id": "profile:ua-2026",
+            "query": {
+                "requirement_id": "data-requirement:profile:ua-2026:firm_survival",
+                "construct": "firm_survival",
+                "entity_scope": "firm",
+                "population_filter": {"type": "msmes"},
+                "geography": "UA",
+                "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+                "claim_use": "claim_evidence_closeout",
+                "source_family_alias": "production_msme_panel",
+            },
+            "state": "not_established",
+            "binding": None,
+            "reason_codes": ["capability_resolver_not_established"],
+        }
+    )
+
+    class _RecordingGateway:
+        def __init__(self) -> None:
+            self.spec: dict[str, object] | None = None
+
+        def acquire(
+            self,
+            *,
+            record: object,
+            compiled_requirement_spec: dict[str, object],
+        ) -> None:
+            del record
+            self.spec = dict(compiled_requirement_spec)
+            return None
+
+    gateway = _RecordingGateway()
+    run_acquisition_closed_loop(
+        run_id="run-n7-forward-scope-context",
+        acquisition_request={
+            "cycle_index": 1,
+            "cost_budget_usd": 0,
+            "availability_filters": [],
+        },
+        data_requirement_specs=(spec,),
+        capability_requirement_resolutions=(resolution,),
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://n7-forward-scope"),
+        owner_gateway=gateway,  # type: ignore[arg-type]
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+
+    assert gateway.spec is not None
+    assert gateway.spec["capability_requirement_resolutions"] == [
+        resolution.model_dump(mode="json")
+    ]
+    assert gateway.spec["catalog_request_context"] == {
+        "budget_fields": {"cost_budget_usd": 0},
+        "availability_fields": {"availability_filters": []},
+    }
+
+
+@pytest.mark.parametrize(
+    ("request_field", "request_value", "reason_code"),
+    [
+        *[
+            (field, None, "catalog_budget_unrepresentable")
+            for field in _N7_DISCOVERY_CONTROL_FIELDS
+        ],
+        ("time_budget_ms", 100, "catalog_budget_unrepresentable"),
+        ("time_budget_ms", 0, "catalog_zero_budget_unrepresentable"),
+        ("cost_budget_usd", 0, "catalog_zero_budget_unrepresentable"),
+        ("availability_filters", [], "catalog_availability_filter_unrepresentable"),
+    ],
+)
+def test_n7_closed_loop_limit_reaches_real_catalog_projection_before_catalog_open(
+    tmp_path: Path,
+    request_field: str,
+    request_value: object,
+    reason_code: str,
+) -> None:
+    catalog_calls: list[str] = []
+
+    def forbidden_catalog_factory(_db_path: Path, _index_dir: Path) -> object:
+        catalog_calls.append("opened")
+        raise AssertionError("unrepresentable request limits must refuse before Catalog")
+
+    spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+    spec["scope"].update({"geography": "UA", "jurisdiction": "UA"})
+    spec["metadata"]["scope_profile"] = {
+        "profile_id": "scope-profile:ua-2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "time_role": "observation_time",
+        "granularity": "annual",
+        "required_constructs": [],
+        "candidate_construct_proposals": [],
+    }
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        dataset_catalog_factory=forbidden_catalog_factory,
+        catalog_run_profile="prod_full",
+    )
+    request = {"cycle_index": 1, request_field: request_value}
+
+    receipt = run_acquisition_closed_loop(
+        run_id=f"run-n7-limit-{request_field}",
+        acquisition_request=request,
+        data_requirement_specs=(spec,),
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://n7-limit"),
+        owner_gateway=gateway,
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+
+    assert len(receipt.owner_artifacts) == 1
+    response = receipt.owner_artifacts[0].payload["owner_response"]
+    assert response["owner_response_kind"] == "fabric_requirement_projection_refusal"
+    assert response["requirement_projection"]["reason_codes"] == [reason_code]
+    assert response["requirement_projection"]["authority_status"] == "not_established"
+    assert receipt.owner_artifacts[0].payload["acquired_substrate_registrations"] == []
+    assert receipt.owner_artifacts[0].payload["candidate_bindings"] == []
+    assert receipt.grown_world_before_ref == receipt.grown_world_after_ref
+    assert catalog_calls == []
 
 
 @pytest.mark.parametrize(
@@ -1798,7 +2040,9 @@ def test_real_owner_gateway_refuses_catalog_route_without_selected_profile(
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
     _install_recorded_file_catalog_supplier(monkeypatch)
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
             {
@@ -1807,6 +2051,7 @@ def test_real_owner_gateway_refuses_catalog_route_without_selected_profile(
                 "required_data_families": ("metric.test",),
             }
         )
+        base_spec["metadata"]["scope_profile"] = _catalog_capture_scope_profile()
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
         report = plan_requirement_gap_acquisition(
             run_id="run-n7-catalog-profile-unselected",
@@ -1934,7 +2179,10 @@ def test_real_owner_gateway_capture_requires_runtime_store_before_factory_or_cat
             "requirement_id": "data-requirement:fetch-capture-missing-runtime-store",
             "claim_id": "claim-fetch-capture-missing-runtime-store",
             "required_data_families": ("metric.test",),
-            "metadata": {"fabric_capture_mode": "persisted_payload"},
+            "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
         }
     )
     gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -1992,7 +2240,9 @@ def test_real_owner_gateway_capture_rejects_injected_foreign_store_before_resolv
             execute_calls.append((args, kwargs))
             raise AssertionError("foreign store must be rejected before execution")
 
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
 
         def _service_factory(_curated_dir: Path, store: object, _graph: object) -> object:
             factory_store_args.append(store)
@@ -2004,7 +2254,10 @@ def test_real_owner_gateway_capture_rejects_injected_foreign_store_before_resolv
                 "requirement_id": "data-requirement:fetch-capture-foreign-store",
                 "claim_id": "claim-fetch-capture-foreign-store",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2058,7 +2311,9 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
     services: list[RetrievalService] = []
     source_id = _install_recorded_file_catalog_supplier(monkeypatch)
 
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
         binding = owner.graph.resolve_metric_bindings("metric.test", top_k=1)[0]
         assert binding.source == source_id
         registered_source = catalog_read_api.load_catalog_source_registry().source_by_id(source_id)
@@ -2091,7 +2346,10 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
                 "requirement_id": "data-requirement:fetch-capture",
                 "claim_id": "claim-fetch-capture",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2117,6 +2375,8 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
         assert artifact is not None
         raw_response = artifact.payload["owner_response"]
         assert raw_response["owner_response_kind"] == "fabric_fetch_capture"
+        assert raw_response["candidate_only"] is True
+        assert raw_response["requirement_projection"]["disposition"] == "candidate_only"
         assert raw_response["captured_fetch_count"] == 1
         captured = raw_response["captured_fetches"][0]
         assert captured["plan"]["connector_id"] == "files.tabular"
@@ -2189,7 +2449,10 @@ def test_real_owner_gateway_capture_requires_explicit_local_service_without_remo
             "requirement_id": "data-requirement:fetch-capture-no-service",
             "claim_id": "claim-fetch-capture-no-service",
             "required_data_families": ("metric.test",),
-            "metadata": {"fabric_capture_mode": "persisted_payload"},
+            "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
         }
     )
     gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2227,7 +2490,9 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
 
     runtime_store = FileSystemCAS(tmp_path / "cardinality-runtime-cas")
     _install_recorded_file_catalog_supplier(monkeypatch)
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
         resolve_calls: list[object] = []
 
         def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
@@ -2272,7 +2537,10 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
                 "requirement_id": f"data-requirement:fetch-capture-plan-{plan_count}",
                 "claim_id": f"claim-fetch-capture-plan-{plan_count}",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2309,7 +2577,9 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
 
     runtime_store = FileSystemCAS(tmp_path / "remote-effective-runtime-cas")
     _install_recorded_file_catalog_supplier(monkeypatch)
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
         owner.providers.registry.set_default_config(
             "files.tabular",
             ConnectionConfig(url="https://remote.invalid/recorded.csv"),
@@ -2334,7 +2604,10 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
                 "requirement_id": "data-requirement:fetch-capture-remote-effective",
                 "claim_id": "claim-fetch-capture-remote-effective",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2375,6 +2648,7 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
         tmp_path,
         canonicalize_catalog_source=True,
         catalog_connector_params={},
+        publish_current_catalog=True,
     ) as owner:
         other_path = tmp_path / "b.csv"
         other_path.write_text(owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8")
@@ -2400,7 +2674,10 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
                 "requirement_id": "data-requirement:fetch-capture-empty-params",
                 "claim_id": "claim-fetch-capture-empty-params",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2443,6 +2720,7 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
         tmp_path,
         catalog_source_locator=approved_locator,
         catalog_connector_params={},
+        publish_current_catalog=True,
     ) as owner:
         cwd_locator = tmp_path / "inside.csv"
         cwd_locator.write_text(owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8")
@@ -2469,7 +2747,10 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
                 "requirement_id": "data-requirement:fetch-capture-relative-effective",
                 "claim_id": "claim-fetch-capture-relative-effective",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2529,7 +2810,9 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
         ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "fetch-capture-cas"))
     )
     _install_recorded_file_catalog_supplier(monkeypatch)
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
         original_execute = RetrievalService.execute_fetch_plans
         original_get_bytes = FileSystemCAS.get_bytes
         original_get_manifest = FileSystemCAS.get_manifest
@@ -2673,7 +2956,10 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
                 "requirement_id": f"data-requirement:fetch-capture-{mutation}",
                 "claim_id": f"claim-fetch-capture-{mutation}",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -3068,6 +3354,20 @@ def _stable_json_hash(value: dict[str, object]) -> str:
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
+def _catalog_capture_scope_profile() -> dict[str, object]:
+    """Supply an explicit test scope for the candidate-only local Catalog capture path."""
+
+    return {
+        "profile_id": "fixture:catalog-capture:ua-2026",
+        "jurisdiction": None,
+        "time_window": {"start": None, "end": None},
+        "time_role": "observation_time",
+        "granularity": "annual",
+        "required_constructs": [],
+        "candidate_construct_proposals": [],
+    }
+
+
 def _compiled_requirement_specs() -> tuple[
     DataRequirementSpec,
     LegalAuthorityRequirementSpec,
@@ -3166,7 +3466,9 @@ def test_real_owner_gateway_store_removal_probe_refuses_before_fetch(
     )
     execute_calls: list[object] = []
     _install_recorded_file_catalog_supplier(monkeypatch)
-    with build_recorded_file_fetch_owner(tmp_path, canonicalize_catalog_source=True) as owner:
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
 
         def _local_service_factory(curated_dir: Path, _store: object, graph: object) -> object:
             service = RetrievalService(
@@ -3190,7 +3492,10 @@ def test_real_owner_gateway_store_removal_probe_refuses_before_fetch(
                 "requirement_id": "data-requirement:fetch-capture-store-removal",
                 "claim_id": "claim-fetch-capture-store-removal",
                 "required_data_families": ("metric.test",),
-                "metadata": {"fabric_capture_mode": "persisted_payload"},
+                "metadata": {
+                "fabric_capture_mode": "persisted_payload",
+                "scope_profile": _catalog_capture_scope_profile(),
+            },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]

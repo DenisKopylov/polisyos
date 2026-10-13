@@ -2305,10 +2305,22 @@ class ArtifactPromotionOwnerQueryContextRepository:
     ) -> None:
         from polisyos.core.artifacts import load_core_json_artifact
         ref = statement.design_problem_binding_ref
+        expected_schema = artifacts.SchemaInfo(
+            name="polisyos.runtime.DesignProblem",
+            version="1.0",
+        )
         if ref.kind != "runtime.design_problem" or ref.media_type != "application/json":
             raise ValueError("promotion_design_problem_profile_mismatch")
         raw = self._artifacts.get_bytes(ref)
         manifest = self._artifacts.get_manifest(ref)
+        selected_ref = artifacts.artifact_ref_for_manifest(manifest)
+        if (
+            ref.manifest_profile_sha256 is None
+            or selected_ref != ref
+            or manifest.artifact_schema != expected_schema
+            or manifest.canon is None
+        ):
+            raise ValueError("promotion_design_problem_profile_mismatch")
         if (
             not self._artifacts.verify(ref).ok
             or _raw_hash(raw) != str(ref.artifact_id)

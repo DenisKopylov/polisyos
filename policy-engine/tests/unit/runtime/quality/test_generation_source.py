@@ -117,6 +117,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     """Producer/readback comparison retains capture, context, and result wire content."""
     from dataclasses import replace
 
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
@@ -152,7 +153,11 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     assert fresh_read.provenance.source_materialization == "reader_materialized"
     assert fresh_read.provenance.producer_attestation_status == "not_established"
     assert fresh_read.provenance.selected_artifact_id == str(ref.artifact_id)
-    assert fresh_read.provenance.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+    actual_selected_profile = artifact_manifest_profile_sha256(
+        repository.store.get_manifest(ref)
+    )
+    assert ref.manifest_profile_sha256 is None
+    assert fresh_read.provenance.selected_manifest_profile_sha256 == actual_selected_profile
     assert "_generation_source_read_provenance" not in fresh.model_dump(mode="python")
     assert fresh == type(fresh).model_validate(fresh.model_dump(mode="python"))
     with (
@@ -646,7 +651,10 @@ def actual_n4_source():
         production_composed_world_model_record,
     )
     from polisyos.runtime.quality.substrate_registry import load_substrate_registry
-    from polisyos.runtime.quality.world_model_record import load_world_model_record
+    from polisyos.runtime.quality.world_model_record import (
+        load_world_model_record,
+        world_model_artifact_views,
+    )
     from tests.unit.runtime.quality.test_design_generation import _llm_call
     from tests.unit.runtime.quality.test_grounding_bind import _reference
 
@@ -664,7 +672,9 @@ def actual_n4_source():
     else:
         world = production_composed_world_model_record(root)
         store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
-    registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+    registry_view_ref = world_model_artifact_views(world).substrate_registry_ref
+    assert registry_view_ref is not None
+    registry = load_substrate_registry(store, registry_view_ref)
     problem = _test_design_problem()
     problem = problem.model_copy(
         update={"runtime_hints": {**problem.runtime_hints, "synthetic": True}}
@@ -1133,7 +1143,10 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
     from dataclasses import replace
 
     from polisyos.core import artifacts
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        _source_write_options,
+    )
 
     problem = _test_design_problem()
     result = n4.GenerationUnderAResult(
@@ -1156,15 +1169,11 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
         organ=result.as_organ_run(),
         execution_scope="contract_testing",
     )
-    body, manifest = store.get_bytes(ref), store.get_manifest(ref)
+    manifest = store.get_manifest(ref)
+    body = store.get_bytes(ref)
     assert store.verify(ref).ok
     assert repository.load(ref, run_id="synthetic-owner-profile").synthetic is True
-    options = artifacts.ArtifactWriteOptions(
-        kind=manifest.kind,
-        media_type=manifest.media_type,
-        schema=manifest.artifact_schema,
-        producer=manifest.producer,
-    )
+    options = _source_write_options()
     variants = {
         "kind": {"kind": "runtime.synthetic_other_source"},
         "media": {"media_type": "application/octet-stream"},
@@ -1182,24 +1191,37 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
     }
     for label, mutation in variants.items():
         other = artifacts.FileSystemCAS(tmp_path / label)
-        observed_ref = other.put_bytes(body, replace(options, **mutation))
+        observed_ref = other.put_bytes(
+            body,
+            replace(options, **mutation),
+            return_selected_profile=True,
+        )
         assert str(observed_ref.artifact_id) == ref
         assert other.get_bytes(ref) == body
-        assert other.verify(ref).ok  # Byte integrity alone is insufficient owner provenance.
+        assert other.verify(observed_ref).ok  # Byte integrity alone is insufficient owner provenance.
+        assert observed_ref.manifest_profile_sha256 == (
+            artifacts.artifact_manifest_profile_sha256(other.get_manifest(observed_ref))
+        )
         with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
-            GenerationSourceRepository(other).load(ref, run_id="synthetic-owner-profile")
+            GenerationSourceRepository(other).load(
+                observed_ref, run_id="synthetic-owner-profile"
+            )
 
 
 def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(tmp_path):
     """The source owner retains its exact CAS view while v1 history stays unchanged."""
     import hashlib
+    from dataclasses import replace
 
     from polisyos.core import canon
-    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.artifacts import ArtifactWriteOptions, artifact_manifest_profile_sha256
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.ownership import ArtifactOwnershipError
     from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.runtime.quality.generation_source import _SOURCE_CANON
+    from polisyos.runtime.quality.generation_source import (
+        _SOURCE_CANON,
+        _source_write_options,
+    )
 
     problem = _test_design_problem()
     result = n4.GenerationUnderAResult(
@@ -1256,7 +1278,28 @@ def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(
         assert n6_receipt.status == "drift"
         assert "source_selected_view_not_retained_by_n6_id" in n6_receipt.issues
         assert n6_receipt.source_refs == (str(typed_ref.artifact_id),)
+        source_options = _source_write_options()
+        assert source_options.producer is not None
+        wrong_options = replace(
+            source_options,
+            producer=source_options.producer.model_copy(
+                update={"component": "synthetic.other"}
+            ),
+        )
+        wrong_store = FileSystemCAS(
+            tmp_path / "typed-source-wrong-owner"
+        ).with_ambient_ownership_enforcement()
+        wrong_owner_ref = wrong_store.put_bytes(
+            body, wrong_options, return_selected_profile=True
+        )
+        assert wrong_owner_ref.manifest_profile_sha256 == (
+            artifact_manifest_profile_sha256(wrong_store.get_manifest(wrong_owner_ref))
+        )
         with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
+            GenerationSourceRepository(wrong_store).load(
+                wrong_owner_ref, run_id="synthetic-typed-source-ref"
+            )
+        with pytest.raises(ValueError, match="canon_profile_absent"):
             repository.load(str(typed_ref.artifact_id), run_id="synthetic-typed-source-ref")
 
     with (
@@ -2525,6 +2568,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     from types import SimpleNamespace
 
     from polisyos.core import canon
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
@@ -2653,6 +2697,12 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         simulation=simulation,
         handoff=handoff,
     )
+    if schema_version in {"v4", "v5"}:
+        selected_profile = artifact_manifest_profile_sha256(
+            repository.store.get_manifest(execution_ref)
+        )
+        assert execution_ref.manifest_profile_sha256 == selected_profile
+        assert execution_ref.manifest_profile_sha256 is not None
     payload = canon.from_canonical_bytes(repository.store.get_bytes(execution_ref))
     execution = execution_types[schema_version].model_validate(payload)
 
@@ -2997,7 +3047,12 @@ def test_generation_source_read_provenance_keeps_artifact_ref_subtype_identity(t
     """Accepted ref subtypes retain the exact selected CAS identity in provenance."""
     from pydantic import BaseModel
 
-    from polisyos.core.artifacts import ArtifactRef, CanonInfo, PutOptions
+    from polisyos.core.artifacts import (
+        ArtifactRef,
+        CanonInfo,
+        PutOptions,
+        artifact_manifest_profile_sha256,
+    )
     from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
     from polisyos.core.canon import to_canonical_bytes
     from polisyos.runtime.quality.generation_source import _mark_canonical_profile_read
@@ -3010,6 +3065,7 @@ def test_generation_source_read_provenance_keeps_artifact_ref_subtype_identity(t
             media_type="application/json",
             canon=CanonInfo(),
         ),
+        return_selected_profile=True,
     )
 
     class ScopedArtifactRef(ArtifactRef):
@@ -3023,5 +3079,57 @@ def test_generation_source_read_provenance_keeps_artifact_ref_subtype_identity(t
 
     marked = _mark_canonical_profile_read(Result(value=1), profiled, selected_ref)
     provenance = marked._generation_source_read_provenance
+    expected_profile = artifact_manifest_profile_sha256(store.get_manifest(ref))
+    assert ref.manifest_profile_sha256 == expected_profile
     assert provenance.selected_artifact_id == str(ref.artifact_id)
-    assert provenance.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+    assert provenance.selected_manifest_profile_sha256 == expected_profile
+
+
+def test_candidate_model_declaration_writer_returns_selected_profile(tmp_path):
+    """Current model declarations retain the exact Core view selected by their writer."""
+    from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    fields = {
+        "profile_config_ref": "runtime-config:candidate-simulation/model@sha256:" + "1" * 64,
+        "profile_content_hash": "sha256:" + "1" * 64,
+        "profile_selection_ref": "sha256:" + "2" * 64,
+        "target_world_slot": "target",
+        "outcome_variable": "outcome",
+        "target_unit_id": "target-unit",
+        "outcome_unit_id": "outcome-unit",
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **fields,
+            "content_hash": gy_content_hash(
+                draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "model-declaration-cas"))
+
+    ref = repository.persist_candidate_model_declaration(
+        declaration=declaration,
+        job_id="job-model-declaration",
+        run_id="run-model-declaration",
+        tenant_id="tenant-model-declaration",
+        cell_id="cell-model-declaration",
+    )
+
+    expected_profile = artifact_manifest_profile_sha256(repository.store.get_manifest(ref))
+    assert ref.manifest_profile_sha256 == expected_profile
+    assert ref.manifest_profile_sha256 is not None

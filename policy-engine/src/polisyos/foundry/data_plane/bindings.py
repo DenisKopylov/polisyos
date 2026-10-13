@@ -9,7 +9,6 @@ synthetic runtime state.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
@@ -28,6 +27,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import ValueOuterSet
@@ -286,12 +286,38 @@ def load_ukraine_foundry_intake(
         consumer_contract="foundry.ukraine.runtime_bundle_manifest",
     )
     data_snapshot_id = runtime_bundle.get("data_snapshot_artifact_id")
-    if not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip():
-        raise ValueError("runtime_bundle_manifest is missing data_snapshot_artifact_id")
-    try:
-        data_snapshot_ref = DataSnapshotRef(artifact_id=data_snapshot_id)
-    except Exception as exc:
-        raise ValueError("runtime_bundle_manifest has invalid data_snapshot_artifact_id") from exc
+    raw_data_snapshot_ref = runtime_bundle.get("data_snapshot_ref")
+    if data_snapshot_id is not None and (
+        not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip()
+    ):
+        raise ValueError("runtime_bundle_manifest has invalid data_snapshot_artifact_id")
+    if raw_data_snapshot_ref is not None:
+        try:
+            data_snapshot_ref = DataSnapshotRef.model_validate(raw_data_snapshot_ref)
+        except Exception as exc:
+            raise ValueError("runtime_bundle_manifest has invalid data_snapshot_ref") from exc
+        if (
+            data_snapshot_ref.kind != DataSnapshot.ARTIFACT_KIND
+            or data_snapshot_ref.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+        ):
+            raise ValueError(
+                "runtime_bundle_manifest DataSnapshot ref has the wrong artifact contract"
+            )
+        if data_snapshot_id is not None and data_snapshot_id != str(data_snapshot_ref.artifact_id):
+            raise ValueError(
+                "runtime_bundle_manifest DataSnapshot ref does not match its artifact ID"
+            )
+        _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
+    else:
+        if not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip():
+            raise ValueError("runtime_bundle_manifest is missing data_snapshot_artifact_id")
+        try:
+            # Legacy ID-only manifests remain unqualified: never infer a selected profile from ID.
+            data_snapshot_ref = DataSnapshotRef(artifact_id=data_snapshot_id)
+        except Exception as exc:
+            raise ValueError(
+                "runtime_bundle_manifest has invalid data_snapshot_artifact_id"
+            ) from exc
 
     contract_specs: tuple[tuple[str, str, str, type[Any]], ...] = (
         ("d1_multiplex_network", "d1", "multiplex_network_data.json", MultiplexNetworkData),
@@ -311,7 +337,12 @@ def load_ukraine_foundry_intake(
             "public_service_network_causal_data.json",
             NetworkCausalData,
         ),
-        ("d2_panel_observational", "d2", "panel_observational_contract.json", PanelObservationalData),
+        (
+            "d2_panel_observational",
+            "d2",
+            "panel_observational_contract.json",
+            PanelObservationalData,
+        ),
         ("d2_dynamic_treatment", "d2", "dynamic_treatment_contract.json", DynamicTreatmentData),
         ("d2_microsim_survey", "d2", "microsim_survey_contract_preview.json", SurveyMicroData),
         ("d2_survival", "d2", "survival_contract.json", SurvivalData),
@@ -344,7 +375,9 @@ def load_ukraine_foundry_intake(
             "source_path": output.source_path,
             "content_ref": str(output.content_ref.artifact_id),
             "sha256": output.sha256,
-            "source_snapshot_profile": json_snapshot_profile_reads[f"{stage_id}:{output_name}"].model_dump(mode="json"),
+            "source_snapshot_profile": json_snapshot_profile_reads[
+                f"{stage_id}:{output_name}"
+            ].model_dump(mode="json"),
         }
 
     proxy_identification_bundle = _load_verified_json_output(
@@ -418,15 +451,11 @@ def load_ukraine_foundry_intake(
             stage_receipt_ref=stage_receipt_refs[stage_id],
             source_snapshot_profile=json_snapshot_profile_reads[f"{stage_id}:{output_name}"],
             consumption_state=(
-                "exercised_workflow_consumer"
-                if is_panel_consumer
-                else "selectable_unselected"
+                "exercised_workflow_consumer" if is_panel_consumer else "selectable_unselected"
             ),
             residual_state="none" if is_panel_consumer else "consumer_missing",
             workflow_consumer=(
-                "scientist_causal_full.run_causal_evaluation"
-                if is_panel_consumer
-                else None
+                "scientist_causal_full.run_causal_evaluation" if is_panel_consumer else None
             ),
         )
 
@@ -475,6 +504,7 @@ def load_ukraine_foundry_intake(
             for key, value in sorted(json_snapshot_profile_reads.items())
         },
         "method_input_bundle_ref": method_input_bundle_ref.model_dump(mode="json"),
+        "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
         "json_snapshot_profile_reads": {
             key: value.model_dump(mode="json")
             for key, value in sorted(json_snapshot_profile_reads.items())
@@ -502,6 +532,7 @@ def load_ukraine_foundry_intake(
                     artifact_id=method_input_bundle_ref.artifact_id,
                     role="method_input_bundle",
                 ),
+                input_ref_from_artifact_ref(data_snapshot_ref, role="data_snapshot"),
                 *(
                     InputRef(
                         artifact_id=ref.artifact_id,
@@ -556,6 +587,7 @@ def build_input_bindings(
     rules: list[FoundryInputBindingRule] | None = None,
     quality_report_ref: ArtifactRef | None = None,
     notes: list[str] | None = None,
+    return_selected_profile: bool = False,
 ) -> InputBindingsBuildResult:
     """Bind a Fabric snapshot into a concrete `GlobalState` runtime snapshot.
 
@@ -639,6 +671,7 @@ def build_input_bindings(
         state=materialized_state,
         step=int(np.asarray(materialized_state.step).item()),
         inputs=snapshot_inputs,
+        return_selected_profile=return_selected_profile,
     )
     bound_state_snapshot_ref = StateSnapshotRef.model_validate(
         bound_snapshot_ref.model_dump(mode="python")
@@ -663,9 +696,12 @@ def build_input_bindings(
     bindings_ref_payload = store.put_json(
         bindings,
         PutOptions(
-            kind="foundry.input_bindings",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.FoundryInputBindings", version="1.0"),
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=[
                 input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
                 input_ref_from_artifact_ref(
@@ -688,6 +724,7 @@ def build_input_bindings(
                 ),
             ],
         ),
+        return_selected_profile=return_selected_profile,
     )
 
     report_payload = {
@@ -733,6 +770,7 @@ def build_input_bindings(
                 ),
             ],
         ),
+        return_selected_profile=return_selected_profile,
     )
 
     return InputBindingsBuildResult(
@@ -903,9 +941,31 @@ def inject_feedback_state(
 
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
     from polisyos.core.artifacts import load_core_json_artifact
+
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
+    _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
     payload = load_core_json_artifact(store, data_snapshot_ref)
     return DataSnapshot.model_validate(payload)
+
+
+def _verify_selected_data_snapshot_schema(store: FileSystemCAS, ref: ArtifactRef) -> None:
+    """Require an exact owner schema only when a selected DataSnapshot view is supplied."""
+    if ref.manifest_profile_sha256 is None:
+        return
+    try:
+        manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
+    except (FileNotFoundError, ValueError) as exc:
+        raise ValueError("DataSnapshot selected manifest profile does not resolve") from exc
+    if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+        raise ValueError("DataSnapshot selected profile differs from its artifact contract")
+    if not store.verify(ref).ok:
+        raise ValueError("DataSnapshot selected profile integrity failure")
+    expected_schema = SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    if manifest.artifact_schema != expected_schema:
+        raise ValueError("DataSnapshot selected manifest schema differs from its model owner")
 
 
 def _snapshot_binding_notes(snapshot: DataSnapshot) -> list[str]:
@@ -1022,6 +1082,7 @@ def _decode_arrow_binding_payload(payload: bytes) -> dict[str, Any]:
 
 def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
     from polisyos.core.artifacts import load_core_json_artifact
+
     data_ref = snapshot.data_ref
     manifest = _reconcile_artifact_ref(store, data_ref, label="data snapshot payload")
     if data_ref.kind == "foundry.state_snapshot":

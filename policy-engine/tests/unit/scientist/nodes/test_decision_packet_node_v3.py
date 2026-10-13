@@ -2076,7 +2076,10 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     assert payload["hte"]["result_ref"] == str(hte_ref.artifact_id)
     assert payload["targeting"]["recommendation_ref"] == str(recommendation_ref.artifact_id)
     assert payload["backtest"]["report_ref"] == str(backtest_ref.artifact_id)
-    assert payload["trust_profile"]["backtest_trust_grade"] == "B"
+    assert payload["backtest"]["trust_score_status"] == "unavailable"
+    assert payload["backtest"]["trust_eligible"] is False
+    assert payload["trust_profile"]["backtest_trust_score"] is None
+    assert payload["trust_profile"]["backtest_trust_grade"] is None
 
 
 def test_build_decision_packet_includes_calibration_validation_summary(tmp_path) -> None:
@@ -3149,3 +3152,1592 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
     assert payload["strategic"]["blocked_reason"] == (
         "missing_causal_report_for_strategic_decomposition"
     )
+
+
+def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read(tmp_path) -> None:
+    import hashlib
+    import json
+    from collections import Counter
+
+    from polisyos.data_forge.domains.ukraine.manifests import HouseholdDiagnosticPanelBasis
+    from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
+    from polisyos.scientist.governance.backtest_matrix import BacktestMatrixResult
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationBundle,
+        load_calibration_validation_bundle,
+        persist_calibration_validation_bundle,
+    )
+    from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+    from polisyos.scientist.methods.backtesting.plan import (
+        HistoricalValidationPlan,
+        PredictionSource,
+    )
+    from polisyos.scientist.nodes.builtins.decide.decision_packet.outcome_sections import (
+        _build_calibration_validation_section,
+    )
+
+    store = FileSystemCAS(tmp_path / "s1-cas")
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-nested")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
+
+    selected_training_role = "fixture_training"
+    selected_validation_role = "fixture_validation"
+    selected_holdout_role = "fixture_holdout"
+    history_path = tmp_path / "nested-history.json"
+    history_path.write_text(json.dumps({"observed_value": [100.0, 100.0, 100.0]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="s1-nested-scenario",
+        plan_label="controlled nested diagnostic fixture",
+        historical_data_path=str(history_path),
+        ground_truth_outcomes={"observed_value": [100.0, 100.0, 100.0]},
+        target_metrics=["observed_value"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"observed_value": [110.0, 110.0, 110.0]},
+        selected_training_role=selected_training_role,
+        selected_validation_role=selected_validation_role,
+        selected_holdout_role=selected_holdout_role,
+        metadata={
+            "holdout_windows": ["test_2025"],
+            "selected_training_role": selected_training_role,
+            "selected_validation_role": selected_validation_role,
+            "selected_holdout_role": selected_holdout_role,
+        },
+    )
+    source_json_snapshot_reads = {}
+    source_refs = []
+    source_contract_by_role = {
+        "household_source_basis": "scientist.d3.household_candidate_basis",
+        "selected_split_manifest": "scientist.d4.calibration_splits",
+    }
+    source_model_by_contract = {
+        "scientist.d3.household_candidate_basis": HouseholdDiagnosticPanelBasis,
+        "scientist.d4.calibration_splits": dict[str, dict[str, str]],
+    }
+    source_payload_by_contract = {
+        "scientist.d3.household_candidate_basis": HouseholdDiagnosticPanelBasis(
+            status="complete",
+            source_row_count=1,
+            panel_artifact={
+                "path": "controlled-panel.parquet",
+                "sha256": "a" * 64,
+                "size_bytes": 1,
+            },
+        ).model_dump(mode="json"),
+        "scientist.d4.calibration_splits": {
+            "fixture_training": {"start": "2023-01-01", "end": "2023-12-31"},
+            "fixture_validation": {"start": "2024-01-01", "end": "2024-12-31"},
+            "fixture_holdout": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+    }
+    controlled_extension_variants = iter(("source_a", "source_b"))
+    for role in (
+        "household_candidate_panel",
+        "household_source_basis",
+        "selected_split_manifest",
+        "controlled_extension_source",
+        "backtest_report",
+        "controlled_extension_source",
+    ):
+        contract = source_contract_by_role.get(role)
+        payload_value = (
+            source_payload_by_contract[contract] if contract is not None else {"source_role": role}
+        )
+        if role == "controlled_extension_source":
+            payload_value = {
+                "source_role": role,
+                "fixture_variant": next(controlled_extension_variants),
+            }
+        payload = json.dumps(payload_value, separators=(",", ":")).encode("utf-8")
+        source_ref = store.put_bytes(
+            payload,
+            PutOptions(
+                kind="data_forge.ukraine.stage_output_snapshot",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        source_refs.append(
+            CoreInputRef(
+                artifact_id=source_ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=source_ref.manifest_profile_sha256,
+            )
+        )
+        if contract is not None:
+            read = read_ukraine_json_snapshot(
+                store,
+                source_ref,
+                raw_payload_bytes=payload,
+                expected_sha256=hashlib.sha256(payload).hexdigest(),
+                expected_size_bytes=len(payload),
+                expected_kind="data_forge.ukraine.stage_output_snapshot",
+                consumer_contract=contract,
+                model_type=source_model_by_contract[contract],
+            )
+            source_json_snapshot_reads[contract] = read.provenance
+    controlled_extension_source_edges = [
+        item for item in source_refs if item.role == "controlled_extension_source"
+    ]
+    assert len(controlled_extension_source_edges) == 2
+    assert len({str(item.artifact_id) for item in controlled_extension_source_edges}) == 2
+    candidate_ref = store.put_json(
+        {"candidate": "test-owned"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    candidate_artifact_ref = ArtifactRef.model_validate(candidate_ref.model_dump(mode="python"))
+    candidate_input_ref = CoreInputRef(
+        artifact_id=candidate_ref.artifact_id,
+        role="candidate",
+        manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+    )
+    report, report_ref = BacktestOrchestrator(cas=store).run_with_ref(
+        [plan],
+        report_id="s1-nested-report",
+        inputs=[candidate_input_ref, *source_refs],
+        metadata={
+            "purpose": "candidate_diagnostic",
+            "selected_split_roles": {
+                "training": selected_training_role,
+                "validation": selected_validation_role,
+                "holdout": selected_holdout_role,
+            },
+        },
+    )
+    assert [item.y_pred - item.y_true for item in report.scenarios[0].outcome_comparisons] == [
+        10.0,
+        10.0,
+        10.0,
+    ]
+    producer_diagnostic = next(
+        item for item in report.metric_diagnostics if item.metric_name == "observed_value"
+    )
+    assert (
+        producer_diagnostic.status == "not_computable"
+        and producer_diagnostic.reason == "zero_variance"
+        and producer_diagnostic.n == 3
+        and producer_diagnostic.mean_residual == 10.0
+        and producer_diagnostic.method_id is None
+        and producer_diagnostic.backend_id is None
+        and producer_diagnostic.backend_version is None
+        and producer_diagnostic.statistic is None
+        and producer_diagnostic.p_value is None
+    )
+    assert report.trust_eligible is False and report.trust_score is None
+    core_report_ref = ArtifactRef.model_validate(report_ref.model_dump(mode="python"))
+    bundle = CalibrationValidationBundle(
+        schema_version="1.1",
+        run_id="s1-nested",
+        candidate_ref=candidate_artifact_ref,
+        governance_verdict="human_gate",
+        status="candidate_diagnostic",
+        purpose="candidate_diagnostic",
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+        source_json_snapshot_reads=source_json_snapshot_reads,
+        backtest_matrix=BacktestMatrixResult(
+            report_id="s1-nested-report",
+            backtest_report_ref=report_ref,
+        ),
+    )
+    bundle_ref = persist_calibration_validation_bundle(
+        store,
+        bundle,
+        inputs=[candidate_input_ref, *source_refs],
+    )
+    store_manifest = store.get_manifest(bundle_ref)
+    assert store_manifest.artifact_schema is not None
+    assert store_manifest.artifact_schema.version == "1.1"
+    expected_report_identity = (
+        "backtest_report",
+        str(report_ref.artifact_id),
+        report_ref.manifest_profile_sha256,
+    )
+    structural_report_edges = [
+        item
+        for item in store_manifest.inputs
+        if (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+        == expected_report_identity
+    ]
+    assert len(structural_report_edges) == 1
+    assert sum(item.role == "backtest_report" for item in store_manifest.inputs) == 2
+    assert sum(item.role == "controlled_extension_source" for item in store_manifest.inputs) == 2
+    outer_source_inputs = list(store_manifest.inputs)
+    outer_source_inputs.remove(structural_report_edges[0])
+    report_source_inputs = list(store.get_manifest(core_report_ref).inputs)
+
+    def edge_identity(item):
+        return item.role, str(item.artifact_id), item.manifest_profile_sha256
+
+    assert Counter(map(edge_identity, outer_source_inputs)) == Counter(
+        map(edge_identity, report_source_inputs)
+    )
+    c5b_candidate_edges = [item for item in store_manifest.inputs if item.role == "candidate"]
+    report_candidate_edges = [
+        item for item in store.get_manifest(core_report_ref).inputs if item.role == "candidate"
+    ]
+    assert len(c5b_candidate_edges) == len(report_candidate_edges) == 1
+    expected_candidate_identity = (
+        str(candidate_artifact_ref.artifact_id),
+        candidate_artifact_ref.manifest_profile_sha256,
+    )
+    assert (
+        str(c5b_candidate_edges[0].artifact_id),
+        c5b_candidate_edges[0].manifest_profile_sha256,
+    ) == expected_candidate_identity
+    assert (
+        str(report_candidate_edges[0].artifact_id),
+        report_candidate_edges[0].manifest_profile_sha256,
+    ) == expected_candidate_identity
+    assert (
+        store.get_manifest_by_profile(*expected_candidate_identity).artifact_id
+        == candidate_artifact_ref.artifact_id
+    )
+    assert store_manifest.kind == "scientist.calibration_validation_bundle"
+    assert store_manifest.media_type == "application/json"
+    fresh = load_calibration_validation_bundle(store, bundle_ref)
+    section = _build_calibration_validation_section(
+        ctx,
+        {ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: bundle_ref},
+    )
+    assert section is not None
+    assert section["status"] == section["purpose"] == "candidate_diagnostic"
+    assert section["backtest_report_ref"] == str(report_ref.artifact_id)
+    assert section["backtest_metric_diagnostics"][0]["reason"] == "zero_variance"
+    assert section["summary"]["eligible_for_promotion"] is False
+    assert section["source_json_snapshot_binding_status"] == "available"
+    assert fresh.readout_summary()["source_json_snapshot_binding_status"] == "available"
+    assert "controlled_extension_source" in {item.role for item in store_manifest.inputs}
+    for contract in source_contract_by_role.values():
+        assert section["source_json_snapshot_reads"][contract]["profile_status"] == (
+            "profile_absent_raw_snapshot_candidate"
+        )
+        assert (
+            section["summary"]["source_json_snapshot_reads"][contract]
+            == (section["source_json_snapshot_reads"][contract])
+        )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": {"artifact_id": str(candidate_ref.artifact_id)}},
+        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
+    )
+    outer_inputs = list(store_manifest.inputs)
+    structural_index = next(
+        i
+        for i, item in enumerate(outer_inputs)
+        if (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+        == expected_report_identity
+    )
+    source_inputs = [item for i, item in enumerate(outer_inputs) if i != structural_index]
+
+    def packet_for_bundle(candidate_bundle_ref, candidate_report_ref=report_ref):
+        candidate_bundle_artifact_ref = ArtifactRef(
+            artifact_id=candidate_bundle_ref.artifact_id,
+            kind="scientist.calibration_validation_bundle",
+            media_type="application/json",
+            manifest_profile_sha256=candidate_bundle_ref.manifest_profile_sha256,
+        )
+        candidate_report_artifact_ref = ArtifactRef(
+            artifact_id=candidate_report_ref.artifact_id,
+            kind="ir.backtest_report",
+            media_type="application/json",
+            manifest_profile_sha256=candidate_report_ref.manifest_profile_sha256,
+        )
+        candidate_state = ExperimentState(
+            run_id="s1-nested",
+            inputs={
+                INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+                INPUT_REGISTRY_BUNDLE_REF: registry,
+                INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+            },
+            artifacts_index={
+                ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: candidate_bundle_artifact_ref,
+                ARTIFACT_BACKTEST_REPORT_REF: candidate_report_artifact_ref,
+            },
+        )
+        packet_ref = BuildDecisionPacketNode().execute(ctx, candidate_state).artifacts[0]
+        return from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    def assert_binding_refused(
+        label,
+        *,
+        reads=None,
+        inputs=None,
+        expected_status="unavailable",
+        expected_reason=None,
+        candidate_report_ref=report_ref,
+        candidate_ref_for_bundle=candidate_artifact_ref,
+    ):
+        candidate_bundle = fresh.model_copy(
+            update={
+                "run_id": f"s1-nested-{label}",
+                "candidate_ref": candidate_ref_for_bundle,
+                "source_json_snapshot_reads": (
+                    dict(fresh.source_json_snapshot_reads) if reads is None else reads
+                ),
+                "backtest_matrix": fresh.backtest_matrix.model_copy(
+                    update={"backtest_report_ref": candidate_report_ref}
+                ),
+            }
+        )
+        variant_ref = persist_calibration_validation_bundle(
+            store,
+            candidate_bundle,
+            inputs=source_inputs if inputs is None else inputs,
+        )
+        variant = load_calibration_validation_bundle(store, variant_ref)
+        summary = variant.readout_summary()
+        assert summary["source_json_snapshot_binding_status"] == expected_status
+        if expected_reason is not None:
+            assert summary["source_json_snapshot_binding_reason"] == expected_reason
+        assert summary["backtest_report_status"] == "available"
+        assert summary["backtest_report_ref"] == str(candidate_report_ref.artifact_id)
+        assert summary["backtest_metric_diagnostics_status"] == "unavailable"
+        assert summary["backtest_metric_diagnostics"] is None
+        assert summary["eligible_for_promotion"] is False
+        direct_section = _build_calibration_validation_section(
+            ctx,
+            {ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: variant_ref},
+        )
+        assert direct_section is not None
+        assert direct_section["source_json_snapshot_binding_status"] == expected_status
+        assert direct_section["backtest_metric_diagnostics_status"] == "unavailable"
+        assert direct_section["backtest_metric_diagnostics"] is None
+        packet = packet_for_bundle(variant_ref, candidate_report_ref)
+        direct = packet["backtest"]
+        nested = packet["calibration_validation"]
+        assert direct["report_ref"] == str(candidate_report_ref.artifact_id)
+        assert direct["backtest_report_status"] == "available"
+        assert direct["metric_diagnostics_status"] == "unavailable"
+        assert direct["metric_diagnostics"] is None
+        assert direct["trust_eligible"] is False
+        assert nested["backtest_report_ref"] == str(candidate_report_ref.artifact_id)
+        assert nested["backtest_report_status"] == "available"
+        assert nested["backtest_metric_diagnostics_status"] == "unavailable"
+        assert nested["backtest_metric_diagnostics"] is None
+        assert nested["source_json_snapshot_binding_status"] == expected_status
+        assert nested["summary"]["source_json_snapshot_binding_status"] == expected_status
+        assert nested["summary"]["eligible_for_promotion"] is False
+
+    assert_binding_refused("provenance-removed", reads={}, expected_status="not_established")
+    assert_binding_refused(
+        "provenance-partial",
+        reads={
+            "scientist.d3.household_candidate_basis": source_json_snapshot_reads[
+                "scientist.d3.household_candidate_basis"
+            ]
+        },
+    )
+    source_basis_edge = next(
+        item for item in source_inputs if item.role == "household_source_basis"
+    )
+    split_edge = next(item for item in source_inputs if item.role == "selected_split_manifest")
+    panel_edge = next(item for item in source_inputs if item.role == "household_candidate_panel")
+    candidate_edge = next(item for item in source_inputs if item.role == "candidate")
+    candidate_free_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=source_refs,
+    )
+    candidate_free_inputs = [item for item in source_inputs if item.role != "candidate"]
+    assert_binding_refused(
+        "candidate-edge-missing-on-both-manifests",
+        inputs=candidate_free_inputs,
+        candidate_report_ref=candidate_free_report_ref,
+        expected_status="not_established",
+        expected_reason="candidate_source_candidate_edge_not_selected",
+    )
+    assert_binding_refused(
+        "candidate-edge-duplicate",
+        inputs=[*source_inputs, candidate_edge],
+        expected_reason="candidate_source_input_edge_mismatch:candidate",
+    )
+    assert_binding_refused(
+        "input-edge-removed",
+        inputs=[item for item in source_inputs if item.role != "household_source_basis"],
+    )
+    assert_binding_refused(
+        "input-edge-mismatched",
+        inputs=[
+            item.model_copy(update={"artifact_id": panel_edge.artifact_id})
+            if item.role == "household_source_basis"
+            else item
+            for item in source_inputs
+        ],
+    )
+    assert_binding_refused("input-edge-duplicated", inputs=[*source_inputs, source_basis_edge])
+    basis_provenance = source_json_snapshot_reads["scientist.d3.household_candidate_basis"]
+    missing_source_id = "sha256:" + "f" * 64
+    missing_profile_id = "sha256:" + "e" * 64
+    missing_source_ref = basis_provenance.artifact_ref.model_copy(
+        update={
+            "artifact_id": missing_source_id,
+            "manifest_profile_sha256": missing_profile_id,
+        }
+    )
+    missing_source_reads = dict(source_json_snapshot_reads)
+    missing_source_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
+        update={
+            "artifact_ref": missing_source_ref,
+            "selected_artifact_id": missing_source_id,
+            "selected_manifest_profile_sha256": missing_profile_id,
+            "content_sha256": "f" * 64,
+        }
+    )
+    assert_binding_refused(
+        "source-artifact-removed",
+        reads=missing_source_reads,
+        inputs=[
+            item.model_copy(
+                update={
+                    "artifact_id": missing_source_ref.artifact_id,
+                    "manifest_profile_sha256": missing_profile_id,
+                }
+            )
+            if item.role == "household_source_basis"
+            else item
+            for item in source_inputs
+        ],
+    )
+    foreign_profile_ref = store.put_bytes(
+        store.get_bytes(basis_provenance.artifact_ref),
+        PutOptions(
+            kind=basis_provenance.artifact_kind,
+            media_type="application/json",
+            schema=SchemaInfo(name="test.foreign_source_profile", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_profile_ref.artifact_id == source_basis_edge.artifact_id
+    assert (
+        foreign_profile_ref.manifest_profile_sha256
+        != basis_provenance.selected_manifest_profile_sha256
+    )
+    assert_binding_refused(
+        "input-edge-foreign-profile",
+        inputs=[
+            item.model_copy(
+                update={"manifest_profile_sha256": foreign_profile_ref.manifest_profile_sha256}
+            )
+            if item.role == "household_source_basis"
+            else item
+            for item in source_inputs
+        ],
+    )
+    assert (
+        split_edge.manifest_profile_sha256
+        == source_json_snapshot_reads[
+            "scientist.d4.calibration_splits"
+        ].selected_manifest_profile_sha256
+    )
+    foreign_contract_reads = dict(source_json_snapshot_reads)
+    foreign_contract_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
+        update={"consumer_contract": "scientist.d4.governance_request"}
+    )
+    assert_binding_refused("provenance-foreign-contract", reads=foreign_contract_reads)
+    foreign_profile_reads = dict(source_json_snapshot_reads)
+    foreign_profile_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
+        update={
+            "artifact_ref": foreign_profile_ref,
+            "selected_manifest_profile_sha256": foreign_profile_ref.manifest_profile_sha256,
+        }
+    )
+    assert_binding_refused("provenance-foreign-profile", reads=foreign_profile_reads)
+    unknown_profile_reads = dict(source_json_snapshot_reads)
+    unknown_profile_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
+        update={
+            "profile_status": "declared_unknown_candidate",
+            "schema_validation_provenance": "not_evaluated",
+            "source_materialization": "raw_only_candidate",
+        }
+    )
+    assert_binding_refused("provenance-unknown-profile", reads=unknown_profile_reads)
+
+    candidate_b_ref = store.put_json(
+        {"candidate": "test-owned-B"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    candidate_b_artifact_ref = ArtifactRef.model_validate(candidate_b_ref.model_dump(mode="python"))
+    candidate_b_input_ref = CoreInputRef(
+        artifact_id=candidate_b_ref.artifact_id,
+        role="candidate",
+        manifest_profile_sha256=candidate_b_ref.manifest_profile_sha256,
+    )
+    report_for_candidate_b_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=[candidate_b_input_ref, *source_refs],
+    )
+    assert report_for_candidate_b_ref.artifact_id == report_ref.artifact_id
+    assert report_for_candidate_b_ref.manifest_profile_sha256 != report_ref.manifest_profile_sha256
+    core_report_for_candidate_b_ref = ArtifactRef.model_validate(
+        report_for_candidate_b_ref.model_dump(mode="python")
+    )
+    assert store.get_bytes(core_report_for_candidate_b_ref) == store.get_bytes(core_report_ref)
+    candidate_b_inputs = list(source_inputs)
+    assert_binding_refused(
+        "typed-candidate-A-report-candidate-B",
+        inputs=candidate_b_inputs,
+        candidate_report_ref=report_for_candidate_b_ref,
+        expected_reason="candidate_source_input_edge_mismatch:candidate",
+    )
+    assert_binding_refused(
+        "typed-candidate-B-both-edges-A",
+        inputs=source_inputs,
+        candidate_report_ref=report_ref,
+        candidate_ref_for_bundle=candidate_b_artifact_ref,
+        expected_reason="candidate_source_candidate_reference_mismatch",
+    )
+
+    nonexistent_candidate_profile = "sha256:" + "c" * 64
+    candidate_ref_with_nonexistent_profile = candidate_artifact_ref.model_copy(
+        update={"manifest_profile_sha256": nonexistent_candidate_profile}
+    )
+    candidate_edge_with_nonexistent_profile = candidate_edge.model_copy(
+        update={"manifest_profile_sha256": nonexistent_candidate_profile}
+    )
+    report_with_nonexistent_candidate_profile_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=[candidate_edge_with_nonexistent_profile, *source_refs],
+    )
+    assert report_with_nonexistent_candidate_profile_ref.artifact_id == report_ref.artifact_id
+    core_report_with_nonexistent_candidate_profile_ref = ArtifactRef.model_validate(
+        report_with_nonexistent_candidate_profile_ref.model_dump(mode="python")
+    )
+    assert (
+        core_report_with_nonexistent_candidate_profile_ref.manifest_profile_sha256
+        == report_with_nonexistent_candidate_profile_ref.manifest_profile_sha256
+    )
+    assert store.get_bytes(core_report_with_nonexistent_candidate_profile_ref) == store.get_bytes(
+        core_report_ref
+    )
+    assert_binding_refused(
+        "candidate-same-id-nonexistent-profile",
+        inputs=[
+            item.model_copy(
+                update={
+                    "artifact_id": report_with_nonexistent_candidate_profile_ref.artifact_id,
+                    "manifest_profile_sha256": report_with_nonexistent_candidate_profile_ref.manifest_profile_sha256,
+                }
+            )
+            if item.role == "candidate"
+            else item
+            for item in source_inputs
+        ],
+        candidate_report_ref=report_with_nonexistent_candidate_profile_ref,
+        candidate_ref_for_bundle=candidate_ref_with_nonexistent_profile,
+        expected_reason="candidate_source_manifest_profile_unavailable:candidate",
+    )
+
+    foreign_report_refs = []
+
+    def assert_report_source_profile_refused(source_role):
+        source_input = next(item for item in source_refs if item.role == source_role)
+        source_bytes = store.get_bytes(source_input.artifact_id)
+        foreign_source_ref = store.put_bytes(
+            source_bytes,
+            PutOptions(
+                kind="data_forge.ukraine.stage_output_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name=f"test.foreign_{source_role}_view", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        assert foreign_source_ref.artifact_id == source_input.artifact_id
+        assert foreign_source_ref.manifest_profile_sha256 != source_input.manifest_profile_sha256
+        altered_report_inputs = [
+            item.model_copy(
+                update={"manifest_profile_sha256": foreign_source_ref.manifest_profile_sha256}
+            )
+            if item.role == source_role
+            else item
+            for item in source_refs
+        ]
+        altered_report_ref = persist_backtest_report(
+            _ensure_ir_artifact_store(store),
+            report,
+            inputs=altered_report_inputs,
+        )
+        assert altered_report_ref.artifact_id == report_ref.artifact_id
+        assert altered_report_ref.manifest_profile_sha256 != report_ref.manifest_profile_sha256
+        foreign_report_refs.append(altered_report_ref)
+        core_altered_report_ref = ArtifactRef.model_validate(
+            altered_report_ref.model_dump(mode="python")
+        )
+        assert store.get_bytes(core_altered_report_ref) == store.get_bytes(core_report_ref)
+        assert (
+            store.get_manifest(core_altered_report_ref).artifact_schema
+            == store.get_manifest(core_report_ref).artifact_schema
+        )
+
+        altered_bundle = fresh.model_copy(
+            update={
+                "run_id": f"s1-nested-report-edge-{source_role}",
+                "backtest_matrix": fresh.backtest_matrix.model_copy(
+                    update={"backtest_report_ref": altered_report_ref}
+                ),
+            }
+        )
+        altered_inputs = list(source_inputs)
+        altered_bundle_ref = persist_calibration_validation_bundle(
+            store,
+            altered_bundle,
+            inputs=altered_inputs,
+        )
+        altered_fresh = load_calibration_validation_bundle(store, altered_bundle_ref)
+        altered_summary = altered_fresh.readout_summary()
+        assert altered_summary["source_json_snapshot_binding_status"] == "unavailable"
+        assert altered_summary["source_json_snapshot_binding_reason"] == (
+            f"candidate_source_input_edge_mismatch:{source_role}"
+        )
+        assert altered_summary["backtest_report_status"] == "available"
+        assert altered_summary["backtest_report_ref"] == str(report_ref.artifact_id)
+        assert altered_summary["backtest_metric_diagnostics_status"] == "unavailable"
+        assert altered_summary["backtest_metric_diagnostics"] is None
+        assert altered_summary["eligible_for_promotion"] is False
+
+        direct_section = _build_calibration_validation_section(
+            ctx,
+            {
+                ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                    artifact_id=altered_bundle_ref.artifact_id,
+                    kind="scientist.calibration_validation_bundle",
+                    media_type="application/json",
+                    manifest_profile_sha256=altered_bundle_ref.manifest_profile_sha256,
+                ),
+                ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                    artifact_id=altered_report_ref.artifact_id,
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    manifest_profile_sha256=altered_report_ref.manifest_profile_sha256,
+                ),
+            },
+        )
+        assert direct_section is not None
+        assert direct_section["source_json_snapshot_binding_status"] == "unavailable"
+        assert direct_section["backtest_report_status"] == "available"
+        assert direct_section["backtest_metric_diagnostics_status"] == "unavailable"
+        assert direct_section["backtest_metric_diagnostics"] is None
+        assert direct_section["summary"]["eligible_for_promotion"] is False
+
+        packet = packet_for_bundle(altered_bundle_ref, altered_report_ref)
+        direct = packet["backtest"]
+        nested = packet["calibration_validation"]
+        assert direct["report_ref"] == str(report_ref.artifact_id)
+        assert direct["backtest_report_status"] == "available"
+        assert direct["metric_diagnostics_status"] == "unavailable"
+        assert direct["metric_diagnostics"] is None
+        assert direct["source_json_snapshot_binding_status"] == "unavailable"
+        assert direct["trust_eligible"] is False
+        assert nested["backtest_report_status"] == "available"
+        assert nested["source_json_snapshot_binding_status"] == "unavailable"
+        assert nested["backtest_metric_diagnostics_status"] == "unavailable"
+        assert nested["backtest_metric_diagnostics"] is None
+        assert nested["summary"]["eligible_for_promotion"] is False
+
+    for source_role in (
+        "household_candidate_panel",
+        "household_source_basis",
+        "selected_split_manifest",
+        "controlled_extension_source",
+    ):
+        assert_report_source_profile_refused(source_role)
+
+    duplicate_source_edges = controlled_extension_source_edges
+    assert len(duplicate_source_edges) == 2
+    duplicate_source, untouched_duplicate_source = duplicate_source_edges
+    assert duplicate_source.artifact_id != untouched_duplicate_source.artifact_id
+    foreign_duplicate_profile = store.put_bytes(
+        store.get_bytes(duplicate_source.artifact_id),
+        PutOptions(
+            kind="data_forge.ukraine.stage_output_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.foreign_single_duplicate_view", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_duplicate_profile.artifact_id == duplicate_source.artifact_id
+    assert (
+        foreign_duplicate_profile.manifest_profile_sha256
+        != duplicate_source.manifest_profile_sha256
+    )
+    base_duplicate_report_inputs = [candidate_input_ref, *source_refs]
+    duplicate_edge_positions = [
+        index
+        for index, item in enumerate(base_duplicate_report_inputs)
+        if item.artifact_id == duplicate_source.artifact_id and item.role == duplicate_source.role
+    ]
+    assert len(duplicate_edge_positions) == 1
+    duplicate_edge_position = duplicate_edge_positions[0]
+    altered_duplicate_report_inputs = list(base_duplicate_report_inputs)
+    altered_duplicate_report_inputs[duplicate_edge_position] = altered_duplicate_report_inputs[
+        duplicate_edge_position
+    ].model_copy(
+        update={"manifest_profile_sha256": foreign_duplicate_profile.manifest_profile_sha256}
+    )
+    altered_duplicate_source_edges = [
+        item
+        for item in altered_duplicate_report_inputs
+        if item.role == "controlled_extension_source"
+    ]
+    assert len(altered_duplicate_source_edges) == 2
+    assert (
+        sum(
+            item.artifact_id == duplicate_source.artifact_id
+            and item.manifest_profile_sha256 == foreign_duplicate_profile.manifest_profile_sha256
+            for item in altered_duplicate_source_edges
+        )
+        == 1
+    )
+    assert (
+        sum(
+            item.artifact_id == untouched_duplicate_source.artifact_id
+            and item.manifest_profile_sha256 == untouched_duplicate_source.manifest_profile_sha256
+            for item in altered_duplicate_source_edges
+        )
+        == 1
+    )
+    altered_duplicate_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store), report, inputs=altered_duplicate_report_inputs
+    )
+    assert altered_duplicate_report_ref.artifact_id == report_ref.artifact_id
+    core_altered_duplicate_report_ref = ArtifactRef.model_validate(
+        altered_duplicate_report_ref.model_dump(mode="python")
+    )
+    assert store.get_bytes(core_altered_duplicate_report_ref) == store.get_bytes(core_report_ref)
+    assert_binding_refused(
+        "one-position-in-repeated-role",
+        inputs=source_inputs,
+        candidate_report_ref=altered_duplicate_report_ref,
+        expected_reason="candidate_source_input_edge_mismatch:controlled_extension_source",
+    )
+
+    # Matching profile strings on both persisted edges are still only declarations
+    # until the selected CAS view resolves for that exact artifact ID.
+    extension_edge = next(
+        item for item in source_refs if item.role == "controlled_extension_source"
+    )
+    nonexistent_profile = "sha256:" + "d" * 64
+    assert nonexistent_profile != extension_edge.manifest_profile_sha256
+    falsely_profiled_report_inputs = [
+        item.model_copy(update={"manifest_profile_sha256": nonexistent_profile})
+        if item.role == "controlled_extension_source"
+        else item
+        for item in source_refs
+    ]
+    falsely_profiled_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=falsely_profiled_report_inputs,
+    )
+    assert falsely_profiled_report_ref.artifact_id == report_ref.artifact_id
+    falsely_profiled_c5b_inputs = [
+        item.model_copy(update={"manifest_profile_sha256": nonexistent_profile})
+        if item.role == "controlled_extension_source"
+        else item
+        for item in source_inputs
+    ]
+    assert_binding_refused(
+        "same-nonexistent-profile-on-both-edges",
+        inputs=falsely_profiled_c5b_inputs,
+        expected_reason=(
+            "candidate_source_manifest_profile_unavailable:controlled_extension_source"
+        ),
+        candidate_report_ref=falsely_profiled_report_ref,
+    )
+
+    direct_profile_mismatch_packet = packet_for_bundle(bundle_ref, foreign_report_refs[0])
+    mismatched_direct = direct_profile_mismatch_packet["backtest"]
+    mismatched_nested = direct_profile_mismatch_packet["calibration_validation"]
+    assert mismatched_direct["backtest_report_status"] == "unavailable"
+    assert mismatched_direct["metric_diagnostics_status"] == "unavailable"
+    assert mismatched_direct["metric_diagnostics"] is None
+    assert mismatched_direct["trust_eligible"] is False
+    assert mismatched_nested["backtest_report_status"] == "unavailable"
+    assert mismatched_nested["backtest_metric_diagnostics_status"] == "unavailable"
+    assert mismatched_nested["backtest_metric_diagnostics"] is None
+    assert mismatched_nested["source_json_snapshot_binding_status"] == "unavailable"
+    assert mismatched_nested["summary"]["eligible_for_promotion"] is False
+
+    # The provenance producer can recompute a caller-selected generic model.
+    # C5b must re-run each registered source model over the selected CAS bytes.
+    for source_role, contract in source_contract_by_role.items():
+        wrong_payload = json.dumps({"source_role": source_role}, separators=(",", ":")).encode(
+            "utf-8"
+        )
+        wrong_ref = store.put_bytes(
+            wrong_payload,
+            PutOptions(
+                kind="data_forge.ukraine.stage_output_snapshot",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        caller_selected_read = read_ukraine_json_snapshot(
+            store,
+            wrong_ref,
+            raw_payload_bytes=wrong_payload,
+            expected_sha256=hashlib.sha256(wrong_payload).hexdigest(),
+            expected_size_bytes=len(wrong_payload),
+            expected_kind="data_forge.ukraine.stage_output_snapshot",
+            consumer_contract=contract,
+            model_type=dict[str, str],
+        )
+        assert caller_selected_read.provenance.schema_validation_provenance == "recomputed"
+        assert (
+            caller_selected_read.provenance.profile_status
+            == "profile_absent_raw_snapshot_candidate"
+        )
+        wrong_edge = CoreInputRef(
+            artifact_id=wrong_ref.artifact_id,
+            role=source_role,
+            manifest_profile_sha256=wrong_ref.manifest_profile_sha256,
+        )
+        wrong_source_refs = [
+            wrong_edge if item.role == source_role else item for item in source_refs
+        ]
+        wrong_report_ref = persist_backtest_report(
+            _ensure_ir_artifact_store(store),
+            report,
+            inputs=[candidate_input_ref, *wrong_source_refs],
+        )
+        wrong_reads = dict(source_json_snapshot_reads)
+        wrong_reads[contract] = caller_selected_read.provenance
+        wrong_c5b_inputs = [
+            wrong_edge if item.role == source_role else item for item in source_inputs
+        ]
+        assert_binding_refused(
+            f"source-contract-shape-mismatch-{source_role}",
+            reads=wrong_reads,
+            inputs=wrong_c5b_inputs,
+            candidate_report_ref=wrong_report_ref,
+            expected_reason=f"source_json_snapshot_contract_validation_failed:{contract}",
+        )
+
+    unregistered_reads = dict(source_json_snapshot_reads)
+    unregistered_contract = "scientist.d3.unregistered_snapshot_contract"
+    unregistered_reads[unregistered_contract] = source_json_snapshot_reads[
+        "scientist.d3.household_candidate_basis"
+    ].model_copy(update={"consumer_contract": unregistered_contract})
+    assert_binding_refused(
+        "unregistered-source-contract",
+        reads=unregistered_reads,
+        expected_status="not_established",
+        expected_reason="source_json_snapshot_contract_set_unrecognized",
+    )
+
+    legacy_report = report.model_copy(update={"report_id": "s1-nested-legacy-profileless-report"})
+    legacy_report_inputs = [
+        candidate_input_ref.model_copy(update={"manifest_profile_sha256": None}),
+        *[item.model_copy(update={"manifest_profile_sha256": None}) for item in source_refs],
+    ]
+    persisted_legacy_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        legacy_report,
+        inputs=legacy_report_inputs,
+    )
+    legacy_report_ref = persisted_legacy_report_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    legacy_bundle = fresh.model_copy(
+        update={
+            "run_id": "s1-nested-legacy-profileless-c5b",
+            "schema_version": "1.0",
+            "candidate_ref": candidate_artifact_ref.model_copy(
+                update={"manifest_profile_sha256": None}
+            ),
+            "source_json_snapshot_reads": {},
+            "backtest_matrix": fresh.backtest_matrix.model_copy(
+                update={"backtest_report_ref": legacy_report_ref}
+            ),
+        }
+    )
+    legacy_inputs = [
+        item.model_copy(update={"manifest_profile_sha256": None}) for item in source_inputs
+    ]
+    legacy_bundle_ref = persist_calibration_validation_bundle(
+        store,
+        legacy_bundle,
+        inputs=legacy_inputs,
+    )
+    legacy_fresh = load_calibration_validation_bundle(store, legacy_bundle_ref)
+    legacy_summary = legacy_fresh.readout_summary()
+    assert store.get_manifest(legacy_bundle_ref).artifact_schema.version == "1.0"
+    assert legacy_summary["source_json_snapshot_binding_status"] == "not_established"
+    assert legacy_summary["backtest_report_status"] == "available"
+    assert legacy_summary["backtest_metric_diagnostics_status"] == "unavailable"
+    assert legacy_summary["backtest_metric_diagnostics"] is None
+    assert legacy_summary["eligible_for_promotion"] is False
+    legacy_packet = packet_for_bundle(legacy_bundle_ref, legacy_report_ref)
+    assert legacy_packet["backtest"]["source_json_snapshot_binding_status"] == "not_established"
+    assert legacy_packet["backtest"]["metric_diagnostics"] is None
+    assert (
+        legacy_packet["calibration_validation"]["source_json_snapshot_binding_status"]
+        == "not_established"
+    )
+    assert legacy_packet["calibration_validation"]["backtest_metric_diagnostics"] is None
+    assert legacy_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+
+
+def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
+    tmp_path, monkeypatch
+) -> None:
+    import pytest
+
+    from polisyos.core.contracts.backtest import BacktestReportRef
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationRunner,
+        CalibrationValidationRunnerInput,
+        load_calibration_validation_bundle,
+    )
+    from polisyos.scientist.methods.backtesting.plan import (
+        HistoricalValidationPlan,
+        PredictionSource,
+    )
+
+    pytest.importorskip("scipy.stats")
+    store = FileSystemCAS(tmp_path / "cas")
+    history = tmp_path / "history.json"
+    history.write_text('{"metric":[100,100,100,100]}', encoding="utf-8")
+    roles = ("fixture_training", "fixture_validation", "fixture_holdout")
+    plan = HistoricalValidationPlan(
+        plan_id="s1-packet-plan",
+        historical_data_path=str(history),
+        ground_truth_outcomes={"metric": [99.5, 98.5, 97.5]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [100, 100, 100]},
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        metadata={
+            "selected_training_role": roles[0],
+            "selected_validation_role": roles[1],
+            "selected_holdout_role": roles[2],
+        },
+    )
+    bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="household_bundle", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["metric"],
+        holdout_windows=["2025-01-01::2025-12-31"],
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        plans=[plan.model_dump(mode="json")],
+    )
+    candidate = store.put_json(
+        {"candidate": "test-owned"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+    )
+    result = CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id="s1-packet",
+            candidate_ref=candidate,
+            governance_report=CalibrationGovernanceReport(verdict="human_gate", metadata={}),
+            backtest_plan_bundles={BacktestKind.HOUSEHOLD: bundle},
+            selected_training_role=roles[0],
+            selected_validation_role=roles[1],
+            selected_holdout_role=roles[2],
+        )
+    )
+    fresh = load_calibration_validation_bundle(store, result.bundle_ref)
+    report_ref = fresh.backtest_report_ref
+    assert report_ref is not None
+    report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
+    readout = fresh.readout_summary()
+    assert (
+        readout["backtest_report_status"] == "available"
+        and readout["backtest_metric_diagnostics_status"] == "computed"
+    )
+    assert (
+        readout["selected_training_role"] == roles[0]
+        and readout["selected_validation_role"] == roles[1]
+    )
+    assert (
+        readout["selected_holdout_role"] == roles[2] and readout["eligible_for_promotion"] is False
+    )
+    assert report.overall_bias_direction.value == "unknown" and report.trust_eligible is False
+    actual_diagnostic = next(
+        item for item in report.metric_diagnostics if item.metric_name == "metric"
+    )
+    assert (
+        actual_diagnostic.method_id == "scipy.stats.ttest_1samp"
+        and actual_diagnostic.backend_version
+    )
+    assert actual_diagnostic.p_value == pytest.approx(0.121690, abs=1e-6)
+    edges = [
+        x
+        for x in store.get_manifest(result.bundle_ref.artifact_id).inputs
+        if x.role == "backtest_report"
+    ]
+    assert len(edges) == 1
+    assert (
+        str(edges[0].artifact_id),
+        edges[0].manifest_profile_sha256,
+    ) == (
+        str(report_ref.artifact_id),
+        report_ref.manifest_profile_sha256,
+    )
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-packet")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
+    trinity = store.put_json(
+        {"trinity": {}}, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
+    )
+    data = store.put_json(
+        {"data_ref": {"artifact_id": str(candidate.artifact_id)}},
+        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
+    )
+    c5b = ArtifactRef(
+        artifact_id=str(result.bundle_ref.artifact_id),
+        kind="scientist.calibration_validation_bundle",
+        media_type="application/json",
+    )
+    btref = ArtifactRef(
+        artifact_id=str(report_ref.artifact_id),
+        kind="ir.backtest_report",
+        media_type="application/json",
+    )
+    state = ExperimentState(
+        run_id="s1-packet",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity,
+            INPUT_REGISTRY_BUNDLE_REF: registry,
+            INPUT_DATA_SNAPSHOT_REF: data,
+        },
+        artifacts_index={
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: c5b,
+            ARTIFACT_BACKTEST_REPORT_REF: btref,
+        },
+    )
+    packet_ref = BuildDecisionPacketNode().execute(ctx, state).artifacts[0]
+    packet = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    assert (
+        packet["backtest"]["report_ref"] == packet["calibration_validation"]["backtest_report_ref"]
+    )
+    assert (
+        packet["backtest"]["metric_diagnostics"]
+        == packet["calibration_validation"]["backtest_metric_diagnostics"]
+    )
+    assert packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+    packet_diagnostic = packet["calibration_validation"]["backtest_metric_diagnostics"][0]
+    assert packet_diagnostic["method_id"] == "scipy.stats.ttest_1samp" and packet_diagnostic[
+        "p_value"
+    ] == pytest.approx(0.121690, abs=1e-6)
+
+    def packet_with_report(candidate_report_ref, run_suffix):
+        matrix = fresh.backtest_matrix.model_copy(
+            update={"backtest_report_ref": candidate_report_ref}
+        )
+        candidate_bundle = fresh.model_copy(
+            update={"run_id": f"s1-packet-{run_suffix}", "backtest_matrix": matrix}
+        )
+        candidate_bundle_ref = persist_calibration_validation_bundle(store, candidate_bundle)
+        candidate_state = state.model_copy(
+            update={
+                "artifacts_index": {
+                    **state.artifacts_index,
+                    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                        artifact_id=str(candidate_bundle_ref.artifact_id),
+                        kind="scientist.calibration_validation_bundle",
+                        media_type="application/json",
+                        manifest_profile_sha256=candidate_bundle_ref.manifest_profile_sha256,
+                    ),
+                    ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                        artifact_id=str(candidate_report_ref.artifact_id),
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                        manifest_profile_sha256=candidate_report_ref.manifest_profile_sha256,
+                    ),
+                }
+            }
+        )
+        candidate_packet_ref = BuildDecisionPacketNode().execute(ctx, candidate_state).artifacts[0]
+        return from_canonical_bytes(store.get_bytes(candidate_packet_ref.artifact_id))
+
+    def assert_residuals_survive_statistical_refusal(run_suffix, mutate):
+        payload = report.model_dump(mode="json")
+        mutate(payload)
+        mutated_ref = store.put_json(
+            payload,
+            PutOptions(kind="ir.backtest_report", media_type="application/json"),
+        )
+        observed = packet_with_report(
+            BacktestReportRef(artifact_id=str(mutated_ref.artifact_id)), run_suffix
+        )
+        direct = observed["backtest"]
+        nested = observed["calibration_validation"]
+        diagnostic = direct["metric_diagnostics"][0]
+        nested_diagnostic = nested["backtest_metric_diagnostics"][0]
+        assert direct["backtest_report_status"] == "available"
+        assert direct["metric_diagnostics_status"] == "unavailable"
+        assert diagnostic["status"] == "unavailable"
+        assert diagnostic["mean_residual"] == pytest.approx(1.5)
+        assert diagnostic["p_value"] is None
+        assert diagnostic["reason"] == "scipy_ttest_1samp_fresh_recompute_mismatch"
+        assert nested["backtest_report_status"] == "available"
+        assert nested["backtest_metric_diagnostics_status"] == "unavailable"
+        assert nested_diagnostic == diagnostic
+        assert nested["summary"]["eligible_for_promotion"] is False
+        assert direct["trust_eligible"] is False
+        assert direct["trust_score"] is None
+        assert all(bias["p_value"] is None for bias in direct["detected_biases"])
+
+    assert_residuals_survive_statistical_refusal(
+        "p-only-forgery",
+        lambda payload: payload["metric_diagnostics"][0].update({"p_value": 0.009375}),
+    )
+    assert_residuals_survive_statistical_refusal(
+        "backend-version-forgery",
+        lambda payload: payload["metric_diagnostics"][0].update(
+            {"backend_version": "forged-version"}
+        ),
+    )
+    assert_residuals_survive_statistical_refusal(
+        "bias-p-only-forgery",
+        lambda payload: payload["detected_biases"][0].update({"p_value": 0.009375}),
+    )
+    assert_residuals_survive_statistical_refusal(
+        "bias-row-removed",
+        lambda payload: payload.update({"detected_biases": []}),
+    )
+
+    from polisyos.scientist.methods.backtesting.orchestrator import (
+        BacktestOrchestrator,
+        _TTestResult,
+    )
+
+    monkeypatch.setattr(
+        BacktestOrchestrator,
+        "_two_sided_ttest",
+        staticmethod(
+            lambda errors: _TTestResult(
+                p_value=None,
+                test_name=None,
+                status="unavailable",
+                reason="scipy_ttest_1samp_error:ImportError",
+            )
+        ),
+    )
+    unavailable_packet = packet_with_report(btref, "fresh-scipy-unavailable")
+    unavailable_direct = unavailable_packet["backtest"]
+    unavailable_nested = unavailable_packet["calibration_validation"]
+    unavailable_diagnostic = unavailable_direct["metric_diagnostics"][0]
+    assert unavailable_direct["metric_diagnostics_status"] == "unavailable"
+    assert unavailable_diagnostic["status"] == "unavailable"
+    assert unavailable_diagnostic["mean_residual"] == pytest.approx(1.5)
+    assert unavailable_diagnostic["p_value"] is None
+    assert unavailable_nested["backtest_metric_diagnostics_status"] == "unavailable"
+    assert unavailable_nested["backtest_metric_diagnostics"][0] == unavailable_diagnostic
+    from pydantic import ValidationError
+
+    from polisyos.ir.analytics.backtest import persist_backtest_report
+
+    first_scenario = report.scenarios[0]
+    first_comparison = first_scenario.outcome_comparisons[0]
+    changed_comparison = first_comparison.model_copy(
+        update={"y_pred": first_comparison.y_true, "absolute_error": 0.0}
+    )
+    changed_scenario = first_scenario.model_copy(
+        update={
+            "outcome_comparisons": [changed_comparison, *first_scenario.outcome_comparisons[1:]],
+            "mae": 4.0 / 3.0,
+            "rmse": (8.5 / 3.0) ** 0.5,
+            "absolute_error_sum": 4.0,
+            "squared_error_sum": 8.5,
+        }
+    )
+    stale_report = report.model_copy(
+        update={
+            "scenarios": [changed_scenario],
+            "overall_mae": 4.0 / 3.0,
+            "overall_rmse": (8.5 / 3.0) ** 0.5,
+        }
+    )
+    with pytest.raises(ValidationError, match="metric diagnostic does not reconcile"):
+        persist_backtest_report(_ensure_ir_artifact_store(store), stale_report)
+
+    legacy = store.put_json(
+        {
+            "schema_version": "1.0",
+            "report_id": "legacy-unbound-trust-marker",
+            "trust_eligible": True,
+            "trust_score": 0.99,
+            "trust_grade": "A",
+            "degraded": False,
+            "overall_bias_direction": "neutral",
+        },
+        PutOptions(kind="ir.backtest_report", media_type="application/json"),
+    )
+    legacy_packet = packet_with_report(
+        BacktestReportRef(artifact_id=str(legacy.artifact_id)), "legacy"
+    )
+    assert legacy_packet["backtest"]["metric_diagnostics_status"] == "unavailable"
+    assert legacy_packet["backtest"]["metric_diagnostics"] is None
+    assert legacy_packet["backtest"]["trust_eligible"] is False
+    assert (
+        legacy_packet["backtest"]["trust_score"] is None
+        and legacy_packet["backtest"]["trust_grade"] is None
+    )
+    assert (
+        legacy_packet["calibration_validation"]["backtest_metric_diagnostics_status"]
+        == "unavailable"
+    )
+    assert legacy_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+
+    forged_payload = report.model_dump(mode="json")
+    for diagnostic in forged_payload["metric_diagnostics"]:
+        diagnostic.update(
+            {
+                "status": "exact_zero",
+                "n": len(
+                    next(
+                        s
+                        for s in report.scenarios
+                        if any(
+                            c.metric_name == diagnostic["metric_name"]
+                            for c in s.outcome_comparisons
+                        )
+                    ).outcome_comparisons
+                ),
+                "mean_residual": 0.0,
+                "magnitude": 0.0,
+                "residual_sign": "zero",
+                "direction_status": "not_applicable",
+                "method_id": None,
+                "backend_id": None,
+                "backend_version": None,
+                "statistic": None,
+                "p_value": None,
+                "reason": None,
+                "unresolved_assumptions": [
+                    "residual_independence",
+                    "multiplicity_policy",
+                    "population_scope",
+                ],
+            }
+        )
+    forged_payload.update(
+        {
+            "overall_bias_direction": "neutral",
+            "trust_eligible": True,
+            "trust_score": 0.99,
+            "trust_grade": "A",
+            "degraded": False,
+            "degraded_reasons": [],
+            "detected_biases": [],
+        }
+    )
+    forged = store.put_json(
+        forged_payload, PutOptions(kind="ir.backtest_report", media_type="application/json")
+    )
+    forged_packet = packet_with_report(
+        BacktestReportRef(artifact_id=str(forged.artifact_id)), "forged-zero-marker"
+    )
+    assert forged_packet["backtest"]["backtest_report_status"] == "unavailable"
+    assert forged_packet["backtest"]["metric_diagnostics_status"] == "unavailable"
+    assert forged_packet["backtest"]["metric_diagnostics"] is None
+    assert forged_packet["backtest"]["trust_eligible"] is False
+    assert (
+        forged_packet["backtest"]["trust_score"] is None
+        and forged_packet["backtest"]["trust_grade"] is None
+    )
+    assert forged_packet["calibration_validation"]["backtest_report_status"] == "unavailable"
+    assert (
+        forged_packet["calibration_validation"]["backtest_metric_diagnostics_status"]
+        == "unavailable"
+    )
+    assert forged_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+    malformed = store.put_json(
+        {
+            "schema_version": "1.0",
+            "report_id": "malformed-kept-marker",
+            "metric_diagnostics": [
+                {
+                    "metric_name": "metric",
+                    "status": "available",
+                    "n": 3,
+                    "mean_residual": 10.0,
+                    "magnitude": 10.0,
+                    "residual_sign": "positive",
+                    "direction_status": "not_established",
+                }
+            ],
+            "trust_eligible": True,
+            "degraded": False,
+            "overall_bias_direction": "neutral",
+        },
+        PutOptions(kind="ir.backtest_report", media_type="application/json"),
+    )
+    mismatch_state = state.model_copy(
+        update={
+            "artifacts_index": {
+                **state.artifacts_index,
+                ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                    artifact_id=str(malformed.artifact_id),
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                ),
+            }
+        }
+    )
+    mismatch_packet_ref = BuildDecisionPacketNode().execute(ctx, mismatch_state).artifacts[0]
+    mismatch_packet = from_canonical_bytes(store.get_bytes(mismatch_packet_ref.artifact_id))
+    assert mismatch_packet["backtest"]["backtest_report_status"] == "unavailable"
+    assert mismatch_packet["backtest"]["parse_warning"] == "backtest_report_binding_mismatch"
+    assert mismatch_packet["backtest"]["metric_diagnostics"] is None
+    assert mismatch_packet["calibration_validation"]["backtest_report_status"] == "unavailable"
+    assert mismatch_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+    bad_ref = BacktestReportRef(artifact_id=str(malformed.artifact_id))
+    bad_matrix = fresh.backtest_matrix.model_copy(update={"backtest_report_ref": bad_ref})
+    marker = fresh.model_copy(
+        update={
+            "backtest_matrix": bad_matrix,
+            "metadata": {
+                **fresh.metadata,
+                "nested_backtest_report": {
+                    "trust_eligible": True,
+                    "degraded": False,
+                    "metric_diagnostics": [{"status": "available"}],
+                },
+            },
+        }
+    )
+    bad_c5b = persist_calibration_validation_bundle(store, marker)
+    refused = load_calibration_validation_bundle(store, bad_c5b).readout_summary()
+    assert (
+        refused["backtest_report_status"] == "unavailable"
+        and refused["backtest_metric_diagnostics"] is None
+    )
+    assert refused["eligible_for_promotion"] is False
+    badstate = state.model_copy(
+        update={
+            "artifacts_index": {
+                ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                    artifact_id=str(bad_c5b.artifact_id),
+                    kind="scientist.calibration_validation_bundle",
+                    media_type="application/json",
+                    manifest_profile_sha256=bad_c5b.manifest_profile_sha256,
+                ),
+                ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                    artifact_id=str(malformed.artifact_id),
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    manifest_profile_sha256=malformed.manifest_profile_sha256,
+                ),
+            }
+        }
+    )
+    badpacket_ref = BuildDecisionPacketNode().execute(ctx, badstate).artifacts[0]
+    badpacket = from_canonical_bytes(store.get_bytes(badpacket_ref.artifact_id))
+    assert badpacket["backtest"]["backtest_report_status"] == "unavailable"
+    assert badpacket["backtest"].get("parse_warning") == "backtest_report_parse_failed"
+    assert badpacket["calibration_validation"]["status"] == "completed"
+    assert badpacket["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+
+
+def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> None:
+    from polisyos.core.artifacts.manifest import InputRef as InputRefModel
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.governance.backtest_matrix import (
+        BacktestKind,
+        verify_backtest_trust_projection,
+    )
+    from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationRunner,
+        CalibrationValidationRunnerInput,
+        load_calibration_validation_bundle,
+        persist_calibration_validation_bundle,
+    )
+    from polisyos.scientist.methods.backtesting.plan import (
+        HistoricalValidationPlan,
+        PredictionSource,
+    )
+
+    store = FileSystemCAS(tmp_path / "s1-exact-zero-cas")
+    history = tmp_path / "s1-exact-zero-history.json"
+    history.write_text('{"metric":[100,100,100,100]}', encoding="utf-8")
+    roles = ("fixture_training", "fixture_validation", "fixture_holdout")
+    plan = HistoricalValidationPlan(
+        plan_id="s1-exact-zero-plan",
+        historical_data_path=str(history),
+        ground_truth_outcomes={"metric": [100.0, 100.0, 100.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [100.0, 100.0, 100.0]},
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        metadata={
+            "selected_training_role": roles[0],
+            "selected_validation_role": roles[1],
+            "selected_holdout_role": roles[2],
+        },
+    )
+    plan_bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="household_bundle", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["metric"],
+        holdout_windows=["2025-01-01::2025-12-31"],
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        plans=[plan.model_dump(mode="json")],
+    )
+    candidate = store.put_json(
+        {"candidate": "test-owned"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+    )
+    result = CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id="s1-exact-zero",
+            candidate_ref=candidate,
+            governance_report=CalibrationGovernanceReport(verdict="human_gate", metadata={}),
+            backtest_plan_bundles={BacktestKind.HOUSEHOLD: plan_bundle},
+            selected_training_role=roles[0],
+            selected_validation_role=roles[1],
+            selected_holdout_role=roles[2],
+        )
+    )
+    fresh = load_calibration_validation_bundle(store, result.bundle_ref)
+    report_ref = fresh.backtest_report_ref
+    assert report_ref is not None
+    report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
+    projection = verify_backtest_trust_projection(report)
+    assert projection.status == "recomputed" and projection.eligible is True
+    assert projection.score == report.trust_score and projection.grade == report.trust_grade
+    readout = fresh.readout_summary()
+    assert readout["backtest_trust_status"] == "recomputed"
+    assert (
+        readout["backtest_trust_score"] == projection.score
+        and readout["backtest_trust_grade"] == projection.grade
+    )
+
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-exact-zero")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
+    trinity = store.put_json(
+        {"trinity": {}}, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
+    )
+    data = store.put_json(
+        {"data_ref": {"artifact_id": str(candidate.artifact_id)}},
+        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
+    )
+    state = ExperimentState(
+        run_id="s1-exact-zero",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity,
+            INPUT_REGISTRY_BUNDLE_REF: registry,
+            INPUT_DATA_SNAPSHOT_REF: data,
+        },
+        artifacts_index={
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                artifact_id=str(result.bundle_ref.artifact_id),
+                kind="scientist.calibration_validation_bundle",
+                media_type="application/json",
+                manifest_profile_sha256=result.bundle_ref.manifest_profile_sha256,
+            ),
+            ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                artifact_id=str(report_ref.artifact_id),
+                kind="ir.backtest_report",
+                media_type="application/json",
+                manifest_profile_sha256=report_ref.manifest_profile_sha256,
+            ),
+        },
+    )
+    packet_ref = BuildDecisionPacketNode().execute(ctx, state).artifacts[0]
+    packet = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    assert packet["backtest"]["trust_score_status"] == "recomputed"
+    assert (
+        packet["backtest"]["trust_eligible"] is True
+        and packet["backtest"]["trust_score"] == projection.score
+    )
+    assert packet["calibration_validation"]["summary"]["backtest_trust_status"] == "recomputed"
+
+    report_inputs = [
+        InputRefModel(
+            artifact_id=x.artifact_id,
+            role=x.role,
+            manifest_profile_sha256=x.manifest_profile_sha256,
+        )
+        for x in store.get_manifest(report_ref.artifact_id).inputs
+    ]
+    bundle_inputs = [
+        InputRefModel(
+            artifact_id=x.artifact_id,
+            role=x.role,
+            manifest_profile_sha256=x.manifest_profile_sha256,
+        )
+        for x in store.get_manifest(result.bundle_ref.artifact_id).inputs
+        if x.role != "backtest_report"
+    ]
+    for field, value in (
+        ("trust_score", 0.75),
+        ("trust_grade", "B" if projection.grade != "B" else "A"),
+        ("trust_eligible", False),
+    ):
+        changed = report.model_copy(update={field: value})
+        changed_ref = persist_backtest_report(
+            _ensure_ir_artifact_store(store), changed, inputs=report_inputs
+        )
+        matrix = fresh.backtest_matrix.model_copy(update={"backtest_report_ref": changed_ref})
+        bundle = fresh.model_copy(
+            update={"run_id": f"s1-exact-zero-{field}", "backtest_matrix": matrix}
+        )
+        bundle_ref = persist_calibration_validation_bundle(store, bundle, inputs=bundle_inputs)
+        changed_readout = load_calibration_validation_bundle(store, bundle_ref).readout_summary()
+        assert changed_readout["backtest_trust_status"] == "unavailable"
+        assert (
+            changed_readout["backtest_trust_score"] is None
+            and changed_readout["backtest_trust_grade"] is None
+        )
+        assert changed_readout["eligible_for_promotion"] is False
+        changed_state = state.model_copy(
+            update={
+                "run_id": f"s1-exact-zero-{field}",
+                "artifacts_index": {
+                    **state.artifacts_index,
+                    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                        artifact_id=str(bundle_ref.artifact_id),
+                        kind="scientist.calibration_validation_bundle",
+                        media_type="application/json",
+                    ),
+                    ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                        artifact_id=str(changed_ref.artifact_id),
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                    ),
+                },
+            }
+        )
+        changed_packet_ref = BuildDecisionPacketNode().execute(ctx, changed_state).artifacts[0]
+        changed_packet = from_canonical_bytes(store.get_bytes(changed_packet_ref.artifact_id))
+        assert changed_packet["backtest"]["trust_score_status"] == "unavailable"
+        assert changed_packet["backtest"]["trust_eligible"] is False
+        assert (
+            changed_packet["backtest"]["trust_score"] is None
+            and changed_packet["backtest"]["trust_grade"] is None
+        )
+        assert (
+            changed_packet["calibration_validation"]["summary"]["backtest_trust_status"]
+            == "unavailable"
+        )
+        assert (
+            changed_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+        )

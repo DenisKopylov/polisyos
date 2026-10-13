@@ -25,6 +25,9 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 - [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics и propagation contracts.
 - [`posterior_summary.py`](./posterior_summary.py) — versioned posterior mean/median, equal-tail
   bounds, exact source draw rows, and CAS persistence for candidate summaries.
+- [`welfare.py`](./welfare.py) — WelfareBundle schema 1.1 nominal PE/post-GE
+  component operands and WelfareSampleBundle schema 1.1 draw vectors, bound to
+  the selected applied-weight manifest edge for fresh weighted recomputation.
 - [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria и bundle outputs.
 - [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges в DoWhy, EconML, CausalNex, pgmpy и смежные ecosystems.
 - Для upstream/downstream контекста откройте [`../observation/README.md`](../observation/README.md) и [`../artifacts/README.md`](../artifacts/README.md).
@@ -179,6 +182,20 @@ uv run pytest tests/unit/ir/test_interoperability_bridges.py -q
 ## Last updated
 
 `2026-04-20`
+
+## Selected social-weight manifests
+
+`persist_social_weight_manifest()` and `ensure_social_weight_manifest_artifact()`
+retain the legacy profile behavior by default. A producer that must bind a
+WelfareBundle social-weight role to the exact manifest profile selected by the
+write can pass `return_selected_profile=True`; stores without that write result
+fail closed. This ref is a source-role identity only. The sampled welfare vector
+is separately persisted as `ir.welfare_weights` and is verified against both
+producer-persisted nominal operands and raw Monte Carlo component draws; a
+social-weight manifest is not treated as the applied vector.
+For the existing one-component `[1.0]` fallback, the source-basis welfare
+producer writes that same value as a selected-profile artifact; ordinary legacy
+calls keep the old no-ref fallback.
 
 ## Candidate causal value projection
 

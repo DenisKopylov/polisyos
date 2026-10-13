@@ -29,7 +29,7 @@ _GE_UNCERTAINTY_BUNDLE_SCHEMA_VERSION = "1.0"
 _WELFARE_BUNDLE_SCHEMA_NAME = "ir.welfare_bundle"
 _WELFARE_BUNDLE_SCHEMA_VERSION = "1.0"
 _WELFARE_SAMPLE_BUNDLE_SCHEMA_NAME = "ir.welfare_sample_bundle"
-_WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION = "1.0"
+_WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION = "1.1"
 _FIRST_STAGE_OK_THRESHOLD = 10.0
 _DEFAULT_REMAINDER_TOLERANCE_RATIO = 0.25
 
@@ -226,30 +226,60 @@ class WelfareSampleBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(_WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     sample_axis: str = Field(default="draw", min_length=1)
     welfare_draws: tuple[float, ...] = Field(default_factory=tuple)
     welfare_pe_draws: tuple[float, ...] = Field(default_factory=tuple)
     welfare_ge_draws: tuple[float, ...] = Field(default_factory=tuple)
+    component_labels: tuple[str, ...] = Field(default_factory=tuple)
+    welfare_pe_component_draws: tuple[tuple[float, ...], ...] = Field(default_factory=tuple)
+    welfare_total_component_draws: tuple[tuple[float, ...], ...] = Field(default_factory=tuple)
     robust_lower_extrema: tuple[float, ...] = Field(default_factory=tuple)
     robust_upper_extrema: tuple[float, ...] = Field(default_factory=tuple)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _validate_bundle(self) -> WelfareSampleBundle:
-        payloads = (
+        scalar_payloads = (
             self.welfare_draws,
             self.welfare_pe_draws,
             self.welfare_ge_draws,
             self.robust_lower_extrema,
             self.robust_upper_extrema,
         )
-        if not any(payloads):
+        component_payloads = (
+            self.welfare_pe_component_draws,
+            self.welfare_total_component_draws,
+        )
+        if not any(scalar_payloads) and not any(component_payloads):
             raise ValueError("welfare sample bundle requires at least one populated sample payload")
-        for payload in payloads:
+        for payload in scalar_payloads:
             for value in payload:
                 if not math.isfinite(float(value)):
                     raise ValueError("welfare sample payloads must be finite")
+        if any(component_payloads) or self.component_labels:
+            if (
+                not self.component_labels
+                or len(set(self.component_labels)) != len(self.component_labels)
+                or any(not label.strip() for label in self.component_labels)
+                or not self.welfare_draws
+                or len(self.welfare_pe_component_draws) != len(self.welfare_draws)
+                or len(self.welfare_total_component_draws) != len(self.welfare_draws)
+            ):
+                raise ValueError(
+                    "welfare component draws must bind labels and every persisted draw"
+                )
+            if any(
+                len(row) != len(self.component_labels)
+                for rows in component_payloads
+                for row in rows
+            ):
+                raise ValueError("welfare component draw width differs from its labels")
+            for rows in component_payloads:
+                for row in rows:
+                    for value in row:
+                        if not math.isfinite(float(value)):
+                            raise ValueError("welfare component draw values must be finite")
         return self
 
 
@@ -277,6 +307,9 @@ class WelfareBundle(BaseModel):
     channel_decomposition_ref: ChannelDecompositionArtifactRef | None = None
 
     point_estimate: float | None = None
+    nominal_component_labels: tuple[str, ...] = Field(default_factory=tuple)
+    nominal_welfare_pe_components: tuple[float, ...] = Field(default_factory=tuple)
+    nominal_welfare_total_components: tuple[float, ...] = Field(default_factory=tuple)
     credible_interval: tuple[float, float] | None = None
     robust_interval: tuple[float, float] | None = None
     interval_semantics: WelfareIntervalSemantics = WelfareIntervalSemantics.NONE
@@ -316,6 +349,29 @@ class WelfareBundle(BaseModel):
                 raise ValueError(f"{field_name} must reference application/json")
         if self.point_estimate is not None and not math.isfinite(float(self.point_estimate)):
             raise ValueError("point_estimate must be finite")
+        nominal_components = (
+            self.nominal_component_labels,
+            self.nominal_welfare_pe_components,
+            self.nominal_welfare_total_components,
+        )
+        if any(nominal_components):
+            if (
+                not self.nominal_component_labels
+                or len(set(self.nominal_component_labels)) != len(self.nominal_component_labels)
+                or any(not label.strip() for label in self.nominal_component_labels)
+                or self.point_estimate is None
+                or len(self.nominal_welfare_pe_components) != len(self.nominal_component_labels)
+                or len(self.nominal_welfare_total_components) != len(self.nominal_component_labels)
+            ):
+                raise ValueError(
+                    "nominal welfare components must bind labels and the point estimate"
+                )
+            for field_name in (
+                "nominal_welfare_pe_components",
+                "nominal_welfare_total_components",
+            ):
+                if any(not math.isfinite(float(value)) for value in getattr(self, field_name)):
+                    raise ValueError(f"{field_name} must be finite")
         for interval_name in ("credible_interval", "robust_interval"):
             interval = getattr(self, interval_name)
             if interval is None:
@@ -433,6 +489,7 @@ def persist_welfare_sample_bundle(
     inputs: list[InputRef] | None = None,
     schema_name: str = _WELFARE_SAMPLE_BUNDLE_SCHEMA_NAME,
     schema_version: str = _WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION,
+    return_selected_profile: bool = False,
 ) -> WelfareSampleBundleRef:
     """Persist a welfare sample bundle and return its typed ref."""
 
@@ -444,6 +501,7 @@ def persist_welfare_sample_bundle(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return WelfareSampleBundleRef.model_validate(ref)
 
@@ -465,6 +523,7 @@ def persist_welfare_bundle(
     inputs: list[InputRef] | None = None,
     schema_name: str = _WELFARE_BUNDLE_SCHEMA_NAME,
     schema_version: str = _WELFARE_BUNDLE_SCHEMA_VERSION,
+    return_selected_profile: bool = False,
 ) -> WelfareBundleRef:
     """Persist a welfare bundle and return its typed ref."""
 
@@ -476,6 +535,7 @@ def persist_welfare_bundle(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return WelfareBundleRef.model_validate(ref)
 

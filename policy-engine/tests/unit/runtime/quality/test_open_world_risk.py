@@ -636,6 +636,78 @@ def _prepared(tmp_path, *, summaries: tuple[CandidateSummary, ...] | None = None
     return runtime, result
 
 
+def test_design_problem_snapshot_writes_exact_selected_core_json_view(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "selected")
+    problem = _problem()
+    expected_raw = core_contracts.chronology._canonical_raw_bytes(
+        problem.model_dump(mode="json")
+    )
+
+    ref, semantic_hash = open_world_module.persist_and_verify_design_problem_snapshot(
+        store=store,
+        problem=problem,
+    )
+    manifest = store.get_manifest(ref)
+    read = artifacts.read_core_json_artifact(store, ref, raw_payload_bytes=expected_raw)
+
+    assert ref.manifest_profile_sha256 is not None
+    assert manifest.artifact_schema == artifacts.SchemaInfo(
+        name="polisyos.runtime.DesignProblem",
+        version="1.0",
+    )
+    assert manifest.canon == artifacts.CanonInfo.from_spec(
+        core_contracts.chronology.CHRONOLOGY_CANON_SPEC
+    )
+    assert store.get_bytes(ref) == expected_raw
+    assert read.status == "declared_bytes_conformant"
+    assert read.selected_artifact_id == str(ref.artifact_id)
+    assert read.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+    assert DesignProblem.model_validate(read.value).model_dump(mode="json") == problem.model_dump(
+        mode="json"
+    )
+    assert semantic_hash == _semantic_hash("runtime.design_problem", problem)
+
+
+def test_profileless_design_problem_history_is_candidate_only_and_refused_by_owner(
+    tmp_path,
+) -> None:
+    _runtime, batch = _prepared(tmp_path / "current")
+    legacy_store = FileSystemCAS(tmp_path / "legacy")
+    problem = _problem()
+    raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
+    legacy_ref = legacy_store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.design_problem",
+            media_type="application/json",
+        ),
+    )
+
+    candidate = artifacts.read_core_json_artifact(
+        legacy_store,
+        legacy_ref,
+        raw_payload_bytes=raw,
+        allow_profile_absent=True,
+    )
+    assert candidate.status == "profile_absent_unqualified_candidate"
+    assert DesignProblem.model_validate(candidate.unqualified_candidate_value).model_dump(
+        mode="json"
+    ) == problem.model_dump(mode="json")
+    with pytest.raises(ValueError, match="canon_profile_not_verified"):
+        _ = candidate.value
+    with pytest.raises(ValueError, match="canon_profile_absent"):
+        artifacts.load_core_json_artifact(legacy_store, legacy_ref, raw_payload_bytes=raw)
+
+    historical_statement = batch.contexts.aggregate_context.statement.model_copy(
+        update={"design_problem_binding_ref": legacy_ref}
+    )
+    history_reader = epoch_cascade_module.ArtifactPromotionOwnerQueryContextRepository(
+        artifacts=legacy_store
+    )
+    with pytest.raises(ValueError, match="promotion_design_problem_profile_mismatch"):
+        history_reader._verify_design_problem_binding(historical_statement)
+
+
 def test_no_owner_still_persists_one_not_established_row_per_declared_component(
     tmp_path,
 ) -> None:

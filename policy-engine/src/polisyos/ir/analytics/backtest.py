@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -20,6 +20,7 @@ class BiasDirection(str, Enum):
     PESSIMISTIC = "pessimistic"
     NEUTRAL = "neutral"
     MIXED = "mixed"
+    UNKNOWN = "unknown"
 
 
 class OutcomeComparison(BaseModel):
@@ -42,6 +43,12 @@ class OutcomeComparison(BaseModel):
             raise ValueError("y_pred must be finite")
         if not math.isfinite(self.y_true):
             raise ValueError("y_true must be finite")
+        if not math.isfinite(self.absolute_error):
+            raise ValueError("absolute_error must be finite")
+        if self.relative_error is not None and not math.isfinite(self.relative_error):
+            raise ValueError("relative_error must be finite when present")
+        if not math.isfinite(self.y_pred - self.y_true):
+            raise ValueError("prediction residual must be finite")
         if self.ci_lower is not None and not math.isfinite(self.ci_lower):
             raise ValueError("ci_lower must be finite when present")
         if self.ci_upper is not None and not math.isfinite(self.ci_upper):
@@ -73,6 +80,118 @@ class SystematicBias(BaseModel):
     def _validate_magnitude(self) -> SystematicBias:
         if not math.isfinite(self.magnitude):
             raise ValueError("magnitude must be finite")
+        return self
+
+
+class MetricBiasDiagnostic(BaseModel):
+    """One metric's residual description and exact statistical execution state."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    metric_name: str = Field(min_length=1)
+    status: str = Field(pattern="^(exact_zero|available|not_computable|unavailable)$")
+    n: int = Field(ge=0)
+    mean_residual: float
+    magnitude: float = Field(ge=0.0)
+    scope: dict[str, Any] = Field(default_factory=dict)
+    residual_sign: Literal["negative", "zero", "positive"]
+    direction_status: Literal["not_established", "not_applicable"]
+    method_id: str | None = None
+    backend_id: str | None = None
+    backend_version: str | None = None
+    statistic: float | None = None
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    reason: str | None = None
+    unresolved_assumptions: list[str] = Field(
+        default_factory=lambda: [
+            "residual_independence",
+            "multiplicity_policy",
+            "population_scope",
+            "metric_direction",
+        ]
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _retain_legacy_signed_residual(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        mean = payload.get("mean_residual")
+        status = payload.get("status")
+        if isinstance(mean, (int, float)) and not isinstance(mean, bool):
+            if "residual_sign" not in payload:
+                payload["residual_sign"] = (
+                    "positive" if mean > 0 else "negative" if mean < 0 else "zero"
+                )
+            if "direction_status" not in payload:
+                payload["direction_status"] = (
+                    "not_applicable" if status == "exact_zero" else "not_established"
+                )
+        if "unresolved_assumptions" not in payload:
+            payload["unresolved_assumptions"] = [
+                "residual_independence",
+                "multiplicity_policy",
+                "population_scope",
+                *([] if status == "exact_zero" else ["metric_direction"]),
+            ]
+        elif status != "exact_zero" and isinstance(payload["unresolved_assumptions"], list):
+            if "metric_direction" not in payload["unresolved_assumptions"]:
+                payload["unresolved_assumptions"] = [
+                    *payload["unresolved_assumptions"],
+                    "metric_direction",
+                ]
+        return payload
+
+    @model_validator(mode="after")
+    def _validate_execution_identity(self) -> MetricBiasDiagnostic:
+        executed = self.status == "available"
+        identity = (
+            self.method_id,
+            self.backend_id,
+            self.backend_version,
+            self.statistic,
+            self.p_value,
+        )
+        if executed and any(value is None for value in identity):
+            raise ValueError(
+                "available diagnostic requires executed method, backend, statistic and p"
+            )
+        if executed and (
+            self.method_id != "scipy.stats.ttest_1samp"
+            or self.backend_id != "scipy"
+            or not (self.backend_version or "").strip()
+        ):
+            raise ValueError(
+                "available diagnostic requires the actual named SciPy execution identity"
+            )
+        if not executed and any(value is not None for value in identity):
+            raise ValueError("non-available diagnostic cannot claim an executed statistical method")
+        if self.status in {"not_computable", "unavailable"} and not self.reason:
+            raise ValueError("non-executed diagnostic requires its reason")
+        expected_sign = (
+            "positive"
+            if self.mean_residual > 0
+            else "negative"
+            if self.mean_residual < 0
+            else "zero"
+        )
+        if self.residual_sign != expected_sign:
+            raise ValueError("residual_sign must match the signed mean residual")
+        if self.status == "exact_zero":
+            if self.mean_residual != 0.0 or self.magnitude != 0.0:
+                raise ValueError("exact_zero diagnostic requires zero residual and magnitude")
+            if self.direction_status != "not_applicable":
+                raise ValueError("exact_zero diagnostic has no directional claim")
+        else:
+            if self.direction_status != "not_established":
+                raise ValueError("nonzero residual direction must remain not_established")
+            if self.magnitude != abs(self.mean_residual):
+                raise ValueError("diagnostic magnitude must equal absolute signed mean residual")
+        if not math.isfinite(self.mean_residual) or not math.isfinite(self.magnitude):
+            raise ValueError("diagnostic residual values must be finite")
+        if self.statistic is not None and not math.isfinite(self.statistic):
+            raise ValueError("diagnostic statistic must be finite")
         return self
 
 
@@ -180,6 +299,7 @@ class BacktestReport(BaseModel):
     aggregation_policy: str | None = Field(default=None, min_length=1)
 
     detected_biases: list[SystematicBias] = Field(default_factory=list)
+    metric_diagnostics: list[MetricBiasDiagnostic] = Field(default_factory=list)
     overall_bias_direction: BiasDirection = BiasDirection.NEUTRAL
 
     prediction_mode_requested: str | None = None
@@ -210,7 +330,431 @@ class BacktestReport(BaseModel):
         ):
             if value is not None and not math.isfinite(value):
                 raise ValueError(f"{name} must be finite")
+        if "metric_diagnostics" in self.model_fields_set:
+            self._assert_metric_diagnostics_match_scenarios()
+        else:
+            self._refuse_unbound_legacy_trust()
+        if any(item.direction_status == "not_established" for item in self.metric_diagnostics):
+            if self.overall_bias_direction is not BiasDirection.UNKNOWN:
+                raise ValueError("unresolved metric direction requires unknown report direction")
+            if (
+                not self.degraded
+                or self.trust_eligible
+                or self.trust_score is not None
+                or self.trust_grade is not None
+            ):
+                raise ValueError("unresolved metric direction requires degraded trust refusal")
+            if any(
+                item.direction in {BiasDirection.OPTIMISTIC, BiasDirection.PESSIMISTIC}
+                for item in self.detected_biases
+            ):
+                raise ValueError(
+                    "unresolved metric direction cannot claim optimistic or pessimistic bias"
+                )
         return self
+
+    @staticmethod
+    def _close(actual: float, expected: float) -> bool:
+        return math.isclose(actual, expected, rel_tol=1e-9, abs_tol=1e-12)
+
+    def _assert_metric_diagnostics_match_scenarios(self) -> None:
+        """Reconcile every persisted diagnostic and aggregate against source rows."""
+        errors_by_metric: dict[str, list[float]] = {}
+        total_absolute_error = 0.0
+        total_squared_error = 0.0
+        total_count = 0
+        total_percentage_error = 0.0
+        total_percentage_count = 0
+        total_interval_evaluated = 0
+        total_interval_hits = 0
+        coverage_values: list[float] = []
+        interval_contracts: list[dict[str, Any]] = []
+        for scenario in self.scenarios:
+            scenario_errors: list[float] = []
+            percentage_errors: list[float] = []
+            interval_available = 0
+            interval_hits = 0
+            if scenario.interval_requested_count not in (0, scenario.requested_count):
+                raise ValueError("interval request count must cover all rows or none")
+            if scenario.compared_count != len(scenario.outcome_comparisons):
+                raise ValueError("scenario compared_count must match actual outcome rows")
+            for comparison in scenario.outcome_comparisons:
+                residual = comparison.y_pred - comparison.y_true
+                if not math.isfinite(residual) or not math.isfinite(comparison.absolute_error):
+                    raise ValueError("source residual and absolute error must be finite")
+                absolute_error = abs(residual)
+                if not self._close(comparison.absolute_error, absolute_error):
+                    raise ValueError("source outcome absolute_error does not match its residual")
+                relative = (
+                    absolute_error / abs(comparison.y_true)
+                    if abs(comparison.y_true) > 1e-12
+                    else None
+                )
+                percentage = None if relative is None else relative * 100.0
+                if percentage is not None and not math.isfinite(percentage):
+                    relative = None
+                    percentage = None
+                if comparison.relative_error is not None and not math.isfinite(
+                    comparison.relative_error
+                ):
+                    raise ValueError("source relative_error must be finite")
+                if relative is None:
+                    if comparison.relative_error is not None:
+                        raise ValueError(
+                            "source relative_error does not reconcile with outcome rows"
+                        )
+                elif comparison.relative_error is None or not self._close(
+                    comparison.relative_error, relative
+                ):
+                    raise ValueError("source relative_error does not reconcile with outcome rows")
+                if percentage is not None:
+                    percentage_errors.append(percentage)
+                has_lower = comparison.ci_lower is not None
+                has_upper = comparison.ci_upper is not None
+                if has_lower != has_upper:
+                    raise ValueError("source interval bounds must be supplied as a complete pair")
+                expected_within = None
+                if has_lower and has_upper:
+                    interval_available += 1
+                    expected_within = bool(
+                        comparison.ci_lower <= comparison.y_true <= comparison.ci_upper
+                    )
+                    interval_hits += int(expected_within)
+                if comparison.within_ci is not expected_within:
+                    raise ValueError("source outcome within_ci does not match interval bounds")
+                errors_by_metric.setdefault(comparison.metric_name, []).append(residual)
+                scenario_errors.append(residual)
+            expected_pct_sum = math.fsum(percentage_errors)
+            expected_pct_count = len(percentage_errors)
+            if scenario.percentage_error_count != expected_pct_count:
+                raise ValueError(
+                    "scenario percentage-error count does not reconcile with outcome rows"
+                )
+            if expected_pct_count:
+                if scenario.percentage_error_sum is None or not self._close(
+                    scenario.percentage_error_sum, expected_pct_sum
+                ):
+                    raise ValueError(
+                        "scenario percentage-error sum does not reconcile with outcome rows"
+                    )
+                expected_mape = expected_pct_sum / expected_pct_count
+            else:
+                if scenario.percentage_error_sum not in (None, 0.0):
+                    raise ValueError(
+                        "scenario percentage-error sum requires source relative errors"
+                    )
+                expected_mape = None
+            if expected_mape is None:
+                if scenario.mape is not None:
+                    raise ValueError("scenario MAPE does not reconcile with source relative errors")
+            elif scenario.mape is None or not self._close(scenario.mape, expected_mape):
+                raise ValueError("scenario MAPE does not reconcile with source relative errors")
+            total_percentage_error += expected_pct_sum
+            total_percentage_count += expected_pct_count
+            if scenario.interval_requested_count == 0 and interval_available:
+                raise ValueError("source intervals require a declared interval request")
+            expected_availability = (
+                interval_available / scenario.interval_requested_count
+                if scenario.interval_requested_count
+                else None
+            )
+            expected_coverage = interval_hits / interval_available if interval_available else None
+            if (
+                scenario.interval_available_count != interval_available
+                or scenario.interval_evaluated_count != interval_available
+            ):
+                raise ValueError("scenario interval counts do not reconcile with source bounds")
+            if scenario.interval_hit_count != interval_hits:
+                raise ValueError(
+                    "scenario interval hit count does not reconcile with source bounds"
+                )
+            if expected_availability is None:
+                if scenario.interval_availability is not None:
+                    raise ValueError(
+                        "scenario interval availability does not reconcile with source bounds"
+                    )
+            elif scenario.interval_availability is None or not self._close(
+                scenario.interval_availability, expected_availability
+            ):
+                raise ValueError(
+                    "scenario interval availability does not reconcile with source bounds"
+                )
+            if expected_coverage is None:
+                if (
+                    scenario.coverage_probability is not None
+                    or scenario.interval_hit_rate is not None
+                ):
+                    raise ValueError(
+                        "scenario coverage does not reconcile with source interval bounds"
+                    )
+            elif (
+                scenario.coverage_probability is None
+                or scenario.interval_hit_rate is None
+                or not self._close(scenario.coverage_probability, expected_coverage)
+                or not self._close(scenario.interval_hit_rate, expected_coverage)
+            ):
+                raise ValueError("scenario coverage does not reconcile with source interval bounds")
+            if expected_coverage is not None:
+                coverage_values.append(expected_coverage)
+            total_interval_evaluated += interval_available
+            total_interval_hits += interval_hits
+            if scenario.nominal_confidence_level is not None or scenario.interval_type is not None:
+                interval_contracts.append(
+                    {
+                        "scenario_id": scenario.scenario_id,
+                        "nominal_confidence_level": scenario.nominal_confidence_level,
+                        "interval_type": scenario.interval_type,
+                        "interval_requested_count": scenario.interval_requested_count,
+                        "interval_available_count": scenario.interval_available_count,
+                        "interval_evaluated_count": scenario.interval_evaluated_count,
+                        "interval_hit_count": scenario.interval_hit_count,
+                    }
+                )
+            if scenario_errors:
+                scenario_abs = math.fsum(abs(value) for value in scenario_errors)
+                scenario_sq = math.fsum(value * value for value in scenario_errors)
+                scenario_mae = scenario_abs / len(scenario_errors)
+                scenario_rmse = math.sqrt(scenario_sq / len(scenario_errors))
+                if scenario.mae is None or not self._close(scenario.mae, scenario_mae):
+                    raise ValueError("scenario MAE does not reconcile with actual outcome rows")
+                if scenario.rmse is None or not self._close(scenario.rmse, scenario_rmse):
+                    raise ValueError("scenario RMSE does not reconcile with actual outcome rows")
+                if scenario.absolute_error_sum is None or not self._close(
+                    scenario.absolute_error_sum, scenario_abs
+                ):
+                    raise ValueError(
+                        "scenario absolute-error sum does not reconcile with actual outcome rows"
+                    )
+                if scenario.squared_error_sum is None or not self._close(
+                    scenario.squared_error_sum, scenario_sq
+                ):
+                    raise ValueError(
+                        "scenario squared-error sum does not reconcile with actual outcome rows"
+                    )
+                total_absolute_error += scenario_abs
+                total_squared_error += scenario_sq
+                total_count += len(scenario_errors)
+        recorded_intervals = self.metadata.get("interval_contracts")
+        if interval_contracts:
+            if recorded_intervals != interval_contracts:
+                raise ValueError(
+                    "interval contracts do not reconcile with scenario source declarations"
+                )
+        elif recorded_intervals not in (None, []):
+            raise ValueError("interval contracts have no matching source scenarios")
+        if self.n_metrics_evaluated != total_count:
+            raise ValueError("n_metrics_evaluated must match the complete actual outcome-row set")
+        if total_count:
+            expected_mae = total_absolute_error / total_count
+            expected_rmse = math.sqrt(total_squared_error / total_count)
+            if self.overall_mae is None or not self._close(self.overall_mae, expected_mae):
+                raise ValueError("overall MAE does not reconcile with actual outcome rows")
+            if self.overall_rmse is None or not self._close(self.overall_rmse, expected_rmse):
+                raise ValueError("overall RMSE does not reconcile with actual outcome rows")
+        expected_mape = (
+            total_percentage_error / total_percentage_count if total_percentage_count else None
+        )
+        if expected_mape is None:
+            if self.overall_mape is not None:
+                raise ValueError("overall MAPE does not reconcile with actual outcome rows")
+        elif self.overall_mape is None or not self._close(self.overall_mape, expected_mape):
+            raise ValueError("overall MAPE does not reconcile with actual outcome rows")
+        expected_coverage = (
+            total_interval_hits / total_interval_evaluated
+            if total_interval_evaluated
+            else (math.fsum(coverage_values) / len(coverage_values) if coverage_values else None)
+        )
+        if expected_coverage is None:
+            if self.overall_coverage_probability is not None:
+                raise ValueError("overall coverage does not reconcile with actual interval rows")
+        elif self.overall_coverage_probability is None or not self._close(
+            self.overall_coverage_probability, expected_coverage
+        ):
+            raise ValueError("overall coverage does not reconcile with actual interval rows")
+
+        diagnostics = self.metric_diagnostics
+        names = [item.metric_name for item in diagnostics]
+        if len(names) != len(set(names)) or set(names) != set(errors_by_metric):
+            raise ValueError(
+                "metric diagnostics must match the complete actual metric set exactly once"
+            )
+        for diagnostic in diagnostics:
+            values = errors_by_metric[diagnostic.metric_name]
+            n = len(values)
+            mean = math.fsum(values) / n
+            magnitude = abs(mean)
+            exact_zero = all(value == 0.0 for value in values)
+            expected_sign = "positive" if mean > 0 else "negative" if mean < 0 else "zero"
+            expected_direction = "not_applicable" if exact_zero else "not_established"
+            if diagnostic.n != n or not self._close(diagnostic.mean_residual, mean):
+                raise ValueError(
+                    f"metric diagnostic does not reconcile source count/mean: {diagnostic.metric_name}"
+                )
+            if not self._close(diagnostic.magnitude, magnitude):
+                raise ValueError(
+                    f"metric diagnostic does not reconcile source magnitude: {diagnostic.metric_name}"
+                )
+            if (
+                diagnostic.residual_sign != expected_sign
+                or diagnostic.direction_status != expected_direction
+            ):
+                raise ValueError(
+                    f"metric diagnostic direction does not reconcile with source rows: {diagnostic.metric_name}"
+                )
+            if diagnostic.scope != self._expected_metric_scope(diagnostic.metric_name):
+                raise ValueError(
+                    f"metric diagnostic scope does not reconcile with source scenarios: {diagnostic.metric_name}"
+                )
+            expected_assumptions = [
+                "residual_independence",
+                "multiplicity_policy",
+                "population_scope",
+            ]
+            if not exact_zero:
+                expected_assumptions.append("metric_direction")
+            if diagnostic.unresolved_assumptions != expected_assumptions:
+                raise ValueError(
+                    f"metric diagnostic assumptions do not match source status: {diagnostic.metric_name}"
+                )
+            if exact_zero:
+                if diagnostic.status != "exact_zero" or diagnostic.reason is not None:
+                    raise ValueError(
+                        f"exact-zero diagnostic status does not match source rows: {diagnostic.metric_name}"
+                    )
+                continue
+            if diagnostic.status == "exact_zero":
+                raise ValueError(
+                    f"nonzero source residuals cannot be marked exact_zero: {diagnostic.metric_name}"
+                )
+            sample_std = (
+                math.sqrt(math.fsum((value - mean) ** 2 for value in values) / (n - 1))
+                if n > 1
+                else 0.0
+            )
+            if n < 3:
+                if (
+                    diagnostic.status != "not_computable"
+                    or diagnostic.reason != "insufficient_observations"
+                ):
+                    raise ValueError(
+                        f"metric diagnostic availability does not match source count: {diagnostic.metric_name}"
+                    )
+            elif sample_std <= 1e-12:
+                if diagnostic.status != "not_computable" or diagnostic.reason != "zero_variance":
+                    raise ValueError(
+                        f"metric diagnostic availability does not match source variance: {diagnostic.metric_name}"
+                    )
+            elif diagnostic.status == "not_computable":
+                raise ValueError(
+                    f"variable source residuals cannot be marked not_computable: {diagnostic.metric_name}"
+                )
+            elif diagnostic.status == "available":
+                expected_statistic = mean / (sample_std / math.sqrt(n))
+                if (
+                    diagnostic.method_id != "scipy.stats.ttest_1samp"
+                    or diagnostic.backend_id != "scipy"
+                    or not diagnostic.backend_version
+                    or diagnostic.statistic is None
+                    or not self._close(diagnostic.statistic, expected_statistic)
+                    or diagnostic.p_value is None
+                    or not math.isfinite(diagnostic.p_value)
+                    or not 0.0 <= diagnostic.p_value <= 1.0
+                    or diagnostic.reason is not None
+                ):
+                    raise ValueError(
+                        f"executed diagnostic does not reconcile to source t-statistic: {diagnostic.metric_name}"
+                    )
+            elif diagnostic.status == "unavailable":
+                if diagnostic.reason is None or not diagnostic.reason.startswith(
+                    "scipy_ttest_1samp_"
+                ):
+                    raise ValueError(
+                        f"unavailable diagnostic requires a typed SciPy execution reason: {diagnostic.metric_name}"
+                    )
+            else:
+                raise ValueError(
+                    f"unrecognized diagnostic availability for source metric: {diagnostic.metric_name}"
+                )
+
+    def _expected_metric_scope(self, metric_name: str) -> dict[str, Any]:
+        matching = [
+            scenario
+            for scenario in self.scenarios
+            if any(item.metric_name == metric_name for item in scenario.outcome_comparisons)
+        ]
+        return {
+            "scenario_ids": [scenario.scenario_id for scenario in matching],
+            "holdout_windows": sorted(
+                {
+                    str(window)
+                    for scenario in matching
+                    for window in scenario.metadata.get("holdout_windows", [])
+                }
+            ),
+            "selected_training_roles": sorted(
+                {
+                    str(scenario.metadata["selected_training_role"])
+                    for scenario in matching
+                    if scenario.metadata.get("selected_training_role")
+                }
+            ),
+            "selected_validation_roles": sorted(
+                {
+                    str(scenario.metadata["selected_validation_role"])
+                    for scenario in matching
+                    if scenario.metadata.get("selected_validation_role")
+                }
+            ),
+            "selected_holdout_roles": sorted(
+                {
+                    str(scenario.metadata["selected_holdout_role"])
+                    for scenario in matching
+                    if scenario.metadata.get("selected_holdout_role")
+                }
+            ),
+        }
+
+    def metric_diagnostics_are_source_bound(self) -> bool:
+        """Return whether the full diagnostic set reconciles with persisted source rows."""
+        if "metric_diagnostics" not in self.model_fields_set:
+            return False
+        try:
+            self._assert_metric_diagnostics_match_scenarios()
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
+            return False
+        return True
+
+    def has_source_bound_exact_zero_metrics(self) -> bool:
+        """Report source-bound exact-zero rows without admitting score markers."""
+        return bool(
+            not self.degraded
+            and self.overall_bias_direction is BiasDirection.NEUTRAL
+            and not self.detected_biases
+            and self.scenarios
+            and self.metric_diagnostics
+            and self.metric_diagnostics_are_source_bound()
+            and all(item.status == "exact_zero" for item in self.metric_diagnostics)
+            and all(
+                s.requested_count > 0
+                and s.compared_count == s.requested_count
+                and s.missing_count == 0
+                and s.invalid_count == 0
+                and len(s.outcome_comparisons) == s.compared_count
+                and s.mae is not None
+                and s.rmse is not None
+                for s in self.scenarios
+            )
+        )
+
+    def _refuse_unbound_legacy_trust(self) -> None:
+        """Keep legacy reports readable while removing trust that lacks source binding."""
+        self.trust_eligible = False
+        self.trust_score = None
+        self.trust_grade = None
+        self.degraded = True
+        reason = "metric_diagnostics_not_source_bound"
+        if reason not in self.degraded_reasons:
+            self.degraded_reasons.append(reason)
 
 
 def persist_backtest_report(
@@ -222,9 +766,16 @@ def persist_backtest_report(
     schema_version: str = "1.0",
 ) -> BacktestReportRef:
     """Persist a backtest report and return its typed artifact reference."""
+    payload = report.model_dump(mode="python")
+    if "metric_diagnostics" not in report.model_fields_set:
+        payload.pop("metric_diagnostics", None)
+    verified = BacktestReport.model_validate(payload)
+    payload = verified.model_dump(mode="json")
+    if "metric_diagnostics" not in verified.model_fields_set:
+        payload.pop("metric_diagnostics", None)
     ref = put_json_artifact(
         store,
-        report.model_dump(mode="json"),
+        payload,
         kind="ir.backtest_report",
         schema_name=schema_name,
         schema_version=schema_version,

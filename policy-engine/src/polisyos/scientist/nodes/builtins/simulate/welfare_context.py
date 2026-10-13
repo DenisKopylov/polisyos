@@ -519,6 +519,7 @@ def _resolve_welfare_context(
     welfare_params: Mapping[str, Any],
     numeric_metrics: Mapping[str, float],
     response_size_hint: int,
+    return_selected_profile: bool = False,
 ) -> _ResolvedWelfareContext:
     labels, base_response = _resolve_base_response(
         welfare_params=welfare_params,
@@ -528,10 +529,12 @@ def _resolve_welfare_context(
         ctx,
         welfare_params=welfare_params,
         labels=labels,
+        return_selected_profile=return_selected_profile,
     )
     social_weight_ref = ensure_social_weight_manifest_artifact(
         ctx,
         welfare_params=welfare_params,
+        return_selected_profile=return_selected_profile,
     )
     policy_ref = _coerce_artifact_ref(welfare_params.get("policy_ref"))
     baseline_ref = _coerce_artifact_ref(welfare_params.get("baseline_ref"))
@@ -735,6 +738,7 @@ def _resolve_weights(
     *,
     welfare_params: Mapping[str, Any],
     labels: tuple[str, ...],
+    return_selected_profile: bool = False,
 ) -> tuple[np.ndarray, ArtifactRefModel | None]:
     if not labels:
         raise _fail_error(
@@ -748,32 +752,37 @@ def _resolve_weights(
                 "welfare_weights must be provided when aggregating more than one response component",
                 details={"labels": list(labels)},
             )
-        return np.asarray([1.0], dtype=np.float64), None
-    raw_weights = welfare_params["weights"]
-
-    if isinstance(raw_weights, Mapping):
-        admitted_weights = _admit_welfare_numeric_mapping(raw_weights, field_name="welfare_weights")
-        missing = [label for label in labels if label not in raw_weights]
-        if missing:
-            raise _fail_error(
-                _ERROR_WELFARE_DIMENSION_MISMATCH,
-                "welfare_weights is missing one or more response labels",
-                details={"missing_labels": missing},
-            )
-        vector = np.asarray([admitted_weights[label] for label in labels], dtype=np.float64)
-    elif isinstance(raw_weights, (list, tuple)):
-        vector = _admit_welfare_numeric_sequence(raw_weights, field_name="welfare_weights")
-        if vector.shape[0] != len(labels):
-            raise _fail_error(
-                _ERROR_WELFARE_DIMENSION_MISMATCH,
-                "welfare_weights length must match response vector length",
-                details={"weights": int(vector.shape[0]), "response": len(labels)},
-            )
+        vector = np.asarray([1.0], dtype=np.float64)
+        if not return_selected_profile:
+            return vector, None
     else:
-        raise _fail_error(
-            _ERROR_WELFARE_DIMENSION_MISMATCH,
-            "welfare_weights must be a dict keyed by labels or a dense list",
-        )
+        raw_weights = welfare_params["weights"]
+
+        if isinstance(raw_weights, Mapping):
+            admitted_weights = _admit_welfare_numeric_mapping(
+                raw_weights, field_name="welfare_weights"
+            )
+            missing = [label for label in labels if label not in raw_weights]
+            if missing:
+                raise _fail_error(
+                    _ERROR_WELFARE_DIMENSION_MISMATCH,
+                    "welfare_weights is missing one or more response labels",
+                    details={"missing_labels": missing},
+                )
+            vector = np.asarray([admitted_weights[label] for label in labels], dtype=np.float64)
+        elif isinstance(raw_weights, (list, tuple)):
+            vector = _admit_welfare_numeric_sequence(raw_weights, field_name="welfare_weights")
+            if vector.shape[0] != len(labels):
+                raise _fail_error(
+                    _ERROR_WELFARE_DIMENSION_MISMATCH,
+                    "welfare_weights length must match response vector length",
+                    details={"weights": int(vector.shape[0]), "response": len(labels)},
+                )
+        else:
+            raise _fail_error(
+                _ERROR_WELFARE_DIMENSION_MISMATCH,
+                "welfare_weights must be a dict keyed by labels or a dense list",
+            )
     if not np.all(np.isfinite(vector)):
         raise _fail_error(
             _ERROR_WELFARE_OUTPUT_NONFINITE,
@@ -785,6 +794,7 @@ def _resolve_weights(
         payload={"labels": list(labels), "weights": vector.tolist()},
         kind="ir.welfare_weights",
         schema_name="ir.welfare_weights",
+        return_selected_profile=return_selected_profile,
     )
     return vector, weights_ref
 

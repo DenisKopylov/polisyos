@@ -81,6 +81,37 @@ exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
 - Unsupported runtime mechanisms and hard constraint failures return
   `ExecuteResult(ok=False, notes=[...])` envelopes.
 
+### Selected-profile execution-source capture
+
+`CompileRequest.return_selected_profile`, `build_input_bindings(...,
+return_selected_profile=True)`, and `ExecuteRequest.return_selected_profile` are
+opt-in. With the option enabled, source writers return the exact selected CAS
+profiles and Foundry writes a `FoundryExecutionInputBasis` from the current
+request, candidate and compiled source graph, selected DataSnapshot and
+bindings, registry payload members, overrides, and recomputed effective
+posture. The basis is attached to the successful single-step `SimulationResult`
+(schema 1.4), its metrics and state delta, and downstream welfare artifacts.
+The default remains `False`; it does not rewrite or reinterpret old output.
+
+Schema 1.4 uses `execution_source_status="single_step_basis"` when this exact
+source boundary was captured. A fixed-point call uses
+`execution_source_status="feedback_uncomposed"` with no single-step basis.
+Consumers must not attach the single-step basis to the feedback result. A B161
+welfare consumer withholds feedback and profileless historical results from
+source-bound candidate observation.
+
+This capture records source identity and effective call inputs only. A matching
+selected ref, artifact ID, or manifest profile does not establish the meaning
+of the welfare quantity, its unit or valid time, a refinement relation,
+currentness, or authority.
+
+The Ukraine CAN runtime bundle carries the exact `DataSnapshotRef` returned by
+its CAS write alongside the legacy artifact ID. Intake preserves that selected
+profile in its result, receipt content, and receipt lineage edge; ID-only legacy
+manifests remain profileless and cannot enter a source-bound basis by inference.
+The fresh B161 consumer validates every typed Core JSON member in the execution
+source basis against that exact selected profile before recomputing its content.
+
 ## Artifact Flow
 
 | Step                  | API                                                                                        | Primary output                                         |
@@ -267,3 +298,8 @@ model-invariant probabilities.
 ::: polisyos.foundry.data_plane.bindings
 
 ::: polisyos.foundry._quickstart
+
+
+The source reader also checks the exact owner-declared `artifact_schema` after resolving the selected profile and verifying CAS bytes, before typed JSON validation. A different schema name or version is refused even when the artifact ID, kind, media type, canonical bytes, source edges, and payload shape are unchanged. Supported legacy producer variants are not widened by the reader: source-bound `SimulationResult` requires 1.4, while 1.3 remains legacy and cannot be promoted into a captured source basis. Serialization schema identity is not an authority or scientific refinement claim.
+
+The source reader checks owner-declared artifact kind, media type, and schema for every typed source ref and for parent edges whose owner model is known. In particular, a `WelfareBundle.simulation_result` edge must resolve as the `SimulationResult` owner and a `SimulationResult.state_delta` edge as the `StateDelta` owner; a valid selected manifest cannot self-define its expected type. Same-byte, same-schema aliases with preserved source lineage but wrong owner kind or media type are withheld by the fresh candidate consumer. Serialization identity still proves no scientific meaning or refinement.

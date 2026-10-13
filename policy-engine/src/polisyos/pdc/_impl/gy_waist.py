@@ -70,6 +70,15 @@ GY_CONTENT_HASH_EXCLUDED_FIELDS = (
     "*_latency",
     "*_duration",
 )
+# Compile the public rule tuple once so exact-key checks do not scan every rule.
+# Keep suffix matching separate while preserving the original wildcard semantics.
+_GY_CONTENT_HASH_EXCLUDED_SOURCE_RULES = GY_CONTENT_HASH_EXCLUDED_FIELDS
+_GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS = frozenset(
+    rule for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS if not rule.startswith("*")
+)
+_GY_CONTENT_HASH_EXCLUDED_SUFFIXES = tuple(
+    rule[1:] for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS if rule.startswith("*")
+)
 _VERIFIER_WRITERS = frozenset({"verifier", "governance", "a_side", "system_verifier"})
 _DECISION_GRADE_RANK: dict[str | None, int] = {
     None: 0,
@@ -585,9 +594,13 @@ def is_gy_content_hash_excluded_field(key: str) -> bool:
     """Return whether ``key`` is an operational GY content-hash exclusion."""
 
     normalized = key.lower()
-    return any(
-        normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
-        for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
+    if GY_CONTENT_HASH_EXCLUDED_FIELDS is not _GY_CONTENT_HASH_EXCLUDED_SOURCE_RULES:
+        return any(
+            normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
+            for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
+        )
+    return normalized in _GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS or any(
+        normalized.endswith(suffix) for suffix in _GY_CONTENT_HASH_EXCLUDED_SUFFIXES
     )
 
 

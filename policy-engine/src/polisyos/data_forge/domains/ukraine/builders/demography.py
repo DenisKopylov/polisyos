@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
+from polisyos.data_forge.domains.ukraine.manifests import (
+    ArtifactRecord,
+    HouseholdDiagnosticPanelBasis,
+    NormalizedArtifactManifest,
+    SourceSnapshotManifest,
+    directory_tree_entries,
+)
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
 from polisyos.data_forge.kernel.io import ensure_dirs
 from polisyos.ir.model_layer.types import TimeFrequency
@@ -302,6 +310,142 @@ def _build_household_distribution_observation_panel(
     return observations[OBSERVATION_FRAME_COLUMNS]
 
 
+def _build_household_diagnostic_panel(household: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate only normalized, quarter-identified rows for candidate diagnostics."""
+    columns = [
+        "family",
+        "metric_id",
+        "region_code",
+        "quarter_id",
+        "period_start",
+        "period_end",
+        "time_grain",
+        "observed_value",
+        "unit",
+        "source_snapshot_id",
+        "source_record_hashes",
+        "contributor_count",
+        "population_coverage",
+        "custody",
+        "currentness",
+    ]
+    required = {
+        "quarter_id",
+        "region_code",
+        "income",
+        "weight",
+        "source_snapshot_id",
+        "record_hash",
+    }
+    if household.empty or not required.issubset(household.columns):
+        return pd.DataFrame(columns=columns)
+    rows: list[dict[str, Any]] = []
+    for (region_code, quarter_id), group in household.groupby(
+        ["region_code", "quarter_id"], dropna=True, sort=True
+    ):
+        values = pd.to_numeric(group["income"], errors="coerce")
+        weights = pd.to_numeric(group["weight"], errors="coerce")
+        valid = values.notna() & weights.notna() & (weights > 0)
+        if not bool(valid.any()):
+            continue
+        contributors = group.loc[valid]
+        source_ids = sorted(set(contributors["source_snapshot_id"].astype(str)))
+        record_hashes = sorted(contributors["record_hash"].astype(str).tolist())
+        if (
+            len(source_ids) != 1
+            or not record_hashes
+            or any(len(value) != 64 for value in record_hashes)
+        ):
+            continue
+        period = pd.Period(str(quarter_id), freq="Q")
+        rows.append(
+            {
+                "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
+                "metric_id": "observed_value",
+                "region_code": str(region_code),
+                "quarter_id": str(quarter_id),
+                "period_start": period.start_time.date().isoformat(),
+                "period_end": period.end_time.date().isoformat(),
+                "time_grain": TimeFrequency.QUARTER.value,
+                "observed_value": float(np.average(values[valid], weights=weights[valid])),
+                "unit": None,
+                "source_snapshot_id": source_ids[0],
+                "source_record_hashes": record_hashes,
+                "contributor_count": len(record_hashes),
+                "population_coverage": None,
+                "custody": "not_established",
+                "currentness": "not_established",
+            }
+        )
+    return pd.DataFrame.from_records(rows, columns=columns)
+
+
+def _build_household_diagnostic_basis(
+    config: PipelineConfig,
+    household: pd.DataFrame,
+    panel_path: Any,
+    panel: pd.DataFrame,
+) -> HouseholdDiagnosticPanelBasis:
+    """Bind D3 panel to its raw snapshot, normalized artifact, and row denominator."""
+    source_id = "household_microdata"
+    source_manifest_path = (
+        config.build_root.manifests_dir / source_id / "source_snapshot_manifest.json"
+    )
+    normalized_manifest_path = (
+        config.build_root.manifests_dir / source_id / config.sources[source_id].manifest_name
+    )
+    panel_artifact = ArtifactRecord.from_path(panel_path, row_count=len(panel))
+    common: dict[str, Any] = {
+        "source_row_count": len(household),
+        "source_record_hashes": sorted(household["record_hash"].astype(str).tolist())
+        if "record_hash" in household.columns
+        else [],
+        "panel_artifact": panel_artifact,
+    }
+    if not source_manifest_path.is_file() or not normalized_manifest_path.is_file():
+        return HouseholdDiagnosticPanelBasis(status="incomplete", **common)
+    source_bytes = source_manifest_path.read_bytes()
+    normalized_bytes = normalized_manifest_path.read_bytes()
+    snapshot = SourceSnapshotManifest.model_validate(json.loads(source_bytes))
+    normalized = NormalizedArtifactManifest.model_validate(json.loads(normalized_bytes))
+    if not snapshot.raw_artifacts:
+        return HouseholdDiagnosticPanelBasis(status="incomplete", **common)
+    raw = snapshot.raw_artifacts[0]
+    from pathlib import Path
+
+    raw_path = Path(raw.path)
+    normalized_path = Path(normalized.normalized_artifact.path)
+    raw_record = ArtifactRecord.from_path(raw_path)
+    normalized_record = ArtifactRecord.from_path(normalized_path, row_count=len(household))
+    snapshot_ids = (
+        set(household["source_snapshot_id"].astype(str))
+        if "source_snapshot_id" in household
+        else set()
+    )
+    complete = bool(
+        raw_path.is_dir()
+        and raw.sha256
+        and raw_record.sha256 == raw.sha256
+        and normalized_record.sha256 == normalized.normalized_artifact.sha256
+        and normalized.normalized_artifact.row_count == len(household)
+        and snapshot_ids == {raw.sha256}
+        and snapshot.raw_tree_entries
+        and directory_tree_entries(raw_path) == snapshot.raw_tree_entries
+    )
+    return HouseholdDiagnosticPanelBasis(
+        status="complete" if complete else "incomplete",
+        raw_directory=raw_record,
+        raw_tree_entries=snapshot.raw_tree_entries,
+        source_snapshot_manifest_path=str(source_manifest_path),
+        source_snapshot_manifest_sha256=hashlib.sha256(source_bytes).hexdigest(),
+        normalized_manifest_path=str(normalized_manifest_path),
+        normalized_manifest_sha256=hashlib.sha256(normalized_bytes).hexdigest(),
+        normalized_artifact=normalized_record,
+        source_snapshot_id=raw.sha256,
+        **common,
+    )
+
+
 def _series_correlation(left: pd.Series, right: pd.Series) -> float:
     joined = pd.concat(
         [pd.to_numeric(left, errors="coerce"), pd.to_numeric(right, errors="coerce")], axis=1
@@ -580,7 +724,9 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
             "market_income" if "market_income" in household.columns else household_feature_cols[0],
         ).to_numpy(dtype=float),
         "weights": np.ones(len(household), dtype=float),
-        "household_ids": np.asarray([f"hh::{idx:05d}" for idx in range(len(household))], dtype=object),
+        "household_ids": np.asarray(
+            [f"hh::{idx:05d}" for idx in range(len(household))], dtype=object
+        ),
         "features": household_features,
         "feature_names": household_feature_cols,
         "metadata": {"stage": "d3", "producer_stage": "d3"},
@@ -645,6 +791,20 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
     outputs["calibrated_household_cells.parquet"] = _write_frame(
         stage_dir / "calibrated_household_cells.parquet",
         calibrated_household_cells,
+    )
+
+    household_diagnostic_panel = _build_household_diagnostic_panel(household)
+    household_diagnostic_panel_path = stage_dir / "household_candidate_panel.parquet"
+    outputs["household_candidate_panel.parquet"] = _write_frame(
+        household_diagnostic_panel_path, household_diagnostic_panel
+    )
+    household_diagnostic_basis = _build_household_diagnostic_basis(
+        config, household, household_diagnostic_panel_path, household_diagnostic_panel
+    )
+    household_diagnostic_basis_path = stage_dir / "household_candidate_basis.json"
+    _write_json(household_diagnostic_basis_path, household_diagnostic_basis)
+    outputs["household_candidate_basis.json"] = ArtifactRecord.from_path(
+        household_diagnostic_basis_path
     )
 
     lesson_registry_path = stage_dir / "lesson_registry_seed_v1.json"

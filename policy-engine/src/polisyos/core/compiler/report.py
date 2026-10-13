@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from pydantic import Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.kernel.base import KernelModel
 
@@ -33,9 +34,17 @@ class CompileReport(KernelModel):
 
 
 def put_link_report(
-    store: ArtifactStore, report: LinkReport, *, inputs: list[InputRef] | None = None
+    store: ArtifactStore,
+    report: LinkReport,
+    *,
+    inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist an IR linker report into CAS with the compiler link-report schema metadata."""
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
     return store.put_json(
         report,
         ArtifactWriteOptions(
@@ -44,13 +53,22 @@ def put_link_report(
             schema=SchemaInfo(name="polisyos.ir.LinkReport", version=report.schema_version),
             inputs=inputs,
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 
 def put_compile_report(
-    store: ArtifactStore, report: CompileReport, *, inputs: list[InputRef] | None = None
+    store: ArtifactStore,
+    report: CompileReport,
+    *,
+    inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a compile report into CAS so runtime and audit surfaces can reference it."""
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
     return store.put_json(
         report,
         ArtifactWriteOptions(
@@ -59,4 +77,5 @@ def put_compile_report(
             schema=SchemaInfo(name="polisyos.core.CompileReport", version=report.schema_version),
             inputs=inputs,
         ),
+        return_selected_profile=return_selected_profile,
     )

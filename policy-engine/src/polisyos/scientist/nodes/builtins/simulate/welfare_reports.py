@@ -298,6 +298,8 @@ def _persist_sensitivity_diagnostics(
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     robust_interval: tuple[float, float],
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRefModel | None:
     if not input_envelopes:
         return None
@@ -334,6 +336,12 @@ def _persist_sensitivity_diagnostics(
         },
         kind="foundry.welfare_sensitivity_diagnostics",
         schema_name="polisyos.foundry.WelfareSensitivityDiagnostics",
+        inputs=(
+            [_input_ref(execution_input_basis_ref, role="execution_input_basis")]
+            if execution_input_basis_ref is not None
+            else None
+        ),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -341,6 +349,14 @@ def _bundle_inputs(
     *,
     sim_result_ref: ArtifactRef,
     metric_ref: ArtifactRef,
+    welfare_ref: ArtifactRefModel | None = None,
+    social_weight_ref: ArtifactRefModel | None = None,
+    policy_ref: ArtifactRefModel | None = None,
+    baseline_ref: ArtifactRefModel | None = None,
+    pe_model_ref: ArtifactRefModel | None = None,
+    ge_model_ref: ArtifactRefModel | None = None,
+    welfare_weights_ref: ArtifactRefModel | None = None,
+    execution_input_basis_ref: ArtifactRefModel | None = None,
     pe_uncertainty_refs: Mapping[str, UncertaintyEnvelopeRef],
     ge_uncertainty_ref: GEUncertaintyBundleRef | None,
     dependence_structure_ref: DependenceStructureRef | None,
@@ -354,6 +370,26 @@ def _bundle_inputs(
     inputs = [
         _input_ref(sim_result_ref, role="simulation_result"),
         _input_ref(metric_ref, role="metrics"),
+        *([_input_ref(welfare_ref, role="welfare_source")] if welfare_ref is not None else []),
+        *(
+            [_input_ref(social_weight_ref, role="social_weight_manifest")]
+            if social_weight_ref is not None
+            else []
+        ),
+        *([_input_ref(policy_ref, role="policy_scope_claim")] if policy_ref is not None else []),
+        *([_input_ref(baseline_ref, role="baseline")] if baseline_ref is not None else []),
+        *([_input_ref(pe_model_ref, role="pe_model")] if pe_model_ref is not None else []),
+        *([_input_ref(ge_model_ref, role="ge_model")] if ge_model_ref is not None else []),
+        *(
+            [_input_ref(welfare_weights_ref, role="welfare_weights")]
+            if welfare_weights_ref is not None
+            else []
+        ),
+        *(
+            [_input_ref(execution_input_basis_ref, role="execution_input_basis")]
+            if execution_input_basis_ref is not None
+            else []
+        ),
     ]
     for name, ref in pe_uncertainty_refs.items():
         inputs.append(_input_ref(ref, role=f"pe_uncertainty.{name}"))
@@ -558,6 +594,8 @@ def _persist_welfare_mc_samples(
     context: _ResolvedWelfareContext,
     requested_method: str,
     provenance: Mapping[str, Any],
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
 ) -> tuple[
     dict[str, Any],
     tuple[float, float] | None,
@@ -607,6 +645,9 @@ def _persist_welfare_mc_samples(
             welfare_draws=tuple(float(value) for value in draws.welfare),
             welfare_pe_draws=tuple(float(value) for value in draws.welfare_pe),
             welfare_ge_draws=tuple(float(value) for value in draws.welfare_ge),
+            component_labels=(context.labels if draws.welfare_pe_component_draws else ()),
+            welfare_pe_component_draws=tuple(draws.welfare_pe_component_draws),
+            welfare_total_component_draws=tuple(draws.welfare_total_component_draws),
             metadata={
                 "requested_method": requested_method,
                 "dependence_strategy": draws.dependence_sampler["strategy"],
@@ -632,11 +673,24 @@ def _persist_welfare_mc_samples(
                 ),
             },
         ),
-        inputs=_calibration_lineage_inputs(
-            calibration_source,
-            dependence_ref=context.dependence_structure_ref,
-            additional_refs=_input_envelope_refs(input_envelope_refs),
-        ),
+        inputs=[
+            *_calibration_lineage_inputs(
+                calibration_source,
+                dependence_ref=context.dependence_structure_ref,
+                additional_refs=_input_envelope_refs(input_envelope_refs),
+            ),
+            *(
+                [_input_ref(context.weights_ref, role="welfare_weights")]
+                if context.weights_ref is not None
+                else []
+            ),
+            *(
+                [_input_ref(execution_input_basis_ref, role="execution_input_basis")]
+                if execution_input_basis_ref is not None
+                else []
+            ),
+        ],
+        return_selected_profile=return_selected_profile,
     )
     return result_map, interval, sample_ref, summary, complete
 
@@ -654,6 +708,8 @@ def _persist_welfare_mc_report(
     summary: dict[str, Any] | None,
     complete_draws: bool,
     sample_bundle_ref: WelfareSampleBundleRef | None,
+    execution_input_basis_ref: ArtifactRefModel | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRefModel:
     provenance, summary, complete_draws = _reconcile_mc_report_claims(
         draws=draws,
@@ -710,11 +766,17 @@ def _persist_welfare_mc_report(
                 (
                     *_input_envelope_refs(input_envelope_refs),
                     _input_ref(sample_bundle_ref, role="sample_bundle"),
+                    *(
+                        [_input_ref(execution_input_basis_ref, role="execution_input_basis")]
+                        if execution_input_basis_ref is not None
+                        else []
+                    ),
                 )
                 if sample_bundle_ref is not None
                 else _input_envelope_refs(input_envelope_refs)
             ),
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 

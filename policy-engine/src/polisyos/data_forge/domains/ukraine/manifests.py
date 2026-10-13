@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.data_forge.domains.ukraine.models import StageId
 from polisyos.data_forge.kernel.io import sha256_file
 
@@ -19,6 +21,53 @@ def utc_now_iso() -> str:
     """Return the current UTC timestamp in ISO-8601 format."""
 
     return datetime.now(UTC).isoformat()
+
+
+class DirectoryTreeEntry(BaseModel):
+    """One regular file in a content-bound source directory."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    artifact_index: int = Field(ge=0)
+    relative_path: str = Field(min_length=1)
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    size_bytes: int = Field(ge=0)
+
+
+def directory_tree_entries(path: Path, *, artifact_index: int = 0) -> list[DirectoryTreeEntry]:
+    """Hash the complete portable regular-file set beneath one source directory."""
+    if path.is_symlink():
+        raise ValueError(f"source directory is a symlink: {path}")
+    root = path.resolve(strict=True)
+    if not root.is_dir():
+        raise ValueError(f"source path is not a directory: {path}")
+    entries: list[DirectoryTreeEntry] = []
+    for item in sorted(root.rglob("*"), key=lambda value: value.relative_to(root).as_posix()):
+        if item.is_symlink():
+            raise ValueError(f"source directory contains a symlink: {item}")
+        if item.is_dir():
+            continue
+        if not item.is_file():
+            raise ValueError(f"source directory contains a non-regular entry: {item}")
+        payload = item.read_bytes()
+        entries.append(
+            DirectoryTreeEntry(
+                artifact_index=artifact_index,
+                relative_path=item.relative_to(root).as_posix(),
+                sha256=hashlib.sha256(payload).hexdigest(),
+                size_bytes=len(payload),
+            )
+        )
+    if not entries:
+        raise ValueError(f"source directory has no regular files: {path}")
+    return entries
+
+
+def directory_tree_sha256(entries: list[DirectoryTreeEntry]) -> str:
+    """Return a stable digest for a complete, ordered directory entry set."""
+    payload = [item.model_dump(mode="json") for item in entries]
+    encoded = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 class ArtifactRecord(BaseModel):
@@ -42,10 +91,22 @@ class ArtifactRecord(BaseModel):
         nnz: int | None = None,
         artifact_id: str | None = None,
     ) -> ArtifactRecord:
+        if path.is_symlink():
+            raise ValueError(f"artifact path is a symlink: {path}")
+        sha256 = ""
+        size_bytes = 0
+        if path.exists() and path.is_file():
+            # Preserve established single-file identity exactly.
+            sha256 = sha256_file(path)
+            size_bytes = int(path.stat().st_size)
+        elif path.exists() and path.is_dir():
+            entries = directory_tree_entries(path)
+            sha256 = directory_tree_sha256(entries)
+            size_bytes = sum(item.size_bytes for item in entries)
         return cls(
             path=str(path),
-            sha256=sha256_file(path) if path.exists() and path.is_file() else "",
-            size_bytes=int(path.stat().st_size) if path.exists() and path.is_file() else 0,
+            sha256=sha256,
+            size_bytes=size_bytes,
             row_count=row_count,
             nnz=nnz,
             artifact_id=artifact_id,
@@ -120,8 +181,54 @@ class SourceSnapshotManifest(BaseModel):
     status: str = Field(..., min_length=1, max_length=120)
     discovered_at: str
     raw_artifacts: list[ArtifactRecord] = Field(default_factory=list)
+    raw_tree_entries: list[DirectoryTreeEntry] = Field(default_factory=list)
     endpoint: str | None = None
     notes: list[str] = Field(default_factory=list)
+
+
+class HouseholdDiagnosticPanelBasis(BaseModel):
+    """Candidate-only source basis for the D3 household diagnostic panel."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.data_forge.household_diagnostic_basis.v1"] = (
+        "policyos.data_forge.household_diagnostic_basis.v1"
+    )
+    status: Literal["complete", "incomplete"]
+    authority_purpose: Literal["candidate_diagnostic"] = "candidate_diagnostic"
+    source_id: Literal["household_microdata"] = "household_microdata"
+    raw_directory: ArtifactRecord | None = None
+    raw_tree_entries: list[DirectoryTreeEntry] = Field(default_factory=list)
+    source_snapshot_manifest_path: str | None = None
+    source_snapshot_manifest_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    normalized_manifest_path: str | None = None
+    normalized_manifest_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    normalized_artifact: ArtifactRecord | None = None
+    source_snapshot_id: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    source_row_count: int = Field(ge=0)
+    source_record_hashes: list[str] = Field(default_factory=list)
+    panel_artifact: ArtifactRecord
+    raw_tree_provenance: Literal["recomputed"] = "recomputed"
+    snapshot_binding_provenance: Literal["recomputed"] = "recomputed"
+    normalized_content_provenance: Literal["recomputed"] = "recomputed"
+    row_lineage_provenance: Literal["recomputed"] = "recomputed"
+    panel_transform_provenance: Literal["recomputed"] = "recomputed"
+    population_coverage_provenance: Literal["not_established"] = "not_established"
+    custody_provenance: Literal["not_established"] = "not_established"
+    currentness_provenance: Literal["not_established"] = "not_established"
+    representativeness_provenance: Literal["not_established"] = "not_established"
+    production_unit_provenance: Literal["not_established"] = "not_established"
+    production_time_provenance: Literal["not_established"] = "not_established"
+    unresolved_assumptions: list[str] = Field(
+        default_factory=lambda: [
+            "population_coverage",
+            "custody",
+            "currentness",
+            "representativeness",
+            "production_unit",
+            "production_time",
+        ]
+    )
 
 
 class SkippedSourceManifest(BaseModel):
@@ -157,9 +264,24 @@ class RuntimeBundleManifest(BaseModel):
     artifact_name: str = "runtime_bundle_manifest.json"
     outputs: dict[str, ArtifactRecord] = Field(default_factory=dict)
     data_snapshot_artifact_id: str | None = None
+    data_snapshot_ref: DataSnapshotRef | None = None
     input_bindings_artifact_id: str | None = None
     validation: list[ValidationFinding] = Field(default_factory=list)
     metrics: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_data_snapshot_ref(self) -> RuntimeBundleManifest:
+        """Keep the typed selected view coherent with its legacy artifact ID."""
+        ref = self.data_snapshot_ref
+        if ref is None:
+            return self
+        if ref.kind != "fabric.data_snapshot" or ref.media_type != "application/json":
+            raise ValueError("runtime bundle DataSnapshot ref has the wrong artifact contract")
+        if self.data_snapshot_artifact_id is not None and (
+            self.data_snapshot_artifact_id != str(ref.artifact_id)
+        ):
+            raise ValueError("runtime bundle DataSnapshot ref differs from its artifact ID")
+        return self
 
 
 class CalibrationBundleManifest(BaseModel):

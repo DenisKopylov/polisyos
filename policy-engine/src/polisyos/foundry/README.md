@@ -98,6 +98,33 @@ The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
 deep-importing ad hoc internals.
 
+## Candidate-only welfare execution-source identity (B161)
+
+A caller that needs a source-bound welfare observation opts into exact manifest
+profile returns on the selected compile, binding, and execute calls. The Foundry
+executor persists `FoundryExecutionInputBasis` from the actual request, resolved
+`ExecPlan`/`ProgramGraph`/Trinity and candidate source, selected `DataSnapshot`,
+input bindings, registry bundle members, parameter overrides, and recomputed
+effective execution posture. The basis is an identity record: it does not certify
+a risk quantity, unit, valid time, refinement law, or authority.
+
+The basis ref and selected result/metrics/state-delta profiles cross the welfare
+producer into its method config, Monte Carlo sample bundle, propagation report,
+and welfare bundle. A fresh search consumer resolves the selected manifests by
+profile, verifies their contents and parent edges, and recomputes the execution
+source relation before it emits a `SourceBoundRiskObservation` audit ref. The
+relation distinguishes the same selected DataSnapshot, the same artifact bytes
+under a different selected profile, and a different artifact ID. Those labels
+measure source identity only.
+
+`SimulationResult` schema 1.4 records `single_step_basis` only for a captured
+single-step call. Feedback execution is marked `feedback_uncomposed` and carries
+no single-step basis; the B161 observation consumer withholds it. Calls that do
+not request selected profiles retain their existing profileless output behavior.
+Even a recomputed source relation remains candidate-only: search-risk meaning,
+unit, validity/currentness, same-scope refinement, and permission to lower or
+supersede a historical maximum remain `not_established`.
+
 ## Internal Layout
 
 ### Source-bound causal computation

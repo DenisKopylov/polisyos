@@ -1,0 +1,31 @@
+id = "2026-10-13-e02-b161-s1-r14-owned-schema-source-basis"
+title = "Require owner-declared schemas for selected B161 source views"
+type = "changed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "B161 candidate source reads now require the exact artifact schema declared by each typed source owner, and ordinary Ukraine CAN intake persists and validates the selected DataSnapshot schema before carrying its ref into Foundry."
+evidence = [
+  "src/polisyos/core/contracts/fabric.py",
+  "src/polisyos/core/contracts/foundry.py",
+  "src/polisyos/ir/trinity/__init__.py",
+  "src/polisyos/foundry/compile/trinity_compiler.py",
+  "src/polisyos/foundry/execute/api.py",
+  "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+  "src/polisyos/foundry/data_plane/bindings.py",
+  "src/polisyos/data_forge/domains/ukraine/builders/io.py",
+  "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+  "src/polisyos/scientist/policy_design/schema.py",
+  "src/polisyos/scientist/methods/search/uncertainty.py",
+  "tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+  "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+]
+compatibility = "New CAN DataSnapshot writes carry the existing owner schema 0.2.0. Selected source refs with missing or mismatched schemas are withheld; old ID-only refs remain profileless and no profile or schema is inferred from an artifact ID. Existing schema-less unselected inputs remain on the compatibility path. No generated request/result DTO or audit_refs shape changes."
+change_class = "persisted-artifact-format"
+surface_classification = "The existing candidate-only observation continues through FunnelOutcome.audit_refs; no authority, routing, promotion, or public schema surface is added."
+migration = "No CAS history is rewritten or backfilled. Existing selected profiles are accepted only when their exact manifest schema matches the current model owner; unsupported or schema-less historical sources remain unqualified."
+api = "Each typed Core JSON source owner exposes its existing writer schema name/version to both producer and source reader. The consumer resolves the exact selected manifest, verifies its bytes, compares the manifest artifact_schema to the owner descriptor, and then validates the Core JSON model. CAN DataSnapshot producer opt-in passes the exact owner descriptor through the existing CAS helper, stores the returned typed ref in the runtime bundle, and intake re-resolves and verifies selected profiles before preserving the ref through receipt and bindings."
+limitations = "Artifact schema identity proves serialization contract only. Search-risk interpretation, same-subject refinement, unit, valid time/currentness, issuer authority, causal admissibility, and historical-maximum supersession remain not_established. No normalization, lowering, routing, promotion, or current_uncertainty update is introduced. Same-byte false-schema aliases are covered in the candidate test design, but tests, Ruff, runtime import, and the root composed native consumer wave are UNRUN under the active hold."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/contracts/README.md", "src/polisyos/scientist/methods/search/README.md", "docs/reference/foundry/compile-execute.md"]
+runbook_docs = ["docs/reference/foundry/compile-execute.md"]

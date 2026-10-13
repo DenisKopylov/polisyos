@@ -376,8 +376,41 @@ class BacktestPlanBundle(KernelModel):
     contract_target: ContractCompatibilityTarget
     required_fields: list[str] = Field(..., min_length=1)
     holdout_windows: list[str] = Field(default_factory=list)
+    selected_training_role: str | None = Field(default=None, min_length=1)
+    selected_validation_role: str | None = Field(default=None, min_length=1)
+    selected_holdout_role: str | None = Field(default=None, min_length=1)
+    gap_reason: str | None = None
     plans: list[dict[str, Any]] = Field(default_factory=list)
     historical_payloads: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_selected_role_request(self) -> BacktestPlanBundle:
+        if (self.selected_training_role is None) != (self.selected_holdout_role is None):
+            raise ValueError("selected training and holdout roles must be supplied together")
+        if self.selected_validation_role is not None and (
+            self.selected_training_role is None or self.selected_holdout_role is None
+        ):
+            raise ValueError("validation role requires the complete three-role request")
+        requested = {
+            "selected_training_role": self.selected_training_role,
+            "selected_validation_role": self.selected_validation_role,
+            "selected_holdout_role": self.selected_holdout_role,
+        }
+        present = [value for value in requested.values() if value is not None]
+        if len(set(present)) != len(present):
+            raise ValueError("selected split roles must be distinct")
+        for plan in self.plans:
+            metadata = plan.get("metadata", {})
+            metadata = metadata if isinstance(metadata, dict) else {}
+            for key, expected in requested.items():
+                typed = plan.get(key)
+                described = metadata.get(key)
+                if typed is not None and described is not None and typed != described:
+                    raise ValueError(f"{key} plan metadata does not match its typed role")
+                for actual in (typed, described):
+                    if expected is not None and actual is not None and actual != expected:
+                        raise ValueError(f"{key} does not match selected role request")
+        return self
 
 
 class ObservationToContractManifest(KernelModel):

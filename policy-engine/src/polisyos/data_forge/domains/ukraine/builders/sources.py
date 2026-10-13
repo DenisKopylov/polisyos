@@ -12,8 +12,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     CalibrationBundleManifest,
@@ -684,7 +685,12 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         validation_agents, validation_cells, validation_cell_state
     )
     store = FileSystemCAS(build_root.resolved_cas_root)
-    payload_ref = _cas_put_json(store, payload, kind="fabric.synthetic_multiscale_payload")
+    payload_ref = _cas_put_json(
+        store,
+        payload,
+        kind="fabric.synthetic_multiscale_payload",
+        return_selected_profile=True,
+    )
     data_snapshot_ref = _cas_put_json(
         store,
         DataSnapshot(
@@ -700,11 +706,24 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
                 "validation_payload_downsampled_from_full_runtime",
             ],
         ),
-        kind="fabric.data_snapshot",
+        kind=DataSnapshot.ARTIFACT_KIND,
+        media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+        return_selected_profile=True,
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
+        inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
+    )
+    if data_snapshot_ref.manifest_profile_sha256 is None:
+        raise ValueError("Ukraine runtime DataSnapshot producer returned no selected profile")
+    typed_data_snapshot_ref = DataSnapshotRef.model_validate(
+        data_snapshot_ref.model_dump(mode="python")
     )
     runtime_bundle = RuntimeBundleManifest(
         outputs=outputs,
-        data_snapshot_artifact_id=str(data_snapshot_ref.artifact_id),
+        data_snapshot_artifact_id=str(typed_data_snapshot_ref.artifact_id),
+        data_snapshot_ref=typed_data_snapshot_ref,
         input_bindings_artifact_id=None,
         validation=[],
         metrics={

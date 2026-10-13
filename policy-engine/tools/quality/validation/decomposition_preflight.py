@@ -5527,31 +5527,210 @@ def validate_pickle_fixtures() -> list[Finding]:
 
 
 def validate_dynamic_imports() -> list[Finding]:
+    try:
+        registry_text = DYNAMIC_IMPORTS_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry is missing",
+                _rel(DYNAMIC_IMPORTS_PATH),
+            )
+        ]
+    except (OSError, UnicodeError) as error:
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry cannot be read",
+                f"{_rel(DYNAMIC_IMPORTS_PATH)}: {type(error).__name__}: {error}",
+            )
+        ]
+    try:
+        data = tomllib.loads(registry_text)
+    except tomllib.TOMLDecodeError as error:
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry is malformed",
+                f"{_rel(DYNAMIC_IMPORTS_PATH)}: {error}",
+            )
+        ]
+
+    current = collect_dynamic_imports()
+    try:
+        canonical = tomllib.loads(render_dynamic_imports_toml(current))
+    except (KeyError, TypeError, ValueError) as error:
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "canonical dynamic import inventory cannot be rendered",
+                f"{type(error).__name__}: {error}",
+            )
+        ]
+
     findings: list[Finding] = []
-    data = tomllib.loads(DYNAMIC_IMPORTS_PATH.read_text(encoding="utf-8"))
-    registered = {
-        (
-            str(entry["source_file"]),
-            int(entry["line"]),
-            str(entry["call"]),
-            str(entry["pattern"]),
+    canonical_header = canonical.get("dynamic_imports")
+    header = data.get("dynamic_imports")
+    if not isinstance(canonical_header, dict):
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "canonical dynamic import header is malformed",
+                "renderer did not produce a dynamic_imports table",
+            )
+        ]
+    if not isinstance(header, dict):
+        findings.append(
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry header is missing or malformed",
+                "dynamic_imports",
+            )
         )
-        for entry in data.get("pattern", [])
-    }
-    current = {
-        (
-            str(entry["source_file"]),
-            int(entry["line"]),
-            str(entry["call"]),
-            str(entry["pattern"]),
+        header = {}
+
+    external_review_fields = {"review_owner", "reviewed_at", "review_expires"}
+    for field in sorted(set(canonical_header) - set(header)):
+        findings.append(
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry header field is missing",
+                f"dynamic_imports.{field}",
+            )
         )
-        for entry in collect_dynamic_imports()
-    }
-    for missing in sorted(current - registered):
+    for field in sorted(set(header) - set(canonical_header)):
+        findings.append(
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry header has an unexpected field",
+                f"dynamic_imports.{field}",
+            )
+        )
+    for field in sorted(set(canonical_header) & set(header)):
+        actual_value = header[field]
+        expected_value = canonical_header[field]
+        if field in external_review_fields:
+            if not isinstance(actual_value, str) or not actual_value.strip():
+                findings.append(
+                    Finding(
+                        "dynamic_imports_gate",
+                        "dynamic import review metadata is malformed",
+                        f"dynamic_imports.{field}",
+                    )
+                )
+            continue
+        if type(actual_value) is not type(expected_value) or actual_value != expected_value:
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "dynamic import registry header field differs from canonical contract",
+                    f"dynamic_imports.{field}",
+                )
+            )
+
+    for field in sorted(set(data) - {"dynamic_imports", "pattern"}):
+        findings.append(
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry has an unexpected top-level field",
+                field,
+            )
+        )
+
+    canonical_rows = canonical.get("pattern", [])
+    registered_rows = data.get("pattern", [])
+    if not isinstance(canonical_rows, list):
+        return findings + [
+            Finding(
+                "dynamic_imports_gate",
+                "canonical dynamic import rows are malformed",
+                "renderer did not produce an array of pattern tables",
+            )
+        ]
+    if not isinstance(registered_rows, list):
+        findings.append(
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import registry pattern table is malformed",
+                "pattern must be an array of tables",
+            )
+        )
+        registered_rows = []
+
+    def signature(entry: Mapping[str, Any]) -> tuple[str, int, str, str] | None:
+        source_file = entry.get("source_file")
+        line = entry.get("line")
+        call = entry.get("call")
+        pattern = entry.get("pattern")
+        if (
+            not isinstance(source_file, str)
+            or not source_file
+            or type(line) is not int
+            or not isinstance(call, str)
+            or not call
+            or not isinstance(pattern, str)
+            or not pattern
+        ):
+            return None
+        return source_file, line, call, pattern
+
+    canonical_by_signature: dict[
+        tuple[str, int, str, str], list[Mapping[str, Any]]
+    ] = {}
+    for index, entry in enumerate(canonical_rows):
+        if not isinstance(entry, dict):
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "canonical dynamic import row is malformed",
+                    f"pattern[{index}] must be a table",
+                )
+            )
+            continue
+        entry_signature = signature(entry)
+        if entry_signature is None:
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "canonical dynamic import row is malformed",
+                    f"pattern[{index}] has invalid source_file, line, call, or pattern",
+                )
+            )
+            continue
+        canonical_by_signature.setdefault(entry_signature, []).append(entry)
+
+    registered_by_signature: dict[
+        tuple[str, int, str, str], list[Mapping[str, Any]]
+    ] = {}
+    for index, entry in enumerate(registered_rows):
+        if not isinstance(entry, dict):
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "dynamic import registry row is malformed",
+                    f"pattern[{index}] must be a table",
+                )
+            )
+            continue
+        entry_signature = signature(entry)
+        if entry_signature is None:
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "dynamic import registry row is malformed",
+                    f"pattern[{index}] has invalid source_file, line, call, or pattern",
+                )
+            )
+            continue
+        registered_by_signature.setdefault(entry_signature, []).append(entry)
+
+    canonical_signatures = set(canonical_by_signature)
+    registered_signatures = set(registered_by_signature)
+    for missing in sorted(canonical_signatures - registered_signatures):
         findings.append(
             Finding("dynamic_imports_gate", "dynamic import call is not registered", repr(missing))
         )
-    for stale in sorted(registered - current):
+    for stale in sorted(registered_signatures - canonical_signatures):
         findings.append(
             Finding(
                 "dynamic_imports_gate",
@@ -5559,9 +5738,50 @@ def validate_dynamic_imports() -> list[Finding]:
                 repr(stale),
             )
         )
-    for entry in data.get("pattern", []):
-        for target in entry.get("allowed_targets", []):
-            module = str(target).split(":", 1)[0]
+
+    for entry_signature in sorted(canonical_signatures & registered_signatures):
+        expected_entries = canonical_by_signature[entry_signature]
+        observed_entries = registered_by_signature[entry_signature]
+        if len(expected_entries) != len(observed_entries):
+            findings.append(
+                Finding(
+                    "dynamic_imports_gate",
+                    "registered dynamic import row count differs from canonical collector",
+                    f"{entry_signature!r}: expected {len(expected_entries)}, "
+                    f"got {len(observed_entries)}",
+                )
+            )
+        expected_entry = expected_entries[0]
+        for observed_entry in observed_entries:
+            expected_fields = set(expected_entry)
+            observed_fields = set(observed_entry)
+            differing_fields = sorted(
+                field
+                for field in expected_fields | observed_fields
+                if field not in expected_fields
+                or field not in observed_fields
+                or type(expected_entry.get(field)) is not type(observed_entry.get(field))
+                or expected_entry.get(field) != observed_entry.get(field)
+            )
+            if differing_fields:
+                findings.append(
+                    Finding(
+                        "dynamic_imports_gate",
+                        "registered dynamic import row differs from canonical collector",
+                        f"{entry_signature!r}: fields={differing_fields!r}",
+                    )
+                )
+
+    for entry in registered_rows:
+        if not isinstance(entry, dict):
+            continue
+        allowed_targets = entry.get("allowed_targets")
+        if not isinstance(allowed_targets, list) or any(
+            not isinstance(target, str) for target in allowed_targets
+        ):
+            continue
+        for target in allowed_targets:
+            module = target.split(":", 1)[0]
             try:
                 found = importlib.util.find_spec(module)
             except (ImportError, ModuleNotFoundError, ValueError):

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -160,6 +160,11 @@ class FabricResult(BaseModel):
 
 class DataSnapshot(BaseModel):
     """Snapshot of retrieved data plus the artifact references needed to audit its quality."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.DataSnapshot"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
+    ARTIFACT_KIND: ClassVar[Literal["fabric.data_snapshot"]] = "fabric.data_snapshot"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 

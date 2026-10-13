@@ -153,6 +153,7 @@ def apply_state_delta_and_snapshot(
     merge_registry: MergeRuleRegistry,
     step: int | None = None,
     base_ref: ArtifactRef | None = None,
+    return_selected_profile: bool = False,
 ) -> tuple[Any, ApplyArtifacts]:
     """Apply a StateDelta and persist the resulting state snapshot artifact."""
     state = apply_state_delta(
@@ -174,6 +175,7 @@ def apply_state_delta_and_snapshot(
             if base_ref is not None
             else []
         ),
+        return_selected_profile=return_selected_profile,
     )
     return state, ApplyArtifacts(state_snapshot_ref=snapshot_ref)
 

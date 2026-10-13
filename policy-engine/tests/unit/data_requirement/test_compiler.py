@@ -981,6 +981,99 @@ def test_legacy_scenario_fallback_preserves_scope_profile_declaration(
     assert report.specs[0].metadata["scope_profile"] == profile
 
 
+def test_legacy_scope_profile_carries_only_explicit_time_role_and_granularity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def compile_without_facets(
+        _self: object,
+        *,
+        intent: PolicyGrammarIntent,
+        authority_profile: UniversalAuthorityProfile,
+        concept_spine_refs: PolicyGrammarConceptSpineRefs,
+    ) -> SimpleNamespace:
+        del intent, authority_profile, concept_spine_refs
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", compile_without_facets)
+    profile = {
+        "profile_id": "future:ua:2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "time_role": "valid_time",
+        "granularity": "annual",
+    }
+
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "explicit_temporal_scope",
+            "text": "A neutral policy statement.",
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["health_panel"],
+            },
+            "scenario_profile": profile,
+        }
+    )
+
+    assert len(report.specs) == 1
+    assert report.specs[0].scope.time_role == "valid_time"
+    assert report.specs[0].metadata["scope_profile"] == {
+        **profile,
+        "required_constructs": [],
+        "candidate_construct_proposals": [],
+    }
+
+
+@pytest.mark.parametrize(
+    ("scenario", "expected_state"),
+    [
+        ({"scenario_id": "missing_frontier", "text": "No required family."}, "not_supplied"),
+        (
+            {
+                "scenario_id": "empty_frontier",
+                "text": "No required family.",
+                "expected_evidence_contract": {
+                    "admissible_data_source_families": [],
+                },
+            },
+            "explicit_empty",
+        ),
+    ],
+)
+def test_legacy_family_frontier_missing_and_empty_never_invent_production_data(
+    monkeypatch: pytest.MonkeyPatch,
+    scenario: dict[str, object],
+    expected_state: str,
+) -> None:
+    def compile_without_facets(
+        _self: object,
+        *,
+        intent: PolicyGrammarIntent,
+        authority_profile: UniversalAuthorityProfile,
+        concept_spine_refs: PolicyGrammarConceptSpineRefs,
+    ) -> SimpleNamespace:
+        del intent, authority_profile, concept_spine_refs
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", compile_without_facets)
+    report = DataRequirementCompiler().compile_for_scenario(scenario)
+
+    assert report.specs == ()
+    assert report.legacy_admissible_data_source_families == ()
+    assert report.metadata["family_declaration"] == expected_state
+    assert "production_data" not in report.metadata.values()
+
+
+def test_legacy_family_frontier_rejects_malformed_entries() -> None:
+    with pytest.raises(compiler_module.ScenarioFamilyDeclarationInputError):
+        compiler_module._legacy_scenario_family_declaration(
+            {
+                "expected_evidence_contract": {
+                    "admissible_data_source_families": ["health_panel", None],
+                },
+            }
+        )
+
+
 def test_profile_only_required_resolution_reaches_n7_gap_and_planner_record() -> None:
     from polisyos.runtime.quality.acquisition_planner import (
         AcquisitionWorldSnapshot,

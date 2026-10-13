@@ -13,7 +13,7 @@ import json
 import math
 from collections.abc import Sequence
 from decimal import Decimal
-from enum import Enum
+from enum import Enum, StrEnum
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Literal
@@ -24,20 +24,31 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.data_forge.domains.ukraine.manifests import (
+    ArtifactRecord,
+    D5ReleaseHandoffRequest,
+    HouseholdDiagnosticPanelBasis,
+    NormalizedArtifactManifest,
+    SourceSnapshotManifest,
+    directory_tree_entries,
+)
 from polisyos.data_forge.read_api.ukraine import (
     REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
     ReleaseManifest,
+    UkraineJSONSnapshotRefusalError,
+    UkraineJSONSnapshotStatus,
     UkraineStageArtifactVerificationError,
     VerifiedUkraineReleaseArtifact,
     VerifiedUkraineReleaseArtifacts,
     VerifiedUkraineStageArtifacts,
-    UkraineJSONSnapshotStatus,
     load_verified_release_artifact_bytes,
     load_verified_release_artifacts,
     load_verified_release_json_artifact,
@@ -264,7 +275,9 @@ class _D4ReleasePredicateContext(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     stage_receipt: VerifiedUkraineStageArtifacts | None = Field(default=None, exclude=True)
-    json_snapshot_profile_statuses: dict[str, UkraineJSONSnapshotStatus] = Field(default_factory=dict)
+    json_snapshot_profile_statuses: dict[str, UkraineJSONSnapshotStatus] = Field(
+        default_factory=dict
+    )
 
 
 class _ScientistReleasePredicateReceipt(BaseModel):
@@ -292,7 +305,9 @@ class _ScientistReleasePredicateReceipt(BaseModel):
         "legal_authority",
     )
     status: Literal["admissible", "blocked"]
-    json_snapshot_profile_conformance_provenance: Literal["independently_reconciled", "not_established"]
+    json_snapshot_profile_conformance_provenance: Literal[
+        "independently_reconciled", "not_established"
+    ]
     manifest_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
     compression_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
     handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
@@ -359,7 +374,10 @@ class _ScientistReleasePredicateReceipt(BaseModel):
             and self.compression_snapshot_profile_status == "declared_bytes_conformant"
             and self.handoff_snapshot_profile_status == "declared_bytes_conformant"
             and set(self.d4_source_json_snapshot_profile_statuses) == expected_d4_json_contracts
-            and all(status == "declared_bytes_conformant" for status in self.d4_source_json_snapshot_profile_statuses.values())
+            and all(
+                status == "declared_bytes_conformant"
+                for status in self.d4_source_json_snapshot_profile_statuses.values()
+            )
         )
         expected_profile_provenance = (
             "independently_reconciled" if profile_conformant else "not_established"
@@ -463,12 +481,17 @@ def _series_correlation(left: pd.Series, right: pd.Series) -> float:
     return value if np.isfinite(value) else 0.0
 
 
-class FamilyTier(str, Enum):
+class FamilyTier(StrEnum):
     """Eligibility tier used to decide whether a family may drive final scoring."""
 
     A = "A"
     B = "B"
     C = "C"
+
+    def __str__(self) -> str:
+        """Preserve the legacy enum display while retaining string-enum behavior."""
+
+        return Enum.__str__(self)
 
 
 class FamilyEligibilityEntry(BaseModel):
@@ -762,13 +785,21 @@ class CalibrationRunRunner:
         governance_penalty: float,
         interference_fit_score: float,
         required_families: Sequence[ObservationFamily] = REQUIRED_SIGNOFF_FAMILIES,
+        candidate_diagnostic: bool = False,
+        selected_training_role: str = "train_pre_2024",
+        selected_validation_role: str = "validation_2024",
+        selected_holdout_role: str = "test_2025",
     ) -> CalibrationRunManifest:
-        eligibility_registry.require_final_signoff_ready(required_families)
-
+        if not candidate_diagnostic:
+            eligibility_registry.require_final_signoff_ready(required_families)
         frame = observation_panel.copy()
         frame["period_start_dt"] = _ensure_datetime_series(frame, "period_start")
         frame = frame.loc[frame["period_start_dt"].notna()].copy()
-        eligible = set(item.value for item in eligibility_registry.eligible_families())
+        eligible = (
+            set(frame["family"].astype(str).unique())
+            if candidate_diagnostic
+            else set(item.value for item in eligibility_registry.eligible_families())
+        )
         excluded = sorted(set(frame["family"].astype(str)) - eligible)
         scoring_frame = frame.loc[frame["family"].astype(str).isin(eligible)].copy()
         if scoring_frame.empty:
@@ -785,15 +816,15 @@ class CalibrationRunRunner:
             SplitWindow(split_id=name, start=window["start"], end=window["end"])
             for name, window in splits.items()
         ]
-        train_start, train_end = split_windows.get(
-            "train_pre_2024", next(iter(split_windows.values()))
-        )
-        val_start, val_end = split_windows.get(
-            "validation_2024", next(iter(split_windows.values()))
-        )
-        holdout_start, holdout_end = split_windows.get(
-            "test_2025", next(iter(split_windows.values()))
-        )
+        selected_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+        if len(set(selected_roles)) != len(selected_roles):
+            raise ValueError("selected training, validation and holdout roles must be distinct")
+        missing_roles = [role for role in selected_roles if role not in split_windows]
+        if missing_roles:
+            raise ValueError(f"required_named_split_roles_missing:{','.join(missing_roles)}")
+        train_start, train_end = split_windows[selected_training_role]
+        val_start, val_end = split_windows[selected_validation_role]
+        holdout_start, holdout_end = split_windows[selected_holdout_role]
 
         candidates: list[CalibrationCandidateScore] = []
         grouped = scoring_frame.groupby(scoring_frame["family"].astype(str), sort=False)
@@ -961,6 +992,23 @@ class CalibrationRunRunner:
                 "holdout_scored_once": True,
                 "candidate_count": len(candidates),
                 "holdout_score": holdout_score,
+                "purpose": "candidate_diagnostic" if candidate_diagnostic else "promotion",
+                "selected_training_role": selected_training_role,
+                "selected_validation_role": selected_validation_role,
+                "selected_holdout_role": selected_holdout_role,
+                "unresolved_assumptions": (
+                    [
+                        "population_coverage",
+                        "custody",
+                        "currentness",
+                        "representativeness",
+                        "unit",
+                        "residual_independence",
+                        "multiplicity_policy",
+                    ]
+                    if candidate_diagnostic
+                    else []
+                ),
             },
         )
 
@@ -1278,38 +1326,96 @@ def build_required_backtest_bundles(
     *,
     stage_dir: Path,
     splits: dict[str, dict[str, str]],
+    selected_training_role: str = "train_pre_2024",
+    selected_validation_role: str = "validation_2024",
+    selected_holdout_role: str = "test_2025",
 ) -> dict[BacktestKind, BacktestPlanBundle]:
-    """Create the 5 required backtest bundles from processed D2 observations."""
-
+    """Create required bundles from explicitly selected named split roles."""
+    selected_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+    if len(set(selected_roles)) != len(selected_roles):
+        raise ValueError("selected training, validation and holdout roles must be distinct")
+    missing_roles = [role for role in selected_roles if role not in splits]
+    if missing_roles:
+        raise ValueError(f"required_named_split_roles_missing:{','.join(missing_roles)}")
     ensure_dir = stage_dir / "backtest_inputs"
     ensure_dir.mkdir(parents=True, exist_ok=True)
     frame = observation_panel.copy()
     frame["period_start_dt"] = _ensure_datetime_series(frame, "period_start")
-    holdout_window = next(iter(splits.values()))
+    training_window = splits[selected_training_role]
+    holdout_window = splits[selected_holdout_role]
     bundles: dict[BacktestKind, BacktestPlanBundle] = {}
     for kind, families in _BACKTEST_FAMILY_MAP.items():
         kind_frame = frame.loc[
             frame["family"].astype(str).isin([family.value for family in families])
         ].copy()
         if kind_frame.empty:
+            bundles[kind] = BacktestPlanBundle(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=f"{kind.value}_bundle",
+                    contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+                ),
+                required_fields=["observed_value"],
+                selected_training_role=selected_training_role,
+                selected_validation_role=selected_validation_role,
+                selected_holdout_role=selected_holdout_role,
+                gap_reason=f"no_source_rows:{kind.value}",
+            )
             continue
         aggregated = (
             kind_frame.groupby("period_start_dt", as_index=False)
             .agg(
                 observed_value=("observed_value", "mean"),
-                trust_weight=("trust_weight", "mean"),
+                **(
+                    {"trust_weight": ("trust_weight", "mean")}
+                    if "trust_weight" in kind_frame.columns
+                    else {}
+                ),
             )
             .sort_values("period_start_dt")
         )
         if len(aggregated) < 3:
+            bundles[kind] = BacktestPlanBundle(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=f"{kind.value}_bundle",
+                    contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+                ),
+                required_fields=["observed_value"],
+                selected_training_role=selected_training_role,
+                selected_validation_role=selected_validation_role,
+                selected_holdout_role=selected_holdout_role,
+                gap_reason=f"insufficient_history:{kind.value}",
+            )
             continue
-        split_date = pd.Timestamp(holdout_window["start"])
-        holdout = aggregated.loc[aggregated["period_start_dt"] >= split_date].copy()
-        train = aggregated.loc[aggregated["period_start_dt"] < split_date].copy()
-        if holdout.empty:
-            holdout = aggregated.tail(max(1, min(2, len(aggregated))))
-            train = aggregated.iloc[: max(1, len(aggregated) - len(holdout))]
-        if train.empty:
+        train_start = pd.Timestamp(training_window["start"])
+        train_end = pd.Timestamp(training_window["end"])
+        holdout_start = pd.Timestamp(holdout_window["start"])
+        holdout_end = pd.Timestamp(holdout_window["end"])
+        train = aggregated.loc[
+            (aggregated["period_start_dt"] >= train_start)
+            & (aggregated["period_start_dt"] <= train_end)
+        ].copy()
+        holdout = aggregated.loc[
+            (aggregated["period_start_dt"] >= holdout_start)
+            & (aggregated["period_start_dt"] <= holdout_end)
+        ].copy()
+        if train.empty or holdout.empty:
+            reason = (
+                f"empty_named_holdout:{selected_holdout_role}"
+                if holdout.empty
+                else f"empty_named_training:{selected_training_role}"
+            )
+            bundles[kind] = BacktestPlanBundle(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=f"{kind.value}_bundle",
+                    contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+                ),
+                required_fields=["observed_value"],
+                holdout_windows=[f"{holdout_window['start']}::{holdout_window['end']}"],
+                selected_training_role=selected_training_role,
+                selected_validation_role=selected_validation_role,
+                selected_holdout_role=selected_holdout_role,
+                gap_reason=reason,
+            )
             continue
         baseline = float(train["observed_value"].mean())
         predicted = [baseline] * len(holdout)
@@ -1332,6 +1438,9 @@ def build_required_backtest_bundles(
             ),
             required_fields=["observed_value"],
             holdout_windows=[f"{holdout_window['start']}::{holdout_window['end']}"],
+            selected_training_role=selected_training_role,
+            selected_validation_role=selected_validation_role,
+            selected_holdout_role=selected_holdout_role,
             plans=[
                 {
                     "plan_id": f"{kind.value}_real_history",
@@ -1345,6 +1454,13 @@ def build_required_backtest_bundles(
                     "target_metrics": ["observed_value"],
                     "prediction_source": PredictionSource.PROVIDED.value,
                     "predicted_outcomes": {"observed_value": predicted},
+                    "selected_training_role": selected_training_role,
+                    "selected_validation_role": selected_validation_role,
+                    "selected_holdout_role": selected_holdout_role,
+                    "metadata": {
+                        "selected_training_role": selected_training_role,
+                        "selected_holdout_role": selected_holdout_role,
+                    },
                 }
             ],
             historical_payloads={
@@ -1447,11 +1563,17 @@ def _persist_verified_stage_receipt(
     )
 
 
-def _load_d4_governance_request(payload: bytes | _UkraineD4GovernanceRequest) -> _UkraineD4GovernanceRequest:
+def _load_d4_governance_request(
+    payload: bytes | _UkraineD4GovernanceRequest,
+) -> _UkraineD4GovernanceRequest:
     """Load the producer request without treating it as a governance verdict."""
 
     try:
-        request = payload if isinstance(payload, _UkraineD4GovernanceRequest) else _UkraineD4GovernanceRequest.model_validate_json(payload)
+        request = (
+            payload
+            if isinstance(payload, _UkraineD4GovernanceRequest)
+            else _UkraineD4GovernanceRequest.model_validate_json(payload)
+        )
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
             f"invalid D4 governance request: {exc}"
@@ -1492,7 +1614,11 @@ def _recompute_identity_resolution_coverage(
     """Recompute D0 cohort coverage against independently admitted registry bytes."""
 
     try:
-        cohort = cohort_payload if isinstance(cohort_payload, _IdentityResolutionCohort) else _IdentityResolutionCohort.model_validate_json(cohort_payload)
+        cohort = (
+            cohort_payload
+            if isinstance(cohort_payload, _IdentityResolutionCohort)
+            else _IdentityResolutionCohort.model_validate_json(cohort_payload)
+        )
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
             f"invalid identity resolution cohort: {exc}"
@@ -1873,6 +1999,289 @@ def run_verified_ukraine_d4_governance(
     )
 
 
+def run_verified_ukraine_d4_candidate_diagnostic(
+    *,
+    build_root: Path,
+    d2_manifest_path: Path,
+    d3_manifest_path: Path,
+    cas_root: Path,
+    test_owned_unit_label: str,
+    selected_training_role: str = "train_pre_2024",
+    selected_validation_role: str = "validation_2024",
+    selected_holdout_role: str = "test_2025",
+) -> CalibrationValidationRunnerResult:
+    """Run source-recomputed candidate diagnostics without signoff authority."""
+    root = build_root.resolve()
+    store = FileSystemCAS(cas_root)
+    d2_receipt = load_verified_stage_artifacts(
+        d2_manifest_path,
+        store=store,
+        allowed_root=root,
+        expected_stage="d2",
+        required_outputs=("calibration_splits.json",),
+    )
+    d3_receipt = load_verified_stage_artifacts(
+        d3_manifest_path,
+        store=store,
+        allowed_root=root,
+        expected_stage="d3",
+        required_outputs=("household_candidate_panel.parquet", "household_candidate_basis.json"),
+    )
+    panel_output = d3_receipt.outputs["household_candidate_panel.parquet"]
+    basis_output = d3_receipt.outputs["household_candidate_basis.json"]
+    panel_bytes = load_verified_stage_output_bytes(
+        store, d3_receipt, "household_candidate_panel.parquet"
+    )
+    basis_read = load_verified_stage_json_output(
+        store,
+        d3_receipt,
+        "household_candidate_basis.json",
+        model_type=HouseholdDiagnosticPanelBasis,
+        consumer_contract="scientist.d3.household_candidate_basis",
+    )
+    basis = basis_read.value_for_candidate()
+    if basis.status != "complete":
+        raise UkraineStageArtifactVerificationError(
+            "household candidate source basis is incomplete"
+        )
+
+    def resolve_input(path_text: str | None, label: str) -> Path:
+        if not path_text:
+            raise UkraineStageArtifactVerificationError(f"{label} path is absent")
+        candidate = Path(path_text)
+        if candidate.is_symlink():
+            raise UkraineStageArtifactVerificationError(f"{label} path is a symlink")
+        try:
+            resolved = candidate.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise UkraineStageArtifactVerificationError(f"{label} path cannot be resolved") from exc
+        if not resolved.is_relative_to(root):
+            raise UkraineStageArtifactVerificationError(f"{label} path escapes build_root")
+        return resolved
+
+    if basis.raw_directory is None:
+        raise UkraineStageArtifactVerificationError("raw directory record is absent")
+    raw_path = resolve_input(basis.raw_directory.path, "raw source")
+    if not raw_path.is_dir():
+        raise UkraineStageArtifactVerificationError("raw source directory is absent")
+    try:
+        raw_record = ArtifactRecord.from_path(raw_path)
+        current_tree = directory_tree_entries(raw_path)
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise UkraineStageArtifactVerificationError(
+            "raw directory cannot be verified against its source basis"
+        ) from exc
+    if raw_record.sha256 != basis.raw_directory.sha256:
+        raise UkraineStageArtifactVerificationError("raw directory tree content hash mismatch")
+    if current_tree != basis.raw_tree_entries:
+        raise UkraineStageArtifactVerificationError(
+            "raw directory file set or member hash mismatch"
+        )
+
+    snapshot_path = resolve_input(basis.source_snapshot_manifest_path, "source snapshot manifest")
+    snapshot_bytes = snapshot_path.read_bytes()
+    if hashlib.sha256(snapshot_bytes).hexdigest() != basis.source_snapshot_manifest_sha256:
+        raise UkraineStageArtifactVerificationError(
+            "source snapshot manifest content hash mismatch"
+        )
+    snapshot = SourceSnapshotManifest.model_validate(json.loads(snapshot_bytes))
+    if (
+        not snapshot.raw_artifacts
+        or snapshot.raw_artifacts[0].sha256 != raw_record.sha256
+        or snapshot.raw_tree_entries != current_tree
+    ):
+        raise UkraineStageArtifactVerificationError(
+            "source snapshot does not bind current raw tree"
+        )
+
+    normalized_manifest_path = resolve_input(basis.normalized_manifest_path, "normalized manifest")
+    normalized_manifest_bytes = normalized_manifest_path.read_bytes()
+    if hashlib.sha256(normalized_manifest_bytes).hexdigest() != basis.normalized_manifest_sha256:
+        raise UkraineStageArtifactVerificationError("normalized manifest content hash mismatch")
+    normalized_manifest = NormalizedArtifactManifest.model_validate(
+        json.loads(normalized_manifest_bytes)
+    )
+    if basis.normalized_artifact is None:
+        raise UkraineStageArtifactVerificationError("normalized artifact record is absent")
+    normalized_path = resolve_input(
+        normalized_manifest.normalized_artifact.path, "normalized artifact"
+    )
+    normalized_frame = pd.read_parquet(normalized_path)
+    normalized_record = ArtifactRecord.from_path(normalized_path, row_count=len(normalized_frame))
+    if (
+        normalized_record.sha256 != normalized_manifest.normalized_artifact.sha256
+        or normalized_record.sha256 != basis.normalized_artifact.sha256
+        or len(normalized_frame) != basis.source_row_count
+    ):
+        raise UkraineStageArtifactVerificationError(
+            "normalized artifact content or denominator mismatch"
+        )
+    if set(normalized_frame["source_snapshot_id"].astype(str)) != {raw_record.sha256}:
+        raise UkraineStageArtifactVerificationError("normalized rows do not bind the raw snapshot")
+    record_hashes = normalized_frame["record_hash"].astype(str).tolist()
+    recomputed_record_hashes = [
+        hashlib.sha256(
+            json.dumps(row, ensure_ascii=True, sort_keys=True, default=str).encode("utf-8")
+        ).hexdigest()
+        for row in normalized_frame.drop(columns=["record_hash"]).to_dict(orient="records")
+    ]
+    if (
+        record_hashes != recomputed_record_hashes
+        or sorted(record_hashes) != basis.source_record_hashes
+        or any(len(value) != 64 for value in record_hashes)
+    ):
+        raise UkraineStageArtifactVerificationError("normalized row lineage denominator mismatch")
+
+    from polisyos.data_forge.domains.ukraine.builders.demography import (
+        _build_household_diagnostic_panel,
+    )
+
+    expected_panel = _build_household_diagnostic_panel(normalized_frame)
+    admitted_panel = pd.read_parquet(BytesIO(panel_bytes))
+
+    def canonical_rows(frame: pd.DataFrame) -> object:
+        return json.loads(
+            frame.sort_values(["quarter_id", "region_code"]).to_json(
+                orient="records", date_format="iso"
+            )
+        )
+
+    if canonical_rows(expected_panel) != canonical_rows(admitted_panel):
+        raise UkraineStageArtifactVerificationError(
+            "D3 household panel does not recompute from source rows"
+        )
+    panel_path = resolve_input(basis.panel_artifact.path, "D3 household panel")
+    if (
+        panel_path != Path(panel_output.source_path).resolve(strict=True)
+        or hashlib.sha256(panel_bytes).hexdigest() != basis.panel_artifact.sha256
+        or basis.panel_artifact.size_bytes != len(panel_bytes)
+        or basis.panel_artifact.row_count != len(admitted_panel)
+        or hashlib.sha256(panel_bytes).hexdigest() != panel_output.sha256
+    ):
+        raise UkraineStageArtifactVerificationError(
+            "D3 household panel identity or denominator mismatch"
+        )
+
+    split_ref = d2_receipt.outputs["calibration_splits.json"].content_ref
+    splits_read = load_verified_stage_json_output(
+        store,
+        d2_receipt,
+        "calibration_splits.json",
+        model_type=dict[str, dict[str, str]],
+        consumer_contract="scientist.d4.calibration_splits",
+    )
+    splits = splits_read.value_for_candidate()
+    required_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+    if len(set(required_roles)) != len(required_roles):
+        raise UkraineStageArtifactVerificationError("selected split roles must be distinct")
+    missing_roles = [role for role in required_roles if role not in splits]
+    if missing_roles:
+        raise UkraineStageArtifactVerificationError(
+            f"required named split role is absent: {','.join(missing_roles)}"
+        )
+    panel = admitted_panel.copy()
+    # Equal weighting is a candidate-only calculation choice; it is not source trust.
+    panel["trust_weight"] = 1.0
+    calibration_run = CalibrationRunRunner().run(
+        panel,
+        eligibility_registry=FamilyEligibilityRegistry(),
+        splits=splits,
+        transportability_score=0.0,
+        strategic_plausibility=0.0,
+        governance_penalty=0.0,
+        interference_fit_score=0.0,
+        candidate_diagnostic=True,
+        selected_training_role=selected_training_role,
+        selected_validation_role=selected_validation_role,
+        selected_holdout_role=selected_holdout_role,
+    )
+    candidate_inputs = [
+        InputRef(
+            artifact_id=panel_output.content_ref.artifact_id,
+            role="household_candidate_panel",
+            manifest_profile_sha256=panel_output.content_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=basis_output.content_ref.artifact_id,
+            role="household_source_basis",
+            manifest_profile_sha256=basis_read.provenance.selected_manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=split_ref.artifact_id,
+            role="selected_split_manifest",
+            manifest_profile_sha256=splits_read.provenance.selected_manifest_profile_sha256,
+        ),
+    ]
+    candidate_ref = ArtifactRef.model_validate(
+        store.put_json(
+            calibration_run.model_dump(mode="json"),
+            PutOptions(
+                kind="scientist.calibration_candidate",
+                media_type="application/json",
+                inputs=candidate_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        ).model_dump(mode="python")
+    )
+    bundles = build_required_backtest_bundles(
+        panel,
+        stage_dir=cas_root / "ukraine_d4_backtest_inputs",
+        splits=splits,
+        selected_training_role=selected_training_role,
+        selected_validation_role=selected_validation_role,
+        selected_holdout_role=selected_holdout_role,
+    )
+    champion = next(
+        item
+        for item in calibration_run.candidates
+        if item.candidate_id == calibration_run.selected_candidate_id
+    )
+    return CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id=f"ukraine_d4_candidate_diagnostic::{d3_receipt.run_id}",
+            candidate_ref=candidate_ref,
+            governance_report=CalibrationGovernanceReport(
+                verdict="human_gate",
+                metadata={"purpose": "candidate_diagnostic", "governance_not_run": True},
+            ),
+            calibration_fit_score=champion.validation_composite_score,
+            backtest_plan_bundles=bundles,
+            purpose="candidate_diagnostic",
+            input_refs=candidate_inputs,
+            source_json_snapshot_reads={
+                basis_read.provenance.consumer_contract: basis_read.provenance,
+                splits_read.provenance.consumer_contract: splits_read.provenance,
+            },
+            selected_training_role=selected_training_role,
+            selected_validation_role=selected_validation_role,
+            selected_holdout_role=selected_holdout_role,
+            metadata={
+                "authority_purpose": "candidate_diagnostic",
+                "selected_training_role": selected_training_role,
+                "selected_validation_role": selected_validation_role,
+                "selected_holdout_role": selected_holdout_role,
+                "test_owned_unit_label": test_owned_unit_label,
+                "test_owned_unit_provenance": "test_owned",
+                "source_unit_provenance": "not_established",
+                "raw_tree_provenance": "recomputed",
+                "snapshot_binding_provenance": "recomputed",
+                "normalized_content_provenance": "recomputed",
+                "row_lineage_provenance": "recomputed",
+                "panel_transform_provenance": "recomputed",
+                "split_selection_provenance": "recomputed",
+                "population_coverage_provenance": "not_established",
+                "custody_provenance": "not_established",
+                "currentness_provenance": "not_established",
+                "representativeness_provenance": "not_established",
+                "residual_independence": "not_established",
+                "multiplicity_policy": "not_established",
+                "eligible_for_promotion": False,
+                "may_not_use_for": ["signoff", "promotion", "publication", "population_claim"],
+            },
+        )
+    )
+
+
 def _verify_release_receipt_cas(
     store: FileSystemCAS,
     receipt: VerifiedUkraineReleaseArtifacts,
@@ -2062,7 +2471,6 @@ def _run_d4_release_predicate(
     cas_root: Path,
 ) -> _D4ReleasePredicateContext:
     """Reload the real D4 result and its producer receipt from CAS."""
-    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     d4_manifest_path = build_root.resolve() / "manifests" / "build_run_d4.json"
     if not d4_manifest_path.is_file():
@@ -2139,9 +2547,8 @@ def _run_d4_release_predicate(
             "scientist.d4.identity_resolution_cohort",
             "scientist.d4.calibration_splits",
         }
-        if (
-            set(source_profile_statuses) != expected_profile_contracts
-            or any(status != "declared_bytes_conformant" for status in source_profile_statuses.values())
+        if set(source_profile_statuses) != expected_profile_contracts or any(
+            status != "declared_bytes_conformant" for status in source_profile_statuses.values()
         ):
             return _D4ReleasePredicateContext(
                 status="not_established",
@@ -2222,10 +2629,11 @@ def _evaluate_release_predicates(
     selected_snapshot_bytes: dict[str, bytes] | None = None,
 ) -> _ScientistReleasePredicateReceipt:
     """Evaluate manifest, compression, and D4 predicates from admitted CAS bytes."""
-    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     reasons: list[str] = []
-    manifest_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    manifest_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = (
+        "not_established"
+    )
     manifest_no_errors = False
     try:
         manifest_read = load_verified_release_manifest_json(
@@ -2257,9 +2665,7 @@ def _evaluate_release_predicates(
             admission.evidence["d4_governance_request"],
             model_type=_UkraineD4GovernanceRequest,
             consumer_contract="scientist.d5.d4_governance_request_evidence",
-            raw_payload_bytes=(selected_snapshot_bytes or {}).get(
-                "evidence:d4_governance_request"
-            ),
+            raw_payload_bytes=(selected_snapshot_bytes or {}).get("evidence:d4_governance_request"),
         )
         d4_evidence_status = d4_evidence_read.provenance.profile_status
         if d4_evidence_status != "declared_unknown_candidate":
@@ -2267,10 +2673,10 @@ def _evaluate_release_predicates(
     except Exception:
         reasons.append("d4_release_evidence_profile_or_payload_not_established")
     d4_snapshot_profile_statuses = dict(d4_context.json_snapshot_profile_statuses)
-    d4_snapshot_profile_statuses[
-        "scientist.d5.d4_governance_request_evidence"
-    ] = d4_evidence_status
-    handoff_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    d4_snapshot_profile_statuses["scientist.d5.d4_governance_request_evidence"] = d4_evidence_status
+    handoff_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = (
+        "not_established"
+    )
     try:
         handoff_read = load_verified_release_json_artifact(
             store,
@@ -2292,7 +2698,9 @@ def _evaluate_release_predicates(
     if handoff_profile_status != admission.handoff_snapshot_profile_status:
         reasons.append("d5_handoff_profile_status_witness_mismatch")
     compression_layer_count = 0
-    compression_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    compression_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = (
+        "not_established"
+    )
     reconciled_degree: float | None = None
     reconciled_weight_error: float | None = None
     reconciled_overlap: float | None = None
@@ -2380,13 +2788,17 @@ def _evaluate_release_predicates(
         and manifest_profile_status == "declared_bytes_conformant"
         and compression_profile_status == "declared_bytes_conformant"
         and handoff_profile_status == "declared_bytes_conformant"
-        and set(d4_snapshot_profile_statuses) == {
+        and set(d4_snapshot_profile_statuses)
+        == {
             "scientist.d4.governance_request",
             "scientist.d4.identity_resolution_cohort",
             "scientist.d4.calibration_splits",
             "scientist.d5.d4_governance_request_evidence",
         }
-        and all(status == "declared_bytes_conformant" for status in d4_snapshot_profile_statuses.values())
+        and all(
+            status == "declared_bytes_conformant"
+            for status in d4_snapshot_profile_statuses.values()
+        )
         and compression_status == "admissible"
         and d4_context.status == "admissible"
     )
@@ -2400,13 +2812,17 @@ def _evaluate_release_predicates(
             if manifest_profile_status == "declared_bytes_conformant"
             and compression_profile_status == "declared_bytes_conformant"
             and handoff_profile_status == "declared_bytes_conformant"
-            and set(d4_snapshot_profile_statuses) == {
+            and set(d4_snapshot_profile_statuses)
+            == {
                 "scientist.d4.governance_request",
                 "scientist.d4.identity_resolution_cohort",
                 "scientist.d4.calibration_splits",
                 "scientist.d5.d4_governance_request_evidence",
             }
-            and all(status == "declared_bytes_conformant" for status in d4_snapshot_profile_statuses.values())
+            and all(
+                status == "declared_bytes_conformant"
+                for status in d4_snapshot_profile_statuses.values()
+            )
             else "not_established"
         ),
         manifest_snapshot_profile_status=manifest_profile_status,
@@ -2442,7 +2858,6 @@ def run_verified_ukraine_d5_release(
     admitted CAS object, invokes Foundry only with CAS references, runs its own
     postflight, and persists both positive and blocked outcomes.
     """
-    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     store = FileSystemCAS(cas_root)
     d4_context = _run_d4_release_predicate(
@@ -2521,9 +2936,12 @@ def run_verified_ukraine_d5_release(
     trinity_ref = store.put_json(
         trinity,
         PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity.schema_version),
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
     )
     foundry_receipt: FoundryReleaseAcceptanceReceipt = ReleaseAcceptanceRunner(store).run(
@@ -2550,7 +2968,9 @@ def run_verified_ukraine_d5_release(
     effective_trinity_ref = foundry_receipt.execution_artifacts.get("compiled_trinity_bundle_ref")
     registry_bundle_ref = foundry_receipt.execution_artifacts.get("registry_bundle_ref")
     if foundry_receipt.technical_passed and effective_trinity_ref and registry_bundle_ref:
-        effective_trinity = validate_core_model_json_artifact(TrinityBundle, store, effective_trinity_ref)
+        effective_trinity = validate_core_model_json_artifact(
+            TrinityBundle, store, effective_trinity_ref
+        )
         postflight_input = {
             "run_id": "R_release_acceptance",
             "ir": effective_trinity.model_dump(mode="json"),

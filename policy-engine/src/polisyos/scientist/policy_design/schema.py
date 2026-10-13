@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
+from typing import Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame
@@ -120,6 +121,13 @@ class FallbackVariant(KernelModel):
 
 class PolicyCandidateSchema(KernelModel):
     """Rich Layer-B policy candidate wrapped around TrinityBundle."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = POLICY_CANDIDATE_SCHEMA_NAME
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = POLICY_CANDIDATE_SCHEMA_VERSION
+    ARTIFACT_KIND: ClassVar[Literal["scientist.policy_design.candidate"]] = (
+        "scientist.policy_design.candidate"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     schema_version: str = Field(POLICY_CANDIDATE_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     candidate_id: str = Field(..., pattern=ID_PATTERN)
@@ -356,20 +364,28 @@ def persist_policy_candidate_schema(
     candidate: PolicyCandidateSchema,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist the canonical policy candidate schema used by search, runtime, and replay flows."""
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
+    if candidate.schema_version != PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION:
+        raise ValueError("policy candidate schema version is not supported by this producer")
     return store.put_json(
         candidate,
         PutOptions(
-            kind="scientist.policy_design.candidate",
-            media_type="application/json",
+            kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            media_type=PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
-                name=POLICY_CANDIDATE_SCHEMA_NAME,
-                version=candidate.schema_version,
+                name=PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME,
+                version=PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION,
             ),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -379,6 +395,7 @@ def load_policy_candidate_schema(
 ) -> PolicyCandidateSchema:
     """Load policy candidate schema."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return PolicyCandidateSchema.model_validate(payload)
 

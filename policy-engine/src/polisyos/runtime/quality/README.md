@@ -152,7 +152,10 @@ Boundary notes:
   stays typed and empty: publication eligibility and source-row counts cannot
   supply proposal/reference relation gold or a calibration acceptance rule.
   The result is an audit refusal, with CG2 cold-start and N8 blocked; it grants
-  no acquired grounding or world write.
+  no acquired grounding or world write. The producer writes JSON through the Core
+  canonical profile with explicit nulls and typed floats, returns the selected
+  manifest view, and replay validates those exact selected bytes before comparing
+  the current request and source result.
 - `global_case_index.py` recomputes a tenant/cell-scoped CAS inventory of canonical
   persisted S2 case bindings. The default capability-discovery provider consumes
   its verified snapshots and persists candidate-only search receipts. Coverage
@@ -587,6 +590,21 @@ of discarding it after projecting a result. Current run and acquisition-reentry
 v2 envelopes retain the source references, source limitations and a recomputed
 preservation strangle. Repeated identical source occurrences are idempotent;
 conflicting occurrences do not yield writer inputs.
+Current N4 scenario-source v1/v2/v3, proposal, candidate-source-attempt, and N5
+input v4/v5 writes return the manifest profile selected inside the same CAS
+write where their readers compare that exact profile. Profileless historical refs
+remain readable only through legacy/default-only readers whose contracts accept
+profileless selectors; those reads do not prove producer-selected profile equality.
+Strict N5 input v4/v5 execution loaders require exact equality with the selected
+manifest profile and reject profileless refs at that guard with `ValueError`.
+Configured N5 handling maps that error to a generic `simulation_blocked`
+observation (`candidate_simulation_n5_admission_failed`), not a profileless-specific
+refusal. The RunDetails lineage projection uses the v4/v5 resolvers, which accept a
+profileless ref as a default selector and may report lineage `resolved` after other
+checks; that result does not establish producer-selected profile equality. Any
+genuine reissue or migration is a separate future G choice; fresh reads do not
+retroactively attest the producer or backfill history. A selected profile names a
+manifest view and does not establish producer authority or currentness.
 
 The capsule uses Core's typed canonical codec so Decimal values survive custody.
 N9's existing EFFECT writer owns its JSON wire projection; the handoff accepts

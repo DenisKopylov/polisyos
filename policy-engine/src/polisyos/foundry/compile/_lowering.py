@@ -6,7 +6,12 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     LoweredConstraint,
@@ -162,6 +167,7 @@ def lower_trinity(
     linked_bundle: Any,
     registry_content: Any,
     strict: bool = True,
+    return_selected_profile: bool = False,
 ) -> tuple[LoweredIRRef, LoweredIR, list[str]]:
     """Lower trinity helper."""
     semantic_notes = audit_trinity_field_coverage(strict=strict)
@@ -226,8 +232,9 @@ def lower_trinity(
                 kind="foundry.lowered_mechanism_payload",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.foundry.LoweredMechanismPayload", version="0.2.0"),
-                inputs=[InputRef(artifact_id=policy_ref.artifact_id, role="ir")],
+                inputs=[input_ref_from_artifact_ref(policy_ref, role="ir")],
             ),
+            return_selected_profile=return_selected_profile,
         )
 
         lowered_mechanisms.append(
@@ -278,12 +285,13 @@ def lower_trinity(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.foundry.LoweredIR", version="0.2.0"),
             inputs=[
-                InputRef(artifact_id=policy_ref.artifact_id, role="ir"),
-                InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"),
+                input_ref_from_artifact_ref(policy_ref, role="ir"),
+                input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"),
             ],
         ),
+        return_selected_profile=return_selected_profile,
     )
-    lowered_ir_ref = LoweredIRRef.model_validate(lowered_ir_payload.model_dump())
+    lowered_ir_ref = LoweredIRRef.model_validate(lowered_ir_payload.model_dump(mode="python"))
     return lowered_ir_ref, lowered_ir, sorted(set(semantic_notes))
 
 

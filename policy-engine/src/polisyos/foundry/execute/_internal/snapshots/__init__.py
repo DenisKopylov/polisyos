@@ -17,6 +17,10 @@ from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import (
+    _require_return_selected_profile_writer,
+    _validate_return_selected_profile,
+)
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
@@ -99,9 +103,7 @@ def _validate_snapshot_lineage(
     if snapshot.schema_version not in {"2.1", "2.2"}:
         raise ValueError(f"Unsupported StateSnapshot schema_version: {snapshot.schema_version}")
     if snapshot.lineage_inputs is None:
-        raise ValueError(
-            f"StateSnapshot {snapshot.schema_version} payload missing lineage_inputs"
-        )
+        raise ValueError(f"StateSnapshot {snapshot.schema_version} payload missing lineage_inputs")
 
     if snapshot.schema_version == "2.1":
         # Historical 2.1 records serialized the state_ref object but bound the
@@ -111,9 +113,7 @@ def _validate_snapshot_lineage(
             artifact_id=snapshot.state_ref.artifact_id, role="state_blob"
         )
         manifest_ref: ArtifactRef | ArtifactID | str = (
-            snapshot_ref.artifact_id
-            if isinstance(snapshot_ref, ArtifactRef)
-            else snapshot_ref
+            snapshot_ref.artifact_id if isinstance(snapshot_ref, ArtifactRef) else snapshot_ref
         )
         schema_version = "2.1.0"
     else:
@@ -143,8 +143,13 @@ def put_state_snapshot(
     state: Any,
     step: int | None = None,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a GlobalState-compatible object as a checksummed NPZ snapshot."""
+    _validate_return_selected_profile(return_selected_profile)
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_bytes")
+        _require_return_selected_profile_writer(store, "put_json")
     flat = dict(_flatten_state(state))
     buf = BytesIO()
     np.savez(buf, **flat)
@@ -157,6 +162,7 @@ def put_state_snapshot(
         # lineage.  The typed wrapper below carries the exact ordered input
         # lineage while identical bytes remain reusable across contexts.
         PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
+        return_selected_profile=return_selected_profile,
     )
     if str(blob_ref.artifact_id.hex) != checksum:
         raise ValueError(
@@ -184,6 +190,7 @@ def put_state_snapshot(
             schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
             inputs=snapshot_inputs,
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -410,8 +417,10 @@ def _put_snapshot_blob_two_phase(
     store: FileSystemCAS,
     data: bytes,
     options: PutOptions,
+    *,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    blob_ref = store.put_bytes(data, options)
+    blob_ref = store.put_bytes(data, options, return_selected_profile=return_selected_profile)
     if not store.has(blob_ref):
         raise ValueError(f"Snapshot blob was not fully persisted: {blob_ref.artifact_id}")
     return blob_ref

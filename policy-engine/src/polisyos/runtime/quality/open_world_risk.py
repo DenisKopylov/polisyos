@@ -614,6 +614,15 @@ class OpenWorldRiskVectorArtifactRepository:
         expected_verifier_provenance_ref: ArtifactRef,
     ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt:
         try:
+            # Classify a malformed caller-selected verifier identity before the
+            # store adapter turns that authority error into a generic lookup
+            # failure. This ref is an exact, profileless verifier receipt.
+            if (
+                expected_verifier_provenance_ref.kind != "chronology.open_world_risk_verifier"
+                or expected_verifier_provenance_ref.media_type != "text/plain"
+                or expected_verifier_provenance_ref.manifest_profile_sha256 is not None
+            ):
+                raise PermissionError("open_world_verifier_untrusted")
             provenance_report = self._store.verify(expected_verifier_provenance_ref)
             provenance = self._store.get_bytes(expected_verifier_provenance_ref)
             provenance_manifest = self._store.get_manifest(expected_verifier_provenance_ref)
@@ -855,6 +864,7 @@ class BoundProblemDeclaredScopeManifestProvider:
         self, *, member: PersistedBoundPromotionCandidateContext
     ) -> DeclaredScopeManifest | OpenWorldRiskProductionNonReceipt:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             aggregate = self._contexts.resolve_verified(
                 context_ref=member.statement.aggregate_context_ref
@@ -1213,21 +1223,36 @@ class _PersistedDeploymentQueryOwner:
 def persist_and_verify_design_problem_snapshot(
     *, store: ArtifactStore, problem: DesignProblem
 ) -> tuple[ArtifactRef, Digest]:
-    """Reuse the existing ``runtime.design_problem`` profile in every path."""
+    """Persist exact snapshot bytes with a selected, conformant Core JSON view."""
 
     raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
-    ref = store.put_bytes(
-        raw,
-        ArtifactWriteOptions(kind="runtime.design_problem", media_type="application/json"),
+    options = ArtifactWriteOptions(
+        kind="runtime.design_problem",
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name="polisyos.runtime.DesignProblem",
+            version="1.0",
+        ),
+        canon=artifacts.CanonInfo.from_spec(core_contracts.chronology.CHRONOLOGY_CANON_SPEC),
     )
+    ref = store.put_bytes(raw, options, return_selected_profile=True)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
+    read = artifacts.read_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    reloaded_problem = DesignProblem.model_validate(read.value)
     if (
         not report.ok
         or store.get_bytes(ref) != raw
         or str(ref.artifact_id) != _raw_hash(raw)
-        or manifest.kind != "runtime.design_problem"
-        or manifest.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        or manifest.kind != options.kind
+        or manifest.media_type != options.media_type
+        or manifest.artifact_schema != options.schema
+        or manifest.canon != options.canon
+        or read.status != "declared_bytes_conformant"
+        or read.selected_artifact_id != str(ref.artifact_id)
+        or read.selected_manifest_profile_sha256 != ref.manifest_profile_sha256
+        or reloaded_problem.model_dump(mode="json") != problem.model_dump(mode="json")
     ):
         raise ValueError("runtime_design_problem_snapshot_readback_mismatch")
     return ref, _semantic_hash("runtime.design_problem", problem)

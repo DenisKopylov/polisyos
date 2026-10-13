@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 from polisyos.data_forge.read_api import academic
 from polisyos.runtime.quality import grounding_bind
 
@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 _KIND = "runtime.production_grounding_source_resolution"
 _VERSION = "1.0"
+_SOURCE_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 
 
 class _StrictModel(BaseModel):
@@ -167,14 +168,16 @@ class ProductionCG2CalibrationSource:
     def produce(self, request: SourceGroundingRequest) -> artifacts.ArtifactRef:
         """Persist the complete current request/source projection and refusal."""
         result = self._recompute(request)
-        return self._store.put_bytes(
-            _bytes(result.model_dump(mode="json")),
+        return self._store.put_json(
+            result.model_dump(mode="json"),
             artifacts.ArtifactWriteOptions(
                 kind=_KIND,
                 media_type="application/json",
                 schema=artifacts.SchemaInfo(name=_KIND, version=_VERSION),
                 producer=artifacts.ProducerInfo(component=__name__, version=_VERSION),
             ),
+            canon_spec=_SOURCE_CANON,
+            return_selected_profile=True,
         )
 
     def replay(

@@ -2,16 +2,31 @@ from __future__ import annotations
 
 import asyncio
 import json
+from datetime import UTC, date, datetime
+from decimal import Decimal
+from enum import Enum
+from typing import Annotated, Literal
 
 import pytest
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    AfterValidator,
+    AliasChoices,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    ValidationError,
+    model_validator,
+)
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     CanonInfo,
     FileSystemCAS,
     PutOptions,
+    SchemaInfo,
     aload_core_json_artifact,
+    artifact_ref_for_manifest,
     load_core_json_artifact,
     load_core_json_frame_records,
     read_core_json_artifact,
@@ -20,6 +35,27 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import (
+    ConstraintSpec,
+    KPISpec,
+    OptimizationDirection,
+    ProblemDomain,
+    ProblemFrame,
+    SuccessCriterion,
+)
+from polisyos.ir.kernel.units import (
+    CountUnit,
+    DimensionlessUnit,
+    DurationUnit,
+    GenericUnit,
+    MoneyUnit,
+    RateUnit,
+    UnitsRegistry,
+)
+from polisyos.ir.kernel.values import MoneyValue
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 
 
 class _Payload(BaseModel):
@@ -27,7 +63,7 @@ class _Payload(BaseModel):
     value: int
 
 
-def _profiled_json_store(tmp_path, payload: dict[str, object]):
+def _profiled_json_store(tmp_path, payload: object):
     store = FileSystemCAS(tmp_path / "cas")
     spec = CanonSpec(forbid_floats=False, exclude_none=False)
     raw = to_canonical_bytes(payload, spec)
@@ -50,16 +86,16 @@ def test_core_json_facade_returns_only_profile_conformant_selected_values(tmp_pa
     assert validate_core_model_json_artifact(_Payload, store, ref) == _Payload(value=7)
 
 
-def test_core_json_missing_profile_is_refused_before_selected_semantics(tmp_path, monkeypatch) -> None:
+def test_core_json_missing_profile_is_refused_before_selected_semantics(
+    tmp_path, monkeypatch
+) -> None:
     store, ref, _raw = _profiled_json_store(tmp_path, {"value": 7})
     original_raw_reader = store.get_raw_manifest_bytes
     original_manifest_reader = store.get_manifest
     selected_id = str(ref.artifact_id)
 
     def absent_profile(selector, *, manifest_profile_sha256=None):
-        raw = original_raw_reader(
-            selector, manifest_profile_sha256=manifest_profile_sha256
-        )
+        raw = original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
         if str(getattr(selector, "artifact_id", selector)) != selected_id:
             return raw
         payload = json.loads(raw)
@@ -78,15 +114,15 @@ def test_core_json_missing_profile_is_refused_before_selected_semantics(tmp_path
         load_core_json_artifact(store, ref.artifact_id)
 
 
-def test_core_json_present_malformed_profile_is_not_treated_as_absent(tmp_path, monkeypatch) -> None:
+def test_core_json_present_malformed_profile_is_not_treated_as_absent(
+    tmp_path, monkeypatch
+) -> None:
     store, ref, _raw = _profiled_json_store(tmp_path, {"value": 7})
     original_raw_reader = store.get_raw_manifest_bytes
     selected_id = str(ref.artifact_id)
 
     def malformed_present(selector, *, manifest_profile_sha256=None):
-        raw = original_raw_reader(
-            selector, manifest_profile_sha256=manifest_profile_sha256
-        )
+        raw = original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
         if str(getattr(selector, "artifact_id", selector)) == selected_id:
             return b'{"canon":null}'
         return raw
@@ -138,9 +174,7 @@ def test_core_frame_loader_verifies_manifest_profile_and_each_record(tmp_path, m
     selected_id = str(ref.artifact_id)
 
     def absent_frame_profile(selector, *, manifest_profile_sha256=None):
-        sidecar = original_raw_reader(
-            selector, manifest_profile_sha256=manifest_profile_sha256
-        )
+        sidecar = original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
         if str(getattr(selector, "artifact_id", selector)) == selected_id:
             payload = json.loads(sidecar)
             payload.pop("canon", None)
@@ -178,9 +212,7 @@ def test_async_core_refuses_nonreadable_raw_profile_before_typed_or_payload_read
     payload_reads: list[object] = []
 
     def nonreadable_profile(selector, *, manifest_profile_sha256=None):
-        raw = original_raw_reader(
-            selector, manifest_profile_sha256=manifest_profile_sha256
-        )
+        raw = original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
         if str(getattr(selector, "artifact_id", selector)) != selected_id:
             return raw
         if profile_variant == "incomplete":
@@ -220,11 +252,478 @@ def test_typed_core_reader_preserves_the_selected_manifest_view(tmp_path, monkey
 
     def record_selector(selector, *, manifest_profile_sha256=None):
         observed_selectors.append(selector)
-        return original_raw_reader(
-            selector, manifest_profile_sha256=manifest_profile_sha256
-        )
+        return original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
 
     monkeypatch.setattr(store, "get_raw_manifest_bytes", record_selector)
 
     assert load_json_artifact(store, selected_ref) == {"value": 13}
     assert observed_selectors[0] == selected_ref
+
+
+_ANNOTATED_VALIDATION_COUNT = 0
+
+
+def _count_annotated_validation(value: int) -> int:
+    global _ANNOTATED_VALIDATION_COUNT
+    _ANNOTATED_VALIDATION_COUNT += 1
+    return value
+
+
+_CountingInt = Annotated[int, AfterValidator(_count_annotated_validation)]
+
+
+class _WireState(str, Enum):
+    READY = "ready"
+    REVIEW = "review"
+
+
+class _NestedTypedPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True, populate_by_name=True)
+
+    state: _WireState = Field(
+        validation_alias=AliasChoices("state_input", "legacy_state"),
+        serialization_alias="wire_state",
+    )
+    rows: tuple[tuple[str, int], ...]
+
+
+class _TypedCorePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True, populate_by_name=True)
+
+    observed_at: datetime
+    observed_on: date
+    amount: Decimal
+    payload_bytes: bytes
+    ratio: float
+    checked_count: _CountingInt
+    row_ids: tuple[int, ...]
+    nested: _NestedTypedPayload
+    selected: _NestedTypedPayload | tuple[str, ...]
+    groups: list[tuple[str, _WireState]]
+    opaque_tags: dict[str, object]
+
+
+def _profiled_core_json_store(tmp_path, payload: object):
+    store = FileSystemCAS(tmp_path / "typed-cas")
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="test.selected_profile.typed-json",
+            media_type="application/json",
+            canon=CanonInfo.from_spec(spec),
+        ),
+        canon_spec=spec,
+    )
+    return store, ref, store.get_bytes(ref)
+
+
+def _typed_core_payload(*, payload_bytes: bytes) -> _TypedCorePayload:
+    return _TypedCorePayload(
+        observed_at=datetime(2026, 10, 13, 9, 15, tzinfo=UTC),
+        observed_on=date(2026, 10, 13),
+        amount=Decimal("13.25"),
+        payload_bytes=payload_bytes,
+        ratio=1.25,
+        checked_count=2,
+        row_ids=(3, 5),
+        nested=_NestedTypedPayload(
+            state=_WireState.READY,
+            rows=(("alpha", 2), ("beta", 4)),
+        ),
+        selected=_NestedTypedPayload(state=_WireState.REVIEW, rows=(("gamma", 6),)),
+        groups=[("delta", _WireState.READY), ("epsilon", _WireState.REVIEW)],
+        opaque_tags={
+            "array": {
+                "_type": "array_digest",
+                "dtype": "int64",
+                "shape": [2],
+                "sha256": "a" * 64,
+            },
+        },
+    )
+
+
+@pytest.mark.parametrize("writer_form", ["python-model", "json-model-dump"])
+def test_typed_core_reader_reifies_declared_types_after_both_writer_forms(
+    tmp_path, writer_form
+) -> None:
+    source = _typed_core_payload(
+        payload_bytes=b"raw\x00bytes" if writer_form == "python-model" else b"readable"
+    )
+    payload = (
+        source if writer_form == "python-model" else source.model_dump(mode="json", by_alias=True)
+    )
+    store, ref, raw = _profiled_core_json_store(tmp_path, payload)
+    before_validation_count = _ANNOTATED_VALIDATION_COUNT
+
+    restored = validate_core_model_json_artifact(_TypedCorePayload, store, ref)
+
+    assert restored == source
+    assert before_validation_count + 1 == _ANNOTATED_VALIDATION_COUNT
+    assert restored.nested.state is _WireState.READY
+    assert restored.nested.rows == (("alpha", 2), ("beta", 4))
+    assert isinstance(restored.row_ids, tuple)
+    assert isinstance(restored.groups[0], tuple)
+    assert restored.observed_at == source.observed_at
+    assert restored.observed_on == source.observed_on
+    assert restored.amount == source.amount
+    assert restored.payload_bytes == source.payload_bytes
+    assert restored.ratio == source.ratio
+    assert restored.opaque_tags["array"]["_type"] == "array_digest"
+    assert read_core_json_artifact_bytes(store, ref) == raw
+
+
+def test_typed_core_reader_refuses_wrong_shape_and_selected_byte_drift(tmp_path) -> None:
+    source = _typed_core_payload(payload_bytes=b"readable")
+    malformed = source.model_dump(mode="json", by_alias=True)
+    malformed["row_ids"] = [3, True]
+    store, ref, raw = _profiled_core_json_store(tmp_path, malformed)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(_TypedCorePayload, store, ref)
+
+    with pytest.raises(
+        CanonicalProfileRefusalError, match="canon_profile_selected_payload_identity_mismatch"
+    ):
+        validate_core_model_json_artifact(
+            _TypedCorePayload,
+            store,
+            ref,
+            raw_payload_bytes=raw + b" ",
+        )
+
+
+def test_core_canonical_writer_rejects_unknown_typed_tag() -> None:
+    with pytest.raises(ValueError, match="Unknown canonical _type"):
+        to_canonical_bytes({"value": {"_type": "future-unregistered-tag"}})
+
+
+@pytest.mark.parametrize(
+    "tagged_value",
+    [
+        pytest.param({"_type": "bytes_hex", "value": "00ff"}, id="bytes-hex"),
+        pytest.param({"_type": "float_hex", "value": "0x1.4p+0"}, id="float-hex"),
+    ],
+)
+def test_selected_core_reader_refuses_nonnormal_reserved_tags_before_typed_adapter(
+    tmp_path, tagged_value
+) -> None:
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    raw = to_canonical_bytes({"opaque": tagged_value}, spec)
+    root = tmp_path / "nonnormal-tag-cas"
+    store = FileSystemCAS(root)
+    selected_ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="test.selected_profile.nonnormal-tag",
+            media_type="application/json",
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+
+    # This is the raw profile gate, before any declared Pydantic model adapter.
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_payload_nonconformant"):
+        read_core_json_artifact(FileSystemCAS(root), selected_ref)
+
+
+class _TaggedAmountOne(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: Literal["amount_one"]
+    amount: Decimal
+
+
+class _TaggedAmountTwo(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    mode: Literal["amount_two"]
+    amount: Decimal
+
+
+class _SchemaDerivedUnionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    selected: _TaggedAmountOne | _TaggedAmountTwo
+
+
+class _AmbiguousAmountOne(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    amount: Decimal
+
+
+class _AmbiguousAmountTwo(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    amount: Decimal
+
+
+class _SchemaAmbiguousUnionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    selected: _AmbiguousAmountOne | _AmbiguousAmountTwo
+
+
+def _trinity_money_bundle() -> TrinityBundle:
+    return TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_core_union",
+            domain=ProblemDomain.FISCAL,
+            kpis=[
+                KPISpec(
+                    kpi_id="kpi_core_union",
+                    metric_id="metric_core_union",
+                    direction=OptimizationDirection.MAXIMIZE,
+                )
+            ],
+            success_criteria=[
+                SuccessCriterion(
+                    criterion_id="criterion_core_union",
+                    kpi_id="kpi_core_union",
+                    operator=">=",
+                    threshold=MoneyValue(amount=Decimal("13.25"), currency="USD"),
+                )
+            ],
+            hard_constraints=[
+                ConstraintSpec(
+                    constraint_id="constraint_core_union",
+                    value=MoneyValue(amount=Decimal("13.25"), currency="USD"),
+                )
+            ],
+        ),
+        policy_spec=PolicySpec(
+            policy_id="policy_core_union",
+            problem_frame_ref="sha256:" + "a" * 64,
+            interventions=[],
+        ),
+        model_spec=ModelSpec(
+            model_id="model_core_union",
+            data_snapshot_ref="sha256:" + "b" * 64,
+        ),
+    )
+
+
+def _write_selected_trinity(tmp_path, payload: object):
+    store_root = tmp_path / "trinity-cas"
+    store = FileSystemCAS(store_root)
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="polisyos.ir.TrinityBundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+    selected_ref = artifact_ref_for_manifest(store.get_manifest(ref))
+    return store_root, selected_ref, store.get_bytes(selected_ref)
+
+
+@pytest.mark.parametrize("writer_form", ["python-model", "json-model-dump"])
+def test_trinity_core_reader_reifies_multi_model_union_from_selected_fresh_view(
+    tmp_path, writer_form
+) -> None:
+    source = _trinity_money_bundle()
+    payload = (
+        source if writer_form == "python-model" else source.model_dump(mode="json", by_alias=True)
+    )
+    store_root, selected_ref, raw = _write_selected_trinity(tmp_path, payload)
+    fresh_reader = FileSystemCAS(store_root)
+
+    selected_read = read_core_json_artifact(fresh_reader, selected_ref)
+    restored = validate_core_model_json_artifact(TrinityBundle, fresh_reader, selected_ref)
+
+    assert selected_read.selected_artifact_id == str(selected_ref.artifact_id)
+    assert selected_read.selected_manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+    assert restored == source
+    assert isinstance(restored.problem_frame.success_criteria[0].threshold, MoneyValue)
+    assert restored.problem_frame.success_criteria[0].threshold.amount == Decimal("13.25")
+    assert isinstance(restored.problem_frame.hard_constraints[0].value, MoneyValue)
+    assert restored.problem_frame.hard_constraints[0].value.amount == Decimal("13.25")
+    assert read_core_json_artifact_bytes(fresh_reader, selected_ref) == raw
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda payload: payload["problem_frame"]["hard_constraints"][0].update(
+            value={"kind": "future_amount", "amount": "13.25", "currency": "USD"}
+        ),
+        lambda payload: payload["problem_frame"]["success_criteria"][0].update(
+            threshold={"amount": 13.25, "currency": "USD"}
+        ),
+    ],
+    ids=["unknown-model-variant", "wrong-scalar-type"],
+)
+def test_trinity_core_reader_refuses_unknown_union_variant_and_scalar(tmp_path, mutation) -> None:
+    payload = _trinity_money_bundle().model_dump(mode="json", by_alias=True)
+    mutation(payload)
+    store_root, selected_ref, _raw = _write_selected_trinity(tmp_path, payload)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            TrinityBundle,
+            FileSystemCAS(store_root),
+            selected_ref,
+        )
+
+
+def test_schema_derived_union_reifies_unique_literal_branches_and_refuses_unknown_tag(
+    tmp_path,
+) -> None:
+    source = _SchemaDerivedUnionPayload(
+        selected=_TaggedAmountTwo(mode="amount_two", amount=Decimal("7.50"))
+    )
+    payload = source.model_dump(mode="json", by_alias=True)
+    store, ref, _raw = _profiled_core_json_store(tmp_path, payload)
+
+    restored = validate_core_model_json_artifact(_SchemaDerivedUnionPayload, store, ref)
+
+    assert restored == source
+    assert isinstance(restored.selected, _TaggedAmountTwo)
+    assert restored.selected.amount == Decimal("7.50")
+
+    malformed = {"selected": {"kind": "unknown", "amount": "7.50"}}
+    bad_store, bad_ref, _bad_raw = _profiled_core_json_store(tmp_path / "bad", malformed)
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            _SchemaDerivedUnionPayload,
+            bad_store,
+            bad_ref,
+        )
+
+    conflicting = {
+        "selected": {
+            "kind": "amount_one",
+            "mode": "amount_two",
+            "amount": "7.50",
+        }
+    }
+    conflict_store, conflict_ref, _conflict_raw = _profiled_core_json_store(
+        tmp_path / "conflicting", conflicting
+    )
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            _SchemaDerivedUnionPayload,
+            conflict_store,
+            conflict_ref,
+        )
+
+
+def test_schema_derived_union_refuses_ambiguous_model_shape(tmp_path) -> None:
+    malformed = {"selected": {"amount": "7.50"}}
+    store, ref, _raw = _profiled_core_json_store(tmp_path, malformed)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(_SchemaAmbiguousUnionPayload, store, ref)
+
+
+_UNIT_BEFORE_VALIDATOR_COUNT = 0
+_UNIT_MODEL_VALIDATOR_COUNT = 0
+
+
+def _count_unit_probe_before(value: list[str]) -> list[str]:
+    global _UNIT_BEFORE_VALIDATOR_COUNT
+    _UNIT_BEFORE_VALIDATOR_COUNT += 1
+    return value
+
+
+class _UnitValidatorProbe(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    labels: Annotated[list[str], BeforeValidator(_count_unit_probe_before)]
+
+    @model_validator(mode="after")
+    def count_model_validation(self) -> _UnitValidatorProbe:
+        global _UNIT_MODEL_VALIDATOR_COUNT
+        _UNIT_MODEL_VALIDATOR_COUNT += 1
+        return self
+
+
+class _UnitsRegistryEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    registry: UnitsRegistry
+    probe: _UnitValidatorProbe
+
+
+def _units_registry_envelope() -> _UnitsRegistryEnvelope:
+    return _UnitsRegistryEnvelope(
+        registry=UnitsRegistry(
+            units={
+                "usd": MoneyUnit(currency="USD", nominal_year=2025),
+                "ratio": RateUnit(base="ratio"),
+                "people": CountUnit(label="people"),
+                "duration": DurationUnit(unit="day"),
+                "index": DimensionlessUnit(label="index"),
+                "generic": GenericUnit(label="other", description="generic"),
+            }
+        ),
+        probe=_UnitValidatorProbe(labels=["one", "two"]),
+    )
+
+
+def _write_selected_units_registry(tmp_path, payload: object):
+    store_root = tmp_path / "units-registry-cas"
+    store = FileSystemCAS(store_root)
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="polisyos.ir.kernel.UnitsRegistryEnvelope",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.kernel.UnitsRegistryEnvelope", version="1.0"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+    selected_ref = artifact_ref_for_manifest(store.get_manifest(ref))
+    return store_root, selected_ref, store.get_bytes(selected_ref)
+
+
+@pytest.mark.parametrize("writer_form", ["python-model", "json-model-dump"])
+def test_units_registry_discriminator_reifies_nested_union_and_runs_validators_once(
+    tmp_path, writer_form
+) -> None:
+    global _UNIT_BEFORE_VALIDATOR_COUNT, _UNIT_MODEL_VALIDATOR_COUNT
+    source = _units_registry_envelope()
+    payload = (
+        source if writer_form == "python-model" else source.model_dump(mode="json", by_alias=True)
+    )
+    store_root, selected_ref, raw = _write_selected_units_registry(tmp_path, payload)
+    fresh_reader = FileSystemCAS(store_root)
+    _UNIT_BEFORE_VALIDATOR_COUNT = 0
+    _UNIT_MODEL_VALIDATOR_COUNT = 0
+
+    selected = read_core_json_artifact(fresh_reader, selected_ref)
+    restored = validate_core_model_json_artifact(_UnitsRegistryEnvelope, fresh_reader, selected_ref)
+
+    assert selected.selected_artifact_id == str(selected_ref.artifact_id)
+    assert selected.selected_manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+    assert restored == source
+    assert type(restored.registry.units["usd"]) is MoneyUnit
+    assert type(restored.registry.units["ratio"]) is RateUnit
+    assert type(restored.registry.units["people"]) is CountUnit
+    assert type(restored.registry.units["duration"]) is DurationUnit
+    assert type(restored.registry.units["index"]) is DimensionlessUnit
+    assert type(restored.registry.units["generic"]) is GenericUnit
+    assert _UNIT_BEFORE_VALIDATOR_COUNT == 1
+    assert _UNIT_MODEL_VALIDATOR_COUNT == 1
+    assert read_core_json_artifact_bytes(fresh_reader, selected_ref) == raw
+
+
+def test_units_registry_discriminator_refuses_unknown_present_kind(tmp_path) -> None:
+    payload = _units_registry_envelope().model_dump(mode="json", by_alias=True)
+    payload["registry"]["units"]["usd"]["kind"] = "future"
+    store_root, selected_ref, _raw = _write_selected_units_registry(tmp_path, payload)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            _UnitsRegistryEnvelope, FileSystemCAS(store_root), selected_ref
+        )

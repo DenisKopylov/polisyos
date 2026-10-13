@@ -49,3 +49,14 @@ does not assume `prod_full`. The same selected value is carried through the
 natural-language retrieval and N6 acquisition paths. Selecting a run profile
 controls source eligibility only; it does not establish production
 currentness.
+
+The N7 adapter maps explicit requirement geography, observation-time interval, profile
+granularity, and minimum quality score into DataNeed. The caller carries the existing typed
+TimeFrequency token as granularity; it does not infer a time role from an interval. Missing
+scope/granularity or a bounded interval without an explicit observation-time role is refused
+before Catalog access. Other unrepresented requirements remain typed limitations on the
+candidate-only owner response. All controls declared by `DataDiscoverRequest` but absent
+from the N7 `DataResolveRequest` contract are carried into a typed refusal before opening the
+Catalog, even when their supplied value is malformed or zero. Legacy budget or availability
+constraints that `DataNeed` cannot represent also refuse. A Catalog candidate or
+fetch plan is not acquired or admitted evidence.

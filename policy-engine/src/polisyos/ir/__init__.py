@@ -173,6 +173,7 @@ __all__ = [
     "MechanismBinding",
     "MechanismFamily",
     "MechanismSource",
+    "MetricBiasDiagnostic",
     "MetricUnit",
     "MicrosimCalibrationReport",
     "MicrosimCalibrationReportRef",
@@ -727,6 +728,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "TargetingRule": ("polisyos.ir.analytics.hte", "TargetingRule"),
     "PolicyRecommendation": ("polisyos.ir.analytics.hte", "PolicyRecommendation"),
     "BiasDirection": ("polisyos.ir.analytics.backtest", "BiasDirection"),
+    "MetricBiasDiagnostic": (
+        "polisyos.ir.analytics.backtest",
+        "MetricBiasDiagnostic",
+    ),
     "OutcomeComparison": ("polisyos.ir.analytics.backtest", "OutcomeComparison"),
     "SystematicBias": ("polisyos.ir.analytics.backtest", "SystematicBias"),
     "BacktestScenario": ("polisyos.ir.analytics.backtest", "BacktestScenario"),

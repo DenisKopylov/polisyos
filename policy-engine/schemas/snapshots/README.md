@@ -12,6 +12,9 @@ snapshots/
 ├── fabric/
 │   ├── _manifest.json
 │   └── *.schema.json
+├── scientist/
+│   ├── _manifest.json
+│   └── calibration_validation_bundle_v1_1.schema.json
 └── connectors/
     ├── README.md
     └── contracts.json
@@ -23,12 +26,14 @@ snapshots/
 | ---------------------- | ------------------------------------------------------------------- |
 | `snapshots/ir`         | ABI JSON Schema для IR-моделей (`src/polisyos/ir/**`)               |
 | `snapshots/fabric`     | ABI JSON Schema для enum world-ABI (`src/polisyos/ir/world/abi.py`) |
+| `snapshots/scientist`  | Versioned persisted Scientist artifact schemas (`src/polisyos/scientist/governance/**`) |
 | `snapshots/connectors` | Baseline source connector-контрактов                                |
 
 ## Формат артефактов
 
-- `ir` и `fabric`: набор `*.schema.json` + `_manifest.json`, генерируются `tools/quality/diagnostics/gen_schema.py`.
-- В `_manifest.json` на модель хранятся `priority`, `compat_mode`, `schema_version`, `version_field`, `sha256_full`, `sha256_semantic`.
+- `ir`, `fabric` и `scientist`: набор `*.schema.json` + `_manifest.json`, генерируются `tools/quality/diagnostics/gen_schema.py`.
+- Для versioned Scientist payloads registry выбирает serialization schema variant только когда запрошенная версия разрешена типизированным source version field; generic model defaults remain unchanged.
+- В `_manifest.json` на модель хранятся `priority`, `compat_mode`, `schema_version`, `version_field`, `sha256_full`, `sha256_semantic`; versioned registry entries also record `schema_mode` and `schema_variant_version`.
 - `connectors/contracts.json`: формат `version=1`, payload `contracts` keyed by `contract_id`.
 
 ## Актуальное состояние (2026-03-03)
@@ -53,5 +58,5 @@ uv run polisyos-tools connectors check-contracts --update
 
 ## Инварианты
 
-- Не редактировать вручную `ir/*.schema.json`, `fabric/*.schema.json`, `_manifest.json`.
+- Не редактировать вручную `ir/*.schema.json`, `fabric/*.schema.json`, `scientist/*.schema.json`, `_manifest.json`.
 - Не редактировать вручную `connectors/contracts.json`; обновлять только через `check_contracts.py --update`.

@@ -9,6 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 import polisyos.pdc as pdc_module
+import polisyos.pdc._impl.gy_waist as gy_waist_module
 from polisyos.pdc import (
     GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER,
     ApplicabilityResult,
@@ -113,6 +114,161 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
         ).content_hash
         == first
     )
+
+
+def _reference_gy_content_hash_excluded_field(key: str) -> bool:
+    """Retain the pre-index predicate as an independent behavioral oracle."""
+
+    normalized = key.lower()
+    return any(
+        normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
+        for rule in pdc_module.GY_CONTENT_HASH_EXCLUDED_FIELDS
+    )
+
+
+def _reference_strip_gy_volatile_fields(value: object) -> object:
+    """Recompute the existing recursive projection without production helpers."""
+
+    if isinstance(value, dict):
+        return {
+            str(key): _reference_strip_gy_volatile_fields(item)
+            for key, item in value.items()
+            if not _reference_gy_content_hash_excluded_field(str(key))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_reference_strip_gy_volatile_fields(item) for item in value]
+    return value
+
+
+def _reference_gy_content_hash(value: object) -> str:
+    """Recompute the established canonical hash over the reference projection."""
+
+    payload = json.dumps(
+        _reference_strip_gy_volatile_fields(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def test_gy_hash_exclusion_index_matches_all_declared_rules_and_near_misses() -> None:
+    rules = pdc_module.GY_CONTENT_HASH_EXCLUDED_FIELDS
+    expected_exact = frozenset(rule for rule in rules if not rule.startswith("*"))
+    expected_suffixes = tuple(rule[1:] for rule in rules if rule.startswith("*"))
+    assert expected_exact == gy_waist_module._GY_CONTENT_HASH_EXCLUDED_EXACT_FIELDS
+    assert expected_suffixes == gy_waist_module._GY_CONTENT_HASH_EXCLUDED_SUFFIXES
+
+    candidates = [
+        "",
+        "*",
+        "*_ms",
+        "_ms",
+        "elapsed_msx",
+        "elapsed_msm",
+        "not_runtime_metrics",
+        "runtime_metrics_extra",
+        "not_at",
+        "payload-at",
+        "payload_latency",
+        "payload_latencyx",
+        "payload_duration",
+        "payload_durationx",
+        "ITEM_MS",
+        "Item_At",
+        "ẞ_ms",
+        "ß_ms",
+        "emoji_µs",
+    ]
+    for rule in rules:
+        if rule.startswith("*"):
+            positive = "payload" + rule[1:]
+            uppercase = "PAYLOAD" + rule[1:].upper()
+        else:
+            positive = rule
+            uppercase = rule.upper()
+        assert is_gy_content_hash_excluded_field(positive)
+        assert is_gy_content_hash_excluded_field(uppercase)
+        candidates.extend(
+            (
+                positive,
+                uppercase,
+                positive + "x",
+                "prefix_" + positive,
+                "not-" + positive,
+            )
+        )
+
+    for key in candidates:
+        assert is_gy_content_hash_excluded_field(key) is (
+            _reference_gy_content_hash_excluded_field(key)
+        ), key
+
+
+def test_gy_hash_exclusion_index_preserves_rebound_public_rule_tuple(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        gy_waist_module,
+        "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+        ("exact_marker", "*_suffix"),
+    )
+
+    assert is_gy_content_hash_excluded_field("EXACT_MARKER")
+    assert is_gy_content_hash_excluded_field("row_suffix")
+    assert not is_gy_content_hash_excluded_field("created_at")
+
+
+def test_gy_hash_index_preserves_nested_semantic_rows_and_reference_hash() -> None:
+    payload = {
+        "semantic_rows": [
+            {
+                "row_id": "row-1",
+                "value": 2,
+                "created_at": "2026-10-13T10:00:00Z",
+                "diagnostics": {"policy_atlas": "retained", "p95_latency": 4},
+            },
+            {
+                "row_id": "row-2",
+                "value": 3,
+                "finished_at": "2026-10-13T10:01:00Z",
+            },
+        ],
+        "trace": (
+            {"elapsed": 3, "elapsed_ms": 20, "nested": [{"name": "kept"}]},
+            [{"runtime_metrics": {"sample_ms": 10}, "content": "retained"}],
+        ),
+        7: {"timestamp": "2026-10-13T10:02:00Z", "label": "retained"},
+    }
+
+    projected = strip_gy_volatile_fields(payload)
+    expected = _reference_strip_gy_volatile_fields(payload)
+    assert projected == expected
+    assert isinstance(projected, dict)
+    assert projected["semantic_rows"] == [
+        {
+            "row_id": "row-1",
+            "value": 2,
+            "diagnostics": {"policy_atlas": "retained"},
+        },
+        {"row_id": "row-2", "value": 3},
+    ]
+    assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+
+
+def test_gy_content_hash_uses_live_exclusion_behavior_not_rule_markers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    first = {"semantic": "same", "created_at": "2026-10-13T10:00:00Z"}
+    second = {"semantic": "same", "created_at": "2026-10-13T11:00:00Z"}
+
+    assert gy_content_hash(first) == gy_content_hash(second)
+    monkeypatch.setattr(
+        gy_waist_module,
+        "is_gy_content_hash_excluded_field",
+        lambda key: False,
+    )
+    assert gy_content_hash(first) != gy_content_hash(second)
 
 
 @pytest.mark.parametrize(

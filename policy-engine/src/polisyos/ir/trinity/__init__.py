@@ -8,6 +8,8 @@ loading, validation, and migration-safe persistence.
 
 from __future__ import annotations
 
+from typing import ClassVar, Literal
+
 from pydantic import Field
 
 from polisyos.ir.governance.policy_spec import PolicySpec
@@ -21,6 +23,11 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 class TrinityBundle(KernelModel):
     """Validate and transport the ``ProblemFrame`` / ``PolicySpec`` / ``ModelSpec`` triple."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.TrinityBundle"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = TRINITY_BUNDLE_SCHEMA_VERSION
+    ARTIFACT_KIND: ClassVar[Literal["ir.trinity_bundle"]] = "ir.trinity_bundle"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     schema_version: str = Field(TRINITY_BUNDLE_SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN)
     problem_frame: ProblemFrame

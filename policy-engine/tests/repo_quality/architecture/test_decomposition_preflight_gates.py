@@ -89,6 +89,204 @@ def test_dynamic_imports_gate_rejects_registry_and_target_corruption(
     )
 
 
+def _dynamic_toml_literal(value: object) -> str:
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if type(value) is int:
+        return str(value)
+    if isinstance(value, list):
+        return "[" + ", ".join(_dynamic_toml_literal(item) for item in value) + "]"
+    raise AssertionError(f"unsupported canonical TOML value: {value!r}")
+
+
+def _corrupt_dynamic_value(value: object) -> object:
+    if isinstance(value, str):
+        return value + " (corrupt)"
+    if type(value) is int:
+        return value + 1
+    if isinstance(value, list):
+        return [*value, "__corrupt__"]
+    raise AssertionError(f"unsupported canonical dynamic field: {value!r}")
+
+
+def test_dynamic_imports_gate_rejects_every_canonical_row_field_corruption(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_entries = preflight.collect_dynamic_imports()
+    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_rows = tomllib.loads(canonical_text)["pattern"]
+    assert canonical_rows
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: source_entries)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    registry_path.write_text(canonical_text, encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    signature_fields = {"source_file", "line", "call", "pattern"}
+    for field, value in canonical_rows[0].items():
+        corrupted_rows = [dict(entry) for entry in canonical_rows]
+        corrupted_rows[0][field] = _corrupt_dynamic_value(value)
+        registry_path.write_text(
+            preflight.render_dynamic_imports_toml(corrupted_rows),
+            encoding="utf-8",
+        )
+        findings = preflight.validate_dynamic_imports()
+        assert findings, f"corrupting canonical row field {field!r} stayed green"
+        if field in signature_fields:
+            assert any(
+                finding.message
+                in {
+                    "dynamic import call is not registered",
+                    "registered dynamic import call no longer exists",
+                }
+                for finding in findings
+            ), field
+        else:
+            assert any(
+                finding.message
+                == "registered dynamic import row differs from canonical collector"
+                and field in finding.detail
+                for finding in findings
+            ), field
+
+
+def test_dynamic_imports_gate_rejects_every_stable_header_field_corruption(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_entries = preflight.collect_dynamic_imports()
+    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_header = tomllib.loads(canonical_text)["dynamic_imports"]
+    external_review_fields = {"review_owner", "reviewed_at", "review_expires"}
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: source_entries)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    for field, value in canonical_header.items():
+        if field in external_review_fields:
+            continue
+        original_line = f"{field} = {_dynamic_toml_literal(value)}"
+        corrupted_line = f"{field} = {_dynamic_toml_literal(_corrupt_dynamic_value(value))}"
+        assert original_line in canonical_text
+        registry_path.write_text(
+            canonical_text.replace(original_line, corrupted_line, 1),
+            encoding="utf-8",
+        )
+        findings = preflight.validate_dynamic_imports()
+        assert any(
+            finding.message
+            == "dynamic import registry header field differs from canonical contract"
+            and f"dynamic_imports.{field}" in finding.detail
+            for finding in findings
+        ), field
+
+    missing_header_line = f"status = {_dynamic_toml_literal(canonical_header['status'])}\n"
+    registry_path.write_text(
+        canonical_text.replace(missing_header_line, "", 1),
+        encoding="utf-8",
+    )
+    missing_header_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import registry header field is missing"
+        and "dynamic_imports.status" in finding.detail
+        for finding in missing_header_findings
+    )
+
+    registry_path.write_text(
+        canonical_text.replace(
+            "[dynamic_imports]\n",
+            '[dynamic_imports]\nunowned_header = "unexpected"\n',
+            1,
+        ),
+        encoding="utf-8",
+    )
+    unexpected_header_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import registry header has an unexpected field"
+        and "dynamic_imports.unowned_header" in finding.detail
+        for finding in unexpected_header_findings
+    )
+
+    for field in external_review_fields:
+        original_line = f"{field} = {_dynamic_toml_literal(canonical_header[field])}"
+        registry_path.write_text(
+            canonical_text.replace(original_line, f'{field} = ""', 1),
+            encoding="utf-8",
+        )
+        findings = preflight.validate_dynamic_imports()
+        assert any(
+            finding.message == "dynamic import review metadata is malformed"
+            and f"dynamic_imports.{field}" in finding.detail
+            for finding in findings
+        ), field
+
+
+def test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: [])
+
+    missing_findings = preflight.validate_dynamic_imports()
+    assert [finding.message for finding in missing_findings] == [
+        "dynamic import registry is missing"
+    ]
+
+    registry_path.write_text("[dynamic_imports\n", encoding="utf-8")
+    malformed_findings = preflight.validate_dynamic_imports()
+    assert [finding.message for finding in malformed_findings] == [
+        "dynamic import registry is malformed"
+    ]
+
+    registry_path.write_text("[unrelated]\nvalue = 1\n", encoding="utf-8")
+    missing_header_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import registry header is missing or malformed"
+        for finding in missing_header_findings
+    )
+
+
+def test_dynamic_imports_gate_rejects_incomplete_and_open_row_schemas(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_entries = preflight.collect_dynamic_imports()
+    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_rows = tomllib.loads(canonical_text)["pattern"]
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: source_entries)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    removed_id = f"id = {_dynamic_toml_literal(canonical_rows[0]['id'])}\n"
+    registry_path.write_text(canonical_text.replace(removed_id, "", 1), encoding="utf-8")
+    missing_field_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message
+        == "registered dynamic import row differs from canonical collector"
+        and "id" in finding.detail
+        for finding in missing_field_findings
+    )
+
+    first_notes = f"notes = {_dynamic_toml_literal(canonical_rows[0]['notes'])}\n"
+    registry_path.write_text(
+        canonical_text.replace(first_notes, first_notes + 'unowned_field = "unexpected"\n', 1),
+        encoding="utf-8",
+    )
+    unexpected_field_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message
+        == "registered dynamic import row differs from canonical collector"
+        and "unowned_field" in finding.detail
+        for finding in unexpected_field_findings
+    )
+
+
 def test_import_cycles_gate_allows_only_phase3a_lazy_cycles() -> None:
     findings = validate_import_cycles()
 

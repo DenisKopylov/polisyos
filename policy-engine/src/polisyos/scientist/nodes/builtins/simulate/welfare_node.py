@@ -172,6 +172,7 @@ def _prepare_welfare_run(
         welfare_params=welfare_params,
         numeric_metrics=numeric_metrics,
         response_size_hint=len(numeric_metrics),
+        return_selected_profile=sim_result.execution_source_status != "not_recorded",
     )
     simulation_fn, nominal_params, used_input_envelopes, pe_uncertainty_refs = build_simulation_fn(
         ctx,
@@ -231,6 +232,8 @@ def _evaluate_welfare_run(
         input_envelopes=prepared.used_input_envelopes,
         input_envelope_refs=prepared.pe_uncertainty_refs,
         calibration_source=prepared.collection.calibration_source,
+        execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
+        return_selected_profile=prepared.sim_result.execution_source_status != "not_recorded",
     )
     robust_interval, robust_diagnostics = _build_robust_interval(
         context=prepared.context,
@@ -323,6 +326,8 @@ def _persist_welfare_run(
         nominal_params=prepared.nominal_params,
         input_envelopes=prepared.used_input_envelopes,
         robust_interval=evaluation.robust_interval,
+        execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
+        return_selected_profile=prepared.sim_result.execution_source_status != "not_recorded",
     )
     total_vector = _point_total_vector(context, nominal_params=prepared.nominal_params)
     subgroup_welfare = _resolve_subgroup_welfare(
@@ -337,6 +342,7 @@ def _persist_welfare_run(
     )
     equilibrium_multiplicity = _equilibrium_multiplicity_annotation(ctx, prepared.sim_result)
     bundle = WelfareBundle(
+        schema_version="1.1",
         welfare_measure=context.welfare_measure,
         model_class=context.model_class,
         ge_multiplier_semantics=context.ge_multiplier_semantics,
@@ -351,6 +357,13 @@ def _persist_welfare_run(
         welfare_weights_ref=context.weights_ref,
         channel_decomposition_ref=channel_ref,
         point_estimate=evaluation.point_estimate,
+        nominal_component_labels=context.labels,
+        nominal_welfare_pe_components=tuple(
+            float(value) for value in evaluation.point_outputs["welfare_pe_components"]
+        ),
+        nominal_welfare_total_components=tuple(
+            float(value) for value in evaluation.point_outputs["welfare_total_components"]
+        ),
         credible_interval=propagation.credible_interval,
         robust_interval=evaluation.robust_interval,
         interval_semantics=evaluation.interval_semantics,
@@ -377,6 +390,13 @@ def _persist_welfare_run(
     bundle_inputs = _bundle_inputs(
         sim_result_ref=prepared.sim_result_ref,
         metric_ref=prepared.sim_result.metrics_ref,
+        social_weight_ref=context.social_weight_ref,
+        policy_ref=context.policy_ref,
+        baseline_ref=context.baseline_ref,
+        pe_model_ref=context.pe_model_ref,
+        ge_model_ref=context.ge_context.ge_model_ref,
+        welfare_weights_ref=context.weights_ref,
+        execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
         pe_uncertainty_refs=prepared.pe_uncertainty_refs,
         ge_uncertainty_ref=context.ge_context.ge_uncertainty_ref,
         dependence_structure_ref=context.dependence_structure_ref,
@@ -391,22 +411,40 @@ def _persist_welfare_run(
         ),
         sensitivity_diagnostics_ref=sensitivity_ref,
     )
+    return_selected_profile = prepared.sim_result.execution_source_status != "not_recorded"
     bundle_ref = persist_welfare_bundle(
-        _ensure_ir_artifact_store(ctx.store), bundle, inputs=bundle_inputs
+        _ensure_ir_artifact_store(ctx.store),
+        bundle,
+        inputs=bundle_inputs,
+        schema_version=bundle.schema_version,
+        return_selected_profile=return_selected_profile,
     )
     updated_result = prepared.sim_result.model_copy(update={"welfare_bundle_ref": bundle_ref})
+    simulation_result_inputs = [
+        _input_ref(prepared.sim_result_ref, role="base_simulation_result"),
+        _input_ref(bundle_ref, role="welfare_bundle"),
+    ]
+    if prepared.sim_result.execution_input_basis_ref is not None:
+        simulation_result_inputs.append(
+            _input_ref(prepared.sim_result.execution_input_basis_ref, role="execution_input_basis")
+        )
+    if prepared.sim_result.feedback_result_ref is not None:
+        simulation_result_inputs.append(
+            _input_ref(prepared.sim_result.feedback_result_ref, role="artifact.feedback_result_ref")
+        )
     updated_payload = ctx.store.put_json(
         updated_result,
         PutOptions(
             kind="foundry.simulation_result",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.2"),
-            inputs=[
-                _input_ref(prepared.sim_result_ref, role="base_simulation_result"),
-                _input_ref(bundle_ref, role="welfare_bundle"),
-            ],
+            schema=SchemaInfo(
+                name="polisyos.core.SimulationResult",
+                version="1.4" if return_selected_profile else "1.2",
+            ),
+            inputs=simulation_result_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     updated_ref = SimulationResultRef.model_validate(updated_payload.model_dump(mode="python"))
     artifacts: list[ArtifactRef] = [updated_ref, bundle_ref]

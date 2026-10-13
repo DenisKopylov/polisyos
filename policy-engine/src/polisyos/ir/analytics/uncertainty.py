@@ -2116,6 +2116,7 @@ def persist_uncertainty_envelope(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.uncertainty_envelope",
     schema_version: str = "1.1",
+    return_selected_profile: bool = False,
 ) -> UncertaintyEnvelopeRef:
     """Persist an uncertainty envelope as a typed JSON artifact reference."""
     ref = put_json_artifact(
@@ -2126,6 +2127,7 @@ def persist_uncertainty_envelope(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return UncertaintyEnvelopeRef.model_validate(ref)
 

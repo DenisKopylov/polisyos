@@ -58,7 +58,10 @@ def test_constant_nonzero_residual_keeps_descriptive_bias_without_significance(
     assert bias.statistical_test != "one-sample t-test H0(mean_error=0)"
     assert bias.metadata["test_status"] == "not_computable"
     assert bias.metadata["test_reason"] == "zero_variance"
-    assert report.overall_bias_direction is not BiasDirection.NEUTRAL
+    assert report.overall_bias_direction is BiasDirection.UNKNOWN
+    assert bias.direction is BiasDirection.UNKNOWN
+    assert report.metric_diagnostics[0].residual_sign == "positive"
+    assert report.metric_diagnostics[0].direction_status == "not_established"
     assert report.degraded is True
     assert report.degraded_reasons
     assert report.trust_eligible is False
@@ -102,6 +105,8 @@ def test_zero_residual_is_a_separate_no_bias_control(tmp_path: Path) -> None:
     assert report.overall_mae == pytest.approx(0.0)
     assert report.detected_biases == []
     assert report.overall_bias_direction is BiasDirection.NEUTRAL
+    assert report.metric_diagnostics[0].residual_sign == "zero"
+    assert report.metric_diagnostics[0].direction_status == "not_applicable"
 
 
 def test_small_sample_ttest_matches_scipy_reference() -> None:
@@ -146,6 +151,13 @@ def test_scipy_unavailability_preserves_metrics_and_withholds_trust(
     assert bias.magnitude == pytest.approx(1.5)
     assert bias.p_value is None
     assert "t-test" not in bias.statistical_test.lower()
+    diagnostic = report.metric_diagnostics[0]
+    assert diagnostic.status == "unavailable"
+    assert diagnostic.method_id is None
+    assert diagnostic.backend_id is None
+    assert diagnostic.backend_version is None
+    assert diagnostic.p_value is None
+    assert diagnostic.reason == "scipy_ttest_1samp_error:ModuleNotFoundError"
 
 
 @pytest.mark.parametrize(
@@ -208,6 +220,20 @@ def test_untestable_nonzero_errors_withhold_trust_after_cas_readback(
         assert observed.trust_grade is None
 
 
+def test_bias_magnitude_preserves_absolute_signed_mean_not_mae(tmp_path: Path) -> None:
+    """The B172 bias magnitude is the absolute signed mean residual."""
+    predictions = [-1.0, 3.0, 3.0]
+    truths = [0.0, 0.0, 0.0]
+    report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
+    errors = np.asarray(predictions) - np.asarray(truths)
+    expected = abs(float(np.mean(errors)))
+
+    assert report.overall_mae == pytest.approx(float(np.mean(np.abs(errors))))
+    assert report.overall_mae > expected
+    assert report.detected_biases[0].magnitude == pytest.approx(expected)
+    assert report.metric_diagnostics[0].magnitude == pytest.approx(expected)
+
+
 def test_balanced_nonzero_errors_use_real_scipy_before_trust(
     tmp_path: Path,
 ) -> None:
@@ -225,9 +251,16 @@ def test_balanced_nonzero_errors_use_real_scipy_before_trust(
     assert test_result.test_name == "one-sample t-test H0(mean_error=0)"
     report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
     assert report.overall_mae > 0.0
-    assert report.degraded is False
-    assert report.trust_eligible is True
-    assert report.trust_grade == "A"
+    assert report.degraded is True and report.trust_eligible is False
+    assert report.trust_score is None and report.trust_grade is None
+    assert report.overall_bias_direction is BiasDirection.UNKNOWN
+    diagnostic = report.metric_diagnostics[0]
+    assert diagnostic.status == "available" and diagnostic.method_id == "scipy.stats.ttest_1samp"
+    assert diagnostic.p_value == pytest.approx(1.0)
+    assert diagnostic.residual_sign == "zero" and diagnostic.direction_status == "not_established"
+    assert report.detected_biases == []
+    assert diagnostic.magnitude == pytest.approx(abs(float(np.mean(errors))))
+    assert "metric_direction_not_established:metric" in report.degraded_reasons
 
 
 @pytest.mark.parametrize("truths", [[1.0], [1.0, 1.0, 1.0]])
@@ -249,7 +282,31 @@ def test_exact_zero_error_control_does_not_claim_backend_availability(
     assert report.overall_mae == 0.0
     assert report.overall_rmse == 0.0
     assert report.detected_biases == []
+    assert report.metric_diagnostics[0].status == "exact_zero"
+    assert report.metric_diagnostics[0].method_id is None
     assert report.degraded is False
     assert report.degraded_reasons == []
     assert report.trust_eligible is True
     assert report.trust_grade == "A"
+
+
+def test_s1_report_retains_method_identity_for_nonsignificant_result(tmp_path: Path) -> None:
+    pytest.importorskip("scipy.stats")
+    report = _run_provided_report(
+        tmp_path,
+        predictions=[100.0, 100.0, 100.0],
+        truths=[99.5, 98.5, 97.5],
+    )
+    diagnostic = next(item for item in report.metric_diagnostics if item.metric_name == "metric")
+    assert diagnostic.status == "available"
+    assert diagnostic.method_id == "scipy.stats.ttest_1samp"
+    assert diagnostic.backend_id == "scipy" and diagnostic.backend_version
+    assert diagnostic.n == 3 and diagnostic.statistic is not None
+    assert diagnostic.p_value == pytest.approx(0.121690, abs=1e-6)
+    assert (
+        diagnostic.residual_sign == "positive" and diagnostic.direction_status == "not_established"
+    )
+    assert "metric_direction" in diagnostic.unresolved_assumptions
+    assert {"residual_independence", "multiplicity_policy"} <= set(
+        diagnostic.unresolved_assumptions
+    )

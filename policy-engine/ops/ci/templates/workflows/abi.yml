@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'src/polisyos/ir/**'
+      - 'src/polisyos/scientist/governance/**'
+      - 'src/polisyos/schemas/**'
       - 'src/polisyos/fabric/world/**'
       - 'src/polisyos/core/canon/**'
       - 'src/polisyos/core/artifacts/**'

@@ -78,6 +78,7 @@ from polisyos.core.contracts.value_outer_set import (
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_requirement.compiler import (
     DataRequirementCompiler,
+    ScenarioFamilyDeclarationInputError,
     ScenarioScopeProfileInputError,
 )
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
@@ -8027,14 +8028,30 @@ class GenerationCycleController:
         )
         if not families and not explicit_profile_supplied and not direct_requirement_supplied:
             return (), None
+        family_frontier_fields = (
+            "required_data_families",
+            "world_slots",
+            "target_world_slots",
+            "target_world_slot",
+            "world_slot",
+        )
+        driver_value = acquisition_request.get("driver")
+        family_frontier_declared = (
+            any(key in acquisition_request for key in family_frontier_fields)
+            or (
+                isinstance(driver_value, str)
+                and driver_value.startswith("acquire_data:")
+            )
+        )
         scenario_payload: dict[str, Any] = {
             "scenario_id": problem.design_problem_id,
             "text": problem.problem_statement,
             "domain": problem.domain,
-            "expected_evidence_contract": {
-                "admissible_data_source_families": list(families),
-            },
         }
+        if family_frontier_declared or families:
+            scenario_payload["expected_evidence_contract"] = {
+                "admissible_data_source_families": list(families),
+            }
         for key in (
             *profile_aliases,
             "required_constructs",
@@ -8089,9 +8106,13 @@ class GenerationCycleController:
             report = DataRequirementCompiler(
                 capability_resolver=self._n7_capability_resolver(problem),
             ).compile_for_scenario(scenario_payload)
-        except ScenarioScopeProfileInputError as exc:
+        except (ScenarioFamilyDeclarationInputError, ScenarioScopeProfileInputError) as exc:
             raise GenerationCycleError(
-                "n7_cycle_substrate_context_invalid",
+                (
+                    "n7_family_declaration_invalid"
+                    if isinstance(exc, ScenarioFamilyDeclarationInputError)
+                    else "n7_cycle_substrate_context_invalid"
+                ),
                 str(exc),
             ) from exc
         return tuple(report.specs), report.capability_requirement_resolutions
@@ -8154,6 +8175,7 @@ class GenerationCycleController:
                 "start": time_semantics.start_date,
                 "end": time_semantics.end_date,
             }
+            profile["granularity"] = time_semantics.frequency.value
         for key in ("required_constructs", "construct_refs"):
             value = acquisition_request.get(key)
             if value is not None:
@@ -11561,23 +11583,33 @@ def _n7_required_data_families(
     del problem
     families: list[str] = []
 
-    def add(value: object) -> None:
-        text = str(value or "").strip()
-        if text and text not in families:
+    def add(value: object, *, field: str) -> None:
+        if not isinstance(value, str) or not value.strip():
+            raise GenerationCycleError("n7_data_families_invalid", field)
+        text = value.strip()
+        if text not in families:
             families.append(text)
 
     for key in ("required_data_families", "world_slots", "target_world_slots"):
+        if key not in acquisition_request:
+            continue
         raw = acquisition_request.get(key)
         if isinstance(raw, str):
-            add(raw)
-        elif isinstance(raw, Sequence):
-            for item in raw:
-                add(item)
+            add(raw, field=key)
+        elif isinstance(raw, Sequence) and not isinstance(raw, bytes | bytearray):
+            for index, item in enumerate(raw):
+                add(item, field=f"{key}[{index}]")
+        else:
+            raise GenerationCycleError("n7_data_families_invalid", key)
     for key in ("target_world_slot", "world_slot"):
-        add(acquisition_request.get(key))
-    driver = str(acquisition_request.get("driver") or "")
+        if key in acquisition_request:
+            add(acquisition_request[key], field=key)
+    raw_driver = acquisition_request.get("driver")
+    if raw_driver is not None and not isinstance(raw_driver, str):
+        raise GenerationCycleError("n7_data_families_invalid", "driver")
+    driver = raw_driver or ""
     if driver.startswith("acquire_data:"):
-        add(driver.split(":", 1)[1])
+        add(driver.split(":", 1)[1], field="driver")
     return tuple(families)
 
 

@@ -456,3 +456,55 @@ def test_target_contract_fqns_resolve_where_applicable(
     assert target.contract_id == expected_contract_id
     if hasattr(resolved, "contract_id"):
         assert target.contract_id == resolved.contract_id
+
+
+def test_backtest_bundle_role_request_is_typed_and_consistent() -> None:
+    from pydantic import ValidationError
+
+    target = ContractCompatibilityTarget(
+        contract_id="household_bundle", contract_fqn="polisyos.tests.BacktestPlanBundle"
+    )
+    gap = BacktestPlanBundle(
+        contract_target=target,
+        required_fields=["metric"],
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+        gap_reason="empty_named_holdout:fixture_holdout",
+    )
+    assert (
+        BacktestPlanBundle.model_validate(gap.model_dump(mode="json")).gap_reason == gap.gap_reason
+    )
+    with pytest.raises(ValidationError, match="distinct"):
+        BacktestPlanBundle(
+            contract_target=target,
+            required_fields=["metric"],
+            selected_training_role="same",
+            selected_holdout_role="same",
+            gap_reason="empty_named_holdout:same",
+        )
+    with pytest.raises(ValidationError, match="complete three-role request"):
+        BacktestPlanBundle(
+            contract_target=target,
+            required_fields=["metric"],
+            selected_validation_role="fixture_validation",
+            gap_reason="empty_named_holdout:fixture_holdout",
+        )
+    with pytest.raises(ValidationError, match="does not match selected role request"):
+        BacktestPlanBundle(
+            contract_target=target,
+            required_fields=["metric"],
+            selected_training_role="fixture_training",
+            selected_holdout_role="fixture_holdout",
+            plans=[
+                {
+                    "plan_id": "bad",
+                    "selected_training_role": "train_pre_2024",
+                    "selected_holdout_role": "fixture_holdout",
+                    "metadata": {
+                        "selected_training_role": "train_pre_2024",
+                        "selected_holdout_role": "fixture_holdout",
+                    },
+                }
+            ],
+        )

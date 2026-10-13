@@ -1,0 +1,23 @@
+id = "2026-10-13-s1-c5b-profile-binding-schema-1-1"
+title = "Version selected C5b JSON provenance as schema 1.1"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "C5b persists nonempty selected JSON profile provenance as bundle schema 1.1 and recomputes the complete source-edge multiset by role, artifact, and manifest profile across C5b, Backtest, and Decision Packet, resolving every selected source view through CAS; historical 1.0 bindings remain unestablished."
+evidence = [
+  "src/polisyos/scientist/governance/calibration_validation.py",
+  "src/polisyos/scientist/governance/blueprint_release.py",
+  "tests/unit/scientist/governance/test_blueprint_release.py",
+  "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+  "tests/unit/scientist/governance/test_calibration_validation.py",
+]
+compatibility = "New readers accept C5b bundle schemas 1.0 and 1.1 only when the persisted manifest kind, media type, schema name, and version match the payload. Schema 1.0 retains its historical shape without nonempty source_json_snapshot_reads; producers with that typed field write schema 1.1. No historical artifact rewrite is required. Older strict readers may reject schema 1.1 and must not reinterpret it as schema 1.0."
+change_class = "internal"
+surface_classification = "internal: Scientist persisted C5b artifacts and decision packet projections; no runtime HTTP or generated client surface change."
+migration = "Deploy the 1.1-aware writer and reader together. Historical schema 1.0 bytes remain readable as provenance-absent and source binding not_established."
+api = "The C5b producer preserves caller-supplied source edges, including repeated roles, then appends one typed structural backtest_report edge for its nested report. The fresh reader identifies and removes one exact structural occurrence by role, artifact ID, and selected profile, compares the complete remaining C5b source-edge multiset with every nested report input, enforces required household roles, binds candidate to the typed C5b reference, and resolves selected views from CAS. Decision Packet preserves and compares the direct report view with nested C5b. A readable report with mismatched edges remains readable while diagnostics are withheld. Missing historical profiles remain not_established. Binding stays separate from profile conformance, authority, custody, unit, currentness, coverage, and signoff."
+limitations = "Candidate profile binding is a content/lineage fact only. It does not establish producer attestation, institutional authority, data currentness, source unit, population coverage, custody, representativeness, or final signoff."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/scientist/calibration-governance.md"]
+runbook_docs = []

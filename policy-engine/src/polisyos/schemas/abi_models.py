@@ -21,6 +21,11 @@ class Lifecycle(str, Enum):
     DEPRECATED = "deprecated"
 
 
+class SchemaMode(str, Enum):
+    VALIDATION = "validation"
+    SERIALIZATION = "serialization"
+
+
 @dataclass(frozen=True)
 class ABIModelEntry:
     abi_key: str
@@ -33,6 +38,8 @@ class ABIModelEntry:
     lifecycle: Lifecycle = Lifecycle.ACTIVE
     aliases: tuple[str, ...] = ()
     allow_missing: bool = False
+    schema_mode: SchemaMode = SchemaMode.VALIDATION
+    schema_variant_version: str | None = None
 
 
 IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
@@ -792,7 +799,22 @@ FABRIC_ABI_MODELS: tuple[ABIModelEntry, ...] = (
 )
 
 
-ABI_MODELS: tuple[ABIModelEntry, ...] = IR_ABI_MODELS + FABRIC_ABI_MODELS
+SCIENTIST_ABI_MODELS: tuple[ABIModelEntry, ...] = (
+    ABIModelEntry(
+        abi_key="calibration_validation_bundle_v1_1",
+        fqn="polisyos.scientist.governance.calibration_validation.CalibrationValidationBundle",
+        module="scientist",
+        schema_file="calibration_validation_bundle_v1_1.schema.json",
+        priority=Priority.P1,
+        compat_mode=CompatMode.STRICT,
+        version_field="schema_version",
+        schema_mode=SchemaMode.SERIALIZATION,
+        schema_variant_version="1.1",
+    ),
+)
+
+
+ABI_MODELS: tuple[ABIModelEntry, ...] = IR_ABI_MODELS + FABRIC_ABI_MODELS + SCIENTIST_ABI_MODELS
 
 
 def iter_abi_entries(*, include_deprecated: bool = False) -> tuple[ABIModelEntry, ...]:

@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
+import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from pydantic import BaseModel
 
-from polisyos.schemas.abi_models import ABIModelEntry, CompatMode, Lifecycle, Priority
+from polisyos.schemas.abi_models import (
+    ABIModelEntry,
+    CompatMode,
+    Lifecycle,
+    Priority,
+    SchemaMode,
+)
 from tools.quality.diagnostics import (
     abi_diff,
     check_perf_regression,
@@ -203,6 +211,109 @@ def test_gen_schema_process_module_writes_expected_snapshot_and_manifest(
     assert manifest_entries["demo_model"]["schema_version"] == "1.0"
     assert schema_path.read_text(encoding="utf-8") == expected_schema
     assert manifest["models"]["demo_model"]["schema_file"] == "demo_model.schema.json"
+
+
+def test_scientist_v1_1_snapshot_uses_typed_serialization_variant_and_rechecks_requiredness(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    entries = gen_schema.select_abi_entries(["calibration_validation_bundle_v1_1"])
+    assert len(entries) == 1
+    entry = entries[0]
+    resolved = gen_schema._resolve_entry(entry)
+    assert entry.version_field is not None
+    assert resolved.cls.model_fields[entry.version_field].default == "1.0"
+
+    historical_schema = gen_schema._generate_model_schema(
+        resolved.cls, mode=SchemaMode.SERIALIZATION
+    )
+    historical_version = historical_schema["properties"][entry.version_field]
+    assert set(historical_version["enum"]) == {"1.0", "1.1"}
+
+    monkeypatch.setattr(
+        gen_schema,
+        "select_abi_entries",
+        lambda _filters, *, include_deprecated=False: entries,
+    )
+    monkeypatch.setattr(gen_schema, "generate_reference_docs", lambda *, check: [])
+    output_dir = tmp_path / "snapshots"
+    command = [
+        "--models",
+        entry.abi_key,
+        "--output-dir",
+        str(output_dir),
+        "--cache-dir",
+        str(tmp_path / "cache"),
+    ]
+
+    assert gen_schema.main(command) == 0
+    schema_path = output_dir / "scientist" / entry.schema_file
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    schema_version = schema["properties"][entry.version_field]
+    assert schema_version.get("const") == "1.1" or schema_version.get("enum") == ["1.1"]
+    assert "run_id" in schema["required"]
+    assert gen_schema.main(["--check", *command]) == 0
+
+    module_manifest = json.loads(
+        (output_dir / "scientist" / "_manifest.json").read_text(encoding="utf-8")
+    )
+    variant_manifest = module_manifest["models"][entry.abi_key]
+    assert variant_manifest["schema_mode"] == "serialization"
+    assert variant_manifest["schema_variant_version"] == "1.1"
+    assert module_manifest["compatibility"]["version_owner"] == "team-scientist"
+
+    class StringVersionModel(BaseModel):
+        schema_version: str = "1.0"
+
+    with pytest.raises(gen_schema.GenerationError, match="typed 'schema_version' field"):
+        gen_schema._schema_variant_model(entry, StringVersionModel)
+
+    schema["required"].remove("run_id")
+    schema_path.write_text(json.dumps(schema, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    assert gen_schema.main(["--check", *command]) == 1
+
+
+def test_schema_mode_and_variant_bind_cache_key_and_run_fingerprint(
+    tmp_path: Path,
+) -> None:
+    entries = gen_schema.select_abi_entries(["calibration_validation_bundle_v1_1"])
+    assert len(entries) == 1
+    source = gen_schema._resolve_entry(entries[0])
+    entry = source.entry
+
+    # Adjacent pairs hold every other descriptor field fixed. If either selector
+    # axis drops out of cache or run identity, the corresponding assertion fails.
+    default_variant = replace(
+        entry,
+        schema_mode=SchemaMode.VALIDATION,
+        schema_variant_version=None,
+    )
+    validation_variant = replace(entry, schema_mode=SchemaMode.VALIDATION)
+    serialization_variant = entry
+    resolved_variants = tuple(
+        replace(source, entry=variant)
+        for variant in (default_variant, validation_variant, serialization_variant)
+    )
+
+    cache_keys = [
+        gen_schema._entry_cache_key(item, pydantic_version="test") for item in resolved_variants
+    ]
+    assert cache_keys[0] != cache_keys[1]
+    assert cache_keys[1] != cache_keys[2]
+
+    run_fingerprints = [
+        gen_schema._build_run_fingerprint(
+            resolved_entries=(item,),
+            output_dir=tmp_path / "same-snapshots",
+            fmt="pretty",
+            check=True,
+            include_deprecated=False,
+            scan_mode="full",
+        )
+        for item in resolved_variants
+    ]
+    assert run_fingerprints[0] != run_fingerprints[1]
+    assert run_fingerprints[1] != run_fingerprints[2]
 
 
 def test_visualize_provenance_loads_package_and_detects_cycle(tmp_path: Path) -> None:

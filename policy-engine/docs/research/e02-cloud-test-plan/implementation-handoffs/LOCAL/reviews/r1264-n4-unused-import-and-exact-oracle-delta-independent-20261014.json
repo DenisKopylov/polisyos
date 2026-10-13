@@ -1,0 +1,155 @@
+{
+  "candidate": {
+    "ast_parse": "PASS for both R1263 final virtual postimages",
+    "composition_path": "raw/r1263-n4-final-root-checked-oracle-composition-20261014/composition.json",
+    "composition_sha256": "e4ff178cc0751e0d045f12a3ebc29c727b9475ae07ae5ccb41001fc000ef64a1",
+    "delta_patch_path": "raw/r1263-n4-oracle-unused-import-root-companion-20261014/candidate.patch",
+    "delta_patch_sha256": "797c2bd4c5a85906bd595ecf7a45e47a27572e10d9d0676ad25a5e50a57c5948",
+    "delta_readback_path": "raw/r1263-n4-oracle-unused-import-root-companion-20261014/delta-readback.json",
+    "delta_readback_sha256": "31b9a7f4ed640a8f879ab7dfb89a47da66c07d26b30d6989b7a8e38339348ac9",
+    "helper_hashlib_references_after_delta": 0,
+    "net_patch_path": "raw/r1263-n4-final-root-checked-oracle-composition-20261014/net.patch",
+    "net_patch_sha256": "797c2bd4c5a85906bd595ecf7a45e47a27572e10d9d0676ad25a5e50a57c5948",
+    "paths": [
+      {
+        "current_and_head_preimage_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190",
+        "current_preimage_matches_head_and_r1258_frame": true,
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "r1245_reviewed_postimage_sha256": "44e65e07268734778aeb8bc9f591a24a3455a594319e799a0730faa50e8b9f0c",
+        "r1263_final_postimage_sha256": "5ece2481d903e49d2f5a1a3af6582ea76c7ab53d39f2209fbd3dced8ce4013f9",
+        "r1263_postimage_bytes": 80379
+      },
+      {
+        "current_and_head_preimage_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7",
+        "current_preimage_matches_head_and_r1258_frame": true,
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "r1245_reviewed_postimage_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "r1263_final_postimage_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "r1263_postimage_bytes": 70333
+      }
+    ],
+    "reconstruction": "Both R1245 and R1263 postimages reconstructed in memory; byte hashes match composition. R1263 differs from R1245 only by deleting import hashlib from the helper; integration test is unchanged.",
+    "source_apply": "NOT_RUN"
+  },
+  "closure_ids": [],
+  "decision": "GO_BOUNDED_DELTA_ONLY_FOR_APPLY_AND_FOCUSED_INTEGRATION",
+  "limits": [
+    "Focused integration remains UNRUN.",
+    "No external recording authenticity/currentness, production authority, G acceptance, B15/B29 closure, or formal closure is established."
+  ],
+  "p40": {
+    "bucket": "same oracle-binding class; R1264 is a one-line cleanup delta after whole helper/caller R1245 review",
+    "closure_ids": []
+  },
+  "prior_semantic_review": {
+    "carried_scope": "exact source recording ID/hash guard, complete dispositions, proposal-to-candidate operator/target groups, and all three caller bindings",
+    "review_path": "reviews/r1255-n4-whole-oracle-binding-caller-successor-independent-20261014.json",
+    "review_sha256": "1d4c08294a693ff3a6d2b2f39947c796b3a922c42b11f2c0a867a47fa3645fce"
+  },
+  "quality": {
+    "all_four_pass": true,
+    "bound_composition_sha256": "e4ff178cc0751e0d045f12a3ebc29c727b9475ae07ae5ccb41001fc000ef64a1",
+    "commands": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--output-format",
+          "json",
+          "--stdin-filename",
+          "tests/_helpers/generic_n4_served_replay.py",
+          "-"
+        ],
+        "exit_code": 0,
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "postimage_sha256": "5ece2481d903e49d2f5a1a3af6582ea76c7ab53d39f2209fbd3dced8ce4013f9",
+        "stderr": "",
+        "stdout": "[]"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--stdin-filename",
+          "tests/_helpers/generic_n4_served_replay.py",
+          "-"
+        ],
+        "exit_code": 0,
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "postimage_sha256": "5ece2481d903e49d2f5a1a3af6582ea76c7ab53d39f2209fbd3dced8ce4013f9",
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--output-format",
+          "json",
+          "--stdin-filename",
+          "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+          "-"
+        ],
+        "exit_code": 0,
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "postimage_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "stderr": "",
+        "stdout": "[]"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--stdin-filename",
+          "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+          "-"
+        ],
+        "exit_code": 0,
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "postimage_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "git_mutations": "NOT_RUN",
+    "product_imports": "NOT_RUN",
+    "pytest": "NOT_RUN",
+    "receipt_path": "raw/r1263-n4-final-root-checked-oracle-composition-20261014/root-quality-r1093.json",
+    "receipt_sha256": "4b596b52feeceeb8d740177fabc6c7da8b8ea13b7886701de0ec4a88f5086057",
+    "runtime_verification": "UNRUN"
+  },
+  "reviewer_actions": {
+    "git_mutations": false,
+    "imports": false,
+    "reconstructed_virtual_postimages": true,
+    "source_writes": false,
+    "test_runs": false
+  },
+  "schema": "r1264_n4_unused_import_delta_independent_review_v1",
+  "scope": "R1263 cleanup against previously reviewed R1245/R1255; no semantic re-review or runtime claim",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "root-author-source-frame-r1258-20261014.json",
+    "frame_physical_path_count": 590,
+    "frame_sha256": "e3632db76cb3441f9c594accf74c330bd0b84cf6e2707babab098b5b61b007a3",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "local": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "target_preimages_match_current_head_and_frame": true,
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082"
+  }
+}

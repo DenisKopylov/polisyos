@@ -1,0 +1,914 @@
+{
+  "schema": "policyos.e02.source35.prepared_b.r1291_native_deciding_receipt.v1",
+  "receipt_id": "R1291",
+  "date": "2026-10-14",
+  "authority": "Prepared-B current-source execution handoff only. This is not G acceptance, not closure, and not a production/currentness or external-authority claim.",
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b",
+    "slice_base": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "frame_source_path_count": 590,
+    "input_freeze_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1287-source35-prepared-b-full-contours-input-freeze-20261014.json",
+    "input_freeze_sha256": "9f1460048feb8db1293ab3b6d39fd88e8eeba3ee295ff46b091caf6ff5d03b89",
+    "readiness_report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1220-prepared-b-thirteen-contours-current-readiness-20261013.json",
+    "readiness_report_sha256": "8b753312afebccaf50f4c68b6681258649c3119c267bf2f4cfa253088100f701",
+    "source_frame_and_head_match_freeze": true
+  },
+  "prepared_b_object_binding": {
+    "defining_producer_baseline": {
+      "commit": "2d3a990ff716b46ccf473e229b9de7e009a1d1fb",
+      "tree": "68ae933789c2160911260d769039757c7a142a58"
+    },
+    "prepared_b_candidate": {
+      "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "protected_ref": "refs/e02-g/local-transition-20261009/prepared-B-1e18a965",
+      "resolved": "1e18a965b4334331dc3d5542b609f8a00bb35c6d"
+    },
+    "prepared_b_handoff": {
+      "commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "protected_ref": "refs/e02-g/local-transition-20261009/prepared-B-a0ee451f",
+      "resolved": "a0ee451fb287d9666c620defd01fdc87ff864c60"
+    },
+    "pr55_delivery_base_not_substituted": {
+      "commit": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "tree": "568e2e42e18abcea9fd39759546f1e48525c590a",
+      "not_substituted": true
+    },
+    "baseline_test_target": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+    "baseline_test_sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+    "baseline_current_run_result": {
+      "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+      "collected_cases": 66,
+      "passed": 66,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "historical_noncarry": "R1220 explicitly says R793 at old HEAD is historical only; no old0bf or R793 carry.",
+    "baseline_basis": "Use the genuine R1220 defining-baseline commit/tree and the current actual producer_scope_reconciliation test target. Do not substitute PR55 or old0bf historical receipts."
+  },
+  "execution": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-c",
+      "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=600.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--maxfail=1",
+      "--maxfail=0",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+      "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+      "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "tests/unit/core/artifacts/test_bound_import_preservation.py",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/junit.xml"
+    ],
+    "argv_sha256": "fe6ae0ced547ba4b0fedd8e7a1e746aef851d6eb85454a231eb179995d45c676",
+    "command_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/command.json",
+    "command_record_sha256": "6a2f25e874be7617d942b72ec7d6dbdde62982534a3630935d3a25897617c20b",
+    "exit_code": 1,
+    "wall_seconds": 87.88854704098776,
+    "junit_seconds": 0.0,
+    "test_target_file_count": 20,
+    "collected_case_count": 441,
+    "pytest_counts": {
+      "passed": 398,
+      "failed": 43,
+      "errors": 0,
+      "skipped": 0
+    },
+    "profile": {
+      "pydantic": "2.12.5",
+      "pydantic-core": "2.41.5",
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "scipy": "1.16.3",
+      "numpy": "2.3.5",
+      "ruff": "0.14.10",
+      "pytest": "9.0.2",
+      "duckdb": "1.4.3"
+    },
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1",
+      "SCIENTIST_TORCH_DEVICE": "cpu",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+      "E02_PROGRESS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/progress.json",
+      "E02_MODULE_ORIGINS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/module-origins.json"
+    },
+    "input_fingerprint_map": {
+      "before_entries": 6588,
+      "after_entries": 6588,
+      "equal": true
+    }
+  },
+  "scope": {
+    "prepared_b_scope": "All13PreparedB affectedcontours plusseparatedefiningbaseline andB61four/B74/B148 companions; N4explicitlyheldR1272; historical0bfnotcurrentruntime",
+    "r1_original_finding_ids": [
+      "LA-033",
+      "B13",
+      "B59",
+      "B61",
+      "B74",
+      "B148"
+    ],
+    "r1_denominator": {
+      "contour_count": 13,
+      "separate_defining_producer_baseline": true,
+      "target_file_count": 14,
+      "test_function_definitions": 188,
+      "principal_source_file_count": 19
+    },
+    "selected_targets": [
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "sha256": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+        "collected_cases": 36,
+        "passed": 36,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+        "collected_cases": 25,
+        "passed": 25,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "sha256": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2",
+        "collected_cases": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "sha256": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+        "collected_cases": 27,
+        "passed": 27,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+        "collected_cases": 8,
+        "passed": 2,
+        "failed": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+        "collected_cases": 21,
+        "passed": 18,
+        "failed": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+        "collected_cases": 5,
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+        "collected_cases": 15,
+        "passed": 15,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "sha256": "94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531",
+        "collected_cases": 11,
+        "passed": 11,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+        "collected_cases": 39,
+        "passed": 39,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+        "collected_cases": 32,
+        "passed": 32,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "sha256": "ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba",
+        "collected_cases": 32,
+        "passed": 32,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "sha256": "316baf196fac8810bbf1894928d9472f3c6951f738a9edcff4eb67af2f4933b0",
+        "collected_cases": 8,
+        "passed": 8,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+        "collected_cases": 66,
+        "passed": 66,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "sha256": "a1b387778c248e5e424d23e23f6a6f33ca66e4398900e4dee1b5729674c82528",
+        "collected_cases": 41,
+        "passed": 14,
+        "failed": 27,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "sha256": "e7b3fe412c27c722f83b16159d73024aad1f7e7b99e2590e3029fe0bcd53ae92",
+        "collected_cases": 19,
+        "passed": 14,
+        "failed": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+        "sha256": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca",
+        "collected_cases": 12,
+        "passed": 12,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "sha256": "fc8b8484eb9e9637f9e543bf0695a56457daa8c661a1104642bf91ab906575b9",
+        "collected_cases": 24,
+        "passed": 24,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "sha256": "526788944b6c932e45a3789dc77a30cfab9aec27805e9c05be8b8fe72154d1e1",
+        "collected_cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "path": "tests/unit/core/artifacts/test_bound_import_preservation.py",
+        "sha256": "a2f0b9833b0b286e7904cc429c0db695a499e5bf906c3ab1572b1c2529721140",
+        "collected_cases": 12,
+        "passed": 12,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "thirteen_core_contours": {
+      "observed_totals": {
+        "collected_cases": 261,
+        "passed": 250,
+        "failed": 11,
+        "errors": 0,
+        "skipped": 0
+      },
+      "items": [
+        {
+          "ordinal": 1,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+          "source_file_sha256": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+          "declared_test_definitions_at_r1220": 26,
+          "property": "Declared nested-write isolation, finite producer-state graph admission, and copy-on-write branch behavior; source state_branching.py.",
+          "api": "branch_state(), snapshot_state(), mutation_journal_for_state()",
+          "artifact": "BranchedState / journaled ExperimentState",
+          "bridge": "WorkflowExecutor and AsyncWorkflowExecutor branch declared writes",
+          "consumer": "base and neighboring state after commit/rollback; nested changes stay isolated",
+          "matched_removal_control": "Remove nested declared-path isolation while markers remain; base/sibling must expose leaked writes.",
+          "observed_r1287": {
+            "collected_cases": 36,
+            "passed": 36,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 2,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+          "source_file_sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+          "declared_test_definitions_at_r1220": 21,
+          "property": "Journaled parallel writes, conflict policy, and distinct set/delete/null/no-write replay through engine/state_merge.py.",
+          "api": "merge_parallel_outcomes(), runner.merge_tier_outcomes()",
+          "artifact": "Mutation journal with set/delete/null/same-value operations",
+          "bridge": "engine tier and worker-result merge into current receiver",
+          "consumer": "merged ExperimentState/artifacts_index with explicit conflicts",
+          "matched_removal_control": "Remove operation body but retain typed outcome markers; changed receiver must diverge.",
+          "observed_r1287": {
+            "collected_cases": 25,
+            "passed": 25,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 3,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+          "source_file_sha256": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2",
+          "declared_test_definitions_at_r1220": 2,
+          "property": "Native-state presence sensitivity across cache reopen/replay through engine/idempotency.py.",
+          "api": "compute_idempotency_payload(), compute_idempotency_key(), NodeResultCache",
+          "artifact": "canonical state-read snapshot, key, cache entry with full outcome/journal",
+          "bridge": "cache seed/load/reopen and executor replay",
+          "consumer": "current node invocation only reuses when state presence matches",
+          "matched_removal_control": "Remove presence distinctions from key/replay; distinct absent/null/present requests must alias.",
+          "observed_r1287": {
+            "collected_cases": 2,
+            "passed": 0,
+            "failed": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 4,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+          "source_file_sha256": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+          "declared_test_definitions_at_r1220": 26,
+          "property": "Idempotency input identity, deadlines/scope, embedded outcome, mutation journal, epoch compatibility, and corrupt-entry refusal through NodeResultCache.",
+          "api": "NodeResultCache validation/read/write",
+          "artifact": "epoch-bound entry, embedded outcome, journal proof and selected refs",
+          "bridge": "WorkflowExecutor/output-aware cache adapter validates then replays",
+          "consumer": "status/state after reopen; stale, corrupt, unproven or foreign entries miss/refuse",
+          "matched_removal_control": "Remove outcome/journal/epoch validation while keeping markers; stale/tampered data must be accepted.",
+          "observed_r1287": {
+            "collected_cases": 27,
+            "passed": 27,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 5,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+          "source_file_sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+          "declared_test_definitions_at_r1220": 8,
+          "property": "WorkflowExecutor cache hit after reopen, compatible replay, incompatible target recompute, and failed-node noncommit.",
+          "api": "WorkflowExecutor resume/cache-hit and _merge_cached_outcome_state()",
+          "artifact": "completed NodeOutcome plus bound cache entry",
+          "bridge": "executor resolves order/dependencies and commits only successful effects",
+          "consumer": "workflow result and live state after restart/failure/retry",
+          "matched_removal_control": "Remove compatibility check; incompatible receiver must incorrectly reuse stale writes.",
+          "observed_r1287": {
+            "collected_cases": 8,
+            "passed": 2,
+            "failed": 6,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 6,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+          "source_file_sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+          "declared_test_definitions_at_r1220": 8,
+          "property": "Async cold seed/recovery, late-read nonpublication, absolute workflow deadline, and durable cache publication via async_executor/checkpoint/retry.",
+          "api": "AsyncWorkflowExecutor plus checkpoint/retry publication",
+          "artifact": "durable async outcome/journal and verified checkpoint data",
+          "bridge": "async producer, deadline/cancel barrier, off-loop store publication, reopen",
+          "consumer": "next async workflow sees only completed persisted result",
+          "matched_removal_control": "Remove deadline/publication barrier; late/failed producer can publish partial result.",
+          "observed_r1287": {
+            "collected_cases": 21,
+            "passed": 18,
+            "failed": 3,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 7,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+          "source_file_sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+          "declared_test_definitions_at_r1220": 4,
+          "property": "Selected CAS manifest-view identity, foreign-view refusal, and full ArtifactRef dedupe via cache plus Core CAS.",
+          "api": "NodeResultCache selected-ref identity plus FileSystemCAS profile/read APIs",
+          "artifact": "ArtifactRef including manifest_profile_sha256",
+          "bridge": "cache seed/dedupe and selected-manifest reader",
+          "consumer": "fresh reader refuses foreign/stale view; same ID/different view not collapsed",
+          "matched_removal_control": "Remove selected-view identity but retain markers; foreign/stale view gets reused.",
+          "observed_r1287": {
+            "collected_cases": 5,
+            "passed": 5,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 8,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+          "source_file_sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "declared_test_definitions_at_r1220": 15,
+          "property": "Actual async DAG producer execution, cache boundary, budget/cancellation, and no partial CAS publication.",
+          "api": "AsyncWorkflowExecutor, AsyncArtifactStoreAdapter/AsyncFileSystemArtifactStore",
+          "artifact": "actual producer output and durable CAS reference",
+          "bridge": "DAG scheduling, cache boundary, budget/cancellation, async store",
+          "consumer": "downstream and reopened store see only completed output",
+          "matched_removal_control": "Remove publication/cancel guard but retain markers; partial output becomes consumable.",
+          "observed_r1287": {
+            "collected_cases": 15,
+            "passed": 15,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 9,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+          "source_file_sha256": "94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531",
+          "declared_test_definitions_at_r1220": 11,
+          "property": "Parallel branch isolation, savepoint rollback, merge conflict, timeout and budget effects.",
+          "api": "branch_state() and merge_parallel_outcomes() in async tier",
+          "artifact": "independent branch snapshots, journals and savepoint state",
+          "bridge": "AsyncWorkflowExecutor gathers then commits/rolls back tier",
+          "consumer": "parent state after success/failure; no partial sibling state",
+          "matched_removal_control": "Remove branch isolation/rollback under failed/conflicting sibling; parent must change.",
+          "observed_r1287": {
+            "collected_cases": 11,
+            "passed": 11,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 10,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+          "source_file_sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+          "declared_test_definitions_at_r1220": 18,
+          "property": "Worker store ownership/context preflight, declared operation replay, checkpoint, and native status preservation.",
+          "api": "execute_with_retry_sync/async, _build_spawn_timeout_task, _typed_node_timeout_worker, run_node_task_in_timeout_worker_sync, _WorkerResultChannel, runner.merge_tier_outcomes",
+          "artifact": "typed NodeTask / serialized NodeOutcome with actual operation journal",
+          "bridge": "Darwin spawn for admitted ResolveParametersNode, typed IPC, parent receiver merge",
+          "consumer": "changed receiver gets declared writes while unrelated values survive",
+          "matched_removal_control": "R1211 removes only state_mutations while preserving schemas/outcome; receiver loses the two writes.",
+          "observed_r1287": {
+            "collected_cases": 39,
+            "passed": 39,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "The exact timed-worker state_mutations removal witness is the separately pinned R1211 receipt; R1287 did not activate a removal mode."
+        },
+        {
+          "ordinal": 11,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+          "source_file_sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+          "declared_test_definitions_at_r1220": 26,
+          "property": "Ordinary public state/outcome wire, typed reader, incomplete subtype refusal, and explicit legacy compatibility.",
+          "api": "serialize_state()/deserialize_state(), serialize_outcome()/deserialize_outcome(), safe variants",
+          "artifact": "public typed state/outcome wire, versions, refs, journal and explicit legacy form",
+          "bridge": "serializer at worker/cache boundaries and typed reader",
+          "consumer": "API/worker reconstruct complete current outcome without implicit defaults",
+          "matched_removal_control": "Remove subtype/version integrity or make legacy implicit; malformed current wire must be accepted.",
+          "observed_r1287": {
+            "collected_cases": 32,
+            "passed": 32,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 12,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+          "source_file_sha256": "ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba",
+          "declared_test_definitions_at_r1220": 9,
+          "property": "Real worker-process Decimal/ArtifactRef transport; non-finite, tampered, and untyped values refuse.",
+          "api": "typed Decimal/ArtifactRef wire encoder and actual worker process",
+          "artifact": "typed nested Decimal/ArtifactRef plus exact safe envelope",
+          "bridge": "worker process consumes state bytes and emits outcome bytes",
+          "consumer": "fresh parent receives exact identity or typed refusal for nonfinite/tampered/untyped values",
+          "matched_removal_control": "Remove type/integrity validation but retain markers; malformed payload becomes accepted.",
+          "observed_r1287": {
+            "collected_cases": 32,
+            "passed": 32,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        },
+        {
+          "ordinal": 13,
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+          "source_file_sha256": "316baf196fac8810bbf1894928d9472f3c6951f738a9edcff4eb67af2f4933b0",
+          "declared_test_definitions_at_r1220": 8,
+          "property": "Worker-produced declared write journal and artifact-index merge conflict semantics.",
+          "api": "runner.merge_tier_states()/merge_tier_outcomes() and worker entrypoints",
+          "artifact": "worker-produced journal and artifact-index refs",
+          "bridge": "typed result merge with alias/write-spec and index conflict validation",
+          "consumer": "parent state/index reflect only allowed writes",
+          "matched_removal_control": "Remove alias/write-spec/index conflict check; undeclared or colliding write commits.",
+          "observed_r1287": {
+            "collected_cases": 8,
+            "passed": 8,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "explicit_removal_injection_in_r1287": false,
+          "removal_control_note": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+        }
+      ]
+    },
+    "separate_defining_producer_baseline": {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "property": "Defining producer admission/reconciliation: actual producer writes and grants reconcile with reopened cache intent and a live consumer; unsupported model hooks/colluding scope refuse before state/journal/store effects.",
+      "result": {
+        "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+        "collected_cases": 66,
+        "passed": 66,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "route_companions": {
+      "B61": {
+        "property": "Bind the selected immutable SKG version/profile both in cache key and consumed bytes; same-path replacement invalidates. Controlled snapshot proves mechanism only; external owner/currentness remains not_established.",
+        "sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+            "sha256": "a1b387778c248e5e424d23e23f6a6f33ca66e4398900e4dee1b5729674c82528",
+            "observed_r1287": {
+              "collected_cases": 41,
+              "passed": 14,
+              "failed": 27,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          {
+            "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+            "sha256": "e7b3fe412c27c722f83b16159d73024aad1f7e7b99e2590e3029fe0bcd53ae92",
+            "observed_r1287": {
+              "collected_cases": 19,
+              "passed": 14,
+              "failed": 5,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+            "sha256": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca",
+            "observed_r1287": {
+              "collected_cases": 12,
+              "passed": 12,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+            "sha256": "fc8b8484eb9e9637f9e543bf0695a56457daa8c661a1104642bf91ab906575b9",
+            "observed_r1287": {
+              "collected_cases": 24,
+              "passed": 24,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          }
+        ],
+        "authority_limit": "real SKG owner/version/publication/currentness not_established"
+      },
+      "B74": {
+        "property": "Foundry checkpoint reuse binds effective computation identity and a validated completed prefix. Distinct from engine cache/checkpoint history.",
+        "sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+            "sha256": "526788944b6c932e45a3789dc77a30cfab9aec27805e9c05be8b8fe72154d1e1",
+            "observed_r1287": {
+              "collected_cases": 6,
+              "passed": 6,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          }
+        ],
+        "authority_limit": null
+      },
+      "B148": {
+        "property": "Bound import verifies/adopts before publishing and preserves an existing readable object after invalid/interrupted/conflicting import; no invented blanket external signature requirement.",
+        "sources": [
+          {
+            "path": "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+            "sha256": "a2f0b9833b0b286e7904cc429c0db695a499e5bf906c3ab1572b1c2529721140",
+            "observed_r1287": {
+              "collected_cases": 12,
+              "passed": 12,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          }
+        ],
+        "authority_limit": null
+      }
+    },
+    "held_separate_n4_targets": {
+      "targets": [
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_served_real_n4_children_keep_first_n5_after_later_sibling_failure",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_two_child_recording_lineage_tracks_selected_recorded_source"
+      ],
+      "reason": "R1268 first actual guard failure before POST; second interrupted; no acceptance or hidden exclusion; R1272 source/input investigation"
+    }
+  },
+  "observed_failures": {
+    "total": 43,
+    "failure_family_counts": {
+      "run_start_existing_lifecycle": 11,
+      "incomplete-run child exit assertion (exit 1, expected 73)": 1,
+      "canon_profile_absent (includes subprocess-wrapped refusal)": 24,
+      "run_execution_lease_busy": 2,
+      "prepared-read count assertion (3 observed, 2 expected)": 1,
+      "StopIteration": 3,
+      "artifact_store_return_selected_profile_unsupported": 1
+    },
+    "full_case_outputs_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/full-nonpass-case-outputs.json",
+    "full_case_outputs_sha256": "167198a4dc80d511b18847ac3df237ba04e512a32def9a5be6473a4590b2bafa",
+    "attribution": "P41 not_established: no exact disjoint replay from the slice base was made in this handoff. Do not label these failures inherited or newly caused by this receipt.",
+    "diagnostic_routing_only": {
+      "lifecycle_resume_family": "The 11 run_start_existing_lifecycle refusals, 2 run_execution_lease_busy refusals, and incomplete-run child exit assertion are routed to the parent-reported virtual R1289 lifecycle/resume lane; no repair is represented as applied.",
+      "skg_profile_cache_family": "The 24 canon_profile_absent-bearing failures, 3 StopIteration failures, selected-profile store API refusal, and prepared-read count mismatch are routed to the parent-reported virtual R1290 SKG profile/cache lane; no repair is represented as applied.",
+      "warning": "These are diagnostic pointers, not proof that all cases share one root cause or are fixed by the named virtual proposals."
+    }
+  },
+  "matched_removal_controls": {
+    "per_contour": [
+      {
+        "ordinal": 1,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "control": "Remove nested declared-path isolation while markers remain; base/sibling must expose leaked writes.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 2,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "control": "Remove operation body but retain typed outcome markers; changed receiver must diverge.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 3,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "control": "Remove presence distinctions from key/replay; distinct absent/null/present requests must alias.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 4,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "control": "Remove outcome/journal/epoch validation while keeping markers; stale/tampered data must be accepted.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 5,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "control": "Remove compatibility check; incompatible receiver must incorrectly reuse stale writes.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 6,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "control": "Remove deadline/publication barrier; late/failed producer can publish partial result.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 7,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "control": "Remove selected-view identity but retain markers; foreign/stale view gets reused.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 8,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "control": "Remove publication/cancel guard but retain markers; partial output becomes consumable.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 9,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "control": "Remove branch isolation/rollback under failed/conflicting sibling; parent must change.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 10,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "control": "R1211 removes only state_mutations while preserving schemas/outcome; receiver loses the two writes.",
+        "status": "The exact timed-worker state_mutations removal witness is the separately pinned R1211 receipt; R1287 did not activate a removal mode."
+      },
+      {
+        "ordinal": 11,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "control": "Remove subtype/version integrity or make legacy implicit; malformed current wire must be accepted.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 12,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "control": "Remove type/integrity validation but retain markers; malformed payload becomes accepted.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      },
+      {
+        "ordinal": 13,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "control": "Remove alias/write-spec/index conflict check; undeclared or colliding write commits.",
+        "status": "R1287 exercised the selected test file but did not activate a dedicated remove-property mutation."
+      }
+    ],
+    "route_specific": {
+      "B61": "The selected test_removed_cache_key_binding_is_stopped_by_origin_read_set_check failed at run_start_existing_lifecycle before reaching its origin-read-set assertion. B61 same-path replacement remains unproved by this run.",
+      "B74": "Six checkpoint tests passed, but R1220 found no explicit effective-input digest-removal selector in the module inventory; removal control remains unrun.",
+      "B148": "Twelve bound-import tests passed; R1287 did not set E02_B_PROPERTY_REMOVAL=bound-import-claimed-admission, so the explicit matched-removal injection was not activated.",
+      "worker": "R1220 pins the separate R1211 exact timed-worker state_mutations-removal witness as a 1P result only; R1287 did not repeat that injection."
+    }
+  },
+  "source_profile_and_quarantine": {
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src",
+    "loaded_product_modules": 1581,
+    "outside_selected_source_root": [],
+    "outside_selected_source_root_count": 0,
+    "module_origins_sidecar_exitstatus": 1,
+    "interpretation": "The captured outside-source list is empty (0 foreign modules); the sidecar exitstatus is 1 with the test command and is not a standalone passing gate."
+  },
+  "evidence": {
+    "raw_run_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014",
+    "ignored_support_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1291-source35-prepared-b-full-contours-native-deciding-support-20261014.json",
+    "raw_outputs_index": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/command.json",
+        "sha256": "6a2f25e874be7617d942b72ec7d6dbdde62982534a3630935d3a25897617c20b",
+        "bytes": 4788308
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/junit.xml",
+        "sha256": "f3a62ce6ac97ffc0abb5bb0ca6f07f8306b7307425f7bdf074fc5034583ca2c3",
+        "bytes": 249120
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/full-nonpass-case-outputs.json",
+        "sha256": "167198a4dc80d511b18847ac3df237ba04e512a32def9a5be6473a4590b2bafa",
+        "bytes": 181482
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/module-origins.json",
+        "sha256": "5511c4069c1bda48c1f3a036f34b080f909c974ae00ccf005ac17f3ae81b95b1",
+        "bytes": 500490
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/progress.json",
+        "sha256": "45fb82cf595ba565ec2f590bf78822707ac61c2a1c4c04493c251d8087abb155",
+        "bytes": 771513
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/stdout.txt",
+        "sha256": "b42e8bcfdcb0801a21c67da3680c6c4e902135b7ec4d5c0cdba4d1fa9a73d838",
+        "bytes": 199302
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-source35-full-contours-actual-r1287-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ],
+    "full_input_fingerprint_capture": "command.json before_sha256 and after_sha256 maps; both have 6,588 entries and compare equal.",
+    "full_fixture_output_map_entries": 11589,
+    "progress_record_count": 1808,
+    "ignored_support_sha256": "6c18bb8702652e4786dba352dacd1ff3a6cda41cc2ab3e45fab6fa9115709389"
+  },
+  "limits_and_decision": {
+    "status": "Native deciding evidence for the scoped Prepared-B 20-target run; 43 current-source failures remain open.",
+    "r1220_readiness_status": "R1 remains verification_missing as a whole; this run is evidence, not automatic closure.",
+    "formal_closure_ids": [],
+    "not_claimed": [
+      "No inherited-failure attribution under P41.",
+      "No old0bf/R793 carry.",
+      "No closure of the held-separate four N4 targets.",
+      "No external SKG owner/version/publication/currentness claim.",
+      "No general production, scientific, or authority-grade claim."
+    ]
+  }
+}

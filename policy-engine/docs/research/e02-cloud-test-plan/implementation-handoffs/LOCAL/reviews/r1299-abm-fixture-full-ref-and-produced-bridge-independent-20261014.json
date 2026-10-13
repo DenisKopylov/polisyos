@@ -1,0 +1,90 @@
+{
+  "actions_not_performed": [
+    "pytest",
+    "product imports",
+    "package/runtime commands",
+    "source edits",
+    "Git index/commit writes"
+  ],
+  "bridge_review": {
+    "identity_coordinates": [
+      "artifact_id",
+      "kind",
+      "media_type",
+      "manifest_profile_sha256"
+    ],
+    "limitation": "controlled synthetic fixture; not production evidence, publication authority, or G acceptance",
+    "new_test_file": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+    "path": "Core CAS SimulationResult and FoundryExecutionInputBasis -> _producer_output_ref full identity check -> build_abm_result_from_simulation -> persist_abm_result -> load_abm_result fresh read by ref",
+    "persistence_edge_coordinates": [
+      "artifact_id",
+      "manifest_profile_sha256"
+    ],
+    "postimage_sha256": "8c7365117a9ceeec67c8a7bcaf84f2177895e46cb9100fcb1da29dfbbb78e19f",
+    "preimage_sha256": "1acc2f75846e58f26249750493737b0ec48cf66188981888060de757bf97a896",
+    "producer": "existing _build_foundry_source -> compile_foundry -> execute_foundry with selected-profile output",
+    "result": "source-grounded controlled producer-to-IR/CAS-to-reader bridge; suitable companion once F1 is fixed; UNRUN"
+  },
+  "candidate": {
+    "decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1282-abm-source-basis-fixture-full-ref-denominator-successor-r2-20261014/decision.md",
+    "decision_sha256": "3faa9e776a0218d709885335e9248f4a141dc25dae3163b15006d11d9cde8f1e",
+    "failure_denominator": {
+      "ABM_records": 4,
+      "nonpass_records": 17
+    },
+    "failure_input_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/full-nonpass-case-outputs.json",
+    "failure_input_sha256": "d5a599acb36363fb6b1bcea5b4f30eda4533e3dd5e9648323bee8d2dcd334e29",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1282-abm-source-basis-fixture-full-ref-denominator-successor-r2-20261014/manifest.json",
+    "manifest_sha256": "cabc1f3ec3d29a6ef7013e2a7a18b338bd64d8fb30f9c43bb20feee65630e4e8",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1282-abm-source-basis-fixture-full-ref-denominator-successor-r2-20261014/proposal.patch",
+    "patch_sha256": "1602fabd4c4c96558f97f63c120a2277396d4bdcdb80b9096e4bdc6fcf09c6a6"
+  },
+  "closure_ids": [],
+  "current_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "physical_source_paths": 590,
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "date": "2026-10-14",
+  "decision_boundary": {
+    "R1237_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r1237-abm-version-namespace-and-reader-migration-proposal-20261013.md",
+    "R1237_sha256": "f7be74a4941f82dfbfb0e8115c2d62014b07c2ee482c211a56bcd2c0b3c85e70",
+    "status": "version namespace/publication and migration choice unresolved; R1282 does not resolve it"
+  },
+  "disposition": "BLOCK",
+  "findings": [
+    {
+      "affected_file": "policy-engine/tests/unit/foundry/methods/catalog/simulation/test_abm_receipt_strangle.py",
+      "class": "P40 same fixture-reference validity class; new helper invariant not applied to all uses",
+      "current_preimage_sha256": "c80f0821fb700e63ced99dcc2f8d37c2c0cf4acc35383b442812b2cfc37fec2c",
+      "id": "R1299-F1",
+      "mechanism": "Both are evaluated in module-level pytest.mark.parametrize data. The new _artifact_id guard raises ValueError before collection can define the tests.",
+      "proposed_postimage_sha256": "a0aa0e4d7d511676e030083671760797c8147085925e61ebd2da9d802ea933f2",
+      "proposed_remaining_invalid_helper_inputs": [
+        {
+          "current_line": 204,
+          "expected_dimension": "kind",
+          "proposed_line": 206,
+          "source": "_ref(\"g\", \"foundry.exec_plan\")"
+        },
+        {
+          "current_line": 214,
+          "expected_dimension": "media_type",
+          "proposed_line": 216,
+          "source": "_ref(\"g\", \"foundry.execution_input_basis\", media_type=\"application/jsonl\")"
+        }
+      ],
+      "recommended_delta": "Change only the remaining fixture fills to valid lowercase hex (for example, a), preserving the deliberately wrong kind and media_type. Put malformed-hex cases in explicit raw payloads if needed.",
+      "severity": "blocking",
+      "verification": "in-memory patch reconstruction matches both manifest postimages; proposed test file AST parses; static import-time failure derived; pytest UNRUN"
+    }
+  ],
+  "next_check": "Create a new immutable successor patch and manifest replacing the last two invalid fixture helper characters, preserve wrong-kind/media controls, then seek review before root-scheduled targeted execution.",
+  "report_id": "r1299-abm-fixture-full-ref-and-produced-bridge-independent-20261014",
+  "review_mode": "read-only static review; no product imports or tests",
+  "schema": "policyos.independent_review.v1"
+}

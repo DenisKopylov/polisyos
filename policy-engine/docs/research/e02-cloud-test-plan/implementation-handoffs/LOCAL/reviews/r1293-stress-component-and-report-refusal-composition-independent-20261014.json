@@ -1,0 +1,82 @@
+{
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "candidate": {
+    "decision_sha256": "12fae9bf61ea4231940eea4c9882373cedcbb938481b2621f3fba54f3a194c96",
+    "footprint": [
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py"
+    ],
+    "manifest_sha256": "17eddb79b5e6925e7ee9eeb82e7daac73da755d97b800c50ac398b5fa1b2271d",
+    "patch": "LOCAL/raw/r1285-adversarial-finite-basis-typed-reader-and-refusal-order-successor-20261014/candidate.patch",
+    "patch_sha256": "57612e91d260fffc014ecef937e71ef8c35fb560729c8db48219d6353ae08472",
+    "preimage_sha256": "77b5e2fe6f4b6f2d5845e2ee3abbfde5d5dcf0cc2ab74016b7e7bb4cd92b9620",
+    "reconstructed_postimage_sha256": "b1875ac5f0aa5a147cd9db4f76e53660b92c211be1703cefc864703f9e492ffc",
+    "reconstruction": "one hunk applied in memory; exact postimage matches manifest"
+  },
+  "candidate_status": "virtual_test_only_candidate_for_root_review",
+  "classification": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "pattern": "P40"
+  },
+  "closure_ids": [],
+  "decision": "BLOCK",
+  "evidence": {
+    "interpretation": "prior output shows the original first failure only; three subsequent mismatches are established by R1285 virtual postimage and actual source guard, not by a test rerun",
+    "prior_r1276_full_output": "LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/full-nonpass-case-outputs.json@d5a599acb36363fb6b1bcea5b4f30eda4533e3dd5e9648323bee8d2dcd334e29",
+    "prior_r1276_junit": "LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/junit.xml@f3d17c7f3cb7dd741308fc354b02e389318228d3c1145976c3fd0cb7e6b17cd4"
+  },
+  "exact_bytes_note": "Wrong-plan branch reads the selected producer plan body, writes it under a different schema profile, and asserts identical content-addressed artifact ID plus differing profile hash. It does not explicitly compare get_bytes for this pair; FileSystemCAS derives IDs from SHA-256 payload bytes. Wrong-basis control later explicitly compares get_bytes.",
+  "key_source": {
+    "FileSystemCAS content addressed by SHA-256 of payload bytes": "policy-engine/src/polisyos/core/artifacts/store.py lines 575-578 and 2618-2647",
+    "adversarial.py": "893fb1394059cd3820fdf56483e4a23e1dad600854f9317a6c2140140d4adb73",
+    "stress_report.py": "486ac9b7530ae1a9eb7a274db3f7ec8b397dd00a2af1b261ffc599d2e92dcf04"
+  },
+  "property_findings": [
+    {
+      "candidate_coverage": "R1285 asserts both stages",
+      "case": "wrong plan selected schema",
+      "inner": "invalid/adversarial_plan_unreadable",
+      "outer": "invalid/score_claim_without_resolved_basis; robustness_score=None"
+    },
+    {
+      "candidate_expectation": "outer reason incorrectly expected to be outcome_basis_unreadable",
+      "case": "wrong outcome-basis schema",
+      "inner": "invalid/outcome_basis_unreadable",
+      "outer": "invalid/score_claim_without_resolved_basis; robustness_score=None"
+    },
+    {
+      "candidate_expectation": "outer status/reason incorrectly expected to remain unbound/adversarial_plan_profile_missing",
+      "case": "stale/missing plan profile",
+      "inner": "unbound/adversarial_plan_profile_missing",
+      "outer": "invalid/score_claim_without_resolved_basis; robustness_score=None"
+    },
+    {
+      "candidate_expectation": "outer reason incorrectly expected to be plan_outcome_roster_mismatch",
+      "case": "forged outcome roster",
+      "inner": "invalid/plan_outcome_roster_mismatch",
+      "outer": "invalid/score_claim_without_resolved_basis; robustness_score=None"
+    },
+    {
+      "candidate_expectation": "preserved and correct; must not be collapsed into claimed-score refusal",
+      "case": "partial basis with report status partial and no score",
+      "outer": "partial/expected_occurrence_rows_incomplete; robustness_score=None"
+    }
+  ],
+  "recommendation": "Do not use R1285 as the focused test candidate. Review a successor that covers the whole report-refusal composition quantity in a shared helper/table and keeps the genuine partial/no-score case distinct.",
+  "review_id": "r1293-stress-component-and-report-refusal-composition-independent-20261014",
+  "source_frame": {
+    "path": "LOCAL/root-author-source-frame-r1267-20261014.json",
+    "physical_paths": 590,
+    "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+  },
+  "validation": {
+    "candidate_writes": false,
+    "pytest": "not_run_by_leaf",
+    "runtime": "not_run_by_leaf",
+    "source_writes": false,
+    "virtual_postimage_reconstruction": "passed"
+  }
+}

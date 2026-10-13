@@ -1,0 +1,96 @@
+{
+  "closure_ids": [],
+  "composition": {
+    "all_22_physical_preimages_match": true,
+    "delta_path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+    "final_path_count": 22,
+    "net_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-final-source22-protected-abm-controlled-semantic-composition-20261013/net.patch",
+    "net_patch_sha256": "b8697aed6e49444aba102bcc9213873fd02becb964644e50c1d2241f4d996ca6",
+    "other_21_postimages_unchanged": true,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-final-source22-protected-abm-controlled-semantic-composition-20261013/composition.json",
+    "product_source_applied": false,
+    "root_formatted_credal_postimage": "5c742c514a9a4ecbc6ba75b4620ca579aa1044fab4efff838fcfe4aeab8b00b2",
+    "sha256": "edc64e373e849e695efe76922c48075f1e9036a8f5061da1ef9436567ca24a11",
+    "stages": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1240-composed-protected-abm-semantic-controls-and-companions-20261013/net.patch",
+        "path_count": 21,
+        "qualified_as": "prior independently reviewed R1240/R1242 slice",
+        "sha256": "a8b669f09252c76f896bb5ae7abfab929d3284d9bb9f3912ba025ffc7a86a29c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-controlled-credal-canonical-root-style-20261013/candidate.patch",
+        "path_count": 1,
+        "qualified_as": "R1247 style-only Credal test addition",
+        "sha256": "971c629c4e64af5c1949a8be482f5828e16be5d29ce6975dc776c662e191f98b"
+      }
+    ],
+    "unique_net_patch_headers": 22
+  },
+  "current_status_and_boundaries": {
+    "five_original_production_positive_credal_tests": "preserved and remain unverified against current production bytes",
+    "formal_closure": "none",
+    "production_positive_verification": "verification_missing",
+    "synthetic_source_authenticity_currentness": "not_established",
+    "the_first_R1246_root_formatting_attempt_had_one_Credal_format_failure; R1247 provides the corrected root-profile patch and the composed target passes the recorded check and format commands.": true
+  },
+  "decision": "GO_FOR_ROOT_CONTROLLED_COMPOSED_NATIVE_WAVE_ONLY",
+  "p40": "SAME_CLASS \u2014 SourceInput vs DataFact; style adjustment is a whitespace-only composition delta within the same controlled-fixture boundary.",
+  "prior_slice": {
+    "decision": "GO_FOR_ROOT_CONTROLLED_COMPOSED_NATIVE_WAVE_ONLY",
+    "path_count": 21,
+    "result": "all 21 prior paths have identical declared preimage and postimage hashes in this composition",
+    "review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1242-protected-abm-and-semantic-companions-composition-independent-20261013.json",
+    "review_sha256": "fd6c10b50836b8b3c97d201d315ae4524b7a93cdec736a2bd171b1dd14fd87df"
+  },
+  "quality_receipt": {
+    "credal_target_results": 2,
+    "credal_target_results_match_final_postimage": true,
+    "native_tests": "UNRUN",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-final-source22-protected-abm-controlled-semantic-composition-20261013/root-quality-r1093.json",
+    "python_path_count": 17,
+    "result_count": 34,
+    "ruff_and_format_results_all_exit_zero": true,
+    "sha256": "78916ab2427fa7916361a1a96d40832da22545177a3b23b1dc95a480afdfac7b"
+  },
+  "review_id": "R1248",
+  "review_method": {
+    "native_execution": false,
+    "patch_applied": false,
+    "source_imports": false,
+    "source_index_git_writes": false,
+    "tests_run": false
+  },
+  "schema": "policyos.r1248.credal_style_and_source22_composition_independent_review.v1",
+  "scope": "Delta-only independent review of the root canonical-style successor and its 22-path virtual composition. This does not claim native tests passed, production positives were established, or formal adjudication is complete.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1235-20261013.json",
+    "frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "source_path_count": 575,
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082",
+    "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "style_delta": {
+    "independent_code_addition_comparison": {
+      "ast_equal": true,
+      "comment_tokens_equal": true,
+      "compared_inputs": [
+        "R1219 r2 candidate patch additions",
+        "R1247 root-style candidate patch additions"
+      ],
+      "interpretation": "The two extra physical blank lines in the formatted source do not change the added code AST, significant token stream, or comments.",
+      "significant_python_tokens_equal": true
+    },
+    "initial_r1219_unformatted_postimage_sha256": "847c153de85f1021dd866dd2ce63576a5f56af0ea1c590b33b869cee2be3f9f9",
+    "locked_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-controlled-credal-canonical-root-style-20261013/locked-style-readback.json",
+    "locked_readback_sha256": "0a04cc7bde084e744cf0f5bf18c99d7b6ce01661d6e3b1d79be7db4df428fe37",
+    "previous_independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1241-controlled-credal-semantic-laws-and-production-boundary-independent-20261013.json",
+    "previous_independent_review_sha256": "45af4ffb60cfbccca7ddb9cc29b44682258162f2f52442a5dc87389ab12183f6",
+    "root_formatted_postimage_sha256": "5c742c514a9a4ecbc6ba75b4620ca579aa1044fab4efff838fcfe4aeab8b00b2",
+    "source_preimage_matches_current_tree": true,
+    "style_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1247-controlled-credal-canonical-root-style-20261013/candidate.patch",
+    "style_patch_sha256": "971c629c4e64af5c1949a8be482f5828e16be5d29ce6975dc776c662e191f98b"
+  }
+}

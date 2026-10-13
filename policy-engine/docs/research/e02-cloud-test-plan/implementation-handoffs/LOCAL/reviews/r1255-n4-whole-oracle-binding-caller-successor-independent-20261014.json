@@ -1,0 +1,119 @@
+{
+  "schema": "r1255_n4_oracle_binding_independent_review_v1",
+  "decision": "GO_BOUNDED_STATIC_REVIEW_ONLY",
+  "closure_ids": [],
+  "reviewer_scope": "R1245 delta over R1243; exact helper definition and all callers, original B15/B29 criterion, source recording hash and grant limits",
+  "source": {
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "local": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082",
+    "r1235_frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "r1251_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1251-20261013.json",
+    "r1251_frame_sha256": "67042261b1e1ec3af938fdd402c76dafa511b1f49123541bdc5593a7dab3defa",
+    "r1251_readback_sha256": "f5ba07a11d1b6fa44632738ae19f316da8d566267397d31b8e51ed04371b86af",
+    "root_disjoint_advance": "R1251 readback records 26 changed paths and no intersection with the two leased paths; exact current target hashes match R1235 and R1251."
+  },
+  "candidate": {
+    "patch_sha256": "823100354b070f632fabb1044deeae303b1c9425136c177deeb35d5ddc09f08b",
+    "manifest_sha256": "c28cb517f4390cd440831fc5e6ffb5a3a23d9b80519f4e3aad15a221a8e669bb",
+    "decision_sha256": "19c821d0f3458b2f50c19a3b8772f3498704d6cf9b1605ff046871fb26918fc3",
+    "review_inputs_sha256": "db92b6e83958050508303a239236b90508b7c253550c04b237c5a39643f7cb07",
+    "status": "virtual test-only candidate; unapplied and unexecuted",
+    "paths": [
+      {
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "post_bytes": 80394,
+        "post_sha256": "44e65e07268734778aeb8bc9f591a24a3455a594319e799a0730faa50e8b9f0c",
+        "pre_bytes": 80627,
+        "pre_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190",
+        "current_preimage_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190",
+        "current_preimage_bytes": 80627
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "post_bytes": 70333,
+        "post_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "pre_bytes": 70081,
+        "pre_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7",
+        "current_preimage_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7",
+        "current_preimage_bytes": 70081
+      }
+    ],
+    "reconstruction": "Both unified-diff postimages reconstructed in memory and matched manifest bytes/SHA; both standard-library AST parses passed.",
+    "helper_binding": {
+      "expected_output_definition_count": 1,
+      "assertion_definition_count": 1,
+      "expected_output_call_count": 1,
+      "assertion_executable_call_count": 3,
+      "all_calls_pass_recording_id_and_content_hash": true,
+      "old_dynamic_contract_selector_absent": true
+    },
+    "semantic_oracle": "Exact original recording ID/hash guard; current parent-ref/generated-status checks; complete three-proposal disposition map; diversity/summary subset; two unique actual candidate operator/target groups mapped to expected proposal IDs; exact current atom hashes remain joined to child source_atom_refs.",
+    "runtime": "NOT_RUN",
+    "pytest": "NOT_RUN",
+    "product_imports": "NOT_RUN",
+    "git_apply": "NOT_RUN"
+  },
+  "original_criterion": {
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-05.md",
+    "B15": "B_r19 lines 375–386: visible effective limits and one real small two-child decomposition through existing recursion; preserve relationships/results and do not equate budget stop with completeness.",
+    "B29": "B_r19 lines 565–578: normal frontier stop, budget exhaustion, and genuine abstention remain distinct across projections.",
+    "scope": "R1245 changes the source-specific N4 test oracle and callers only; it proves neither runtime execution nor complete B15/B29."
+  },
+  "source_recording": {
+    "path": "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+    "file_sha256": "db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71",
+    "recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+    "design_problem_id": "gy_n4_cgf_decisive_capture_1_20260704_092222_049411",
+    "declared_and_independently_recomputed_content_hash": "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1",
+    "expected_interventions": [
+      {
+        "name": "Temporary Industrial Retention Tax Credit",
+        "operator": "tax_relief_rate",
+        "target": "global.tax_rate",
+        "expected_disposition": "shadow_bound"
+      },
+      {
+        "name": "Procurement Distress Backstop",
+        "operator": "procurement_shock_intensity",
+        "target": "cells.distress_score",
+        "expected_disposition": "shadow_bound"
+      },
+      {
+        "name": "MSME Working-Capital Partial Guarantee Facility",
+        "operator": "credit_guarantee",
+        "target": "agents.access_to_credit",
+        "expected_disposition": "unknown_blocked"
+      }
+    ],
+    "static_contract_crosscheck": {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+      "sha256": "5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af",
+      "compiled_design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+      "matches_expected_dispositions_and_groups": true,
+      "role": "static cross-check only; no dynamic reference selection in candidate"
+    },
+    "grant_limit": "Content integrity under repository canonicalization only. The source label/hash do not establish external provider authenticity, custody, or currentness."
+  },
+  "limits": [
+    "Focused integration remains UNRUN.",
+    "Exact two-child budget-stop frontier remains unproved.",
+    "B29 terminal projection remains separate and unproved here.",
+    "External recording authenticity/currentness and production authority are not established."
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P33",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "p40_bucket": "same oracle-binding class, widened to the complete helper-definition and caller quantity",
+    "finding": "R1243 duplicate stale helper shadowed the intended recording-bound helper; R1245 removes the shadow and updates all three executable callers. No second escape found in this slice."
+  }
+}

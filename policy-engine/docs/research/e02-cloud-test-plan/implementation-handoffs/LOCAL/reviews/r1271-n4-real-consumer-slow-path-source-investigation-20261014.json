@@ -1,0 +1,109 @@
+{
+  "closure_ids": [],
+  "formal_closure_claimed": false,
+  "input_facts": {
+    "control_skg_db_schema_and_owner_reads": "DuckDB read-only schema/version + SKGQuery version/ref per observation",
+    "controlled_skg_observations_after_seed": 8,
+    "controlled_skg_validation_observations": 9,
+    "fixture_bytes": 1009265,
+    "fixture_path": "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+    "fixture_sha256": "db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71",
+    "recording_count": 2,
+    "selected_recording_shape": {
+      "dicts": 154,
+      "keys": 859,
+      "largest_raw_response_bytes": 7002,
+      "lists": 69,
+      "max_depth": 9,
+      "responses": 10,
+      "string_value_bytes": 133913
+    },
+    "sha_reads_per_observation": 2,
+    "total_controlled_skg_sha_reads_in_setup": 18
+  },
+  "kind": "read_only_slow_path_investigation",
+  "next_check": {
+    "mechanism": "inject existing served_worker_phase_probe fixture into the exact test; pass phase_callback through preparation and worker/GET helper; preserve original input, two children, real worker and all negative assertions",
+    "purpose": "separate setup from N4 producer, control dispatch, N5 writer, and fresh GET; bind hottest Python callsite before considering a generic fix",
+    "run_scope": "one exact pytest node, one heavy slot, retain full output + phase JSONL + recurring Python stack file + elapsed/max-RSS",
+    "status": "proposed, not executed; wait for current native slot to finish"
+  },
+  "p38": {
+    "current_signal": "CPU/native sample and elapsed time; neither decides the semantic property",
+    "property": "real POST→N4/N5/control-worker path with writer removal and a fresh GET that rejects unavailable N5 payload while preserving selected child profile and sibling-failure checkpoint",
+    "result": "UNRUN/no pytest deciding output supplied"
+  },
+  "p40": {
+    "bucket": "NEW diagnostic class: N4/N5 real-consumer slow-path investigation",
+    "local_vs_systemic": "not_established; only test-helper preparation and native C-level stack are known; shared runtime serializer candidates lack Python frame evidence",
+    "repair": "defer source optimization pending phase/trace discrimination"
+  },
+  "product_or_test_writes": 0,
+  "run_status_at_assignment": {
+    "cpu_percent_observed": "103→395",
+    "elapsed": "over 5 minutes",
+    "exact_launch_command": "not supplied to this investigation",
+    "free_memory_percent": 43,
+    "later_cases_started": false,
+    "oom_evidence": false,
+    "physical_footprint_gb": 9.4,
+    "physical_footprint_peak_gb": 10.6,
+    "provenance": "root supplied status in task handoff",
+    "pytest_stdout_stderr": "not supplied to this investigation",
+    "python_pid": 35633,
+    "rss_observed_gb": "3.8→4.2",
+    "setup": "PASS"
+  },
+  "sample": {
+    "limitations": [
+      "RemoteUnwinder taskport access denied",
+      "py-spy unavailable",
+      "no phase callback supplied to this test"
+    ],
+    "native_stack_counts": {
+      "abc_instancecheck": 23,
+      "isinstance_dispatch": 227,
+      "object_recursive_isinstance": 156
+    },
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1268-active-first-n4-stack-sample-20261014.txt",
+    "python_callable_frames": false,
+    "samples": 677,
+    "sha256": "26f643e04e2fb54b467266b70d802f18250625343085a3b5fa532498da4231d0"
+  },
+  "source_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "source_frozen_during_investigation": true,
+  "target_test": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits",
+  "task": "R1271",
+  "test_path": {
+    "candidate_call_sites_without_python_frame": [
+      "tests/_helpers/generic_n4_served_replay.py::_load_recordings / repeated selected SKG validation / two profile materializations",
+      "runtime/quality/cycle_substrate.py::_serialize_context_job_v1_value and _serialize_context_job_v2_value",
+      "runtime/quality/generic_simulation_admission.py::_same_typed_public_value",
+      "actual N4GenerationPort, control dispatch, N5 producer, fresh GET"
+    ],
+    "child_count": 2,
+    "consumer_chain": [
+      "prepare real N4 and selected typed profiles",
+      "POST /api/v1/control/runs/nl",
+      "actual control worker dispatch",
+      "actual first child/N5 path",
+      "controlled later sibling failure",
+      "delete N5 bytes at CAS writer while retaining ref",
+      "fresh GET /api/v1/runs/{run_id}",
+      "refusal when reading missing N5 payload"
+    ],
+    "existing_phase_probe_fixture_passed": false,
+    "fixture_behavior": "payload-free phase timing + faulthandler all-thread Python trace every 30s",
+    "fixture_path": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::served_worker_phase_probe",
+    "recording_content_hash": "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1",
+    "recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+    "writer_removal_control": "keeps result ref/compiled-run markers; physically unlinks result blob inside ArtifactStore.put_json"
+  },
+  "tests_or_profiler_run": 0
+}

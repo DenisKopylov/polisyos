@@ -1,0 +1,248 @@
+{
+  "capability_status": {
+    "candidate_authority": "Source-bound/candidate evidence only. No external authenticity, issuer authority, population scope, currentness, scientific adequacy, or production qualification is established by this source handoff.",
+    "statement": "The 35-path Source35 implementation is committed and byte-read back against HEAD. Producer-to-CAS-to-fresh-consumer behavior for the protected ABM, grounding, and N4 targets is pending the root-owned R1268 native wave.",
+    "status": "implemented_source_with_composed_verification_in_progress"
+  },
+  "captured_at_utc": "2026-10-13T21:29:49.627056+00:00",
+  "decision": "SOURCE_COMMITTED; ROOT_NATIVE_WAVE_ACTIVE; NO_FORMAL_CLOSURE",
+  "formal_closure_ids": [],
+  "independent_review_bindings": [
+    {
+      "bytes": 6245,
+      "closure_ids": [],
+      "decision_or_verdict": "GO_FOR_ROOT_CONTROLLED_COMPOSED_NATIVE_WAVE_ONLY",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1248-controlled-credal-canonical-style-and-source22-composition-independent-20261013.json",
+      "scope": "Delta-only independent review of the root canonical-style successor and its 22-path virtual composition. This does not claim native tests passed, production positives were established, or formal adjudication is complete.",
+      "sha256": "fc9e04eae3ff7927ff1f8f474002e66db39c8b019eeaadc69a4fcae403953376"
+    },
+    {
+      "bytes": 8230,
+      "closure_ids": [],
+      "decision_or_verdict": "GO for the exact R1258 Source33 composition to proceed to root-owned commit and native Source33 verification",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1259-complete-canonical-schema-companions-independent-20261014.json",
+      "scope": null,
+      "sha256": "60b40ebc05c402280bbc8fa94aee3d36b31f7a77b13093013d1cceda9f175f02"
+    },
+    {
+      "bytes": 7212,
+      "closure_ids": [],
+      "decision_or_verdict": "GO_BOUNDED_DELTA_ONLY_FOR_APPLY_AND_FOCUSED_INTEGRATION",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1264-n4-unused-import-and-exact-oracle-delta-independent-20261014.json",
+      "scope": "R1263 cleanup against previously reviewed R1245/R1255; no semantic re-review or runtime claim",
+      "sha256": "d504980315dbef026a96318e9893af944fa7c972010bc36ecf18b176afe8a11b"
+    },
+    {
+      "bytes": 5166,
+      "closure_ids": [],
+      "decision_or_verdict": "BLOCK",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1244-transfer-provenance-and-target-scope-full-caller-successor-independent-20261013.json",
+      "scope": "Independent read-only review of all 16 R1215 changed paths, including the separate controller companion.",
+      "sha256": "71bd35606e0815fdbe00e6c52cb67d7748c6741f41bb473fb0dca7a62eec562b"
+    }
+  ],
+  "open_residuals_and_decisions": [
+    {
+      "bucket": "NEW_TOOLING_CLASS",
+      "detail": "Filtered generation/check mismatch remains open; full-mode success does not close filtered mode.",
+      "id": "R1259-filtered-generator-mode",
+      "status": "OPEN"
+    },
+    {
+      "artifact": {
+        "bytes": 5153,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r1237-abm-version-namespace-and-reader-migration-proposal-20261013.md",
+        "sha256": "f7be74a4941f82dfbfb0e8115c2d62014b07c2ee482c211a56bcd2c0b3c85e70"
+      },
+      "bucket": "G_CHOICE",
+      "detail": "Publication/version namespace and reader migration remain a proposal, not a ratified authority rule.",
+      "id": "R1237-ABM-version-namespace",
+      "status": "UNRATIFIED"
+    },
+    {
+      "bucket": "SEPARATE_BLOCKED_SLICE",
+      "detail": "The independent review blocks transfer-provenance/target-scope changes. This handoff does not claim that slice is repaired or composed.",
+      "id": "R1244-transfer-provenance-and-target-scope",
+      "review": {
+        "bytes": 5166,
+        "closure_ids": [],
+        "decision_or_verdict": "BLOCK",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1244-transfer-provenance-and-target-scope-full-caller-successor-independent-20261013.json",
+        "scope": "Independent read-only review of all 16 R1215 changed paths, including the separate controller companion.",
+        "sha256": "71bd35606e0815fdbe00e6c52cb67d7748c6741f41bb473fb0dca7a62eec562b"
+      },
+      "status": "BLOCKED_AND_UNAPPLIED"
+    },
+    {
+      "bucket": "UNESTABLISHED",
+      "detail": "Authentic default Academic SKG vintage errors remain errors. The controlled native profile does not convert them to production evidence.",
+      "id": "production-vintage-positive-credal-evidence",
+      "status": "OPEN"
+    },
+    {
+      "bucket": "UNESTABLISHED",
+      "detail": "No issuer, currentness, external authenticity, causal/scientific adequacy, or policy authority claim is established here.",
+      "id": "external-authority-currentness-and-scientific-adequacy",
+      "status": "OPEN"
+    },
+    {
+      "bucket": "PENDING_NATIVE",
+      "detail": "R1263 lint/format passed, but its focused integration had not run at that receipt. R1268 includes the N4 real consumer/lineage targets and remains active.",
+      "id": "N4-integration-result",
+      "status": "ACTIVE_WAVE"
+    }
+  ],
+  "pattern_pass": {
+    "acceptance_signal": "Only the eventual current-head R1268 result may update native status; no result is translated to formal closure by adjacency.",
+    "register_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Wire existing producer, typed artifact, CAS persistence, fresh consumer, and semantic test; keep candidate evidence and protected authority distinct; use complete-set composition, behavior-based drift control, exact readback, and declared residuals."
+  },
+  "record_id": "R1269",
+  "record_type": "source_implementation_handoff",
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "committed_source_readback": {
+      "bytes": 530,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+      "sha256": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7"
+    },
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "parent": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "physical_and_head_bytes_match": true,
+    "physical_source_path_denominator": 590,
+    "root_is_sole_product_writer": true,
+    "source_changed_by_hook": false,
+    "source_frame": {
+      "bytes": 158504,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+      "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+    },
+    "source_slice": {
+      "base": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+      "file_type_counts": {
+        ".json": 9,
+        ".md": 5,
+        ".py": 19,
+        ".toml": 2
+      },
+      "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+      "n4_composition_sha256": "e4ff178cc0751e0d045f12a3ebc29c727b9475ae07ae5ccb41001fc000ef64a1",
+      "net_patch_sha256": "d50743deacba9bda75d0232a43d4f0314ba47af1ae800c39be20d684aa64f624",
+      "path_count": 35,
+      "path_role_counts": {
+        "canonical_generated_companions": 11,
+        "n4_served_replay_helper_and_test": 2,
+        "protected_and_required_companions": 22
+      },
+      "path_table": {
+        "bytes": 11798,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1265-source35-implementation-composition-20261014/composition.json",
+        "sha256": "2a812a74577ff1aa4802bb84bd065528700ee43a8285ca52d25df3a8a182a931"
+      },
+      "protected_and_required_companion_breakdown": {
+        "abm": 2,
+        "controlled_credal_test": 1,
+        "grounding_test": 1,
+        "protected": 12,
+        "root_version_companions": 3,
+        "s1_test": 1,
+        "stress": 2
+      },
+      "python_paths": 19,
+      "source33_composition_sha256": "7654d7a2a6f6d8602275063718385f34fa6bf19ed51bf0e2bfb3ea5e2742d0ac",
+      "source_readback": {
+        "bytes": 530,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+        "sha256": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7"
+      },
+      "tree": "1355896e91789026d21396d2b087c63827ab251b"
+    },
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "source_composition": {
+    "base": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "composition_source": {
+      "bytes": 11798,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1265-source35-implementation-composition-20261014/composition.json",
+      "sha256": "2a812a74577ff1aa4802bb84bd065528700ee43a8285ca52d25df3a8a182a931"
+    },
+    "file_type_counts": {
+      ".json": 9,
+      ".md": 5,
+      ".py": 19,
+      ".toml": 2
+    },
+    "full_35_path_preimage_postimage_table": "The cited composition.json final array is the complete exact path table; it records each preimage hash, postimage hash, size, and generator attribution where applicable.",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "n4_composition_sha256": "e4ff178cc0751e0d045f12a3ebc29c727b9475ae07ae5ccb41001fc000ef64a1",
+    "net_patch_sha256": "d50743deacba9bda75d0232a43d4f0314ba47af1ae800c39be20d684aa64f624",
+    "path_count": 35,
+    "path_role_counts": {
+      "canonical_generated_companions": 11,
+      "n4_served_replay_helper_and_test": 2,
+      "protected_and_required_companions": 22
+    },
+    "path_table": {
+      "bytes": 11798,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1265-source35-implementation-composition-20261014/composition.json",
+      "sha256": "2a812a74577ff1aa4802bb84bd065528700ee43a8285ca52d25df3a8a182a931"
+    },
+    "protected_and_required_companion_breakdown": {
+      "abm": 2,
+      "controlled_credal_test": 1,
+      "grounding_test": 1,
+      "protected": 12,
+      "root_version_companions": 3,
+      "s1_test": 1,
+      "stress": 2
+    },
+    "python_paths": 19,
+    "source33_composition_sha256": "7654d7a2a6f6d8602275063718385f34fa6bf19ed51bf0e2bfb3ea5e2742d0ac",
+    "source_readback": {
+      "bytes": 530,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+      "sha256": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7"
+    },
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "support_receipt": {
+    "bytes": 14359,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1269-protected-abm-grounding-n4-composed-source35-support-20261014.json",
+    "sha256": "4d2e5a3595265606e0301100478a009a3d8b1ed055f62ebe0d7022f06253a377"
+  },
+  "title": "Protected ABM, grounding, and N4 composed Source35",
+  "verification_state": {
+    "full_canonical_schema_regeneration_and_check": "Both recorded full-mode runs pass for the 106-model registry; see support receipt and exact command/stdout artifacts.",
+    "native_wave": {
+      "additional_source_and_config_input_count": 371,
+      "budget_is_safety_budget_not_runtime_claim": true,
+      "budget_seconds": 600,
+      "closure_ids": [],
+      "heavy_slots": 1,
+      "input_freeze": {
+        "bytes": 73690,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1268-composed-source35-real-consumer-native-input-freeze-20261014.json",
+        "sha256": "964861ff2f77e364c2feed83efa31e3681a88c0a754124d133abb8dbc254b524"
+      },
+      "outcome": null,
+      "outputs_read": false,
+      "reported_by": "root at R1269 assignment",
+      "status": "ACTIVE",
+      "test_target_count": 21
+    },
+    "ruff": "Source33 17-path check and format pass; the N4 helper/test pair has four successful ruff check/format operations. N4 integration remains pending R1268.",
+    "schema_drift_control": "The remove-property-keep-markers control removes a runtime enum member while retaining markers; full check fails on the copied snapshot, as required."
+  }
+}

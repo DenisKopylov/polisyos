@@ -1,0 +1,1589 @@
+{
+  "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+  "tree": "1355896e91789026d21396d2b087c63827ab251b",
+  "slice_base": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "paths": 590
+  },
+  "review_bindings": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1248-controlled-credal-canonical-style-and-source22-composition-independent-20261013.json",
+      "sha256": "fc9e04eae3ff7927ff1f8f474002e66db39c8b019eeaadc69a4fcae403953376"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1259-complete-canonical-schema-companions-independent-20261014.json",
+      "sha256": "60b40ebc05c402280bbc8fa94aee3d36b31f7a77b13093013d1cceda9f175f02"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1264-n4-unused-import-and-exact-oracle-delta-independent-20261014.json",
+      "sha256": "d504980315dbef026a96318e9893af944fa7c972010bc36ecf18b176afe8a11b"
+    }
+  ],
+  "test_targets": [
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+    "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/core/artifacts/test_bound_import_preservation.py"
+  ],
+  "additional_source_and_config_inputs": [
+    {
+      "path": "architecture/policy_design_case/capability_index_phase1_artifact_profile.json",
+      "sha256": "1261ea29e2c9acd12c3c50fe2c2c35a2274f40bf34816a653a8d57a77422746b"
+    },
+    {
+      "path": "architecture/policy_design_case/capability_reality_report.json",
+      "sha256": "9a0a8baf637a886a059729b36902cad56b33443cf05cfa59adb32ccbd1dc20c6"
+    },
+    {
+      "path": "architecture/policy_design_case/capability_reuse_map.json",
+      "sha256": "638881f5d31b993b29d69298c830c38b0221820f22f509d44964f81eb7d5f676"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_active_controller_contract.json",
+      "sha256": "d0239843ffe32cb26376b19b2123ae1c6da548db96f173ddddb2cc530d2d7c31"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_admission_contract.json",
+      "sha256": "a11d61351eb56f30275fc332178e8cd71d6a2c002e7a21babee8734d0ac3cac7"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_benchmark_scoreboard.json",
+      "sha256": "f5c399a2beccb3a6d04d5ff2e696b0055a5eb210ea2fb640465884e7e8019535"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_bind_contract.json",
+      "sha256": "12c7257cda08ff457acf7c60d04e497c7db346ed9d750b32928189b87c504f89"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_credal_reference_contract.json",
+      "sha256": "643362630a35995dab26a55e04f787e743b3490fefdf3f19debb3d6506605fdc"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_phrasing_defense_contract.json",
+      "sha256": "67d8ad4403e00c656397de403f4b0d026864ad38ff7449b64800f13141892850"
+    },
+    {
+      "path": "architecture/policy_design_case/grounding_relation_contract.json",
+      "sha256": "0a06f6ed0ddd4019c5bf6ece17ee92499718840a6b5c2befd1291380304b4c74"
+    },
+    {
+      "path": "architecture/policy_design_case/inventory.json",
+      "sha256": "4ef296dfee0acb7a7023b69445a9794d815ffff181cfd7dc1054ba5c86e71c56"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_corpus_partition.json",
+      "sha256": "862a5b6aef3a7b46c9ac9165974c719be616edc7f886433b9d3aa948b1273e82"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_dependency_dag.json",
+      "sha256": "c8cce5769366267103fa43334b8f378439295d30d454d54db8230c24f5fd71da"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_first_proving_case.json",
+      "sha256": "82a9f5f102755d899c9862b61eda574a9666920b3e5286fc79ade294fc34ec06"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
+      "sha256": "9c92af3d0b1ccd659667f27b7c796efbccdcad4b4bee45b659c752709d634a7f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_readiness_manifest.json",
+      "sha256": "5734bd4d66e924f0a11eb93a4216f9f27a0ab77ba02f928747cdb734f656a2ea"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json",
+      "sha256": "d0c2b082a67fc228f5422f47b3a3f1030dc97b4ce3d0e60da79a5438889fd3eb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json",
+      "sha256": "4b2b19dad92728c66b6dd3f50c19ecb46f66081aeb48190058f544f60ef66513"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json",
+      "sha256": "61e56d54865056984c6a41ec38e2d16a882f358e4297add4467f393e88a2658f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json",
+      "sha256": "1c52ea358d30ad43fa500f515214c289b4657014c886d1d21f3f6f38645643ec"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "sha256": "0634331018d164ff6b14d0a89d82ff8da345a83d27cc051f696b9ef4ebeda4ed"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s1_graded_outcomes_manifest.json",
+      "sha256": "1bcb5c21b79de8e58fdb76ae4c246a4be9bf52df2baf1ac907396fc46d1938d1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "sha256": "795d0a1f71ca55f54936dcfb9545cea75a643ee40d15aae29ab236354c49419a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s3_governed_capability_rows.json",
+      "sha256": "e337ceb9b932aa4e7b84a861488cdc27c431eb2eef9b287a40e6fa840cdaa3be"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json",
+      "sha256": "b5050cdf362ebcb63aaaa3e6c3b90bf748ac7c9c3657839fdd1d1a8e196094df"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json",
+      "sha256": "2624524ad37ef53d9445aedde8174f9df0173bf89a03a30b94219f5964f05934"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json",
+      "sha256": "9202153ee52ab9ad8abc23ce91d129f4e546fdd776fd843c743da48b136fade2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json",
+      "sha256": "84ab9dd6e14302c7f93360cc2db5ad022dfd903164827c591d38a9f54dbbea37"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s7_delegation_manifest.json",
+      "sha256": "7190f764d907f745854fc5c5cb5190afc7b8c2a95eb327369d3438f41b000a6a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s8_value_choice_manifest.json",
+      "sha256": "dabf1ce3b173eeb9d2b3124300db6e014cd5b686410f1ada3a6679b0da294c07"
+    },
+    {
+      "path": "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json",
+      "sha256": "2530acc11313700d652fe23313dc3d99937e879e5fc3a0bc6127911c798fcd60"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_adapter_admission_registry.json",
+      "sha256": "be664348efc0368b31b52acae210a738afce1189ad759bc575ac90b4f92f829a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_adapter_cost_map.json",
+      "sha256": "0cfd18dedf4f08d46917b8a9d500fb21fcda0ced34bb56977d7eb82109b9f289"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_conformance_harness.json",
+      "sha256": "910ebcd57893b022dcef9d192a56c9eeda3ae348eab69eba3cefdc4f63f9d176"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_data_asset_ports.json",
+      "sha256": "9e1b55ae97d58b6dce1f3bc7e175dd90f008bba364a7277b78e2d62e2852d778"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_discovery_search_discipline.json",
+      "sha256": "4e68234bd9d14f8f38983a9d0ecae0469972836066c6b76699457d1bbbfa6cc4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_empty_port_map.json",
+      "sha256": "3098ffff6f7fabcfb34869c798964696dd94a9d4c9066abe5246a3cef5807e23"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_engineering_quality_check.json",
+      "sha256": "9bc43d6b4d5a6472a12b4d2050ead34f10e8001c8369e52e5150ec9aa2fcae32"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_first_vertical_case.json",
+      "sha256": "8f0d9563c97f32d6a09c171081acd52815c5a13ad577bae4145839ea5d1776ad"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g0_capability_data_inventory.json",
+      "sha256": "037c552ef46ccded867280fd9aa5f83ae0194cf480aaa2e719f610c8814eee6d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g0_port_map.json",
+      "sha256": "7a61231acf129648144bd6312a4201f95c9a96a193627b41655334151be04b7c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+      "sha256": "8eecbe5c9504419d104e552cbc331fd26dd5671e25a9c2b5637de5f3c47dfcf1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g0_triage_registry.json",
+      "sha256": "848a20713b8a6b443289963ef2ed93b3663e043b210cbe84d5e61f9de5e237fe"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_adapter_admission_registry.json",
+      "sha256": "58ae73986dbbfa9da948f28a92e27c93db3bf448632748d646703701bc662d7f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_conformance_report.json",
+      "sha256": "1a0247a8c65f4805b527881a874c0ed75fce2830eac0a47dada65150b7234dd8"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_coverage_lineage_abstention_surface.json",
+      "sha256": "647d9e6d20942170f5f9198270a49361ae0bf25073b736f5247cde4b41f3702d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_free_growth_report.json",
+      "sha256": "645009c1eebe44787678794f46aa702b2798d1821c01760ba4ac21cbfc6e46ac"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+      "sha256": "99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json",
+      "sha256": "e0d3c60dc8d829cb0b0975ea260583d4377caad64a8bd8daff3fb58b0687bb02"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_l1_l5_l6_index_coverage.json",
+      "sha256": "f746070fa3994a085fc0f645d2352537c8da8825542ffbf15adfdcaa63b214b3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_lineage_contamination_ledger.json",
+      "sha256": "b9323df4ad0e62f8c2c24a9d1578efb41c8d348e1006e57caa6ef1b107aaa323"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+      "sha256": "db9a172ce2bc021fe2a86ea35c85178649600a7f2c0e32650dea45610135e7bc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_search_engineering_quality_report.json",
+      "sha256": "6702fb6fc785df2a9ebee3239e51e2fffa70b1ec573ca7c1f73e6f23c5447adb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+      "sha256": "bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+      "sha256": "4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_adapter_admission_registry.json",
+      "sha256": "23567700a5d176fc82438f6dbd584f2da4347d92d5b2da725b77159449ec5a06"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_authority_envelopes.json",
+      "sha256": "fa042869f1db04e812eb39053aa89bb7111126455a8c0828669402f9e8a481db"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_causal_forecast_audit_surface.json",
+      "sha256": "98260ae362bcbc8a5d53422642bb1cb33ef3b104e4c659cdf33abd1ff9fb7a9e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_concept_alignment_records.json",
+      "sha256": "4c49ae9e1f50378c98d3eafdf2ccef8d2d43f82cf731aa9d7ac71d646ca33cc4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_conformance_report.json",
+      "sha256": "4425d8171cd716fe996b404a823be9713c4faf7ee30e0c236b8df7bfc8ad685d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_forecast_support_bindings.json",
+      "sha256": "7a185641e9984f85cffb8856a8da97a462ecdd55c35aecd383bdfb2c80f45f93"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_foundry_method_registry_coverage.json",
+      "sha256": "f2857bbe2790150fe180c7009646a6dfa05dec5e52d3721250c652b945209f86"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json",
+      "sha256": "11def6516f675ecdba3fa9595afd883fc44c74b0ec13ba274b2c4620a800a494"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_grounded_forecast_handoffs.json",
+      "sha256": "238da2a08415885099f01f80c09864231fb44a2db9ee6eb09000755f27a8fa81"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json",
+      "sha256": "bceea7ee23f852b9b9f9b519459ff4a7bc400ea9f2a14ee986c4a8e45f7eeedc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json",
+      "sha256": "2611f9da4eb9c6eba1cfae64500ac38bb190416d9e1febc4e049f1be25bbba46"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json",
+      "sha256": "3c90317a27abb88667131b20ee7b6527ca22bb40eeccad4049e537063712f95c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_method_requirement_bindings.json",
+      "sha256": "510a37e516dee1ba0fb297f3bd2d6638ee938acc5cc830e9d70af367ae595dfb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_method_validity_transport.json",
+      "sha256": "786265c115d68266ee5b2e3a3ae23177b75a56aa9170527b53de1c4a17180fab"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_observable_calibration_report.json",
+      "sha256": "26d2b60efb7971f408fd539fec4fae1fb47101e04b3002f7361585c813d25955"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+      "sha256": "8b2ca69e5d1e04cda917a4e4d22a609ecd50d54718b7c9be60c540f2ca0a3ccd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_s10_prerequisite_bindings.json",
+      "sha256": "15ad0269abb64b3e39aa41d3f95ad886b1a55fd159185c59d3ffc81a64a46f7a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "sha256": "f01c8b9ba63dd8c649bf431476b65d219f8900af4cabc61859f7423a1218ed59"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_semantic_spine_bindings.json",
+      "sha256": "b1efba737be98f652fcb63fee019b8e6b1bac06dd6bc1bd2e162f26f820d5f3e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_transport_limit_declarations.json",
+      "sha256": "3eaaf2569b1178836ac3ba06a1b4df84a4723c9f9773eced44f235ba3994eaa0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g2_w12d_consumer_gate.json",
+      "sha256": "44726985c860201f63573ef59df401d638388e38c533ccbe29b35c842e16b23e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_adapter_admission_registry.json",
+      "sha256": "e9804355d60e370aa716f2d7e5e4f38c113e96535fc8e3132948d095ec18d813"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_baseline_comparison_consumer_gate.json",
+      "sha256": "bfc31ff78375a1be36ab3ea69d48418ef0d871283e55b0d75247f8349c57b86c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_certificate_resolution_report.json",
+      "sha256": "1fd9e797d6d754e1aa3788bb85b5f81fb3d806609427834f3a9aac862f483d81"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json",
+      "sha256": "18734d25d10d950f5607532bcc8c1e3cfeb529cae843d59b3032c4b7f7f4a7db"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_conformance_report.json",
+      "sha256": "e6131856e10e51ece2e439c1565990c900f19b8793e7e148639a350fb24fb33b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json",
+      "sha256": "6ff225554da0ae413fd97b026001364e1a3e34852233afea4e2a8fad51f3185e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_ir_analytics_query_traces.json",
+      "sha256": "3c85e35470dc3d46a19e526e640f29d056e1aa399ba0e34d1b899b552a149d18"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json",
+      "sha256": "e7813cdbccb4b653093020b9596b2b14ce82bb98c3b4b75a91ad9b137023d213"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_ir_artifact_store_index.json",
+      "sha256": "9c2db6990fc8159ebd581f299a6e78077a5fba8832b6a7732f923ecabfb870c9"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json",
+      "sha256": "c12aa4188e5a6e26aa68e0aa1261333143a2d689853e4b5ed0bf734dd39a6ab1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json",
+      "sha256": "34abcfcf59c4f3c5e2950792bbc1b093acb7d275d5980d273d49fa046d6118ec"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_method_requirement_bindings.json",
+      "sha256": "372babe4f0fd9747cac0fc6b86e1db543540a90e3e9cc75688581cd42c04ab25"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json",
+      "sha256": "c6dd51ae0f68b65d72e6e97d171c0aee9266c40fbdbd33da41466f09df5b7020"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_proof_carrying_audit_surface.json",
+      "sha256": "6bd09bfec21b071f9020814bc0106c57b62220ecd8a1180958dc7e28032e54a5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_public_export_projection_refs.json",
+      "sha256": "4ab3ecdc18d13c828246a4a30ff95de9fa05c1b59af7d14c8f9de791edbca884"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+      "sha256": "17ffb950951ddc1b5ecde36ae8a200e05a2b1c2ba090cf60b2b791da90cb71d7"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_s11_calibration_bindings.json",
+      "sha256": "8a95f40833facc102f233977c173828d4ca6777556f2db13937b98646b878f36"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json",
+      "sha256": "236890c68135887106741457fa7311a15156104dad370219767e4bf7a216f629"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_s11_prerequisite_bindings.json",
+      "sha256": "357a89935e9e57178f6f316b21634beec0a2962871829f6c7cbef1c06f5b22ba"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "sha256": "34d104a53037c45d8e611dd31f61861962d5188838ebb52f2cf954d0a67d4783"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_semantic_spine_bindings.json",
+      "sha256": "08e0974e076d29a7fb42f30db6fff3ab5aebc1dd7810a67d256dbb4ff28dbc11"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json",
+      "sha256": "f6bdade5d9dce49751a3dcde791a2af483d3667ccb2b5f5418046ea9ba91d288"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "sha256": "b4003d8514ce6c21859e8e9a6e01927c6db2059f0c4de4ef29f447c367183356"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json",
+      "sha256": "65218df584f68930267ee73738ddfa9bfb78b924d4544aef39a56129d3d56fe4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "sha256": "a43559e9661e75405cfbb028ee2fe5fe3e820fc0614823011c88ee92e2d0149a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_dependency_readiness_snapshot.json",
+      "sha256": "b83fcc6dd29db497c278c755cb3e93a9fb304d6a177137ea3c242b21cd58dc2f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "sha256": "f66d8f966cd552b98c011743176481bf2c17cd8f38b3938d90f2c2dbefac8204"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+      "sha256": "a3a83eeb1a216aff115bd24cd0e0089cbb2774c9babc70346ca0168897574780"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "sha256": "0672298b2060276c81cbe0a3d7d1d92d750eb38eee809df50534dec6db21397f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "sha256": "f9d8819119c77fb0b85cb30c145094499f5ba4c6e5f9d237dc3f480c61e59010"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json",
+      "sha256": "38dbfc8e78fb02c2a21f19f85b882910eddb8ddeb8ae4fd4a980db22d0d17557"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_promotion_audit_surface.json",
+      "sha256": "7651fbf434e89476dfa75fcbdac48155aef751d0b675e48bf7ad8e5ee83d8e7c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_promotion_input_set.json",
+      "sha256": "36eaa3d970a0dc98ba77ef545bac212123d342ce8d27ceb80110b5b55c7c7ffd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+      "sha256": "2b88d196bf105d4e4901e15f7b49e2ce8b3c377a5d7c5bbed1d4ed6b366d999b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
+      "sha256": "1fa4717c67e1381b78cc180872157c5f9b346ca0493083bad480fa4b004536e1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+      "sha256": "6164a0ed0a992d94cbf65565fd1fc77138c32d980d8863013c33011128a91389"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "sha256": "241526548ff9fdfc11f3a955036831ec42a3bdc9d984f8b6f6628d9122ce4450"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "sha256": "2af5d03a2309529426f5a70aa19161a3132f893a3f2dae6786f74ad9d21c280b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "sha256": "087ee4f004f2d7b7dcf7c1bff5fce6923d7b9ccd13bc3a524b5bab112255c7fc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "sha256": "55ab548a6b5ff7b30d7854dbcc571ece80da94e6e18816b3e891989dd0e19c68"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_conversion_audit_surface.json",
+      "sha256": "84005bfda0b4debe125d6b6e44dd2386fb4d18bda0a50b5582de8fcc520da118"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
+      "sha256": "ad0a34719fbc3241770f5d4286420782978001f76e1cc96ece523c8512b94ae4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_conversion_records.json",
+      "sha256": "055fc205f83088118cae2d232c71103e544bfad0bcecbd1d45d141a5c422faa5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json",
+      "sha256": "31217d510fbbf60715d22e6b43dae9db4cd25d3db8c9859306609a2977b74ed9"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "sha256": "5d721ac96ab9b4b482d6ae92735697d5e088c0ae65563ae2385b09e0dd6f22fe"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json",
+      "sha256": "8ef4df24f276286bf9ad7b9c01f1a30c5de2e48fa15a8ae6c1af221d4a447088"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_effective_evidence_independence.json",
+      "sha256": "75aacd19a24a9476fba577aa3ba1f835ea293a9d2124181a065252b6b088abda"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_envelope_expansion_delta.json",
+      "sha256": "c7f80b23540ca0d60265b48aee98bab55bcc7740e8d4caac6122cd2fc57f74d0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json",
+      "sha256": "ca03595ad4ca164dd09745269302ee5c8d3c14c3fb3b652e50a66f84dd33a8eb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_g4_promotion_record_resolution.json",
+      "sha256": "ecb0a32f1cb9a4109d9e357d3f13f98bc973bf69a1d09c08a35c0ed49d57af45"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_grounded_abstention_quality_record.json",
+      "sha256": "7ee1d934eaf9a61acc4007c447df773d3ee76754887fb43f5f410e138f883612"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json",
+      "sha256": "75fd1feda4447324fe168ad21db034078405ba626749cfe8229f1463d067da24"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "sha256": "7feb109023f95e4fe9eaf8ab4d49e0c3fc3b1b7c0cfdbba907a6ae2c9b9482e3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "sha256": "7f9c72ff0af1c3dc453009c3354ae8ad99ae6b0b826c9981c99dccb1d5d7c400"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "sha256": "a3902a8c1cb1a45b9148a69eb26a7388d73b8430edbd37d0f2b6fc5ec9131273"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_registry_ratchet_delta.json",
+      "sha256": "326312a180463eb5fb1bf7831d0f63cf872de5ef0d762036f6e7e724c4e90d82"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_status_composition_ledger.json",
+      "sha256": "b8b0fdf5886faacb59113d6b264997369a731ace3ad3b7d668e79b8161cdceef"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_upstream_scope_join_matrix.json",
+      "sha256": "11bd51dac183f36d5c8c9ba5731a71c261fb04989c6f20ee791218dc4d10d930"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_useful_design_metric_eligibility_join.json",
+      "sha256": "2fe5f5f292bde9595999cb17a2e697e35cb4f5cee195b79a6c48810c5101952a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_w12d_case_block_index.json",
+      "sha256": "5691179470cce2dc306e8638e62791a22385f851472991ec88b39854450b8d8f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+      "sha256": "c858480ccb5e7d1e86c6054353f45bfe67ff9ed4d57640f1114c88edd080f0c0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+      "sha256": "8973b1a2afdae262d32f9179734577a95332b3eb31cab223de0a090abec45a41"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "sha256": "fb4ba97a337093cb22e91e0e3fbed496a28adce73daeab48738cea2a442a8889"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_candidate_authority_firewall_report.json",
+      "sha256": "72aee41aeb22a625df77fab0aa48b8bcef496116ca681137a64dfd502a8b4552"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "sha256": "bc6309d99a251838cf43b9659e95af36a85e4172b13154a51a37b7ed347720f1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_counterexample_refinement_record.json",
+      "sha256": "0ade9739a98e5fe5719208accc6d3776271fb88694f9b6eeaca48a46cd13b5a5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+      "sha256": "1023c038643cd87f05e1bb4fdfc366d33dbe7c7f635c2509bbf4036145ebf304"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
+      "sha256": "809bb2fa3c0f14d950bf5521b90baca00aea98eed57fffed739fbbfd382076b2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "sha256": "bb4571f1ec81efbbffe906705d309ac7ada972a2b79aa61d36411753349fef03"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_g5_consumer_gate.json",
+      "sha256": "e9ecd6edf1602ff28b0458cea575048ae76538d3114b557acea43e236178da71"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_g5_invocation_plan.json",
+      "sha256": "18a00295623b5b3b1bafed354a45fcb6e0e2f43bca338c7a1274d29bdfd3de19"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_grammar_expansion_candidates.json",
+      "sha256": "a1f730ef823b80322a3b19e7e1905000c0f43dd3178e8ee2727606979bac6a4d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_grounded_result_or_abstention.json",
+      "sha256": "ea4eac71580dd53282dbfd08a1312977669c2ffc7ec99a7032e2bcb43d37c208"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_grounding_demand_record.json",
+      "sha256": "7fb237061d9325ccb686050d2aea089690f65af5c1e838dafdc4e4286ea4aa57"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "sha256": "7c3469f44d11394b592f120f9dc413a9cb39204f8e47ae1614414efcb872dece"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
+      "sha256": "815c3115e89b9f6e9eb22e887009b2213123bd8f8c5d7268e927090d8e0464db"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "sha256": "6a9bc65031fd7ab4c38760243af9c166841fe8bb2fc8d33225c4d138af66dd75"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_policy_grammar_projection.json",
+      "sha256": "cf3c7a32889fb40f821de0d71bbeffd1a8d616a9962c25dfe0da3a2207ff9d5c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "sha256": "467850d0b35a58e5c2e87382b56f4286dd01852f6f4d645c07a4596202671570"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+      "sha256": "67f716a067f482821309ae947bb6c229cee3d70b141fd1f2aa0a0fe0ea1786ca"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "sha256": "1fc77900795a092593716072a2c0a1a50f3e4b7c24b134fc58c3f4308913ba6e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_registry_ratchet_delta.json",
+      "sha256": "129a3059d2a5c4bcc5293e8bd57a32284cc3fa2ca01e6180f81091395c6c3644"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "sha256": "b00fbc1c2810fc66e0e326f33fb8870980f9a402b7eb6415f53c9b6309c06c37"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_request_classification.json",
+      "sha256": "b636fa01a685294f9c1a29b92abe100a35d3d4f785ff181c5bd8ae5dd0f611a6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "sha256": "d51bb662e6b971a44318773289d8e6859a22c1028de1253cf176ccbcb35bf3bd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_search_ledger.json",
+      "sha256": "d3a809ddd59a380a85f705ec42f50d7c09bcad39fcf1cd1785b472ce23b09c48"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g6_tool_contract_summary.json",
+      "sha256": "5c11cae197ba235d01b77f0d4a54b04518108980cf40ff8bcc55731f3f4a38f1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_conformance_report.json",
+      "sha256": "226e60f9560f55995520f392f3df6cdef9d2c4408df90a82d8fa7d33e2340d28"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "sha256": "dc3b65b13656337a0d34da74daa0489b7cbd923efbb7b01d665b425e3c817907"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "sha256": "5c3deb8a780fbf9543f7530335d2953f16693d880f718846a124e85b7f1e12b4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+      "sha256": "cce56d5a9b07758fbb6798c7324cf36fae80bf7bce39fe0388b23ef53750c05f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_marginal_grounding_cost_ledger.json",
+      "sha256": "cfa9b5877b1979d34ac9cec0d96b6d3159bdb567da9905495a9c2228d0b49169"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_mechanism_reuse_ledger.json",
+      "sha256": "0d2229cebe365868bbb188b4b71a75d5f24bc52567dd474d0f6af1b6bed8bf2a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "sha256": "42909cc6bfdde96635256705840f1e009a827431d79bdfdf552a2076c92209b5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+      "sha256": "da37ca34996ec5e45c78957d271cdc86603f11f765b13f1955a3066c7f3217a3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "sha256": "c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_candidate_set.json",
+      "sha256": "86d82acd4264c6b943b072e5ced077344cdb1027c4458ad00b08e04e54ac78e9"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+      "sha256": "a91ecc2dbed896e096b4f6ba083916ca4f18d04b916c4eef8c08b14d352c0ff0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "sha256": "c012b4f26fc199ce9b5d1e937dcb2f026d495b3e9e4ed0114c9a46b51407ab4d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "sha256": "4c6cde26ae15e62c88fdf142c33b22fb71c8318c86693791e828b1edf70df604"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_envelope_expansion_delta.json",
+      "sha256": "c296e5d30c03c1ebae7ec1424670ebc9a96c6b47d82e73d3c9339505a3f1bcc6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "sha256": "de3da70e1892bb67f30d2ce93871561220e2e314726bd1926ce31bdc28b7f738"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "sha256": "d1d3757e5ed87dc53c90a0f57bedf3672b95dc79b456458c145bbb310877b047"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_semantic_loss_ledger.json",
+      "sha256": "8dbb48e77ab08596a2701cc7b67c058479f89f9a6cf50e0004abec246068fdb6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "sha256": "29b520f1fdfd89e42e38f11470415763e872e4ae2868957802f437e7536c2dae"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_registry_ratchet_delta.json",
+      "sha256": "776a3843d3d82314a713dc806bdea042568248bc003c2dc839c81b86511e63a8"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "sha256": "0cce8c70210d12d515e7980fe6548da47f78adfee29735ccc11e569525db3b2d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "sha256": "2b59355414f7a8570681725d58b04b8a8e1e6b48a78e8561a8b595e394f98123"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_s14_battery_input_manifest.json",
+      "sha256": "0c220c2409de4623cf3d706e2609a0d9313b2dbc9a1c583c513747ecddee19c5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_s14_consumer_gate.json",
+      "sha256": "fcde0874ff602b67ad219f483618927528c9a8816041f7930e40b621e5fbac33"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json",
+      "sha256": "a48d40ba6d636e6f09fe08de927de91fe9436a410810d6a2b65bd585161de43e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "sha256": "06f6777c88666723b1b50862ad88e816739267d702ab6a80f8cd6e808c012a35"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+      "sha256": "8884be93a2744450108de15bcfa934d69c6f7a41673506c730dd97051b9b8dcc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g7_status_composition_ledger.json",
+      "sha256": "ad213fb7100a27d1f34e55804aacf5b49f9b166460748f46074f31caea03a4eb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+      "sha256": "cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "sha256": "b0fad43a69ee56f4ce97f6cfab8949cf95472d807eb07504a3a7d5b26334dd93"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "sha256": "a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_d44_corpus_rebasing_rule.json",
+      "sha256": "69f9f9e628e189b38eb671ba87202fa116938cf0250cf88d166a480e938ca15a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_d44_reannotation_coverage_matrix.json",
+      "sha256": "85fa71f9292fd82d6d192d5b5e91990cdad901a0e0011319bce8cd25012e7ecd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_d44_rebasing_candidate_set.json",
+      "sha256": "1a0d0a1394a6bcfd3609427850044b4f2e2579aadb3ef72ca36ee8dafc127d9e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_d44_rebasing_receipt.json",
+      "sha256": "42abfc142a73c8dbcb96b9c911bcfacae4d2275ba68b4ba2267fc32d240c4f64"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_d44_rebasing_trigger_ledger.json",
+      "sha256": "5b2018b4616decd9f416b59d191f6d74887dee86e621097070c3ac7f60ecdf58"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+      "sha256": "c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_health_metric_registry.json",
+      "sha256": "40a315e29337358d80b830c366d2cfb146c6abce432ab0d41ed00c9646b7aa76"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_metric_gaming_firewall.json",
+      "sha256": "e43945ce6df6487cdd71208112660a7715f5b1e13822fd36284afd2a958fa869"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+      "sha256": "9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "sha256": "4ec015b52e282137d5ecb79b73d36aab4929debeccb9a6978bc7b6bf2069097e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "sha256": "021578dde505d2b04ad80a0c31135fa05e51b502af12e1dbce6e19902f9e47c4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "sha256": "bb39238b94b43b69753eea8afe77ddbd782e4dc9eb95f73b0d5301acb32bbcfa"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+      "sha256": "e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_public_export_projection_refs.json",
+      "sha256": "40b775e6a3946af347ef3cf0769119917965e246e3abb296d9fb24dacffaab23"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_readiness_manifest.json",
+      "sha256": "9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_registry_ratchet_delta.json",
+      "sha256": "ec6fbce98e01da285d16f1cfbac204c15cf3a84efc2ff6f4154f3a91e67ced72"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_replay_manifest.json",
+      "sha256": "f3781608cc564bea7981f05891b16bf7badf793be69a18d346e579bdd3028511"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_sealed_battery_integrity_join.json",
+      "sha256": "d1045253c42828de066ecff15d7c1ae1294622196b091204bc410f69dc734eb7"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_g8_warning_lifecycle_ledger.json",
+      "sha256": "d5aa639aa3d911f59b087d8333c10150ec5f380e72ec91f19dc68f5a8a27a2b5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_adapter_admission_registry.json",
+      "sha256": "1bf0f84a66eb300a6650dbca2d0d2186a717c7f0e8aea6736dc5dddbddcc272b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_amendment_lineage_records.json",
+      "sha256": "6c29ab15784cce59f4c4b2a3d25e8bd9760c90cb0198af9b5e0049eccc28edab"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_argument_graph_readiness_consumer_gate.json",
+      "sha256": "b29a526e6abf10c8093c0f5ac88df9b1288a61b493823bfe83d38fb0cfc842f0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "sha256": "4172defd43db1f468a20f52f6e94e860ac4f603904a847880b914cea66ef3163"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_claim_registry_consumer_gate.json",
+      "sha256": "ab3ec859a875db6cbc93a81a50325995bfb36143a5a9c4145b3cc605826dee37"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_conformance_report.json",
+      "sha256": "2100b8176c7db7436f06c91224b77817de063e8be0dd95ebd81d07277e826623"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_design_constraint_consumer_gate.json",
+      "sha256": "101554dbe445342dc5b7d0329b45715ea8db1aa0c76ab235803544945818a838"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_g4_promotion_gate_consumer_gate.json",
+      "sha256": "5634b6988a04fc88f5094e6666c3ab3352b07a047bdd79464bcefc72cdb59a2a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_index_coverage.json",
+      "sha256": "8cf8a357cb0d7bd4d71355af21482fb58e71860363ea3032790b04262e6e66ec"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "sha256": "a652ac20f19bf0a588157059a72bfc36d6ab972bd83b03aea60718063d6ab9f6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_search_ledgers.json",
+      "sha256": "888e062651db7d37e39f22ecb5513cf3d55d8fcd5c5e4fb59eb2af229047353f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_l5_calibration_bindings.json",
+      "sha256": "1fa90303f1ff765c69695fb3ddcf2d2088fdbf22361cf5db10d2a18e71d095d6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "sha256": "69443aa36b18c1c7862175a15263e032d29416e3779f656e657407be0d640761"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_legal_mandate_audit_surface.json",
+      "sha256": "14fd37ab2ecdafdb779b0addbfb3e350cf75640e067a0264f94aa92e584e6711"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json",
+      "sha256": "21b515b3812aaa492f9b31f5030cfba1ef8d2d19ea906c59422ef9afe5425200"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_lex_intervention_map_bindings.json",
+      "sha256": "06a46f2cb3218d6a4b89193dbf589d0e521e1bd89f4689a2fbff46c09374421b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_mandate_authority_records.json",
+      "sha256": "0a336decf1535b02bd7dbb6f4ac8403a74f307872172ed5ef9f593921ec453b6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_norm_candidate_bindings.json",
+      "sha256": "b6618a8b412ffaf213ca22f2a533dad1412eabd6d4cf118d0b68b629b9629aea"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_pdc_compiler_consumer_gate.json",
+      "sha256": "03ae5a22e428294524fa47066f5766601ac45a2b15b005b373312b723d8944ba"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_promotion_gate_handoff.json",
+      "sha256": "da288398197e0f8aaf4fad3fbf341b65e92f98223d5f1434bd3efb0490190d04"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_public_export_projection_refs.json",
+      "sha256": "53b0664fd073e9519e9cac8f3cf2a3a78812190b70558ce8be072910760c007b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "sha256": "6d1302dca87fb814995817769299a9636549eaaf798ea538a2bfc6d8bab3633a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_reference_resolution_records.json",
+      "sha256": "0d2f8d90c3bdc3686c820a1cf169e4920a811584873f9ccafca1f008c562ff1f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_s6_mandate_consumer_gate.json",
+      "sha256": "203d7186846636a04a5e60f19dc951c923c5991f8907302c9684cf60c470ad38"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_s7_delegation_consumer_gate.json",
+      "sha256": "c1580fe46cab64b131ec9cd909d7086d32b94bb6a3e82833321238dae7113480"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_s8_value_choice_consumer_gate.json",
+      "sha256": "cc23786f4c284223946e81388b7ee0c67a537d0f576d903e38158765ec2cc304"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "sha256": "a613234a20f3d0ab26259f85c1cadb41d13b44d9ad89f241b77a10a426a23294"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json",
+      "sha256": "a61758e5e5d5ee621d3785a66c1d991e28f20230072e5691752ee5287b235b7a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_temporal_competence_records.json",
+      "sha256": "19638ef12cad29aebea2c22b3811188a2398b5903c3305de6d7193d6f3165156"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gl_threshold_authority_records.json",
+      "sha256": "0052a0f54413728d19709d4082ab224b23dd3a32cb70825c52536f1d5e2d6cbc"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_baseline_note.json",
+      "sha256": "eb46dea257d23e29f9ef70d4723ad25f86689675fe4a572e8a68288a143e1809"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+      "sha256": "3fdf023dbc344257248654098d1b942c6f8ba527e45db275d4087f838905048c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_concept_alias_seed_rows.json",
+      "sha256": "c75c16185dd93c0a0bfeffacfadd66d0814988719a2b05ad8a621c80a7619204"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_correction_retraction_log.json",
+      "sha256": "d179bbabea4bb7266575663dce9b77bc3148ebc8fc091fc27328dc75d20d33ca"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_data_mutation_free_growth_test_report.json",
+      "sha256": "2303ae9bbebd1579460702415c8381d3a544d90bd674fc1809a5531144c1d527"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_demand_pull_request.json",
+      "sha256": "8220b04c7a9dc928d7aca2f339e0229851a1e9caed12a5e4e45aa1f563cdfd26"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_expected_red_checks.json",
+      "sha256": "4f7e3179ce1ee24c0531907792493e3cbc4ac547d7e5f5e134d2c09920272b39"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_final_blocker_audit_record.json",
+      "sha256": "62d631e22adaa7d706d49e2769d0edc4e88480f0f4a9312fa98463d5e18bb841"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_final_pinned_route_outcome_report.json",
+      "sha256": "80042f470a3b81ed48bcdd17395fd6da5555ecaa8ecdcf4d8af582b3bc9045f4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_g4_g5_dereference_waist_court_report.json",
+      "sha256": "79a3f030d4670961d351e2879773e7a41585571b6f83960f155d3c0905c56ef1"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_human_approval_receipts.json",
+      "sha256": "7701c1ad1a19724aab68cca9d8b5c0f25a72760d04af064579b519ae3157e7cb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_independent_audit_sample.json",
+      "sha256": "1a4562a8d3f0e5b1ac12567701a702dcf493335df4daf6974f00faac786658e5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_measurement_replay_report.json",
+      "sha256": "9b8f4b8197e8f0d8fa4162be05e0bef8a31420a79dbe22986d1b3312af12806d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_persisted_status_recompute_drift.json",
+      "sha256": "f391055323928f74bb446c3d47c6aabc0ef8da3b4aa8cf73ccf5166b4b61108d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_pinned_request.json",
+      "sha256": "4105e5b22179d0f2b71a50bc550fd1866539577d2b41ae8a6c2b2df8ebcee7d6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_positive_status_provenance.json",
+      "sha256": "3d986897a6855d5c21a4c4de39103e9f4311c5a785fe891e07d7f818ad0bed23"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_producer_registry.json",
+      "sha256": "74f4dc7e7f185f0c748f1129d3d20e8e23addda287d14a244bbcad7086a13a23"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_producer_root_chain_report.json",
+      "sha256": "3fc3ec9d09e1910a825e6ce482aabc621be85d539a143104cb7bbd2d4fb7831a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+      "sha256": "4869bda5efafde4272eb0d5469f8c45075b2b614a57eb3b5f1f13ad0dd16c716"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_provisional_pinned_route_outcome_report.json",
+      "sha256": "cd2e76169cc874050fc506d16f35180fb950c2ab93b91b9c56bc1803c02b0c32"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_reducer_integrity_report.json",
+      "sha256": "891aa8e75a23ee7bf6bafbd366be54f9607ceae737ae28fb5d54c861fcd76c7e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_runtime_literal_lint.json",
+      "sha256": "cb5856c9ebfbd1f2908b894484604f19f373c3a72b0a45597e94c38f4c873081"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_scope_seed_rows.json",
+      "sha256": "ab8f99557df1a85e635d3cea862df339695d74ce1a2a25f1b4c6b05f4da322d5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_status_vocabulary_delta.json",
+      "sha256": "5246b50beef724e8facacb4c5f4268c14e184ecef599a609f9e0287e9d3082ca"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_validation_authority_boundary.json",
+      "sha256": "deb033865d0881d81304ad983a3fbaef303fa53aebf0ad76b06be7cf3abf39aa"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
+      "sha256": "d68be855fc0e7d26f0573ac73aa2d62b121a73c70fa81a8bc32d10721f4f172e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_acquisition_contract.json",
+      "sha256": "23ebac67c73963be8bd64fb3052d785904d1b7a7bcbea6ee79fecea9c5539bdd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json",
+      "sha256": "a97da7b54d0c2f075fe79ec732073476b0fafac06c7a366ec0fecb533fbc2f57"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_cas_integrity_reports.json",
+      "sha256": "36a52908b1b603988cc9b18d7bd3bb55b970475f0f9fae477c5957391c5601a6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+      "sha256": "1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_composition_certificates.json",
+      "sha256": "275aae6c25d7a5f1b423f794c895d5ba5abc2d073c958177e007eb086b47c43f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "sha256": "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json",
+      "sha256": "fc9d26e4bebc8d6698ffec14e0d94820a34883caaaa285530417632015464961"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json",
+      "sha256": "4126ab96594433343249af6a493b192817b2ae04995852ea8a90b46e99e02173"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+      "sha256": "5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+      "sha256": "db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_design_problem_contract.json",
+      "sha256": "b1aab98bf34fb9713ac47acacbb081417a591385efd9bf8846b95a8590522abb"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json",
+      "sha256": "54595732e5155e932434d950d80177d1ff65a8d6f239a26a0cef06e77fc6ac9e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
+      "sha256": "d8c332b21dea297d80e2d099de02d05066c2912b230a31535962f549aa531522"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
+      "sha256": "69757955ac4797e916a439bd19484278cfee5fa7da732c52e75f0b2e76e57e10"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json",
+      "sha256": "1a13e4599377fcebdd2e49f1f2c64fad18f294e3d3eadd73579318340ef9a54e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json",
+      "sha256": "e5c91f355ea43b30aa14fd17012e4d0949103581f57f43e12cdfefa0e8853c56"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract.json",
+      "sha256": "49f4c5ac04fa0c34e7eb6f07cf84443108d80638189690f04aab1898d87bccb6"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+      "sha256": "cd59989eb13ebea81f80801da9c13bd22d9e9279bb57a936f578923ca07d6146"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json",
+      "sha256": "8bc5a7b8bddf251b6c0333972f05b5b5021749effcf759ebe5e267e2bf8ae8fa"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json",
+      "sha256": "c97842d9d513654dad69e91eea0c7c41b386773d6886063d13aadf124c9cc836"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json",
+      "sha256": "d73926566e533f32aa3348c86a92270824942ba221f51ece0ebddcf39d79cfe3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json",
+      "sha256": "eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+      "sha256": "3347976276700016a99d47301fd22a8e897678dfd7aef6a926561e9a4a044378"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
+      "sha256": "ce36a327c8cfec08202baa80d19880f0ee749cb277b3569a3a0210ac3a0728fe"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+      "sha256": "392e66e9d747139bd6c50fa34db0c711a0dc65cac6f60314af3a613dd08e894b"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+      "sha256": "027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+      "sha256": "57acedd6d7488896e796869df7bef39ed226d24db1c2268f3cac55e657cc0907"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json",
+      "sha256": "09d0a7e92f84e266eff29ce4e62bbb2eb2ffe88e69cbb8d7939aa7bc89334dd4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json",
+      "sha256": "ca0be2a9759b269595b45fb808c8e10e6b2cc44f3b3ac0a1c190ea4f8abf5437"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json",
+      "sha256": "4a76c447a096045b0fced8bcd0e1950db4ec3c3e12de0027235b9ad1ba7e2409"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json",
+      "sha256": "16a69256bf6f1746ce591d87163d90acb282718d4a3a9aa189d89c4f02fe0757"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json",
+      "sha256": "badf773a676ca23797f130f8592d8b3adc362be1dbccf172173102bed3ddbfca"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json",
+      "sha256": "f0bfb74f14e8346581b34871914e0ba17d6e89069c1051ea5bfbc08a524f7076"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json",
+      "sha256": "378ea6f9573cfc7a59824cfcf98494901ec5666c6ba6c3fcfa9c505e95c31007"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json",
+      "sha256": "65d94852f4acbe0c782db45d19e7ba0e5cd2df4aca0b664ebc6bb03b94c6e2ac"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_derivation_universality.json",
+      "sha256": "e3ef1310c8855caafa519957a641620f20fb9f7963aee6a763c45c7f6623ec81"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json",
+      "sha256": "67190201635d5cd24baebba73080d3b00b3211f6c95c29706b97fc69255259bd"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
+      "sha256": "8a0c0f73ce80b4f36a3ebeba0b8a55f6ef846bb69d8b2c510765f2654dc2958e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json",
+      "sha256": "98081bf5fffd9affbbc5d09331ef6041c9e91384c22a6a8bdfc2c21c62661139"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
+      "sha256": "fae23f18b2902d626fa9a3badc4bba1eb6949302e1d71baeb0a17019750c8d96"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json",
+      "sha256": "f9c63d62c69934e8968c788ce370645461a71eaa3f7a796d90c4e90243e9e7c3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json",
+      "sha256": "ee1d1bef74a22714329ed3fbd362a2e0ceb3cabc73b5c322e969602d4c6e69bf"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json",
+      "sha256": "24b5835c62e1cae4fd776439f7fd7b174d4fa56325ace3aa700fd37937af7ebf"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json",
+      "sha256": "60fd4d9eb6d06e255a4e2b89730cbd0a982253daa5a0f1f0de25d50df1cdb33a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json",
+      "sha256": "a8cf2fc6ae709ba2b389267cb3ffda69ce79a7d322f40bb2ad34f5b752b064b0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json",
+      "sha256": "a39d6a15129fd53c06e16cd8ff757d3bc345f75964664a5089cc560e529796d3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json",
+      "sha256": "c07d6a752a184d553a1a0f4961598034f7ccb3d040da75ae2162b1caee9b8e0e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+      "sha256": "aee5853e96f2fd6f7ac9cc800f02ae4c6aa49913c35f847e0352e82bc6612137"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
+      "sha256": "f0a638647aebc33e327c989b816529cc6b0f750f081dab533dc3611ad47f8c68"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json",
+      "sha256": "99a26d7ae63bb108b2e0149b3f3e95f20faf4d503f9c6f21d9f0b1f0d0807cde"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json",
+      "sha256": "56e1f255a8e8bcff2922bec9ab842c1a29b9e598385d551ae5920d50b24868ed"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_provider_config.json",
+      "sha256": "1bd6906111bbc8f4610175b152d78adf7abc4b23d78cf751a359a9df8577fcaf"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
+      "sha256": "c45e37e16c539787acaca9b44f0afed6fb3ed77b941f2ded78e40c3fa51239de"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json",
+      "sha256": "167ceb124628b5e690191f177cb4875e0a537e52fe906d183bef18835e2cd574"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json",
+      "sha256": "e48af10e931c13bc342dc66153d3ba7e315afac9b92d445068d7a35cabe8529f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_outcome_replay_proof_v2.json",
+      "sha256": "57d7a545ca50d562f339ac0efb62db2cd3087d17ff906a7179ff7162c57e4824"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_outcome_run.json",
+      "sha256": "5275653d5addcf48bc0b99948f49bcf44b7dc374322ecfbb6a98d5609004cf8a"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_outcome_run_v2.json",
+      "sha256": "34327f37d69a304856724e12d60c83dba33bea9a73ec1ce304c490f5bc4c7d45"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_outcome_run_v3.json",
+      "sha256": "6edb61093c5ea009108ebc2309084a557e1902f3f894d04ec5cd2edfdc65e7a8"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json",
+      "sha256": "067248a226208d5fde6e0a793f1d2b948d8449a082ce49fac104202275c19e29"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json",
+      "sha256": "4beee967f38b77738b13ed59a86a70d1100d23ea48bc1e6f1e521a54db7929c0"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs_v3.json",
+      "sha256": "f65189e415037cdcacc8a18e31ed86637903016de46971ae679f4c7b1d631118"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json",
+      "sha256": "fc32acc5a94b84318838ea13091da6032a9e42dee4669cc403e8cea33ad57cb2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json",
+      "sha256": "fe3a082ba981ce27d2dc459219ea0081609085b5e467277bb66a9049ee7297e3"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs_v4.json",
+      "sha256": "666dacf1f29155a3780e8ffd2abc558d3daef7742003f6657c7477824c3e48a7"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json",
+      "sha256": "e3cc1488645330526b8fd85777adc97975cc47aa03db00ac2fad86dcffbc51b2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
+      "sha256": "e74bf209230d7404aeb9c279890a44554388261508bfe2d33099ce735197fedf"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_promotion_contract.json",
+      "sha256": "0d159ddcf3a2174d4cf6bf32859cd93e70eacb6b2852ea000e636b5f1ecf8484"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_second_domain_census.json",
+      "sha256": "ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json",
+      "sha256": "c0917aebdef8e1ee44f07ce4bc6b84ccc93ca04becb63a1307ebb171a56013b7"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json",
+      "sha256": "89725acfd1da0ef7533c94c493e75df1ec4c3545dd0eb8fe4f5d7638ba0d95d7"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_second_domain_pack.json",
+      "sha256": "40d31d5b158083e216f079e09d195dbf2cd6a5190dc4326cb5c16256cdfabf34"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json",
+      "sha256": "688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json",
+      "sha256": "b6aeea21bfd8bb769d408ec1027dc640d088a0de1571cd750c690fe44d9cbb5f"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+      "sha256": "28d3ee28963c7d678a58320c05f0989d0240cee979ba766485a54da6c08aaeb2"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_semantic_facet_registry.json",
+      "sha256": "e24d8a8a1a0b2f8c774625f0bda16b6e3735fb23adcaf81cf09c3763c64bcc7e"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json",
+      "sha256": "cdf2a9c584d9102726c9598d72b9be315b9641bc0cc7f895aed7176c8b32b089"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+      "sha256": "f3c14f1111f9dbb56a908a4cf779bf853b573d19966169105d3a5f7a01b40a67"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "sha256": "c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json",
+      "sha256": "560776e8987a64341a297e84234c580fd4e5a0c8d89929f348f6d17fa321c388"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json",
+      "sha256": "9eb9463e2ec2701f1f45d001d307796db7e650567b388545863c1f9f578efcb5"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json",
+      "sha256": "e74eb3ea1c9d3f85850bd20227f9c5cd1a24cca07de8605614f4d9f58c8e45ff"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
+      "sha256": "6979ba8cc75fb358c69758a9cdc3f327959eeca6db458bf57142cfe0f25caa66"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json",
+      "sha256": "dedf6d51d8b8dabbcf9acc841c9e06d8311c786f930763a7521014e81a9b4fe4"
+    },
+    {
+      "path": "architecture/policy_design_case/layer3_import_firewall_lint.json",
+      "sha256": "c1da7724bcf2adb2fc998c3f953b4ee153d754f21beb7690847ea3c3045f8b2c"
+    },
+    {
+      "path": "architecture/policy_design_case/legal_subject_lever_annotations.synthetic.json",
+      "sha256": "873ed1e4e4555844ab46e60107ad932cf7700c8ffc3f06560b16390d19dcca52"
+    },
+    {
+      "path": "architecture/policy_design_case/legal_subject_norm_annotations.synthetic.json",
+      "sha256": "25daa106302454b10b0c1c9af6a0ff385d0c0a11dda3a244b6c97d5e42e44ff4"
+    },
+    {
+      "path": "architecture/policy_design_case/production_data_substrate_registry_contract.json",
+      "sha256": "e86f72200308fc33c24b9407d9f82a46e18c8d585ae3d57e7c2e365be2963053"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12_capability_graph_archive_diff_manifest.json",
+      "sha256": "ff24adac1718d53a3e8d36d5d2d27e20e98de70ea010a0845a9965b967dea7ad"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12b_compilation_truthfulness_audit_manifest.json",
+      "sha256": "64f4d208a7c66ae90c2c1fb710fc04e09098645b6b030869b858b2420944d8dc"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12c_domain_coverage_critic_diversity_audit_manifest.json",
+      "sha256": "202a6daa48a7b0068bed938b105654f12f6a6c79c7648ac638e9ea149e72f579"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json",
+      "sha256": "653da20da88bac529cda0ff41eebf4807b1a7786621f61923e2b158a7e1663cd"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12e_bundle_replay_inspection_manifest.json",
+      "sha256": "8159c86dcc0364d2e6374ab0d1d3244a87429dbc0ca3f0b5aa0479d9c92894ca"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12f_cloud_one_lane_revalidation_manifest.json",
+      "sha256": "749fadd886581eb4fc342f27fc7ae3832b381787d75567f8d5fda32bda4cc45f"
+    },
+    {
+      "path": "architecture/policy_design_case/wave12g_rollout_decision_manifest.json",
+      "sha256": "5f1f7956a383b3348b2f00c45459719c473d4dd7476e1658eebd86ba8e62b207"
+    },
+    {
+      "path": "architecture/policy_design_case/wave1_baseline_smoke_corpus.json",
+      "sha256": "646e79a4602888258aa74ca357f4863dec74a93b5549fac70eca44d177c04fa0"
+    },
+    {
+      "path": "architecture/policy_design_case/wave1_closeout_reader_smoke.json",
+      "sha256": "20a74057fe67762418c74548c5c3a1bd73f73dbe523a265bc9fc94ed6faa0522"
+    },
+    {
+      "path": "architecture/policy_design_case/wave3_producer_adapter_corpus_coverage.json",
+      "sha256": "49ac02e681b859dc47dc8c0b07a86c22e7a7dc0e13f695e63f891cfba15298dd"
+    },
+    {
+      "path": "architecture/policy_design_case/wave4_i4_runtime_closeout_manifest.json",
+      "sha256": "84bd25e97da3dbcaaf7aafa353d0e13980f303431384ea9e2f9d80d20673a7ed"
+    },
+    {
+      "path": "architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json",
+      "sha256": "a1ecd3ccbce72bb4b19d4c07d9f59878025fa0e456dbcf5df4f058c3b86cd095"
+    },
+    {
+      "path": "architecture/policy_design_case/wave6_local_validation_ladder_manifest.json",
+      "sha256": "8380214707d01c86fd46fc166be1aaecb8103cf55f456a91d9ddf0a396b80e9f"
+    },
+    {
+      "path": "architecture/policy_design_case/wave6e_llm_formulator_critic_ensemble_manifest.json",
+      "sha256": "d93a6d3bc592d2156a8f7b311f080603ba1d2d7c1dbeb7a3adc3a5e2e852e497"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/run_focused_boundary_canonical_addopts_r1239_20261013.py",
+      "sha256": "3e39227280891ed5fc4cb7d45ffe95cd75ed86d6e1c8eb4da880ab2719adaf79"
+    }
+  ],
+  "backend_profile": {
+    "pydantic": "2.12.5",
+    "pydantic-core": "2.41.5",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "scipy": "1.16.3",
+    "numpy": "2.3.5",
+    "ruff": "0.14.10",
+    "pytest": "9.0.2",
+    "duckdb": "1.4.3"
+  },
+  "environment": {
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1"
+  },
+  "heavy_slots": 1,
+  "budget_seconds": 600,
+  "budget_basis": "Canonical timedworker R1211 measured20.6858468s and source35 independent397cases108.682696s; 600secondsexplicitdiagnosticboundary, not suiteestimate orOOMsignal",
+  "profile_input_scope": "Controlled selected source-bound fixtures and repository canonical recording/config JSON. Authentic default Academic SKG vintage errors remain errors; no skip/default/payload rewrite. Immutable supplied request intent and ordinary source-bound serving worker; no external authenticity/currentness/issuer/production qualification claim.",
+  "closure_ids": [],
+  "held_separate_n4_targets": {
+    "targets": [
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits",
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_served_real_n4_children_keep_first_n5_after_later_sibling_failure",
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_two_child_recording_lineage_tracks_selected_recorded_source"
+    ],
+    "reason": "R1268 first actual guard failure before POST; second interrupted; no acceptance or hidden exclusion; R1272 source/input investigation"
+  },
+  "prior_attempt": "r1276-source35-independent-real-consumers-input-freeze-20261014.json",
+  "scope": "All13PreparedB affectedcontours plusseparatedefiningbaseline andB61four/B74/B148 companions; N4explicitlyheldR1272; historical0bfnotcurrentruntime",
+  "readiness_report": "reviews/r1220-prepared-b-thirteen-contours-current-readiness-20261013.json",
+  "selected_test_files_sha256": {
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+    "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+    "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+    "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": "94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": "ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py": "316baf196fac8810bbf1894928d9472f3c6951f738a9edcff4eb67af2f4933b0",
+    "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+    "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": "a1b387778c248e5e424d23e23f6a6f33ca66e4398900e4dee1b5729674c82528",
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": "e7b3fe412c27c722f83b16159d73024aad1f7e7b99e2590e3029fe0bcd53ae92",
+    "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca",
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py": "fc8b8484eb9e9637f9e543bf0695a56457daa8c661a1104642bf91ab906575b9",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py": "526788944b6c932e45a3789dc77a30cfab9aec27805e9c05be8b8fe72154d1e1",
+    "tests/unit/core/artifacts/test_bound_import_preservation.py": "a2f0b9833b0b286e7904cc429c0db695a499e5bf906c3ab1572b1c2529721140"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "candidate": {
+    "decision_sha256": "e5d5a5d5016d306e199e628d1f5fb3659713f9e7d3b5cbd9d84181b2314a81e3",
+    "footprint": [
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py"
+    ],
+    "hunks_reconstructed_in_memory": 6,
+    "manifest_sha256": "834f6a6375bd6a3fdac84f35159907b29b5d84ba97a75fc2cac69640d722d7d0",
+    "packet": "r1294-stress-whole-component-report-refusal-oracle-successor-20261014",
+    "patch_sha256": "a5e49676d0d0b73cf3b0e83ed13a6943ac11377ff62cde11353f1b48fe984234",
+    "postimage_matches_manifest": true,
+    "preimage_sha256": "77b5e2fe6f4b6f2d5845e2ee3abbfde5d5dcf0cc2ab74016b7e7bb4cd92b9620",
+    "reconstructed_postimage_sha256": "5dd7672b00044cde1ea0da273bbcb104b17bdc26898298c19a1891b0fc16bdde"
+  },
+  "candidate_kind": "virtual_test_only_successor_for_root_review",
+  "classification": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "disposition": "widened to current refusal-composition quantity",
+    "pattern": "P40"
+  },
+  "closure_ids": [],
+  "complete_test_function_scope": {
+    "other_cases_preserved": "lineage mismatch, report summary reconciliation, direct wrong-schema/legacy/profileless candidate checks, positive one/ten and mixed top-k controls",
+    "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "preimage_ast_call_walk": "one complete function; 16 producer/resolver calls across run_stress_test, resolve_stress_score_components, resolve_stress_report_artifact",
+    "preimage_function": "test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent"
+  },
+  "decision": "GO_FOR_BOUNDED_FOCUSED_VERIFICATION",
+  "refusal_matrix": [
+    {
+      "case": "wrong selected plan schema",
+      "component": "invalid/adversarial_plan_unreadable; score=None",
+      "covered_by_helper": true,
+      "fresh_report": "invalid/score_claim_without_resolved_basis; score=None"
+    },
+    {
+      "case": "wrong outcome-basis schema",
+      "component": "invalid/outcome_basis_unreadable; score=None",
+      "covered_by_helper": true,
+      "fresh_report": "invalid/score_claim_without_resolved_basis; score=None"
+    },
+    {
+      "case": "missing selected plan profile",
+      "component": "unbound/adversarial_plan_profile_missing; score=None",
+      "covered_by_helper": true,
+      "fresh_report": "invalid/score_claim_without_resolved_basis; score=None"
+    },
+    {
+      "case": "forged occurrence roster",
+      "component": "invalid/plan_outcome_roster_mismatch; score=None",
+      "covered_by_helper": true,
+      "fresh_report": "invalid/score_claim_without_resolved_basis; score=None",
+      "uses_actual_persisted_report_ref": true
+    },
+    {
+      "case": "missing current candidate",
+      "component": "unbound/current_candidate_ref_missing; score=None",
+      "covered_by_helper": false,
+      "direct_boundary_assertions": true,
+      "fresh_report": "invalid/score_claim_without_resolved_basis; score=None"
+    },
+    {
+      "case": "partial basis with report status partial and no score",
+      "component": "partial/expected_occurrence_rows_incomplete; score=None",
+      "covered_by_helper": false,
+      "direct_boundary_assertions": true,
+      "fresh_report": "partial/expected_occurrence_rows_incomplete; score=None"
+    }
+  ],
+  "review_id": "r1298-stress-whole-component-report-refusal-delta-independent-20261014",
+  "semantic_controls": {
+    "checks_status_reason_and_no_score_values": true,
+    "marker_only_assertion": false,
+    "real_producer_to_cas_to_fresh_reader": true,
+    "removal_mutant_executed": false,
+    "wrong_basis_exact_payload_byte_comparison_retained": true,
+    "wrong_plan_same_content_address_and_changed_selected_profile": true
+  },
+  "source_frame": {
+    "path": "LOCAL/root-author-source-frame-r1267-20261014.json",
+    "physical_paths": 590,
+    "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+  },
+  "sources": {
+    "adversarial.py": "893fb1394059cd3820fdf56483e4a23e1dad600854f9317a6c2140140d4adb73",
+    "stress_report.py": "486ac9b7530ae1a9eb7a274db3f7ec8b397dd00a2af1b261ffc599d2e92dcf04"
+  },
+  "supersedes": {
+    "decision_sha256": "12fae9bf61ea4231940eea4c9882373cedcbb938481b2621f3fba54f3a194c96",
+    "manifest_sha256": "17eddb79b5e6925e7ee9eeb82e7daac73da755d97b800c50ac398b5fa1b2271d",
+    "packet": "r1285-adversarial-finite-basis-typed-reader-and-refusal-order-successor-20261014",
+    "patch_sha256": "57612e91d260fffc014ecef937e71ef8c35fb560729c8db48219d6353ae08472"
+  },
+  "verification": {
+    "candidate_writes": false,
+    "pytest": "not_run_by_leaf",
+    "recommendation": "GO for Root bounded focused verification only",
+    "runtime": "not_run_by_leaf",
+    "source_writes": false
+  }
+}

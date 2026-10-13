@@ -1,0 +1,140 @@
+{
+  "amends_record_by_addendum": {
+    "instruction": "R1269 remains immutable; this addendum supplies the completed R1268 native result.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1269-protected-abm-grounding-n4-composed-source35-handoff-20261014.json",
+    "record_id": "R1269",
+    "sha256": "65d1f9b88422979b38dbe3294b8c1f1c167a07a25ead4d9df9f533cf77795fc7"
+  },
+  "captured_at_utc": "2026-10-13T21:35:36.431765+00:00",
+  "formal_closure_ids": [],
+  "native_decision": {
+    "captured_before_after_hash_maps": {
+      "added_entries": 0,
+      "after_entries": 6588,
+      "before_entries": 6588,
+      "changed_entries": 0,
+      "removed_entries": 0,
+      "result": "identical hash maps across the 6,588 captured source/config inputs"
+    },
+    "closure_ids": [],
+    "command": {
+      "bytes": 1737298,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/command.json",
+      "sha256": "336d215d4544a3cd54a157ba6d6e74ef275b03ea806e61481f3881e37e4add5c"
+    },
+    "exit_code": 254,
+    "first_target": {
+      "call_duration_seconds": 240.95085108303465,
+      "deciding_failure_artifact": {
+        "bytes": 6205,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/first-n4-real-failure-full.json",
+        "sha256": "1e23a14fa0f488f50b61bd37ee08081a6c3e23a2a658790e583511410a9dbc99"
+      },
+      "exception": "DesignGenerationError: n4_recursive_child_declared_lever_semantics_missing",
+      "failure_phase": "call",
+      "failure_stage": "prepare_generic_n4_served_replay → derive_n4_candidate_child_problems; raised before POST / consumer assertions.",
+      "nodeid": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits",
+      "source_location": "src/polisyos/runtime/quality/design_generation.py:703",
+      "status": "FAIL"
+    },
+    "input_freeze": {
+      "bytes": 73690,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1268-composed-source35-real-consumer-native-input-freeze-20261014.json",
+      "sha256": "964861ff2f77e364c2feed83efa31e3681a88c0a754124d133abb8dbc254b524"
+    },
+    "missing_outputs": [
+      {
+        "name": "junit.xml",
+        "status": "missing; no aggregate pytest summary"
+      },
+      {
+        "name": "module-origins.json",
+        "status": "missing; no module-origin receipt"
+      }
+    ],
+    "ndjson_outcome_summary": {
+      "basis": "Counts derived from progress.json as 7 newline-delimited JSON records; phase reports are not test-level pass totals.",
+      "distinct_targets_observed": 2,
+      "pytest_phase_reports": {
+        "call|failed": 1,
+        "setup|passed": 2,
+        "teardown|passed": 1
+      },
+      "records": 7,
+      "test_level": {
+        "errors": 0,
+        "failed": 1,
+        "not_started": 19,
+        "passed": 0,
+        "skipped": 0,
+        "started_but_incomplete": 1
+      }
+    },
+    "operator_stop": {
+      "artifact": {
+        "bytes": 749,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/operator-sigint-stop.json",
+        "sha256": "3a34254591fcd0854f3e18270c8f4a1b6a359c34db8a44f2cbe6e2f2d16c562d"
+      },
+      "not_an_oom_or_capability_pass": true,
+      "reason": "Avoid repeating the same long N4 fixture preparation after the first actual pre-POST failure; preserve remaining targets as UNRUN.",
+      "signal": "SIGINT"
+    },
+    "overall_interpretation": "The first N4 target is a real failure in producer setup. The remaining wave is incomplete, not a successful aggregate run. Do not infer a pass from setup/teardown phase reports or exit-code shape.",
+    "progress_ndjson": {
+      "bytes": 8228,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/progress.json",
+      "sha256": "cde33473e013b05f086f91b22af4b9fd2608de4c5d43585ddd3be1c312653f0e"
+    },
+    "run_artifact_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014",
+    "second_target": {
+      "call_or_teardown_result": "not recorded; operator stopped after setup and before call completion",
+      "ndjson_setup_phase_seconds": 0.007922708988189697,
+      "nodeid": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+      "status": "STARTED_SETUP_PASSED_CALL_UNFINISHED"
+    },
+    "selected_target_denominator": 21,
+    "status": "FIRST_N4_TARGET_FAILED; REMAINDER_INTERRUPTED_OR_UNRUN",
+    "stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 93,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-real-consumers-actual-r1268-20261014/stdout.txt",
+      "sha256": "d6b3708106abfc9ca3eb4c99e872bdb359f897c51d8904f5873514c07b652cb9"
+    },
+    "wall_seconds": 482.26164645899553
+  },
+  "record_id": "R1274",
+  "record_type": "immutable_deciding_addendum",
+  "scope_and_limits": {
+    "all_21_target_results_established": false,
+    "closure_ids": [],
+    "next_action": "Root-owned diagnosis/repair or bounded residual decision for the declared-lever producer boundary; rerun only after a complete source-bound fix and new frozen input set.",
+    "production_or_external_authority_claim": false,
+    "source_code_changed_by_this_addendum": false,
+    "source_or_index_or_git_mutations": false
+  },
+  "source_snapshot": {
+    "branch": "codex/e02-unified-local-20261009",
+    "formal_closure_ids": [],
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "parent": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "physical_source_paths": 590,
+    "source_frame": {
+      "bytes": 158504,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+      "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+    },
+    "source_frame_matches_head": true,
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "support_receipt": {
+    "bytes": 9030,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1274-source35-first-n4-native-failure-and-interruption-support-20261014.json",
+    "sha256": "9cc57065e7e2e1a1e98accde2ed48cf1336721d7763a966f76c5bf0a5e1c0eed"
+  },
+  "title": "Source35 first N4 native failure and interrupted wave"
+}

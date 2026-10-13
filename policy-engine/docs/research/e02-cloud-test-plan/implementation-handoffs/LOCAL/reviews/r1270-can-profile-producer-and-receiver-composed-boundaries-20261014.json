@@ -1,0 +1,298 @@
+{
+  "artifact_policy": {
+    "formal_closure_ids": [],
+    "git_index_or_history_written": false,
+    "source_files_written": false,
+    "tests_executed": false
+  },
+  "authority": "independent static source review; not G acceptance or a capability closure",
+  "criteria_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1",
+      "relevant_status": "execution_remaining; inherited proposals are not closures",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAN-01.md / LA-021",
+      "sha256": "49d3280eddccadbfa85cbbdd7e811a0dbd898bedc55ed1e9452fa20ce2da0e45"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md",
+      "sha256": "63973b1ead21327d85d029fb0c5c3f6b1f207c8b0ab2eb4f675317f21acdf4bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C11.md",
+      "sha256": "02b10a1334c3fdc431c4bf5ad3c16f4aa859100d3aa35b45e41a348ee7b0e26c"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "patterns": [
+        "P29",
+        "P31",
+        "P32",
+        "P35",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    }
+  ],
+  "decision": "GO_BOUNDED_TO_FOCUSED_NATIVE_COMPOSED_WAVE",
+  "findings": [
+    {
+      "evidence": [
+        "core/artifacts/canonical_profile.py:55-224 reads raw manifest profile, compares it with the typed manifest, resolves exact selected refs, binds id/kind/media/profile, hashes bytes, and requires canonical decode/re-encode identity before exposing a value.",
+        "common/canonical_profile.py:~115-260 keeps profile-absent candidate, declared-unknown raw-only, and declared conformant outcomes distinct; candidate access is a separate API from .value/require_declared_profile.",
+        "ir/artifacts/io.py:164-290 requires an exact raw profiled view, verifies content identity and IR canonical bytes, and refuses Core-only tags; async/framed readers use corresponding selected-view checks.",
+        "core/artifacts/ir_adapter.py:137-154 checks Mapping options against the full current ArtifactWriteOptions dataclass field set; tests cover every field and malformed/foreign profiles.",
+        "core/artifacts/store.py:put_json validates bytes before persistence; put_bytes remains a raw transport API, not a semantic JSON conformance claim."
+      ],
+      "id": "F1",
+      "negative_controls_in_source": [
+        "profile absent, malformed-present, unsupported-unknown, and selected-profile mismatch",
+        "same-content selector/profile drift, noncanonical byte drift, reserved/Core-only tag rejection by IR",
+        "unknown typed tag and wrong shape; async and length-framed payload refusal",
+        "Mapping option loss/malformed mapping and Core typed/raw producer to fresh IR reader"
+      ],
+      "property": "A typed Core/IR semantic value is usable only after the exact selected manifest/profile and CAS bytes conform under that facade\u2019s declared codec; absent, malformed, and unknown declarations retain distinct outcomes.",
+      "status": "STATIC_PROPERTY_SUPPORTED"
+    },
+    {
+      "evidence": [
+        "CAN-01 / LA-021 explicitly records Core float_hex/bytes_hex/array_digest support versus narrower IR and requires preserving historical bytes, errors, hash identity, and facade separation. Current IR reader still refuses Core-only tags."
+      ],
+      "g_boundary": "G must choose whether to preserve the shared 0.2.0 identity with a declared common subset, split/version compatibility identities, or intentionally broaden IR in a separate decision. This review makes no choice and does not classify LA-021 as closed.",
+      "id": "F2",
+      "property": "The same declared profile identity cannot be treated as proof that Core and IR accept the same tagged language.",
+      "status": "STATIC_CROSS_FACADE_LAW_REMAINS_UNRESOLVED"
+    },
+    {
+      "bounded_residual": "Neither the typed reader nor these candidate routes prove an external issuer signed producer identity or that an artifact remains current. Those predicates remain not_established; no profile or authority is synthesized here.",
+      "evidence": [
+        "core/contracts/runtime.py:2856-2932 RunCandidateSimulationProjection carries authority_purpose=candidate_observation_only, publication_authority=False, and n4_recursive_source_currentness_status Literal[not_established].",
+        "runtime/http/routes/runs.py:1108-2031 rebuilds the candidate projection from indexed-run/CAS inputs; GET /runs/{id} routes through that projection at ~3838-3914.",
+        "C10 producer output is preserved as candidate evidence, including completed child plus pending/budget-stopped sibling; source tests cover sibling semantics but were not executed in this review.",
+        "C11 fit basis producer asks for the exact selected profile; runtime/_recompute_search_gp_fit_basis:1952-2135 reopens selected refs, checks kind/schema/role bindings, reloads training evidence, and recomputes fit state before receiver use."
+      ],
+      "id": "F3",
+      "property": "Reader-verified selected bytes are not producer attestation, latest/currentness, or historical eligibility.",
+      "status": "CANDIDATE_ONLY_CURRENTNESS_NOT_ESTABLISHED"
+    },
+    {
+      "evidence": [
+        "runtime/http/routes/artifacts.py resolves selected manifest/profile for semantic reads and gives raw bytes a separate raw representation path.",
+        "apps/runtime-dashboard/src/shared/lib/domain/evidence.ts:74-112 compares fields present on ArtifactRef; when no profile is supplied it intentionally permits default-view selection. Generated API types keep the profile optional.",
+        "API validators and artifact inspector tests cover profile mismatch, selected-view cache/304 links, exact raw bytes, and semantic refusal.",
+        "apps/runtime-dashboard/src/shared/lib/domain/evidence.test.ts covers selected artifact views and keeps omitted legacy profile status limited; apps/runtime-dashboard/src/api/validators.test.ts has C10 child/N5 profile mismatch and missing-profile refusal controls."
+      ],
+      "falsifier": "For an expected ref carrying selected profile P, keep artifact id and status markers but return the view under profile Q; the semantic API and client must refuse. The existing profile-bearing API/client controls are source evidence; fresh native execution remains pending.",
+      "id": "F4",
+      "p38_divergence": "The browser helper tests supplied ref fields; for an ID-only legacy ref, profile comparison is a wildcard and the backend default view is selected. It is bounded to candidate/read display; a profile-specific source/authority consumer must send the selected digest and rely on backend resolution.",
+      "property": "A profile-specific UI semantic consumer should preserve the selected profile end-to-end; an ID-only legacy/default selector is not itself an authority grant.",
+      "status": "PROFILE_AWARE_API_WITH_BOUNDED_LEGACY_DEFAULT_SELECTOR"
+    }
+  ],
+  "focused_native_wave": {
+    "execution_status": "not run by this reviewer; root-owned native execution remains outstanding and may already be in progress.",
+    "recommendation": "GO only to the root-owned focused native composed wave; no source defect found by this static review, but no current runtime/API/browser execution is claimed.",
+    "semantic_removal_or_corruption_controls": [
+      "remove the profile comparison while retaining field names/status markers: same-id different-profile content must not become a typed value",
+      "omit or malform a declared profile while retaining the payload: must stay candidate/raw-only or refuse before semantic decoding, never default-synthesize authority",
+      "alter C10 source/N4/N5 selected CAS binding while preserving a positive status label: GET projection must withhold currentness and authority",
+      "change C11 selected training profile/input role or recomputed fit state while preserving warm-start markers: Search receiver must refuse/recompute rather than trust the marker",
+      "keep Core-only tag bytes under shared profile identity and verify IR still refuses without silently widening its decoder"
+    ],
+    "suggested_existing_inputs": [
+      "tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "tests/unit/core/artifacts/test_ir_adapter.py",
+      "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+      "tests/unit/runtime/http/test_artifact_inspector_api.py",
+      "tests/unit/runtime/http/test_runs_api.py (current served GET projection path)",
+      "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search",
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/evidence.test.ts",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts"
+    ]
+  },
+  "formal_closure_ids": [],
+  "limitations": [
+    "The direct call census is syntax based and cannot prove absence of dynamic/aliased dispatch. The full product/test/UI file-type denominator is recorded; this review does not claim a fully binding-resolved call graph.",
+    "No application imports, pytest, browser, generated-code regeneration, database/CAS production census, or native suite was run.",
+    "No evidence here establishes external producer attestation, source currentness, profileless historical migration policy, or final LA-021 compatibility law."
+  ],
+  "p40_bucket": "SAME_CLASS_DEEPER",
+  "review_id": "R1270",
+  "review_scope": [
+    "Core, common, and IR typed JSON/artifact profile ingress; sync, async, and framed-read facades",
+    "Core and IR typed/raw write options, selected-profile returns, and writer/reader conformance",
+    "runtime artifact GET/content/inspector routes and dashboard ArtifactRef selection",
+    "C10 recursive candidate producer -> CAS/profile -> run GET projection and sibling/budget behavior",
+    "C11 SearchGP fit-basis producer -> selected CAS reader -> SearchLoopRunner/WarmStart receiver",
+    "producer attestation vs reader-materialized conformance, profileless history, and currentness claims"
+  ],
+  "schema": "r1270-can-profile-producer-receiver-review-v1",
+  "source_boundary": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_root_source_changes_during_review": "none observed; bound to the exact R1267 frame",
+    "frame_authority": "root author source frame; not G acceptance or global freeze",
+    "frame_boundary": "Committed independently-reviewed Source35 with11actualcanonicalgeneratedcompanions; focusednativeUNRUN; nofinalglobalfreeze/Gacceptance",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "physical_source_postimage_paths": 590,
+    "postimage_readback_mismatches": 0,
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "source_denominator": {
+    "call_census_qualification": "AST direct-name/direct-attribute lexical counting over the complete product Python set; not a binding-resolved or dynamic alias call graph.",
+    "census_script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1270-source-census.py",
+    "census_script_sha256": "d154bfdf0b062b6740c26aeb065eb7b5bebb6d3622a70882c65205d7f2da3890",
+    "lexical_direct_call_counts": {
+      "aload_core_json_artifact": {
+        "calls": 2,
+        "files": 2
+      },
+      "get_json_artifact": {
+        "calls": 147,
+        "files": 79
+      },
+      "load_core_json_artifact": {
+        "calls": 343,
+        "files": 165
+      },
+      "load_core_json_frame_records": {
+        "calls": 15,
+        "files": 9
+      },
+      "put_json_artifact": {
+        "calls": 144,
+        "files": 82
+      },
+      "read_core_json_artifact": {
+        "calls": 100,
+        "files": 35
+      },
+      "read_core_json_artifact_bytes": {
+        "calls": 6,
+        "files": 6
+      },
+      "read_core_manifest_profile": {
+        "calls": 90,
+        "files": 19
+      },
+      "validate_core_model_json_artifact": {
+        "calls": 18,
+        "files": 16
+      }
+    },
+    "product_python_ast_syntax_errors": 0,
+    "sets": {
+      "policy-engine/apps/runtime-dashboard/src/**/*.ts": 454,
+      "policy-engine/apps/runtime-dashboard/src/**/*.tsx": 679,
+      "policy-engine/src/**/*.py": 2761,
+      "policy-engine/src/**/*.pyi": 5,
+      "policy-engine/tests/**/*.py": 2995
+    }
+  },
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "sha256": "0368466ee5e88cbdf0f485cb9c9437c3167e185fb1decc49b948a49dca0c1bae"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "sha256": "2dafd14b120680f6154df8eb8375dbf2d36eaceb7e4fbd76abba9fa66d53120e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "fb5c5dc34023c3e8056d2555c736156342c61515b795049f3fad95fddc8d646d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "d75d3575ff246e4c6c2f4b352049c81d6698b6e5a71f628db5640093405b59db"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "sha256": "886deae0ca563ec1716193a5f4ee23892dfc7e0e167b772bb5a0d6841c19f813"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+      "sha256": "9c02de2093e594ee084262bb3207b7512c017df50f23bef474ba298c2335bc93"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/artifact_inspector.py",
+      "sha256": "387cc8d074ddfbf456ab7c2ace9874168e24322838dcc311ccb858932c61d2ff"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "sha256": "5eb35af7ee356d9ce9704f6e83984e13f4ca80778cce487ee7ec5e2e19312181"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "8f57420b53e15a3646d3efadaab3579193ea3d1d6e51c1ae9a382496e73544e7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "19a215700c4a53b10ea7671424ae8736d1207f32497dd95f01e6faf2e5af87e5"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/evidence.ts",
+      "sha256": "7d623aabe6c74594ebab7349d78c96a42694528f59b4b71ec36d7eb7a06d1d6d"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "28e60c94c607988792c7e8cc541ae84a3cba86a94e2e942e6bdfa8d4e4a98bbf"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "b1b8e88d0f64ce9d8806fb0d21611b2f4a302945172dd1f22b061d69bbd8f19e"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "sha256": "8e499140c05abb957b5301fbe07c8256c44232ce22151d8a7b9d2274fe281713"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "78f20140580b64b76e657da179ea87b771cc9ddbd12dbb07b706fd6a5dd1471d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+      "sha256": "47524dcf27c5001ddf2c6e65137546225a5d73047928375e1f5a6a037e92fe68"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+      "sha256": "32310fe49f8f4cc87c53a58bcf9e52033563658556c653170a6bf676e78febe3"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "sha256": "91072d69f4c94c7f7bf0020be09ba6379f9945c89ff6c57dd73c6e6a06b56747"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+      "sha256": "c7c6c8abc4c34a3c4dbb89890ba1a7059b478e0daf1d6b7c0aefd2b5b946a831"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "sha256": "ec98d0d90471c3eaeb49589555c2cf9ff584f558d1e56863829d31046825fb5a"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/evidence.test.ts",
+      "sha256": "0cb31d5f4d4d8e68f84cfb56ee8982e98b63729f2f8df2dc802c066d49f37806"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "sha256": "fb4c51ccadbf426145f3e566ecae19e63a1226b3e93e794e864cfd0a765b8eff"
+    }
+  ]
+}

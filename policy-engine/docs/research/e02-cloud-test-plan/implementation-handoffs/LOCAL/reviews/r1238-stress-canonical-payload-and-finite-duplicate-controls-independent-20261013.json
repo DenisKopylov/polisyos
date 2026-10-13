@@ -1,0 +1,73 @@
+{
+  "P40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "test-control fidelity: adversarial setup is intercepted before the intended discriminator",
+    "distinct_premature_intercepts": [
+      "schema-mutation negative changed producer body bytes as well as selected schema/profile",
+      "empty-base duplicate negative was intercepted by mixed_unscored/profile_mismatch before duplicate ID validation"
+    ],
+    "widening": "both controls repaired in one batch; no product-source patch"
+  },
+  "closure_ids": [],
+  "decision": "GO_FOR_TWO_FOCUSED_TESTS_AFTER_ROOT_APPLY",
+  "findings": [
+    {
+      "decision": "GO",
+      "divergent_control": "none observed",
+      "evidence": "same ArtifactID and exact CAS bytes; different manifest profile; fresh selected resolver returns invalid/outcome_basis_unreadable",
+      "id": "R1238-F1",
+      "property": "wrong selected schema is tested against actual producer-persisted basis bytes"
+    },
+    {
+      "decision": "GO",
+      "divergent_control": "none observed",
+      "evidence": "actual finite selected base plus distinct-suite supplemental; single-source fresh available control recomputes complete pass/total; duplicate manifest preserves all repeated report/basis refs and components; resolver returns invalid/duplicate_component_id; Level5 emits blocker and no score",
+      "id": "R1238-F2",
+      "property": "repeated selected D4 occurrence is preserved through merge, persisted refs/components, fresh resolver, and Level5"
+    }
+  ],
+  "inputs": {
+    "r1218_failure_boundaries_sha256": "31023fcd2034c05758936a7a4ae809bc0322d4889f468ce6ba252a92d796bbe2",
+    "r1222_r2_decision_sha256": "b885593f0102ca1f9e036dfbae4d91401b03a7e07154cade10562ea036932607",
+    "r1222_r2_manifest_sha256": "c5a3de4e7bf02e88687f21987158d5f0958932b884bea8438125e69589700970",
+    "r1222_r2_patch_sha256": "22ee05f5901696bdea1ff2c95d2d901be16bbded7101eb693ec6aa1b5ca14301"
+  },
+  "native_and_runtime": "UNRUN",
+  "postimages": {
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py": {
+      "ast_parse": "PASS",
+      "bytes": 40394,
+      "manifest_hash_match": true,
+      "sha256": "77b5e2fe6f4b6f2d5845e2ee3abbfde5d5dcf0cc2ab74016b7e7bb4cd92b9620"
+    },
+    "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py": {
+      "ast_parse": "PASS",
+      "bytes": 40634,
+      "manifest_hash_match": true,
+      "sha256": "3ae8926bb79859299694f2cc0a2a99c7535f295d90e4105e3f78c4151a2ed872"
+    }
+  },
+  "preimages": {
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py": "fc3e4612ed80411382393029a42447c47e19d70f012f732dddd0bc33e3b81c79",
+    "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py": "b23d3392b62a5d537a88a73d3e7c9063daeb5c8edffc9b82968bb3f24d7fc2d2"
+  },
+  "review": "R1238 independent review of R1222 R2 stress test controls",
+  "scope": "Two test-only controls in tests/unit/scientist/search/test_adversarial.py and test_phase_d4_runtime_integration.py",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1235-20261013.json",
+    "frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082"
+  },
+  "verification": {
+    "git_apply_check_whitespace_error": "PASS; read-only check",
+    "in_memory_patch_reconstruction": "PASS; both complete virtual postimage hashes match R2 manifest",
+    "native_run": false,
+    "product_imports": false,
+    "pytest": false,
+    "ruff_0_14_10": "PASS for check and format-check per frozen R2 outputs",
+    "source_writes": false,
+    "stdlib_ast_parse": "PASS for both complete postimages"
+  }
+}

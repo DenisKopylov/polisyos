@@ -1,0 +1,139 @@
+{
+  "P40_and_patterns": {
+    "labels": {
+      "controlled_semantic_verification": "candidate for native verification; currently verification_missing until executed",
+      "production_positive_behavior": "verification_missing",
+      "production_source_currentness": "not_established"
+    },
+    "p40": "SAME_CLASS \u2014 SourceInput vs DataFact; the six additions widen the fixture boundary as a whole rather than patching each old test separately.",
+    "patterns": [
+      "P04",
+      "P05",
+      "P14",
+      "P32",
+      "P35"
+    ]
+  },
+  "authority_and_currentness": {
+    "authentic_default": "Separate production default path; exact vintage refusal is required before profile construction. It is not replaced by the successful synthetic read.",
+    "handcrafted_profiles": "Used only as controlled candidate fixtures; their fabricated refs/digests are not production evidence.",
+    "original_five_tests": "Remain unmodified and production-positive claims remain verification_missing; the patch adds new controlled cases and one negative, but contains no production-positive source receipt.",
+    "production_source_currentness": "not_established",
+    "synthetic_source": "Reader-materialized profile from generated tmp_path bytes; selection_owner is legacy.default_l2_source; authenticity and currentness are explicitly not_established."
+  },
+  "candidate": {
+    "author_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1219-controlled-credal-semantic-laws-and-authentic-refusal-r2-20261013/readback.json",
+    "author_readback_sha256": "a3b7ac2724fa1ae4f8f060f926a1a0f092c29a414abef9d758608663e3f8c4bd",
+    "author_static_checks": {
+      "ast_parse": "passed",
+      "configured_ruff_check": "passed",
+      "configured_ruff_config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "configured_ruff_format": "passed",
+      "git_apply_check": "passed",
+      "native_tests": "not_run_by_author",
+      "original_five_test_ast_segments": "identical",
+      "product_imports": "not_run_by_author"
+    },
+    "changed_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py"
+    ],
+    "decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1219-controlled-credal-semantic-laws-and-authentic-refusal-r2-20261013/decision.md",
+    "decision_sha256": "fd7a033a9f9f788ea5adf30bbb74a8669ed27fad5fd604e8cb0031e1087e0524",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1219-controlled-credal-semantic-laws-and-authentic-refusal-r2-20261013/manifest.json",
+    "manifest_sha256": "620b2651fc229fe0706b5925bcbf5ed1022fc46bd38748bfff29fb1dbc361e37",
+    "original_five_test_ast_segments": "manifest reports identical; patch is appended after those tests and has no hunk modifying them",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1219-controlled-credal-semantic-laws-and-authentic-refusal-r2-20261013/candidate.patch",
+    "patch_sha256": "97acf3f0fcbb083135c64e36e7fa927ebc698d55ef090398f34442ce6480a8a2",
+    "review_binding_to_r1197": {
+      "r1197_review_json_sha256": "2439343c6716625661594526731ffbf5b084a68ea9378b045734500d139880fc",
+      "r1197_review_md_sha256": "6fe23c34fdf20c733599979a44ce0f9ec933e88b5354eba07556356166b3d5d1"
+    },
+    "role": "virtual_test_only_patch",
+    "source_postimage": {
+      "bytes": 81014,
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256": "847c153de85f1021dd866dd2ce63576a5f56af0ea1c590b33b869cee2be3f9f9"
+    },
+    "source_preimage": {
+      "bytes": 63583,
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256": "28953fef5fb151328f3e61a57cc0cb94287aa0820124a4ca2442e3f9be679596"
+    }
+  },
+  "case_review": [
+    {
+      "assessment": "GO",
+      "reason": "Constructs a controlled contested edge with two explicit admissible completions, binds it into a profiled reference, checks candidate/unknown-authenticity/currentness, and asserts contested/set-valued/non-confirming behavior.",
+      "test": "test_credal_controlled_contested_edge_lifts_set_valued_and_blocks_confirmation"
+    },
+    {
+      "assessment": "GO",
+      "reason": "Uses the existing real synthetic source builder under tmp_path, consumes via _iter_l2_edges, extracts the reader-produced legacy-default profile, and proves an unknown key remains out_of_scope. Its removal subcase retains a profiled sibling and verifies the profile still resolves before asserting removed-key refusal.",
+      "test": "test_credal_controlled_synthetic_source_fake_edge_and_removal_fail_closed"
+    },
+    {
+      "assessment": "GO_with_bounded_scope",
+      "reason": "Uses five explicit controlled edges, checks exact per-modality status/total counts, sum equals input length, and checks the four intended modalities are in the declared included scope. It makes no production-total claim.",
+      "test": "test_credal_controlled_essential_scope_counts_use_exact_fixture_denominator"
+    },
+    {
+      "assessment": "GO_with_bounded_hash_oracle",
+      "reason": "Runs the actual causal/family derivation functions on controlled rows and compares against independently authored complete payload bodies, canonical JSON encode/decode, and typed reconstruction. The expected content digest uses the shared gy_content_hash protocol, so this test is not an independent implementation test of the hash primitive.",
+      "test": "test_credal_controlled_exact_and_family_payloads_roundtrip_against_independent_oracle"
+    },
+    {
+      "assessment": "GO",
+      "reason": "Binds a candidate controlled reference, changes one scoped edge, rebuilds hashes/epoch, and asserts stale status with epoch/hash/scoped-edge reasons and the exact stale key; authenticity/currentness remain not_established.",
+      "test": "test_credal_controlled_certificate_stales_after_source_content_repair"
+    },
+    {
+      "assessment": "GO_for_local_pinned_boundary_only",
+      "reason": "After constructing an explicitly candidate-only control profile, spies on the classmethod used by the current implementation, invokes the actual default build_credal_reference(REPO_ROOT), expects the typed vintage refusal, and verifies no production source-profile model_validate occurred. This is local source-data dependent and does not make the five production-positive cases pass.",
+      "test": "test_credal_production_default_vintage_refusal_constructs_no_source_profile"
+    }
+  ],
+  "closure_ids": [],
+  "decision": "GO_to_root_for_composition_and_focused_native_verification",
+  "residuals_and_limits": [
+    "Author static checks report AST/Ruff/format/git-apply-check only. Native execution was not run by author or reviewer; root must run focused selected new tests against the composed current source.",
+    "The original five production-positive tests still share the production fixture and remain unverified at current production bytes; this companion does not suppress, skip or re-label their outcome.",
+    "The synthetic-source control covers the actual legacy default reader path, not a WMR-selected production release, serving instance, installed wheel, or browser surface.",
+    "The removal and certificate tests exercise reference semantics with controlled profiles; they do not establish actual production source or certificate history."
+  ],
+  "review_id": "R1241",
+  "review_method": {
+    "database_payload_opened_or_queried": false,
+    "patch_applied": false,
+    "product_imports_run": false,
+    "source_index_git_writes": false,
+    "tests_run": false
+  },
+  "schema": "policyos.r1241.controlled_credal_semantic_laws_independent_review.v1",
+  "scope_limit": "This is a static independent review of a virtual test-only patch. It does not mean tests passed, production positives are verified, or any formal closure is adjudicated.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1235-20261013.json",
+    "frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082",
+    "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "source_review": {
+    "read_only_supporting_source": {
+      "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py": "ce4133e49d93ac785083d853ca3c1c7b09cf18ed7d95d1c6caa16d29446cfd59",
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py": "d5daa6f39ac7787afc981a23c3d36253d43d3eee202428895b8fa3551b11ccd4",
+      "policy-engine/tests/_helpers/academic_skg.py": "e0eef639afac95050110ac0bfc3cc48544d4468515fa337d640ef8e97fbf1375"
+    },
+    "target_test_file": {
+      "matches_candidate_preimage": true,
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256_at_review_base": "28953fef5fb151328f3e61a57cc0cb94287aa0820124a4ca2442e3f9be679596"
+    },
+    "validated_contract_points": [
+      "The explicit synthetic SKG builder rejects records lacking synthetic=True plus a nonempty fixture_scope, requires an existing parent directory and rejects clobbering existing writer artifacts.",
+      "The synthetic default read goes through the existing SKGQuery source-byte/vintage boundary; unregistered digest is not a currentness claim, and the emitted CredalReferenceSourceProfile keeps candidate authority with authenticity/currentness not_established.",
+      "A profiled CredalReference requires every selected-source L2 edge to carry the same profile; the removal control retains edge-b and checks the profile resolver, so it does not create an empty-source profile-bearing K_ref.",
+      "Default build_credal_reference selects the composed production WMR, and _prepared_l2_source runs require_forwardable_confidence before prepared-read profile construction; the negative control calls that actual default path."
+    ]
+  }
+}

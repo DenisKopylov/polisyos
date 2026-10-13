@@ -1,0 +1,174 @@
+{
+  "captured_at_utc": "2026-10-13T21:41:32.775215+00:00",
+  "failure_and_error_disposition": {
+    "failure_case_ids_and_observations_in_support": true,
+    "failure_count": 12,
+    "failure_lanes": [
+      {
+        "count": 1,
+        "followup": "R1281 protected predecessor",
+        "observed_boundary": "threshold floats were represented as tagged dictionaries, so config validation failed before the selected-source-chain assertion"
+      },
+      {
+        "count": 4,
+        "followup": "R1282 ABM",
+        "observed_boundary": "invalid `sha256:ggg…` typed-reference IDs are rejected before the intended status/schema/kind/conversion assertions"
+      },
+      {
+        "count": 4,
+        "followup": "R1283 joint simulation",
+        "observed_boundary": "one checked-interaction-order expectation differs; two fresh-registry entry expectations see no stock-flow entry; one expected tuple is compared against a list"
+      },
+      {
+        "count": 2,
+        "followup": "R1284 autotune",
+        "observed_boundary": "one assertion sees the pointer mismatch inside ValidationError formatting; one protocol-backed store refuses because its raw manifest is unavailable"
+      },
+      {
+        "count": 1,
+        "followup": "R1285 adversarial search",
+        "observed_boundary": "score_claim_without_resolved_basis is raised before the expected adversarial_plan_unreadable branch"
+      }
+    ],
+    "five_credal_errors": {
+      "case_ids": [
+        "test_contested_edge_lifts_set_valued_and_blocks_confirmation",
+        "test_fake_edge_fails_closed_out_of_scope",
+        "test_expanded_essential_scope_classes_are_counted",
+        "test_exact_and_family_edge_payloads_match_pre_split_oracles",
+        "test_reference_repair_stales_dependent_certificate"
+      ],
+      "count": 5,
+      "p41": "These are direct current-head R1276 outcomes; no inherited-red attribution is made.",
+      "reason": "The authentic confidence-layer vintage declares not_reproducible_under_current_rule and consumer_action withhold_confidence_forwarding.",
+      "status": "ERROR at setup; retained as errors, not skipped"
+    },
+    "followup_ids_are_routing_pointers_only": true,
+    "no_followup_repair_or_retest_claimed": true
+  },
+  "formal_closure_ids": [],
+  "input_freeze": {
+    "budget_seconds": 300,
+    "bytes": 74073,
+    "heavy_slots": 1,
+    "held_separate_n4_targets": 4,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1276-source35-independent-real-consumers-input-freeze-20261014.json",
+    "profile_input_scope": "Controlled selected source-bound fixtures and repository canonical recording/config JSON. Authentic default Academic SKG vintage errors remain errors; no skip/default/payload rewrite. Immutable supplied request intent and ordinary source-bound serving worker; no external authenticity/currentness/issuer/production qualification claim.",
+    "selected_independent_targets": 17,
+    "sha256": "c63337c9771a1d404405570c659d33237a6ad55416e6fa63a2392c63936c52e0"
+  },
+  "native_result": {
+    "captured_inputs_before_after": "6,588 source/config hashes are identical; this does not assert the entire Git worktree is clean.",
+    "command": {
+      "bytes": 2883351,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/command.json",
+      "sha256": "0ec6a90639b7d5c3600c10d46e3f7dc67f3172a86c29bf4b001f931a44694afe"
+    },
+    "counts": {
+      "errors": 5,
+      "failed": 12,
+      "passed": 380,
+      "skipped": 0,
+      "tests": 397
+    },
+    "exit_code": 1,
+    "full_nonpass_case_outputs": {
+      "bytes": 87973,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/full-nonpass-case-outputs.json",
+      "sha256": "d5a599acb36363fb6b1bcea5b4f30eda4533e3dd5e9648323bee8d2dcd334e29"
+    },
+    "junit": {
+      "bytes": 154390,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/junit.xml",
+      "sha256": "f3d17c7f3cb7dd741308fc354b02e389318228d3c1145976c3fd0cb7e6b17cd4"
+    },
+    "module_origins": {
+      "artifact": {
+        "bytes": 535835,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/module-origins.json",
+        "sha256": "e938fb2bc65f2f01f086adfc3e99e54f1b39bf003d15d7b1b6ec376e1f8a6c0b"
+      },
+      "exitstatus": 1,
+      "loaded_product_modules": 1700,
+      "outside_selected_source_root": 0,
+      "qualification": "The captured data shows 1700 loaded product modules and zero outside the selected source root; its exitstatus accompanies the nonzero test run and is not a separate pass."
+    },
+    "per_target_counts_are_in_support_receipt": true,
+    "progress_ndjson": {
+      "bytes": 590528,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/progress.json",
+      "sha256": "dea5e6e9475d16e10a67ee638acd7d2200a06257aebb9a25bd7cdfce65cc4be7"
+    },
+    "status": "PARTIAL_INDEPENDENT_CONSUMER_EVIDENCE_WITH_FAILURES_AND_ERRORS",
+    "stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 126687,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/stdout.txt",
+      "sha256": "05a8025019f24c10e2bec9c1eaafe2071a6feb5a3b115749e411ed0065a656f7"
+    },
+    "wall_seconds": 108.68269608402625
+  },
+  "prior_records_preserved": [
+    {
+      "meaning": "Source35 composition handoff; not overwritten.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1269-protected-abm-grounding-n4-composed-source35-handoff-20261014.json",
+      "record_id": "R1269",
+      "sha256": "65d1f9b88422979b38dbe3294b8c1f1c167a07a25ead4d9df9f533cf77795fc7"
+    },
+    {
+      "meaning": "Separate N4 first-target failure/interruption; R1276 held all four N4 targets separate.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1274-source35-first-n4-native-failure-and-interruption-addendum-20261014.json",
+      "record_id": "R1274",
+      "sha256": "786565e1d2a46d9dbd402f0d5a1020b51dcaf9928cf0814e39b5e7078fb09166"
+    }
+  ],
+  "record_id": "R1286",
+  "record_type": "immutable_native_deciding_receipt",
+  "scope_limits": {
+    "N4_targets": {
+      "count": 4,
+      "prior_receipt": {
+        "bytes": 7119,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1274-source35-first-n4-native-failure-and-interruption-addendum-20261014.json",
+        "sha256": "786565e1d2a46d9dbd402f0d5a1020b51dcaf9928cf0814e39b5e7078fb09166"
+      },
+      "status": "HELD_SEPARATE"
+    },
+    "closure_ids": [],
+    "external_authenticity_currentness_or_production_qualification": false,
+    "formal_adjudication_or_policy_authority": false,
+    "overall_source35_acceptance": false
+  },
+  "source_snapshot": {
+    "branch": "codex/e02-unified-local-20261009",
+    "captured_source_and_config_hashes_before_after": {
+      "added": 0,
+      "changed": 0,
+      "count": 6588,
+      "removed": 0
+    },
+    "composition": {
+      "bytes": 11798,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1265-source35-implementation-composition-20261014/composition.json",
+      "sha256": "2a812a74577ff1aa4802bb84bd065528700ee43a8285ca52d25df3a8a182a931"
+    },
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "physical_source_paths": 590,
+    "source_frame": {
+      "bytes": 158504,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+      "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+    },
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "support_receipt": {
+    "bytes": 16327,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1286-source35-independent-real-consumer-native-deciding-support-20261014.json",
+    "sha256": "22f58aa723ce033ccb7babf8e72f98b74c6fcc6af53364b9b0395b67ff06b3cc"
+  },
+  "title": "Source35 independent real-consumer native wave"
+}

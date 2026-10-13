@@ -1,0 +1,140 @@
+{
+  "authority": "independent read-only review; virtual candidate only; not G acceptance",
+  "closure_ids": [],
+  "findings": [
+    {
+      "class": "P38 proxy gate; P40 SAME_CLASS_DEEPER, second finding",
+      "evidence_kind": "read-only OS identity observation plus source-derived candidate branch analysis; candidate generator not run",
+      "id": "R1273-F1",
+      "implementation_proxy": "args.output_dir.resolve() == DEFAULT_OUTPUT_DIR.resolve() compares strings rather than filesystem target identity",
+      "minimal_witness": {
+        "alias": ".../policy-engine/schemas/Snapshots",
+        "alias_resolved": ".../policy-engine/schemas/Snapshots",
+        "alias_st_dev_inode": [
+          16777231,
+          175366069
+        ],
+        "candidate_invocations": [
+          "gen_schema.py --models abm_result --output-dir .../schemas/Snapshots",
+          "gen_schema.py --models abm_result --check --output-dir .../schemas/Snapshots"
+        ],
+        "canonical": ".../policy-engine/schemas/snapshots",
+        "canonical_resolved": ".../policy-engine/schemas/snapshots",
+        "canonical_st_dev_inode": [
+          16777231,
+          175366069
+        ],
+        "ir_module_inode": 175366082,
+        "platform": "Darwin 27.0.0",
+        "resolved_string_equal": false,
+        "samefile": true,
+        "samefile_ir_module_directory": true,
+        "source_derived_effect": "candidate classifies alias as noncanonical; generation enters selected_entries and targets the same physical ir/_manifest.json; check remains selected-entry scoped"
+      },
+      "property": "filtered operations that target the canonical snapshot store must receive canonical module closure/refusal semantics even when the caller uses an alternate path spelling",
+      "required_closure_move": "recognize canonical destination by physical filesystem identity/equivalent target semantics before resolution/writes; do not special-case only the observed spelling"
+    },
+    {
+      "class": "P29 behavioral proof gap",
+      "id": "R1273-F2",
+      "property": "a custom preview must neither write nor check global generated IR reference pages; partial canonical refusal must precede model resolution",
+      "required_test_control": "spy on generate_reference_docs and assert zero calls for preview generation/check; make resolver fail or record calls and assert zero for refused canonical partial generation; retain canonical controls",
+      "test_gap": "candidate helper monkeypatches generate_reference_docs to an unobserved lambda and does not assert that it was not called; resolver lambda is also not call-counted. Removing the preview skip or moving resolution before the refusal can leave the candidate test green."
+    }
+  ],
+  "g_decision_or_formal_closure_claimed": false,
+  "implementation_assessment": {
+    "caller_compatibility": "verify_scm_v3 IR/Fabric checks use canonical output and remain module-complete; deprecated one-model canonical writes are intentionally refused",
+    "custom_preview": "source conditionally skips global docs for genuinely separate paths; candidate test does not assert this behavior",
+    "existing_how_to_command": "claim+p0+ir resolves 105/106 active entries as IR+Fabric complete-module scope, not the entire registry",
+    "full_module_check_and_manifest": "expands full selected modules and compares full non-provenance manifest content",
+    "migration": "full module canonical generation/check or separate --output-dir preview",
+    "ordinary_path_module_closure": "source logic is structurally correct",
+    "partial_canonical_preflight_order": "source logic is structurally correct before _resolve_entries/cache/module processing"
+  },
+  "inputs": [
+    {
+      "path": "LOCAL/raw/r1254-schema-subset-global-manifest-and-check-denominator-20261014/proposal.patch",
+      "sha256": "9e0759da6b542fd0c12598c2b07274b21e2fc513ae7c9a464e227d6269034abc"
+    },
+    {
+      "path": "LOCAL/raw/r1254-schema-subset-global-manifest-and-check-denominator-20261014/manifest.json",
+      "sha256": "9c211ecc544d14d286940b1e744ec51736b985b44f1aa5ba7302985a8aec6185"
+    },
+    {
+      "path": "LOCAL/raw/r1254-schema-subset-global-manifest-and-check-denominator-20261014/decision.md",
+      "sha256": "86437f68be4bae512ffb51556fd77163bda0807b830b654d9fb1eb5ade38a7db"
+    }
+  ],
+  "packet_binding": {
+    "application": "strict standard-library in-memory unified-diff reconstruction; no filesystem source writes",
+    "source_paths": [
+      {
+        "current_preimage_sha256": "39a833a5259d47e46384c93f1a11464b850e85c3e26457040725ab927191205c",
+        "declared_postimage_sha256": "3645dff7fb45db34a82081a903d3622f6e47db1e4759f68eba86d044d70daa60",
+        "in_memory_reconstruction_match": true,
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "preimage_match": true
+      },
+      {
+        "current_preimage_sha256": "72c5e10342440ec5801386e72af60794935f66476d54070566435200b11d10fd",
+        "declared_postimage_sha256": "9ad6b700183b8fa2213a4ceaf9462c709efee2d2326b57270809154187b0868f",
+        "in_memory_reconstruction_match": true,
+        "path": "policy-engine/tests/repo_quality/tools/test_diagnostics_phase3.py",
+        "preimage_match": true
+      },
+      {
+        "current_preimage_sha256": "aa508a044227f298832f163cc0431959c22b414e489a1b839a3a0cee4ea0b70a",
+        "declared_postimage_sha256": "bc067b9ef01b77c2e436043f7b49f9cc7c53479c80462ddb820e993c19f84f48",
+        "in_memory_reconstruction_match": true,
+        "path": "policy-engine/tools/quality/diagnostics/README.md",
+        "preimage_match": true
+      }
+    ]
+  },
+  "registry_denominator": {
+    "active_entries": 106,
+    "by_module": {
+      "fabric": 2,
+      "ir": 103,
+      "scientist": 1
+    },
+    "how_to_example_filters": [
+      "claim",
+      "p0",
+      "ir"
+    ],
+    "how_to_example_omitted": [
+      {
+        "abi_key": "calibration_validation_bundle_v1_1",
+        "module": "scientist"
+      }
+    ],
+    "how_to_example_selected_by_module": {
+      "fabric": 2,
+      "ir": 103
+    },
+    "how_to_example_selected_entries": 105,
+    "method": "standard-library AST walk of all active registry tuples, plus exact selector-tag semantics from select_abi_entries",
+    "source": "policy-engine/src/polisyos/schemas/abi_models.py",
+    "source_sha256": "8c43d8085ee94fae96d7c560bb05b2e7b7b84a6f9fca64fd60bf32b46e0d153f"
+  },
+  "review_id": "R1273",
+  "source_or_index_or_history_writes": false,
+  "unrun": [
+    "candidate pytest tests",
+    "schema generator or canonical/preview generation",
+    "filtered canonical sibling corruption check",
+    "manifest-row removal with recomputed hash probe",
+    "preview content corruption probe",
+    "Ruff/native validation"
+  ],
+  "verdict": "BLOCK",
+  "workspace": {
+    "frame": "LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree_index": "1355896e91789026d21396d2b087c63827ab251b"
+  }
+}

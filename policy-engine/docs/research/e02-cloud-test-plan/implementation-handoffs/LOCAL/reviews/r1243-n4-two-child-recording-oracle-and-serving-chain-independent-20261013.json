@@ -1,0 +1,98 @@
+{
+  "blocking_finding": {
+    "class": "duplicate helper definition shadows replacement",
+    "effect": "later function binding receives recording_id and raises TypeError before ordinary control-run POST",
+    "secondary_stale_references": [
+      "old contract lookup keyed by design_problem_ref",
+      "_ORIGINAL_DISPOSITION_FIELDS removed by candidate"
+    ],
+    "updated_fixture_call_keywords": [
+      "design_problem_ref",
+      "recording_id",
+      "recording_content_hash"
+    ],
+    "updated_fixture_call_line": 1135,
+    "virtual_definitions": [
+      {
+        "keyword_only": [
+          "design_problem_ref",
+          "recording_id",
+          "recording_content_hash"
+        ],
+        "line_end": 255,
+        "line_start": 188
+      },
+      {
+        "keyword_only": [
+          "design_problem_ref"
+        ],
+        "line_end": 310,
+        "line_start": 276
+      }
+    ]
+  },
+  "candidate": {
+    "decision_sha256": "54596d2729f0353d980f4afdceb1d0cfc47253736d5f5a2eb61c1cc8ce20995c",
+    "files": [
+      {
+        "bytes_post": 82899,
+        "bytes_pre": 80627,
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "post_sha256": "9434bdb227639c0be0cf1b390531a8363fe0b2f447ba3f9c05143feaa903c583",
+        "pre_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190"
+      },
+      {
+        "bytes_post": 70333,
+        "bytes_pre": 70081,
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "post_sha256": "97008f45343b85d2b0fa69cf169929497efb9425c362322a76cae02905ae3068",
+        "pre_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7"
+      }
+    ],
+    "manifest_sha256": "ea38421e7f62a843c9fc2cd90973625e8da173c1aab00afbe8584de98348793c",
+    "native_runtime": "NOT_RUN",
+    "patch": "LOCAL/raw/r1229-n4-two-child-real-producer-consumer-readiness-20261013/candidate-r2.patch",
+    "patch_sha256": "57e877aa2607e91e39a51dd78a2dea0760815d10f54ab17c9b53b7abc9966579",
+    "product_imports": "NOT_RUN",
+    "pytest": "NOT_RUN",
+    "reconstruction": "in-memory unified-diff application with hunk context assertions; both virtual files AST-parse"
+  },
+  "closure_ids": [],
+  "current_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": "LOCAL/root-author-source-frame-r1235-20261013.json",
+    "frame_count_provenance": "source-frame supplied; only the two candidate path entries were checked here",
+    "frame_physical_path_count": 575,
+    "frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082"
+  },
+  "decision": "BLOCK",
+  "p40_bucket": {
+    "classification": "NEW",
+    "rationale": "R998 was a stale recompiled-ref selector; R2 adds a separate duplicate-name Python binding defect that shadows the replacement"
+  },
+  "pattern_ids": [
+    "P29",
+    "P33",
+    "P35",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "required_next_action": "remove the duplicate stale definition and removed-constant references, retain one canonical helper signature, then run the exact selected integration test and record the full native output",
+  "schema": "r1243_n4_two_child_independent_review_v1",
+  "scope": "virtual R1229 R2 test-only candidate; no source changes, imports, or tests",
+  "structural_merits": [
+    "recording ID and content hash bind the intended source fixture",
+    "live proposal-to-candidate-ID-to-operator/target semantics and complete disposition map are checked",
+    "derived child groups are joined to actual source atom refs",
+    "test intends ordinary POST, worker dispatch, N5/CAS, and fresh GET"
+  ],
+  "unproved_or_out_of_scope": [
+    "no native route was executed",
+    "exact two-child positive expects both children complete; exact two-child budget-stop frontier remains unproved",
+    "B29 normal-stop terminal surface not established here",
+    "external source authenticity/currentness and production authority are not established"
+  ]
+}

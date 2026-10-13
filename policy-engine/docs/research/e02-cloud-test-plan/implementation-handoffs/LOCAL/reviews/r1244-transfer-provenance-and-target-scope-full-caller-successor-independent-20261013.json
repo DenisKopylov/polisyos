@@ -1,0 +1,85 @@
+{
+  "P40": "SAME_CLASS_DEEPER: widen the shared source-selector/destination-context/run-identity mechanism across the whole intake/update/materialize/reread quantity; do not add per-site patches.",
+  "candidate_inputs": {
+    "caller_denominator_sha256": "25a466cc65227135411c67019ee300ac4cf6a412df6351dc11557f11c47c1262",
+    "changed_path_count": 16,
+    "controller_patch_sha256": "f63cfaa2b4b02e836f781a0f478347d54410ebc976e8d90ccc06c0e60b46f350",
+    "current_target_preimages_exact": 16,
+    "main_patch_sha256": "3873f41e7edb9b36e7eacad47b058ecc2dece5bb660f11c8941f0f716e0bb99d",
+    "manifest_sha256": "75679446f7d4edca94b00677b267dbb9132ee015047b54f59b3e1ed086d4d690",
+    "python_postimages_ast_parsed": 15,
+    "virtual_postimages_exact": 16
+  },
+  "candidate_status": "virtual_only_not_applied",
+  "census": {
+    "candidate_overlay_syntax_call_counts": {
+      "find_transfer_candidates": 11,
+      "materialize_transfer": 3,
+      "query_with_transfer": 12,
+      "record_local": 35,
+      "resolve_transfer_context": 78
+    },
+    "parse_errors": 0,
+    "receiver_ownership": "syntax-only; dynamic receivers not owner-resolved",
+    "scope": "complete policy-engine/src/polisyos and policy-engine/tests Python trees at pinned slice",
+    "source_python_files": 2761,
+    "test_python_files": 2995,
+    "total_python_files": 5756
+  },
+  "closure_ids": [],
+  "findings": [
+    {
+      "bucket": "SAME_CLASS_DEEPER",
+      "confidence": "high",
+      "consequence": "Strict declaration reconciliation refuses ordinary controller update before the companion rereads; expected frontier persistence is not established.",
+      "direction": "Pass the trusted controller search id as the resolver fallback/target before constructing the context; keep mismatch refusal for actual conflicts.",
+      "evidence": [
+        "transfer_context.py virtual 612-617 constructs run_id even when it resolves to unknown",
+        "controller.py virtual 2449 resolves candidate without fallback_run_id/current search id",
+        "pareto_registry.py virtual 432-438 separately supplies trusted loop_id as run_id",
+        "existing test_phase_b_policy_runtime.py virtual test_search_controller_policy_mode_updates_registry generator returns only candidate_id at 2287-2334"
+      ],
+      "id": "R1244-F1",
+      "property": "Controller-owned destination run identity must be carried into Pareto update without converting an absent run declaration into a conflicting explicit value.",
+      "severity": "high"
+    },
+    {
+      "bucket": "SAME_CLASS_DEEPER",
+      "confidence": "high",
+      "consequence": "A source-domain-filtered cross-domain candidate is lost after materialization.",
+      "direction": "Apply source selectors to source records and only recheck predicates whose semantics survive materialization; cover source fiscal to destination labor plus controls in the real persisted flow.",
+      "evidence": [
+        "lessons.py virtual 563-565 documents source query selectors",
+        "lessons.py virtual 660-665 and 766-771 filter the source entry/card",
+        "lessons.py virtual 778-801 overwrites domain with target then re-applies _matches_query",
+        "lessons.py virtual 1117-1120 compares query.domain directly to the materialized record",
+        "the two cross-domain tests omit query.domain"
+      ],
+      "id": "R1244-F2",
+      "property": "LessonQuery domain selects source cards while target_context selects the destination domain.",
+      "severity": "medium"
+    }
+  ],
+  "limits": [
+    "No pytest, native/runtime, product imports, or generated-surface checks were run.",
+    "No claim of external tenant authorization, issuer authority, or source currentness.",
+    "Full current physical source frame after the separately announced Source22 delta is not established here."
+  ],
+  "positive_evidence": [
+    "Fresh persisted source-scope binding and reader revalidation are present.",
+    "Nested task/domain reconciliation has a producer-backed HierarchicalPolicySearchAdapter test and malformed/conflict controls.",
+    "CalibrationValidationLessonPublisher passes its emitted general domain and its persisted/fresh-reader integration test is extended.",
+    "Controller companion forwards one context to update and both rereads, but it cannot repair the preceding update refusal."
+  ],
+  "review_id": "R1244",
+  "scope": "Independent read-only review of all 16 R1215 changed paths, including the separate controller companion.",
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "51f1db1a47d17c6ee3ccedbdf3f2cc85eb8d4960",
+    "pinned_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1235-20261013.json",
+    "pinned_frame_sha256": "e0ee2e79f53de2bb2b975058506307fc3e6973beabffefbb347d93fc994b594d",
+    "qualification": "all 16 exact target-file preimages still match the R1215 manifest. A separately announced later Root Source22 delta was not globally requalified; this receipt is bounded to the exact target files and pinned R1235 slice.",
+    "tree": "5a4d54dcfdb37d2b47373326d1747de8d7014082"
+  },
+  "verdict": "BLOCK"
+}

@@ -1,0 +1,257 @@
+{
+  "active_input_freeze": {
+    "path": "r1276-source35-independent-real-consumers-input-freeze-20261014.json",
+    "scope": "Source35 only; not a global freeze or V3 target freeze",
+    "sha256": "c63337c9771a1d404405570c659d33237a6ad55416e6fa63a2392c63936c52e0"
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "canonical_acceptance": {
+    "coverage": {
+      "finding_rows": 282,
+      "path": "closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "v3_ids": 5,
+      "v3_occurrences": 6
+    },
+    "execution_plan": {
+      "path": "execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+    },
+    "occurrences": [
+      {
+        "closure_now": "not_adjudicated",
+        "criterion": "B_r19:301-312",
+        "finding_id": "B09",
+        "label": "producer_missing",
+        "pointer": "/findings/8/criterion_refs/0",
+        "source_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c"
+      },
+      {
+        "closure_now": "not_adjudicated",
+        "criterion": "B_r19:337-348",
+        "finding_id": "B12",
+        "label": "producer_missing",
+        "pointer": "/findings/31/criterion_refs/0",
+        "source_sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798"
+      },
+      {
+        "closure_now": "not_adjudicated",
+        "criterion": "B_r19:537-550",
+        "finding_id": "B27",
+        "label": "producer_missing",
+        "pointer": "/findings/152/criterion_refs/0",
+        "source_sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44"
+      },
+      {
+        "closure_now": "not_adjudicated",
+        "criterion": "B_r19:551-564",
+        "finding_id": "B28",
+        "label": "verification_missing",
+        "pointer": "/findings/153/criterion_refs/0",
+        "source_sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343"
+      },
+      {
+        "bundle": "ACQ-01",
+        "closure_now": "not_adjudicated",
+        "criterion": "LA_r09:3034-3068",
+        "finding_id": "LA-046",
+        "label": "verification_missing",
+        "pointer": "/findings/270/criterion_refs/1",
+        "source_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+      },
+      {
+        "bundle": "REQ-01",
+        "closure_now": "not_adjudicated",
+        "criterion": "LA_r09:3034-3068",
+        "finding_id": "LA-046",
+        "label": "verification_missing",
+        "pointer": "/findings/270/criterion_refs/0",
+        "source_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+      }
+    ],
+    "task": {
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "path": "execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "scope_status": "execution_remaining",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    }
+  },
+  "client_gap": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "divergent_fixture": "The fixture has same candidate IDs, previous_n4_source_ref artifact_id sha256:666...666, selected_n4_source_ref and new_candidate_source_ref artifact_id sha256:eee...eee, and origin_source_ref null; parser accepts it. The validator also lacks a join check for row new_candidate_source_ref versus continuation selected_n4_source_ref, though this positive fixture itself uses matching e*64 refs.",
+    "pattern": "P38",
+    "required_control": "Use actual valid server projection; assert source ref joins selected N4; assert root-origin relation against persisted chain; then null/mismatch origin and row source while retaining IDs/kinds/markers and require refusal. For repeated reentry, preserve root-origin semantics.",
+    "validator_test": "apps/runtime-dashboard/src/api/validators.test.ts::preserves verified acquisition history in a freshly parsed run response"
+  },
+  "current_source_bindings": [
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+    },
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/runtime/quality/generation_source.py",
+      "sha256": "f469f81e6d8de8a38c3c5317f3c03a33528340fb8e748e989f9f438b8ea3e346"
+    },
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "sha256": "79f72b880eb89ccc53cd2f658f0cba7f688573be4a8a8219a274e9a5a13a8916"
+    },
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "sha256": "195e9e5986ef651eb2729e695053eb9b3664dbd274dd8194519a30431c7e1237"
+    },
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/runtime/http/routes/runs.py",
+      "sha256": "5eb35af7ee356d9ce9704f6e83984e13f4ca80778cce487ee7ec5e2e19312181"
+    },
+    {
+      "frame_bound": true,
+      "path": "src/polisyos/core/contracts/runtime.py",
+      "sha256": "886deae0ca563ec1716193a5f4ee23892dfc7e0e167b772bb5a0d6841c19f813"
+    },
+    {
+      "frame_bound": true,
+      "path": "tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "sha256": "f613788dfdcc663c1813476d5ee65c2b50a5801dea34e74495f91c7ce25460a8"
+    },
+    {
+      "frame_bound": false,
+      "importance": "imported by focused V3 served selector; bind before run",
+      "path": "tests/_helpers/acquisition_production.py",
+      "sha256": "895bd55772c481e88c9ed86daee91e799c4acb61b822ef34a4d20575bf1fc267"
+    },
+    {
+      "frame_bound": true,
+      "path": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "sha256": "42d16abdd10a402ec27245ba51b1c7c0556558cc1718196c656f49971f45655f"
+    },
+    {
+      "frame_bound": true,
+      "path": "tests/unit/runtime/quality/test_generation_source.py",
+      "sha256": "fcb27806fbd3453e88f68cc5a8ff042bc1c4b3bf090fabfc52e43a4e168fe66f"
+    },
+    {
+      "frame_bound": true,
+      "path": "tests/unit/runtime/quality/test_generation_cycle.py",
+      "sha256": "bb80715e750b337996184ee7000c297dddbc7995a50c00ef239895b1706ad9d1"
+    },
+    {
+      "frame_bound": true,
+      "path": "tests/unit/data_requirement/test_compiler.py",
+      "sha256": "490e871d04c207cf6e9b9a46038753a33eb9d729e77931a6134ee2a0daa9a2e7"
+    },
+    {
+      "frame_bound": true,
+      "path": "apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "b1b8e88d0f64ce9d8806fb0d21611b2f4a302945172dd1f22b061d69bbd8f19e"
+    },
+    {
+      "frame_bound": true,
+      "path": "apps/runtime-dashboard/src/api/validators.test.ts",
+      "sha256": "fb4c51ccadbf426145f3e566ecae19e63a1226b3e93e794e864cfd0a765b8eff"
+    },
+    {
+      "frame_bound": false,
+      "importance": "generated client type input if frontend typecheck is run",
+      "path": "apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "28e60c94c607988792c7e8cc541ae84a3cba86a94e2e942e6bdfa8d4e4a98bbf"
+    },
+    {
+      "frame_bound": true,
+      "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "sha256": "6dc2be13a3d5fc1d4628c62612cf7bb8f31257f68236887e9f5cbd8b503c4d73"
+    },
+    {
+      "frame_bound": true,
+      "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "sha256": "9d79d8194cec96efb3236213f82b3be50db5805a51326c8cb82eade68df09dbe"
+    },
+    {
+      "frame_bound": false,
+      "importance": "current browser path inspected, not a V3 same-candidate test",
+      "path": "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+      "sha256": "0d5532593522e1e7ddef7c0735d9aa020825257625fa33b057a359ce200726d3"
+    }
+  ],
+  "decision": {
+    "blocking_reasons": [
+      "No current-source test execution reached the target body; R515 old six-module receipt timed out during setup after the V3 target started.",
+      "The imported acquisition_production.py helper is not bound in the active root frame/input receipt.",
+      "The client validator accepts a same-candidate row with a null origin despite a non-null previous N4 source and does not bind row new-source ref to selected continuation N4 ref.",
+      "Overview component fixture uses different candidate IDs; E2E only asserts acquisition_history is an array, not a same-candidate re-entry.",
+      "REQ-01 remains a separate LA-046 occurrence from ACQ-01."
+    ],
+    "focused_backend_native_replay": "GO_AFTER_BINDING_IMPORTED_TEST_HELPER",
+    "formal_closure_ids": [],
+    "full_v3_closeout": "BLOCK"
+  },
+  "formal_closure_ids": [],
+  "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+  "next_selectors": [
+    "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+    "tests/unit/runtime/quality/test_generation_source.py::test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline",
+    "tests/unit/runtime/quality/test_generation_source.py::test_repeated_candidate_resolves_requested_later_cycle_occurrence",
+    "tests/unit/runtime/quality/test_generation_source.py::test_wrong_source_occurrence_cannot_satisfy_later_cycle_summary",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_changed_population_and_model_rebind_owner_basis_and_occurrence",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress",
+    "tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_revised_cycle_basis_survives_served_native_admission_and_reentry",
+    "apps/runtime-dashboard/src/api/validators.test.ts::preserves verified acquisition history in a freshly parsed run response"
+  ],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P14",
+    "P29",
+    "P32",
+    "P33",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "prior_attempt": {
+    "command_sha256": "5034feae18a7ed1090b37e34c9ba924970ebdcffd80ead9d91e9f082b15aff8c",
+    "exit_code": 124,
+    "head": "929dafec0f26ea95c3e3405ab8fc701d305ba115",
+    "meaning": "not a V3 test failure, pass, or target performance measurement",
+    "old_generation_cycle_sha256": "8f0949f225c375b9f63cffa50c288bc9722dc81f911e4ffb0311030afe316293",
+    "path": "raw/r3-q0-v6-real-producer-served-consumers-actual-r515-20261013",
+    "progress_sha256": "3cee635935a4ff3db3963f9efdc26d1460e330a4c18f2ea49ac7a0bbc13c4d70",
+    "stderr_sha256": "cec8674ec34df32ee47ad5f2091f5eea7df084bcdf5d67edee4da1561ee53039",
+    "stdout_sha256": "7c7fbc9e2d790a8436acd1b79fee801450216a7e308216532058000c6f91f65b",
+    "target_status": "setup_passed_then_interrupted_before_call_or_teardown; no JUnit"
+  },
+  "property_summary": {
+    "authority_boundary": "Recorded proposal, controlled profile, intercepted WDI rows and synthetic cost fixture; real route/epoch/overlay/worker/N5 machinery; candidate-only/limited/not-established/no publication.",
+    "cache_boundary": "Per-run ephemeral candidate/source-ref map resets at run start; CAS content refs are persisted owner records; GET re-resolves persisted source rather than trusting that map. No claim about duplicate initial POST cache behavior.",
+    "occurrence_lineage": "V3 wraps exact V2 source view and carries optional origin; source replays full CAS/manifest/scope and recomputes identity; same candidate requires distinct occurrence and WMR hashes and validated origin.",
+    "reentry_and_get": "Actual served route and durable worker; append-only continuation; fresh authenticated GET reconstructs history/current fronts/N9 status from persisted refs/events, fails closed on corrupted owner bytes.",
+    "semantic_identity": "Stable subject + complete Trinity proposal/model + selected intervention + profile semantics; N5 baseline state excluded so baseline refresh can retain candidate identity."
+  },
+  "review_execution": {
+    "database_or_browser": false,
+    "product_changes": false,
+    "runtime_imports": false,
+    "source_read_only": true,
+    "tests_run": false
+  },
+  "review_id": "R1279",
+  "reviewed_date": "2026-10-14",
+  "source_frame": {
+    "path": "root-author-source-frame-r1267-20261014.json",
+    "physical_paths": 590,
+    "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+  },
+  "tree": "1355896e91789026d21396d2b087c63827ab251b"
+}

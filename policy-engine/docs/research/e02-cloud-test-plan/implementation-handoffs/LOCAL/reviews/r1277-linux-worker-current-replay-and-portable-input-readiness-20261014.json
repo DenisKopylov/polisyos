@@ -1,0 +1,432 @@
+{
+  "actions_not_performed": [
+    "No bundle creation or copy",
+    "No worker checkout/bare ref mutation",
+    "No VM/container start/stop/replacement",
+    "No package install/sync",
+    "No uv pip check",
+    "No pytest, native route, build, wheel install, or C7 execution",
+    "No product source/config/index/history writes"
+  ],
+  "closure_ids": [],
+  "date": "2026-10-14",
+  "disposition": "The existing Linux worker is available and its app/DoWhy environments match the named versions. Its checkout remains at the R1038 source tip, 11 commits and 197 changed paths behind the current OWN candidate. No current-source transport or route execution was done. The source frame is not a global freeze or G acceptance.",
+  "installed_wheel_eighth_contour": {
+    "current_manifest": {
+      "baseline_source_sha": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+      "mismatches": [
+        {
+          "current": "2ee973564cd12aa8a9b491e4db17aae2a5a9d30200717461aa424a586102a0cd",
+          "manifest": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+          "path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py"
+        },
+        {
+          "current": "74db0a71cc4217f9cfc8338f026acb05e5dc0b435ee0ada71f2a26b98694a0d0",
+          "manifest": "4d682418d34bfa116af14c2214f84a04f6ceae4c5867cd708bb353213c09be0e",
+          "path": "tests/unit/core/artifacts/backends/test_gcs_store.py"
+        },
+        {
+          "current": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+          "manifest": "63f4534629714897b91f092beddc724d606e75971a74fb5d434c4ad27c01b3df",
+          "path": "tests/unit/core/artifacts/backends/test_s3_store.py"
+        },
+        {
+          "current": "78f20140580b64b76e657da179ea87b771cc9ddbd12dbb07b706fd6a5dd1471d",
+          "manifest": "d341750b85a9ae219e5330fd45b49cc40c75d17de6b7b1662cb5a738ef804fad",
+          "path": "tests/unit/core/artifacts/test_ir_adapter.py"
+        },
+        {
+          "current": "a3c2945a8cb86c52e4c87b6d01356fd52d8bbf651cff7332d2262d1fe82e3397",
+          "manifest": "3939b4a97e39b957ae859b7dd9e0e1176c24db763427fd19ac04301570c8533e",
+          "path": "tests/unit/core/components/test_cli_replay.py"
+        }
+      ],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+      "readiness": "Do not run the existing 135-ID package wave from this manifest. Run the recipe source-audit prepare/check against the final source and rebind the complete set; do not select only the Ukraine test.",
+      "selected_id_digest_recomputed": true,
+      "sha256": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd",
+      "source_pin_match_count": 10,
+      "source_pin_mismatch_count": 5,
+      "source_tree": "REQUIRED_FROM_FINAL_FREEZE"
+    },
+    "current_source_sha256": "9932d3cbc12e0b84b998d419fca7859c829e425a753d8b8abb7100344c82b8b1",
+    "expected": "Linux installed ukraine-data console entrypoint run outside checkout; persisted stage/gate unavailable; command empty; no C7/uv call; fake marker-shaped parent rejected both with and without the C7 marker.",
+    "manifest_source_pin_matches_current": true,
+    "runner_identity_readback": {
+      "audit_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "audit_script_sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c",
+      "current_primary_run_py_sha256": "fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09",
+      "current_timeout_driver_sha256": "bf4042483e0621d8ccae8d3ee8096a5a68dc090fb8cf23411b5d793c213e426f",
+      "manifest_path_sha256": "f0b87e517eed60cfea94296fe13d990255031b219eff73340df86367e20d3155",
+      "note": "Older readiness/timeout docs cite different proposed runner hashes; rebind the exact current driver and manifest before execution.",
+      "recipe_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+      "timeout_plan_path_sha256": "4805c14999116d61457b8b358053ca9e86c40244e445b87640fb4b5729d740e8"
+    },
+    "runtime_status": "UNRUN",
+    "selector": "tests/unit/data_forge/domains/ukraine/test_installed_wheel_no_checkout.py::test_installed_wheel_without_checkout_reports_gate_unavailable",
+    "suite_denominator": {
+      "asset_count": 11,
+      "historical_subset": {
+        "count": 100,
+        "digest": "a1da373ad502cb17fe1932757cae15fd91450063587720e1ec727e32676f751b",
+        "is_complete_suite": false
+      },
+      "original_q2_ids": 91,
+      "original_q2_junit_sha256": "3b04c39f4038726d08759384d6690409f8b33f6b6b12e5afc584453d63510dc9",
+      "profiles": [
+        "source-wheel",
+        "rebuilt-sdist-wheel",
+        "rebuilt-gcp-archive-wheel"
+      ],
+      "selected_ids": 135,
+      "selected_ids_sha256": "4f273e803d60fafd84a3901357cbf9e80c4beb4af5f2aa7dfae1697f39342d1d",
+      "selected_ids_unique": 135,
+      "source_file_pins": 15
+    }
+  },
+  "la029_route": {
+    "api_chain": "tools.cli:main -> tools.registry.get_spec(ukraine_data, validate-part-a) -> tools.ops_runners.ukraine_data.validate_part_a:main -> UkraineDataOrchestrator.validate_part_a -> run_part_a_gate -> _run_repository_gate -> subprocess.run; typed PartAGateManifest and BuildRunManifest persist; fresh reader verifies gate bytes and invokes _ensure_part_a_gate before D1.",
+    "c7_child": {
+      "argv": [
+        "/usr/local/bin/uv",
+        "run",
+        "pytest",
+        "-q",
+        "tests/integration/test_c7_synthetic_full_pipeline.py"
+      ],
+      "cwd": "/workspace/polisyos/policy-engine",
+      "environment": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "expected": "3 passed, 0 skipped; one root-owned heavy slot; not run here"
+    },
+    "current_route_transfer": "Not performed. R1038 only transported source 226ced..., not the current a746 candidate. The old source helper final-source-linux-wave.sh uses git clone when destinations are absent and must not be used to replace/recreate this attached checkout.",
+    "fixture": {
+      "helper": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+      "property": "in-repository synthetic fixture; uses JAX/NumPy; not production data; preserve exact test file and no-marker/skip semantics",
+      "test": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py"
+    },
+    "helper_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/run_ukops_gate_v2_20261011.py",
+        "sha256": "6c04f5ab789fb415bde35280914f98f062af8a49fca6605ac2bf16fb8c2b2706"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/read_gate_consumer.py",
+        "sha256": "4333a140ff68427b5df22b4874e495550724e7ee0db3abd9bad51785d63e4e83"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/uv",
+        "sha256": "d0431b7f3241cabb6b07c038c5e84044163b3b8f3acd6726af6ec6bd54dcd16e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/instrumentation/sitecustomize.py",
+        "sha256": "ab781e2ccbded58cb99ec7b0e843ed2385fcc3f2af06d03268a3bf2eee4591f6"
+      }
+    ],
+    "prior_route_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r967-linux-la029-current-source-replay-readiness-20261013.json",
+      "sha256": "b7c9528b20729a072da7e591796ee64d3a44483456f53a7b9f4568a0f65e5349"
+    },
+    "route_command": {
+      "argv": [
+        "/scratch/root-venv/bin/python",
+        "-B",
+        "-m",
+        "tools.cli",
+        "ukraine_data",
+        "validate-part-a",
+        "--workspace-root",
+        "/workspace/polisyos/policy-engine",
+        "--root",
+        "/scratch/e02-la029/FINAL_SOURCE_SHA/positive-01/build"
+      ],
+      "cwd": "/workspace/polisyos/policy-engine",
+      "expected_gate_result": "typed passed, passed=true, skipped=false; C7 command and child process captured",
+      "server_marker": "POLISYOS_SERVER_EXECUTION=1"
+    },
+    "route_json": {
+      "old_bound_head": "65e90e6c3b8b94d0c49681cbe969f9a4637cf630",
+      "old_bound_tree": "8ea5fe2717ee6676e3d040746323e3a0a534a76d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/la029-versioned-helper-route-current65-20261011.json",
+      "sha256": "8721b5f4a1ff025b54d29cfe3f46b5f291872c48db8a5df3000cc3a00c45c734",
+      "status": "UNRUN_UNFROZEN_PREPARATION_ONLY"
+    },
+    "runtime_status": "UNRUN",
+    "selectors": [
+      {
+        "expected": "One current-source incremental bundle using actual worker branch tip, CAS bare-ref update, fetch and --ff-only; no clone.",
+        "id": "LINUX_SOURCE_TRANSPORT",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "Transfer the four ignored helper inputs to a new final-SHA harness and compare all four pinned hashes before execution.",
+        "id": "LA029_HELPER_TRANSFER_AND_HASH_READBACK",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "Actual server-only route refuses before artifact creation or child C7 execution when its server marker is absent.",
+        "id": "LA029_NATIVE_NO_MARKER_GUARD",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "Explicit empty workspace yields typed unavailable, empty command, false pass/skip, no C7 child, persisted gate/stage manifests.",
+        "id": "LA029_EMPTY_WORKSPACE_UNAVAILABLE_CONTROL",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "Fresh reader returns blocked_by_part_a_gate and no outputs.",
+        "id": "LA029_EMPTY_WORKSPACE_FRESH_GATE_AND_D1_CONSUMER",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "One real C7 subprocess; 3 passed/0 skipped; preserve PID/argv/CWD/env/full output and typed persisted manifests.",
+        "heavy_slot_count": 1,
+        "id": "LA029_UKOPS_FINITE_C7_GATE_POSITIVE",
+        "status": "UNRUN"
+      },
+      {
+        "expected": "Fresh reader verifies exact positive gate bytes; D1 returns blocked_by_previous_stage because D0 is absent; no outputs.",
+        "id": "LA029_PASSED_GATE_FRESH_D1_CONSUMER",
+        "status": "UNRUN"
+      }
+    ],
+    "server_guard": "Preserve POLISYOS_SERVER_EXECUTION and server-only refusal. Do not substitute the direct installed ukraine-data console entrypoint for the Ops-owned tools.cli route."
+  },
+  "lock_and_route_source": {
+    "current_vs_worker_route_files": [
+      {
+        "matches_worker": true,
+        "path": "policy-engine/tools/cli.py",
+        "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/tools/registry.py",
+        "sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py",
+        "sha256": "1bc9bc1e7b01cdb1119e3f8ca5338ba33158e8c564bac82882c4f7e8cfe184c6"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+        "sha256": "eacccf70eb26bc857c44c628a8e7938d6076c0af34883e2752bfc91995b22a1b"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+        "sha256": "9247d18090d5f877c2e0814c07f8f834dd277c04fc9598f3f73abd214fe0f759"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+        "sha256": "fc5d80fd6d3112ddc0a648231eca3612f44642a438c5fe52fc1347d1dad595b5"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+        "sha256": "e183af4240f3654da4407d92b460e584dff7bdaed3ad7a1bb6d83e1f047b3533"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+        "sha256": "bebfa8c846b45baaa25c7cd771461b908a58bd7d69d5615efbfe0306d38a6558"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+        "sha256": "f179dbb33d2802972f543204507d27e92f1c004c87f6c6d4d8113d4f9a4e5a4f"
+      },
+      {
+        "matches_worker": true,
+        "path": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+        "sha256": "8f45e947437d3dc920933ac14cf89a49531f243a08fb943729e07c8244e6efaa"
+      }
+    ],
+    "lock_delta": "Current source tightens pydantic to >=2.12.5,<2.13 and adds pydantic-core==2.41.5; the existing worker root-venv reports pydantic 2.12.5 and pydantic-core 2.41.5. No uv lock or package consistency command was run.",
+    "pyproject_current_sha256": "92850014b496849fb6d20851f52af31fd986e289bae45edcff0c15fb0489c65d",
+    "pyproject_worker_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "uv_lock_current_sha256": "63a394b509071b4125419b7304860d15a53a2e65e148adca6eee043be6315740",
+    "uv_lock_worker_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+  },
+  "original_scope": {
+    "adjudication": "not_adjudicated",
+    "capability_label": "bridge_missing",
+    "coverage_file": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_pointer": "/findings/253/criterion_refs/0",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "criterion_ref_sha256": "2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441",
+    "exact_occurrence": "tasks/Q0/finding_ids/64",
+    "finding_id": "LA-029",
+    "formal_closure_ids": [],
+    "full_input_denominator": {
+      "basis": "The prior R967 full input census; the TASKS, coverage, and original-criterion hashes above were recomputed on the current OWN candidate and still match. This readiness refresh did not repeat the full 127-bundle census.",
+      "bundles": 127,
+      "criterion_occurrences": 291,
+      "findings": 282
+    },
+    "original_criterion": {
+      "lines": [
+        1518,
+        1567
+      ],
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    },
+    "task_file": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "task_file_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+  },
+  "own_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_authority": "root author source frame; not G acceptance or global freeze",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "physical_source_path_count": 590,
+    "root_is_sole_product_writer": true,
+    "source_freeze_boundary": "Committed independently-reviewed Source35 with11actualcanonicalgeneratedcompanions; focusednativeUNRUN; nofinalglobalfreeze/Gacceptance",
+    "tracked_status_count": 0,
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  },
+  "pattern_and_limits": {
+    "P37": "Worker identity, branch/tree, architecture, mount set, disk, and installed package versions were recomputed. C7 result, successful source-bound replay, and package-profile pass remain not_established.",
+    "P38": "Divergent case: worker is clean and has the right branch/runtime, and all ten direct source-route files match, yet the source tip is 11 commits/197 paths old and lock files differ; the 135-ID package manifest also has five stale source pins.",
+    "P40": "SAME_CLASS_DEEPER for source-bound Linux replay and installed-wheel source binding. Rebind complete current source and all selected consumer pins; no per-file transport, one-test package selector, or marker-only success.",
+    "P41": "No LA-029 result is inherited. The R1038 source-only transfer proves only the old source tip; exact-current route and 135-ID package wave are unrun.",
+    "acceptance_signal": "Root-approved source freeze and current incremental transport; all four helper hashes matched; seven real route rows with one positive C7 and fresh typed consumers; separately prepared/reviewed 135-ID installed source-wheel/sdist/archive wave with complete collection/JUnit and no skips; G adjudication remains separate.",
+    "missing_capability": "bridge_missing / not_adjudicated",
+    "pattern_ids": [
+      "P08",
+      "P09",
+      "P29",
+      "P33",
+      "P34",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ]
+  },
+  "preparation_commands_not_run": {
+    "incremental_transport_template": "After root supplies final committed source SHA/tree, reread worker tip and use one bundle from refs/heads/codex/e02-unified-local-20261009 excluding that actual tip. The observed current worker tip is 226cedb822e6e242d861ea8c903c9b396375dd0e, but re-read before transport. Verify bundle/list-head/ancestry/hash, copy once to absent /scratch/e02-la029/<FINAL_SHA>/, CAS-update existing bare ref, fetch and --ff-only; do not use the clone-based legacy script.",
+    "installed_wave_prepare_template": "python3 \"$audit\" prepare --repo \"$repo\" --source-sha \"$source_sha\" --source-tree \"$source_tree\" --python \"$app_python\" --collection-timeout-seconds \"$collection_timeout_seconds\" --output-root \"$prepare_root\" --supplemental-manifest \"$supplemental_manifest\" --supplemental-manifest-sha256 \"$supplemental_manifest_sha256\"",
+    "installed_wave_recipe": "After final freeze, use the existing installed-wave-recipe source-audit prepare, review/reconcile its proposed full manifest, run source-audit check with that proposal, and then invoke the primary timeout driver on all 135 selected IDs in all three profiles. No command was executed here.",
+    "la029_child_command": "/usr/local/bin/uv run pytest -q tests/integration/test_c7_synthetic_full_pipeline.py ; CWD=/workspace/polisyos/policy-engine ; POLISYOS_RUN_INTEGRATION=1",
+    "la029_product_command": "/scratch/root-venv/bin/python -B -m tools.cli ukraine_data validate-part-a --workspace-root /workspace/polisyos/policy-engine --root /scratch/e02-la029/FINAL_SOURCE_SHA/positive-01/build"
+  },
+  "readback_evidence": {
+    "r1038_json_sha256": "b2fd5542d02c565be6ccadaca2e8aaa3769f8770e85513006e044e2940359c56",
+    "r1038_report_sha256": "c36bf9070ac37cf53ef412a4bbe1119ff3d9aaa3a916be7c7011b2f409241eeb",
+    "r967_json_sha256": "b7c9528b20729a072da7e591796ee64d3a44483456f53a7b9f4568a0f65e5349",
+    "r967_report_sha256": "ab280e4dd03eb2bb1c9199c05cfab220d94f35b00044c5983e864e9800f09d66"
+  },
+  "report_id": "r1277-linux-worker-current-replay-and-portable-input-readiness-20261014",
+  "schema": "policyos.e02.linux_worker_readiness.v1",
+  "source_delta_from_worker": {
+    "base_commit": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "base_tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a",
+    "basis": "Complete git diff name list, numstat, and rev-list over 226ced..HEAD; no untracked worktree files included.",
+    "changed_path_count": 197,
+    "commit_count": 11,
+    "current_is_descendant": true,
+    "numstat_added": 77335,
+    "numstat_deleted": 1255,
+    "prefix_counts": {
+      "other_policy_engine": 136,
+      "policy_engine_src": 37,
+      "policy_engine_tests": 24,
+      "repo_root": 0
+    },
+    "suffix_counts": {
+      ".json": 88,
+      ".lock": 1,
+      ".md": 45,
+      ".ndjson": 1,
+      ".py": 57,
+      ".toml": 5
+    }
+  },
+  "status": "READINESS_ONLY_UNRUN",
+  "worker": {
+    "architecture": "linux/aarch64",
+    "bare_origin": {
+      "alternates": "absent",
+      "branch_head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "path": "/scratch/e02-7574c864a605c50efc033b966807790cbd8d1781.git",
+      "shallow": true,
+      "shallow_boundary": "7574c864a605c50efc033b966807790cbd8d1781",
+      "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+    },
+    "checkout": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "path": "/workspace/polisyos",
+      "shallow": true,
+      "shallow_boundary": "7574c864a605c50efc033b966807790cbd8d1781",
+      "status_count_including_untracked": 0,
+      "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+    },
+    "colima_home": "/Users/deniskopylov/.colima-e02-local",
+    "colima_status": "running; macOS Virtualization.Framework; aarch64; Docker; virtiofs",
+    "container_id": "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+    "container_name": "e02-local-worker-provision",
+    "container_state": "running",
+    "cpu_limit": 2,
+    "disk_size": "12GiB",
+    "docker_config": "/Users/deniskopylov/.docker-e02-local",
+    "docker_context": "colima-e02-local",
+    "existing_profile": "e02-local",
+    "image": "ghcr.io/astral-sh/uv@sha256:dc53af52cf658aa04401244105cd63b25a7dfd42a6c5125683710b553d8d263f",
+    "memory_limit": "3GiB",
+    "mounts": [
+      {
+        "destination": "/opt/uv-python",
+        "name": "e02-local-uv-pythons",
+        "type": "volume"
+      },
+      {
+        "destination": "/root/.cache/uv",
+        "name": "e02-local-uv-cache",
+        "type": "volume"
+      },
+      {
+        "destination": "/scratch",
+        "name": "e02-local-uv-env",
+        "type": "volume"
+      }
+    ],
+    "resource_readback": {
+      "container_memory_current_bytes": 1684115456,
+      "host_data_free": "16GiB",
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0
+      },
+      "scratch_free": "5.6GiB of 12GiB"
+    },
+    "runtime": {
+      "app_python": "3.14.0",
+      "dowhy": "0.14",
+      "dowhy_worker_python": "3.12.12",
+      "hatchling": "1.27.0",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "lifelines": "0.30.3",
+      "pydantic": "2.12.5",
+      "pydantic_core": "2.41.5",
+      "pytest": "9.0.2",
+      "uv": "0.9.21",
+      "uv_pip_check": "UNRUN"
+    },
+    "space_guard": "No clone or second checkout was created; no disk cleanup or installation was performed."
+  }
+}

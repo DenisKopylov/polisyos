@@ -1,0 +1,33 @@
+{
+  "candidate": {
+    "decision_sha256": "83395a4839f02e52b25419b049cd7d5365c83de204a675c1274d5512213efad2",
+    "manifest_sha256": "b137aba5df82ded6d6917426f9704664a6cf90700645ad1cdcdce5a69ac9c176",
+    "proposal_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/proposal.patch",
+    "proposal_patch_sha256": "046644ea1d3c8b48258a6d33f81318e0da9b29f51f7e698247ec9b60c87a6c15"
+  },
+  "checks": {
+    "artifact_hashes": "verified against R3 manifest",
+    "git_apply_check": "passed, read-only; patch not applied",
+    "product_ruff": "not run",
+    "product_tests": "not run by instruction",
+    "stdlib_ast_parse": "passed for all five candidate postimages reconstructed in memory"
+  },
+  "result": "GO for root composition and focused native verification of the virtual R3 only",
+  "review_id": "r1290-skg-selected-profile-cache-r3-static-readback-20261014",
+  "review_scope": {
+    "closure_ids": [],
+    "integration_companion": "the observer wrapper forwards return_selected_profile so Core preflight reaches the existing timed worker case",
+    "mechanism": "selected ref and strict raw manifest/profile/body consumer contract; facade API routing only; inert named writer negative; actual CAS fresh-reader roundtrip; preserved revocation and existing byte-mutation/stable-hit witnesses",
+    "unresolved_native": "Root must compose with R1289 and run focused native unit/integration witnesses; no cache/e2e claim established here"
+  },
+  "source_identity": {
+    "all_five_preimages_match_HEAD": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "index_diff": "clean",
+    "tracked_worktree_diff": "clean",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  }
+}

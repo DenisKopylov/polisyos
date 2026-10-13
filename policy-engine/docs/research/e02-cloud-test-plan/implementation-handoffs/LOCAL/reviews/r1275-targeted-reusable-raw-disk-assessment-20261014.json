@@ -1,0 +1,301 @@
+{
+  "actions": {
+    "files_moved_deleted_or_trashed": false,
+    "files_written": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1275-targeted-reusable-raw-disk-assessment-20261014.md",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1275-targeted-reusable-raw-disk-assessment-20261014.json"
+    ],
+    "index_or_history_changed": false,
+    "permissions_changed": false,
+    "product_source_or_tests_changed": false
+  },
+  "candidates": [
+    {
+      "allocated_measurement": {
+        "command": "du -sk <exact-path>",
+        "exit_code": 1,
+        "limitation": "Traversal denied for child source/test directories; complete allocated and logical size not established.",
+        "reported_kib": 0
+      },
+      "disposition": "KEEP. It is reconstructable against its historical pinned base but inaccessible, unmeasured, and not proven unused; do not change permissions.",
+      "id": "b05-v4-final-overlay",
+      "kind": "materialized_source_overlay",
+      "known_consumer": "B05/V6 decision records still cite this overlay family and its patch as a dependency; no current no-user proof exists.",
+      "metadata": {
+        "directory_lstat_bytes": 128,
+        "mode": "0444 (dr--r--r--)",
+        "uid_gid": "501:20"
+      },
+      "open_file_check": {
+        "command": "lsof -t +D <exact-path>",
+        "exit_code": 1,
+        "limitation": "The path is not traversable, so this is not proof of no consumers.",
+        "pids_returned": 0
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b05-generic-simulation-20261011-v4-final/overlay",
+      "reconstruction": {
+        "base_commit_available_and_ancestor": true,
+        "current_source_match": "0/9 paths equal their pinned preimage or candidate postimage; this is historical, not a current-source overlay.",
+        "manifest_bytes": 8593,
+        "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b05-generic-simulation-20261011-v4-final/b05-generic-simulation-v4-final-manifest.json",
+        "manifest_preimage_match_at_base": "9/9 (including two expected-absent paths)",
+        "manifest_sha256": "1cf0e3163ffbcc20e5140dd6204daf12285593ec88f7c43f95a3a44ff73d092a",
+        "patch_bytes": 233478,
+        "patch_hash_matches_manifest": true,
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b05-generic-simulation-20261011-v4-final/b05-generic-simulation-v4-final-cumulative.patch",
+        "patch_sha256": "6c4a07cd792a67fcd76ede492033933d955fa610cb86a56418356453dc3e1565",
+        "pinned_base": "7296a02065fbdac778dae241b137182179667625",
+        "prior_exact_reconstruction": "Earlier B05 decision records an isolated 9/9 candidate match."
+      }
+    },
+    {
+      "disposition": "KEEP. No active open PID does not establish no source/receipt consumers; no exact reconstruction basis was established.",
+      "id": "can-candidate",
+      "kind": "active_source_overlay",
+      "known_consumer": "Prior owned-scratch receipt classifies it as an active source overlay candidate.",
+      "metadata_only_walk": {
+        "directory_count_below_root": 613,
+        "du_allocated_kib": 127772,
+        "regular_file_count": 5287,
+        "regular_logical_bytes": 119356467,
+        "symlink_count": 0
+      },
+      "open_file_check": {
+        "command": "lsof -t +D <exact-path>",
+        "exit_code": 1,
+        "pids_returned": 0
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-candidate",
+      "reconstruction": {
+        "exact_source_preimage_or_composition": "not established by the cited cleanup receipts",
+        "patch_or_manifest_in_candidate_root": "not present at the inspected root level"
+      }
+    },
+    {
+      "allocated_measurement": {
+        "all_targets_under_canonical_snapshot_root": true,
+        "directory_count_below_root": 4,
+        "du_allocated_kib": 28,
+        "regular_file_count": 1,
+        "regular_logical_bytes": 26454,
+        "symlink_count": 112,
+        "symlink_target_text_bytes_not_dereferenced": 15825,
+        "symlink_targets_existing": 112,
+        "symlink_targets_missing": 0
+      },
+      "disposition": "KEEP. The tree is only 28 KiB and is unique P29 semantic-drift evidence; no meaningful disk recovery.",
+      "id": "r1260-generated-schema-drift-fixture",
+      "kind": "generated_snapshot_drift_symlink_tree",
+      "open_file_check": {
+        "command": "lsof -t +D <exact-path>",
+        "exit_code": 1,
+        "pids_returned": 0
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1260-full-schema-corrupt-field-drift-control-20261014/snapshots",
+      "reconstruction": "Canonical schema inputs and corruption details are still available, but no dedicated fixture-builder script was present in the exact run directory; the saved tree is the simplest exact replay input.",
+      "source_and_deciding_receipts": {
+        "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1260-full-schema-corrupt-field-drift-control-20261014/command.json",
+        "command_sha256": "3ff5f35b220ab4794aac8e741da272629b5cb85eebb283ba083ca3490ad1c16d",
+        "control_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1260-full-schema-corrupt-field-drift-control-20261014/control.json",
+        "control_sha256": "ddac6971a9de6c3900009001249a739263c540ee4e31f625850343022d3a5574",
+        "corrupted_copy_sha256": "afd929c5bbf6d6891d36a3ddf46a28b9b511f577a8abd3f4789fd9d4182dbfb9",
+        "current_canonical_abm_result_sha256": "828205167f4e6f38d6c50c69252bc71e1e064466b53f2417ec1325eceffcebdb",
+        "deciding_behavior": "Unfiltered generator check intentionally exits 1 with one snapshot-drift error after removing single_step_basis from the enum while keeping markers.",
+        "recorded_canonical_sha256": "828205167f4e6f38d6c50c69252bc71e1e064466b53f2417ec1325eceffcebdb",
+        "stdout_sha256": "8f9f7bde47d583ee305964a3088582ecda8b999068004d6634a3323ac205ae09"
+      }
+    },
+    {
+      "combined_allocated_bytes": 958464,
+      "combined_logical_bytes": 953878,
+      "disposition": "KEEP. Both archives are small and receipt locators remain historical users even without open handles.",
+      "files": [
+        {
+          "allocated_bytes": 921600,
+          "logical_bytes": 918688,
+          "lsof_exit_code": 1,
+          "open_pids": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/e02-source-update-0c0806ccf4756e1d6cd48dbac0e24ea192557189.bundle",
+          "receipt_references": "successful source-copy and append-only worker-update receipts; prior bounded audit reports exact same-hash worker copy",
+          "sha256": "17b18d34df2ece111f52e4f7cf103b9470a3defd9f4745e84735f89e9b3fb5f8"
+        },
+        {
+          "allocated_bytes": 36864,
+          "logical_bytes": 35190,
+          "lsof_exit_code": 1,
+          "open_pids": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/actual-update-13e411da-20261010/e02-source-update-13e411da7d9e505856fc336b3d25fd0aabdb1f66.bundle",
+          "receipt_references": "earlier append-only worker update input, still cited by its receipt and exact worker copy per prior audit",
+          "sha256": "0941a74dc1a2e7c7a111bd28437d8003fca57cc92a096c8f70b4e2910befd770"
+        }
+      ],
+      "id": "linux-worker-source-bundles",
+      "kind": "source_bundle_archives_referenced_by_worker_transport"
+    },
+    {
+      "allocated_measurement": {
+        "directory_count_below_root": 725,
+        "du_allocated_kib": 124884,
+        "regular_file_count": 457,
+        "regular_logical_bytes": 126556082,
+        "symlink_count": 70,
+        "symlink_target_text_bytes_not_dereferenced": 20703
+      },
+      "deciding_receipts": {
+        "current_plan_status": "prepared_unrun_prefreeze_composed",
+        "current_replacement_plan_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-replay-20261011-composed-prefreeze-v1.json",
+        "current_replacement_plan_sha256": "4b1f4811f41ce3ebd3dc717d1578433f8c671c052aaee99703c24f921078b5cf",
+        "metadata_sha256": "dda9ced2bb6fa911277c6da5c73c42e23e9e7bb3020246eeaa7100c476a5c8d7",
+        "pytest_junit_sha256": "27e952748dd9a9b0cfc13a736b6a3094f80d864d095f9ce5f2379a3b9dc2be5a",
+        "replacement_commands_executed": 0
+      },
+      "disposition": "KEEP now. This is the best conditional reconsideration only after the replacement composed replay is actually run, reviewed, and the old fixture is no longer needed.",
+      "id": "c05-pytest-temp-tree",
+      "kind": "retained_test_temporary_output",
+      "open_file_check": {
+        "command": "lsof -t +D <exact-path>",
+        "exit_code": 1,
+        "pids_returned": 0
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-current-source-replay-plan-20261010/i1_c05_material_currentness_and_profile_consumers/pytest-tmp"
+    },
+    {
+      "allocated_measurement": {
+        "directory_count_below_root": 291,
+        "du_allocated_kib": 25088,
+        "immediate_children": 6,
+        "immediate_symlink_children": 1,
+        "regular_file_count": 123,
+        "regular_logical_bytes": 25376922,
+        "symlink_count": 54,
+        "symlink_target_text_bytes_not_dereferenced": 6416
+      },
+      "disposition": "KEEP. Current run ownership/source bindings are not established; this root contains multiple temporary runs and one symlink was not followed.",
+      "id": "current-pytest-temp-root",
+      "kind": "receipt-named-temporary-test-root",
+      "open_file_check": {
+        "command": "lsof -t +D <exact-path>",
+        "exit_code": 1,
+        "pids_returned": 0
+      },
+      "path": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov"
+    },
+    {
+      "disposition": "KEEP/no action. The direct temporary directory is only 12 KiB, the R1221 last-mile output root is absent, and the other named build trees have no obsolescence proof.",
+      "id": "named-build-temp-roots",
+      "kind": "current_build_temp_outputs_named_by_prior_receipts",
+      "paths": [
+        {
+          "du_allocated_kib": 88312,
+          "lsof_exit_code": 1,
+          "open_pids": 0,
+          "path": "policy-engine/_build"
+        },
+        {
+          "du_allocated_kib": 3732,
+          "lsof_exit_code": 1,
+          "open_pids": 0,
+          "path": "policy-engine/src/_build"
+        },
+        {
+          "du_allocated_kib": 12,
+          "lsof_exit_code": 1,
+          "open_pids": 0,
+          "path": "policy-engine/_build/.tmp"
+        },
+        {
+          "exists": false,
+          "named_by": "R1221 readiness command receipt; it had not run when reviewed",
+          "path": "policy-engine/_build/.tmp/last-mile"
+        }
+      ]
+    }
+  ],
+  "closure_ids": [],
+  "created_on": "2026-10-14",
+  "decision": "NO_CURRENTLY_SAFE_CLEANUP_CANDIDATE",
+  "disk_snapshot": {
+    "available_gib": 16.146,
+    "available_kib": 16930544,
+    "below_threshold": true,
+    "capacity_percent": 92,
+    "command": "df -k .",
+    "earlier_parent_reported_available_gib": 15.3,
+    "filesystem": "/dev/disk3s5",
+    "reading_note": "This direct capture is later/different from the parent-provided 15.3 GiB snapshot; both readings are below the 18 GiB threshold.",
+    "threshold_gib": 18
+  },
+  "p40_bucket": "SAME_CLASS_DEEPER for previously assessed overlay/temp candidates, with the R1260 generated-drift fixture and transport bundles added as exact receipt-bound object types. No per-instance cleanup decision is generalized; no mechanism change is proposed.",
+  "prior_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/disk-preservation-proposal-r392-independent-r1-20261013.md",
+      "sha256": "aaea7b3d196f474745b21c3cc23524e480370203ff3fc5d7ab02d83e4446b7d6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/disk-preservation-proposal-r392-independent-r1-20261013.json",
+      "sha256": "b8a544c82098b4bccebab5ca2d44b756ace94f22a69401e24779b19e68abc0b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/disk-lifecycle-owned-scratch-20261011.md",
+      "sha256": "55e20604b58fcf660239b8530198c969f84efeac81c5973514489ec9b2c497b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/disk-safe-candidates-20261011-v3.md",
+      "sha256": "8a4009bee006d38d5ff5c2d830fd17de9e0047e6ba399459c219ad48c6f7d4c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/disk-safe-focus-20261011-v1.md",
+      "sha256": "ccafc5063852b11dd83725e1cb6bf2a6fe04107e8712c0d45c0f38b272ca9a75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1259-complete-canonical-schema-companions-independent-20261014.md",
+      "sha256": "b25cad0127f98bf3d71aa82817a7e77db2f8efeb91695a02e21c3ac630b0f2d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-filesystem-controls-independent-20261010.md",
+      "sha256": "5717ee203f3fe39308b361748a8501122850d50232504860d2f283a5222f3dbf"
+    }
+  ],
+  "recommendation": {
+    "do_not_target_as_cleanup": [
+      "can-candidate: active source overlay, no exact replacement basis established",
+      "B05 V4 overlay: inaccessible and current-use status unknown despite old-base reconstruction path",
+      "R1260 drift fixture: unique semantic removal evidence and trivial size",
+      "worker transport bundles: cited historical inputs, under 1 MiB combined",
+      "pytest root and build trees: incomplete ownership/currentness evidence"
+    ],
+    "highest_yield_conditional_reconsideration": {
+      "allocated_kib": 124884,
+      "condition": "Only after the current composed replay is executed and reviewed, receipts are complete, and the old C05 fixture is confirmed no longer useful.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-current-source-replay-plan-20261010/i1_c05_material_currentness_and_profile_consumers/pytest-tmp"
+    },
+    "safe_reclaimable_bytes_now": 0,
+    "same_volume_trash": "Prior disk receipts report the repository and native Trash share a device. No current Trash operation occurred."
+  },
+  "review_id": "r1275-targeted-reusable-raw-disk-assessment-20261014",
+  "scope": {
+    "method": "Read prior bounded disk receipts, then inspect only their exact candidate paths plus the R1259-named R1260 generated-schema drift fixture and exact temp outputs named by retained receipts.",
+    "not_examined": [
+      "home storage",
+      "production payloads",
+      "other worktrees",
+      "dependency or model caches",
+      "full repository history",
+      "unlisted LOCAL/raw payloads"
+    ],
+    "operations": "Read-only filesystem metadata, exact-file hashes, existing receipt fields, bounded du, and exact-path lsof checks. No move, deletion, Trash operation, permission change, test, import, build, install, or source/index/history write.",
+    "scope_deviation": "A filename-only rg --files query over LOCAL/raw briefly expanded to 1,696 fixture paths because many path names contain \u201csymlink\u201d; it read path names only, not file contents. Subsequent measurements were restricted to receipt-named paths listed below. No broad content census was performed."
+  },
+  "source_anchor": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame_physical_path_count": 590,
+    "source_implementation_head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "staged_path_count": 0,
+    "tracked_worktree_changes": 0,
+    "tree": "1355896e91789026d21396d2b087c63827ab251b"
+  }
+}

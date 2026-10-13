@@ -1,0 +1,96 @@
+{
+  "review_id": "R1295",
+  "review_type": "independent_read_only_patch_review",
+  "verdict": {
+    "static": "GO",
+    "runtime_acceptance": "PARTIAL_UNRUN",
+    "formal_g_acceptance": "none"
+  },
+  "target": {
+    "candidate": "R1281 protected source35 canonical fixture and intake successor",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/candidate.patch",
+    "patch_sha256": "94e8969d05a57277c709eb4cf31b8dafa3305304ba40fc94a53454d01824fa87",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/manifest.json",
+    "manifest_sha256": "316f37f57b273587e1598e3efa4e4d69f9d7b21907fedd8fb7bce67a0dc55063",
+    "decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/decision.md",
+    "decision_sha256": "31cf7f2536f50345222d0b3fc2e01f6aa1eaaeb4ae7acaecfd8c028198ecb5b5",
+    "changed_paths": [
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py"
+    ],
+    "source_paths_changed": []
+  },
+  "review_base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b",
+    "source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+    "source_frame_sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803"
+  },
+  "evidence": {
+    "historical_failure": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source35-independent-consumers-actual-r1276-20261014/full-nonpass-case-outputs.json",
+      "sha256": "d5a599acb36363fb6b1bcea5b4f30eda4533e3dd5e9648323bee8d2dcd334e29",
+      "finding": "Core canonical float tags were rejected by model_validate_json before the protected candidate-suite lineage predicate."
+    },
+    "candidate_postimage_reconstruction": {
+      "result": "PASS",
+      "sha256": "7945ea808ed01c4e04e33ef47fe38d9ac79689667519df6524f8c7772b3b6a30",
+      "matches_manifest": true,
+      "mode": "stdlib in-memory reconstruction; no file write"
+    },
+    "protected_context": {
+      "matched_frame_paths": 12,
+      "declared_frame_paths": 12,
+      "result": "PASS",
+      "verification": "Read every path in source_context_currently_preserved; actual SHA-256 matched both packet and R1267 physical_postimages."
+    },
+    "reader_contract": "Existing public load_core_json_artifact selected-ref API verifies selected profile and bytes, decodes Core canonical tags, and returns a typed semantic value for model_validate; production verifier/runtime already use this path.",
+    "test_chain": "Real fixture producer writes selected suite/candidate/evaluation refs; replay_champion and ChampionRegistry.consider_promotion both run protected predecessor validation; both refusals preserve the mutated registry document bytes."
+  },
+  "adversarial_variants": [
+    {
+      "name": "profileless_suite_history",
+      "property": "selected suite profile missing",
+      "result": "retained; fails selected-profile admission; both consumers refuse; registry bytes unchanged"
+    },
+    {
+      "name": "unavailable_suite_profile",
+      "property": "selected suite manifest resolution",
+      "result": "retained; unresolved exact profile refuses; both consumers refuse; registry bytes unchanged"
+    },
+    {
+      "name": "alternate_suite_profile",
+      "property": "same payload, different selected suite profile and exact lineage",
+      "result": "retained; candidate/evaluation edges remain original selected suite view and fail exact ref comparison"
+    },
+    {
+      "name": "suite_payload_conflict",
+      "property": "resolved suite payload identity/declared suite metadata",
+      "result": "retained; selected payload suite id conflicts with predecessor metadata"
+    },
+    {
+      "name": "candidate_suite_edge_mismatch",
+      "property": "candidate manifest input edge differs while candidate bytes and evaluation bindings remain valid",
+      "result": "reader correction clears Core-tag decode; both consumers pin exact lineage mismatch cause"
+    },
+    {
+      "name": "evaluation_candidate_mismatch",
+      "property": "selected evaluation points to another selected candidate",
+      "result": "retained; payload candidate ref differs from predecessor candidate ref"
+    }
+  ],
+  "p40_bucket": "SAME_CLASS_DEEPER; the candidate widens the fixture repair across both persisted model reads. No further instance-level patch is indicated.",
+  "findings": [],
+  "limitations": [
+    "Pytest/native runtime after candidate change was not run by assignment.",
+    "Five variants assert the common protected refusal wrapper; only candidate_suite_edge_mismatch pins the internal cause. This is not a blocker for the common refusal contract, but runtime causes remain unobserved here.",
+    "No external evaluator issuer, production surface, formal closure, or global G acceptance is established."
+  ],
+  "closure_ids": [],
+  "actions_not_performed": [
+    "No source/test changes",
+    "No product imports or pytest",
+    "No native/database execution",
+    "No Git mutation"
+  ]
+}

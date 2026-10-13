@@ -1,0 +1,444 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "dae174623baca79449638758ada159ab7ebdaefb",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r991-20261013.json",
+    "sha256": "2d97d2e4d48a87b01382cffd0a16fe3f5034f945e45abf183c2de3014a75d5b0"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/module-origins.json"
+  },
+  "exit_code": 1,
+  "wall_seconds": 36.473520541912876,
+  "case_results": {
+    "PASS": 39,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_service_di",
+        "name": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "time": "16.811"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: {\"type\":\"https://polisyos.dev/problems/bad-request\",\"title\":\"Bad request\",\"status\":400,\"detail\":\"1 validation error for EmpiricalCalibrationEvidenceRef\\n  Input should be a valid dictionary or instance of EmpiricalCalibrationEvidenceRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\\n    For further information visit https://errors.pydantic.dev/2.12/v/model_type\",\"code\":\"bad_request\",\"instance\":\"/api/v1/runs/control-26f653480beb0169c29b5da47629f63c7c195cad36c71b6f2f703e14ff5e582f/predictive-calibration\",\"request_id\":\"07cdba05e49f488fad6e5ed47f67b2b8\",\"error\":\"bad_request\",\"status_code\":400,\"context\":{\"request_id\":\"07cdba05e49f488fad6e5ed47f67b2b8\",\"tenant\":\"tenant-fixture\",\"run_id\":\"control-26f653480beb0169c29b5da47629f63c7c195cad36c71b6f2f703e14ff5e582f\"}}\nassert 400 == 200\n +  where 400 = <Response [400 Bad Request]>.status_code"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_two_objective_front",
+        "time": "0.001"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_dominated_candidate",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_partial_front_proves_observed_dominance_but_withholds_negative_result",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_mixed_direction_typed_front_is_order_independent_with_distinct_ties[maximize-minimize]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_mixed_direction_typed_front_is_order_independent_with_distinct_ties[minimize-maximize]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_empty_evaluations",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_single_objective",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_non_dominated_on_empty_front",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_requires_at_least_one_policy",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_two_objective_front_preserves_duplicate_ties",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_coordinate_identity_keeps_split_unit_and_direction",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_single_axis_identity_preserves_split_and_direction_without_unit",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_single_axis_identity_distinguishes_absent_and_present_unit",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_coordinate_schema_round_trips_and_labels_reference_point",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_tampered_coordinate_id_is_rejected",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_complete_v1_payload_has_exact_coordinate_and_reference_keys",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_duplicate_full_coordinate_is_rejected",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_validated_input_assessment_cannot_gain_an_omission_after_validation",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_invalid_reference_point_is_explicitly_refused",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_overflowing_finite_coordinates_are_not_reported_as_hypervolume",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_fast_front_matches_independent_slow_oracle[metric_names0-points0]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_fast_front_matches_independent_slow_oracle[metric_names1-points1]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_fast_front_matches_independent_slow_oracle[metric_names2-points2]",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_three_objective_front_matches_slow_reference",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "captured_input_count": 6216,
+  "captured_before_after_identical": true,
+  "input_boundary": "Exact Python src/tests/tools + declared config denominator command.json; no complete non-Python/profile/resource freeze claim.",
+  "module_origins": {
+    "loaded": 1746,
+    "outside_selected_source_root": [],
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/command.json",
+      "sha256": "def0bf76e5777b1eb024110a82b20ecc5cb01d6a205a35ae6cf74b518e5aa257",
+      "bytes": 1714965,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/junit.xml",
+      "sha256": "c8f790182ffcb333b3c35c7e352e8952feb2553bf26d8b0480e6b09146477540",
+      "bytes": 40746,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/module-origins.json",
+      "sha256": "4ad207fb5d410528b9a9645772625b23bc742a109fa3e1fcca361aeb305a4e57",
+      "bytes": 548153,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/progress.json",
+      "sha256": "75cd0f99f9770d4528beeab6a5742ca2ded8adb553a1ddad3b06af4935c1b9da",
+      "bytes": 84695,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-owner-get-pareto-complete-coordinate-consumers-actual-r992-20261013/stdout.txt",
+      "sha256": "c5731ca1d977c5f00971db912a963244d99cdfd769efd4f2cdba1d8ab3db81f0",
+      "bytes": 87700,
+      "availability": "local ignored raw retained"
+    }
+  ],
+  "native_profile_gate": {
+    "outcome": "PASS bounded start/final TorchCPU1/1 assertion with supported settings; wholewaveFAIL separatecase"
+  },
+  "individual_boundaries": [
+    {
+      "property": "B111 complete Pareto objectives and hypervolume refusal",
+      "outcome": "Actualfull selected test_pareto module39PASS, includes full objective producer schema, wrongkey/refpoint finite/overflow refusal controls. Originalwholeproperty Search/joins and protected publication notclosed."
+    },
+    {
+      "property": "V7 POST/persisted event/selected profile/freshGET/intent retry",
+      "outcome": "FAIL freshGET400 CoreArtifactRef passed directly to EmpiricalCalibrationEvidenceRef validation, profileless selectedrecord? RealPOST201 reached, alternateprofile andforeignrun refused; laterGETpositive/retrycontinuation notestablished. R995 quantity-aware actualproducer\u2192record\u2192CoreIR DTO repair pending."
+    }
+  ],
+  "closure_ids": [],
+  "author_proposals": []
+}

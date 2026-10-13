@@ -1,0 +1,23 @@
+# R974 — B134 source-anchor corrigendum
+
+**Disposition:** R932’s source anchors match the hnswlib 0.8.0 sdist pinned in `uv.lock`. R940’s behavioral GO is preserved, but its claim that those anchors are wrong is contradicted by the pinned bytes. R944 later passed both targeted B134 controls; its larger composed wave failed elsewhere and is not globally green. `closure_ids=[]`.
+
+## Exact source used
+
+`policy-engine/uv.lock@e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463` pins hnswlib 0.8.0 to [the PyPI sdist](https://files.pythonhosted.org/packages/cf/7a/1a9b1405f2eb59515f06c3074750b03e0e96edf7fee0f6dd6df81d9c21d7/hnswlib-0.8.0.tar.gz) with SHA-256 `cb6d037eedebb34a7134e7dc78966441dfd04c9cf5ee93911be911ced951c44c` (uv.lock lines 1567–1573). I fetched and hashed that archive in memory. The extracted `hnswlib-0.8.0/hnswlib/hnswalg.h` is `0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32`; `python_bindings/bindings.cpp` is `713332126d6cf1895677239853617667cd8a75f6e3de3ae4cb16af7f312c6ca2`. Each member is byte-identical to the corresponding official [v0.8.0 tag file](https://github.com/nmslib/hnswlib/tree/v0.8.0).
+
+In the locked `hnswalg.h`, `saveIndex` writes the index at lines 685–712. `loadIndex` begins at 716; capacity fallback is at 732–735; the truncation preflight checks the end of the file before reading a link-list size at 754–770; allocation starts at 777. In `bindings.cpp`, the C++ wrapper is at 230–238 and the Python `load_index` binding is at 943–947. See the exact [tagged loader source](https://github.com/nmslib/hnswlib/blob/v0.8.0/hnswlib/hnswalg.h#L716-L780) and [binding source](https://github.com/nmslib/hnswlib/blob/v0.8.0/python_bindings/bindings.cpp#L230-L238), each pinned here by the sdist member SHA above.
+
+## Reconciliation
+
+R932’s evidence packet at `LOCAL/raw/r932-b134-real-native-load-failure-controls-20261013/native-source-evidence.json@9dc211be5cc600cf38fbe90d9763fc7b682967b2756d3dfc18f5a9a3cb27cf03` cites `hnswalg.h` lines 716–780 and `bindings.cpp` lines 230–238 / 943–952. Those locations are correct for the pinned archive. Its explanation of capacity fallback and the truncated-file preflight is also supported by the exact source.
+
+R940’s report at `LOCAL/reviews/r940-b134-r932-native-control-independent-20261013.md@c828526f96e89119f60b45fb1e5ff376bb7607c8302a3a79917cc72b797ecb84` preserves a useful independent behavioral review and GO, but its anchor correction is inaccurate: it places the writer at 623–647, preflight within 650–747, the wrapper at 216–224, and binding/getters at 864–873. The locked file places the writer at 685–712, the preflight at 754–770, the wrapper at 230–238, and `load_index` binding at 943–947. Therefore R940 does not refute R932’s narrower claim about R930’s citations.
+
+R930’s cited `hnswalg.h` range 650–699 ends before `loadIndex` starts at 716, and its `bindings.cpp` range 216–224 ends before the wrapper starts at 230. R932 was correct that those locations do not establish the load implementation. R930’s substantive capacity finding remains valid: the requested capacity is replaced with the stored capacity when it is below the current row count (732–735), so the capacity control is an application-level refusal after load, not a native capacity rejection. R932 and R940 remain immutable; this note records the source-bound disagreement for R371 reconciliation.
+
+## Current qualification
+
+R943’s frame at `LOCAL/root-author-source-frame-r943-20261013.json@06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58` binds the current source to HEAD `dae174623baca79449638758ada159ab7ebdaefb` / tree `0e7846a9576e698150de7e613d424dc72d5dd43a` and labels the boundary “R943-reviewed-real-v7-worker-and-native-vector-controls; author source, not G acceptance or global freeze”. Its physical postimages include `vector_memory.py@abffd306f3251de6e2ecc1003b6a80307f298e1f73707d99a4405ff64dafb5f9` and `test_trn_02.py@bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235`.
+
+R944’s actual receipt at `LOCAL/v7-ruff-native-vector-deciding-r944-20261013.json@1e8f17050acf2c1fc15ae3d41fd5deb5d640274fa560d51280528e0f0de2fdc3` ran both `test_native_capacity_mismatch_refuses_after_load_and_preserves_generation` and `test_truncated_native_index_refuses_and_preserves_generation`; both are PASS in `junit.xml@a8af464e4505a2bf1e1904accc07eb09acf79e72152398a3497c9e9f4af27e91`. The whole composed wave was 118 passed / 1 failed, with a separate native thread-profile gate failure. The failing predictive-calibration test expected 200 but received 409 because the selected candidate source was not an exact run-root view. This R974 correction is receipt-only and makes no source or closure change.

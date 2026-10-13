@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "dae174623baca79449638758ada159ab7ebdaefb",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r943-20261013.json",
+    "sha256": "06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=600.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "--maxfail=0",
+    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+    "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+    "tests/repo_quality/tools/test_tool_config_split.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+    "tests/repo_quality/test_dependency_runtime_witnesses.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/module-origins.json",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1"
+  },
+  "exit_code": 1,
+  "wall_seconds": 83.78736145899165,
+  "case_results": {
+    "PASS": 118,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "native_profile_gate": {
+    "outcome": "FAIL",
+    "boundary": "Thread-limit plugin reports Torch intra/inter1 at start; intra4/inter1 at finish, asserted profile1 fails in pytest_sessionfinish. This is separate from JUnit118P1F; no overall nativegreen."
+  },
+  "modules": [
+    {
+      "module": "tests.repo_quality.test_dependency_runtime_witnesses.DependencyRuntimeTests",
+      "outcome": "PASS",
+      "count": 3
+    },
+    {
+      "module": "tests.repo_quality.tools.test_tool_config_split",
+      "outcome": "PASS",
+      "count": 52
+    },
+    {
+      "module": "tests.unit.remediation.test_trn_02",
+      "outcome": "PASS",
+      "count": 11
+    },
+    {
+      "module": "tests.unit.runtime.http.test_control_service_di",
+      "outcome": "FAIL",
+      "count": 1
+    },
+    {
+      "module": "tests.unit.scientist.agent.test_vector_memory",
+      "outcome": "PASS",
+      "count": 1
+    },
+    {
+      "module": "tests.unit.scientist.nodes.builtins.planning.test_run_hierarchical_policy_search",
+      "outcome": "PASS",
+      "count": 21
+    },
+    {
+      "module": "tests.unit.scientist.nodes.test_decision_packet_node_v3",
+      "outcome": "PASS",
+      "count": 30
+    }
+  ],
+  "nonpassing_cases": [
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_service_di",
+        "name": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "time": "14.468"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: {\"type\":\"https://polisyos.dev/problems/conflict\",\"title\":\"Predictive calibration candidate source not run root\",\"status\":409,\"detail\":\"The selected candidate source is not an exact root-artifact view of this run.\",\"code\":\"predictive_calibration_candidate_source_not_run_root\",\"instance\":\"/api/v1/runs/control-ffcff3ac8201f8f5a828e202364f01580299b8f1ff15a3668f8f90373327fbfa/predictive-calibration\",\"request_id\":\"3db5c07e67b344f58ea4160225fe420c\",\"error\":\"conflict\",\"status_code\":409,\"context\":{\"request_id\":\"3db5c07e67b344f58ea4160225fe420c\",\"tenant\":\"tenant-fixture\",\"run_id\":\"control-ffcff3ac8201f8f5a828e202364f01580299b8f1ff15a3668f8f90373327fbfa\"}}\nassert 409 == 200\n +  where 409 = <Response [409 Conflict]>.status_code"
+    }
+  ],
+  "captured_input_count": 6264,
+  "captured_before_after_identical": true,
+  "input_boundary": "All53 declared tool-config inputs and actual workers/dowhy-014/tests/test_worker.py captured in addition to generic Python src/tests/tools +Root configs/plugins. This is a selected consumer/config scope, not all architecture/generated/installed/live input gates.",
+  "module_origins": {
+    "count": 1923,
+    "outside_selected_source_root": [],
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/command.json",
+      "sha256": "a1dd5438c178e5771d96929737d32318f6c221461c9bb6e4cadc8d01dce6308f",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/stdout.txt",
+      "sha256": "436d863c260b53396144313fbd762c4af8acdbd4095dd24a6272f4d04627b4de",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/stderr.txt",
+      "sha256": "a32699d6f953aae4993030088294ef2127efe5bf5f20f0eb6bef90e10c2f8575",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/junit.xml",
+      "sha256": "a8af464e4505a2bf1e1904accc07eb09acf79e72152398a3497c9e9f4af27e91",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/module-origins.json",
+      "sha256": "e1274ee6ba1e4ad20e2430a79ab55fa41ee2645a5434f8a568284a5b62aa5a25",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/progress.json",
+      "sha256": "c1ae70b70c1b550f686e5a82bcd971be6e77840cd046a45a62191992e9d853d5",
+      "availability": "local retained ignored raw"
+    }
+  ],
+  "individual_boundaries": [
+    "B134 genuine selected-profile/CAS native hnswlib truncation RuntimeError and application capacity refusal controls pass with full prior-generation/query/persisted state; original add/update/concurrency properties not asserted by this boundedloadproof.",
+    "V7 actual POST201/event/intent completed; fresh consumer GET409 root-view mismatch keeps chain incomplete. R945 source-bound diagnosis required.",
+    "Ruff52cases PASS including effective compiled worker scopes and native I001target, with targetversionpy312vspy314 residual retained; no whole nativeRepo/SOTA green.",
+    "Torch1→4 profile violation R946 mustresolve exact source/caller/recipe; notinherited withoutP41proof."
+  ],
+  "closure_ids": [],
+  "author_proposals": []
+}

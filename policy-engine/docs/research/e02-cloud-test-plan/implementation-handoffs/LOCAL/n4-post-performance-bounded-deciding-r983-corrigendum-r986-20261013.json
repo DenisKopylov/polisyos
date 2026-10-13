@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.deciding_receipt_corrigendum.v1",
+  "original_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-post-performance-bounded-deciding-r983-20261013.json",
+    "sha256": "3e8502f1029b38d7d9c8d4e5750075f057a5176e3dba4d06ef4430d9a3e5fc05"
+  },
+  "correction": "JUnit suite declares tests=0 and emits one anonymous <testcase time=.../> placeholder without classname/name after KeyboardInterrupt. That node is not a completed test PASS. Original prose correctly records interruption but naive testcase parser counted placeholder PASS1; supersede only case_results.",
+  "correct_case_results": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "INTERRUPTED_SELECTED_CASES": 1,
+    "UNNAMED_JUNIT_PLACEHOLDERS": 1
+  },
+  "scope": "Actual original-second-capture served N4 did not complete; no meaningful consumer witness or formal closure. Operator60s wall limit, RSSpeak2417246208<3GiB, CPU1/1final, noOOMclaim. Originalfulloutputs/hash/sourcecapture unchanged.",
+  "module_origins": {
+    "loaded_product_modules": 1743,
+    "outside_selected_source_root": 0,
+    "pytest_exitstatus": 2
+  },
+  "next_check": "R985 wholeconstruction/source/API research then measured safe runtime allowance or reviewed quantity-wide repair; immutable command/profile/inputfreeze and actual freshGET controls.",
+  "closure_ids": []
+}

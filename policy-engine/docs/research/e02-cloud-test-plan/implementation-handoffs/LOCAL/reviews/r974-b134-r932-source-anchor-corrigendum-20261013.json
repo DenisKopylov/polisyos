@@ -1,0 +1,206 @@
+{
+  "anchor_reconciliation": {
+    "R930": {
+      "conclusion": "Its link to hnswalg.h 650-699 does not cover loadIndex, which begins at 716; its bindings.cpp 216-224 range precedes the wrapper at 230. R932 was right that those cited ranges do not establish loader behavior. R930\u2019s substantive capacity diagnosis was subsequently retained: hnswlib substitutes stored capacity at 732-735, so the candidate expects the application ValueError after load."
+    },
+    "R932": {
+      "conclusion": "Its source ranges are correct for the pinned sdist and byte-identical v0.8.0 tag: hnswalg.h 716-780 and bindings.cpp 230-238 / 943-952. The 754-770 preflight and 777 allocation boundary support the source-predicted safe truncation behavior."
+    },
+    "R940": {
+      "content_review": "Its R932 candidate review and focused GO are preserved. R944 later measured both targeted tests as passing.",
+      "source_anchor_statement": "Not supported by the pinned bytes. R940 calls hnswalg.h 623-647 the writer; actual saveIndex starts at 685. R940 calls 650-747 the loader/preflight; loadIndex starts at 716, but the relevant preflight is 754-770, outside that cited interval. R940 identifies bindings.cpp 216-224 as the wrapper and 864-873 as the binding/getters; actual wrapper is 230-238 and load_index binding is 943-947. Thus R940 does not rebut R932\u2019s narrower statement about R930\u2019s cited ranges."
+    },
+    "qualified_interpretation": "The source citation dispute is resolved by the lock-pinned archive, not by filenames, the tag label, or a review\u2019s line assertions. The installed 0.8.0 extension actually passed R944\u2019s tests, but its binary fingerprint is not proof of byte identity to the source archive."
+  },
+  "artifact": "R974 B134 R932 locked-source anchor corrigendum",
+  "closure_ids": [],
+  "created_utc_date": "2026-10-13",
+  "current_runtime_qualification": {
+    "R944_receipt": {
+      "captured_input_count": 6264,
+      "case_results": {
+        "ERROR": 0,
+        "FAIL": 1,
+        "PASS": 118,
+        "SKIP": 0
+      },
+      "exit_code": 1,
+      "input_boundary": "All53 declared tool-config inputs and actual workers/dowhy-014/tests/test_worker.py captured in addition to generic Python src/tests/tools +Root configs/plugins. This is a selected consumer/config scope, not all architecture/generated/installed/live input gates.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-ruff-native-vector-deciding-r944-20261013.json",
+      "sha256": "1e8f17050acf2c1fc15ae3d41fd5deb5d640274fa560d51280528e0f0de2fdc3"
+    },
+    "bounded_claim": "R944 establishes these two B134 tests on the installed hnswlib 0.8.0 environment. It does not establish source/binary identity, whole native acceptance, add/update native exception paths, concurrency/crash guarantees, or finding closure.",
+    "qualified_postimages": [
+      {
+        "matches_R943_physical_postimage": true,
+        "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "sha256": "abffd306f3251de6e2ecc1003b6a80307f298e1f73707d99a4405ff64dafb5f9"
+      },
+      {
+        "matches_R943_physical_postimage": true,
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "sha256": "bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235"
+      }
+    ],
+    "source_frame": {
+      "head": "dae174623baca79449638758ada159ab7ebdaefb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r943-20261013.json",
+      "sha256": "06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58",
+      "source_freeze_boundary": "R943-reviewed-real-v7-worker-and-native-vector-controls; author source, not G acceptance or global freeze",
+      "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a"
+    },
+    "targeted_b134_tests": {
+      "capacity_control": "test_native_capacity_mismatch_refuses_after_load_and_preserves_generation: PASS",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/junit.xml",
+      "junit_sha256": "a8af464e4505a2bf1e1904accc07eb09acf79e72152398a3497c9e9f4af27e91",
+      "module": "tests.unit.remediation.test_trn_02",
+      "module_result": "11 passed; no skip",
+      "truncated_native_load_refusal": "test_truncated_native_index_refuses_and_preserves_generation: PASS"
+    },
+    "whole_composed_wave": {
+      "junit_counts": {
+        "ERROR": 0,
+        "FAIL": 1,
+        "PASS": 118,
+        "SKIP": 0
+      },
+      "native_profile_gate": {
+        "boundary": "Thread-limit plugin reports Torch intra/inter1 at start; intra4/inter1 at finish, asserted profile1 fails in pytest_sessionfinish. This is separate from JUnit118P1F; no overall nativegreen.",
+        "outcome": "FAIL"
+      },
+      "nonpassing_case": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+      "nonpassing_detail": "Predictive calibration candidate source was not an exact run-root view (HTTP 409, expected 200).",
+      "result": "FAIL",
+      "statement": "Do not describe the larger composed wave as globally green; the separate Torch thread-limit gate also failed."
+    }
+  },
+  "disposition": "R932 source anchors verified against locked bytes; R940 behavioral GO retained, but its source-anchor correction is not supported by those bytes. R944 proves the two selected B134 controls individually; its larger composed wave is not green.",
+  "method": {
+    "files_written": [
+      "r974-b134-r932-source-anchor-corrigendum-20261013.md",
+      "r974-b134-r932-source-anchor-corrigendum-20261013.json"
+    ],
+    "runtime_retrieval": "R944 receipt/JUnit readback only; R974 ran no imports, tests, or native calls.",
+    "source_retrieval": "Read-only network fetch to memory and SHA verification; no retained raw source copy."
+  },
+  "preserved_prior_evidence": [
+    {
+      "label": "R932 author report",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r932-b134-real-native-load-failure-controls-20261013.md",
+      "sha256": "a34417ef515809f090b1031e1704d2e36e010e1cb0768e1468e8b58e2d8791c4"
+    },
+    {
+      "label": "R932 immutable candidate manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r932-b134-real-native-load-failure-controls-20261013/manifest.json",
+      "sha256": "53a67e1a133978b978cfe8b6ec1818a19ef2e6eb26304a96ef8473a2a2c1d4e3"
+    },
+    {
+      "label": "R932 native source evidence",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r932-b134-real-native-load-failure-controls-20261013/native-source-evidence.json",
+      "sha256": "9dc211be5cc600cf38fbe90d9763fc7b682967b2756d3dfc18f5a9a3cb27cf03"
+    },
+    {
+      "label": "R940 independent review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r940-b134-r932-native-control-independent-20261013.md",
+      "sha256": "c828526f96e89119f60b45fb1e5ff376bb7607c8302a3a79917cc72b797ecb84"
+    },
+    {
+      "label": "R940 machine-readable review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r940-b134-r932-native-control-independent-20261013.json",
+      "sha256": "bb916d862a435c123cc825a16d01c68de17704783e3d5e5968b5eb28d31e6c85"
+    },
+    {
+      "label": "R930 review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r930-b134-r910-independent-20261013.md",
+      "sha256": "636f930ff0b5d3dc28c68a3ba1541c9ac4837758830b59bbd0a4dddb2dc5ef84"
+    },
+    {
+      "label": "R930 machine-readable review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r930-b134-r910-independent-20261013.json",
+      "sha256": "743781873e1df0ff91d2604d66d63d5b5b024c0033747731c90246267560d212"
+    }
+  ],
+  "purpose": "Append-only correction reconciling the R932/R940 source-anchor disagreement against the exact hnswlib 0.8.0 archive pinned by uv.lock, with R943/R944 current qualification.",
+  "schema": "policyos.e02.review_corrigendum.v1",
+  "scope": {
+    "branch": "codex/e02-unified-local-20261009",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "mode": "Receipt-only. This artifact adds no product source, index, history, test run, import, or native execution.",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r943-20261013.json",
+      "physical_source_paths": 524,
+      "sha256": "06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58",
+      "source_freeze_boundary": "R943-reviewed-real-v7-worker-and-native-vector-controls; author source, not G acceptance or global freeze"
+    },
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "writes": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r974-b134-r932-source-anchor-corrigendum-20261013.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r974-b134-r932-source-anchor-corrigendum-20261013.json"
+    ]
+  },
+  "source_pin": {
+    "lock_entry": {
+      "lines": "1567-1573",
+      "path": "policy-engine/uv.lock",
+      "sdist_bytes": 36206,
+      "sdist_sha256": "cb6d037eedebb34a7134e7dc78966441dfd04c9cf5ee93911be911ced951c44c",
+      "sdist_url": "https://files.pythonhosted.org/packages/cf/7a/1a9b1405f2eb59515f06c3074750b03e0e96edf7fee0f6dd6df81d9c21d7/hnswlib-0.8.0.tar.gz",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "members": [
+      {
+        "bytes": 56889,
+        "member": "hnswlib-0.8.0/hnswlib/hnswalg.h",
+        "ranges": [
+          {
+            "lines": "685-712",
+            "meaning": "saveIndex writer and serialized field/output sequence"
+          },
+          {
+            "lines": "716-780",
+            "meaning": "loadIndex entry, parsed header, requested-vs-stored capacity behavior, preflight, allocation boundary"
+          },
+          {
+            "lines": "732-735",
+            "meaning": "when requested capacity is less than current element count, retain stored max_elements"
+          },
+          {
+            "lines": "754-770",
+            "meaning": "preflight seeks over level-0 rows, checks end-of-file before reading each link-list size, then checks exact file end"
+          },
+          {
+            "lines": "777-780",
+            "meaning": "native level-0 allocation begins only after the preflight"
+          }
+        ],
+        "sha256": "0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32",
+        "tag_file_byte_identical_to_sdist": true,
+        "tag_url": "https://raw.githubusercontent.com/nmslib/hnswlib/v0.8.0/hnswlib/hnswalg.h"
+      },
+      {
+        "bytes": 39881,
+        "member": "hnswlib-0.8.0/python_bindings/bindings.cpp",
+        "ranges": [
+          {
+            "lines": "230-238",
+            "meaning": "Index.loadIndex wrapper constructs HierarchicalNSW with the selected path and requested capacity"
+          },
+          {
+            "lines": "943-947",
+            "meaning": "Python load_index binding references Index<float>::loadIndex"
+          },
+          {
+            "lines": "951-952",
+            "meaning": "adjacent index getters; included only as the wider R932 cited range, not needed to establish load binding"
+          }
+        ],
+        "sha256": "713332126d6cf1895677239853617667cd8a75f6e3de3ae4cb16af7f312c6ca2",
+        "tag_file_byte_identical_to_sdist": true,
+        "tag_url": "https://raw.githubusercontent.com/nmslib/hnswlib/v0.8.0/python_bindings/bindings.cpp"
+      }
+    ],
+    "package": "hnswlib 0.8.0",
+    "verification": "The sdist was fetched in memory; archive SHA matched the uv.lock pin. Each extracted member SHA below matched the complete raw GitHub v0.8.0 tagged file byte-for-byte. No source copy was retained."
+  }
+}

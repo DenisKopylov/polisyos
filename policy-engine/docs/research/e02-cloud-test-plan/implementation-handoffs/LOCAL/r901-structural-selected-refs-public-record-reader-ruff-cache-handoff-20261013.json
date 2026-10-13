@@ -1,0 +1,239 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "r901-structural-selected-refs-typed-public-record-reader-ruff-cache",
+  "unit": "LOCAL",
+  "slice_base_sha": "e289977cc3029921b1112757e3f1eac1b7f137fe",
+  "implementation_commits": [
+    "d8f3d74df8bcc570be840f12afc9a12f64c7a766"
+  ],
+  "candidate_tree_sha": "83f816997e29fbcefc43106b29e11407354c894e",
+  "parents": [
+    "e289977cc3029921b1112757e3f1eac1b7f137fe"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sha256": "ae191ba25c688bb68c7b0c53ff5b3e6e825d7065a7d7133a2596d1a6f0b53ada",
+      "bytes": 11818
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "sha256": "aa514099ec81d45e9e7b61b5fb0a13d273d8d3ce9e75dd77e9690aa1223a9ba3",
+      "bytes": 256359
+    },
+    {
+      "path": "policy-engine/architecture/tooling/README.md",
+      "sha256": "88d5e3964fb16f98682f8f030d84336664282f7d887acfea26269ba2f7994568",
+      "bytes": 3158
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "50eaaef821c71a103e1f70e90111e342a93075c70e6f55fdfe73a2be772d5cba",
+      "bytes": 27186
+    },
+    {
+      "path": "policy-engine/architecture/tooling/static_analysis_overrides.toml",
+      "sha256": "1c3f0c0ec5a80b3e4cae0c3c807ab1139b205589be78c228610230832434d829",
+      "bytes": 14976
+    },
+    {
+      "path": "policy-engine/architecture/tooling/tool_config_split.toml",
+      "sha256": "3d320a16ec05afd6531b86cf8f5e4b17febc4573f8fcce741a3170a09512b0d9",
+      "bytes": 3810
+    },
+    {
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "sha256": "bf6f8c01c7f6138e7ea1f627b9cc32ec83947388af9c188ae5b16c1c0d0ecbea",
+      "bytes": 269476
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-e02-core-canonical-json-writer-conformance.toml",
+      "sha256": "3c03c041e869b9a4cab4b5bb991eb7b8c0ab38105294f4ffbbd1a44590b4b8ba",
+      "bytes": 3442
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "sha256": "a439ddd6dc7d1f3ecede439707ddaf0f381fedc8e7e49ac0e6552217720b6a38",
+      "bytes": 18064
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/public_decision_verification.py",
+      "sha256": "dc335f9e35f36be71702915c72fb7ef6a1588e8e47686fc736b0cf47bc9b0240",
+      "bytes": 18463
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "10f42ecceaed02893a249802aa2c453fa288a57e5d96b299af86f1449bf352fe",
+      "bytes": 5590
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "ce705a0f5b2d2b9255d77b535398d173ff1458152f513737dadfd86fce604bea",
+      "bytes": 28790
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "sha256": "4c3bc70f597bf0dbf7488878dea9a9b27b470148ebaf1575f5e2c235ef5aa7d6",
+      "bytes": 71530
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_tool_config_split.py",
+      "sha256": "a3cb1c14865a967ced0e29d8889504ca7dc9a64d569f801612cb8e695667bc39",
+      "bytes": 54328
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "sha256": "8e499140c05abb957b5301fbe07c8256c44232ce22151d8a7b9d2274fe281713",
+      "bytes": 27436
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "sha256": "e1b4eaf1d644b61bbe19200f997ff51aea65c5e9faad383a54313933d853d10e",
+      "bytes": 12856
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+      "sha256": "b0fe459f0363a15cad7a0ca728075fa8723be1a4115b95bbce5f8a705429eb47",
+      "bytes": 19983
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "sha256": "14cebed2c5511c4158ce03436910444e1b582170cf39024510208c68d7e51952",
+      "bytes": 25761
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "sha256": "7a2191260db7111c086c87e91afa722632e7dc21a639c5547e15e7e1c0005b47",
+      "bytes": 123651
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/tool_configs.py",
+      "sha256": "0775820494d13efa730130b24e9d2f90ec097c0c5e2e433836544534b2ad87d3",
+      "bytes": 27536
+    }
+  ],
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r878-20261013.json",
+    "sha256": "e71262df47324b55e66e201867228dac2c6be561e4076f2e0f06f3b389e2760a"
+  },
+  "implementation_composition": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-structural-ref-public-record-reader-ruff-cache-composition-r873-20261013/composition.json",
+    "sha256": "77c3512e6105eb2400e98d6854d91f84bf16ab430589cf81817703e184244622"
+  },
+  "source_bound_deciding_receipt": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/structural-ref-public-record-reader-ruff-cache-deciding-r879-20261013.json",
+    "sha256": "4fef49841689d97c0b2b13228113ab5eb01ca62fd486b5d1f2c589d007409251"
+  },
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r870-r860-b161-whole30-independent-review-20261013.md",
+      "sha256": "642085b2009164933c36f23a2e68ea2439440b49324ae079db605dfb6da20f82"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r870-r860-b161-whole30-independent-review-20261013.json",
+      "sha256": "f5b7c213cd2af1c7730a54e33c5d99c95b5151363b1128f0b9d04a7365f42f94"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r850-r838-independent-public-decision-typed-record-review-20261013.md",
+      "sha256": "260760297ff9d210c5ff3322ac09a0eba2d903239cc496e2b6c705d81a6810aa"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r850-r838-independent-public-decision-typed-record-review-20261013.json",
+      "sha256": "e62662cb84c86d0d55709b298b1783bce28fdb2513cf9088bc04d31be14bd427"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r851-r840-r2-independent-review-20261013.md",
+      "sha256": "76cb2baa94f07dbdeac698ae929143417edb6c11f3147dbf0f1b38c931278968"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r851-r840-r2-independent-review-20261013.json",
+      "sha256": "80fee8f0ff52fc82e33946915073d255f1ce632c3c5e72207267de7c82c7a7b8"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r839-r828-r786-r3-independent-review-20261013.md",
+      "sha256": "be37305d5a7212df57efab5e0a6a3c70a07a82b859f5d129f0f4528ed0a80139"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r839-r828-r786-r3-independent-review-20261013.json",
+      "sha256": "8ff7f931233e090baf7243a4be651859909637b972e229f4ab5b8b9c50b50072"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r856-four-path-quality-delta-independent-review-r2-20261013.md",
+      "sha256": "0af62978817388664eb9c975052ab99250d8623eb51e5332d515b0389cd63e84"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r856-four-path-quality-delta-independent-review-r2-20261013.json",
+      "sha256": "5650073f058595370b6ea133ffe355b2ae84bcdf3d79d902946c0822c08bab03"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r836-ruff-quality-corrigendum-r856-independent-20261013.md",
+      "sha256": "1331b596a9ce5830ab8295bf8cd9ee4739f438a31669e7d3f0dece4fa7f09326"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r836-ruff-quality-corrigendum-r856-independent-20261013.json",
+      "sha256": "5d5a9d183a5f0006ffbbd76135ce64516829ce862465477e7a9e165982b7623e"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input": "Controlled real producer CAS fixtures and malformed raw payload controls; no production currentness claim",
+    "python": "3.14.3",
+    "torch": "2.10.0",
+    "numerical_threads": 1,
+    "canonical_profile": "Core canon profile from actual immutable producer manifests; full-ref identity = artifact_id/kind/media_type/canon_profile_id",
+    "public_record": "Typed datetime retained through canonical encoder; strict fresh DTO intake remains enforced"
+  },
+  "checks": [
+    {
+      "outcome": "FAIL",
+      "tests": 203,
+      "PASS": 197,
+      "FAIL": 6,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/stdout.txt",
+        "sha256": "0eb5f253d118d26842918fb0a888e2e473a959d4fca5c20bf6265d7071462a24"
+      },
+      "scope": "Six exact native modules; failures preserved individually in deciding receipt. Ruff config denominator limit recorded; no native repo green."
+    }
+  ],
+  "property": {
+    "statement": "Carry selected artifact identity across Core/IR subclass boundaries; preserve typed PublicDecision fields until encoding; reject nonconformant raw payloads; project only representable direct nested Ruff scopes; cache only verified transfer bytes.",
+    "runtime_path": [
+      "actual Foundry producer",
+      "Core selected-profile CAS bytes and manifest",
+      "IR/Core reference adaptation",
+      "risk recomputation and fresh receiver",
+      "strict public decision GET/verification",
+      "vector warm-start reader and cache",
+      "Ruff configuration generator/actual scoped CLI"
+    ],
+    "proxy_divergence": "Pydantic subclass equality rejected structurally identical refs; JSON-mode DTO dumping erased datetime; declaration-only fake bundle failed before native loader."
+  },
+  "author_proposals": [
+    {
+      "finding": "B161",
+      "state": "limited_pending_controls",
+      "evidence": "36 passing risk module cases including three real source producer positives; two controls fail for schema/regex fixture reasons on this source; subsequent R881 repair separately reviewed."
+    },
+    {
+      "finding": "B133",
+      "state": "verification_missing",
+      "evidence": "Actual warm-start27PASS and retained cache controls; full original transfer-property denominator remains separately qualified."
+    },
+    {
+      "finding": "B134",
+      "state": "open",
+      "evidence": "One genuine-profile-before-loader negative was not yet applied in this commit; actual native corrupt-index and full config atomicity remain required."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G alone accepts source/adjudicates closures. All author proposals remain nonformal.",
+    "R879 six failing controls and precise next actions remain in its deciding receipt.",
+    "Ruff generation scope covers declared per-file-ignore grammar only; nested py312 target-version differs from root py314 and is not full-settings parity.",
+    "No fabricated issuer/currentness, law, calibration, causal validity, qualifying production workload, or production replacement.",
+    "Source/receipt are separate ordinary commits; receipt SHA is assigned only after publication."
+  ]
+}

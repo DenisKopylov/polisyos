@@ -1,0 +1,70 @@
+{
+  "title": "R971 independent review \u2014 R970 Ruff formatter companion",
+  "decision": "GO for root-owned focused native replay only",
+  "closure_ids": [],
+  "review_scope": "R970 formatter-only delta over the exact R945 virtual postimages; no full R945 behavioral rereview",
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "source_frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+  },
+  "R970": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r970-v7-full-file-formatter-companion-20261013",
+    "patch_sha256": "2fec5fa47e3c2ae282789f9c548e2f5b43163b2ebdbdb5e81aeafa0dea423e27",
+    "manifest_sha256": "65410734a0b8bc87af173fc46bf34d089eb34717c3fbaaaf3b0e9f921fabb74b",
+    "virtual_base_composition_sha256": "148863a6dcef6684cd9803e17ccf6d61702751457b0415c6ea13db25c15d7c99",
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "pre_sha256": "6b6e6a900c4af2bb81e112331eb0698db55ceb84f1465d62cba9f7152cf40707",
+        "post_sha256": "5eb35af7ee356d9ce9704f6e83984e13f4ca80778cce487ee7ec5e2e19312181",
+        "postimage_matches_packet": true,
+        "ast_equal": true,
+        "nonlayout_tokens_equal_ignoring_nl_newline_grouping_parens": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "pre_sha256": "2a7fb07fef4e9ff1c04dcf80913788258d929deb71ba08b6b3038de82b198050",
+        "post_sha256": "aff83863a62edba1767e45363531f2ce36465b9a17b3c5429c649b9fd141eee4",
+        "postimage_matches_packet": true,
+        "ast_equal": true,
+        "nonlayout_tokens_equal_ignoring_nl_newline_grouping_parens": true
+      }
+    ]
+  },
+  "composition_basis": {
+    "R945_patch_sha256": "3b9bcd173ebf3548af92a9fc45415ec7149b53517e20af0941d5cd70b1d6a05b",
+    "R945_route_post_sha256": "6b6e6a900c4af2bb81e112331eb0698db55ceb84f1465d62cba9f7152cf40707",
+    "R945_test_post_sha256": "2a7fb07fef4e9ff1c04dcf80913788258d929deb71ba08b6b3038de82b198050",
+    "R957_patch_sha256": "fa88b170583d95fff43ec1b4b8c0c050b04627bf73dc2e3f37db4bae8fb92cb0",
+    "R957_manifest_sha256": "b3514e4b847c5e7b66a9add4c9827e408d4f409aa047895d69ed1a07ec1ee658",
+    "R957_paths": [
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py"
+    ],
+    "overlap_with_R970_targets": false
+  },
+  "checks": {
+    "scratch_application": {
+      "command": "Copy exact R945 route/test postimages to isolated scratch, then `patch --batch -p1 -i <R970 candidate.patch>`",
+      "exit_code": 0,
+      "stdout": "patching file policy-engine/src/polisyos/runtime/http/routes/runs.py\npatching file policy-engine/tests/unit/runtime/http/test_control_service_di.py\n",
+      "stderr": ""
+    },
+    "ast_comparison": "Both pre/post AST dumps equal with include_attributes=False.",
+    "token_comparison": "Both files have identical token streams after excluding layout tokens and redundant grouping parentheses; test file token stream is identical even before removing parentheses.",
+    "ruff_format_check": {
+      "command": "policy-engine/.venv/bin/python -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml <scratch runs.py> <scratch test_control_service_di.py>",
+      "exit_code": 0,
+      "stdout": "2 files already formatted\n",
+      "stderr": ""
+    },
+    "runtime_behavior": "UNRUN",
+    "pytest": "UNRUN",
+    "native_suite": "UNRUN"
+  },
+  "writes": "Only immutable review artifacts under LOCAL/reviews; no product source, index, or Git writes."
+}

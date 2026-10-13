@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+  "source_frame": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r997-20261013.json",
+    "sha256": "4239fe24bfec79884e33feae0d1aa887780d943737eeac2eb86023b929cd3da0",
+    "head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "tree": "1b52a38c1f5869928426f2090d8230d6ca78eec6",
+    "branch": "codex/e02-unified-local-20261009",
+    "physical_source_paths": 546,
+    "tracked_diff_paths": 0,
+    "target_sha256": "ddd8eb327d8a46735cbcd5bc02c0f6087d2a753cff1d98893477db2efa8371fc",
+    "support_plugin_sha256": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5_single_thread_pytest_r315_20261012.py": "01c495d29c9dc230faa7fe2b495d9d0dc76c8761cd030148f439af41a6a2dcbc",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02_runtime_module_origins_r792_20261013.py": "142b872b6b1f3de58755a3ef2c12361960910654546610a299fa6ce6eec1fcbb"
+    }
+  },
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.r998-n4-uninstrumented-safe-runtime-replay-20261013.r998_signal_stacks",
+    "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/junit.xml"
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "E02_MODULE_ORIGINS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/module-origins.json",
+    "R919_JSON_TRACE_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/json-dumps-and-phases.jsonl",
+    "R919_STACK_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/sigusr1-all-threads.txt",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1"
+  },
+  "case_results": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "anonymous_junit_placeholders": 0,
+  "outcome": "INTERRUPTED resource diagnostic; child ended after first SIGINT cleanup. Planned manual secondSIGINT not sent because exactPID alreadyabsent. NoOOM/SIGKILLclaim.",
+  "peak_sampled_child_rss_bytes": 4358062080,
+  "trigger": [
+    {
+      "event": "trigger",
+      "pid": 7175,
+      "reason": "pytest_pid_rss_limit",
+      "elapsed_seconds": 88.89742633304559,
+      "last_observed_metadata": null
+    }
+  ],
+  "post_complete_source_readback": {
+    "paths": 6223,
+    "mismatch_count": 0,
+    "mismatches": [],
+    "read_after_exact_pid_absent": true
+  },
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/command.json",
+      "sha256": "f1a6806d60ad07394d371f55f58b476200308a2003000f72473073176f94a206",
+      "bytes": 6203,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/junit.xml",
+      "sha256": "18613d91fcca1c5988ea02a857e40d59861c348edc35a89c1385bc7ca493d388",
+      "bytes": 4515,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/module-origins.json",
+      "sha256": "5bb63d0d0a778d448994d5986ae22fd3e442d963bdbf462fb5fef2cc4daa5606",
+      "bytes": 547108,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/monitor.jsonl",
+      "sha256": "bc204d239dc6854bf0c797bb673a08b3230113d01ac4e99d13dfefc97c9ed801",
+      "bytes": 8247,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/pytest-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/pytest-stdout.txt",
+      "sha256": "9e21858acc3f52de1905b6833169209b3eec0f6f66701e380425b6a630109119",
+      "bytes": 5653,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/sigusr1-all-threads.txt",
+      "sha256": "34859a3bf4f7ef97b747e67788a00e8d1e1b20926539a4133814ed4e7a7c0b0f",
+      "bytes": 10762,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/source-after.json",
+      "sha256": "55594e14ed7c764e90bf4fd302a9d19e5812ef50a6593e605e8364c50c7133c1",
+      "bytes": 796875,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/source-before.json",
+      "sha256": "55594e14ed7c764e90bf4fd302a9d19e5812ef50a6593e605e8364c50c7133c1",
+      "bytes": 796875,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/source-readback.json",
+      "sha256": "e489fc6ce8c429f8e3b682802802c7745d2a2b59eec4c26d66ba09a40ace13aa",
+      "bytes": 1421,
+      "availability": "local ignored raw retained"
+    }
+  ],
+  "manual_interrupt_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/manual-second-interrupt.json",
+    "sha256": "30188b0e28ae2f60d278a2a8361e9c5e9c4179e2baf0620ce665acb59c68afb2"
+  },
+  "boundary": "Uninstrumented original-source N4 build progressed to grounding_relation.search ->retrieve_candidates ->certificate_for ->design_generation._content_bound_candidates. CrossingRSS3GiB samplingcap is measured4.36GB at88.9s, notOOM. Full servedPOST/worker/N5/CAS/freshGET assertions notcompleted. R1000 source/API/systemicquantity research required before new replay. No scientificbasis truncation orfixture substitution.",
+  "profile_scope": "Supported SCIENTIST_TORCH_*CPU1/1 settings; actual stdout/module-origin final ifpresent retained. No post-stop finalprofile claim beyond deciding output.",
+  "closure_ids": [],
+  "author_proposals": []
+}

@@ -1,0 +1,86 @@
+{
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+      "sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+    },
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a"
+  },
+  "candidate": {
+    "incremental_test_patch_sha256": "eb125d6d19ab202f1d0b34ff2d432a7e207655de72837a060a8eeff65ee97769",
+    "manifest_sha256": "b3514e4b847c5e7b66a9add4c9827e408d4f409aa047895d69ed1a07ec1ee658",
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r957-n4-credal-exact-value-controls-20261013",
+    "patch_sha256": "fa88b170583d95fff43ec1b4b8c0c050b04627bf73dc2e3f37db4bae8fb92cb0",
+    "paths": {
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py": {
+        "current_preimage_bytes": 101610,
+        "current_preimage_sha256": "b4fb5b3936ddaddb0824cce17fcebf54a6ef55daad3b3880702fb5314f17631e",
+        "postimage_bytes": 102896,
+        "postimage_sha256": "84eaf9b12bfc190345c8d5931ca925a8308bc2584103d1a3977f4ed6e74555ac",
+        "same_source_postimage_as_r938": true
+      },
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py": {
+        "current_preimage_bytes": 35597,
+        "current_preimage_sha256": "748a8763d1adf5ecfadcb2e22df80cf5f6dc43db5c2a5770751831abf1e1ccc3",
+        "matches_r948_frame_preimage": true,
+        "postimage_bytes": 44000,
+        "postimage_sha256": "23aa88131383999f4af8004fe9a41b184a462890791e4311948e0adb02f31922"
+      }
+    },
+    "readback_sha256": "76a884e1f47b667a8b9fc2316dde75b5240501eff56fe034dfe60f2a988f7e21"
+  },
+  "closure_ids": [],
+  "decision": "qualified_go_focused_native_n4_replay_only",
+  "limits": [
+    "No test, import, native, or performance execution was performed in this review.",
+    "Root focused N4 replay must retain full deciding output and compare complete producer/fresh-GET edge identities and content hashes.",
+    "This is not a broad runtime, performance, or formal-closure acceptance."
+  ],
+  "p40": {
+    "classification": "same_class_one_level_deeper",
+    "finding": "R956 identified an incomplete fastpath semantic oracle; R957 adds value equality for the complete vector.",
+    "new_class": false
+  },
+  "recorded_checks": {
+    "cumulative_git_apply_check": "Recorded exit 0.",
+    "native_tests": "Not run by author or reviewer; root owns the focused native N4 replay.",
+    "receipt_readback": "All 20 file entries in R957 readback.json matched recorded byte counts and SHA-256 values.",
+    "ruff_format_check_source_and_test": "Recorded exit 0 for both configured checks.",
+    "ruff_lint_source_and_test": "Recorded exit 0; \u201cAll checks passed!\u201d for both configured checks."
+  },
+  "review": {
+    "delta": "Adds actual == expected for the complete 13-value exact-built-in fastpath vector; preserves type, signed-negative-zero, and fresh-empty-container checks.",
+    "expected_oracle": "Computed by standard JSON roundtrip before monkeypatching owner.json.dumps to reject fastpath serialization.",
+    "formatting": {
+      "source_ast_or_semantics_changed_by_r957": false,
+      "source_postimage_byte_identical_to_r938": true,
+      "test_ast_matches_r938_after_removing_new_assertion": true
+    },
+    "prior_review": {
+      "finding_resolved": "The full fastpath vector lacked a value equality assertion.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r956-n4-credal-r938-independent-20261013.md",
+      "sha256": "713bdd88c82da0a07dec94cd30eb7b84f0dd458f2d143d8eb460887a5a6e6369"
+    },
+    "runtime_invariants_rechecked": [
+      "Exact-type fastpaths do not broaden to subclasses.",
+      "Empty mutable outputs remain detached.",
+      "Large-integer and other fallback serialization/error behavior remains on the existing JSON roundtrip.",
+      "Valid L6 manifest route resolution remains owned by resolve_observation_manifest_routes, scoped to one controlled registry context and projected back into source order.",
+      "Malformed or ambiguous L6 route manifests preserve the prior per-row InterventionSubstrateError refusal path.",
+      "Selected L2 source profile/basis/currentness fields are unchanged."
+    ]
+  },
+  "review_id": "R961",
+  "title": "Independent R957 delta review for N4 credal reference",
+  "write_guard": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "git_toplevel": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "only_new_review_outputs_written": true,
+    "outputs": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r961-n4-credal-r957-independent-20261013.md",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r961-n4-credal-r957-independent-20261013.json"
+    ]
+  }
+}

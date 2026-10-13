@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.r975_r940_b134_source_anchor_correction.v1",
+  "correction": "Append-only correction to R940; neither R940 nor R932 was edited.",
+  "source_boundary": {
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "branch": "codex/e02-unified-local-20261009",
+    "R948_frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+  },
+  "references": {
+    "R940_markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r940-b134-r932-native-control-independent-20261013.md",
+      "sha256": "c828526f96e89119f60b45fb1e5ff376bb7607c8302a3a79917cc72b797ecb84"
+    },
+    "R940_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r940-b134-r932-native-control-independent-20261013.json",
+      "sha256": "bb916d862a435c123cc825a16d01c68de17704783e3d5e5968b5eb28d31e6c85"
+    },
+    "R932_native_source_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r932-b134-real-native-load-failure-controls-20261013/native-source-evidence.json",
+      "sha256": "9dc211be5cc600cf38fbe90d9763fc7b682967b2756d3dfc18f5a9a3cb27cf03"
+    },
+    "R932_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r932-b134-real-native-load-failure-controls-20261013/manifest.json",
+      "sha256": "53a67e1a133978b978cfe8b6ec1818a19ef2e6eb26304a96ef8473a2a2c1d4e3"
+    },
+    "R944_deciding_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-ruff-native-vector-deciding-r944-20261013.json",
+      "sha256": "1e8f17050acf2c1fc15ae3d41fd5deb5d640274fa560d51280528e0f0de2fdc3"
+    },
+    "R944_junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/junit.xml",
+      "sha256": "a8af464e4505a2bf1e1904accc07eb09acf79e72152398a3497c9e9f4af27e91"
+    }
+  },
+  "source_identity": {
+    "locked_version": "hnswlib 0.8.0",
+    "lockfile": "policy-engine/uv.lock",
+    "lockfile_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "pypi_sdist_sha256": "cb6d037eedebb34a7134e7dc78966441dfd04c9cf5ee93911be911ced951c44c",
+    "extracted_hnswalg_h_sha256": "0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32",
+    "extracted_bindings_cpp_sha256": "713332126d6cf1895677239853617667cd8a75f6e3de3ae4cb16af7f312c6ca2",
+    "line_map": {
+      "hnswalg.h_writer": "685-712",
+      "hnswalg.h_loadIndex": "716-780",
+      "hnswalg.h_corruption_preflight": "754-770",
+      "bindings.cpp_load_wrapper": "230-238",
+      "bindings.cpp_python_load_index_binding": "943-947"
+    },
+    "identity_rule": "The PyPI lock-pinned sdist is the package identity for this environment. Its extracted header full-file hash matches the hnswalg.h hash recorded by R932. Do not conflate a GitHub tag URL with the locked sdist unless byte identity is independently shown."
+  },
+  "R940_correction": {
+    "withdrawn_claim": "R940 said R932 GitHub v0.8.0 source anchors were wrong and cited hnswalg.h 623-647/650-747 and bindings.cpp 216-224/864-873 as the relevant writer, loader, wrapper, and binding.",
+    "corrected_finding": "Those R940 line ranges are not the lock-pinned sdist line map for the relevant routines. The locked-source anchors are hnswalg.h writer 685-712, loadIndex 716-780, preflight 754-770, and bindings.cpp wrapper 230-238 plus Python binding 943-947. R932's recorded hnswalg.h SHA is the same extracted header SHA.",
+    "impact": "R940's evidence-citation correction was itself incorrect. This is documentation/source-provenance repair only; no product source repair is warranted from this anchor discrepancy."
+  },
+  "R944_runtime": {
+    "source_frame": "root-author-source-frame-r943-20261013.json@06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58",
+    "R948_current_path_hashes": {
+      "vector_memory.py": {
+        "sha256": "abffd306f3251de6e2ecc1003b6a80307f298e1f73707d99a4405ff64dafb5f9",
+        "current_sha256": "abffd306f3251de6e2ecc1003b6a80307f298e1f73707d99a4405ff64dafb5f9"
+      },
+      "test_trn_02.py": {
+        "sha256": "bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235",
+        "current_sha256": "bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235"
+      }
+    },
+    "bounded_B134_tests_passed": [
+      "test_failed_native_add_does_not_publish_a_second_python_record",
+      "test_failed_native_load_does_not_publish_partial_bundle",
+      "test_native_roundtrip_preserves_one_small_generation",
+      "test_failed_native_update_preserves_complete_prior_generation",
+      "test_native_capacity_mismatch_refuses_after_load_and_preserves_generation",
+      "test_truncated_native_index_refuses_and_preserves_generation",
+      "test_malformed_candidate_keys_refuse_before_native_load_and_preserve_generation[unhashable-key]",
+      "test_malformed_candidate_keys_refuse_before_native_load_and_preserve_generation[duplicate-key]"
+    ],
+    "bounded_native_load_status": "PASS in R944: real installed hnswlib load path observed the truncation refusal and preserved the tested generation. This is the bounded control, not full B134 closure.",
+    "overall_R944": "FAIL: 118 passed and one V7 predictive-calibration case failed; separate Torch thread-profile gate also failed. Do not call the overall composed run green.",
+    "remaining_limits": [
+      "No finding closure or G adjudication.",
+      "The installed extension fingerprint is not proof of byte identity to the source archive.",
+      "R944's B134 bounded controls do not independently establish every broader/native concurrency or crash claim."
+    ]
+  },
+  "closure_ids": []
+}

@@ -1,0 +1,81 @@
+{
+  "title": "R955 independent review \u2014 R945 fresh predictive-calibration GET projection",
+  "decision": "GO for root-owned focused native replay only",
+  "closure_ids": [],
+  "classification": {
+    "p40": "NEW",
+    "p38": "fresh GET passed an unprojected index row to strict source-root reader",
+    "p05": "candidate-only status preserved"
+  },
+  "review_scope": "R945 virtual two-file candidate and the exact existing source/model/reader boundary; no runtime execution",
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "source_frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+  },
+  "packet": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r945-v7-fresh-run-root-binding-repair-20261013",
+    "patch": "candidate.patch",
+    "patch_sha256": "3b9bcd173ebf3548af92a9fc45415ec7149b53517e20af0941d5cd70b1d6a05b",
+    "manifest": "manifest.json",
+    "manifest_sha256": "c11aaa4a7457c04581bffe89fe3113abecd574ec832152257c2eeba24fb43363",
+    "author_review_sha256": "9a0a79ba1cfaa6e21b864a94fdac6f588b310d3aef65e4a39538119e1a0dfb39",
+    "probe_recipe_sha256": "ca8606b2d92d14a27c980447897b989245e61e6565d80a9478657c6889b08e60"
+  },
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "pre_sha256": "f456e0dcb96087711067cf6dd30ec3dceeee8d87eea7099b3f1c628aed6e6eee",
+      "virtual_post_sha256": "6b6e6a900c4af2bb81e112331eb0698db55ceb84f1465d62cba9f7152cf40707",
+      "current_preimage_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "pre_sha256": "61eedb8647ec9015f0af217cd5bb9bd2881a7f289ee393c0479386e76b48481d",
+      "virtual_post_sha256": "2a7fb07fef4e9ff1c04dcf80913788258d929deb71ba08b6b3038de82b198050",
+      "current_preimage_verified": true
+    }
+  ],
+  "unchanged_inputs_verified": {
+    "policy-engine/src/polisyos/core/artifacts/manifest.py": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+    "policy-engine/src/polisyos/core/contracts/runtime.py": "886deae0ca563ec1716193a5f4ee23892dfc7e0e167b772bb5a0d6841c19f813",
+    "policy-engine/src/polisyos/runtime/http/services/adapters/core_run.py": "9c344b808fd3114b0cbc607154059ee5e3c9d936a1946a88c5cf6836a1337a00",
+    "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py": "f838611be291ab3c0c27a0ca31d2449c1678428b32b5e98f19d5b45552c29423",
+    "policy-engine/src/polisyos/runtime/http/services/run_index.py": "193abe6593a1b0aa22c2f9b5895aeffa712aa19c0ffaf8f105263e9d8262f3ee"
+  },
+  "checks": {
+    "git_apply_check": {
+      "command": "git apply --check --verbose <absolute candidate.patch>",
+      "exit_code": 0,
+      "stderr": "Checking patch policy-engine/src/polisyos/runtime/http/routes/runs.py...\nChecking patch policy-engine/tests/unit/runtime/http/test_control_service_di.py..."
+    },
+    "scratch_patch": {
+      "command": "copy exact two preimages into isolated scratch; patch --batch -p1 -i <absolute candidate.patch>",
+      "exit_code": 0,
+      "stdout": "patching file policy-engine/src/polisyos/runtime/http/routes/runs.py\npatching file policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "stderr": ""
+    },
+    "postimage_hashes": "both exact manifest virtual postimage hashes matched",
+    "ast_parse": "both scratch postimages parsed successfully",
+    "runtime_pytest": "UNRUN",
+    "native_suite": "UNRUN"
+  },
+  "semantic_review": {
+    "existing_projection_owner": "_candidate_simulation_for_indexed_run",
+    "owner_consumers_before": "ordinary run GET and predictive-calibration POST",
+    "owner_consumers_after": "ordinary run GET, predictive-calibration POST, predictive-calibration GET",
+    "reader_binding": "_candidate_source_refs requires projection run_id equals run details run_id and artifact_status resolved; source ref identity includes artifact_id, kind, media_type, selected manifest profile sha256",
+    "new_controls": [
+      "same bytes / same artifact id / different selected profile remains POST 422 with no diagnostic publication event",
+      "typed foreign-run projection is refused by GET with 409",
+      "foreign projection scoped monkeypatch is restored before fresh GET positive",
+      "fresh GET requires exact persisted association and association_ref; prior replay, conflict, and payload-integrity checks remain"
+    ],
+    "authority": "limited / predictive_only / not_established statuses remain unchanged; no issuer, source-time, population-scope, counterfactual, or publication authority is established",
+    "test_note": "Foreign-projection refusal alone is not a discriminator of the new call; the successful fresh GET is the distinguishing assertion."
+  },
+  "writes": "Only the two immutable review artifacts were written under LOCAL/reviews; no product source, index, or Git mutation."
+}

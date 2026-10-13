@@ -1,0 +1,455 @@
+{
+  "schema": "policyos.e02.r975_native_sota_row_execution_readiness.v1",
+  "task": "R975",
+  "authority": "read-only readiness review; not native execution receipt, source freeze, G acceptance, publication, or formal finding closure",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "branch_status": "ahead 3 of origin; dirty",
+    "status_entries": 2179,
+    "tracked_modified": 37,
+    "untracked": 2142,
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418",
+    "frame_postimage_paths": 545,
+    "frame_says_global_freeze": false,
+    "staged_path_count": 0,
+    "formal_closure_ids": []
+  },
+  "references": {
+    "TASKS.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "EXECUTION-PLAN.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+    },
+    "registry": {
+      "path": "policy-engine/architecture/gates/repository_sota.toml",
+      "sha256": "b049b8f7d27ec1af17c0d024da86f2c4ab846a24c05a654448f1eb02cbc0baf1"
+    },
+    "runner": {
+      "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+      "sha256": "f09855fdc002fe8b8b5fd02d66bfd51c444438288ca95fb05d398d96d7e72008"
+    },
+    "phase3": {
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
+      "sha256": "f72c61f30fcf65e080537c80bd92e004d3a0cdf919b2ec631faaa93b0ee40c39"
+    },
+    "phase5": {
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "sha256": "a5db3609d4d01d3f22bfd8174c2ca841e1376e93558fecd98061e7f5d2a9d5e1"
+    },
+    "uv.lock": {
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "R398 row debt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/native-sota-row-debt-r398-20261013.md",
+      "sha256": "daccb7b6ea5043599fa73d695fec32b9f8d86ab0fa7afb423d49223d7013388b"
+    },
+    "static audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/native-sota-gate-queue-static-audit-r1-20261012.md",
+      "sha256": "8dba7f9c31d5784bb1aa61cbced732bac39b5fe8d6cf44dbc84d5130e0e48e1c"
+    },
+    "command plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/sota-native-full-command-plan.md",
+      "sha256": "4170452d0c8c8296a3d091ee6b5c3ba23cfc6dc02d1c541e5a1c1435ffa24c18"
+    },
+    "prior input audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/sota-contract-input-audit.json",
+      "sha256": "d2d15cda64ad74c381fc7ac48fe2fd0fdc600289f8741d0ba4e95b2bccb99713"
+    }
+  },
+  "denominator": {
+    "registry_rows": 13,
+    "registered_unconditional_children": 6,
+    "supporting_unconditional_children": 14,
+    "unconditional_children": 20,
+    "conditional_children": 1,
+    "preflight_predicates": 11,
+    "file_level_current_child_input_denominator": "UNRUN / not established; children select or scan dynamic repository paths and there is no current full native input-path ledger. The R948 545 postimages and R398 6202 broad-pytest hash map are not the SOTA gate input denominator.",
+    "rows": [
+      {
+        "id": "topology-loose-files",
+        "owner": "team-architecture",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q",
+        "evidence": "architecture/topology.toml; phase-3 test",
+        "status": "UNRUN_NATIVE; R398 broad replay failed five same-module topology tests; not a native row receipt."
+      },
+      {
+        "id": "import-linter",
+        "owner": "team-architecture",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+        "evidence": "architecture/imports/policy.toml; architecture/imports/exceptions.toml",
+        "status": "UNRUN_NATIVE."
+      },
+      {
+        "id": "public-surface",
+        "owner": "team-architecture",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run polisyos-tools architecture guardrails check",
+        "evidence": "architecture/public_surface/contract.toml; architecture/exceptions/guardrails.toml",
+        "status": "UNRUN_NATIVE."
+      },
+      {
+        "id": "generated-drift",
+        "owner": "team-architecture",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run polisyos-tools architecture guardrails check --all-generated-checks",
+        "evidence": "architecture/generated_artifacts.toml and generated-owner resources",
+        "status": "UNRUN_NATIVE; must use full generated check."
+      },
+      {
+        "id": "docs-freshness",
+        "owner": "team-docs",
+        "coverage": [
+          "preflight:docs-freshness-contract",
+          "conditional:docs-freshness-runtime"
+        ],
+        "command": "uv run polisyos-tools validation check-docs-accuracy --repo-root .",
+        "evidence": "architecture/exceptions/docs_freshness.toml; dynamically selected published Markdown",
+        "status": "UNRUN_CURRENT; R398 zero-count baseline was not a child receipt; conditional child still required."
+      },
+      {
+        "id": "public-polish",
+        "owner": "team-docs",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q",
+        "evidence": "public-polish test and published docs",
+        "status": "UNRUN_NATIVE."
+      },
+      {
+        "id": "shim-audit",
+        "owner": "team-architecture",
+        "coverage": [
+          "preflight:migration-shim-contract"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "architecture/shims.toml",
+        "status": "UNRUN_ROW_ISOLATED; R398 combined contract-only output reported expired shim rows."
+      },
+      {
+        "id": "complexity-exceptions",
+        "owner": "team-architecture",
+        "coverage": [
+          "preflight:complexity-exception-contract"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "architecture/exceptions/complexity.toml",
+        "status": "UNRUN_CURRENT; source has empty exceptions; R398 KeyError was a test consumer defect, not an active row."
+      },
+      {
+        "id": "security-baselines",
+        "owner": "team-security",
+        "coverage": [
+          "preflight:ops-modes"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "ops/security/secrets-baseline.toml and ops modes",
+        "status": "UNRUN_ROW_ISOLATED; R398 combined invocation nonzero."
+      },
+      {
+        "id": "dependency-baselines",
+        "owner": "team-security",
+        "coverage": [
+          "preflight:ops-modes"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "ops/security/osv-scanner.toml and lockfiles",
+        "status": "UNRUN_ROW_ISOLATED; R398 combined invocation nonzero."
+      },
+      {
+        "id": "sbom-baseline",
+        "owner": "team-security",
+        "coverage": [
+          "preflight:ops-modes"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "ops/security/sbom.toml and input paths",
+        "status": "UNRUN_ROW_ISOLATED; R398 combined invocation nonzero."
+      },
+      {
+        "id": "commit-policy",
+        "owner": "team-release",
+        "coverage": [
+          "preflight:ops-modes"
+        ],
+        "command": "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        "evidence": "ops/release/commit-policy.toml",
+        "status": "UNRUN_ROW_ISOLATED; R398 combined invocation nonzero."
+      },
+      {
+        "id": "command-registry",
+        "owner": "team-devx",
+        "coverage": [
+          "subprocess"
+        ],
+        "command": "uv run polisyos-tools docs --output docs/reference/tools.md --check",
+        "evidence": "docs/reference/tools.md and command manifest",
+        "status": "UNRUN_NATIVE."
+      }
+    ],
+    "unconditional_child_list": [
+      [
+        "topology-loose-files",
+        "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q",
+        "UNRUN_NATIVE; same module had five R398 broad-replay failures."
+      ],
+      [
+        "import-linter",
+        "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "public-surface",
+        "uv run polisyos-tools architecture guardrails check",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "generated-drift",
+        "uv run polisyos-tools architecture guardrails check --all-generated-checks",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "public-polish",
+        "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "command-registry",
+        "uv run polisyos-tools docs --output docs/reference/tools.md --check",
+        "UNRUN_NATIVE; check-only."
+      ],
+      [
+        "repository-sota-registry-contract",
+        "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py -q",
+        "UNRUN_NATIVE; same module had three R398 broad-replay failures; current test source differs and is unrun."
+      ],
+      [
+        "repository-structure",
+        "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate all --mode fail-closed --json",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "last-mile-inventory",
+        "uv run python tools/quality/validation/repository_last_mile_inventory.py --json-output _build/.tmp/last-mile/inventory.json --check",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "package-import-gates",
+        "uv run python tools/quality/validation/check_package_import_gates.py --fail-closed --json-output _build/.tmp/last-mile/package-import-gates.json",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "directory-health",
+        "uv run python tools/quality/validation/directory_health.py --repo-root . --json-output _build/.tmp/last-mile/directory-health.json --markdown-output _build/.tmp/last-mile/directory-health.md --fail-on-regression",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "test-ratchets-helper-topology",
+        "uv run python tools/quality/testing/report_test_ratchets.py --format json --output _build/.tmp/last-mile/test-ratchets.json --fail-on-regression",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "dead-overrides",
+        "uv run python tools/ops_runners/reports/dead_overrides.py --json-output _build/.tmp/last-mile/dead-overrides.json",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "extension-examples",
+        "uv run python tools/quality/validation/check_extension_examples.py",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "adr-thematic-index",
+        "uv run python tools/quality/validation/generate_adr_index.py --check",
+        "UNRUN_NATIVE; check-only."
+      ],
+      [
+        "validator-module-size",
+        "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size --json-output _build/.tmp/last-mile/module-size.json --fail-on-contract-errors",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "schema-purity",
+        "uv run python -c SCHEMA_PURITY_SNIPPET.strip() from current repository_sota_closeout.py",
+        "UNRUN_NATIVE; source snippet writes _build/.tmp/last-mile/schemas-python-residue.txt."
+      ],
+      [
+        "operability-release",
+        "uv run python tools/ops_runners/release/check_operability_release_gates.py --json-output _build/.tmp/last-mile/operability-release-gates.json --fail-closed",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "compatibility-release",
+        "uv run python tools/ops_runners/release/check_compatibility_release_gates.py --json-output _build/.tmp/last-mile/compatibility-release-gates.json --fail-on-contract-errors",
+        "UNRUN_NATIVE."
+      ],
+      [
+        "acceptance-audit",
+        "uv run polisyos-tools workspace acceptance-audit --json-output _build/.tmp/last-mile/platform-acceptance.json --summary _build/.tmp/last-mile/platform-acceptance.md",
+        "UNRUN_NATIVE."
+      ]
+    ],
+    "conditional_child_list": [
+      [
+        "docs-freshness-runtime",
+        "uv run polisyos-tools validation check-docs-accuracy --repo-root .",
+        "UNRUN; triggered by docs-freshness zero-count contract route"
+      ]
+    ],
+    "preflight_list": [
+      [
+        "gate-registry",
+        "_check_gate_registry",
+        "UNRUN as a current native preflight; current phase-5 source contains behavioral tests, but those tests are not current PASS evidence."
+      ],
+      [
+        "final-topology-contract",
+        "_check_final_topology_contract",
+        "UNRUN current preflight; R398 phase-3 module had five physical-topology failures."
+      ],
+      [
+        "ops-modes",
+        "_check_ops_modes",
+        "UNRUN row isolation; combined R398 contract-only invocation was nonzero."
+      ],
+      [
+        "docs-freshness-contract",
+        "_check_docs_freshness_contract",
+        "UNRUN current; R398 reported a zero-count baseline with an old zero-debt date."
+      ],
+      [
+        "time-bounded-import-exceptions",
+        "_check_time_bounded_import_exceptions",
+        "UNRUN current; R398 reported an expired dynamic-import review date; no owner review receipt is in cited handoffs."
+      ],
+      [
+        "complexity-exception-contract",
+        "_check_complexity_exceptions",
+        "UNRUN current; active empty table is valid in current source."
+      ],
+      [
+        "migration-shim-contract",
+        "_check_migration_shims",
+        "UNRUN current; R398 combined contract scan reported expired shim records."
+      ],
+      [
+        "phase65-exception-cleanup",
+        "_check_phase65_exception_cleanup",
+        "UNRUN current; R398 phase-5 test failed on review expiry."
+      ],
+      [
+        "wiring",
+        "_check_wiring",
+        "UNRUN current."
+      ],
+      [
+        "closeout-docs",
+        "_check_closeout_docs",
+        "UNRUN current."
+      ],
+      [
+        "public-polish-contract",
+        "_check_public_polish_contract",
+        "UNRUN current; native child also unrun."
+      ]
+    ]
+  },
+  "profile": {
+    "cwd": "policy-engine/",
+    "recipe": "uv run using policy-engine/uv.lock",
+    "lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "venv_present": true,
+    "venv_python": "CPython 3.14.3",
+    "uv_recorded": "0.10.6",
+    "installed_distribution_metadata_only": [
+      "pytest 9.0.2",
+      "ruff 0.14.10",
+      "mypy 1.19.1",
+      "basedpyright 1.39.0",
+      "torch 2.10.0",
+      "botorch 0.16.1",
+      "jax/jaxlib 0.8.2",
+      "hnswlib 0.8.0"
+    ],
+    "imports_installs_environment_writes": false,
+    "optional_vector_search_is_invoked_by_native_sota": false
+  },
+  "native_command_from_product_root": "uv run polisyos-tools workspace repository-sota-closeout --output-json docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-frozen/report.json --subprocess-receipt-dir docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-frozen/children",
+  "forbidden_closeout_flags": [
+    "--contract-only",
+    "--skip-generated-checks"
+  ],
+  "required_receipts": "Top-level stdout/stderr/status, JSON report, argv/exit/stdout/stderr for each executed child, and generated _build/.tmp/last-mile outputs; store raw outputs under ignored LOCAL/raw and read back hashes.",
+  "timing": {
+    "native_wave": "UNMEASURED",
+    "R398_broad_pytest_seconds": 71.656,
+    "R398_broad_pytest_scope": "28 selected modules, not native SOTA",
+    "old_contract_only_seconds": 1.654,
+    "old_contract_only_scope": "candidate 9e89 / slice base 93d6 / 82 findings; stale",
+    "guardrails_coarse_signal_seconds": 251.358,
+    "guardrails_signal_scope": "argv omitted; not proof for --all-generated-checks",
+    "first_frozen_wave_timeout": "UNMEASURED; root should choose and record an explicit generous deadline; prior timings are not a proxy."
+  },
+  "prior_R398": {
+    "head": "9dd15d1c1bc89d189a5c53c47e816ce48ab5b352",
+    "tree": "1955e110ad48276702acbcc061761268d3e41d50",
+    "exit": 1,
+    "elapsed_seconds": 71.656,
+    "failures": {
+      "phase3": 5,
+      "phase5": 3,
+      "total": 8
+    },
+    "native_sota_receipt": false,
+    "expired_findings": {
+      "effective": 33,
+      "past_date_fields": 34,
+      "zero_count_docs_date_non_effective": 1,
+      "current_count": "UNRUN because expiry/config/test sources changed after R398"
+    }
+  },
+  "controls": {
+    "current_phase5_source_contains": [
+      "parameterized required-row deletion refusal for all 13 IDs",
+      "wrong-command refusal for all 13 IDs",
+      "wrong-route refusal for all 13 IDs",
+      "only generated-drift skip declaration and command selection",
+      "malformed/non-table/duplicate rows fail closed",
+      "invalid registry blocks child execution",
+      "real child failure preserves stdout/stderr"
+    ],
+    "current_controls_execution": "UNRUN at R948; phase5 file SHA changed after R398, so R398 PASS does not transfer",
+    "R3_remove_property_keep_markers_probes": "UNRUN per R398 row-debt",
+    "P37_P38": "not_established for full native closeout"
+  },
+  "P40": "same registry-to-execution class one level deeper: the remaining requirement is current full child/input/result coverage, not another declaration-only row fix.",
+  "P41": {
+    "status": "not_established",
+    "reason": "No exact current slice-base replay plus zero-intersection proof over the complete SOTA child input denominator. The older 9e89/93d6 contract audit covered 969 paths and found three intersections. R398's 6202-file map is from broad pytest; R948's 545 files are source postimages, not gate inputs."
+  },
+  "remaining_work": [
+    "Reconcile current physical topology without widening loose-file allowances or ignoring entries.",
+    "Batch technical exception repairs with measured current commands.",
+    "Obtain only row-specific named-issuer decisions for exceptions that remain necessary; no blanket renewal or date shifts.",
+    "Independent source review, explicit source/profile/input freeze, then one complete native serial run with receipts."
+  ],
+  "closure_ids": []
+}

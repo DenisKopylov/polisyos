@@ -1,0 +1,169 @@
+{
+  "closure_ids": [],
+  "composed_scope_assessment": {
+    "b106": "The persisted finite occurrence basis is recomputed at the resolver; a continuous-severity source remains profile_mismatch/mixed_unscored with no score. Fresh Level-5 and Blueprint gate consumers require finite_binary_scenario_v1 and recomputed/independently_reconciled status. Missing, legacy_unknown, malformed, stale, and wrong-candidate controls retain limited/refusal behavior. The proposed warning/defer behavior is not an accepted external calibration/G choice.",
+    "b109_b122": "The existing typed SearchConfig\u2192SearchController\u2192ParetoRegistry route and plateau criterion remain compatible; complete-history/malformed/missing/non-finite observations do not become a plateau stop, and typed incomplete/missing registry axes remain unassessed. R934 formatting changes do not alter non-import AST or import bindings.",
+    "b111": "The selected source occurrence and full source-context survivor basis remain exact in the composed fresh-reader/projection/seed controls; this is the reviewed test-oracle fix, not authority or ranking closure.",
+    "b120": "The exact TracedLLMCandidateGenerator producer route carries the durable owner binding to the SearchLoopRunner/controller and fresh budget read; finite settlement updates the cost criterion and unresolved/malformed settlement is unavailable. This is selected candidate-generation accounting only: Stage A/B evaluator callbacks are not all owner-coupled, quote/reservation is absent, and external invoice authority is not established.",
+    "b123": "The valid typed objective reaches best/frontier, persisted Pareto state, fresh registry reader, and candidate transfer. It does not reach a protected publication consumer; original publication acceptance remains open. Malformed-present typed results do not fall back to legacy scalar evaluation; absent optional history remains explicitly limited.",
+    "replay": "The composed replay test calls the ordinary CLI composition root for a real Foundry replay and checks the persisted simulation-result manifest; R921 fixes the non-dry resume caller binding to the same real CLI root and verifies a new persisted checkpoint head. These are local route witnesses, not proof of production-wide import-budget/currentness."
+  },
+  "decision": "GO_ROOT_NATIVE_WAVE_ONLY",
+  "formal_closure_ids": [],
+  "p40": {
+    "bounded_residuals_and_falsifiers": [
+      "B120 residual: generic Stage A/B provider calls and pre-dispatch maximum-price reservation are outside the selected generator adapter. Falsify whole-search wording with an ownerless evaluator call while the candidate-generator owner receipt remains valid; keep the claim bounded.",
+      "B123 residual: protected publication/decision consumer is absent. Falsifier is removing that consumer while retaining registry/status markers; candidate-transfer evidence must not be called publication.",
+      "B106 residual: finite source-row recomputation establishes implementation quantity only; the external calibration/authority choice for warning plus defer_to_human remains not accepted."
+    ],
+    "bucket": "SAME_CLASS_DEEPER",
+    "finding": "This is a composition and caller-binding review of the already reviewed search/stress/Pareto/budget/replay classes. R921 corrected the concrete caller-binding miss; R934 quality successor changes only import ordering/formatting under independently equal AST/import/comment checks. No new same-class escape requires an instance patch."
+  },
+  "r921_cli_test_binding_delta": {
+    "assessment": "The resume test now binds runtime_cli.main and FileSystemCAS in its local function scope. It calls the real CLI composition root with resume/run ID/CAS root/strict policy/JSON, omits --dry-run, and checks the fresh CAS head advances to the remaining finish node. The autotune owner test binds FileSystemCAS locally and runs SearchLoopRunner through a TracedLLMClient/Gateway client, durable BudgetMiddleware/FileBudgetLedger, and typed producer_run_binding; resolved finite cost and boolean-unknown-cost refusal remain paired. Source routing independently read: runtime_cli.main parses then _dispatch_core(\"._cli_replay\", \"_cmd_resume\"); _cmd_resume creates the declared filesystem CAS and calls resume_from_checkpoint.",
+    "files": {
+      "policy-engine/tests/unit/remediation/test_rep_01.py": {
+        "R921_postimage_sha256": "8a84f2eb795490ee501826a4b04d3c951930b5a9c0e0c5b57a15d728cbcd4355",
+        "R921_preimage_sha256": "451cd2b3d4acaac216732611988f76fbb414f8b4d3c8e49f92c51156d3e3c7a8",
+        "R933_final_sha256": "8a84f2eb795490ee501826a4b04d3c951930b5a9c0e0c5b57a15d728cbcd4355"
+      },
+      "policy-engine/tests/unit/scientist/search/test_search_loop.py": {
+        "R921_postimage_sha256": "72534167d770c940d111c5176726d81be2cfad362a4ea5dddf031c3f7732ab12",
+        "R921_preimage_sha256": "d51f06735c1e5ee096e81a63d6345f5a27c91575bc85aa0da10a06dcfae76d21",
+        "R933_final_sha256": "72534167d770c940d111c5176726d81be2cfad362a4ea5dddf031c3f7732ab12"
+      }
+    },
+    "manifest_sha256": "0fc92d23f9f0e17e04b20e6103c4ecc3151f850a6ad9f131d2811aa10c9a65eb",
+    "native_execution": "UNRUN",
+    "packet": "raw/r921-search-replay-real-test-caller-bindings-20261013/",
+    "patch_sha256": "4ce4aa53e2df2a282ea9128454ec2c0df6a7dd70878c86874287a87609861c26",
+    "source_route_readback_sha256": "0198d06fb108c1b78ee68644265a844d51486d2eabe219b6691b376967f55239",
+    "test_only": true
+  },
+  "r933_composition": {
+    "current_head_targeted_diff_paths": [],
+    "current_worktree_preimages_match": true,
+    "file_type_denominator": {
+      "markdown": 2,
+      "python": 24
+    },
+    "net_patch_path": "raw/reviewed-search-stress-pareto-budget-replay-semantic-callers-composition-r933-20261013/net.patch",
+    "net_patch_sha256": "6d8c4c3624266ef91b80c0ff50c674d4aab7f25529d185cc33f27a785bd392b2",
+    "path": "raw/reviewed-search-stress-pareto-budget-replay-semantic-callers-composition-r933-20261013/composition.json",
+    "physical_manifest_rows": 26,
+    "product_writes": false,
+    "sha256": "2fba15738eeaa9980b72df2106b22dbda2e1ec919b1ed1bb81967323cdd29e70",
+    "stage_patch_sha256": [
+      "5142059ab7c88d8054ea31a8a54cea7fae160115fb85669077313ceda4d02d13",
+      "6fdde6c086159b454aeb07321e996b535d152796136408615660f12655d3d4f4",
+      "9408c5152ea6e5211582b20f9e2afb47f983e38fad9f99016e985953e191680f",
+      "a443a2d57e19bdc2433ab2d117c1d55a8e9dcb39e1dd7479d808d901d0f53f33",
+      "00f9999597dc7b388bd5527bf3143191ebb8848687d676a18f3c918f98e52c2e",
+      "4ce4aa53e2df2a282ea9128454ec2c0df6a7dd70878c86874287a87609861c26"
+    ],
+    "validation": "For every row of composition.json final, current Own/path SHA-256 equals before_sha256; R933 overlay Own/path SHA-256 equals postimage_sha256. The exact 26-row manifest and overlay enumerate the complete source/test/docs footprint.",
+    "virtual_overlay_postimages_match": true
+  },
+  "r934_quality_successor": {
+    "all_24_postimages_equal_r934_outputs": true,
+    "all_24_preimages_equal_r933_outputs": true,
+    "all_48_configured_ruff_check_and_format_receipts_exit_zero": true,
+    "changed_path_count": 10,
+    "independent_stdlib_checks": {
+      "comment_token_multiset_equal_all_24": true,
+      "non_import_ast_equal_all_24": true,
+      "scoped_import_binding_multiset_equal_all_24": true
+    },
+    "manifest_sha256": "5097e2717237bda5c8d83c31b63f386f7003ccfcd37053007b04da3ee4eef995",
+    "patch_path": "raw/r934-composed-search-configured-import-format-successor-20261013/delta.patch",
+    "patch_sha256": "c38e7403f0b536d4673f4f1d901c5762140e69d67efaaf007363b0bf8ed07678",
+    "path": "raw/r934-composed-search-configured-import-format-successor-20261013/",
+    "python_path_denominator": 24,
+    "ruff_execution_by_reviewer": "UNRUN; verified all 24 manifest records contain the configured product Ruff check and format --check argv and exit=0.",
+    "source_composition_sha256": "2fba15738eeaa9980b72df2106b22dbda2e1ec919b1ed1bb81967323cdd29e70"
+  },
+  "recommended_native_selectors": [
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+    "tests/unit/scientist/search/test_pareto_transfer.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/governance/test_stress_scenarios.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+    "tests/unit/core/components/test_cli_replay.py",
+    "tests/unit/remediation/test_rep_01.py"
+  ],
+  "required_key_nodes": [
+    "tests/unit/scientist/search/test_adversarial.py::test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py::test_continuous_stress_stays_limited_through_fresh_level5_gate",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py::test_l5_distinguishes_missing_legacy_and_malformed_stress_scores",
+    "tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_valid",
+    "tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_search_controller_persists_pareto_membership_for_fresh_reader",
+    "tests/unit/scientist/search/test_pareto_transfer.py::test_catalog_projection_and_seed_preserve_source_occurrence_identity",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_autotune_runner_binds_real_provider_call_to_durable_budget_owner",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_durable_spend_crosses_cost_threshold_after_two_traced_calls",
+    "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_generation_with_missing_owner_event_readback_stops_before_stage_b",
+    "tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values",
+    "tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_does_not_drop_a_missing_historical_observation",
+    "tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_improvement_plateau_does_not_treat_malformed_history_row_as_absence",
+    "tests/unit/core/components/test_cli_replay.py::test_replay_cli_runs_native_foundry_replay_and_persists_result",
+    "tests/unit/remediation/test_rep_01.py::test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head"
+  ],
+  "reused_prior_independent_reviews": [
+    {
+      "path": "reviews/r833-b109-b122-independent-r1-20261013.md",
+      "scope": "B109/B122 semantics; sole stop was formatter drift in the earlier candidate.",
+      "sha256": "ca01eb35da13eb07e8edd6549205174418e8a3c0b20a2111da489ffe57633818"
+    },
+    {
+      "path": "reviews/r858-r854-independent-five-file-style-review-r1-20261013.md",
+      "scope": "earlier formatter successor; reused only as unchanged behavior context, not as current Ruff receipt.",
+      "sha256": "69b4d63c96c62265dde6106ffd6cbb61ed7d20c76dc5663a17d5db6554a157a6"
+    },
+    {
+      "path": "reviews/r891-r868-independent-delta-20261013.md",
+      "scope": "B120 bounded candidate-generation owner and residual; B123 protected publication boundary; LA-033 test route.",
+      "sha256": "7eed2d9c09196381dfd6a6b4beb5a4c40da92cddf9589da09fa3a5b4a9c1ba68"
+    },
+    {
+      "path": "reviews/r907-b106-r890-independent-delta-20261013.md",
+      "scope": "B106 finite occurrence basis and producer-to-fresh-resolver candidate evidence.",
+      "sha256": "41a9b87307d835901e04b9abfa1757698da52e12e1a52a54dd6c39439e0c8b32"
+    },
+    {
+      "path": "reviews/r916-b111-r905-delta-independent-20261013.md",
+      "scope": "B111 selected source occurrence negative-control repair.",
+      "sha256": "251b8316faac6832818ce7e0b7327b1137514bd8c5e21cdc3669343f28157ac2"
+    }
+  ],
+  "review_id": "R936",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "path": "root-author-source-frame-r922-20261013.json",
+    "physical_source_path_count": 523,
+    "sha256": "312ab0db93728b71b3e0395b8830e47dba410fe3d1a415d575ca9eb52f889f40",
+    "source_writer_role": "Root sole product-source writer; this review wrote only new LOCAL/reviews receipts.",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a"
+  },
+  "verification_boundary": {
+    "native_status": "UNRUN; root owns execution after the complete source freeze.",
+    "not_performed": [
+      "pytest",
+      "product imports",
+      "Ruff execution",
+      "native workflow",
+      "database work",
+      "product/source/index/Git writes"
+    ],
+    "performed": [
+      "read-only R922 HEAD/tree/branch and Git top guard checks",
+      "manifest-driven SHA-256 comparison of all 26 physical preimages and all 26 R933 virtual postimages",
+      "manifest-driven comparison of all 24 R934 Python preimages/postimages",
+      "stdlib AST comparison with imports removed, scoped import-binding multiset comparison, and comment-token multiset comparison for all 24 R934 rows",
+      "static source trace of runtime_cli.main to Core replay/resume dispatch and test caller arguments",
+      "read of prior independent reviews listed above"
+    ]
+  }
+}

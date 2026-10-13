@@ -1,0 +1,13 @@
+# R971 independent review — R970 Ruff formatter companion
+
+**Decision: GO for the root-owned focused native replay only.** This is a static review of the R970 formatting delta, not a second review of R945’s runtime behavior. No product source, index, or Git state was changed; native behavior remains unrun and `closure_ids=[]`.
+
+R970 is bound to R948 HEAD `dae174623baca79449638758ada159ab7ebdaefb`, tree `0e7846a9576e698150de7e613d424dc72d5dd43a`, and source frame SHA-256 `42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418`. The physical frame still contains R945’s preimages. R970’s virtual base composition is recorded as `148863a6dcef6684cd9803e17ccf6d61702751457b0415c6ea13db25c15d7c99`; its two preimages equal the exact R945 virtual postimages. R957’s reviewed source/test paths are the separate credal-reference files, so that stage does not overlap these two R970 paths.
+
+I copied the exact R945 postimages into a new scratch tree and applied only R970’s patch. Both preimages matched the R970 manifest, patch exited 0, and both results matched the manifest and packet `postimages/` byte-for-byte. `ast.dump(ast.parse(...), include_attributes=False)` was equal for both files. A tokenizer comparison also found the same non-layout token sequence; its only differences were redundant grouping parentheses in `runs.py`, consistent with the AST equality. The repository-configured `ruff format --check --no-cache` against the scratch outputs exited 0 with `2 files already formatted`.
+
+R970 changes only layout in `runs.py` and `test_control_service_di.py`; the formatter’s whole-file scope explains the longer diff, while the AST and token checks bound it to formatting. The route’s R945 projection call and the R945 test assertions remain present in the postimages; this delta neither changes their semantics nor establishes that their behavior passes. The root’s focused native replay remains the deciding behavioral check.
+
+Exact R970 identities: patch SHA-256 `2fec5fa47e3c2ae282789f9c548e2f5b43163b2ebdbdb5e81aeafa0dea423e27`; manifest SHA-256 `65410734a0b8bc87af173fc46bf34d089eb34717c3fbaaaf3b0e9f921fabb74b`. The route changes from R970 preimage `6b6e6a900c4af2bb81e112331eb0698db55ceb84f1465d62cba9f7152cf40707` to `5eb35af7ee356d9ce9704f6e83984e13f4ca80778cce487ee7ec5e2e19312181`; the test changes from `2a7fb07fef4e9ff1c04dcf80913788258d929deb71ba08b6b3038de82b198050` to `aff83863a62edba1767e45363531f2ce36465b9a17b3c5429c649b9fd141eee4`.
+
+Verification commands and complete deciding outputs are recorded in the companion JSON. No runtime import, pytest, native suite, build, install, database, source write, index write, or Git mutation was performed.

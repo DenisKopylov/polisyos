@@ -1,0 +1,474 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "R996 reviewed composed search stress Pareto vector and consumer Source37",
+  "author": "LOCAL root author; independent internal reviewers; G retains code acceptance/integration/formal adjudication",
+  "slice_base": {
+    "sha": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "parents": [
+      "d8f3d74df8bcc570be840f12afc9a12f64c7a766"
+    ]
+  },
+  "candidate": {
+    "sha": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "tree": "1b52a38c1f5869928426f2090d8230d6ca78eec6",
+    "parents": [
+      "dae174623baca79449638758ada159ab7ebdaefb"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/explanation/architecture.md",
+      "sha256": "3553fbcc78b537298c43f5b3b697ba90f3e46591ae04e0723c80b1928a6b5883",
+      "bytes": 215760,
+      "role": "documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "sha256": "5eb35af7ee356d9ce9704f6e83984e13f4ca80778cce487ee7ec5e2e19312181",
+      "bytes": 209819,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "sha256": "26b7506ed9a779b0641865f916ca2a1bb604c0a05fc662148dcd8ad42a2ffde3",
+      "bytes": 18225,
+      "role": "documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "sha256": "f838611be291ab3c0c27a0ca31d2449c1678428b32b5e98f19d5b45552c29423",
+      "bytes": 68608,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "sha256": "84eaf9b12bfc190345c8d5931ca925a8308bc2584103d1a3977f4ed6e74555ac",
+      "bytes": 102896,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "sha256": "abffd306f3251de6e2ecc1003b6a80307f298e1f73707d99a4405ff64dafb5f9",
+      "bytes": 11026,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/stress_scenarios.py",
+      "sha256": "052b5bad696b2338a6b550f7c8cf288f75d11bc18b624536894c6ece5683bc03",
+      "bytes": 12576,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "bytes": 28861,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "7cbaa496260fa38ec97c053f1595280ad36abc868152c17124ce4e5a8f4ddd9b",
+      "bytes": 114196,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/abstraction_suite.py",
+      "sha256": "51f07577539c80048ebbd94679818aa8e7ec0539d9f0fdac09a19c2a181be2b6",
+      "bytes": 9526,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "sha256": "b141b31a2a10f0f96efea1be48da90ef5ac0d94452206a23c876ab84df8d8ead",
+      "bytes": 19938,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/strategic_suite.py",
+      "sha256": "0a5494fd1bf459cd2a8af308ccdb08baac5848c2fc9533b3c0147e92d26ed176",
+      "bytes": 17692,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "e8640153ae27526e475277c1ace165f2c41a1f4724cf6f05525356805745c3f8",
+      "bytes": 19602,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "sha256": "becf0abdad7d79ea13d0243d19e176c20b89a7eedc0ad2c7bb2d147cc78b3aa9",
+      "bytes": 19334,
+      "role": "documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "sha256": "f7ce3a8d103e6dd5e613514de53e99d38369702ef8475083f95952146228c7a5",
+      "bytes": 41977,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "sha256": "99e992117d5a042344fa0912e957509ce0735a98526abb3c88176d5d9e237e6d",
+      "bytes": 67361,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "sha256": "031cf8eddc55c723cad8a882b8641c217e9ff8b05ad6ab52e6f336336f576b07",
+      "bytes": 34353,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "sha256": "4e7f83c57ee732474b1d4951065653cec069d35832e177351038489677e16f76",
+      "bytes": 47222,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "sha256": "b060ba20635ded892e0cb3359b94d102dce0a97f5a1a92db2747de05eb700efd",
+      "bytes": 14063,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+      "sha256": "6d8b8974690423326c268dae83ed2c2fdd0756cb044f0592110505cc5df42e47",
+      "bytes": 29535,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "sha256": "b338399131513bac897513c51e296967ed5d72b2fcce996b18c8aad1cdc48504",
+      "bytes": 35726,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_tool_config_split.py",
+      "sha256": "961fa21ba39e114f15b7a32b579f86a94733b4c596169004e453e8f3d9206f96",
+      "bytes": 56826,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/components/test_cli_replay.py",
+      "sha256": "a3c2945a8cb86c52e4c87b6d01356fd52d8bbf651cff7332d2262d1fe82e3397",
+      "bytes": 28072,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_rep_01.py",
+      "sha256": "b9dfe67825c85accb175885bb43b0fbae86e71d0fe2adffa045561f3898c6856",
+      "bytes": 13720,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "sha256": "bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235",
+      "bytes": 31152,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "sha256": "00ec0f489f52200c2c42a231a6515b75f59646a6f3836f9d7b95af03978e6c7d",
+      "bytes": 237764,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256": "23aa88131383999f4af8004fe9a41b184a462890791e4311948e0adb02f31922",
+      "bytes": 44000,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_stress_scenarios.py",
+      "sha256": "0c4f2ca0540672865de3a41e46a3ddd360d9e48f64e0d12ea2b31fbcf1283a1c",
+      "bytes": 1984,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "sha256": "e35c95f7c5e12db1e5d81e9767cf096f40b48a16d940e67646a946f04ea7df46",
+      "bytes": 36439,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "sha256": "b0c33296eb4983779e29a7aca2a96cc80d7718960ef3e6e5f7bd4e1d1aafcc5c",
+      "bytes": 15337,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "sha256": "4a5399264fd4829a458c39e4705351835990a1634c5a53dba350c57b1b38cb8e",
+      "bytes": 198908,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "sha256": "140c9ecb571a44196800c13d97dd5754f21f6ff235234483fe9d9dd1d4586287",
+      "bytes": 28584,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_pareto_transfer.py",
+      "sha256": "712a2e0973dfcafa971f13798f24bf9d5dc16e33ab5a7b7d6218a7cb1df5ed1c",
+      "bytes": 21645,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+      "sha256": "2425108b8f5e15dbff380f4da7a4cca23d46321da15417084ccc383b01edf846",
+      "bytes": 118110,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "sha256": "00cbaf52fce1c688b70e24a8d14878943f65d09495a4074cf67d00aaa9dd339f",
+      "bytes": 17183,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "sha256": "a58f2b992e989b64e7c1676ddae830e8749d0c8b271480dca8eb7f50d4e5b6b9",
+      "bytes": 68214,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "sha256": "48d5174f220ac0fae1f9a8e4b605c5a731edd6cfc637adcd6ba43506c74659d7",
+      "bytes": 10898,
+      "role": "test"
+    }
+  ],
+  "source_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r997-20261013.json",
+    "sha256": "4239fe24bfec79884e33feae0d1aa887780d943737eeac2eb86023b929cd3da0"
+  },
+  "source_commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-composed-search-stress-pareto-consumer-source-commit-r996-20261013/source-commit-readback.json",
+    "sha256": "516a126d925b40d37c22295a420430adfcdcdeb4b9e4a70841e4521f9f7e5683"
+  },
+  "native_quality": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r993-composed-source-precommit-native-quality-20261013/receipt.json",
+    "sha256": "3d55c4d476149c45f0ca2fc03b8192dab79e30740f030b18dff81775883d2990"
+  },
+  "deciding_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/search-stress-pareto-budget-cli-deciding-r949-20261013.json",
+      "sha256": "995c5b9514b182469602fddb6529e9e602094070f7becc47c4062d1da925c94d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-fresh-get-credal-exact-value-deciding-r980-20261013.json",
+      "sha256": "58eee1be83967b5c4313dbf4699c157d02c94718b1896959676792a23a30019d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-post-performance-bounded-deciding-r983-20261013.json",
+      "sha256": "3e8502f1029b38d7d9c8d4e5750075f057a5176e3dba4d06ef4430d9a3e5fc05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-post-performance-bounded-deciding-r983-corrigendum-r986-20261013.json",
+      "sha256": "ec069761508edec814a352c590212514d6fca72ebebed4335a5d46a9ddc230f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-fresh-owner-pareto-complete-coordinates-deciding-r992-20261013.json",
+      "sha256": "8bde03705af8cbe802bff855ca0cff11ffd87b2c8ea9de777d31959d48384479"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-uninstrumented-resource-deciding-r998-20261013.json",
+      "sha256": "7e081e1bc781ba679c9cb4007f0e0cbbd74a48132dfcb95aea39ae036551251b"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r936-composed-search-prewave-independent-20261013.json",
+      "sha256": "fa2d5b5703c5bf42ac7c34ee04bb215ae37db8d176189d0d8e51fd9551fc8523"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r955-v7-fresh-run-root-binding-independent-20261013.json",
+      "sha256": "8fa1ac9bc70fc893d07c37ec1c2881e66c5cf6f276cf84f1ae6c116bd13ed169"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r961-n4-credal-r957-independent-20261013.json",
+      "sha256": "894775d2be7cdc205b6192c341174139b3e9497e0655b63dcc8fef5765bd29ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r971-v7-r970-formatter-independent-20261013.json",
+      "sha256": "897c65b047f9f45d7e9bcc3c02500c255e084085e18d1ab8fe3300b2ffe8cbf0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r984-v7-r982-owner-fixture-independent-20261013.json",
+      "sha256": "ebd295c67a4661e9e6e58556cca6d555fc25ca8e860a738a906c1a1b18557c5e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r987-b111-r976-ruff-independent-20261013.json",
+      "sha256": "eb738ccf93513202f3e9134b4cecf47e86a9a42a9301db6decad814fc7f59644"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r974-b134-r932-source-anchor-corrigendum-20261013.json",
+      "sha256": "4167ed1378a374d1948af891fbde48486bb2783c29cc0086cfa1b7f7a0a4730c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r975-r940-b134-source-anchor-correction-20261013.json",
+      "sha256": "af3226ba21e303ae5b8c50b3917e32fe17b91ec24f09c48616feaa7b95cbcf25"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r985-n4-systemic-construction-cost-boundary-20261013.json",
+      "sha256": "e3f8491cb1625919dc3309ab13b672b55521c7a5aaeaca85423f5fcc0ba13dd0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1000-grounding-systemic-resource-boundary-20261013.json",
+      "sha256": "e993b4213f19feaf357cb1850ca15f01da93295ea75cb22d6aae0427bf6c5c9a"
+    }
+  ],
+  "selected_profiles": {
+    "backend": "Own supported locked CPython3.14.3/BoTorch0.16.1/Torch2.10.0/hnswlib0.8.0; realFileSystemCAS and localcontrolledAPI. Noinstalled-wheel/currentproductionclaim.",
+    "numeric": "CPU numericalthreads1 with supported SCIENTIST_TORCH_*keys sinceR980; finalpluginassertions retained; R944olderthreadfailurepreserved.",
+    "inputs": "Synthetic unit/integration source witnesses; immutable original N4 recording gy_n4_replay_20260704_095710_425807_7bf5552df372, content hash107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1, used R983/R998. Actual full recording file bytes/source-scope refs are retained percommand. No rewrite of production manifests/descriptors/hashes."
+  },
+  "real_chains": [
+    {
+      "property": "Pareto full coordinates",
+      "chain": "Sourcetypedobjective/schema→compute_front→directhypervolume guards; all39selectedPareto testsPASS R992. Search/transfer/publication originalwholeproperty notclosed."
+    },
+    {
+      "property": "Predictive candidate diagnostic",
+      "chain": "OrdinaryPOST→exactrefs/admission→CASassociation/event→freshGET strictRoot view→Core/IRempiricalDTO. NativeR992400atDTO consumer. RepairR995 virtualreviewGO pendingrootapplication/replay; laterintent/retry assertions notestablished."
+    },
+    {
+      "property": "N4 original-source child path",
+      "chain": "Actualoriginalcapture→fullKref→groundingsearch reached. RSSguard3GiB crossed89s(sample4.36GB)→SIGINT; pytestlaterfailed athelpercontract binding beforePOST/worker/N5/freshGET. This namedFAIL1 isintervened, natural-sourcefailureprovenance not_established. FullFTS/atomR1003 andservedbudgetR965 pending."
+    },
+    {
+      "property": "Vector native load",
+      "chain": "Realnativehnsw0.8index/CASselectedprofile→atomicload→query/persist/freshreader; boundedR944controlsPASS. LargerR944runfailedV7andthreadgate; noadd/update/concurrency/crashclaim."
+    }
+  ],
+  "adversarial_controls": "ExactsameIDdifferentprofile/foreignrun; nonfinite/missingcoordinates; malformedsource/basis/duplicateoccurrence; actualnativecorruptindex oldgeneration survival. Perreceipt reached/unreached controls explicit; remove-property controls elsewherepending do not count Nativegreen.",
+  "limitations": [
+    "Source37 checkpoint is reviewed author code, not globalfreeze orGacceptedcheckpoint.",
+    "R949173PASS20FAIL, R9804PASS1FAIL, R99239PASS1FAIL; R983 interrupted0completed(corrigendum); R998 namedFAIL1 after operatorresourceguard/SIGINT and185.49s, ordinarysourcefailure causalitynot_established. All34changedPythonpaths68RuffcommandsPASS. PrecommitfrontendSKIPs noNativebackendproof.",
+    "Stresswarning/defer unratifiedGchoice; candidate-generation accounting doesnotcoverallStageA/B orpreprice/invoiceauthority. B123protectedpublicationbridge_missing.",
+    "Currentblocking companions: R964wholetenantcontextwriter/body/readers; R988actualcanonicalcandidate+bothstressfamilies/fullschema/profile; R1009wholeadjudicationedgeemission; R1006finite/cyclepromptserialization; R1003Groundingindex/atomresources. Allvirtual separateinputs/footprints untilapplied/reviewed.",
+    "NativeSOTA13rows20unconditional1conditionalchildren/fullfileinputdenominatorUNRUN/not_established; noP41inheritedclaim. Q2canonicalregen/installedarchivewheelprofiles andLinuxLA029wholetransport/replay pending.",
+    "Authenticproductionroot/profile/context/currentness/issuer/permission/custody/refinement/calibration/workload facts held at individualoriginalcriteria; sourceimplementation cannotcreate them."
+  ],
+  "full_id_proposal_report": {
+    "state": "provisional originaloccurrence overlay; noautomaticclosure fromtask/modulePASS",
+    "overlay": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r968-current-native-original-occurrence-evidence-overlay-20261013.ndjson",
+      "sha256": "a940f3ff07a5822ad8e0d6abb378f9abf7bcdb888e3dde3f05491a4f69a2091b"
+    },
+    "summary": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r968-current-native-original-occurrence-evidence-overlay-20261013.json",
+      "sha256": "6a4133ae438323c1e5db00e4863ab0d24609e6de8144eace74f33defee085917"
+    },
+    "denominator": {
+      "ids": 282,
+      "occurrences": 291,
+      "bundles": 127,
+      "tasks": 26
+    },
+    "historical_closures": "9 IDs and B198 historicaldecisions preserved; 198oldauthorproposals arehistoricalproposals, not current formalclosures."
+  },
+  "proposal_fields": [
+    {
+      "id": "B106",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B107",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B109",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B111",
+      "proposal_status": "limited",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B118",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B120",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B122",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B123",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B133",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B134",
+      "proposal_status": "limited",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B13",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "B15",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    },
+    {
+      "id": "LA-021",
+      "proposal_status": "open",
+      "boundary": "Exactselectednative/subproperty only; originalwhole-property/Gadjudication pending",
+      "next_check": "CompleteblockingSource/input/profilefreeze thencomposedNative/fulloriginalcriterion occurrencecheck"
+    }
+  ],
+  "g_accepted_checkpoint": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "parents": [
+      "78be3aff64185e2de24abe710523e14491e36ba6"
+    ],
+    "boundary": "Published boundedG CAN/C10/C11/DFK andfocused101PASS7SKIP, unchangedR924fetch; noacceptanceofRootlatercommits"
+  },
+  "canonical_index_check": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/canonical-import-results-check-r999-20261013/receipt.json",
+    "sha256": "a7efd36ec9a1607bd897f719014c50b8421e1d6bc1ac9d0b63c254bc5e38348d"
+  },
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "receipt_commit": "This packet intentionally doesnot name a futureownreceiptSHA; implementationcandidate iscommitted/readback sourceff.",
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1004-composed-source37-handoff-20261013.json",
+    "sha256": "2ef90c40ddc29cdc48caf06534fc796ab08e54f5fa5f0060f7f83af7eae97394",
+    "scope": "Expand exact originalN4recording identity/hash, clarify R998 namedtest outcome and operatorintervention; source candidate and allotherbinding unchanged."
+  }
+}

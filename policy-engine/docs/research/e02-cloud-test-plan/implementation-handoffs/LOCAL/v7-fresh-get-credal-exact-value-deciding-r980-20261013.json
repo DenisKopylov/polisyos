@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "dae174623baca79449638758ada159ab7ebdaefb",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r979-20261013.json",
+    "sha256": "c6a383910bad5f1ccb7ed4b6d017d5d6f6b2447bda86d605b3837816577e114c"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_credal_json_ready_exact_builtin_fastpaths_match_json_roundtrip",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_credal_json_ready_fallback_preserves_sorted_stateful_default_order",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_l6_observation_route_edges_use_one_validated_manifest_resolution",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_l6_observation_route_edges_keep_per_row_refusals_for_invalid_manifest",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/module-origins.json"
+  },
+  "exit_code": 1,
+  "wall_seconds": 27.826914541074075,
+  "case_results": {
+    "PASS": 4,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_service_di",
+        "name": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "time": "7.361"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:c78c6536f18e7c7f0f132cc8c21decab0a2e697f580b12397a73578dbb98c459 has tenant ownership claims; an active owner is required for read"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.quality.test_credal_reference",
+        "name": "test_credal_json_ready_exact_builtin_fastpaths_match_json_roundtrip",
+        "time": "0.001"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.quality.test_credal_reference",
+        "name": "test_credal_json_ready_fallback_preserves_sorted_stateful_default_order",
+        "time": "0.000"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.quality.test_credal_reference",
+        "name": "test_l6_observation_route_edges_use_one_validated_manifest_resolution",
+        "time": "0.013"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.runtime.quality.test_credal_reference",
+        "name": "test_l6_observation_route_edges_keep_per_row_refusals_for_invalid_manifest",
+        "time": "0.001"
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "captured_input_count": 6216,
+  "captured_before_after_identical": true,
+  "input_boundary": "Exact complete captured Python and declared config denominator in command.json. No full schema/resource/profile input freeze claim.",
+  "module_origins": {
+    "loaded": 1745,
+    "outside_selected_source_root": [],
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/command.json",
+      "sha256": "4ee3fc90ce3e8e7a908739c7a2ff6447dbb48c2e15246e0e3c61126bd3b88694",
+      "bytes": 1683835,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/junit.xml",
+      "sha256": "dd89773b967215462f9681f2cf3403a115b2100b099b6a2d22e857fbdecb1404",
+      "bytes": 20405,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/module-origins.json",
+      "sha256": "50e34332690f3426093d1554a86a50894cf071241dece9367db790a0358e0f1f",
+      "bytes": 547839,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/progress.json",
+      "sha256": "09fdfd9607e2e7dfb851c9a3388690ff933d425ffc873d19836a5e5651a9ae39",
+      "bytes": 26165,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/stdout.txt",
+      "sha256": "451f49973f9a149f8384bf94ff4e61584c9ba833b45909c86d56b37b71fd34db",
+      "bytes": 70798,
+      "availability": "local ignored raw retained"
+    }
+  ],
+  "native_profile_gate": {
+    "outcome": "PASS bounded final plugin assertion; supported SCIENTIST_TORCH_* knobs set to1 before process plus CPU profile; no thread assertion failure in retained deciding output."
+  },
+  "individual_boundaries": [
+    {
+      "property": "N4 JSON conversion and actual manifest route resolution",
+      "outcome": "four focused semantic tests PASS; exact value equivalence/nonfinitefallback/validroute reuse/invalidperrowrefusals bounded. Original served N4 performance and fullchildren remain UNRUN on this composition."
+    },
+    {
+      "property": "V7 ordinary POST/event/fresh GET/intent retry",
+      "outcome": "FAIL at newlyadded alternate-profile fixture tenant-owned CAS read outside activeowner; later freshGET/replay assertions not reached. R982 virtual fixture repair +independentreview required. Productionownershipguard correctly refuses unowned read."
+    }
+  ],
+  "closure_ids": [],
+  "author_proposals": []
+}

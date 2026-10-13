@@ -1,0 +1,90 @@
+{
+  "review_id": "r987-b111-r976-ruff-independent-20261013",
+  "verdict": "GO for focused root native replay; not B111 closure",
+  "closure_ids": [],
+  "p40": {
+    "bucket": "NEW",
+    "class": "tooling/lint conformance defect",
+    "relationship_to_r963": "R963 blocked the R954 virtual candidate on C420; R976 resolves that lint defect without changing the semantic oracle."
+  },
+  "source_qualification": {
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree_and_index": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "current_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r979-20261013.json",
+      "sha256": "c6a383910bad5f1ccb7ed4b6d017d5d6f6b2447bda86d605b3837816577e114c"
+    },
+    "pareto_source": {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "bytes": 28861
+    },
+    "test_preimage": {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "sha256": "5acc212f70d5bf9f908a9f1651f7de39f7eb189c12e7f333f75c20057d77b24d",
+      "bytes": 35323
+    }
+  },
+  "candidate": {
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r976-pareto-hypervolume-control-ruff-companion-20261013",
+    "cumulative_patch_sha256": "c5950a8faa1996192790db99d3918fda39689434de12ff54e89218f949305941",
+    "delta_from_r954_sha256": "cc6277022a46240ab63f79b3aae9b5ffcf1ae3cb5c1733ed366dea4412ea6db9",
+    "manifest_sha256": "359657d53862dab60b51568c9d9ab5bfb9cbf28252978aeebd7206bda3bfa2b5",
+    "virtual_postimage_sha256": "e35c95f7c5e12db1e5d81e9767cf096f40b48a16d940e67646a946f04ea7df46",
+    "virtual_postimage_bytes": 36439,
+    "changed_files": [
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+    ],
+    "source_or_test_file_applied": false
+  },
+  "reviewed_delta": {
+    "formatted_helper_call_line_wraps": 2,
+    "constructor_replacement": "{coordinate_id: -1.0e308 for coordinate_id in coordinate_ids} -> dict.fromkeys(coordinate_ids, -1.0e308)",
+    "imports_or_assertion_changes": false,
+    "wrong_key_negative_control_retained": true,
+    "source_bound_complete_coordinate_ids_retained": true,
+    "numeric_negative_infinity_and_overflow_cases_retained": true,
+    "mapping_equality_and_insertion_order": "equivalent: same ordered string key iterable and constant immutable float value; dict construction preserves first-insertion order",
+    "r963_c420": "resolved"
+  },
+  "independent_checks": [
+    {
+      "check": "patch --dry-run -p1 on cumulative.patch",
+      "exit_code": 0
+    },
+    {
+      "check": "patch -s -p1 -o /dev/stdout on cumulative.patch | shasum -a 256",
+      "exit_code": 0,
+      "postimage_sha256": "e35c95f7c5e12db1e5d81e9767cf096f40b48a16d940e67646a946f04ea7df46"
+    },
+    {
+      "check": "Ruff check --no-cache --config ruff.toml --stdin-filename tests/unit/scientist/methods/autotune/test_pareto.py - (cwd policy-engine)",
+      "exit_code": 0,
+      "stdout": "All checks passed!"
+    },
+    {
+      "check": "Ruff format --check --no-cache --config ruff.toml --stdin-filename tests/unit/scientist/methods/autotune/test_pareto.py - (cwd policy-engine)",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    {
+      "check": "Initial noncanonical Ruff invocation from repository root; excluded from verdict",
+      "exit_code": 1,
+      "result": "Reported I001 under a different cwd/config-resolution context; exact packet cwd and command subsequently passed."
+    }
+  ],
+  "limits": {
+    "pytest_run": false,
+    "product_imports": false,
+    "runtime_or_heavy_execution": false,
+    "source_or_git_mutation": false,
+    "required_next_step": "Focused root native replay of the targeted Pareto tests; broader B111 status/persistence/denominator/consumer criteria remain open."
+  },
+  "prior_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r963-b111-r954-independent-20261013.md",
+    "sha256": "80ddc0973cd74ee53df6656c4f8a18c1f660f9fbc562cd8bf76a4f4148f1d34c",
+    "json_sha256": "187835d9a33430acda00ef3bf66783d807be002405ffeb05389c5f0e3fd77836"
+  }
+}

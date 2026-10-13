@@ -1,0 +1,150 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "dae174623baca79449638758ada159ab7ebdaefb",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r922-20261013.json",
+    "sha256": "312ab0db93728b71b3e0395b8830e47dba410fe3d1a415d575ca9eb52f889f40"
+  },
+  "composition_sha256": "dbce0532908195bebf5fb21ace45499223e797d1738816017006934ffe2b54b5",
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=600.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "--maxfail=0",
+    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+    "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+    "tests/repo_quality/tools/test_tool_config_split.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/junit.xml"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/module-origins.json",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1"
+  },
+  "results": {
+    "PASS": 81,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "exit_code": 1,
+  "wall_seconds": 53.28032966598403,
+  "modules": [
+    {
+      "module": "tests.repo_quality.tools.test_tool_config_split",
+      "outcome": "FAIL",
+      "count": 1
+    },
+    {
+      "module": "tests.repo_quality.tools.test_tool_config_split",
+      "outcome": "PASS",
+      "count": 51
+    },
+    {
+      "module": "tests.unit.runtime.http.test_control_service_di",
+      "outcome": "FAIL",
+      "count": 1
+    },
+    {
+      "module": "tests.unit.scientist.nodes.test_decision_packet_node_v3",
+      "outcome": "PASS",
+      "count": 30
+    }
+  ],
+  "captured_input_count": 6263,
+  "captured_before_after_identical": true,
+  "input_boundary_limit": "All53 R882 declared config/source inputs were additional captured. Actual worker selected lint target workers/dowhy-014/tests/test_worker.py not in generic src/tests/tools capture nor53config/source census; its full before/after qualification not established byR923. Next replay explicitly captures that additional behavioral target. --show-files collection actual native stdout is retained, not a wholeSourcebytecapture.",
+  "module_origins": {
+    "count": 1831,
+    "outside_selected_source_root": [],
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "nonpassing_cases": [
+    {
+      "case": {
+        "classname": "tests.unit.runtime.http.test_control_service_di",
+        "name": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "time": "13.107"
+      },
+      "outcome": "FAIL",
+      "message": "AttributeError: 'dict' object has no attribute 'model_dump'"
+    },
+    {
+      "case": {
+        "classname": "tests.repo_quality.tools.test_tool_config_split",
+        "name": "test_ruff_pre_commit_settings_and_collection_match_product_root",
+        "time": "1.013"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: [\n    {\n      \"cell\": null,\n      \"code\": \"I001\",\n      \"end_location\": {\n        \"column\": 57,\n        \"row\": 13\n      },\n      \"filename\": \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/workers/dowhy-014/tests/test_worker.py\",\n      \"fix\": {\n        \"applicability\": \"safe\",\n        \"edits\": [\n          {\n            \"content\": \"from __future__ import annotations\\n\\nimport json\\nimport sys\\n\\nimport numpy as np\\nimport pytest\\nimport statsmodels.api as sm\\nfrom protocol import REQUEST_SCHEMA, decode, digest, validate_request\\nfrom worker import execute, interval, linear_ate, scalar\\n\\n\\n\",\n            \"end_location\": {\n              \"column\": 1,\n              \"row\": 16\n            },\n            \"location\": {\n              \"column\": 1,\n              \"row\": 3\n            }\n          }\n        ],\n        \"message\": \"Organize imports\"\n      },\n      \"location\": {\n        \"column\": 1,\n        \"row\": 3\n      },\n      \"message\": \"Import block is un-sorted or un-formatted\",\n      \"noqa_row\": 3,\n      \"url\": \"https://docs.astral.sh/ruff/rules/unsorted-imports\"\n    }\n  ]\nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/b...n-formatted\",\\n    \"noqa_row\": 3,\\n    \"url\": \"https://docs.astral.sh/ruff/rules/unsorted-imports\"\\n  }\\n]', stderr='').returncode"
+    }
+  ],
+  "full_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/command.json",
+      "sha256": "58c444ef957bb77d21f115cef1cd2e21cfedac7226733d97235ba4e3858647bc",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/stdout.txt",
+      "sha256": "b54bef630921e23675ce0eb2618d2e55fa6dac79c6f7f6171e3dccc4ab657d23",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/junit.xml",
+      "sha256": "a4160428940d8e85b6d75b6ed30c30f8753f88351c3034027800e2d0f75479e5",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/module-origins.json",
+      "sha256": "dc9df63f19274913f58e0fa1aa863ccf9056524f2178cab149bb9f9f8b589f9e",
+      "availability": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/progress.json",
+      "sha256": "6e1abb777293bf390324d14ecad2b94edb50cb409d3e6cf3dacf7ea45ba4a4fc",
+      "availability": "local retained ignored raw"
+    }
+  ],
+  "limits": [
+    "No author or formal G closures; successcounts notwholeclaim adjudication.",
+    "V7 actualPOST201 then test selecteddict.model_dumpAttributeError; compare actualwire refs without weakening producerref identity.",
+    "Native workerI001 companionmustrepair actualSourcewithoutblanketRuff waiver/exception.",
+    "Native SOTA/Linux/installed/authentic/full-ID freeze remain outstanding."
+  ],
+  "closure_ids": [],
+  "author_proposals": []
+}

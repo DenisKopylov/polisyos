@@ -1,0 +1,81 @@
+{
+  "title": "R984 independent review \u2014 R982 alternate-profile fixture owner scope",
+  "decision": "GO for root-owned focused native replay only",
+  "closure_ids": [],
+  "p40": "NEW fixture-context failure; the existing focused test stopped before the alternate-profile endpoint request",
+  "review_scope": "R982 one-hunk test-only delta to R979 exact base",
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r979-20261013.json",
+    "source_frame_sha256": "c6a383910bad5f1ccb7ed4b6d017d5d6f6b2447bda86d605b3837816577e114c"
+  },
+  "packet": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r982-v7-alternate-profile-owner-fixture-20261013",
+    "patch": "candidate-r982-cumulative.patch",
+    "patch_sha256": "5d454389d3f376a0add3ed9580f031da605f3defbff0d2c02e8848508c4fca40",
+    "manifest": "manifest.json",
+    "manifest_sha256": "73eae75deae91b7f8be5a6b17739d0c33ea8d17bade777f22341c6ef5fd119d5"
+  },
+  "target": {
+    "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "pre_sha256": "aff83863a62edba1767e45363531f2ce36465b9a17b3c5429c649b9fd141eee4",
+    "pre_bytes": 237631,
+    "post_sha256": "00ec0f489f52200c2c42a231a6515b75f59646a6f3836f9d7b95af03978e6c7d",
+    "post_bytes": 237764,
+    "current_preimage_matches": true,
+    "source_paths": 0,
+    "mechanism_paths": 1,
+    "hunks": 1
+  },
+  "trigger_evidence": {
+    "R980_decision": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-fresh-get-credal-exact-value-deciding-r980-20261013.json",
+    "R980_decision_sha256": "58eee1be83967b5c4313dbf4699c157d02c94718b1896959676792a23a30019d",
+    "result": "4 passed, 1 failed",
+    "failing_operation": "context_store.get_bytes(candidate_ref) before the alternate-profile endpoint request",
+    "observed_exception": "ArtifactOwnershipError: tenant-claimed artifact has an active-owner requirement for read",
+    "raw_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-fresh-get-credal-exact-value-consumers-actual-r980-20261013/stdout.txt"
+  },
+  "semantic_review": {
+    "owner_scope": "tenant_scope(None, tenant_id=\"tenant-fixture\", cell_id=\"cell-fixture\") around fixture get_bytes and put_bytes only",
+    "owner_binding": "matches _fixture_claims, new_reader_app, and installed fixture lifespan tenant/cell",
+    "endpoint_unchanged": true,
+    "root_guard": "_require_candidate_source_ref -> _require_run_root_ref compares artifact_ref_identity_key including artifact_id, kind, media_type, and manifest_profile_sha256 before _require_selected_ref",
+    "alternate_profile_control": [
+      "same content bytes read from original ref",
+      "same kind and media type",
+      "alternate schema creates selected profile",
+      "assert artifact_id unchanged",
+      "assert selected profile sha changes",
+      "POST expects 422 predictive_calibration_candidate_source_not_run_root",
+      "assert no diagnostic publication event"
+    ],
+    "classification": "test fixture access-context repair only; no production authority or owner semantics changed"
+  },
+  "checks": {
+    "git_apply_check": {
+      "exit_code": 0,
+      "stderr": "Checking patch policy-engine/tests/unit/runtime/http/test_control_service_di.py..."
+    },
+    "scratch_application": {
+      "exit_code": 0,
+      "stdout": "patching file policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "postimage_hash_matches": true
+    },
+    "ast_parse": "PASS",
+    "targeted_ast": "PASS: unwrapping only new tenant_scope With restores exact original test-function AST",
+    "ruff_check": {
+      "exit_code": 0,
+      "stdout": "All checks passed!"
+    },
+    "ruff_format_check": {
+      "exit_code": 0,
+      "stdout": ""
+    },
+    "pytest": "UNRUN",
+    "native_runtime": "UNRUN"
+  },
+  "writes": "Only immutable review artifacts under LOCAL/reviews; no product source, index, or Git mutations."
+}

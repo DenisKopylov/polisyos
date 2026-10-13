@@ -1,0 +1,198 @@
+{
+  "schema_version": "1.0",
+  "candidate": "d8f3d74df8bcc570be840f12afc9a12f64c7a766",
+  "candidate_tree": "83f816997e29fbcefc43106b29e11407354c894e",
+  "parents": [
+    "e289977cc3029921b1112757e3f1eac1b7f137fe"
+  ],
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r878-20261013.json",
+    "sha256": "e71262df47324b55e66e201867228dac2c6be561e4076f2e0f06f3b389e2760a"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=600.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "--maxfail=0",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+    "tests/unit/runtime/http/test_public_decision_verification.py",
+    "tests/unit/core/artifacts/test_selected_profile_core_json.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "tests/repo_quality/tools/test_tool_config_split.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/module-origins.json",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1"
+  },
+  "exit_code": 1,
+  "wall_seconds": 52.74625649990048,
+  "results": {
+    "FAIL": 6,
+    "PASS": 197,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "modules": {
+    "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate": {
+      "FAIL": 2,
+      "PASS": 36
+    },
+    "tests.unit.runtime.http.test_public_decision_verification": {
+      "PASS": 56
+    },
+    "tests.unit.core.artifacts.test_selected_profile_core_json": {
+      "PASS": 24
+    },
+    "tests.unit.remediation.test_trn_02": {
+      "PASS": 5,
+      "FAIL": 1
+    },
+    "tests.unit.scientist.methods.autotune.test_warm_start.TestWarmStartBridge": {
+      "PASS": 5
+    },
+    "tests.unit.scientist.methods.autotune.test_warm_start.TestTransferLearningManagerWarmStart": {
+      "PASS": 22
+    },
+    "tests.repo_quality.tools.test_tool_config_split": {
+      "PASS": 49,
+      "FAIL": 3
+    }
+  },
+  "captured_input_count": 6216,
+  "captured_before_after_identical": true,
+  "input_boundary_limit": "Capture binds src/tests/tools Python plus declared five root configuration files and three plugins. Ruff tests also consume unchanged tracked architecture fragments, nested worker config, and pre-commit config; their complete config denominator must be explicitly retained on the next native configuration replay. No complete-repository input claim.",
+  "module_origins": {
+    "count": 1752,
+    "outside_OWN_source_count": 0
+  },
+  "deciding_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/command.json",
+      "sha256": "246604cd56cbf57494012133d549bcb2a6e5f31f4e77f737f983b2ebf45df975",
+      "bytes": 2082684,
+      "availability": "retained ignored local raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/stdout.txt",
+      "sha256": "0eb5f253d118d26842918fb0a888e2e473a959d4fca5c20bf6265d7071462a24",
+      "bytes": 39969,
+      "availability": "retained ignored local raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained ignored local raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "sha256": "599525cfcfdd24e1275d46a45f7cf021e3b67c18b93aaa765bf3541cc536bb16",
+      "bytes": 77517,
+      "availability": "retained ignored local raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/module-origins.json",
+      "sha256": "836cbbb00e0d12248cfc3c7091bcc4d127b51b6fe4ea467252da4dc43c8634c3",
+      "bytes": 550965,
+      "availability": "retained ignored local raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/progress.json",
+      "sha256": "e6981c7c7b41cc21e057b234ff55b17509b010e6a2926e2dd94752f5c2919698",
+      "bytes": 313895,
+      "availability": "retained ignored local raw"
+    }
+  ],
+  "nonpassing_cases": [
+    {
+      "class": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_source_ref_identity_uses_all_fields_not_pydantic_subclass",
+      "state": "FAIL",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'same profile but differ in kind or media type'\n  Actual message: 'source-bound risk refs share a profile but differ in kind or media type'",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    },
+    {
+      "class": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_fresh_reader_rejects_changed_count_while_candidate_markers_remain",
+      "state": "FAIL",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'recomputed source contents'\n  Actual message: 'source-bound risk observation schema mismatch'",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    },
+    {
+      "class": "tests.unit.remediation.test_trn_02",
+      "name": "test_failed_native_load_does_not_publish_partial_bundle",
+      "state": "FAIL",
+      "message": "polisyos.common.canonical_profile.CanonicalProfileRefusalError: canon_profile_raw_manifest_unavailable",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    },
+    {
+      "class": "tests.repo_quality.tools.test_tool_config_split",
+      "name": "test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes",
+      "state": "FAIL",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'scopes overlap'\n  Actual message: 'nested Ruff config /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/workers/ruff-config-boundary-ox7wf2sl/local-only/pyproject.toml: per-file ignore rules must directly extend the product Ruff root'",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    },
+    {
+      "class": "tests.repo_quality.tools.test_tool_config_split",
+      "name": "test_ruff_pre_commit_settings_and_collection_match_product_root",
+      "state": "FAIL",
+      "message": "AssertionError: assert {'<PRODUCT>/e...'T201')), ...} == {'<PRODUCT>/e...'T201')), ...}\n  \n  Omitting 239 identical items, use -vv to show\n  Differing items:\n  {'<PRODUCT>/workers/dowhy-014/tests/**': (False, ('ANN001', 'ANN002', 'ANN003', 'ANN101', 'ANN102', 'ANN201', ...))} != {'<PRODUCT>/workers/dowhy-014/tests/**': (False, ('ANN', 'S101', 'T201', 'PT011', 'PT018', 'E501'))}\n  Use -v to get more diff",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    },
+    {
+      "class": "tests.repo_quality.tools.test_tool_config_split",
+      "name": "test_explicit_ruff_callers_preserve_settings_and_lint_behavior",
+      "state": "FAIL",
+      "message": "AssertionError: assert [{'<PRODUCT>/...T201')), ...}] == [{'<PRODUCT>/...T201')), ...}]\n  \n  At index 1 diff: {'<PRODUCT>/src/polisyos/data_forge/domains/academic/knowledge/store.py': (False, ('S608', 'E501')), '<PRODUCT>/src/polisyos/core/contracts/__init__.py': (False, ('F401',)), '<PRODUCT>/src/polisyos/runtime/quality/prompt_tool_ledger.py': (False, ('ANN401',)), '<PRODUCT>/src/polisyos/data_forge/domains/catalog/batch/config.py': (False, ('SIM102',)), '<PRODUCT>/src/polisyos/fabric/storage/duckdb_adapter.py': (False, ('S608',)), '<PRODUCT>/src/polisyos/data_forge/domains/academic/batch/llm_extractor.py': (False, ('ANN401', 'S101', 'S324')), '<PRODUCT>/src/...\n  \n  ...Full output truncated (2 lines hidden), use '-vv' to show",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/structural-ref-public-record-reader-ruff-cache-actual-r879-20261013/junit.xml",
+      "next_check": "Reproduce actual boundary; preserve guards and fix controls or mechanism with independent delta review."
+    }
+  ],
+  "limits": [
+    "56 public decision and 24 selected profile cases pass; no policy-publication or authority claim.",
+    "36 B161 cases pass including real producer positives; original whole-property external predicates remain separate.",
+    "Two B161 controls miss their intended discriminator (error regex and stale schema).",
+    "One legacy vector-memory fake lacks raw manifest capability and fails before native-loader atomicity.",
+    "Three Ruff tests expose fixture leakage or declared-prefix versus resolved-rule comparison; source ownership and actual behavior need diagnosis.",
+    "No G adjudication, native SOTA global acceptance, Linux/wheel/production proof."
+  ],
+  "closure_ids": [],
+  "author_proposals": {
+    "status": "partial focused verification;6FAIL"
+  }
+}

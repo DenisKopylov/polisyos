@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.r985_n4_systemic_construction_cost_boundary.v1",
+  "packet": "R985 read-only systemic N4 construction/runtime amplification research",
+  "date": "2026-10-13",
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "tree": "1b52a38c1f5869928426f2090d8230d6ca78eec6",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r979-20261013.json",
+      "sha256": "c6a383910bad5f1ccb7ed4b6d017d5d6f6b2447bda86d605b3837816577e114c",
+      "physical_source_paths": 546
+    }
+  },
+  "bucket": {
+    "pattern": "P40",
+    "classification": "SAME_CLASS_DEEPER",
+    "class": "N4 full-basis construction/runtime amplification",
+    "basis": "R938 already closed valid-manifest per-route registry reopening and exact-type JSON-ready fastpaths. Current source now performs one manifest-wide controlled registry scope per valid full K_ref build. The remaining issue is whole-basis work and its per-build bootstrap, not an unclosed per-route loop."
+  },
+  "pattern_pass": {
+    "P13": "Do not add a cap, truncated K_ref, or ceremonial proof stage to mask elapsed time. Measure benefit and cost at the existing full consumer boundary.",
+    "P35": "All code counts below come from AST walks over the stated complete file denominators. No runtime row or edge cardinality is inferred from sparse samples.",
+    "P38": "The 60-second runner measures elapsed time, not whether the full served property is correct. A valid test finishing after 60 seconds is a counterexample to treating the cutoff as product failure.",
+    "P40": "Same class one level deeper after the R938 route batching fix; widen diagnosis to one full K_ref build and the helper+worker lifecycle, not per-route patches."
+  },
+  "property_boundary": {
+    "target": "The original selected-source N4 journey must produce a complete L2/L3/L6/WMR K_ref, preserve candidate dispositions and two meaningful children, execute ordinary POST/worker, persist owner-bound artifacts, and satisfy the fresh GET projection checks.",
+    "current_observation": "The R983 run was still in the test call phase inside the helper N4 preflight. The later ordinary POST/worker/fresh-GET path was not reached. This run provides no completed consumer witness.",
+    "capability_state": "verification_missing for this exact original served N4 → POST/worker → fresh GET replay; the overall API/product capability is not adjudicated by this interrupted run.",
+    "divergent_case": "A correct end-to-end replay may complete in more than 60 seconds and be interrupted by this harness even though it would pass the semantic assertions."
+  },
+  "complete_census": {
+    "product_python_denominator": {
+      "glob": "policy-engine/src/polisyos/**/*.py",
+      "files": 2761,
+      "method": "Path.rglob(\"*.py\") plus AST parse of each file; no product import"
+    },
+    "build_credal_reference_calls": {
+      "count": 3,
+      "sites": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+          "line": 1563
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+          "line": 3133
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+          "line": 814
+        }
+      ],
+      "scope": "AST name/attribute call walk over all 2,761 Python files under src/polisyos"
+    },
+    "builtin_registry": {
+      "family_map_entries": 17,
+      "source_glob": "policy-engine/src/polisyos/foundry/methods/catalog/*/_registry_boot.py",
+      "python_files": 17,
+      "source_entry_counts": {
+        "fixed_class_names": 369,
+        "conditional_class_names": 7,
+        "optional_dependency_class_names": 13,
+        "static_max_if_all_optional_available": 389
+      },
+      "runtime_registered_count": "not established; no registry component/registration count was emitted by R983"
+    },
+    "kref_owner_quantity": "Full iteration is over selected typed L2 source rows, three DuckDB L3 row families, the loaded L6 bundle collections/routes, and all WMR policy slots. Exact row/edge cardinalities were not present in the source frame or R983 trace and are intentionally not estimated."
+  },
+  "source_mechanism": {
+    "full_builder": "credal_reference.py:568-606 iterates L2, L3, L6, and WMR into a retained edge_index; later component_versions and reference_hash traverse the complete edge set. Duplicate EdgeKey values are replaced in owner order, so a streaming rewrite must preserve order/identity semantics.",
+    "l2": "Selected typed source rows are validated against the selected source profile. Derivation iterates variables for variable and hierarchy edges, synonyms, data-forge alignments, causal/family/moderation edges, causal claim results, and contested edges.",
+    "l3": "_iter_l3_edges fetches all threshold and amendment rows to compute next-start maps, then all reference-edge rows; it derives and hashes each edge. Transient list memory and row counts have not been measured here.",
+    "l6": "_iter_l6_edges loads the bundle and derives knob/operator, law mapping, and route edges. Current valid manifest resolution validates the entire manifest, rejects duplicate families, opens one controlled built-in registry scope, then resolves sorted families within that scope. Invalid/ambiguous manifest handling retains the prior per-row refusal path.",
+    "wmr": "_iter_wmr_edges emits two edges for every WMR policy slot.",
+    "hashing": "Each edge uses with_content_hash → full semantic payload construction → gy_content_hash. The current R938 exact-type fastpaths avoid JSON roundtrips only for safe primitives/empty built-ins; nested/nonempty values retain the established sorted JSON/default=str behavior. Full edge retention and aggregate component/reference hashes remain necessary under the current API."
+  },
+  "registry_cost_boundary": {
+    "call_path": "_iter_l6_observation_route_edges → resolve_observation_manifest_routes → controlled_builtin_foundry_method_registry_scope → bootstrap_foundry_method_registry → bootstrap_method_registry_from_components → MethodRegistry.register_lazy → LifecycleManager.transition → _infer_actor/inspect.stack",
+    "current_frequency": "one controlled registry scope per valid observation manifest within each full K_ref build, not one scope per valid route; an ordinary worker N4 invocation is a separate build from the explicit test-helper preflight.",
+    "per_registration": "register_lazy makes one initial DEFINED transition without actor, which calls _infer_actor() and inspect.stack(); its second REGISTERED transition supplies explicit actor registry.register_lazy. Static boot-entry census bounds source candidate registrations at 389 if optional names are all available, but actual successful registry size is not recorded.",
+    "diagnostic_limit": "The SIGUSR1 stack proves the main thread was in one registration stack walk at that instant. It does not attribute total wall time to registry loading, actor inference, L3 iteration, hashing, or imports."
+  },
+  "r983_run": {
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-post-performance-bounded-deciding-r983-20261013.json",
+    "receipt_sha256": "3e8502f1029b38d7d9c8d4e5750075f057a5176e3dba4d06ef4430d9a3e5fc05",
+    "corrigendum_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-post-performance-bounded-deciding-r983-corrigendum-r986-20261013.json",
+    "corrigendum_sha256": "ec069761508edec814a352c590212514d6fca72ebebed4335a5d46a9ddc230f4",
+    "target": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+    "result": "INTERRUPTED at operator wall limit; pytest exit 2; tests=0; 0 PASS, 0 FAIL, 0 ERROR, 0 SKIP; 1 selected case interrupted; JUnit has one unnamed placeholder, not a test result.",
+    "limits": {
+      "wall_seconds": 60,
+      "peak_sampled_child_rss_bytes": 2417246208,
+      "rss_limit_bytes": 3221225472,
+      "peak_sample_time_seconds": 22.304,
+      "cpu_profile": "torch and numerical libraries configured at one thread",
+      "source_capture_paths": 6223,
+      "source_before_after_identical": true,
+      "module_origins_loaded_product_modules": 1743,
+      "outside_selected_source_root": 0
+    },
+    "trace": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r983-n4-post-performance-bounded-replay-20261013/r931-n4-run-20261013T140024-98012/json-dumps-and-phases.jsonl",
+      "sha256": "a74898853a93dcce325c24e3e56bf62950f4187d8bafb5135d3260e2e77fa2b7",
+      "bytes": 2198924,
+      "records": 1053,
+      "before": 524,
+      "after": 524,
+      "phase_records": 3,
+      "report_records": 1,
+      "summary_records": 1,
+      "global_json_dumps_count": 2118137,
+      "highest_sparse_sample_call_id": 2097152,
+      "samples_reached": "L2 alignment and then L3 threshold/reference edge content hashing"
+    },
+    "stack": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r983-n4-post-performance-bounded-replay-20261013/r931-n4-run-20261013T140024-98012/sigusr1-all-threads.txt",
+      "sha256": "245ffd1f04520ec74d68230011a0b80719e649f5eb0b8c6455a3eaeac7de0889",
+      "observation": "SIGUSR1 main-thread stack at 60s was in inspect.getmodule → inspect.stack → _infer_actor → register_lazy/controlled bootstrap → resolve valid L6 manifest → _iter_l6_edges → build_credal_reference → N4 helper preflight."
+    },
+    "instrumentation_caveat": "R983 globally monkeypatches json.dumps, acquires a threading lock and increments a global counter on every call, plus captures/writes stack metadata for 524 sampled calls. Its 2,118,137 count is process-wide and its wall time is instrumented; it is not a natural-runtime estimate or a K_ref-only count.",
+    "target_sha256": "ddd8eb327d8a46735cbcd5bc02c0f6087d2a753cff1d98893477db2efa8371fc"
+  },
+  "prior_context": {
+    "R938": "The current applied source includes R938 route batching and exact-type JSON-ready fastpaths; its behavior tests are in the R980 suite.",
+    "R980": "Four CredalReference tests covering exact normalizer values/fallback ordering and valid/invalid manifest semantics passed; overall 5-selector suite was 4 PASS / 1 unrelated ownership failure in test_control_service_di. Do not call the overall suite green.",
+    "R904": "A different older source frame/R896 three-selector run was operator-interrupted after 190.7s on measured 14.7 GiB footprint, with the actual target journey not completed. It establishes a resource warning for that older mixed run, not current R957 memory or OOM attribution."
+  },
+  "engineering_recommendation": {
+    "next_discriminator": "Run exactly the original selected N4/POST/worker/fresh-GET case on a fresh source frame, with a 300-second owned-child wall budget and the same hard 3-GiB per-child RSS ceiling. Keep the current original recording, selected profile/source, semantic assertions, single-thread numerical settings, and full output/source capture. Do not classify a 60-second cutoff as a semantic failure. First run without the global json.dumps observer; if stage attribution is needed, add payload-free timing/edge-count counters only at existing owner boundaries and keep that diagnostic separate from the natural timing run.",
+    "phase_counters": "Record L2/L3/L6/WMR wall durations and yielded-edge counts, L3 fetched-row counts, valid-manifest scope count and duration, component registry total/registered counts, peak RSS, exact build count, and whether fresh GET completed. Do not log payloads or truncate the basis.",
+    "decision_after_measurement": "If the original test finishes under 3 GiB, retain the full basis and report actual completion/performance. If it reaches 300s while RSS remains below the cap, split phase profiling and revisit the wall budget. If it reaches the 3-GiB guard, stop and diagnose allocation/retention before changing limits. Only optimize a measured dominant path with parity checks over exact edge keys, statuses, provenance, content hashes, component/reference hash, candidate outputs, and fresh GET.",
+    "safe_candidates_not_yet_authorized_as_fixes": [
+      "If registry actor inference is material, test an explicit actor source that preserves lifecycle audit meaning and per-entry events; do not install a global registry cache or reuse a stale registry.",
+      "If L3 row/list retention is material, prototype bounded streaming/window derivation while preserving next-strictly-greater effective-start behavior and all edge outputs; current full CredalReference still retains the full edge index.",
+      "If hashing is material, optimize only through the typed edge owner and prove exact per-edge plus aggregate hash parity; do not bypass canonical hashing or widen R938 primitive shortcuts without new evidence."
+    ]
+  },
+  "limitations": [
+    "No completed N4 POST/worker/fresh-GET semantic witness from R983.",
+    "No measured row cardinalities, per-layer durations, full K_ref edge cardinality, dynamic component total, or uninstrumented wall time.",
+    "The current R983 global JSON observer may perturb wall time; the signal stack is one point-in-time sample.",
+    "No product source, test, config, index, or Git change was made."
+  ],
+  "closure_ids": []
+}

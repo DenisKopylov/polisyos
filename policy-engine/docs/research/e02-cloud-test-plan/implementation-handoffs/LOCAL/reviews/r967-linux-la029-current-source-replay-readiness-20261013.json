@@ -1,0 +1,359 @@
+{
+  "schema": "policyos.la029.linux-worker-current-source-replay-readiness.v1",
+  "task_id": "R967",
+  "assessment_date": "2026-10-13",
+  "disposition": "READINESS_ONLY_UNRUN",
+  "own": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "source_frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418",
+    "source_frame_physical_source_paths": 545,
+    "source_frame_boundary": "R948-reviewed-composed-search-stress-pareto-budget-replay; author source, not G acceptance or global freeze",
+    "worktree_dirty": true,
+    "la029_direct_pathspec_clean_relative_to_head": true,
+    "source_changes_after_frame_or_pending_changes_invalidate_any_final_transport": true
+  },
+  "original_scope": {
+    "finding_id": "LA-029",
+    "task_file": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "task_file_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "exact_occurrence": "tasks/Q0/finding_ids/64",
+    "q0_next_action": "exact original occurrence vs candidate-bound whole property/consumer/negative; no stronger scope; include platform-specific UKOPS/Linux verification or tested supported-profile availability reason; author proposal does not adjudicate",
+    "denominator": {
+      "bundles": 127,
+      "findings": 282,
+      "criterion_occurrences": 291
+    },
+    "original_criterion_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "original_criterion_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "original_lines": [
+      1518,
+      1567
+    ],
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "coverage_pointer": "/findings/253/criterion_refs/0",
+    "criterion_ref_sha256": "2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441",
+    "capability_label": "bridge_missing",
+    "adjudication": "not_adjudicated",
+    "closure_ids": []
+  },
+  "source_delta": {
+    "worker_base": "0c0806ccf4756e1d6cd48dbac0e24ea192557189",
+    "worker_base_tree": "811023d3465a77251b3f12f2ed1ee7d72b1963df",
+    "worker_base_is_ancestor_of_own_head": true,
+    "committed_history_distance": 104,
+    "committed_path_denominator": 2053,
+    "committed_path_prefix_counts": {
+      "policy-engine/src": 664,
+      "policy-engine/tests": 876,
+      "other policy-engine": 512,
+      "repository root": 1
+    },
+    "extension_counts_over_all_2053_paths": {
+      ".py": 1561,
+      ".md": 184,
+      ".json": 104,
+      ".toml": 87,
+      ".ts": 51,
+      ".tsx": 51,
+      ".pyi": 2,
+      ".cjs": 2,
+      ".rego": 2,
+      ".sh": 1,
+      ".lock": 1,
+      ".txt": 1,
+      ".diff": 1,
+      ".yml": 1,
+      ".js": 1,
+      "extensionless": 3
+    },
+    "path_type_details": {
+      "policy-engine/src": {
+        ".py": 622,
+        ".pyi": 2,
+        ".md": 40
+      },
+      "policy-engine/tests": {
+        ".py": 874,
+        ".md": 2
+      }
+    },
+    "numstat": {
+      "added_lines": 382494,
+      "deleted_lines": 17799
+    },
+    "counts_scope": "complete committed diff worker base..OWN HEAD; excludes dirty OWN worktree and is not itself a source-freeze claim",
+    "direct_la029_pathspec_count": 21,
+    "direct_pathspec_breakdown": {
+      "Ukraine domain source": 17,
+      "C7 test and fixture": 2,
+      "other ops-runner files": 2
+    },
+    "changed_key_chain": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+        "current_sha256": "9247d18090d5f877c2e0814c07f8f834dd277c04fc9598f3f73abd214fe0f759",
+        "worker_sha256": "0fbf635d93f73c84db0c81cc24d94449862c86799f77ddaaaaa73c55e427eeeb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+        "current_sha256": "bebfa8c846b45baaa25c7cd771461b908a58bd7d69d5615efbfe0306d38a6558",
+        "worker_sha256": "a3d9e4ad8b16fb7d4acae5b2613fe1c416509bbb5de597f005033ed2ea703bcf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+        "current_sha256": "e183af4240f3654da4407d92b460e584dff7bdaed3ad7a1bb6d83e1f047b3533",
+        "changed_since_worker": true
+      },
+      {
+        "path": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+        "current_sha256": "f179dbb33d2802972f543204507d27e92f1c004c87f6c6d4d8113d4f9a4e5a4f",
+        "worker_sha256": "d5b2efa44ed00410f9a20b0ed4be8f7727d751b3dcece2d216c45453c15b0cb9"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+        "current_sha256": "8f45e947437d3dc920933ac14cf89a49531f243a08fb943729e07c8244e6efaa",
+        "worker_sha256": "22ba84f8db13df430a28e31717680c3145f1e5036d7286b1c55a311db92d6a3a"
+      }
+    ],
+    "unchanged_since_worker": [
+      {
+        "path": "policy-engine/tools/cli.py",
+        "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9"
+      },
+      {
+        "path": "policy-engine/tools/registry.py",
+        "sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py",
+        "sha256": "1bc9bc1e7b01cdb1119e3f8ca5338ba33158e8c564bac82882c4f7e8cfe184c6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+        "sha256": "fc5d80fd6d3112ddc0a648231eca3612f44642a438c5fe52fc1347d1dad595b5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+        "sha256": "eacccf70eb26bc857c44c628a8e7938d6076c0af34883e2752bfc91995b22a1b"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      }
+    ],
+    "committed_delta_reproducer": "Walk git diff --name-only BASE..HEAD and git diff --numstat BASE..HEAD; count path prefix and Path.suffix. Rebind BASE/HEAD only after the final source ref is read back."
+  },
+  "worker": {
+    "sampled_at": "2026-10-13T16:53:57+03:00",
+    "colima_profile": "e02-local",
+    "colima_state": "running; macOS Virtualization.Framework; aarch64; Docker; virtiofs",
+    "docker_context": "colima-e02-local",
+    "container_name": "e02-local-worker-provision",
+    "container_id": "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+    "image": "ghcr.io/astral-sh/uv@sha256:dc53af52cf658aa04401244105cd63b25a7dfd42a6c5125683710b553d8d263f",
+    "image_platform": "linux/arm64",
+    "mounts": [
+      "e02-local-uv-pythons:/opt/uv-python",
+      "e02-local-uv-cache:/root/.cache/uv",
+      "e02-local-uv-env:/scratch"
+    ],
+    "no_host_checkout_or_production_bind_mount": true,
+    "checkout": {
+      "path": "/workspace/polisyos",
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "0c0806ccf4756e1d6cd48dbac0e24ea192557189",
+      "tree": "811023d3465a77251b3f12f2ed1ee7d72b1963df",
+      "status": "clean"
+    },
+    "bare_origin": {
+      "path": "/scratch/e02-7574c864a605c50efc033b966807790cbd8d1781.git",
+      "branch_head": "0c0806ccf4756e1d6cd48dbac0e24ea192557189",
+      "branch_tree": "811023d3465a77251b3f12f2ed1ee7d72b1963df",
+      "shallow": true,
+      "shallow_boundary": "7574c864a605c50efc033b966807790cbd8d1781",
+      "alternates_file": "absent"
+    },
+    "runtime": {
+      "python": "3.14.0",
+      "pytest": "9.0.2",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "lifelines": "0.30.3",
+      "uv": "0.9.21",
+      "uv_path": "/usr/local/bin/uv",
+      "project_python_requirement": ">=3.14,<3.15",
+      "separate_dowhy_python312_profile_is_not_appropriate": true,
+      "uv_pip_check_rerun_this_assessment": false
+    },
+    "resources": {
+      "cpu_max": "200000 100000",
+      "cpu_limit": 2,
+      "memory_max_bytes": 2306867200,
+      "memory_current_bytes": 1630121984,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "psi_avg10_avg60_avg300": "0.00",
+      "scratch_free_kib": 5894636,
+      "raw_cgroup_headroom_bytes": 676745216,
+      "capacity_or_workload_peak_established": false,
+      "free_utility_available": false
+    }
+  },
+  "route_basis": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/la029-versioned-helper-route-current65-20261011.json",
+    "sha256": "8721b5f4a1ff025b54d29cfe3f46b5f291872c48db8a5df3000cc3a00c45c734",
+    "status": "UNRUN_UNFROZEN_PREPARATION_ONLY",
+    "old_bound_head": "65e90e6c3b8b94d0c49681cbe969f9a4637cf630",
+    "old_bound_tree": "8ea5fe2717ee6676e3d040746323e3a0a534a76d",
+    "prepared_rows": [
+      {
+        "id": "LINUX_SOURCE_TRANSPORT",
+        "status": "UNRUN"
+      },
+      {
+        "id": "LA029_HELPER_TRANSFER_AND_HASH_READBACK",
+        "status": "UNRUN"
+      },
+      {
+        "id": "LA029_NATIVE_NO_MARKER_GUARD",
+        "status": "UNRUN"
+      },
+      {
+        "id": "LA029_EMPTY_WORKSPACE_UNAVAILABLE_CONTROL",
+        "status": "UNRUN"
+      },
+      {
+        "id": "LA029_EMPTY_WORKSPACE_FRESH_GATE_AND_D1_CONSUMER",
+        "status": "UNRUN"
+      },
+      {
+        "id": "LA029_UKOPS_FINITE_C7_GATE_POSITIVE",
+        "status": "UNRUN",
+        "heavy_slot_count": 1
+      },
+      {
+        "id": "LA029_PASSED_GATE_FRESH_D1_CONSUMER",
+        "status": "UNRUN"
+      }
+    ],
+    "installed_wheel_without_checkout": {
+      "status": "UNRUN",
+      "separate_eighth_contour": true,
+      "expected": "typed unavailable, never infer root from arbitrary parents[N]"
+    },
+    "positive_command_template": [
+      "/scratch/root-venv/bin/python",
+      "-B",
+      "-m",
+      "tools.cli",
+      "ukraine_data",
+      "validate-part-a",
+      "--workspace-root",
+      "/workspace/polisyos/policy-engine",
+      "--root",
+      "/scratch/e02-la029/FINAL_SOURCE_SHA/positive-01/build"
+    ],
+    "positive_child": {
+      "argv": [
+        "/usr/local/bin/uv",
+        "run",
+        "pytest",
+        "-q",
+        "tests/integration/test_c7_synthetic_full_pipeline.py"
+      ],
+      "cwd": "/workspace/polisyos/policy-engine",
+      "environment": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "expected_output": "3 passed, 0 skipped"
+    },
+    "helper_inputs": [
+      {
+        "path": "linux-profile/raw/la029-ukops-lifecycle/run_ukops_gate_v2_20261011.py",
+        "sha256": "6c04f5ab789fb415bde35280914f98f062af8a49fca6605ac2bf16fb8c2b2706"
+      },
+      {
+        "path": "linux-profile/raw/la029-ukops-lifecycle/read_gate_consumer.py",
+        "sha256": "4333a140ff68427b5df22b4874e495550724e7ee0db3abd9bad51785d63e4e83"
+      },
+      {
+        "path": "linux-profile/raw/la029-ukops-lifecycle/uv",
+        "sha256": "d0431b7f3241cabb6b07c038c5e84044163b3b8f3acd6726af6ec6bd54dcd16e"
+      },
+      {
+        "path": "linux-profile/raw/la029-ukops-lifecycle/instrumentation/sitecustomize.py",
+        "sha256": "ab781e2ccbded58cb99ec7b0e843ed2385fcc3f2af06d03268a3bf2eee4591f6"
+      }
+    ]
+  },
+  "execution_recipe": [
+    "Wait for root to commit/read back a clean final OWN source SHA/tree. The current R948 frame and dirty worktree cannot be transported.",
+    "Recheck existing worker/bare refs, branch attachment, shallow boundary, absence of alternates, exact container/image/mounts, helper destination absence, and resources.",
+    "Create one incremental bundle from refs/heads/codex/e02-unified-local-20261009 excluding the actual current worker branch tip 0c0806ccf4756e1d6cd48dbac0e24ea192557189; verify bundle, head, hash, and ancestry.",
+    "Copy the bundle once into an absent SHA-scoped scratch path in the existing worker; fetch into the existing bare origin; compare-and-swap its branch from the old worker tip to FINAL_SOURCE_SHA; fetch and --ff-only merge into the existing checkout.",
+    "Read back final SHA/tree and clean status in both checkout and bare origin. Confirm both shallow files still equal 7574c864a605c50efc033b966807790cbd8d1781; stop on any mismatch.",
+    "Transfer the four helpers to a fresh final-SHA harness and compare all hashes before running any route.",
+    "Run no-marker, invalid-root, fresh unavailable consumer, one positive C7 gate, and fresh passed consumer in route order. C7 is the single heavy slot; require root-approved explicit timeout, real subprocess evidence, typed fresh-reader outcomes, full output, and process cleanup."
+  ],
+  "control_expected_results": {
+    "no_marker": "exact Server-only command blocked. refusal before artifact creation and no C7 child",
+    "invalid_root": "typed unavailable; command=[]; passed=false; skipped=false; gate and stage manifests persisted; no child",
+    "fresh_unavailable_consumer": "D1 persists blocked_by_part_a_gate; no outputs",
+    "positive": "typed gate passed and non-skipped; actual child PID/argv/CWD/env; 3 passed/0 skipped; cleanup",
+    "fresh_passed_consumer": "reader verifies exact gate bytes; D1 persists blocked_by_previous_stage because D0 is absent; no outputs"
+  },
+  "read_only_caveats": [
+    "Initial Docker query with the default context failed because /var/run/docker.sock was absent; retry with --context colima-e02-local succeeded.",
+    "The worker lacks the free utility; cgroup resource files and df were available.",
+    "No C7 pytest, CLI route, helper transfer, bundle transport, installation, container/VM start or stop, or source write occurred."
+  ],
+  "classification": {
+    "P29": "require producer, persisted typed manifest, and fresh consumer",
+    "P33_P34": "retain adversarial route controls and do not exclude an unrun/failing route",
+    "P35": "complete committed path/file-type denominator reported; dirty worktree excluded and named",
+    "P37": "worker identity/profile recomputed; source-to-worker match and workload capacity not_established",
+    "P38": "clean correct-branch worker at stale content is the divergent case",
+    "P40": "SAME_CLASS_DEEPER: update whole final source transport/binding, not selected-file copying",
+    "P41": "no inherited pass/red; route is unrun at exact original source-bound criterion"
+  },
+  "status": {
+    "capability_label": "bridge_missing",
+    "adjudication": "not_adjudicated",
+    "formal_closure_ids": [],
+    "G_acceptance": false,
+    "route_result": "UNRUN"
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r770-la029-linux-worker-readiness-20261013.md",
+      "sha256": "51ff0bfe965a273fdbb3bab5f7853fb2aa32b9ba9b858561594019b1d1811dcb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/la029-linux-worker-profile-readiness-r413-independent-20261013.md",
+      "sha256": "9b4fdddc2129213bef5b3ce9f68473652f2b90b40627a2df22b1128dc2bee146"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/current-r30-linux-transport-and-consumer-readiness-20261011.md",
+      "sha256": "7cb86efd760d34b00a640892befd5e98cdf1dd1703b51f21e0325b21e093afb5"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    }
+  ]
+}

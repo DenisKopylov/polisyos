@@ -1,0 +1,158 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "r915-core-read-selector-contract-and-real-producer-controls",
+  "unit": "LOCAL",
+  "slice_base_sha": "d8f3d74df8bcc570be840f12afc9a12f64c7a766",
+  "implementation_commits": [
+    "dae174623baca79449638758ada159ab7ebdaefb"
+  ],
+  "candidate_tree_sha": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+  "parents": [
+    "d8f3d74df8bcc570be840f12afc9a12f64c7a766"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-core-cas-cross-layer-read-selectors.toml",
+      "sha256": "7155c7591021a0d2b119bfd188cf7c6fb78f4f57697b5c01d218c3226f93c776",
+      "bytes": 1612
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb",
+      "bytes": 200684
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "sha256": "907df3862b9b605bd3a632d123c94ad71ae23005a003e7579534c637f57ccaef",
+      "bytes": 34761
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "sha256": "cd63a5e4abbd63f2ea8074cc4cbd1532335b3ff60ac1839c92dc40ab9b4cf68a",
+      "bytes": 13933
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "sha256": "1acc2f75846e58f26249750493737b0ec48cf66188981888060de757bf97a896",
+      "bytes": 125451
+    }
+  ],
+  "composition": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-cas-selectors-real-producer-controls-composition-r894-20261013/composition.json",
+    "sha256": "e2bc6e74979945d81d26ef8c32699fdbd883af4d7178b26ed975c88503016eaf"
+  },
+  "application_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-cas-selectors-real-producer-controls-composition-r894-20261013/application-readback.json",
+    "sha256": "7f29bad97391fa50d646e0d062602c59fccae00054767e48f610221cc9012e9a"
+  },
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r913-20261013.json",
+    "sha256": "d39a62796fed05492cbc9a4e189be92cd07b2572fe5b0de95d669abc3fa8ee4b"
+  },
+  "source_commit_branch_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-cas-selectors-real-producer-controls-source-commit-r912-20261013/branch-readback.json",
+    "sha256": "da09417d1ce18c0724dde5f83074584e77c2a011f3fb53d57342d74d5178d26c"
+  },
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r880-r869-independent-20261013.md",
+      "sha256": "2a39b2aaffc13f3b935e5a64800a61ab3d2b020c4c6cb8a0527b55915b4b7b5a"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r880-r869-independent-20261013.json",
+      "sha256": "4b29191012e751ce54d05d60e2f614ff7e448a212c776f1fb4fcb33696259cca"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r887-r881-independent-review-20261013.md",
+      "sha256": "3125f720c18920e354d966c5a318d7b694d638cfb63b26c06cae045777a888ce"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r887-r881-independent-review-20261013.json",
+      "sha256": "84b3aa27eb5346f96bff9cbb0cd3ebe0682bc8edb005e33497161e288cb0f656"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r888-r883-independent-vector-memory-load-failure-20261013.md",
+      "sha256": "4da38db2dfc07244a3d55a2063a1d35bff8c26a24a610cf0915cb075d9978538"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r888-r883-independent-vector-memory-load-failure-20261013.json",
+      "sha256": "394f6dcded0fd4bbc23d9ae852b03d352d3fb0e4f5b32ede9eaf50494c08f1e2"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "runtime": "Existing locked Python3.14.3/BoTorch0.16.1/SciPy1.16.3 with CPU numericalthreads1",
+    "profiles": "Actual selected producer immutable Core manifests, with existing Core↔IR coercer and declared selector-type contract; fullrefs remain content/profile qualified",
+    "vector_negative": "Actual producer bundle/FileSystemCAS/profile then injected loaderfailure; native HNSW corrupted-load/full atomic state property explicitly unverified"
+  },
+  "checks": [
+    {
+      "command_receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-cas-core-s1-v7-public-registry-deciding-r900-20261013.json",
+        "sha256": "408e1fcbda3cdf17da82f5bb8be55290bc4bdc67d12589f9b75366ed4d1583d3"
+      },
+      "outcome": "FAIL",
+      "PASS": 306,
+      "FAIL": 2,
+      "ERROR": 0,
+      "SKIP": 0,
+      "same_source_qualification": "R900 physical R896 source bytes exactly equal committed R913 all523 paths; R912 verified all523 from actual branch HEAD."
+    },
+    {
+      "receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r899-actual-core-five-target-strict-mypy-receipt-20261013.md",
+        "sha256": "dab6833a7f7da1c3acbdeed018fab4380b4027f0b1bcd8e59c326867a40fc924"
+      },
+      "outcome": "PASS",
+      "files": 5
+    },
+    {
+      "receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-v6-resource-boundary-deciding-r904-20261013.json",
+        "sha256": "12ed3c1c700dcb0db76942d18cfeb762f66e7b0c0b8bc2ed64d9d5818cb27ed3"
+      },
+      "outcome": "INTERRUPTED",
+      "fixture_PASS": 1,
+      "actual_runtime_interrupted": 1,
+      "remaining_runtime_UNRUN": 1
+    }
+  ],
+  "property": {
+    "statement": "One generic read guard honors each public reader selector contract before pending/lease state; full structurally compatible IR/Core selectors retain exact selected profile, while ID-only methods refuse fullrefs.",
+    "runtime_path": [
+      "IR/Core actual typed producer reference",
+      "canonical selector coercer",
+      "Core selected-profile lease/manifest/body read",
+      "risk recomputation/decision packet/HTTP consumers",
+      "fresh reader semantic controls"
+    ],
+    "negative_controls": [
+      "All13 decoratedreader methods derivecontract fromtypedannotation ratherthanhandwrittennames list",
+      "TwoID/stringonly APIs reject fullrefs before lease",
+      "SameIDwrongprofile/explicitprofileconflict refuses",
+      "B161changedcountpreservesactualproducer schema/settings/inputs and targets recomputation refusal",
+      "Vector actual persisted indexbytes arrive before loaderfailure; priorrow remainsqueryable"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "author_proposals": [
+    {
+      "finding": "B161",
+      "state": "limited",
+      "evidence": "Currentfullriskmodule controls pass, including genuine producer→persisted artifact→risk consumer; external calibration/law/currentness and whole original claim remain separately assessed."
+    },
+    {
+      "finding": "B134",
+      "state": "open",
+      "evidence": "Injected loaderfailure is bounded; actual native HNSW and completegenerationatomicity work R910 remains."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Independent G acceptance, integration publication and full-ID formal adjudication outstanding.",
+    "R900 C5b control and actual empirical HTTP consumer failures explicitly retained; reviewed R903 and R902 companions not yet applied.",
+    "N4 R904 resource growth measured before operator SIGINT, not attributed to OOM; R909 source/API diagnosis pending, R898 budget settlement bridge pending.",
+    "Native repo Ruff/SOTA/LINUX/generated/installed consumers and authentic read-only closeout remain unfinished.",
+    "No external issuer/law/currentness/custody/calibration/qualifyingproductionworkload is inferred from bounded controlled fixtures."
+  ]
+}

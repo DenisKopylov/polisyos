@@ -1,0 +1,373 @@
+{
+  "behavioral_controls": [
+    "Source-audit helper self-test for count/digest corruption; selected-ID removal while selector markers remain and count/digest recomputed; resource removal while independent hatch.toml expectation remains; profile drift.",
+    "Source-derived generated checks with one corrupt-field/removal probe per affected family; derive the applicable families from the complete final source-to-registry overlap.",
+    "Runtime API field corruption in scratch must fail the real source-derived contract check; parsed API request/response consumers and client/dashboard typechecks must pass.",
+    "Installed-resource negative cases include real fresh-reader asset removal, exact YAML byte checks, unknown/traversal/missing-resource typed refusals, and no-checkout import/origin proof.",
+    "For final package wave, require exact JUnit/collection equality per profile, zero skips/failures/errors, exact installed module/resource origins and hashes, and retained complete output."
+  ],
+  "closure_ids": [],
+  "created_on": "2026-10-13",
+  "denominators": {
+    "c05_g_preservation": {
+      "closure_ids": [],
+      "current_source_bytes_match_prior_receipt_and_HEAD": true,
+      "distinct_supplier_count": 13,
+      "g_acceptance": false,
+      "g_resource_count": 1,
+      "source_set_count": 14
+    },
+    "generated_artifacts_registry": {
+      "check_command_rows": 86,
+      "families": 110,
+      "families_without_check_command": 24,
+      "output_occurrences": 713,
+      "parse": "complete TOML [[family]] enumeration",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "refresh_at_final_source_freeze": true,
+      "regenerate_command_occurrences": 125,
+      "sha256": "aa514099ec81d45e9e7b61b5fb0a13d273d8d3ce9e75dd77e9690aa1223a9ba3",
+      "source_of_truth_rows": 110,
+      "unique_check_argv": 76,
+      "unique_output_paths": 706,
+      "unique_regenerate_commands": 121,
+      "unique_source_of_truth_values": 104
+    },
+    "q2_packaged_resources": {
+      "archive_sdist_gcp_wheel_installed_checks": "UNRUN",
+      "current_source_sha_and_size_matches": true,
+      "manifest_asset_count": 11,
+      "source_bytes": 321740,
+      "unique_source_paths": 11
+    }
+  },
+  "evidence_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r771-q2-finalfreeze-execution-preparation-r1-20261013.json",
+      "sha256": "f1ee70fcfa8fe228ebe28ecbaf02498ab408efbf1a7c6ab4c28f0dbd01379f5a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-archive-wheel-resource-chain-r2-20261012.json",
+      "sha256": "ad59052bdc8f9b9714bbc33f79190167a46325ebea9756195e221052fb9ec0e7"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+      "sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/hatchling-1.27.0-input-inventory-r3.json",
+      "sha256": "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
+    }
+  ],
+  "execution_order": [
+    "Complete BOOT0 and Q1; settle the 10-case candidate selector addition and final source ownership.",
+    "Capture final clean committed source SHA/tree/frame; verify source audit capsule/config/resource inputs.",
+    "Run source-audit helper self-test then prepare with explicit measured collect timeout and absent output root; review full candidate manifests and runner limitations.",
+    "Apply reviewed manifest/runner/supplement changes; commit; run check on the exact final SHA/tree and require source_preflight_exact.",
+    "Install the TS workspace using corepack pnpm; regenerate affected registry owners in dependency order; run exact generated/API checks and corruption controls.",
+    "On Linux, remeasure disk and run primary timeout driver with exact source/manifest hashes for source-wheel, rebuilt-sdist-wheel, rebuilt-gcp-archive-wheel; UPLOAD=0.",
+    "Only after primary status=pass, run six-selector supplement against that exact primary receipt and final manifest hashes; retain all roots and outputs."
+  ],
+  "frozen_configuration_hashes": {
+    "policy-engine/apps/runtime-dashboard/package.json": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+    "policy-engine/architecture/generated_artifacts.toml": "aa514099ec81d45e9e7b61b5fb0a13d273d8d3ce9e75dd77e9690aa1223a9ba3",
+    "policy-engine/hatch.toml": "7e64dca82df9308d6af77d7b329dcd93f6062dee6db90ee5ef140fa0643f1133",
+    "policy-engine/ops/cloud/gcp/package_repo.sh": "be03c9f66909e3cd5c6547562c6f3d9c2673a76079b3dc8ba1f1b5812608f5ec",
+    "policy-engine/package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+    "policy-engine/packages/runtime-api-client/package.json": "0e88f8dcea58be097b3249eee3692f670ed3dce44a799c71b84d6cf4daf29cf1",
+    "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/workers/dowhy-014/.python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "policy-engine/workers/dowhy-014/pyproject.toml": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+    "policy-engine/workers/dowhy-014/uv.lock": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+  },
+  "generated_api_chain": {
+    "commands": [
+      "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
+      "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json",
+      "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json",
+      "uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "uv run polisyos-tools architecture guardrails check --all-generated-checks"
+    ],
+    "commands_run": false,
+    "outputs": [
+      {
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "sha256": "bfe09d0fb6f311dc86efd9264509633e02ba34b7ebba65933d25ddc98efaaf4f"
+      },
+      {
+        "path": "packages/runtime-api-client/types.ts",
+        "sha256": "200c2109be4fe04ab5881d9f32f22b1d82825f51600061c0e563500eece429d5"
+      },
+      {
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "sha256": "4f92dd9ff2135c88af810cb1352b92205cdec7c13b26680cb9be4154a6ca4fcf"
+      },
+      {
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/api/types.ts",
+        "sha256": "28e60c94c607988792c7e8cc541ae84a3cba86a94e2e942e6bdfa8d4e4a98bbf"
+      }
+    ],
+    "source_owner": "src/polisyos/runtime/http/** and the registry-declared OpenAPI/client/dashboard consumers",
+    "typescript_workspace_preflight": "corepack pnpm install --frozen-lockfile is required before trusting the TS scanner; node_modules/@polisyos/runtime-api-client is currently absent; do not use bare pnpm"
+  },
+  "markdown": {
+    "bytes": 14889,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r966-q2-canonical-installed-consumer-readiness-20261013.md",
+    "sha256": "7cbcea2e5cf2042cc1a754496a735971f8d02010a83219183dbf4273c46b1e4a"
+  },
+  "open_residuals": [
+    {
+      "class": "P38 proxy gate",
+      "closure": "Generic resolved installed-target-beneath-purelib invariant plus outside-symlink negative probe, or explicitly bound the claim; do not claim containment from hashes alone.",
+      "finding": "Installed-target identical-byte symlink could escape purelib while satisfying current byte hash/origin checks."
+    },
+    {
+      "class": "P29 behavioral adequacy",
+      "closure": "Add genuine missing/unreadable consumer cases or retain that limitation explicitly; do not infer absence behavior from the name.",
+      "finding": "The selected test named missing/unreadable/corrupt digest registry currently exercises malformed TOML only."
+    },
+    {
+      "class": "provenance limitation",
+      "closure": "Record observed builder provenance; do not call the build fully reproducible on that basis.",
+      "finding": "hatchling 1.27.0 is checked by version/origin but its exact builder artifact bytes are not bound by uv.lock."
+    }
+  ],
+  "pattern_pass": {
+    "capability_status": "verification_missing",
+    "existing_anti_patterns": [
+      "stale selected-source pins and three supplement cross-bindings",
+      "stale generator census from R771",
+      "declared marker/count is not source-derived collection or installed behavior",
+      "physical worktree bytes are not archived HEAD bytes",
+      "presence/hash checks can diverge from resolved installed-path containment"
+    ],
+    "ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "p40_bucket": "same installed-consumer/packing class; widen to whole source-derived selected set; no new closure",
+    "target": "source-derived complete collection and owner census, followed by three real installed consumers and behavioral removal/corruption controls"
+  },
+  "primary_suite": {
+    "candidate_baseline": {
+      "final_source_sha_tree": "unknown until source freeze",
+      "source_sha": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+      "source_tree": "REQUIRED_FROM_FINAL_FREEZE"
+    },
+    "currently_declared_id_digest": "4f273e803d60fafd84a3901357cbf9e80c4beb4af5f2aa7dfae1697f39342d1d",
+    "currently_declared_ids": 135,
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+    "manifest_sha256": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd",
+    "pending_selector_decision": {
+      "condition": "accept or reject from final source review; only the final source collector establishes the selected ID list, count, and digest",
+      "not_in_current_manifest": true,
+      "path": "tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "planned_if_adopted": {
+        "primary_executions_three_profiles": 435,
+        "primary_ids_per_profile": 145,
+        "supplement_executions_three_profiles": 18,
+        "total_executions": 453
+      },
+      "selector_count": 4,
+      "selectors": [
+        {
+          "name": "test_filesystem_json_writer_refuses_nonconformant_tags_before_persistence",
+          "static_cases": 6
+        },
+        {
+          "name": "test_filesystem_json_writer_emits_roundtrippable_native_values",
+          "static_cases": 1
+        },
+        {
+          "name": "test_filesystem_json_writer_keeps_default_float_refusal",
+          "static_cases": 1
+        },
+        {
+          "name": "test_async_json_facades_preserve_writer_conformance_preflight",
+          "static_cases": 2
+        }
+      ],
+      "source_sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72",
+      "static_new_cases": 10
+    },
+    "source_pin_rows": 15,
+    "stale_source_pins": [
+      {
+        "current": "2ee973564cd12aa8a9b491e4db17aae2a5a9d30200717461aa424a586102a0cd",
+        "declared": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+        "path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py"
+      },
+      {
+        "current": "74db0a71cc4217f9cfc8338f026acb05e5dc0b435ee0ada71f2a26b98694a0d0",
+        "declared": "4d682418d34bfa116af14c2214f84a04f6ceae4c5867cd708bb353213c09be0e",
+        "path": "tests/unit/core/artifacts/backends/test_gcs_store.py"
+      },
+      {
+        "current": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+        "declared": "63f4534629714897b91f092beddc724d606e75971a74fb5d434c4ad27c01b3df",
+        "path": "tests/unit/core/artifacts/backends/test_s3_store.py"
+      },
+      {
+        "current": "78f20140580b64b76e657da179ea87b771cc9ddbd12dbb07b706fd6a5dd1471d",
+        "declared": "d341750b85a9ae219e5330fd45b49cc40c75d17de6b7b1662cb5a738ef804fad",
+        "path": "tests/unit/core/artifacts/test_ir_adapter.py"
+      },
+      {
+        "current": "a3c2945a8cb86c52e4c87b6d01356fd52d8bbf651cff7332d2262d1fe82e3397",
+        "declared": "3939b4a97e39b957ae859b7dd9e0e1176c24db763427fd19ac04301570c8533e",
+        "path": "tests/unit/core/components/test_cli_replay.py"
+      }
+    ]
+  },
+  "q2_dependencies": {
+    "required": [
+      "BOOT0",
+      "Q1"
+    ],
+    "status": "must be complete before executing Q2 source/package gates"
+  },
+  "q2_execution_capsule": {
+    "six_input_files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+        "sha256": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "sha256": "fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+        "sha256": "bf4042483e0621d8ccae8d3ee8096a5a68dc090fb8cf23411b5d793c213e426f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+        "sha256": "1af51c9836c3ff4e0ce6fa24ead80832bda9cfddb96f7f42fa3ac25fe9ae3628"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+        "sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/sitecustomize.py",
+        "sha256": "4593febfff4242f5e2004897ed929c97566feab4266b8984a6e23c94a48e37e2"
+      }
+    ],
+    "source_audit_helper_is_separate_admission_input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c"
+    }
+  },
+  "read_only_boundary": {
+    "artifact_copies": false,
+    "builds_run": false,
+    "cache_scan": false,
+    "generators_run": false,
+    "index_or_git_writes": false,
+    "installations_run": false,
+    "product_source_writes": false,
+    "tests_run": false
+  },
+  "repository": {
+    "branch": "codex/e02-unified-local-20261009",
+    "cli_replay_source": {
+      "bound_by_r948_and_r979": true,
+      "bytes": 28072,
+      "git_status": "modified",
+      "head_blob_sha1": "6471544ea81b6c4c82c84831b11341bb1e63eec5",
+      "implication": "archive of current HEAD omits the worktree delta until Root commits it",
+      "path": "policy-engine/tests/unit/core/components/test_cli_replay.py",
+      "worktree_sha256": "a3c2945a8cb86c52e4c87b6d01356fd52d8bbf651cff7332d2262d1fe82e3397"
+    },
+    "freeze_state": "not_a_final_package_freeze; later Root-authored source changes are pending and all package/audit commands must rebind to the eventual committed source SHA/tree",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "head_tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "latest_source_frame": {
+      "head": "dae174623baca79449638758ada159ab7ebdaefb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r979-20261013.json",
+      "physical_postimage_count": 546,
+      "sha256": "c6a383910bad5f1ccb7ed4b6d017d5d6f6b2447bda86d605b3837816577e114c",
+      "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a"
+    },
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame_rule": "R979 is a physical current-source readback and does bind cli_replay; it does not replace final clean committed HEAD/tree for git archive."
+  },
+  "schema": "q2-canonical-installed-consumer-readiness/v1",
+  "scope": "Read-only readiness and execution ordering. This packet is not a package/build/test result and does not claim G acceptance.",
+  "status": "ready_for_root_execution_after_dependencies_and_committed_final_source_freeze",
+  "supplement": {
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+    "manifest_sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7",
+    "run_only_after_primary_status_pass": true,
+    "selectors_per_profile": 6,
+    "stale_bindings": [
+      {
+        "current": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd",
+        "declared": "086abec2e167c20e45362d51e926050954467010ce2eb186443056a0b7239366",
+        "path": "primary manifest SHA"
+      },
+      {
+        "current": "fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09",
+        "declared": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+        "path": "primary runner SHA"
+      },
+      {
+        "current": "4d72aed9c9d01d535b1c65467961155c6ec9ac4736f570f1928710c7dd063a2c",
+        "declared": "8f3c269537b8f42b583fcaee4bc5ad7b29fe7456e95dd11a43fd7cb080c1ada7",
+        "path": "tests/unit/core/contracts/test_e02_installed_composition.py SHA"
+      }
+    ],
+    "three_profile_executions": 18
+  },
+  "timeout_and_capacity": {
+    "cleanup": "none; preserve cache and all prior runs",
+    "current_space_recheck_required": true,
+    "last_readonly_linux_probe": {
+      "dowhy": "0.14",
+      "free_bytes_approx": 6036107264,
+      "free_gib_approx": 5.62,
+      "hatchling": "1.27.0",
+      "package_checks": "uv pip check previously passed for 161 app and 52 worker packages; no package/cache scan in this refresh",
+      "pytest": "9.0.2",
+      "root_python": "/scratch/root-venv/bin/python (CPython 3.14.0)",
+      "uv_cache_dir": "/root/.cache/uv",
+      "worker_python": "/scratch/dowhy-venv/bin/python (CPython 3.12.12)"
+    },
+    "previous_size_measurements_bytes": {
+      "scratch_estimate_approx_gib": 1.5,
+      "sdist": 121945591,
+      "source_or_rebuilt_wheel": 15146001,
+      "source_snapshot": 555792112
+    },
+    "upload": "UPLOAD=0",
+    "whole_wave_walltime_estimate": "not measured; first profile consumer has no arbitrary timeout, subsequent profile timeout is ceil(2 x immediately preceding successful consumer wall time)"
+  }
+}

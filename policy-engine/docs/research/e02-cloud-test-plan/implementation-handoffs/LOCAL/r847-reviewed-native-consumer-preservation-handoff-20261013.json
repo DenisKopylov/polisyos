@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0",
+  "slice": "r834-reviewed-native-consumer-companions-preservation",
+  "slice_base": "522014c247bc408ac6a370cd3faeec765556da7b",
+  "candidate": "e289977cc3029921b1112757e3f1eac1b7f137fe",
+  "candidate_tree": "52318fcefd9d52bc7da2afc34bc712112485fd8f",
+  "parents": [
+    "522014c247bc408ac6a370cd3faeec765556da7b"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "author_proposals": {
+    "status": "verification_failed",
+    "affected_routes": [
+      "CAN Core producer/selected profile",
+      "S1 B161 and C5b",
+      "V7 actual empirical HTTP consumer",
+      "Prepared B actual registry reconstruction"
+    ],
+    "formal_G_adjudication": "not_performed"
+  },
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b161-source-bound-risk-observation.toml",
+      "before_sha256": "6ebda91cf54190af2affd7ac50fa24d8b7edbb1fed685292b0302ca0cd0e4d61",
+      "postimage_sha256": "fea55a2ed677eade7311834f0705905e5654f1aa3c80a1c95844be8806d0046b",
+      "bytes": 7418
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-e02-core-canonical-json-writer-conformance.toml",
+      "before_sha256": null,
+      "postimage_sha256": "d9895e6bcd6ad70403a6acc7acac07d947acd9cca5159e8289a430673b00ccb2",
+      "bytes": 3295
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-e02-gcs-selected-raw-manifest.toml",
+      "before_sha256": null,
+      "postimage_sha256": "0963fbf3253593dbb370829399a9d1b561f88c62a67dc08495bc91bbb10fd410",
+      "bytes": 869
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "before_sha256": "092a54765d941cc9b6cd1b22618e174262713efe07d46be9cf68cfe3af23efcf",
+      "postimage_sha256": "2dafd14b120680f6154df8eb8375dbf2d36eaceb7e4fbd76abba9fa66d53120e",
+      "bytes": 12093
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "before_sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c",
+      "postimage_sha256": "38c62d11b96675d2ed76f7e35d09b20e65be11977a95520aad652e6529280293",
+      "bytes": 19085
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "before_sha256": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+      "postimage_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+      "bytes": 14543
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "before_sha256": "aae65c96045a8116cf141f64d85e9a2069c9cb32a62d372bdf64dc7f0a2aada1",
+      "postimage_sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+      "bytes": 49169
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+      "before_sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc",
+      "postimage_sha256": "1f770304bfe8a1f99f62abfd6772c2d9390f7e8e05c7b75995b3c46dd643c9ee",
+      "bytes": 18779
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "before_sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc",
+      "postimage_sha256": "d1e103c45920bfbb7f67b5890552b76aac2ac4c82eac1ae47f9217cbb5ac3219",
+      "bytes": 196312
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "before_sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d",
+      "postimage_sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da",
+      "bytes": 3447
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "before_sha256": "d02ed2ca35b8d80f7ed779d2d80eedf22e7ff387487b6a7a322d25af19d8da7d",
+      "postimage_sha256": "fa766fb75d0b05841fe6dad8a758adf5365eaa31bebdf8df32bff4371c18a7bb",
+      "bytes": 17896
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "before_sha256": "f8073438f8b9fda0c557325b9fc9bb0d58ed0760a166dc7e83cdcea5b54505fc",
+      "postimage_sha256": "5548be11674cafabd058bbb91cd8fa4d7322967da64a4d64228f88af476ffb81",
+      "bytes": 68606
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/public_decision_verification.py",
+      "before_sha256": "58ca919e6e1f7ee4374b7f50499551a7a99710ecaf1dec7bb43373be10d9e689",
+      "postimage_sha256": "e16ea00adadab0345de0e5fc9e03cd0c4cdf207f0cc0697856f5b58c7245fbfc",
+      "bytes": 18487
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "before_sha256": "848c19346bd5a9823a89a5763be370d9a14a11fd4b9813733adfcd1f1dabe927",
+      "postimage_sha256": "91d8077b821fab73909b55d1c95af6042350cec17cddd5f6d0c01e60655e02c5",
+      "bytes": 15998
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "before_sha256": "54adb88a7ab0507b13559c0a1e0fbd40a59700e3e9a0d0f67446d27afdf3d603",
+      "postimage_sha256": "2b84820d0dece2941596400870b4eb87812044eaabd4e611afc701943351f9bd",
+      "bytes": 69856
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "before_sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b",
+      "postimage_sha256": "74db0a71cc4217f9cfc8338f026acb05e5dc0b435ee0ada71f2a26b98694a0d0",
+      "bytes": 18057
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+      "before_sha256": "d735c585e14e6937ae97349085e9b0ddb7582462f62cb12f3512be41a8872be7",
+      "postimage_sha256": "96541c1d85e91caabb4748e168d3ca677dc00c23ca564d54490f171102f9cb7e",
+      "bytes": 4073
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "before_sha256": "68d82b990e12fcc0d40502076b9ee418ca05ea2f2739756398bcccc2a3aeea97",
+      "postimage_sha256": "a069ccffdf9ab5aa3a8cab1734ebf1379ca48fcdc42b983ae4b6ebab283ca35f",
+      "bytes": 234068
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+      "before_sha256": "e24c4e0edec117c05f6d1aec7bc2797013506f3364c308340766bb25577831c7",
+      "postimage_sha256": "34443b3dbba12625bdec8947fd86d911d82c35a254a9261caedc588c541e748c",
+      "bytes": 18412
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "before_sha256": "07655cec70f5dfac4ca86e71cc268666d0e6e87af8388cbcec852a0c54a168a0",
+      "postimage_sha256": "698790f15c0e86764bb416c668c94d34eae01af7cbf32f1b8f882f11639c45d5",
+      "bytes": 122001
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "before_sha256": "25a60b8e13d242e4aa35eeac016ba7674156c4f1b75fc4e397fa513ffe3b5b97",
+      "postimage_sha256": "b5ba7d16891a22561088c4b7e7fd5a683da3bbc8af605d95049be4374fa15992",
+      "bytes": 198016
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "before_sha256": "a78a84b1a1b7a332a0588312d5834b8a7568b64164d9c4bb5ba24d1967418fc8",
+      "postimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+      "bytes": 31960
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "before_sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f",
+      "postimage_sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+      "bytes": 16281
+    }
+  ],
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r844-20261013.json",
+    "sha256": "c98b450aa1227f48e5debc702b8af8e755741c126cca211db4b3c320084d46ff"
+  },
+  "qualified_source_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-native-consumer-preservation-source-commit-r843-20261013/full-qualified-source-branch-readback.json",
+    "sha256": "7405752927bc0d958d514bc99937ad1dda5184be07023a0416b767964a9d3868",
+    "path_count": 510,
+    "mismatch_count": 0
+  },
+  "implementation_composition": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-native-consumer-blocking-delta-composition-r831-20261013/composition.json",
+    "sha256": "25bd0ed6e59ccc6c4b0e90a13a792659f353ff4a76783f4f74c5eef1f6a30b74"
+  },
+  "selected_input_profile_backend": {
+    "input": "controlled portable actual producer/CAS/HTTP fixtures in the R835 capture, not production inputs",
+    "profile": "Core and IR full selected reference profiles preserved per individual fixture",
+    "backend": "supported OWN locked Python 3.14.3 environment; one numerical thread; filesystemCAS and fake GCS/S3 provider unit surfaces",
+    "limitations": "fake provider tests do not establish authentic remote cloud custody"
+  },
+  "source_bound_deciding_receipt": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-core-s1-v7-public-registry-deciding-r835-20261013.json",
+    "sha256": "e4c85e12b243cb5ad7e48c74d778ee7db3dd98b2502f7bdc2f4517ca8f7feb60"
+  },
+  "chain": "actual producers encode and persist full selected CAS references; fresh Core/IR consumers and HTTP POST/event/reopen GET and actual registry context reconstruction were invoked. Deciding R835 output identifies precisely the boundaries that failed before later semantics.",
+  "controls": "Public codec emission and selected reader raw-alias negatives, C5b basis/kept-marker tests, B161 candidate-only source/profile/count controls, empirical paired data/profile/immutable retry HTTP controls, actual registry fixture and writer lease cleanup. Failures and blocked controls remain recorded; no automatic property closure.",
+  "limitations": [
+    "196 PASS / 9 FAIL / 55 setup ERROR / 0 SKIP across 260 cases.",
+    "New nominal selector gate rejects valid IR typed refs; R837 investigation pending.",
+    "Public decision JSON-mode record loses strict datetime; R838 virtual repair pending.",
+    "Two raw malformed alias controls stopped at guarded producer instead of reader; R840 fixture successor pending.",
+    "Four B161 missing observation failures require actual attribution after general selector repair.",
+    "Full-ID semantic checks, native gates, Linux worker, installed/rebuilt consumers and production authority checks remain pending.",
+    "Precommit hooks skipped Python changes; no native-green claim."
+  ],
+  "implementation_commit_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-native-consumer-preservation-source-commit-r843-20261013/branch-readback.json",
+    "sha256": "c046bc0efda9339a78bd5f033310d8d070ca2070125be0b9c0b40ec77dc8da70"
+  },
+  "receipt_commit_identity": "not recorded here; this packet names its already-existing implementation commit only"
+}

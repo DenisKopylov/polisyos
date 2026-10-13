@@ -1,0 +1,166 @@
+{
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r997-20261013.json",
+    "source_frame_sha256": "4239fe24bfec79884e33feae0d1aa887780d943737eeac2eb86023b929cd3da0",
+    "tree": "1b52a38c1f5869928426f2090d8230d6ca78eec6"
+  },
+  "class_wide_direction": {
+    "falsifier": [
+      "actual source edge-key/document set and DuckDB row count equal for the full selected K_ref",
+      "ordered FTS hits and scores exactly equal for every original proposal",
+      "candidate IDs/order/reasons/scores, CG1 certificate hash and coverage fields remain identical",
+      "N4 dispositions, selected children, and fresh GET projection remain identical",
+      "omitting a row while retaining source-count markers makes coverage_sufficient false",
+      "capture E, A, Q, rows, stage duration, and RSS on the actual full basis"
+    ],
+    "mechanism": "One per-engine full-basis retrieval state owns actual indexed document count, cached atom tuple, and coverage summary. Reuse cached atom count. Prototype bounded-batch DuckDB loading to avoid simultaneous full Python-list/DataFrame/table copies while retaining every edge.",
+    "owner": "Extend existing GroundingRelationEngine, not a new index subsystem or global cache.",
+    "prohibited_semantic_shortcuts": [
+      "truncate K_ref",
+      "cap atom universe",
+      "lower FTS LIMIT",
+      "change search ordering/scoring",
+      "promote CG1 shadow result into authority"
+    ]
+  },
+  "classification": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "N4 full-basis construction/runtime amplification",
+    "pattern": "P40",
+    "reason": "CG1 materializes and searches a full-reference secondary FTS corpus and full atom universe after the R985 K_ref/registry construction stage; coverage summaries also rebuild the atom universe per proposal. No narrower semantic basis is established."
+  },
+  "closure_ids": [],
+  "date": "2026-10-13",
+  "limitations": [
+    "No source, test, index, or Git changes.",
+    "No product imports, tests, or runtime/database query.",
+    "No exact runtime E, A, FTS row count, query count, or stage timings.",
+    "R998 failed its helper contract binding before POST/worker/fresh GET; exact served N4 journey remains verification_missing."
+  ],
+  "mechanism": {
+    "atoms": "grounding_relation.py:363-369 caches _reference_atoms once per engine; _reference_atoms_from_cg0 at :946-1037 filters the complete edge mapping into operator, target, and lex maps and creates atoms for compatible writable slots. retrieve_candidates at :511-537 scores all cached atoms.",
+    "fts": "grounding_relation.py:883-943 sets indexed_edge_count from source length, creates four all-edge Python lists, serializes per-edge completions/provenance text, materializes Pandas DataFrame, registers it in DuckDB, copies to table, then creates FTS index. Search returns up to 80 rows, but index build and full atom score loop are not bounded by 80.",
+    "full_basis_owner": "credal_reference.py:568-612 builds and retains full selected L2, all L3 query families, loaded L6 bundle, and WMR slots, then derives versions and hash.",
+    "per_engine_reuse": "design_generation.py:1659 creates one GroundingRelationEngine for this generation path and passes it to _content_bound_candidates at :1848; _content_bound_candidates calls certificate_for once per intervention at :3159-3167. FTS and cached atom tuple are reused within that engine; no global cache is proposed.",
+    "repeat": "grounding_relation.py:403 calls _proposal_verdict for each certificate; _known_space_coverage_claim at :1726 separately calls _reference_atoms_from_cg0 instead of reusing the cached tuple. For Q successful proposals, source flow entails one cached atom build plus Q coverage-summary rebuilds."
+  },
+  "p38_divergence": {
+    "current_predicate": "The wrapper preloads indexed_edge_count = len(reference.essential_edges); the coverage summary tests equality against the same length, not the DuckDB table count or document keys.",
+    "divergent_case": "An empty or token-empty query returns before _DuckDbReferenceFtsIndex._build, yet the prefilled count can still satisfy coverage_sufficient when base candidates exist.",
+    "observed_in_r998": false,
+    "property": "The complete K_ref edge-document set is actually present in the FTS table before coverage_sufficient claims full retrieval coverage.",
+    "scope": "Source-level proxy gap in this same class; the observed R998 stack did execute the SQL query, so this did not cause that run."
+  },
+  "packet": "R1000 read-only systemic grounding resource-boundary research",
+  "pattern_pass": {
+    "P13": "Measure cost of the existing full-basis mechanism before adding another required stage.",
+    "P35": "AST count includes the complete 2,761-file product Python denominator; runtime row and atom cardinalities are not claimed.",
+    "P38": "Coverage tests a prefilled source count instead of actual index documents; empty/token-empty query is the divergent case.",
+    "P40": "Same N4 full-basis amplification class, deeper at CG1; widen across full index, atom universe, all proposals, and coverage metadata.",
+    "P41": "Only this captured source-bound run is classified; its API/GET path was not reached."
+  },
+  "property_boundary": {
+    "authority_boundary": "CG1 certificate source sets shadow_only=true and no_bind_admit_promote=true; no authority change is proposed.",
+    "end_to_end_state": "verification_missing for this exact original N4-to-POST/worker/fresh-GET replay; the helper failed before POST, worker, or fresh GET.",
+    "observed_stage": "R998 stack was in the CG1 DuckDB FTS query called by GroundingRelationEngine.certificate_for from _content_bound_candidates during helper N4 preflight.",
+    "required_property": "Preserve the complete selected L2/L3/L6/WMR K_ref through actual CG1 retrieval, candidate scoring, coverage reporting, N4 candidate dispositions, and the downstream served GET projection."
+  },
+  "run": {
+    "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/command.json",
+    "command_sha256": "f1a6806d60ad07394d371f55f58b476200308a2003000f72473073176f94a206",
+    "limits": {
+      "child_rss_limit_bytes": 3221225472,
+      "numerical_profile": "CPU single-thread",
+      "wall_seconds": 300
+    },
+    "manual_second_interrupt": {
+      "action": "none-already-absent",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/manual-second-interrupt.json",
+      "sha256": "30188b0e28ae2f60d278a2a8361e9c5e9c4179e2baf0620ce665acb59c68afb2",
+      "signal_sent": false
+    },
+    "monitor": {
+      "interpretation": "Sampling overshot the 3-GiB limit; largest saved sample is not a proven process peak. Child remained live after the five-second SIGINT wait. No OOM or forced-kill claim.",
+      "largest_saved_sample": {
+        "elapsed_seconds": 88.86145991599187,
+        "rss_bytes": 4358062080
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/monitor.jsonl",
+      "sample_before_trigger": {
+        "elapsed_seconds": 87.82682258298155,
+        "rss_bytes": 3150282752
+      },
+      "sha256": "bc204d239dc6854bf0c797bb673a08b3230113d01ac4e99d13dfefc97c9ed801",
+      "trigger_elapsed_seconds": 88.89742633304559
+    },
+    "pytest": {
+      "failure": "original_second_capture_contract_result_not_unique at tests/_helpers/generic_n4_served_replay.py:171 for generated design_problem_ref; occurred in helper preflight before ordinary POST, worker dispatch, and fresh GET.",
+      "meaning": "Test-contract binding failure; not evidence of a grounding semantic failure or a completed served-consumer pass.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/pytest-stdout.txt",
+      "result": "1 failed in 185.49s",
+      "sha256": "9e21858acc3f52de1905b6833169209b3eec0f6f66701e380425b6a630109119"
+    },
+    "source_frame_sha256": "4239fe24bfec79884e33feae0d1aa887780d943737eeac2eb86023b929cd3da0",
+    "source_unchanged": {
+      "before_and_after_sha256": "55594e14ed7c764e90bf4fd302a9d19e5812ef50a6593e605e8364c50c7133c1",
+      "captured_path_count": 6223,
+      "receipt_sha256": "e489fc6ce8c429f8e3b682802802c7745d2a2b59eec4c26d66ba09a40ace13aa",
+      "unchanged": true
+    },
+    "stack": {
+      "frames": [
+        "grounding_relation.py:901 search",
+        "grounding_relation.py:507 retrieve_candidates",
+        "grounding_relation.py:386 certificate_for",
+        "design_generation.py:3166 _content_bound_candidates"
+      ],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r998-n4-uninstrumented-safe-runtime-replay-20261013/r931-n4-run-20261013T142338-7159/sigusr1-all-threads.txt",
+      "sha256": "34859a3bf4f7ef97b747e67788a00e8d1e1b20926539a4133814ed4e7a7c0b0f"
+    },
+    "target": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get"
+  },
+  "schema": "policyos.e02.r1000_grounding_systemic_resource_boundary.v1",
+  "source_census": {
+    "calls": {
+      "_DuckDbReferenceFtsIndex": {
+        "count": 1,
+        "site": "grounding_relation.py:497"
+      },
+      "_content_bound_candidates": {
+        "count": 1,
+        "site": "design_generation.py:1835"
+      },
+      "_reference_atoms_from_cg0": {
+        "count": 3,
+        "sites": [
+          "grounding_relation.py:368",
+          "grounding_relation.py:1726",
+          "intervention_substrate.py:2073"
+        ]
+      },
+      "build_credal_reference": {
+        "count": 3,
+        "sites": [
+          "design_generation.py:1563",
+          "design_generation.py:3133",
+          "grounding_relation.py:814"
+        ]
+      }
+    },
+    "denominator": {
+      "ast_parse_errors": 0,
+      "glob": "policy-engine/src/polisyos/**/*.py",
+      "python_files": 2761
+    },
+    "runtime_cardinality": {
+      "actual_duckdb_rows": "not_established",
+      "atoms": "not_established",
+      "reference_edges": "not_established",
+      "runtime_query_count": "not_established",
+      "stage_durations": "not_established"
+    },
+    "test_fixture_description": "The test docstring calls it an unchanged three-proposal capture; R998 did not emit the dynamic intervention count."
+  }
+}

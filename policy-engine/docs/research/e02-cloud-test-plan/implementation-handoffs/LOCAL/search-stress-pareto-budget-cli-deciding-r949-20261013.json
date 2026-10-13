@@ -1,0 +1,423 @@
+{
+  "schema": "policyos.e02.deciding_receipt.v1",
+  "candidate_head": "dae174623baca79449638758ada159ab7ebdaefb",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=600.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "--maxfail=0",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+    "tests/unit/scientist/search/test_pareto_transfer.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/governance/test_stress_scenarios.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+    "tests/unit/core/components/test_cli_replay.py",
+    "tests/unit/remediation/test_rep_01.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/module-origins.json",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1"
+  },
+  "exit_code": 1,
+  "wall_seconds": 41.69955220806878,
+  "case_results": {
+    "PASS": 173,
+    "FAIL": 20,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "modules": [
+    {
+      "module": "tests.unit.core.components.test_cli_replay",
+      "results": {
+        "PASS": 16
+      }
+    },
+    {
+      "module": "tests.unit.remediation.test_rep_01",
+      "results": {
+        "PASS": 10
+      }
+    },
+    {
+      "module": "tests.unit.scientist.governance.test_stress_scenarios",
+      "results": {
+        "PASS": 2
+      }
+    },
+    {
+      "module": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+      "results": {
+        "PASS": 37,
+        "FAIL": 2
+      }
+    },
+    {
+      "module": "tests.unit.scientist.methods.backtesting.test_phase_d4_challenge_suites",
+      "results": {
+        "PASS": 8
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_adversarial",
+      "results": {
+        "PASS": 16,
+        "FAIL": 1
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_pareto_transfer",
+      "results": {
+        "PASS": 8
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+      "results": {
+        "PASS": 38,
+        "FAIL": 6
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_phase_d4_runtime_integration",
+      "results": {
+        "FAIL": 3,
+        "PASS": 1
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestGenerationContext",
+      "results": {
+        "PASS": 2
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestIntegration",
+      "results": {
+        "PASS": 1
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestObjectives",
+      "results": {
+        "PASS": 2
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+      "results": {
+        "PASS": 10,
+        "FAIL": 8
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria",
+      "results": {
+        "PASS": 15
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestTwoStageFiltering",
+      "results": {
+        "PASS": 3
+      }
+    },
+    {
+      "module": "tests.unit.scientist.search.test_search_loop.TestWorkflowEngineAbstraction",
+      "results": {
+        "PASS": 4
+      }
+    }
+  ],
+  "nonpassing_cases": [
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_durable_provider_owner_controls_search_stopping_and_result[0.25-0.50-resolved-1]",
+        "time": "0.012"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_durable_provider_owner_controls_search_stopping_and_result[0.25-0.25-resolved-0]",
+        "time": "0.003"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_durable_provider_owner_controls_search_stopping_and_result[0-0.50-resolved-1]",
+        "time": "0.003"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_durable_provider_owner_controls_search_stopping_and_result[true-0.50-unavailable-0]",
+        "time": "0.003"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_autotune_runner_binds_real_provider_call_to_durable_budget_owner[0.25-resolved-1]",
+        "time": "0.018"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_autotune_runner_binds_real_provider_call_to_durable_budget_owner[true-unavailable-0]",
+        "time": "0.013"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_generation_with_missing_owner_event_readback_stops_before_stage_b",
+        "time": "0.002"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow",
+        "name": "test_durable_spend_crosses_cost_threshold_after_two_traced_calls",
+        "time": "0.002"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.scientist.methods.search.controller.SearchBudgetProducerUnsupportedError: search_prompt_contains_nonfinite_number: protected candidate inputs must have finite JSON numbers"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_promotion_coordinator_persists_readiness_and_updates_champion",
+        "time": "0.069"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert False is True\n +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted\n +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_missing_prior_knowledge_caps_readiness_below_recommendation_ready",
+        "time": "0.066"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert False is True\n +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted\n +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler",
+        "time": "0.065"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert False is True\n +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted\n +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_valid",
+        "time": "0.004"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert 0 == 1\n +  where 0 = len([])\n +    where [] = ParetoSeedBundle(target_context=TransferContext(task_family='policy', domain='isolated::unknown', run_id='next-candida...026, 10, 13, 13, 6, 19, 878810, tzinfo=datetime.timezone.utc)), entries=[], seed_domains=[], cross_domain_seed_count=0).entries"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_search_controller_persists_pareto_membership_for_fresh_reader[front-to-back]",
+        "time": "0.019"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert 'verdict_reject' in ['compliance_constraint', 'governance:verdict_reject']\n +  where ['compliance_constraint', 'governance:verdict_reject'] = PolicyEvaluationVector(candidate_id='infeasible', primary={'policy_value': ObjectiveChannelValue(name='policy_value', ...2, 'budget_ratio': 0.75, 'ambiguity_certificate_status': None, 'ambiguity_set_type': None, 'price_of_ambiguity': None}).blocking_reasons"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+        "name": "test_search_controller_persists_pareto_membership_for_fresh_reader[back-to-front]",
+        "time": "0.018"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert 'verdict_reject' in ['compliance_constraint', 'governance:verdict_reject']\n +  where ['compliance_constraint', 'governance:verdict_reject'] = PolicyEvaluationVector(candidate_id='infeasible', primary={'policy_value': ObjectiveChannelValue(name='policy_value', ...2, 'budget_ratio': 0.75, 'ambiguity_certificate_status': None, 'ambiguity_set_type': None, 'price_of_ambiguity': None}).blocking_reasons"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_adversarial",
+        "name": "test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent",
+        "time": "0.138"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_d4_runtime_integration",
+        "name": "test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts",
+        "time": "0.167"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: assert [ArtifactRef(..._sha256=None)] == [ArtifactRef(..._sha256=None)]\n  \n  At index 0 diff: ArtifactRef(artifact_id=ArtifactID(root='sha256:9e52ab5aea179e7570ceeec1407c3c4d6922eda57618cd6dcf1f548d32738660'), kind='scientist.stress_test_report', media_type='application/json', manifest_profile_sha256=None) != ArtifactRef(artifact_id=ArtifactID(root='sha256:6c87046d1b3ea18875f9c73c309e2f55de102ea028c24dfb853ac5bf6c14d41c'), kind='scientist.stress_test_report', media_type='application/json', manifest_profile_sha256=None)\n  Use -v to get more diff"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_d4_runtime_integration",
+        "name": "test_continuous_stress_stays_limited_through_fresh_level5_gate",
+        "time": "0.084"
+      },
+      "outcome": "FAIL",
+      "message": "TypeError: _ensure_stress_test_report() missing 1 required keyword-only argument: 'expected_candidate_ref'"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.search.test_phase_d4_runtime_integration",
+        "name": "test_l5_distinguishes_missing_legacy_and_malformed_stress_scores",
+        "time": "0.085"
+      },
+      "outcome": "FAIL",
+      "message": "polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_invalid_reference_point_is_explicitly_refused",
+        "time": "0.000"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'non-finite'\n  Actual message: 'hypervolume reference keys do not match the objective schema'"
+    },
+    {
+      "case": {
+        "classname": "tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront",
+        "name": "test_overflowing_finite_coordinates_are_not_reported_as_hypervolume",
+        "time": "0.000"
+      },
+      "outcome": "FAIL",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'hypervolume result is non-finite'\n  Actual message: 'hypervolume reference keys do not match the objective schema'"
+    }
+  ],
+  "captured_input_count": 6216,
+  "captured_before_after_identical": true,
+  "input_boundary": "Actual wrapper captures Python src/tests/tools and declared configs; does not establish a complete non-Python/schema/resource input freeze. Exact denominator is command.json before_sha256.",
+  "module_origins": {
+    "loaded": 1805,
+    "outside_selected_source_root": [],
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/command.json",
+      "sha256": "35d0236675efbdd6de2a48f059cbb2eef5f56ced9e919bffe18b5c85d754477d",
+      "bytes": 2039439,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/junit.xml",
+      "sha256": "69178f0e35dca2799160ea7ef95a73493457a515acef49e629c71216a9a9eed8",
+      "bytes": 155347,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/module-origins.json",
+      "sha256": "e4d0d7abb99159d3b7d051d026d2251dd81e288300f77758951185ab6ca51162",
+      "bytes": 570844,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/progress.json",
+      "sha256": "cdff7022353fcbc82a626891d604185567fc332ea9bb854bf55c0fab96722eb9",
+      "bytes": 365925,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "local ignored raw retained"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/stdout.txt",
+      "sha256": "e105bd4c74d2c83cfbf07e9db4d658577f54958a1ca6659f8d08a3058374439e",
+      "bytes": 122711,
+      "availability": "local ignored raw retained"
+    }
+  ],
+  "individual_boundaries": [
+    {
+      "group": "B120/search prompt",
+      "failed": 8,
+      "next_check": "R951 blocked on generic cycle refusal; R960 successor independent delta then actual search consumer replay."
+    },
+    {
+      "group": "Phase B/transfer/N9",
+      "failed": 6,
+      "next_check": "R953r2 blocked R959 tenant locator/body collision; R964 source-context binding + actual transfer consumers. N9 positive bridge remains incomplete."
+    },
+    {
+      "group": "B106/stress",
+      "failed": 4,
+      "next_check": "R952 producer source/profile lineage and actual canonical fixtures, independent review and native consumers. Defer semantics remains G choice."
+    },
+    {
+      "group": "B111/hypervolume",
+      "failed": 2,
+      "next_check": "R954 complete produced objective-key controls, R963 independent review and actual native validation."
+    }
+  ],
+  "native_profile_gate": {
+    "outcome": "No final thread assertion failure appears in full output; command omitted supported SCIENTIST_TORCH_NUM_THREADS and SCIENTIST_TORCH_NUM_INTEROP_THREADS. Next wave uses corrected R946 recipe; no assertion of complete profile qualification here."
+  },
+  "closure_ids": [],
+  "author_proposals": []
+}

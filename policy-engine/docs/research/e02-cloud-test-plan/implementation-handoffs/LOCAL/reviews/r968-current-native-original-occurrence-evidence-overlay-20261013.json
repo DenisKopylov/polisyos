@@ -1,0 +1,366 @@
+{
+  "schema": "policyos.e02.r968_original_occurrence_evidence_overlay.v1",
+  "artifact_id": "r968-current-native-original-occurrence-evidence-overlay-20261013",
+  "purpose": "Read-only occurrence-level evidence routing; exact subproperty links only; proposals and formal decisions remain separate.",
+  "source_binding": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "head": "dae174623baca79449638758ada159ab7ebdaefb",
+    "tree": "0e7846a9576e698150de7e613d424dc72d5dd43a",
+    "branch": "codex/e02-unified-local-20261009",
+    "source_frame_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+    "source_frame_sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418",
+    "source_frame_status": "provisional source checkpoint; not a global freeze or G acceptance"
+  },
+  "input_bindings": {
+    "coverage": {
+      "path": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "tasks": {
+      "path": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "r939_rows": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r939-full-id-proposal-readiness-20261013.ndjson",
+      "sha256": "843caec681b8754123acdc9741a83b66102c9a7b66a58703f394b6437667b3fb"
+    },
+    "r939_report": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r939-full-id-proposal-readiness-20261013.md",
+      "sha256": "d4b847a91a88ea117f1f937f26045ca93695431c437b55c0d83bb69fea43c48c"
+    },
+    "r939_refresh": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r939-r943-source-refresh-20261013.json",
+      "sha256": "d7a9b897eb51980098e2f625afd96cc294589348b42e16087d1df4985a30b12a"
+    },
+    "r784": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r784-full-id-closeout-readiness-r1-20261013.json",
+      "sha256": "47672eebd193e43a2bff382a4963f347f246cb141f8ba516c1fa88be9a1fa099"
+    },
+    "r784_corr_r1": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r784-b106-b111-original-binding-corrigendum-r1-20261013.json",
+      "sha256": "f4ccf6f5cdd74b4b7e049decfdef73d748168372d81e20dfd85064e295791695"
+    },
+    "r784_corr_r2": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r784-original-criterion-owner-boundary-corrigendum-r2-20261013.json",
+      "sha256": "3388daeddd9950f96eea9807e5e0989d7cc4dfaedd4943c751142e6f06b3e6de"
+    },
+    "r900": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-cas-core-s1-v7-public-registry-deciding-r900-20261013.json",
+      "sha256": "408e1fcbda3cdf17da82f5bb8be55290bc4bdc67d12589f9b75366ed4d1583d3"
+    },
+    "r904": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-v6-resource-boundary-deciding-r904-20261013.json",
+      "sha256": "12ed3c1c700dcb0db76942d18cfeb762f66e7b0c0b8bc2ed64d9d5818cb27ed3"
+    },
+    "r923": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-backtest-ruff-native-deciding-r923-20261013.json",
+      "sha256": "1931a288a86ea26e3da04223b011555cedd184346330457f36bb6726e5ad849f"
+    },
+    "r944": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-ruff-native-vector-deciding-r944-20261013.json",
+      "sha256": "1e8f17050acf2c1fc15ae3d41fd5deb5d640274fa560d51280528e0f0de2fdc3"
+    },
+    "r948_frame": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+      "sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+    },
+    "r949": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/search-stress-pareto-budget-cli-deciding-r949-20261013.json",
+      "sha256": "995c5b9514b182469602fddb6529e9e602094070f7becc47c4062d1da925c94d"
+    }
+  },
+  "denominator": {
+    "original_occurrences": 291,
+    "unique_finding_ids": 282,
+    "repeated_ids": 8,
+    "occurrences_held_by_repeated_ids": 17,
+    "task_routes": 331,
+    "identity_counter_rows": 291,
+    "identity_counter_unique": 291,
+    "all_291_original_spans_rehashed_from_pinned_Git_blobs": true
+  },
+  "preserved_history": {
+    "canonical_coverage_historical_closed_ids": 9,
+    "source_author_proposed_closed_ids": 198,
+    "source_author_proposed_closed_occurrences": 202,
+    "B198": {
+      "historical_ledger": "closed",
+      "appendix_c": "closed_bounded",
+      "source_author_disposition": "closed",
+      "formal_G": "not_adjudicated",
+      "candidate_state": "UNRUN"
+    },
+    "historical_axes_copied_per_occurrence_without_promotion": true
+  },
+  "overlay_status_counts": {
+    "interrupted_attempt_without_completed_consumer_evidence": 1,
+    "no_exact_link_in_reviewed_receipts": 283,
+    "partial_bounded_evidence_on_earlier_R943_frame": 1,
+    "partial_subproperty_only": 2,
+    "partial_subproperty_plus_blocked_attempt": 3,
+    "unrun_exact_selector_only": 1
+  },
+  "exactly_linked_occurrences": [
+    "B106",
+    "B107",
+    "B111",
+    "B118",
+    "B120",
+    "B13",
+    "B134",
+    "B15"
+  ],
+  "receipt_summaries": {
+    "R900": {
+      "receipt_path": "LOCAL/composed-cas-core-s1-v7-public-registry-deciding-r900-20261013.json",
+      "receipt_sha256": "408e1fcbda3cdf17da82f5bb8be55290bc4bdc67d12589f9b75366ed4d1583d3",
+      "source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r896-20261013.json",
+        "sha256": "206514e7d52f5657fbd4429e7fa286010d1ad3f6bbf1d444714a3ae6c33b02f1"
+      },
+      "results": {
+        "PASS": 306,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0,
+        "tests": 308
+      },
+      "captured_input_count": 6216,
+      "captured_before_after_identical": true,
+      "deciding_junit": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-cas-core-s1-v7-public-registry-consumers-actual-r900-20261013/junit.xml",
+        "sha256": "3b9b59b1b82fb7c2b26af61f66f8f28592c33c0030638673e9b0aa2263eda8fb"
+      },
+      "limits": [
+        "306 PASS does not close original whole properties or grant external authority.",
+        "Actual V7 HTTP consumer fails at nonexistent reason_codes field; Root-owned companion repair R902 required.",
+        "C5b negative source inconsistency refuses before diagnostic target; reviewed consistent controlled payload repair R903 required.",
+        "R897 exit4 wrong test path executed zero tests; preserved as harness error and not product failure."
+      ]
+    },
+    "R904": {
+      "receipt_path": "LOCAL/n4-v6-resource-boundary-deciding-r904-20261013.json",
+      "receipt_sha256": "12ed3c1c700dcb0db76942d18cfeb762f66e7b0c0b8bc2ed64d9d5818cb27ed3",
+      "source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r896-20261013.json",
+        "sha256": "206514e7d52f5657fbd4429e7fa286010d1ad3f6bbf1d444714a3ae6c33b02f1"
+      },
+      "outcomes": [
+        {
+          "selector": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_two_child_recording_lineage_tracks_selected_recorded_source",
+          "outcome": "PASS",
+          "boundary": "Controlled recorded-input lineage fixture only; no runtime claim"
+        },
+        {
+          "selector": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+          "outcome": "INTERRUPTED",
+          "boundary": "Actual POST/worker path began; no completed semantic consumer receipt"
+        },
+        {
+          "selector": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_served_real_n4_children_keep_first_n5_after_later_sibling_failure",
+          "outcome": "UNRUN",
+          "boundary": "Not reached after second test interrupt"
+        }
+      ],
+      "operator_interrupt": {
+        "signal": "SIGINT",
+        "owned_pid": 58933,
+        "reason": "Measured physical-footprint peak14.7GiB and active JSON serialization; preserve interactive Mac. Cause not established, not OOM attribution."
+      },
+      "captured_input_count": 6223,
+      "captured_before_after_identical": true,
+      "module_origins": "not_established; process interrupted before session-finish origin capture",
+      "outputs": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/stdout.txt",
+          "sha256": "74fc62d4733f91fffcf3c6fe11e447f58490a0bca3fd02f3b0879611072c74c4"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/command.json",
+          "sha256": "be133ca1b2c544f6a4e67c787c5d281265dd1b3fdd6ed62517f59e1e2f2b21bc"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/progress.json",
+          "sha256": "877592e46ab0a6f83b4087ae5254392224089e13966d4b5a4e67ea312fb39394"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/process-sample.txt",
+          "sha256": "28b924e2aa38fc9a0062a0ed49418a717ff005ab428b69e7c82d20d69186b063"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/sample-command.json",
+          "sha256": "c1a0a0a87526d2c40b8cc7b31192d203145ee1afae4aaa507d3b1c7479a23eaf"
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-v6-real-child-profile-fresh-get-composed-actual-r904-20261013/operator-interrupt.json",
+          "sha256": "c90453c2423b05faac85ed0612efa4fffba778f61e31936bcf55b23780b949d3"
+        }
+      ],
+      "next_check": "R909 exact source/API/resource diagnosis then bounded discriminating replay without changing production inputs. R898 separate actual budget settlement bridge in progress."
+    },
+    "R923": {
+      "receipt_path": "LOCAL/v7-backtest-ruff-native-deciding-r923-20261013.json",
+      "receipt_sha256": "1931a288a86ea26e3da04223b011555cedd184346330457f36bb6726e5ad849f",
+      "source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r922-20261013.json",
+        "sha256": "312ab0db93728b71b3e0395b8830e47dba410fe3d1a415d575ca9eb52f889f40"
+      },
+      "results": {
+        "PASS": 81,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "captured_input_count": 6263,
+      "captured_before_after_identical": true,
+      "deciding_junit": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-backtest-ruff-native-consumers-composed-actual-r923-20261013/junit.xml",
+        "sha256": "a4160428940d8e85b6d75b6ed30c30f8753f88351c3034027800e2d0f75479e5"
+      },
+      "nonpassing_cases": [
+        {
+          "case": {
+            "classname": "tests.unit.runtime.http.test_control_service_di",
+            "name": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+            "time": "13.107"
+          },
+          "outcome": "FAIL",
+          "message": "AttributeError: 'dict' object has no attribute 'model_dump'"
+        },
+        {
+          "case": {
+            "classname": "tests.repo_quality.tools.test_tool_config_split",
+            "name": "test_ruff_pre_commit_settings_and_collection_match_product_root",
+            "time": "1.013"
+          },
+          "outcome": "FAIL",
+          "message": "AssertionError: [\n    {\n      \"cell\": null,\n      \"code\": \"I001\",\n      \"end_location\": {\n        \"column\": 57,\n        \"row\": 13\n      },\n      \"filename\": \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/workers/dowhy-014/tests/test_worker.py\",\n      \"fix\": {\n        \"applicability\": \"safe\",\n        \"edits\": [\n          {\n            \"content\": \"from __future__ import annotations\\n\\nimport json\\nimport sys\\n\\nimport numpy as np\\nimport pytest\\nimport statsmodels.api as sm\\nfrom protocol import REQUEST_SCHEMA, decode, digest, validate_request\\nfrom worker import execute, interval, linear_ate, scalar\\n\\n\\n\",\n            \"end_location\": {\n              \"column\": 1,\n              \"row\": 16\n            },\n            \"location\": {\n              \"column\": 1,\n              \"row\": 3\n            }\n          }\n        ],\n        \"message\": \"Organize imports\"\n      },\n      \"location\": {\n        \"column\": 1,\n        \"row\": 3\n      },\n      \"message\": \"Import block is un-sorted or un-formatted\",\n      \"noqa_row\": 3,\n      \"url\": \"https://docs.astral.sh/ruff/rules/unsorted-imports\"\n    }\n  ]\nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/b...n-formatted\",\\n    \"noqa_row\": 3,\\n    \"url\": \"https://docs.astral.sh/ruff/rules/unsorted-imports\"\\n  }\\n]', stderr='').returncode"
+        }
+      ],
+      "limits": [
+        "No author or formal G closures; successcounts notwholeclaim adjudication.",
+        "V7 actualPOST201 then test selecteddict.model_dumpAttributeError; compare actualwire refs without weakening producerref identity.",
+        "Native workerI001 companionmustrepair actualSourcewithoutblanketRuff waiver/exception.",
+        "Native SOTA/Linux/installed/authentic/full-ID freeze remain outstanding."
+      ]
+    },
+    "R944": {
+      "receipt_path": "LOCAL/v7-ruff-native-vector-deciding-r944-20261013.json",
+      "receipt_sha256": "1e8f17050acf2c1fc15ae3d41fd5deb5d640274fa560d51280528e0f0de2fdc3",
+      "source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r943-20261013.json",
+        "sha256": "06d2f9c935c15f8fffb2e3fa23711a6ef8e2a148e22c6d8a80d4b59d2e9e6e58"
+      },
+      "case_results": {
+        "PASS": 118,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "captured_input_count": 6264,
+      "captured_before_after_identical": true,
+      "individual_boundaries": [
+        "B134 genuine selected-profile/CAS native hnswlib truncation RuntimeError and application capacity refusal controls pass with full prior-generation/query/persisted state; original add/update/concurrency properties not asserted by this boundedloadproof.",
+        "V7 actual POST201/event/intent completed; fresh consumer GET409 root-view mismatch keeps chain incomplete. R945 source-bound diagnosis required.",
+        "Ruff52cases PASS including effective compiled worker scopes and native I001target, with targetversionpy312vspy314 residual retained; no whole nativeRepo/SOTA green.",
+        "Torch1→4 profile violation R946 mustresolve exact source/caller/recipe; notinherited withoutP41proof."
+      ],
+      "native_profile_gate": {
+        "outcome": "FAIL",
+        "boundary": "Thread-limit plugin reports Torch intra/inter1 at start; intra4/inter1 at finish, asserted profile1 fails in pytest_sessionfinish. This is separate from JUnit118P1F; no overall nativegreen."
+      },
+      "deciding_junit": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ruff-native-vector-generation-consumers-composed-actual-r944-20261013/junit.xml",
+        "sha256": "a8af464e4505a2bf1e1904accc07eb09acf79e72152398a3497c9e9f4af27e91"
+      }
+    },
+    "R949": {
+      "receipt_path": "LOCAL/search-stress-pareto-budget-cli-deciding-r949-20261013.json",
+      "receipt_sha256": "995c5b9514b182469602fddb6529e9e602094070f7becc47c4062d1da925c94d",
+      "source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r948-20261013.json",
+        "sha256": "42bcaacaa47c4a131b64157a1f609bd84ff869565bdcbcd1761f9ad207d5a418"
+      },
+      "case_results": {
+        "PASS": 173,
+        "FAIL": 20,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "captured_input_count": 6216,
+      "captured_before_after_identical": true,
+      "module_origins": {
+        "loaded": 1805,
+        "outside_selected_source_root": [],
+        "source_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+      },
+      "individual_boundaries": [
+        {
+          "group": "B120/search prompt",
+          "failed": 8,
+          "next_check": "R951 blocked on generic cycle refusal; R960 successor independent delta then actual search consumer replay."
+        },
+        {
+          "group": "Phase B/transfer/N9",
+          "failed": 6,
+          "next_check": "R953r2 blocked R959 tenant locator/body collision; R964 source-context binding + actual transfer consumers. N9 positive bridge remains incomplete."
+        },
+        {
+          "group": "B106/stress",
+          "failed": 4,
+          "next_check": "R952 producer source/profile lineage and actual canonical fixtures, independent review and native consumers. Defer semantics remains G choice."
+        },
+        {
+          "group": "B111/hypervolume",
+          "failed": 2,
+          "next_check": "R954 complete produced objective-key controls, R963 independent review and actual native validation."
+        }
+      ],
+      "native_profile_gate": {
+        "outcome": "No final thread assertion failure appears in full output; command omitted supported SCIENTIST_TORCH_NUM_THREADS and SCIENTIST_TORCH_NUM_INTEROP_THREADS. Next wave uses corrected R946 recipe; no assertion of complete profile qualification here."
+      },
+      "deciding_junit": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-search-stress-pareto-budget-cli-replay-actual-r949-20261013/junit.xml",
+        "sha256": "69178f0e35dca2799160ea7ef95a73493457a515acef49e629c71216a9a9eed8"
+      },
+      "closure_ids": []
+    }
+  },
+  "unmapped_receipt_findings": [
+    {
+      "receipt": "R900/R923/R944",
+      "reason": "V7 POST/fresh-GET failures differ across source frames (reason_codes, dict.model_dump, then root-view 409); no exact whole original-criterion binding is established here."
+    },
+    {
+      "receipt": "R900",
+      "reason": "Core selected-profile and producer conformance tests pass on R896, but no paired IR codec run or persisted-byte migration proof exists; not assigned to LA-021."
+    },
+    {
+      "receipt": "R949",
+      "reason": "Phase-B promotion/readiness, transfer/N9 and Phase-D4 failures are retained as receipt-level issues; they are not joined to B109 or another original criterion by topic alone."
+    },
+    {
+      "receipt": "R949",
+      "reason": "The fresh-reader Pareto membership failures are reason-code assertions ('verdict_reject' vs 'governance:verdict_reject'), not B109's fast-vs-all-pairs dominance property."
+    },
+    {
+      "receipt": "R944/R949",
+      "reason": "Native thread/profile checks are separate run-environment failures; no original criterion occurrence is inferred."
+    }
+  ],
+  "status_boundary": {
+    "r939_candidate_states_remain_UNRUN": 291,
+    "verification_remains_not_established": 291,
+    "formal_G_states_remain_not_adjudicated": 291,
+    "overlay_does_not_change_any_candidate_or_historical_status": true,
+    "closure_ids": [],
+    "current_R948_frame_is_not_final_freeze": true
+  },
+  "rows_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r968-current-native-original-occurrence-evidence-overlay-20261013.ndjson",
+  "rows_sha256": "a940f3ff07a5822ad8e0d6abb378f9abf7bcdb888e3dde3f05491a4f69a2091b",
+  "readback": "generated by the ignored stdlib-only script under LOCAL/raw; no source, index, or history was written"
+}

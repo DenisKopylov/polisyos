@@ -2,7 +2,7 @@
 
 Related: [PolicyOS identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md), [Stage-0 custody kernel](../system-design-decisions/stage0-custody-kernel-ratification.md), [custody time model](../system-design-decisions/policy-design-custody-time-model.md), [governance passes](../reference/scientist/governance-passes.md), [governance accountability](../reference/scientist/governance-accountability.md), and [failure and repair patterns](../reference/policy-design-case-failure-patterns.md).
 
-Evidence basis: implementation and semantic-test paths below were inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`. This page distinguishes that observed behavior from ratified target rules; a contract, test fixture, or completed template alone does not establish a deployed capability.
+Evidence basis: implementation and semantic-test paths below were inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; tests were inspected as source evidence and not run for this documentation update. This page distinguishes that observed behavior from ratified target rules; a contract, test fixture, or completed template alone does not establish a deployed capability.
 
 ## Purpose and authority boundary
 

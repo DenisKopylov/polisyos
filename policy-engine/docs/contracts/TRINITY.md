@@ -157,9 +157,11 @@ a `semantic` key. The package also provides `split_to_bundle()` and
 Older planning and contract documents refer to `PolicySurfaceIR` and
 `polisyos.ir.legacy.migrations`. Those are historical migration notes, not
 current runtime compatibility guarantees: the pinned source contains neither a
-`PolicySurfaceIR` implementation nor that migration package. Remaining source
-compatibility in this area consists of deprecated import aliases for moved IR
-modules; those aliases do not restore legacy surface payload support.
+`PolicySurfaceIR` implementation nor that migration package. No deprecated
+legacy-module aliases are registered in the default IR owner configuration at
+this source pin; the empty alias registries do not provide import compatibility.
+This is separate from the canonical `policy_ir` schema-migration behavior
+described above.
 
 The code-inspected entrypoints are:
 

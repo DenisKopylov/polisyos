@@ -84,9 +84,13 @@ run receipt for claims about a particular machine or validation run.
 
 ## Docs-only workflow
 
-Use the `docs` profile described in [Installation](../how-to/install.md). It skips frontend and
-Playwright installation, but the default bootstrap `doctor` still checks Node `22.x` and the
-Corepack/pnpm lockfile. After its prerequisites are prepared, run these checks from `policy-engine/`:
+The `docs` profile selects Python extras `lint + docs`; the profile alone does not skip other
+bootstrap steps. The browserless command in [Installation](../how-to/install.md) adds
+`--skip-frontend --skip-doctor`, which skips frontend/Playwright installation and skips `doctor`
+entirely. It still installs pre-commit hooks unless `--skip-hooks` is also supplied. Bare
+`bootstrap --profile docs` keeps the default hooks, frontend, Playwright, and `doctor` steps; that
+`doctor` checks Node `22.x`, Corepack/pnpm lockfiles, and generated contracts. After prerequisites
+are prepared, run these checks from `policy-engine/`:
 
 ```bash
 uv run polisyos-tools workspace docs-style docs/

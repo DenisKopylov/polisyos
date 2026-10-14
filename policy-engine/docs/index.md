@@ -91,7 +91,7 @@ flowchart TB
   retention, and closeout evidence together.
 
 - [Documentation inventory](reference/documentation-inventory.md) tracks the
-  bounded documentation census and the historical D0-D5 ledger.
+  bounded documentation census and the historical D0-D6 ledger.
 - [Documentation verification](reference/documentation-verification.md) explains
   what the documentation checks actually establish.
 

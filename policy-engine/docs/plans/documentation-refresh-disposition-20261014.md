@@ -1,9 +1,11 @@
 # Documentation plan disposition — 2026-10-14
 
 This is a dated review of plan locations and selected closeout records. The
-membership census is pinned to `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
-the reference scan used the current `codex/docs-refresh-e02-20261014` working
-tree. The first archive/pointer batch is recorded below. E02 remains active.
+membership census is pinned to `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+The earlier literal-reference search ran against a moving working tree without
+a retained script or receipt digest. Its references are leads for the
+classifications below, not a deciding census. The first archive/pointer batch
+is recorded below. E02 remains active.
 
 ## Census and denominator
 
@@ -25,8 +27,8 @@ archive Markdown files have 3 `archived`, 2 `superseded`, 2 `accepted`, 1
 string does not settle the semantic state of a bounded item.
 
 All four active-path `completed` labels are addressed below: Data Forge and G5
-are bounded-closeout candidates; G2 and production quality remain held on
-current red evidence. All four `superseded` labels are accounted for: Design
+have delivered bounded archive copies; G2 and production quality remain held
+on current red evidence. All four `superseded` labels are accounted for: Design
 and Frontend already have pointer stubs, Atlas marketing still carries useful
 DS11–DS13 material, and Repository Last-Mile has live consumer references.
 The other 292 active Markdown files have `active`, other workflow, or no
@@ -45,39 +47,28 @@ The complete accepted set is:
 - [Repository structure remediation plan](accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md)
   and [closeout](accepted/REPOSITORY_STRUCTURE_REMEDIATION_CLOSEOUT.md).
 
-All nine accepted files had inbound references in the full working-tree scan.
 The Repository SOTA phases are referenced by repository quality tests and
-closeout tooling, so this review proposes no move from `accepted/`. The pinned archive set consists of 28 Markdown paths. The delivered batch
-below adds three byte-preserved historical copies; it does not rewrite the
-pinned originals.
+closeout tooling, so this review proposes no move from `accepted/`. The pinned
+archive set consists of 28 Markdown paths. The delivered batch below adds
+three byte-preserved historical copies; it does not rewrite the pinned
+originals.
 
-The inbound scan walked 22,693 text-like files out of 25,056 current
-tracked/non-ignored paths. Its suffix denominator was: Markdown 3,307; JSON
-7,225; TXT 2,334; CSV 15; TSV 6; JSONL 15 (12,902 prose/data files); Python
-7,575; Pyi 5; TS 532; TSX 724; JS 4; CJS 9; MJS 43 (8,892 source files); SH
-48; TOML 429; YAML 85; YML 73; JSONC 1; CFG 1; INI 11; TF 1 (649
-configuration/build files); MDC 1; HTML 3; XML 199; SQL 6; Rego 23; SVG 18
-(250 markup/other files). This scan treats matching content as a lead for
-classification, not proof that a reference is live.
+An earlier moving-tree search also surfaced literal path leads in
+`docs/superpowers/plans/`. Those leads are not a deciding census of that
+collection; another lane is separately reviewing it.
 
-`docs/superpowers/plans/` held 39 Markdown paths at the pinned tree (README and
-38 plans). Every one of the 38 plans had at least one literal inbound filename
-or stem hit in the same full working-tree scan; no unreferenced plan was
-identified for this disposition. Another lane is separately reviewing that
-collection.
-
-## Move proposals
+## Archive disposition
 
 The first three rows were delivered as byte-identical archive copies with
 compatibility pointers on 2026-10-14. DS15 remains a conditional proposal.
 Completion of a bounded slice is separate from current runtime readiness.
 
-| Current path → proposed archive path | Classification and primary evidence | Inbound references and move shape |
+| Current path → archive path under review | Classification and primary evidence | Reviewed reference leads and move shape |
 | --- | --- | --- |
-| [`active/DOCUMENTATION_SOTA_PLAN.md`](active/DOCUMENTATION_SOTA_PLAN.md) → `archive/DOCUMENTATION_SOTA_PLAN.md` | Candidate bounded historical plan. The [documentation inventory's Historical D6 Status Snapshot](../reference/documentation-inventory.md#historical-d6-status-snapshot), dated 2026-04-17, records the D1–D6 documentation closeout as complete on the published surface and the dedicated docs/contract/import/state-read gates as passing. The same inventory's 2026-10-14 preamble explicitly says these D0–D6 rows are historical and were not revalidated by its census. The plan's `status: active` is therefore not promoted to current documentation readiness. The current bounded successor is [DOCUMENTATION_REFRESH_20261014.md](active/DOCUMENTATION_REFRESH_20261014.md). | 32 literal-name hit files in the 22,693-file scan. Live docs and MkDocs config mentions remain resolvable through an old-path pointer. `test_repository_sota_phase3_topology_cleanup.py` checks only that the old path exists; `tools/registry.py` mentions it in generated documentation-impact text, not as a plan parser or runtime input. Four path/content receipts are historical and commit-qualified: `sources.json` records the source snapshot head `2122b1fd904a5a378416e9ac7370bbd4191dfda2` and SHA-256; two C10 manifests bind source blobs at commits `03a7c5d5…` and `e6854a70…`; the `source_disposition.json` entry is scoped to the same historical snapshot. Preserve these files unchanged. Proposed old-path stub uses the existing redirect contract fields `owner`, `target_path`, `reason`, `created_date`, `sunset_date`, and `removal_gate`; a 90-day sunset from 2026-10-14 is 2027-01-12. Keep the archived original byte-identical so the pinned bytes remain available. |
-| [`active/DATA_FORGE_CUTOVER_READINESS.md`](active/DATA_FORGE_CUTOVER_READINESS.md) → `archive/DATA_FORGE_CUTOVER_READINESS.md` | Candidate bounded cutover completion. The plan names `team-data-forge`, status `completed`, and a dated [Owner Sign-Off](archive/DATA_FORGE_CUTOVER_READINESS.md#owner-sign-off): the accepted Lex artifact root was sufficient for the Phase 0 Legal cutover. The sign-off explicitly retains the reference-resolution and temporal-current-safety benchmark failures. The [Data Forge master plan](active/DATA_FORGE_CONSOLIDATION_PLAN.md) records Phase 0 complete while Phase 8 remains in shim-sunset mode. This is not a claim that all Data Forge readiness gates pass. | 11 hit files (4 Markdown, 7 JSON), including the active master-plan link and historical reports/journal. JSON source inventories and manifests are frozen provenance, not runtime consumers. No code, configuration, validator, or runtime dependency on the plan path was found in the scan. A pointer at the current path preserves the master-plan link; leave receipts unchanged. |
-| [`active/layer3-slices/G5-first-proving-ground-conversion.md`](active/layer3-slices/G5-first-proving-ground-conversion.md) → `archive/G5-first-proving-ground-conversion.md` | Candidate bounded implementation closeout. Front matter records `completed`, `2026-06-10`, and `stability: closed`. Current `layer3_g5_readiness_manifest.json` and conformance report pass; the W12D consumer gate passes with `conversion_classification=unchanged_blocker` and `decision_grade=unsupported`. The bounded G5 plumbing is complete; a positive conversion is not established. Dependency-health failures and active G6/G7/GX follow-on plans remain outside this slice's completion claim. | 13 hit files (6 Markdown, 7 JSON), including current G6/G7/GX owner documents and static source/epoch receipts. No code, configuration, validator, or runtime dependency on the plan path was found. Preserve an old-path pointer for the active successor links; leave receipts unchanged. |
-| [`active/atlas-slices/DS15-acquisition-routes.md`](active/atlas-slices/DS15-acquisition-routes.md) → `archive/DS15-acquisition-routes.md` | Candidate bounded surface closure. Its dated [C06 closure](active/atlas-slices/DS15-acquisition-routes.md) records the final 42/42 mechanism readback and says the bounded surface is closed. It separately leaves `fresh_positive_production_route` `absent/unallocated`; no positive production-growth claim follows. | 15 hit files, including current E02R2 docs and immutable source receipts. `CROSSWALK.md` pins the original Git blob `ccc4a7bd…`; `R13_G_RESIDUAL.md` binds `DS15-acquisition-routes.md@sha256:5402b3e4…`. Do not edit either E02 source binding or JSON receipt. A pointer can preserve ordinary path links, while the byte-identical archived original preserves the content digest/blob. Keep the move conditional on confirming the hash-only R13 receipt resolves to that archived original; if it expects current bytes at the old path, do not stub the source. No code/config/runtime dependency on this plan path surfaced. |
+| [`active/DOCUMENTATION_SOTA_PLAN.md`](active/DOCUMENTATION_SOTA_PLAN.md) → `archive/DOCUMENTATION_SOTA_PLAN.md` | **Delivered — bounded historical documentation slice.** The [documentation inventory's Historical D6 Status Snapshot](../reference/documentation-inventory.md#historical-d6-status-snapshot), dated 2026-04-17, records the D1–D6 documentation closeout as complete on the published surface and the dedicated docs/contract/import/state-read gates as passing. The same inventory's 2026-10-14 preamble explicitly says these D0–D6 rows are historical and were not revalidated by its census. The plan's `status: active` is therefore not promoted to current documentation readiness. The current bounded successor is [DOCUMENTATION_REFRESH_20261014.md](active/DOCUMENTATION_REFRESH_20261014.md). | Reviewed leads include live documentation links and MkDocs basename exclusions, preserved by the old-path pointer. `test_repository_sota_phase3_topology_cleanup.py` checks only that the old path exists; `tools/registry.py` mentions it in generated documentation-impact text, not as a plan parser or runtime input. Examined path/content receipts are historical and commit-qualified: `sources.json` records the source snapshot head `2122b1fd904a5a378416e9ac7370bbd4191dfda2` and SHA-256; two C10 manifests bind source blobs at commits `03a7c5d5…` and `e6854a70…`; the `source_disposition.json` entry is scoped to the same historical snapshot. Preserve these files unchanged. The delivered old-path pointer uses the existing redirect lifecycle fields `owner`, `target_path`, `reason`, `created_date`, `sunset_date`, and `removal_gate`; a 90-day sunset from 2026-10-14 is 2027-01-12. Keep the archived original byte-identical so the pinned bytes remain available. |
+| [`active/DATA_FORGE_CUTOVER_READINESS.md`](active/DATA_FORGE_CUTOVER_READINESS.md) → `archive/DATA_FORGE_CUTOVER_READINESS.md` | **Delivered — bounded Phase 0 cutover completion.** The plan names `team-data-forge`, status `completed`, and a dated [Owner Sign-Off](archive/DATA_FORGE_CUTOVER_READINESS.md#owner-sign-off): the accepted Lex artifact root was sufficient for the Phase 0 Legal cutover. The sign-off explicitly retains the reference-resolution and temporal-current-safety benchmark failures. The [Data Forge master plan](active/DATA_FORGE_CONSOLIDATION_PLAN.md) records Phase 0 complete while Phase 8 remains in shim-sunset mode. This is not a claim that all Data Forge readiness gates pass. | Reviewed leads include the live master-plan link and historical reports/journal. JSON source inventories and manifests are immutable provenance, not runtime consumers. The pointer preserves the master-plan link; leave receipts unchanged. |
+| [`active/layer3-slices/G5-first-proving-ground-conversion.md`](active/layer3-slices/G5-first-proving-ground-conversion.md) → `archive/G5-first-proving-ground-conversion.md` | **Delivered — bounded implementation closeout.** Front matter records `completed`, `2026-06-10`, and `stability: closed`. Current `layer3_g5_readiness_manifest.json` and conformance report pass; the W12D consumer gate passes with `conversion_classification=unchanged_blocker` and `decision_grade=unsupported`. The bounded G5 plumbing is complete; a positive conversion is not established. Dependency-health failures and active G6/G7/GX follow-on plans remain outside this slice's completion claim. | Reviewed leads include current G6/G7/GX owner documents and static source/epoch receipts. The owner documents are live follow-on links; source/epoch receipts are immutable history. The old-path pointer preserves successor links; receipts remain unchanged. |
+| [`active/atlas-slices/DS15-acquisition-routes.md`](active/atlas-slices/DS15-acquisition-routes.md) → `archive/DS15-acquisition-routes.md` | **Not moved — candidate bounded surface closure.** Its dated [C06 closure](active/atlas-slices/DS15-acquisition-routes.md) records the final 42/42 mechanism readback and says the bounded surface is closed. It separately leaves `fresh_positive_production_route` `absent/unallocated`; no positive production-growth claim follows. | The reviewed E02R2 references include `CROSSWALK.md`, which pins the original Git blob `ccc4a7bd…`, and `R13_G_RESIDUAL.md`, which binds `DS15-acquisition-routes.md@sha256:5402b3e4…`. These are immutable source bindings, not ordinary path links; do not edit either E02 source binding or JSON receipt. Keep the move conditional on confirming the hash-only R13 receipt resolves to the archived original; if it expects current bytes at the old path, do not stub the source. |
 
 For an active-path pointer, preserve the original plan's historical status in
 the archived copy; the pointer's `superseded` status describes that old path,
@@ -102,8 +93,11 @@ moves.
 
 ## Pattern and gate-property notes
 
-- `P35`: counts above come from complete scripted path walks; denominators and
-  file-type groups are stated. No count was inferred from a search result.
+- `P35`: the plan-tree path counts above use the pinned `git ls-tree` command
+  and commit, with directory and file-type denominators stated. Inbound
+  reference totals are omitted because the earlier moving-tree search has no
+  retained script or receipt digest. No archive decision depends on its hit
+  counts.
 - `P36`: primary evidence is cited by path and section or artifact. Where a
   source has no finding ID, none is invented; a missing ID alone does not block
   an otherwise explicit bounded closure.
@@ -135,14 +129,15 @@ pointers. Root reread their destination bytes against the pinned source and
 retained all E02 receipts. DS15 remains conditional on its hash-only reader
 semantics; the original plan stays in place. Do not move G2 or the production-quality
 plan until their current reds have an owner disposition. The parent task's
-separate superpowers-plan census may add candidates, but this review found no
-unreferenced plan in that set.
+separate superpowers-plan review may add candidates; no completeness claim is
+made from the earlier moving-tree leads.
 
 ## Reference and verification limits
 
-The inbound scan establishes literal filename/stem references within the named
-text-like denominator. It does not prove absence of dynamic path readers or
-runtime consumers that construct paths without those tokens. Stored gate
+The earlier moving-tree search is not a deciding reference census and cannot
+establish absence of dynamic path readers or runtime consumers that construct
+paths without literal filename/stem tokens. The classifications above rely on
+the specific reviewed artifacts and path leads stated in each row. Stored gate
 verdicts were inspected; this review did not rerun G2/G5/DS15 or Data Forge
 runtime verification. Archive/pointer delivery is a documentation operation,
 not an authority-grade runtime gate. The three historical-source copies were

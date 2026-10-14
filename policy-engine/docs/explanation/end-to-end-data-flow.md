@@ -49,7 +49,7 @@ sequenceDiagram
     participant SQL as Control store + diagnostic event log
 
     Caller->>API: POST run ID + exact selected refs, split, method, rule, times, intent
-    API->>Run: Resolve owned run and completed job
+    API->>Run: Resolve owned run
     API->>Service: Candidate projection + typed request
     Service->>CAS: Check full profiles and exact run-root membership
     Service->>SQL: Read completed job; verify Core run/manifest binding
@@ -137,7 +137,9 @@ not authority to choose or publish a policy.
 
 ## Readback and failure behavior
 
-The GET reader selects the latest association-publication event for the run/job,
+The GET reader inspects at most 1,000 diagnostic events for the run/job and
+refuses with `predictive_calibration_event_history_bounded` when that bound is
+reached. Within the admitted history, it selects the latest association-publication event,
 checks event scope and payload SHA-256, reopens the exact association profile,
 checks manifest schema and input edges, binds the association back to the current
 run and completed job, reopens empirical evidence, compares the stored summary

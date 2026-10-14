@@ -6,7 +6,8 @@ Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/app.py`, and `src/polisyos/runtime/http/routes/*.py`
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
-Validation: `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
+Validation anchor: `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
+Validation status: Source inspection only for this documentation update; the contract check and listed test anchors were not run.
 
 The committed generated OpenAPI snapshot in `schemas/runtime_api_v1.openapi.json`
 is the contract source for schema-described operation shapes, DTOs, and
@@ -83,8 +84,8 @@ listed below.
 
 The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does not currently declare a `securitySchemes` section.
 
-- Production-style deployments are expected to front the API with bearer/JWT auth and inject request claims into `request.state`.
-- Runtime routes read resolved identity and access scope from request state, then enforce tenant access on run and artifact resources.
+- Governed and production execution profiles require the runtime security middleware chain. Configure the attested deployment security settings and identity provider; `JWTAuthMiddleware` validates the bearer token through that provider and projects verified claims into `request.state`. Manually injecting claims into request state is not the deployment authentication mechanism.
+- Runtime routes read the resolved identity and access scope from request state, then enforce tenant access on run and artifact resources. The `GET /api/v1/public-decisions/verification` path is explicitly allowed by the JWT and fail-closed middleware; that public verification response does not itself grant policy-decision or publication authority.
 - `GET /api/v1/auth/me` reflects the resolved identity and fails closed when claims are absent or invalid. Fixture identity is allowed only behind an explicit development flag.
 - Service-to-service authorization uses SPIFFE peer identity plus JWT-derived user scope when available.
 - When OPA authorization is enabled in enforce mode and the sidecar is unreachable or returns an invalid shape, the authz client fails closed and returns deny-by-default.

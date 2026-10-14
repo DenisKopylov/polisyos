@@ -3,6 +3,7 @@
 Owner: @data-forge-owners
 Last updated: 2026-10-14
 Source of truth: `policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py`, `policy-engine/src/polisyos/data_forge/read_api/catalog.py`, `policy-engine/hatch.toml`, `policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py`, and `policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py` at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Verification: source and named test files were inspected; this documentation review did not run tests.
 
 The four authored defaults in `policy-engine/data/dataset_catalog/` are seed
 variable alignments, proxy metric penalties, the WVS indicator registry, and the

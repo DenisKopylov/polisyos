@@ -41,9 +41,9 @@ It returned
 examined only their first 80 lines. The other 12,026 paths were counted by path,
 suffix, and blob ID, but their content bytes were not read.
 
-The static config source is [`mkdocs.yml`](../../mkdocs.yml), which inherits
-[`architecture/tooling/mkdocs/generated.yml`](../../architecture/tooling/mkdocs/generated.yml)
-at the baseline. The generated-config blob is `68f12ccdd0e447241c65d90aeb3134d1e4f75ec0`
+The static config source is `policy-engine/mkdocs.yml`, which inherits
+`policy-engine/architecture/tooling/mkdocs/generated.yml` at the baseline. The
+generated-config blob is `68f12ccdd0e447241c65d90aeb3134d1e4f75ec0`
 (SHA-256 `788cedda8e55160056a4a6be042f152246ab2984398b773b937363a8538d22b9`).
 The YAML nav was parsed with PyYAML 6.0.3 under Python 3.14.0. Reproduce the
 measurement in the originating worktree with
@@ -568,3 +568,79 @@ Audit date: 2026-04-17
 - The broad `ci-parity --skip-browser` backend pytest failures remain outside
   the documentation closeout and need a separate backend stabilization pass
   before the full local CI parity command can be marked green.
+
+## Delivered documentation delta at d015c0f (2026-10-14)
+
+This source-only comparison preserves the pinned-baseline census above and adds
+the delivered documentation tree at `d015c0f06dbc32671b000f7f61e92badbcb9859f`.
+It compares that frozen commit with baseline
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; it does not recast historical D0-D6
+notes as current evidence.
+
+The complete `policy-engine/docs/` Git tree increased from 14,817 to 14,832
+tracked blob paths, with Markdown increasing from 2,791 to 2,806. The pinned
+diff has 68 modified and 15 added Markdown files, with no deletions; all other
+suffix counts are unchanged. The complete tree-listing SHA-256 values are
+`4d6f13e3e2230a8b464f76887c9e43fe1793b625580fe9f949b96ff0b9886bf2` at the
+baseline and `2dd276bf3a65b19d8cfd45c096207616e77dd09ec86ba67adae839a3618bd420`
+at the freeze.
+
+The publishing-input denominator is 20 tracked blobs at both refs: root
+`mkdocs.yml`, all files under `architecture/tooling/mkdocs/`,
+`architecture/tooling/tool_config_split.toml`, the Markdown lint config and
+Python docs dependency declaration, and the docs publication/verification
+workflow files. Four files changed: `architecture/tooling/mkdocs/generated.yml`,
+`architecture/tooling/mkdocs/nav/30-reference.yml`,
+`architecture/tooling/mkdocs/nav/40-explanation.yml`, and
+`architecture/tooling/mkdocs/not_in_nav.yml`.
+
+Static parsing of the frozen generated MkDocs config joined against all 2,806
+tracked Markdown paths finds 371 unique navigation targets, all present; 27
+`exclude_docs` patterns match 422 paths; 122 declared `not_in_nav` patterns
+match 122 paths; and 1,891 paths remain outside those three classes. There are
+no overlaps, and the four classes sum to 2,806. This is YAML and path matching
+under the documented `fnmatchcase` approximation, not effective MkDocs
+selection or rendered navigation verification.
+
+For the named code-tree scope (`policy-engine/src/`, `policy-engine/tests/`,
+`policy-engine/tools/`, `policy-engine/apps/`, `policy-engine/ops/`,
+`policy-engine/scripts/`, and repository-root `src/`, `tests/`, `tools/`,
+`apps/`, `packages/`, `services/`, and `scripts/`), both refs contain 8,671
+tracked blobs and the diff is empty. The named E02 source corpus
+(`docs/research/e02-cloud-test-plan/`, the E02 agent-package tree, and
+`docs/research/development-programs/2026-09-30-post-e02/`) contains 11,212 blobs
+at both refs, also with an empty diff. The new
+[`e02-documentation-snapshot.md`](e02-documentation-snapshot.md) is a handbook
+page outside those source-corpus paths. Across the full repository, the 87
+changed paths are exactly 83 Markdown changes plus the four publishing-input
+changes above; no product-code or E02-corpus path changed.
+
+Three archived plan copies are byte-identical to their baseline source blobs;
+each active source now mentions its archive destination. SHA-256 was computed
+from each complete blob at the two refs:
+
+- Active Data Forge cutover pointer: `policy-engine/docs/plans/active/DATA_FORGE_CUTOVER_READINESS.md`;
+  archived copy: `policy-engine/docs/plans/archive/DATA_FORGE_CUTOVER_READINESS.md`,
+  `ee575769c2b1cd62eafe7a062cbdf560cc0e956ac7072b8a6bbfa7e1837d7ed6`.
+- Active documentation SOTA pointer: `policy-engine/docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`;
+  archived copy: `policy-engine/docs/plans/archive/DOCUMENTATION_SOTA_PLAN.md`,
+  `f4bc50595101d2490f498429eb92d25a7425c22997b6e702fc34882f65cd1d1c`.
+- Active G5 slice pointer: `policy-engine/docs/plans/active/layer3-slices/G5-first-proving-ground-conversion.md`;
+  archived copy: `policy-engine/docs/plans/archive/G5-first-proving-ground-conversion.md`,
+  `7b0ed5e4cf517809b5f1a948e13e32eddce6fc2fe8cb4d7d113aefcf500a51cf`.
+
+Reproduction script: `policy-engine/_build/docs-refresh/raw/delivered-delta.py`
+(SHA-256 `e1f11ba62601f9b9a13962b99941bdeb03106188e66fc8ee5e6d01314e7ec997`).
+Its compact local JSON receipt is
+`policy-engine/_build/docs-refresh/raw/delivered-delta.json` (SHA-256
+`1d9e19b120c78cbf18aace2e34c885eca388edbbab5dbfdda92760658628ca90`). Both
+are ignored local evidence; the complete tracked path sets remain reproducible
+from the two Git refs.
+
+These counts and archive comparisons are source-only. No MkDocs build, link or
+accuracy check, documentation publication, runbook rehearsal, runtime command,
+or semantic content review was run against the freeze. The current docs
+pipeline, page freshness, and documented runtime behavior therefore remain
+unverified by this comparison. The measurement remains pinned to the two refs
+above; companion or correction commits after `d015c0f06dbc32671b000f7f61e92badbcb9859f`
+are not included.

@@ -7,10 +7,12 @@ preserving a strict boundary between synthetic runtime dynamics and observation
 semantics. It covers Phase 3 numeric guardrails and Phase 5 calibration/UQ
 frontier work from the Foundry remediation plan.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
+Historical freshness receipt: 2026-04-17 (an earlier documentation pass; not a current verification receipt).
+Owner: @foundry-owners
 Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/calibration/**`, `src/polisyos/foundry/uncertainty/**`, linked ADRs, and the referenced calibration tests
+Source inspection pin: [`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`](https://github.com/DenisKopylov/polisyos/tree/bafca83bff9ff49eef1466bc491a8420b5cd1dbb)
+Evidence level: implementation and linked test sources were inspected at this pin; tests were not run for this docs-only update.
 
 The package facade is intentionally split: measurement/reporting contracts
 always import, while the JAX-backed `Calibrator`, bijectors, Hessian helpers,
@@ -19,11 +21,11 @@ imports succeed.
 
 ## Phase Coverage
 
-| Source phase | Calibration meaning                                                                                                                                                                                                                                                                                                                                      |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 1      | Missing targets, inconsistent alignment, and invalid constraints fail explicitly instead of silently producing a fit.                                                                                                                                                                                                                                    |
-| Phase 3      | Measurement-aware loss and bijectors are checked for finite gradients, stable transforms, and NaN/Inf fail-closed behavior.                                                                                                                                                                                                                              |
-| Phase 5      | Hessian/Laplace and uncertainty-envelope adapters provide calibration diagnostics. The earlier production-posterior-sampler gap is distinct from current caller-input Bayesian posterior-summary helpers, which can persist/reopen candidate-only summaries but do not provide a production sampler or establish workflow readiness or gate eligibility. |
+| Source phase | Calibration meaning |
+| --- | --- |
+| Phase 1 | Missing targets, inconsistent alignment, and invalid constraints fail explicitly instead of silently producing a fit. |
+| Phase 3 | Measurement-aware loss and bijectors are checked for finite gradients, stable transforms, and NaN/Inf fail-closed behavior. |
+| Phase 5 | Hessian/Laplace and uncertainty-envelope adapters provide calibration diagnostics. The earlier production-posterior-sampler gap is distinct from the caller-input `summarize_bayesian_calibration_posterior()` path: it can persist and fresh-read a candidate summary with `source_binding_status="caller_input_only"` and `gate_eligible=False`; it does not provide a production sampler. |
 
 ## Boundary Model
 
@@ -43,18 +45,18 @@ imports succeed.
 
 ## Key APIs
 
-| API                                 | Role                                                                                   |
-| ----------------------------------- | -------------------------------------------------------------------------------------- |
-| `Calibrator`                        | JAX-backed optimization loop when calibration extras import successfully.              |
-| `Calibrator.run_and_persist(store)` | Persists one run with its exact config artifact edge and returns the report ref.       |
-| `CalibratorInputs`                  | Bundles graph, exec plan, registries, targets, and optional measurement bundle inputs. |
-| `CalibrationReport`                 | Persisted fit result with metrics, history, and fit quality.                           |
-| `MeasurementAwareTarget`            | Observation-aware target contract.                                                     |
-| `MeasurementAwareLossConfig`        | Discounting configuration for weak or noisy anchors.                                   |
-| `compute_effective_weight()`        | Combines trust, coverage, lag, censoring, and shock discounts.                         |
-| `AuxLossComponent`                  | Protocol for auxiliary loss terms.                                                     |
-| `InterferenceLossComponent`         | Spillover-aware auxiliary penalty.                                                     |
-| `calibration.uncertainty_adapter`   | Converts fit diagnostics into governance-ready uncertainty envelopes.                  |
+| API | Role |
+| --- | --- |
+| `Calibrator` | JAX-backed optimization loop when calibration extras import successfully. |
+| `Calibrator.run_and_persist(store)` | Persists one run with its exact config artifact edge and returns the report ref. |
+| `CalibratorInputs` | Bundles graph, exec plan, registries, targets, and optional measurement bundle inputs. |
+| `CalibrationReport` | Persisted fit result with metrics, history, and fit quality. |
+| `MeasurementAwareTarget` | Observation-aware target contract. |
+| `MeasurementAwareLossConfig` | Discounting configuration for weak or noisy anchors. |
+| `compute_effective_weight()` | Combines trust, coverage, lag, censoring, and shock discounts. |
+| `AuxLossComponent` | Protocol for auxiliary loss terms. |
+| `InterferenceLossComponent` | Spillover-aware auxiliary penalty. |
+| `calibration.uncertainty_adapter` | Converts fit diagnostics into governance-ready uncertainty envelopes. |
 
 `Calibrator.run_and_persist(store)` executes one copied configuration snapshot, persists
 that config, and writes the v2 report with a manifest input edge preserving the exact
@@ -119,6 +121,10 @@ report, calibration_report_ref = Calibrator(
 
 - NumPyro Bayesian SCM ADR:
   [`docs/adr/0074-numpyro-bayesian-scm.md`](../../adr/0074-numpyro-bayesian-scm.md)
+
+- Caller-input Bayesian posterior candidate persistence, fresh read, and limited-consumer behavior:
+  [`uncertainty_adapter.py#L377-L612`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py#L377-L612),
+  [`test_calibration_uncertainty_adapter.py#L286-L331`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py#L286-L331).
 
 ## Reference
 

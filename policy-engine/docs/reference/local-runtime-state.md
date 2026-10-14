@@ -34,11 +34,38 @@ invent a slot or use this page as authorization to create one.
 
 The list below is the first-level layout declared by
 `architecture/local_runtime_state.toml` and `architecture/runtime_state_layout.toml`
-at the pinned source revision above. A script parsed both TOML files: each has
-32 registered entries, the registered sets match, and the layout file declares
-4 legacy entries. The path denominator is those two TOML files; the file-type
-denominator is 2 TOML files. This is the declared layout, not a census of a
-machine's physical `.polisyos/` directory.
+at the pinned source revision above. The read-only census below is the inline
+script at `docs/reference/local-runtime-state.md`; it reads exactly those two
+TOML inputs (path denominator: 2 TOML files; file-type denominator: 2 TOML
+files). At the pinned source, each file has 32 registered entries, their sets
+are equal, and the layout file declares 4 legacy entries. This is the declared
+layout, not a census of a machine's physical `.polisyos/` directory.
+
+Run from `policy-engine/` with the repository's supported Python:
+
+```python
+from pathlib import Path
+import tomllib
+
+local_path = Path("architecture/local_runtime_state.toml")
+layout_path = Path("architecture/runtime_state_layout.toml")
+with local_path.open("rb") as stream:
+    local = tomllib.load(stream)["local_runtime_state"]
+with layout_path.open("rb") as stream:
+    layout = tomllib.load(stream)["runtime_state_layout"]
+local_entries = local["registered_first_level_entries"]
+layout_entries = layout["registered_first_level_entries"]
+legacy_entries = layout["legacy_first_level_entries"]
+assert len(set(local_entries)) == len(local_entries)
+assert len(set(layout_entries)) == len(layout_entries)
+assert set(local_entries) == set(layout_entries), (
+    f"set mismatch: local-only={sorted(set(local_entries) - set(layout_entries))}; "
+    f"layout-only={sorted(set(layout_entries) - set(local_entries))}"
+)
+print(f"{local_path}: {len(local_entries)} registered entries")
+print(f"{layout_path}: {len(layout_entries)} registered entries; registered sets equal")
+print(f"{layout_path}: {len(legacy_entries)} legacy entries")
+```
 
 | Registered entry | Registered entry | Legacy alias |
 | --- | --- | --- |

@@ -21,6 +21,8 @@ Source of truth: `repo:policy-engine/src/polisyos/data_requirement/compiler.py`,
 This declared set covers the requirement/acquisition, shared asset-planning, and snapshot-binding paths. Domain-specific sources and tests cited below are bounded evidence for their stated rows, not an exhaustive or transitive source audit.
 Verification: source and named test files were inspected; this documentation review did not run tests.
 
+The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../e02-documentation-snapshot.md#source-drift-in-handbook-maps).
+
 This page traces the paths that exist today. Data Forge has several domain-owned batch pipelines and selected lazy runtime APIs. Shared planning and artifact contracts do not, by themselves, mean that every domain has a common executor, persistent schema lifecycle, or automatic source-acquisition loop.
 
 ## Acquisition paths

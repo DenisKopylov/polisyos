@@ -10,6 +10,8 @@ Source of truth: `repo:policy-engine/src/polisyos/runtime/http/routes/runs.py` (
 
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 
+The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../reference/e02-documentation-snapshot.md#source-drift-in-handbook-maps).
+
 This is one source-inspected trace of a run-bound predictive diagnostic, from
 selected run inputs through persisted evidence to a verified API read. The
 source check compares only the declared files; the named semantic test below

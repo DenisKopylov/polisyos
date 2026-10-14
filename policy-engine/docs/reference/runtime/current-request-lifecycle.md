@@ -5,6 +5,8 @@ Source of truth: `repo:policy-engine/schemas/runtime_api_v1.openapi.json`, `repo
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 Validation status: Source and test-reference inspection only for this documentation update; the linked tests and HTTP runtime were not run.
 
+The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../e02-documentation-snapshot.md#source-drift-in-handbook-maps).
+
 This page traces the current HTTP path from app composition to response or
 durable effect. It describes source-owned behavior; it is not an endpoint
 inventory and it does not grant authority to a route, caller, or response DTO.

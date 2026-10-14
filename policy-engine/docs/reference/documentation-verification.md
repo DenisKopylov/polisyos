@@ -3,7 +3,7 @@
 Owner: team-docs
 Source pin: `6fd47dc693b8f79993876bc28a55421cc0196027`
 
-Source of truth: `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, and their mirrored tests under `tests/repo_quality/tools/`.
+Source of truth: `tools/registry.py`, `tools/cli.py`, `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, `tests/repo_quality/tools/test_docs_gate.py`, `tests/repo_quality/tools/test_docs_source_bindings.py`, and `tests/repo_quality/tools/test_docs_rendered_links.py`.
 
 This contract is for authored Markdown changes in `policy-engine/`. A passing check proves only the property and input set named below. In particular, a green “freshness” result does not establish that every repository document is current or that every factual claim is true.
 
@@ -40,7 +40,9 @@ For a new page under `docs/reference/`, add it to the source navigation fragment
 
 For the last archived closeout replay, the lifecycle reference scan covered 25,041 tracked paths: 24,823 selected, 218 selector-excluded, 23,879 decoded as text, 941 byte-read as opaque, and three ambiguous. It reported 1,159 unresolved inputs and 10 direct-reference findings and returned `UNRUN` (exit 2). These are snapshot-specific counts from the [maintenance audit](https://github.com/DenisKopylov/polisyos/blob/47e1e59b569a5b922611f71a7f53fb6320abea4/policy-engine/docs/archive/reports/2026-10-14-documentation-maintenance-audit.md), not a permanent repository denominator. The full lifecycle command's receipt explicitly says other lifecycle input families are unmeasured; historical audit markers and archive-map member metadata do not verify backing bytes or source role (P32).
 
-The emitted-link checker is available as a standalone tool. Build into an explicit `_build/` directory, then pass that directory, the resolved MkDocs `site_url`, and an output receipt path under `_build/` but outside the site directory:
+The emitted-link checker is available as a standalone tool. The existing registry automatically discovers both checker modules; they are also callable as `polisyos-tools validation check-docs-rendered-links` and `polisyos-tools validation check-docs-source-bindings`, with the same arguments shown below. This discovery does not dispatch them from CI or the path-aware gate. Regenerate the [tools reference](tools.md) through its existing owner when discovered tools change.
+
+Build into an explicit `_build/` directory, then pass that directory, the resolved MkDocs `site_url`, and an output receipt path under `_build/` but outside the site directory:
 
 ```bash
 UV_NO_SYNC=1 uv run --extra docs python -m mkdocs build --strict --site-dir _build/docs-verification/site

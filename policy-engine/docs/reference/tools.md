@@ -135,6 +135,8 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-docs-freshness-baseline` | `active` | `polisyos-tools validation check-docs-freshness-baseline` | Validate the fail-closed docs freshness baseline without running repo-wide gates. | - | - | - |
 | `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
 | `validation` | `check-docs-lifecycle` | `active` | `polisyos-tools validation check-docs-lifecycle` | Validate the Phase 6.4 documentation lifecycle conversion contract. | - | - | - |
+| `validation` | `check-docs-rendered-links` | `active` | `polisyos-tools validation check-docs-rendered-links` | Check local files and HTML fragments in an already-built documentation site. | - | - | - |
+| `validation` | `check-docs-source-bindings` | `active` | `polisyos-tools validation check-docs-source-bindings` | Compare a documentation page's declared source owners across Git commits. | - | - | - |
 | `validation` | `check-docstring-quality` | `active` | `polisyos-tools validation check-docstring-quality` | Fail CI when public API docstrings regress to generic placeholders. | - | - | - |
 | `validation` | `check-domain-coverage-breadth` | `active` | `polisyos-tools validation check-domain-coverage-breadth` | Measure W11.F domain coverage breadth and authority useful-design rates. | - | - | - |
 | `validation` | `check-evidence-spine-connectivity` | `active` | `polisyos-tools validation check-evidence-spine-connectivity` | Check scenario evidence contract propagation inside a canary evidence bundle. | - | - | - |

@@ -14,6 +14,8 @@ Source of truth: `architecture/frontend_workspaces.toml`,
   `apps/runtime-reference-shell/app.js`.
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 
+The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../e02-documentation-snapshot.md#source-drift-in-handbook-maps).
+
 This is a manual source-and-test map for the frontend in the pinned repository
 snapshot. Source files and test cases below were inspected; no tests were run,
 and no browser or server was started. The map therefore does not establish

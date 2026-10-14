@@ -34,6 +34,8 @@ automatically added to the binding set. Source and test paths below were inspect
 This documentation refresh did not run those tests. A test reference identifies a test's scope; it
 is not a fresh pass receipt, a completeness claim, or institutional authority.
 
+The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../reference/e02-documentation-snapshot.md#source-drift-in-handbook-maps).
+
 This page answers three different questions: what boundary was ratified, what the north-star asks
 the system to become, and what selected paths exist in the inspected source. It is an orientation
 map, not a new architecture decision or a capability register. For task-specific owners and checks,

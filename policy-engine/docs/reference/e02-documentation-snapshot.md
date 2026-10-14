@@ -34,6 +34,37 @@ shared source/input/backend freeze is explicitly false, the handoff records no n
 IDs, and the candidate is not the separate published G checkpoint. The original cloud matrix, the
 numbered integration checkpoint, and Source41 therefore remain distinct evidence cuts.
 
+## Source drift in handbook maps
+
+A separate read-only source comparison on 2026-10-14 used commit
+`4dffb9f537db40bac255ea6a15f81e70a1eca080`. It compared the complete
+backticked path/glob declarations of six selected handbook maps with their
+inspected pins, using `check_docs_source_bindings`. Five declared sets differ:
+
+| Selected page | Changed existing paths | Added paths |
+| --- | ---: | ---: |
+| Architecture | 50 | 2 |
+| End-to-end data flow | 2 | 0 |
+| Runtime request lifecycle | 3 | 0 |
+| Data Forge current data paths | 2 | 0 |
+| Frontend surface map | 21 | 1 |
+| Scientist current workflows | 0 | 0 |
+
+No selected set had removals or mode changes. Sets overlap, so these counts
+must not be summed as distinct repository changes. The Scientist result covers
+its 194 declared paths only; it does not establish complete claim coverage,
+current body-cited tests, unchanged dependencies or executed behavior. The
+other results require review, not an automatic verdict that their prose is
+false. Their historical source pins remain intact.
+
+The comparison read Git objects without switching checkout, fetching objects,
+importing E02 code or changing its branch. It does not inspect uncommitted E02
+work, establish a shared freeze, accept an integration checkpoint or close a
+finding. After the canonical owner freezes integration, review each changed
+owner and its dependent claims before updating a pin. Tutorials remain
+scheduled for that later completed-E02 work; this pass did not change them.
+The documentation-maintenance closeout retains the actual comparison receipt.
+
 ## Evidence cuts
 
 ### Historical transferred campaign

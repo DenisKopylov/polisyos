@@ -13,11 +13,13 @@ this documentation update did not run those tests. This page describes the
 in-memory BERL explanation path, not deployment, policy admissibility, or
 publication authority.
 
-BERL preserves the requested method identifier and separately records the
-implementation profile selected by the adapter. The selected adapter
-determines `effective_method_id`; its returned payload cannot replace that
-binding after execution. This service path adds no migration or rewrite of
-persisted bundles.
+In brief, this page explains how the in-memory BERL service records both the
+requested explanation method and the adapter profile that actually runs. The
+adapter determines `effective_method_id`; its returned payload cannot replace
+that binding after execution. This page also describes when a built-in result
+may be reused, when a request uses an explicit fallback, and when the service
+returns a diagnostic without an attribution. This service path adds no
+migration or rewrite of persisted bundles.
 
 ## Built-in profiles
 

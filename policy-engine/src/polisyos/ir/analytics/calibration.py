@@ -202,7 +202,7 @@ class SpecificationCurveSummaryManifest(BaseModel):
 
 
 class TargetAlignConfig(BaseModel):
-    """Настройки выравнивания исторического ряда под шаг симуляции."""
+    """Settings for aligning a historical series to the simulation time step."""
 
     frequency: TimeFrequency | None = Field(
         None, description="Частота симуляции/ресемплинга (если нужно переопределить)."
@@ -227,7 +227,7 @@ class TargetAlignConfig(BaseModel):
 
 
 class TargetLossConfig(BaseModel):
-    """Параметры расчёта ошибки по таргету."""
+    """Target loss-calculation settings."""
 
     kind: str = Field("mse", description="mse|huber (MVP поддерживает mse).")
     relative: bool = Field(
@@ -245,7 +245,7 @@ class TargetLossConfig(BaseModel):
 
 
 class GradNormConfig(BaseModel):
-    """Настройки GradNorm (выравнивание норм градиентов по таргетам)."""
+    """GradNorm settings (aligning gradient norms across targets)."""
 
     enabled: bool = False
     alpha: float = Field(1.0, ge=0.0, description="Степень выравнивания скорости обучения.")
@@ -259,7 +259,7 @@ class GradNormConfig(BaseModel):
 
 
 class HessianConfig(BaseModel):
-    """Настройки оценки неопределённости через Hessian."""
+    """Settings for Hessian-based uncertainty estimation."""
 
     enabled: bool = True
     damping: float = Field(1e-6, ge=0.0, description="Диагональный сдвиг λ для H + λI.")
@@ -278,7 +278,7 @@ class HessianConfig(BaseModel):
 
 
 class ConstraintLossConfig(BaseModel):
-    """Настройки штрафов по ограничениям."""
+    """Settings for constraint penalties."""
 
     enabled: bool = False
     constraint_ids: list[str] = Field(
@@ -293,7 +293,7 @@ class ConstraintLossConfig(BaseModel):
 
 
 class PriorLossConfig(BaseModel):
-    """Настройки Gaussian priors по trainable параметрам."""
+    """Settings for Gaussian priors on trainable parameters."""
 
     enabled: bool = False
     weight: float = Field(1.0, ge=0.0)
@@ -303,7 +303,7 @@ class PriorLossConfig(BaseModel):
 
 
 class FidelityConfig(BaseModel):
-    """Настройки режима исполнения для калибрации."""
+    """Execution-mode settings for calibration."""
 
     mode: str = Field(
         "relaxed",
@@ -360,7 +360,7 @@ class CalibrationTarget(BaseModel):
 
 
 class TrainableParamRef(BaseModel):
-    """Ссылка на параметр механизма, который нужно калибровать."""
+    """Reference to a mechanism parameter to calibrate."""
 
     param_id: str = Field(..., max_length=128)
     node_id: str | None = Field(

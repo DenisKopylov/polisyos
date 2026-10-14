@@ -1,5 +1,5 @@
 """
-End-to-end demo: Mechanism Design через IR/Compiler/Foundry runtime + JAX grad.
+End-to-end demo: Mechanism Design through IR/Compiler/Foundry runtime + JAX grad.
 FIXED VERSION: Stabilized Gradients & Agent Training
 """
 

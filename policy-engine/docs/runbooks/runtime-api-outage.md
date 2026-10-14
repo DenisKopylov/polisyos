@@ -4,9 +4,9 @@ Related how-to: [Deploy Runtime](../how-to/deploy-runtime.md),
 [Use Control Plane](../how-to/use-control-plane.md),
 [Debug Failed Run](../how-to/debug-failed-run.md).
 
-> Используйте этот runbook, когда runtime HTTP surface недоступен полностью
-> или частично: health, runs, artifacts, control-plane endpoints либо operator
-> dashboard перестали быть usable.
+> Use this runbook when the runtime HTTP surface is fully or partially unavailable:
+> health, runs, artifacts, control-plane endpoints, or the operator
+> dashboard has become unusable.
 
 Owner: `@runtime-owners`
 Historical validation receipt: `2026-04-17` — recorded against the runtime contract and observability evidence available then; this is not a fresh runtime check.
@@ -25,38 +25,38 @@ Rollback path: restore the last known-good deployment, preserve read-only access
 
 ## Symptom
 
-- `/health` или `/ready` не отвечают либо отвечают `degraded`/`5xx`;
-- `GET /api/v1/runs`, `GET /api/v1/runs/{run_id}` или
-  `POST /api/v1/control/runs` падают массово;
+- `/health` or `/ready` does not respond or returns `degraded` or `5xx`;
+- `GET /api/v1/runs`, `GET /api/v1/runs/{run_id}`, or
+  `POST /api/v1/control/runs` fail at scale;
 
-- dashboard показывает `Health: unavailable`, а `/platform` или `/runs`
-  не может загрузить данные;
+- The dashboard shows `Health: unavailable`, and `/platform` or `/runs`
+  cannot load data;
 
-- alert family по DAG success rate, runtime latency, agent error spike или
-  connector errors уходит в `warning`/`critical`.
+- An alert family for DAG success rate, runtime latency, agent error spikes, or
+  connector errors enters `warning` or `critical`.
 
 ## Likely Causes
 
-- runtime boot failure в `create_runtime_api_app(...)`;
-- bad deploy или config drift в authz/OIDC/OPA/state store variables;
-- degradation Postgres/SQLite state store, worker backend или outbox consumer;
+- Runtime boot failure in `create_runtime_api_app(...)`;
+- A bad deployment or configuration drift in authz, OIDC, OPA, or state-store variables;
+- Degradation of the Postgres/SQLite state store, worker backend, or outbox consumer;
 - upstream dependency outage: Keycloak, OPA, LLM gateway, external connectors;
-- ресурсное истощение, saturation или deadlock в control-plane workers.
+- Resource exhaustion, saturation, or deadlock among control-plane workers.
 
 ## Timeline Capture Expectations
 
-Сразу собирайте один incident timeline:
+Start a single incident timeline immediately:
 
-- UTC timestamp начала симптома и кто заметил первым;
+- The UTC timestamp when symptoms began and who noticed them first;
 - environment, deployment SHA, execution profile;
 - failing URL, HTTP method, status code, request ID, trace ID;
 - affected routes: `health`, `runs`, `artifacts`, `control`;
-- active alerts и dashboard snapshots;
-- последние config/deploy changes за 60 минут до инцидента.
+- Active alerts and dashboard snapshots;
+- Configuration or deployment changes in the 60 minutes before the incident;
 
 ## First Triage Steps
 
-1. Подтвердите blast radius:
+1. Confirm the blast radius:
 
    ```bash
    curl -i http://localhost:8000/health
@@ -64,7 +64,7 @@ Rollback path: restore the last known-good deployment, preserve read-only access
    curl -i http://localhost:8000/api/v1/health
    ```
 
-2. Проверьте read surface и control surface отдельно:
+2. Check the read and control surfaces separately:
 
    ```bash
    curl -i -H "Authorization: Bearer $TOKEN" \
@@ -77,7 +77,7 @@ Rollback path: restore the last known-good deployment, preserve read-only access
      http://localhost:8000/api/v1/control/outbox
    ```
 
-3. Если known `job_id` или `run_id` уже есть, посмотрите durable state:
+3. If a known `job_id` or `run_id` is available, inspect durable state:
 
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
@@ -87,57 +87,57 @@ Rollback path: restore the last known-good deployment, preserve read-only access
      http://localhost:8000/api/v1/runs/$RUN_ID/timeline
    ```
 
-4. Переключитесь на trusted dashboards:
+4. Switch to the trusted dashboards:
    `slo-overview`, `executive-overview`, `scientist-agents`,
    `security-phase4`.
 
-5. Если outage похож на config drift, сравните runtime env с последним
-   known-good deploy, а не редактируйте env наугад.
+5. If the outage looks like configuration drift, compare the runtime environment with the last
+   known-good deployment instead of editing environment variables at random.
 
 ## Rollback / Mitigation
 
-- верните last known good deployment/release candidate;
-- если проблема только в write path, временно ограничьте `POST` workload и
-  оставьте read-only surface для операторов;
+- Restore the last known-good deployment or release candidate;
+- If only the write path is affected, temporarily limit the `POST` workload and
+  preserve the operators’ read-only surface;
 
-- если проблема в optional security/dependency sidecar, временный bypass
-  возможен только по явному решению incident commander и с записью в timeline;
+- If an optional security or dependency sidecar is involved, a temporary bypass
+  requires an explicit incident-commander decision and a timeline entry;
 
-- снизьте ingress load или concurrency, если причина saturation, а не logic
-  fault;
+- Reduce ingress load or concurrency if saturation, rather than a logic fault,
+  is the cause;
 
-- не запускайте новые migrations, contract refreshes или dependency bumps до
-  стабилизации.
+- Do not start migrations, contract refreshes, or dependency bumps until
+  the service is stable.
 
 ## Escalation Owner
 
 - primary: `@runtime-owners`;
 - incident coordination: `@platform-owners`;
-- supporting owners: `@frontend-owners` для operator UX, affected subsystem
-  owners для downstream remediation.
+- Supporting owners: `@frontend-owners` for operator UX and affected subsystem
+  owners for downstream remediation.
 
 ## Follow-up Checklist
 
-- сохранены request IDs / trace IDs и связанные логи;
-- приложены dashboard panels, которые реально использовались в triage;
-- зафиксирована точка rollback/mitigation и её effect;
-- обновлён alert routing, если сигнал пришёл не тому owner;
-- если outage был silent для dashboard users, добавлен synthetic check или
-  frontend UX signal.
+- Request IDs, trace IDs, and related logs were preserved;
+- Dashboard panels actually used during triage were attached;
+- The rollback or mitigation point and its effect were recorded;
+- Alert routing was updated if the signal reached the wrong owner;
+- If the outage was silent for dashboard users, a synthetic check or
+  frontend UX signal was added.
 
 ## Blameless Postmortem
 
 ### What Went Well
 
-- какой signal дал fastest accurate detection;
-- где correlation `alert -> dashboard -> trace/log -> runbook` сработала быстро;
-- что уменьшило MTTR.
+- Which signal provided the fastest accurate detection;
+- Where correlation across `alert -> dashboard -> trace/log -> runbook` worked quickly;
+- What reduced MTTR.
 
 ### What Went Poorly
 
-- где не хватило correlation IDs;
-- какие alerts были слишком поздними или noisy;
-- что пришлось восстанавливать из чатов вместо системных артефактов.
+- Where correlation IDs were missing;
+- Which alerts were too late or noisy;
+- What had to be recovered from chat instead of system artifacts.
 
 ### Action Items
 

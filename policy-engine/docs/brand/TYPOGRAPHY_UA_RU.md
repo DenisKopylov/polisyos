@@ -9,8 +9,9 @@ ratified English (`en`) as authored primary and Ukrainian (`uk`) as its
 translation; the Russian UI catalog is `legacy_continuity_frozen` (not used,
 not deleted) and is excluded from active locale exposure and public support
 claims. Russian source-content rendering is a separate read-only capability.
-See D4 in `ATLAS_SOURCE_OF_TRUTH.md`; the typography rules below do not
-re-ratify the locale posture.
+The Ukrainian and Russian strings below are literal locale examples, not an
+alternate language for PolicyOS documentation. See D4 in
+`ATLAS_SOURCE_OF_TRUTH.md`; the typography rules do not re-ratify the locale posture.
 
 - Status: Foundation (Phase 1.0)
 - Date: 2026-04-22

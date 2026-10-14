@@ -1,3 +1,8 @@
+---
+search:
+  boost: 1.2
+---
+
 # Contributor Start Here
 
 Freshness: 2026-10-14
@@ -13,6 +18,17 @@ This update did not execute commands, tests, or builds.
 
 This page routes contributors to the detailed guide for their task. Product code, tools, and
 contributor commands live under `policy-engine/`; run the commands below from that directory.
+
+## First contributor path
+
+1. Check the [Environment Matrix](environment-matrix.md) and follow
+   [Installation](../how-to/install.md) for the `runtime` or `docs` profile.
+2. Choose a task in the map below, or a role-specific track in
+   [Onboarding Tracks](../how-to/onboarding/index.md).
+3. Follow the task guide to its owner and canonical source. For behavior changes, trace one
+   bounded capability and its evidence as described below.
+4. Run the narrow check for the changed surface. Use broader workspace verification only when the
+   change scope calls for it.
 
 ## Read first when the task changes system behavior
 
@@ -75,24 +91,13 @@ pin), a **run recipe** (command offered for a contributor to execute), and an **
 (command run with its source pin, environment, and result recorded). Historical receipts retain the
 date and environment where they were produced.
 
-## First contributor path
-
-1. Check the [Environment Matrix](environment-matrix.md), then follow
-   [Installation](../how-to/install.md) for the `runtime` or `docs` bootstrap profile.
-2. Use [Getting Started](../tutorials/getting-started.md) for a first local walkthrough, or choose
-   a role in [Onboarding Tracks](../how-to/onboarding/index.md).
-3. Pick the detailed task guide from the map below. Read the nearest package README before changing
-   a package boundary, and trace the affected capability before changing behavior.
-4. Run the narrow gate for the changed surface. Use the broader `workspace verify` or
-   `workspace ci-parity` only when the change scope calls for it.
-
 ## Choose a guide by task
 
 | Task | Read | Source and first check |
 | --- | --- | --- |
 | Repository structure, imports, or supported APIs | [Repository Hygiene](repository-hygiene.md), [Public Surface](public-surface.md), [Quality Gates](quality-gates.md) | `architecture/imports/policy.toml`, `architecture/public_surface/contract.toml`; `uv run polisyos-tools architecture guardrails check` |
 | Bootstrap, workstation preflight, or workspace CLI | [Installation](../how-to/install.md), [Tools reference](tools.md) | `tools/devx/workspace/{bootstrap,doctor,verify,ci_parity}.py`, `tools/devx/workspace/README.md`, `tools/registry.py`; tests in `tests/unit/core/phase0/test_workspace_commands.py`, `tests/unit/remediation/test_hyg_04.py`, `tests/repo_quality/tools/test_unified_cli.py`, and `tests/repo_quality/tools/test_workspace_ci_parity.py` |
-| Documentation-only change | [Documentation Style Guide](../style-guide.md), [How-to index](../how-to/index.md) | Use the docs-only path below; `docs/style-guide.md` is the authored-doc standard |
+| Documentation-only change | [Documentation Style Guide](../style-guide.md) | Use the docs-only workflow below; `docs/style-guide.md` is the authored-doc standard |
 | Cross-surface migration or post-refactor cleanup | [Post-Refactor Migration](../how-to/post-refactor-migration.md) | `uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main` plus the matching subsystem gate |
 | Runtime endpoint or API contract | [REST API](api/index.md), [Add Runtime Route](../how-to/add-runtime-route.md) | Runtime contract check from the guide plus the tests for the touched route |
 | Public Python facade or ABI-visible IR type | [Public Surface](public-surface.md), [Add Public Facade](../how-to/add-public-facade.md), [Manage Schemas](../how-to/manage-schemas.md), [IR Schema Catalog](ir/schema-catalog.md) | `uv run polisyos-tools architecture guardrails check`; schema check from the guide |
@@ -105,14 +110,8 @@ date and environment where they were produced.
 
 ## Role entry points
 
-| Role | Start page | First scoped path |
-| --- | --- | --- |
-| New contributor | [Getting Started](../tutorials/getting-started.md) | [Installation](../how-to/install.md), then the task map above |
-| Backend engineer | [Backend Engineer](../how-to/onboarding/backend-engineer.md) | `uv run polisyos-tools workspace verify --backend-only --skip-doctor` |
-| Frontend engineer | [Frontend Engineer](../how-to/onboarding/frontend-engineer.md) | `uv run polisyos-tools workspace verify --frontend-only --skip-doctor`; package commands use `corepack pnpm` |
-| Platform / Ops | [Platform / Ops Engineer](../how-to/onboarding/platform-ops-engineer.md) | `uv run polisyos-tools workspace doctor --list-surfaces`, then the relevant closeout |
-| Security / Compliance | [Security / Compliance Reviewer](../how-to/onboarding/security-compliance-reviewer.md) | Focused security tests or `uv run polisyos-tools workspace acceptance-audit` |
-| Domain / Policy reader | [Domain / Policy Reader](../how-to/onboarding/domain-policy-reader.md) | [First Policy Analysis](../tutorials/first-policy-analysis.md) |
+Use [Onboarding Tracks](../how-to/onboarding/index.md) for role-specific pages and their scoped
+commands. This page owns the shared path from task selection to a narrow check.
 
 ## Docs-only workflow
 
@@ -136,7 +135,7 @@ uv run polisyos-tools workspace docs-style docs/reference/contributor-start-here
 `tools/devx/workspace/docs_style.py`; that check covers style for the selected files, not site
 navigation, rendered links, or source accuracy. If the Markdown hook environment has not been
 prepared, its first run may prepare that isolated hook environment; it is separate from installing
-the frontend workspace. See [Installation](../how-to/install.md#docs-only-onboarding) for bootstrap
+the frontend workspace. See [Installation](../how-to/install.md#documentation-only-setup) for bootstrap
 side effects. For a published docs change, run the broader closeout checks from `policy-engine/`:
 
 ```bash

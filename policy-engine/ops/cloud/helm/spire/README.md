@@ -1,41 +1,41 @@
 # spire chart
 
-Baseline chart для SPIFFE/SPIRE identity plane в PolicyOS.
+Baseline Helm chart for the SPIFFE/SPIRE identity plane in PolicyOS.
 
-## Роль в системе
+## Role in the System
 
-- поднимает trust domain `polisyos.io`;
-- выдает SPIFFE identities для сервисов и нод;
-- обеспечивает identity foundation для Linkerd strict mTLS и delegation checks.
+- establishes the `polisyos.io` trust domain;
+- issues SPIFFE identities for services and nodes;
+- provides the identity foundation for Linkerd strict mTLS and delegation checks.
 
-## Что разворачивает
+## Resources Deployed
 
-- `Namespace` (`spire-system` по умолчанию);
-- `ServiceAccount` для server/agent;
+- `Namespace` (`spire-system` by default);
+- `ServiceAccount` for the server and agent;
 - `ConfigMap` `spire-server-config`;
-- `Deployment` `spire-server` + `Service` на `8081`;
+- `Deployment` `spire-server` + `Service` on port `8081`;
 - `ConfigMap` `spire-agent-config`;
 - `DaemonSet` `spire-agent` (hostNetwork + hostPID + hostPath socket).
 
-## Важные настройки
+## Important Settings
 
-- datastore server: sqlite в `emptyDir` (`/run/spire/data/spire.sqlite3`), без persistence;
+- server datastore: SQLite in `emptyDir` (`/run/spire/data/spire.sqlite3`), with no persistence;
 - NodeAttestor: `k8s_psat`, cluster alias `policyos`;
-- server trust domain задается `server.trustDomain` (default `polisyos.io`).
+- the server trust domain is set by `server.trustDomain` (default `polisyos.io`).
 
-## Ограничения baseline
+## Baseline Limitations
 
-- single-replica control plane (не HA);
-- без внешнего SQL datastore;
-- без отдельной ротации секретов через KMS/HSM.
+- single-replica control plane (not HA);
+- no external SQL datastore;
+- no separate secret rotation through KMS/HSM.
 
-## Связи с другими директориями
+## Related Directories
 
-- `ops/cloud/helm/install-linkerd.sh` — установка Linkerd в режиме SPIRE trust anchor.
-- `src/polisyos/core/security/identity.py` — runtime проверка SPIFFE peer identity.
-- `ops/cloud/helm/polisyos-cell` — strict mTLS policy для workload namespace.
+- `ops/cloud/helm/install-linkerd.sh` — installs Linkerd with SPIRE as the trust anchor.
+- `src/polisyos/core/security/identity.py` — runtime verification of SPIFFE peer identity.
+- `ops/cloud/helm/polisyos-cell` — strict mTLS policy for the workload namespace.
 
-## Быстрые команды
+## Quick Commands
 
 ```bash
 helm template spire policy-engine/ops/cloud/helm/spire

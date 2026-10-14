@@ -8,8 +8,8 @@ PolicyOS builds a causal operating system for policy and the custody of policy
 justification. Recommendations and effects remain candidates until grounded
 and validated within their declared scope.
 
-> Canonical product root: эта директория. Phase 2A collapses product tooling,
-> local state, caches, and topology scopes onto this root.
+> Canonical product root: this directory. Phase 2A consolidates product tooling,
+> local state, caches, and topology scopes under this root.
 
 Owner: `@docs-owners`  
 Source of truth: `docs/reference/contributor-start-here.md`, `docs/reference/public-surface.md`, `docs/reference/generated-artifacts.md`, and the command registry behind `polisyos-tools`  
@@ -83,10 +83,9 @@ uv run polisyos --version
 
 The equivalent public CLI entry point is `uv run polisyos-tools workspace bootstrap`.
 
-Contributor baseline зафиксирован как Python `3.14.x`, Node `22.x`, `uv 0.9.21` как
-канонический Python environment manager. Для fast local gate используйте
-`python3 -m tools.cli workspace verify`. Для более тяжёлой локальной проверки,
-близкой к CI, используйте
+The contributor baseline is Python `3.14.x`, Node `22.x`, and `uv 0.9.21` as the
+canonical Python environment manager. Use `python3 -m tools.cli workspace verify`
+for the fast local gate. For a heavier local check closer to CI, use
 `python3 -m tools.cli workspace ci-parity --skip-browser`.
 
 The recipe below is a bounded Foundry smoke using a trivial fiscal frame,

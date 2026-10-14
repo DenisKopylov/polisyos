@@ -1,19 +1,19 @@
 # LLM (`polisyos.scientist.llm`)
 
-`llm` — gateway-first LLM runtime Scientist: конфигурирование клиентов, traced
-execution, fallback routing, prompt caching и registry model profiles для control/UI surfaces.
+`llm` is Scientist's gateway-first LLM runtime: client configuration, traced
+execution, fallback routing, prompt caching, and registry model profiles for control/UI surfaces.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `core.llm`, `core.observability`
-- **Используется в:** `scientist.agent`, runtime control flows, multi-model orchestration
-- Пакет изолирует provider/gateway specifics от agent- и workflow-layer кода.
+- **Depends on:** `core.llm`, `core.observability`
+- **Used by:** `scientist.agent`, runtime control flows, and multi-model orchestration
+- The package isolates provider/gateway specifics from agent- and workflow-layer code.
 
-## Ключевые концепции
+## Key concepts
 
 - **GatewayLLMClient** — OpenAI-compatible gateway transport.
 - **GatewayLLMConfig** — env-driven runtime configuration.
-- **TracedLLMClient** — observability-aware wrapper поверх raw client.
+- **TracedLLMClient** — observability-aware wrapper around the raw client.
 - **Profiles registry** — built-in model profiles for runtime selection/UI.
 - **Fallback router / prompt cache** — supporting runtime resilience and efficiency.
 - **Producer settlement** — the traced cache/gateway path retains provider intent and terminal
@@ -28,14 +28,14 @@ execution, fallback routing, prompt caching и registry model profiles для co
 - `TracedLLMClient`, `LLMClientProtocol`
 - `create_traced_gateway_client(...)`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-09
+- Last updated: 2026-10-09
 - Python modules: 14
 - Exports: 7
-- README теперь отражает profiles/fallback/cache surface, а не только gateway client
+- The README now covers the profiles/fallback/cache surface, not only the gateway client.
 - LLM cost events retain reported/estimated/reuse/unknown origin, nullable amount, producer
   identity, and settlement acknowledgment. Scope-bound prompt reuse requires an authorizer;
   ordinary uncached provider calls remain supported.

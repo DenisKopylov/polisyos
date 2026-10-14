@@ -12,10 +12,18 @@ Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 
 The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../reference/e02-documentation-snapshot.md#source-drift-in-handbook-maps).
 
-This is one source-inspected trace of a run-bound predictive diagnostic, from
-selected run inputs through persisted evidence to a verified API read. The
-source check compares only the declared files; the named semantic test below
-was inspected, not executed for this documentation pass.
+This page traces one bounded Runtime path: an authorized caller submits
+run-rooted references, the service produces and persists an empirical
+predictive-calibration result, and a scoped API read reopens it. Forecasting
+uses a holdout from the selected observed `DataSnapshot`; it does not estimate
+the candidate intervention's causal effect or select a policy. This is not a
+complete PolicyOS end-to-end workflow or a publication-authority path, and the
+source pin above requires re-review after E02 integration. The source check
+covers only the declared files; the named semantic test was inspected but not
+run for this documentation refresh. Read [Scope](#scope) for the route and
+authorization limits, then follow [Flow](#flow) and
+[Typed handoffs and artifact boundary](#typed-handoffs-and-artifact-boundary);
+the [Runs API reference](../reference/api/runs.md) describes the route contract.
 
 Pinned source references: [run route](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/http/routes/runs.py#L3960),
 [route permission bindings](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/http/routes/runs.py#L194),

@@ -4,27 +4,6 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 
 > Canonical typed contract surface for the `polisyos.ir` root facade and package-level authoring, analytics, observation, and reflection APIs.
 
-`polisyos.ir` provides schema-first contracts, enums, manifests, typed artifact
-references, and selected deterministic validation, transformation, and
-artifact-persistence helpers. Workflow orchestration and consumer behavior are
-supplied by subsystem-specific producers and consumers. A successful DTO parse
-establishes declared structure and field constraints; it does not establish
-semantic adequacy, admissibility, or publishability. See
-[Trinity](../../contracts/TRINITY.md) and [Causal Identification Candidates](causal-identification-candidates.md)
-for concrete boundaries.
-
-Read the surface in stages: `polisyos.ir.trinity.TrinityBundle` represents the
-nested payload; `polisyos.ir.kernel.base.KernelModel` sets the
-`extra="forbid"` and `frozen=True` base options; and
-`polisyos.ir.linker.link_trinity()` adds checks against supplied registries and
-returns a linked DTO plus diagnostics. A downstream consumer still owns its
-admission and authority decision. Use [Public Surface](public-surface.md) for
-supported imports, [Schema Catalog](schema-catalog.md) for generated field
-details, and [IR Design](../../explanation/ir-design.md) for the
-representation/validation/admission/authority distinctions, serialization
-identity, version, and time semantics. The TRINITY contract explains its
-same-named payload and reference DTOs and distinct loader contracts.
-
 Freshness: 2026-10-14
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/**`, `src/polisyos/schemas/abi_models.py`,
@@ -36,6 +15,20 @@ reference, linker, and loader owners.
 Historical snapshots: `docs/contracts/E1_*.md` and `docs/contracts/E2_*.md` record phase contracts; they are not current implementation inventories.
 Source plan: `docs/plans/active/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Snapshot and evidence level: inspected at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; the paths named in the corrected rows were checked for existence in the source and test trees. No tests were executed for this manual-reference update.
+
+`polisyos.ir` is the typed representation surface: the inspected implementation
+exposes schema-first models, enums, manifests, artifact references, and selected
+deterministic validation, transformation, and persistence helpers. Workflow
+producers, orchestration, and downstream consumers remain subsystem-owned, so
+this index does not claim a complete end-to-end capability. A DTO parse checks
+structure and field constraints, and `polisyos.ir.linker.link_trinity()` adds
+checks against supplied registries; neither establishes semantic adequacy,
+admissibility, or publishability. Start with [Public Surface](public-surface.md) for supported
+imports, [Schema Catalog](schema-catalog.md) for reflected fields and refs,
+[Compiler Pipeline](compiler-pipeline.md) for pass behavior, [Trinity
+Contracts](../../contracts/TRINITY.md) for payload/reference/linker/loader
+boundaries, and [IR Design](../../explanation/ir-design.md) for identity and
+authority distinctions.
 
 ## D1-L4 Source Map
 

@@ -9,7 +9,7 @@ helpers may live in Python packages or `tools/ops_runners/**`, but every
 operator-visible migration family must be declared here before release
 promotion.
 
-## Роль в системе
+## Role in the System
 
 Migrations support:
 
@@ -36,31 +36,30 @@ required operator docs is `migration-contracts.toml`.
 ## DB Forward Sequence
 
 1. `db/001_tenant_columns.sql`
-2. `db/002_tenant_backfill.sql` (runbook-шаблон backfill)
+2. `db/002_tenant_backfill.sql` (backfill runbook template)
 3. `db/003_rls_enable.sql`
 4. `db/004_roles_grants.sql`
 
-`db/003_rls_disable_rollback.sql` используется только как emergency rollback
-после шага `003`.
+`db/003_rls_disable_rollback.sql` is used only for emergency rollback after step `003`.
 
 ## Migration classes
 
-| Class | Path | Operator guidance | Release gate |
-| --- | --- | --- | --- |
-| DB schema | `db/` | `db/README.md` | `db_migration_review` |
+| Class                | Path             | Operator guidance         | Release gate                     |
+| -------------------- | ---------------- | ------------------------- | -------------------------------- |
+| DB schema            | `db/`            | `db/README.md`            | `db_migration_review`            |
 | Runtime-state schema | `runtime_state/` | `runtime_state/README.md` | `runtime_state_migration_review` |
-| API schema | `api_schemas/` | `api_schemas/README.md` | `api_schema_compatibility` |
-| IR schema | `ir/` | `ir/README.md` | `ir_migration_review` |
+| API schema           | `api_schemas/`   | `api_schemas/README.md`   | `api_schema_compatibility`       |
+| IR schema            | `ir/`            | `ir/README.md`            | `ir_migration_review`            |
 
-## Что делает каждый файл
+## What Each File Does
 
-| Файл                           | Назначение                                                                          |
-| ------------------------------ | ----------------------------------------------------------------------------------- |
-| `db/001_tenant_columns.sql`       | добавляет nullable `tenant_id` в tenant-scoped таблицы `world.*` и `public.*`       |
-| `db/002_tenant_backfill.sql`      | фиксирует процедуру заполнения `tenant_id` и gate-проверки перед RLS                |
-| `db/003_rls_enable.sql`           | включает `NOT NULL`, tenant indexes, `ENABLE/FORCE RLS`, политики `tenant_access_*` |
-| `db/003_rls_disable_rollback.sql` | удаляет tenant policies и отключает RLS на затронутых таблицах                      |
-| `db/004_roles_grants.sql`         | создает/настраивает роль `polisyos_app`, grants и default privileges                |
+| File                              | Purpose                                                                                |
+| --------------------------------- | -------------------------------------------------------------------------------------- |
+| `db/001_tenant_columns.sql`       | adds nullable `tenant_id` to tenant-scoped tables in `world.*` and `public.*`          |
+| `db/002_tenant_backfill.sql`      | defines the `tenant_id` backfill procedure and gate checks before RLS                  |
+| `db/003_rls_enable.sql`           | enables `NOT NULL`, tenant indexes, `ENABLE/FORCE RLS`, and `tenant_access_*` policies |
+| `db/003_rls_disable_rollback.sql` | removes tenant policies and disables RLS on affected tables                            |
+| `db/004_roles_grants.sql`         | creates/configures the `polisyos_app` role, grants, and default privileges             |
 
 ## Python Helper Bindings
 
@@ -86,21 +85,21 @@ must update:
 - release notes or migration-guide material named by the relevant gate in
   `ops/release/promotion-gates.toml`.
 
-## Операционные требования
+## Operational Requirements
 
-- перед `003` во всех tenant-scoped таблицах должно быть `tenant_id IS NOT NULL`;
-- роль приложения не должна иметь `BYPASSRLS`/`SUPERUSER`;
-- `ALTER DATABASE polisyos SET app.current_tenant = '00000000-0000-0000-0000-000000000000'` служит fail-safe default.
+- before `003`, `tenant_id IS NOT NULL` must hold for every tenant-scoped table;
+- the application role must not have `BYPASSRLS` or `SUPERUSER`;
+- `ALTER DATABASE polisyos SET app.current_tenant = '00000000-0000-0000-0000-000000000000'` serves as the fail-safe default.
 
-## Минимальные проверки после `003`
+## Minimum Checks After `003`
 
 ```sql
--- 1) отсутствие NULL tenant_id (пример)
+-- 1) No NULL tenant_id values (example)
 SELECT count(*) AS null_tenant_rows
 FROM world.world_facts
 WHERE tenant_id IS NULL;
 
--- 2) проверка, что RLS включен и принудителен
+-- 2) Check that RLS is enabled and forced
 SELECT relname, relrowsecurity, relforcerowsecurity
 FROM pg_class
 WHERE relname IN ('world_facts', 'run_records');

@@ -1,25 +1,25 @@
 # Search Strategies (`polisyos.scientist.methods.search.strategies`)
 
-`search.strategies` содержит candidate generators и runtime helpers для
-sample-efficient policy search: от базовых random/grid вариантов до optional
-Bayesian и multi-objective контуров.
+`search.strategies` contains candidate generators and runtime helpers for
+sample-efficient policy search, from basic random/grid variants to optional
+Bayesian and multi-objective methods.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `search`, optional `torch`/`botorch`/`gpytorch`
-- **Используется в:** `SearchController`, policy-design optimization loops
-- Пакет отделяет пространство параметров и генерацию кандидатов от orchestration-кода `search.controller`.
+- **Depends on:** `search`, with optional `torch`/`botorch`/`gpytorch` dependencies
+- **Used by:** `SearchController`, policy-design optimization loops
+- The package separates the parameter space and candidate generation from the orchestration code in `search.controller`.
 
-## Ключевые концепции
+## Key concepts
 
-- **SearchStrategy** — базовый protocol для генераторов кандидатов.
-- **SearchSpace + codecs** — описание параметров и их приведение к runtime форме.
+- **SearchStrategy** — base protocol for candidate generators.
+- **SearchSpace + codecs** — parameter definitions and conversion to runtime form.
 - **Deterministic baselines** — `RandomSearchStrategy`, `GridSearchStrategy`.
-- **Advanced optimizers** — optional Bayesian и multi-objective backends.
+- **Advanced optimizers** — optional Bayesian and multi-objective backends.
 - **WS-3C policy toolkit** — offline-gated BOHB/ASHA, CMA-ES, learned VOI,
   learned routing, GP surrogate, constraint propagation and PBT helpers.
 
-- **Resource arbitration** — лимиты памяти/ресурсов для дорогих strategy paths.
+- **Resource arbitration** — memory/resource limits for expensive strategy paths.
 
 ## Public API
 
@@ -34,39 +34,52 @@ Bayesian и multi-objective контуров.
   `ExplicitConstraintPropagator`, `LearnedVOIPolicy`, `LearnedRoutingPolicy`,
   `PopulationBasedTrainingScheduler`
 
-Подробности: [Reference →](../../../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-14
-  - WS-3C advanced policy surface обновлён: 2026-04-12
+- Last updated: 2026-10-14
+  - WS-3C advanced policy surface updated: 2026-04-12
   - Canonical path moved under `polisyos.scientist.methods.search`: 2026-05-05
-- Исходники Python: 24 модуля кроме `__init__.py` (25 файлов `.py` вместе с
-  `__init__.py`) в snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
-- Статическая публичная поверхность: 36 имён в `__all__`, включая 18 базовых и 18
+- Python source: 24 modules excluding `__init__.py` (25 `.py` files including
+  `__init__.py`) in snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+- Static public surface: 36 names in `__all__`, including 18 base names and 18
   WS-3C toolkit names; optional Bayesian imports can append four names when their
   dependencies load successfully.
-- README синхронизирован с текущим lazy/optional import поведением пакета
+- README synchronized with the package's current lazy/optional import behavior.
 
-`BayesianOptimizer.warm_start` сохраняет каждую отклонённую `Evaluation` вместе
-с исходной причиной отказа в `StrategyState.metadata.warm_start_rejections`
-(version 1). `StrategyState.to_artifact/from_artifact` и `set_state/get_state`
-переносят эту историю независимо от optional GP backend. Snapshot сохраняет
-полный candidate ID, provenance, параметры, исходы и metadata; повторные
-отклонённые обращения остаются отдельными записями. Эти записи не входят в
-training corpus и не меняют существующие compatibility/admission predicates.
-Для старого checkpoint без ledger `complete=false` явно сохраняет ограничение:
-прежние исчезнувшие записи и причины не восстановлены. Поле не доказывает
-scientific provenance, refinement permission или production admission law.
+`BayesianOptimizer.warm_start` stores every rejected `Evaluation` together
+with its original rejection reason in `StrategyState.metadata.warm_start_rejections`
+(version 1). `StrategyState.to_artifact/from_artifact` and `set_state/get_state`
+carry this history independently of the optional GP backend. The snapshot
+retains the full candidate ID, provenance, parameters, outcomes, and metadata;
+repeated rejected attempts remain separate entries. These records are not part
+of the training corpus and do not change existing compatibility/admission
+predicates. For an older checkpoint without a ledger, `complete=false` explicitly
+records the limitation: earlier entries and reasons that were lost are not
+recovered. This field does not prove scientific provenance, refinement
+permission, or production admission law.
 
-Cold-start Sobol index и adaptive single-candidate acquisition planning получают
-тот же admitted/deduplicated corpus, что training path: whole и warm+current
-представления одинаковых разрешённых записей дают согласованный план. Batch
-сохраняет существующий fixed qEI путь; current-request iteration и full-refit
-counters не меняют своего прежнего значения от warm-history count.
+The cold-start Sobol index and adaptive single-candidate acquisition planning
+use the same admitted/deduplicated corpus as the training path: whole and
+warm+current representations of the same admitted records produce a consistent
+plan. Batch planning retains the existing fixed qEI path; current-request
+iteration and full-refit counters retain their previous meaning regardless of
+the warm-history count.
 
-### Кэш истории transfer
+### Transfer history cache
 
-TransferLearningManager удерживает в LRU только проверенные canonical bytes истории. Ключ связывает полный ArtifactRef (artifact ID, kind, media type и выбранный manifest profile) с полной идентичностью запуска. При каждом попадании кэш повторно проверяет выбранный CAS profile и digest байтов, затем заново декодирует запись; изменяемые Evaluation и вложенные значения между чтениями не разделяются.
+`TransferLearningManager` retains only verified canonical history bytes in its
+LRU cache. The key binds the full `ArtifactRef` (artifact ID, kind, media type,
+and selected manifest profile) to the complete run identity. On every cache hit,
+the cache rechecks the selected CAS profile and byte digest, then decodes the
+record again; mutable `Evaluation` objects and nested values are not shared
+between reads.
 
-Кэш ограничен 128 записями и 32 MiB суммарной длины сохранённых payload bytes (len(raw_payload_bytes)). Это граница retained payload, а не оценка RSS или Python overhead. История больше лимита читается и проверяется, но не сохраняется в кэше. Eviction не удаляет CAS-артефакт и не меняет возможность прочитать старый точный ref. Новые записи индекса сохраняют profile hash, возвращённый тем же CAS write; у прежних строк индекса без него остаётся profileless compatibility ref, который всё равно проходит канонический reader.
+The cache is limited to 128 entries and 32 MiB in aggregate retained payload
+bytes (`len(raw_payload_bytes)`). This bounds retained payload data, not RSS or
+Python overhead. History larger than the limit is read and verified but not
+cached. Eviction does not delete the CAS artifact or prevent reading the exact
+old ref. New index rows retain the profile hash returned by the same CAS write;
+older index rows without one retain a profileless compatibility ref that still
+passes through the canonical reader.

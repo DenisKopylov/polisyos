@@ -17,30 +17,32 @@ deprecation, monitoring, and observability helpers for method execution.
 - Deprecation changes need a compatibility test and a documented removal path.
 - Monitoring helpers must stay optional when telemetry dependencies are absent.
 
-## Контракт проверки выходов
+## Output validation contract
 
-Dispatcher сверяет объявленные имена выходов с нормализованным
-`MethodResult.slot_outputs`. Поддерживаемые raw aliases и диагностические
-sidecars доступны в `MethodResult.output` и не создают ошибок имён slots.
-Числовые NaN/Inf в обоих представлениях сохраняют типизированные ошибки
-`AnomalyFlag`, предупреждения и передачу в telemetry.
+The dispatcher compares declared output names with normalized
+`MethodResult.slot_outputs`. Supported raw aliases and diagnostic
+sidecars are available in `MethodResult.output` and do not create slot-name errors.
+Numeric NaN/Inf values in both representations retain typed `AnomalyFlag`
+errors, warnings, and telemetry forwarding.
 
-При штатной дематериализации dispatcher прослеживает выбранный raw key в
-canonical slot: сначала имя slot, затем aliases в порядке canonical normalizer.
-Если выбранный объект дошёл до slot без преобразования, NaN/Inf проверяется один
-раз под canonical именем. Это относится и к bare output для единственного slot.
-Отдельный raw diagnostic field проверяется независимо, даже если содержит тот
-же объект; невыбранный alias при наличии canonical key также остаётся диагностикой.
-Так предупреждения и OTel counter считают одну canonical anomaly и каждую
-отдельную диагностическую anomaly.
+During standard dematerialization, the dispatcher traces the selected raw key to
+the canonical slot: first the slot name, then aliases in canonical-normalizer
+order. If the selected object reaches the slot without transformation, NaN/Inf
+is checked once under the canonical name. This also applies to a bare output
+for a single slot.
+An independent raw diagnostic field is checked separately, even when it
+contains the same object; an unselected alias also remains diagnostic when a
+canonical key is present. Warnings and the OTel counter therefore count one
+canonical anomaly and each separate diagnostic anomaly.
 
-Для custom `dematerialize_output`, копирующего или оборачивающего значения,
-соответствие источника не выводится из равенства значений или общей identity
-других полей. Оба представления сохраняют проверки; гарантия одного canonical
-счётчика относится к штатной дематериализации с сохранением выбранного объекта.
+For a custom `dematerialize_output` that copies or wraps values, source
+correspondence is not inferred from value equality or shared identity with
+other fields. Both representations retain their checks; the guarantee of one
+canonical counter applies to the standard dematerialization path that preserves
+the selected object.
 
-Пустой Python list или tuple без числового dtype может обозначать пустой
-набор диагностик. Явно типизированный пустой массив или пустая последовательность
-в объявленном vector/matrix/tensor slot сохраняет `empty_array`. Отсутствующий
-объявленный slot и неправильная форма массива остаются contract failures при
-дематериализации; несовпадающие canonical keys остаются ошибками monitor.
+An empty Python list or tuple without a numeric dtype may represent an empty
+diagnostic set. An explicitly typed empty array or empty sequence in a declared
+vector/matrix/tensor slot retains `empty_array`. A missing declared slot and an
+array with the wrong shape remain contract failures during dematerialization;
+mismatched canonical keys remain monitor errors.

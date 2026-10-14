@@ -7,14 +7,15 @@ Validation status: Source and test-reference inspection only for this documentat
 
 The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../e02-documentation-snapshot.md#source-drift-in-handbook-maps).
 
-This page traces the current HTTP path from app composition to response or
-durable effect. It describes source-owned behavior; it is not an endpoint
-inventory and it does not grant authority to a route, caller, or response DTO.
-For schema-described operation shapes, start with the committed
-`policy-engine/schemas/runtime_api_v1.openapi.json` snapshot and the
-[REST API reference](../api/index.md). Route handlers remain the source for
-admission and lifecycle behavior, including routes the snapshot does not
-describe.
+This reference traces the inspected HTTP path from app composition through
+identity, tenant context, and route admission to either a read projection or
+durable control-job work. At the pinned snapshot, selected writes can queue a
+worker-backed job and persist outputs; reads project owner state through run,
+job, and artifact routes. This is not an end-to-end demonstration of E02: the
+path does not establish semantic adequacy, publishability, or deployed
+availability. Use the [REST API reference](../api/index.md) for
+schema-described operation shapes and the [Control Plane how-to](../../how-to/use-control-plane.md)
+for operator flow; the sections below trace the HTTP implementation.
 
 ## Lifecycle at a glance
 

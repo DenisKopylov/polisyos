@@ -1,25 +1,25 @@
 # Legal Batch (`polisyos.data_forge.domains.legal.batch`)
 
 `polisyos.data_forge.domains.legal.batch` owns the moved Lex offline pipeline.
-It turns the XML НПА corpus into the legal knowledge graph: parse/structure/SPO
+It turns the XML legal-acts corpus into the legal knowledge graph: parse/structure/SPO
 extraction, graph assembly, quality reporting, and publish flow.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.data_forge.domains.legal.corpus`, `polisyos.fabric`, `polisyos.core`
-- **Используется в:** offline benchmark/QC tooling,
+- **Depends on:** `polisyos.data_forge.domains.legal.corpus`, `polisyos.fabric`, `polisyos.core`
+- **Used by:** offline benchmark/QC tooling,
   operator smoke/full runs, and cloud Lex runners.
-- Пакет собирает DuckDB/HNSW surface для read-only legal search и audit-ready extraction artifacts.
+- The package builds the DuckDB/HNSW surface for read-only legal search and audit-ready extraction artifacts.
 
-## Ключевые концепции
+## Key concepts
 
-- **Stage pipeline** — `parse`, `structure`, `spo`, `graph`, `embed-local`, `qc`, `publish` разбивают большой offline run на resume-friendly этапы.
-- **Deterministic-first extraction** — templates, rules и deterministic SPO-path покрывают типовые документы до обращения к LLM.
-- **Amendment quality layer** — `amendment_detector.py` и `amendment_metrics.py` измеряют target resolution и blocking amendment gaps.
-- **Temporal resolution** — `temporal_parser.py` и новый `temporal_resolver.py` строят document/fact temporal envelopes для version-aware downstream logic.
-- **Extraction quality filters** — `quality_filters.py` и `hallucination_detector.py` отсекают synthetic subjects, low-quality entities и suspicious SPO output.
+- **Stage pipeline** — `parse`, `structure`, `spo`, `graph`, `embed-local`, `qc`, and `publish` split a large offline run into resumable stages.
+- **Deterministic-first extraction** — templates, rules, and the deterministic SPO path cover typical documents before the pipeline calls an LLM.
+- **Amendment quality layer** — `amendment_detector.py` and `amendment_metrics.py` measure target resolution and blocking amendment gaps.
+- **Temporal resolution** — `temporal_parser.py` and `temporal_resolver.py` build document and fact temporal envelopes for version-aware downstream logic.
+- **Extraction quality filters** — `quality_filters.py` and `hallucination_detector.py` reject synthetic subjects, low-quality entities, and suspicious SPO output.
 - **Content-bound Legal embeddings** — `embedding_projection.py` is the shared entity/fact/provision text projection. `embedder.py` reads one table snapshot, fingerprints the loaded encoder assets, and binds that identity plus each projected member into the selected generation. Incremental reuse requires the same member bytes and encoder identity.
-- **Operational outputs** — smoke, QC и publish команды формируют manifests и quality reports, а не только raw graph tables.
+- **Operational outputs** — smoke, QC, and publish commands produce manifests and quality reports, not only raw graph tables.
 
 ## Public API
 

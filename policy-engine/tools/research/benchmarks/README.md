@@ -3,32 +3,32 @@
 Canonical benchmark entry points live under `tools/research/benchmarks/`; the root
 `benchmarks/` package remains a backend library plus compatibility wrappers.
 
-## Скрипты
+## Scripts
 
-| Скрипт | Что проверяет | Текущее состояние |
+| Script | What It Checks | Current Status |
 |---|---|---|
 | `run_all.py` | canonical suite-registry benchmark launcher | canonical operational entry point |
-| `jax/bench_domain.py` | release-gate домены `bayesian`, `optimization`, `survey` на репрезентативных current-API входах | актуален, умеет `--json` |
-| `jax/bench_simulation.py` | пропускная способность текущего `agent_sim` executor (`PureExecutor` + `TaxationMechanism`) | актуален, умеет `--json` |
+| `jax/bench_domain.py` | Release-gate domains `bayesian`, `optimization`, and `survey` on representative current-API inputs | current; supports `--json` |
+| `jax/bench_simulation.py` | Throughput of the current `agent_sim` executor (`PureExecutor` + `TaxationMechanism`) | current; supports `--json` |
 | `lex/benchmark_lex_llm_steady_state.py` | steady-state Lex SPO LLM throughput probe | manual/research |
 | `lex/benchmark_lex_llm_sweep.py` | sequential config sweep over the Lex steady-state benchmark | manual/research |
 
-## Роль в системе
+## Role in the System
 
 - canonical tools-facing launcher for the benchmark registry;
-- вспомогательные инженерные JAX/lex smoke probes;
-- локальный источник baseline-замеров для `tests/unit/foundry/benchmarks/*`.
+- supporting engineering JAX/Lex smoke probes;
+- local source of baseline measurements for `tests/unit/foundry/benchmarks/*`.
 - canonical `run-all.py` writes reports to `tools/research/benchmarks/_reports/` unless `BENCH_JSON_DIR` overrides it.
 
-## Ограничения
+## Limitations
 
-- canonical suite execution идет через `run_all.py`, `run_all_benchmarks.sh` и `polisyos-tools benchmarks run-all` внутри `tools/research/benchmarks/`;
-- JAX-точки входа вызывают общий `apply_jax_env_defaults()` до импорта JAX;
-  выбор backend по-прежнему определяется существующим helper и окружением оператора.
-- root `benchmarks/` остается backend library/reporting layer и compatibility layer, а не пользовательской точкой входа;
-- замеры чувствительны к CPU/GPU backend, поэтому для регрессионных сравнений лучше хранить JSON-вывод рядом с окружением, на котором он был получен.
+- Canonical suite execution uses `run_all.py`, `run_all_benchmarks.sh`, and `polisyos-tools benchmarks run-all` under `tools/research/benchmarks/`;
+- JAX entry points call the shared `apply_jax_env_defaults()` before importing JAX;
+  backend selection is still determined by the existing helper and the operator's environment.
+- The root `benchmarks/` remains a backend library/reporting and compatibility layer, not a user-facing entry point;
+- Measurements vary by CPU/GPU backend, so regression comparisons should keep the JSON output alongside the environment in which it was produced.
 
-## Примеры
+## Examples
 
 ```bash
 uv run polisyos-tools benchmarks run-all --help

@@ -2,37 +2,37 @@
 
 ## Purpose
 
-`polisyos.ir.kernel` содержит базовые deterministic contracts и registry surface,
-на которых держатся governance, linking и runtime execution. Это самый низкий
-уровень IR: здесь фиксируются базовая model discipline, slots, selector fields,
-mechanism types, merge rules, units, metrics, constraints и time semantics.
+`polisyos.ir.kernel` contains the base deterministic contracts and registry
+surface used by governance, linking, and runtime execution. It is the lowest IR
+layer: it defines the base model discipline, slots, selector fields, mechanism
+types, merge rules, units, metrics, constraints, and time semantics.
 
 ## Where to Start
 
-- [`base.py`](./base.py) — `KernelModel` и общие validation/immutability rules.
-- [`slots.py`](./slots.py) — canonical state slots и `DEFAULT_SLOT_REGISTRY`.
-- [`selector_fields.py`](./selector_fields.py) — legal targeting fields и `DEFAULT_SELECTOR_FIELD_REGISTRY`.
-- [`mechanisms.py`](./mechanisms.py) — registry механизмов и их read/write contracts.
-- [`merge_rules.py`](./merge_rules.py) — merge algebra для конкурентных writes.
-- [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) — базовые registries для domain semantics.
+- [`base.py`](./base.py) — `KernelModel` and shared validation/immutability rules.
+- [`slots.py`](./slots.py) — canonical state slots and `DEFAULT_SLOT_REGISTRY`.
+- [`selector_fields.py`](./selector_fields.py) — legal targeting fields and `DEFAULT_SELECTOR_FIELD_REGISTRY`.
+- [`mechanisms.py`](./mechanisms.py) — mechanism registry and its read/write contracts.
+- [`merge_rules.py`](./merge_rules.py) — merge algebra for concurrent writes.
+- [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) — base registries for domain semantics.
 - [`time_semantics.py`](./time_semantics.py) — step-to-date semantics.
-- Для составления registry bundle откройте [`../registry/registry_fragments.py`](../registry/registry_fragments.py), для downstream linking — [`../linker/README.md`](../linker/README.md).
+- To assemble a registry bundle, see [`../registry/registry_fragments.py`](../registry/registry_fragments.py); for downstream linking, see [`../linker/README.md`](../linker/README.md).
 
 ## Public entrypoints
 
-| Entrypoint                                                                    | Use when                                                      | Defined in                                                                                   |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `polisyos.ir.kernel.KernelModel`                                              | Нужен базовый immutable IR contract type                      | [`base.py`](./base.py)                                                                       |
-| `polisyos.ir.kernel.SlotRegistry`, `DEFAULT_SLOT_REGISTRY`                    | Нужно описать canonical state slots                           | [`slots.py`](./slots.py)                                                                     |
-| `polisyos.ir.kernel.SelectorFieldRegistry`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Нужно описать supported policy targeting fields               | [`selector_fields.py`](./selector_fields.py)                                                 |
-| `polisyos.ir.kernel.MechanismTypeRegistry`                                    | Нужен registry механизмов и их parameter/read-write contracts | [`mechanisms.py`](./mechanisms.py)                                                           |
-| `polisyos.ir.kernel.MergeRuleRegistry`                                        | Нужна canonical merge semantics                               | [`merge_rules.py`](./merge_rules.py)                                                         |
-| `polisyos.ir.kernel.UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry`    | Нужны registry units, metrics и constraints                   | [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) |
-| `polisyos.ir.kernel.TimeSemantics`                                            | Нужно сопоставить runtime steps с calendar semantics          | [`time_semantics.py`](./time_semantics.py)                                                   |
+| Entrypoint                                                                    | Use when                                                          | Defined in                                                                                   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `polisyos.ir.kernel.KernelModel`                                              | Use the base immutable IR contract type                           | [`base.py`](./base.py)                                                                       |
+| `polisyos.ir.kernel.SlotRegistry`, `DEFAULT_SLOT_REGISTRY`                    | Describe canonical state slots                                    | [`slots.py`](./slots.py)                                                                     |
+| `polisyos.ir.kernel.SelectorFieldRegistry`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Describe supported policy targeting fields                        | [`selector_fields.py`](./selector_fields.py)                                                 |
+| `polisyos.ir.kernel.MechanismTypeRegistry`                                    | Use the mechanism registry and its parameter/read-write contracts | [`mechanisms.py`](./mechanisms.py)                                                           |
+| `polisyos.ir.kernel.MergeRuleRegistry`                                        | Define canonical merge semantics                                  | [`merge_rules.py`](./merge_rules.py)                                                         |
+| `polisyos.ir.kernel.UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry`    | Use the registries for units, metrics, and constraints            | [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) |
+| `polisyos.ir.kernel.TimeSemantics`                                            | Map runtime steps to calendar semantics                           | [`time_semantics.py`](./time_semantics.py)                                                   |
 
 ## Depends on / depended on by
 
-- Depends on: базовый canonical/pydantic stack внутри `polisyos.ir`.
+- Depends on: the base canonical/Pydantic stack within `polisyos.ir`.
 - Depended on by: [`../governance/README.md`](../governance/README.md), [`../linker/README.md`](../linker/README.md), `polisyos.core.registry`, `polisyos.foundry`, `polisyos.fabric`, `polisyos.ir.registry.registry_fragments`.
 
 ## Common commands

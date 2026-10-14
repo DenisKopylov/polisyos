@@ -96,7 +96,7 @@ Generated from `tools.registry` command metadata.
 | `diagnostics` | `capture-env` | `active` | `polisyos-tools diagnostics capture-env` | CLI tool to capture and compare environment manifests. | - | - | - |
 | `diagnostics` | `check-perf-regression` | `active` | `polisyos-tools diagnostics check-perf-regression` | Performance regression checker for CI/CD. | - | - | - |
 | `diagnostics` | `check-scientist-node-version-bump` | `active` | `polisyos-tools diagnostics check-scientist-node-version-bump` | diagnostics/check_scientist_node_version_bump | - | - | - |
-| `diagnostics` | `check-setup` | `active` | `polisyos-tools diagnostics check-setup` | Smoke test для проверки корректной установки всех компонентов Policy Engine. | - | - | - |
+| `diagnostics` | `check-setup` | `active` | `polisyos-tools diagnostics check-setup` | Smoke test to verify the correct installation of all Policy Engine components. | - | - | - |
 | `diagnostics` | `check-state-reads` | `active` | `polisyos-tools diagnostics check-state-reads` | diagnostics/check_state_reads | - | - | - |
 | `diagnostics` | `check-udf-perf` | `quarantined` | `polisyos-tools diagnostics check-udf-perf` | diagnostics/check_udf_perf | diagnostics check-setup | - | - |
 | `diagnostics` | `gen-schema` | `active` | `polisyos-tools diagnostics gen-schema` | diagnostics/gen_schema | - | - | - |
@@ -134,8 +134,10 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-docs-accuracy` | `active` | `polisyos-tools validation check-docs-accuracy` | Validate published docs against current repository reality. | - | - | - |
 | `validation` | `check-docs-freshness-baseline` | `active` | `polisyos-tools validation check-docs-freshness-baseline` | Validate the fail-closed docs freshness baseline without running repo-wide gates. | - | - | - |
 | `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
+| `validation` | `check-docs-impact` | `active` | `polisyos-tools validation check-docs-impact` | Queue tracked Markdown pages for review when their declared sources change. | - | - | - |
 | `validation` | `check-docs-lifecycle` | `active` | `polisyos-tools validation check-docs-lifecycle` | Validate the Phase 6.4 documentation lifecycle conversion contract. | - | - | - |
 | `validation` | `check-docs-rendered-links` | `active` | `polisyos-tools validation check-docs-rendered-links` | Check local files and HTML fragments in an already-built documentation site. | - | - | - |
+| `validation` | `check-docs-review` | `active` | `polisyos-tools validation check-docs-review` | Review Git-selected documentation changes with existing repository checks. | - | - | - |
 | `validation` | `check-docs-source-bindings` | `active` | `polisyos-tools validation check-docs-source-bindings` | Compare a documentation page's declared source owners across Git commits. | - | - | - |
 | `validation` | `check-docstring-quality` | `active` | `polisyos-tools validation check-docstring-quality` | Fail CI when public API docstrings regress to generic placeholders. | - | - | - |
 | `validation` | `check-domain-coverage-breadth` | `active` | `polisyos-tools validation check-domain-coverage-breadth` | Measure W11.F domain coverage breadth and authority useful-design rates. | - | - | - |
@@ -412,7 +414,7 @@ Generated from `tools.registry` command metadata.
 | `demos` | `run-export-demo` | `deprecated` | `polisyos-tools demos run-export-demo` | Deprecated reference stub for the removed Foundry engine export demo. | runtime export-runtime-openapi | - | - |
 | `demos` | `run-foundry-ws9-frontier-demo` | `active` | `polisyos-tools demos run-foundry-ws9-frontier-demo` | demos/run_foundry_ws9_frontier_demo | - | - | - |
 | `demos` | `run-laffer-demo` | `active` | `polisyos-tools demos run-laffer-demo` | demos/run_laffer_demo | - | - | - |
-| `demos` | `run-mechanism-design` | `deprecated` | `polisyos-tools demos run-mechanism-design` | End-to-end demo: Mechanism Design через IR/Compiler/Foundry runtime + JAX grad. | benchmarks bench-domain | - | - |
+| `demos` | `run-mechanism-design` | `deprecated` | `polisyos-tools demos run-mechanism-design` | End-to-end demo: Mechanism Design through IR/Compiler/Foundry runtime + JAX grad. | benchmarks bench-domain | - | - |
 | `demos` | `run-udf-hybrid-demo` | `quarantined` | `polisyos-tools demos run-udf-hybrid-demo` | demos/run_udf_hybrid_demo | diagnostics check-setup | - | - |
 | `demos` | `run-udf-query-demo` | `quarantined` | `polisyos-tools demos run-udf-query-demo` | demos/run_udf_query_demo | diagnostics check-setup | - | - |
 | `research-experiments` | `filter-topics` | `active` | `polisyos-tools research-experiments filter-topics` | Filter OpenAlex topics down to policy-relevant rows. | - | - | - |

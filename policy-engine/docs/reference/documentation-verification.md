@@ -3,58 +3,147 @@
 Owner: team-docs
 Source pin: `6fd47dc693b8f79993876bc28a55421cc0196027`
 
-Source of truth: `tools/registry.py`, `tools/cli.py`, `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, `tests/repo_quality/tools/test_docs_gate.py`, `tests/repo_quality/tools/test_docs_source_bindings.py`, and `tests/repo_quality/tools/test_docs_rendered_links.py`.
+Source of truth: `tools/registry.py`, `tools/cli.py`, `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_review.py`, `tools/quality/validation/check_docs_impact.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, `tests/repo_quality/tools/test_docs_gate.py`, `tests/repo_quality/tools/test_docs_review.py`, `tests/repo_quality/tools/test_docs_impact.py`, `tests/repo_quality/tools/test_docs_source_bindings.py`, and `tests/repo_quality/tools/test_docs_rendered_links.py`.
 
-This contract is for authored Markdown changes in `policy-engine/`. A passing check proves only the property and input set named below. In particular, a green “freshness” result does not establish that every repository document is current or that every factual claim is true.
+This contract is for authored Markdown changes in `policy-engine/`. A passing
+check proves only the property and input set named below. In particular, a
+green “freshness” result does not establish that every repository document is
+current or that every factual claim is true.
 
-Review note: the original style, path-aware gate, accuracy, freshness and lifecycle sources were read at snapshot `47e1e59b569a5b922611f71a7f53fb6320abea4c`. The review traced dispatch decisions, input selectors, parsers/read receipts, and verdict/exit mapping against the implementations and mirrored tests. This third pass also read the rendered-link and source-binding implementations, their mirrored tests, and the publication-config gate plan. The test files were reviewed as source; this note is not evidence that they ran. The new tools and publication-config dispatch are source-bound to implementation commit `6fd47dc693b8f79993876bc28a55421cc0196027`; their source and mirrored tests were inspected there before the final build freeze. The closeout report records actual command execution separately. This note records review scope, not a universal source-pin requirement.
+Review note: the original style, path-aware gate, accuracy, freshness and lifecycle
+sources were read at snapshot `47e1e59b569a5b922611f71a7f53fb6320abea4c`.
 
-## Local verification path
+A later pass reviewed the rendered-link and source-binding implementations, their
+mirrored tests, and the publication-config gate plan. This pass inspected the
+docs-review runner and docs-impact scanner, tracing CLI arguments, Git path
+selection, workspace matching, child dispatch, status mapping, and output
+retention against their implementations and mirrored tests.
 
-Run commands from `policy-engine/` after the authored page and any publication navigation change are complete. On a low-disk workstation, reuse an existing compatible `policy-engine/.venv` with `UV_NO_SYNC=1`; this prevents `uv run` from syncing dependencies. It is not a clean-install check. This setting does not prevent `pre-commit` from initializing its separate markdownlint hook environment, so `docs-style` also requires that hook environment to be available. If either environment lacks a required extra or command, record that check as unavailable/`UNRUN` rather than installing into the shared environment or treating it as green.
+Test files were reviewed as source; this note does not claim that they ran. The
+review and impact sources were inspected in the current worktree and are not
+bound by the earlier source pin shown above. The closeout record reports actual
+command execution separately. This note records review scope, not a universal
+source-pin requirement.
+
+## Quick author path
+
+Run one path-aware review from `policy-engine/` after the change is committed:
+
+Replace the quoted placeholders below with the exact base and head commit IDs
+for the review window; do not run the placeholder values literally.
 
 ```bash
-UV_NO_SYNC=1 uv run polisyos-tools workspace docs-style docs/reference/documentation-verification.md
-UV_NO_SYNC=1 uv run python tools/quality/validation/check_docs_gate.py
+UV_NO_SYNC=1 uv run polisyos-tools validation check-docs-review \
+  --base-ref '<base-ref>' --head-ref '<head-ref>' --run-independent
 ```
 
-The first command runs the configured `markdownlint-cli2` hook against the named file. The second command computes the docs-sensitive change set from Git and dispatches checks based on the changed paths. For a change under `docs/**`, the gate plans the docs-freshness baseline check and a strict MkDocs build. A change under `architecture/tooling/mkdocs/**` or `mkdocs.yml` plans docs-lifecycle validation and generated tool-config validation, followed by docs accuracy and a strict MkDocs build. The gate stops at the first failed command, so a failure can leave later planned checks unrun; a plan that includes a child is not evidence that the child ran.
+The runner resolves both refs to commits and selects paths from their merge
+base to the head (or from the base when no merge base exists). It builds the
+docs-gate plan from paths under the configured product root (`policy-engine`);
+repository-root files such as top-level `AGENTS.md` are outside that gate and
+style selection. The impact child separately compares repository-wide Git
+trees and scans all tracked Markdown-family pages. The runner writes its
+summary to
+`_build/docs-maintenance/docs-review/run-<uuid>/review.json` inside a fresh
+run directory. `--run-independent` also
+requests style for changed existing Markdown outside `docs/archive/` and a
+source-impact scan. It checks emitted links only when the path-aware plan
+includes a strict build. The runner reuses the gate's strict build when it
+passed; if an earlier gate child stopped the sequence, it can run the planned
+strict build separately before checking links. It does not make a second copy
+of the site. Compressed child logs and child receipts are kept beside the
+summary under `_build/docs-maintenance/docs-review/`; these are local outputs,
+not portable evidence. The compressed-log budget is 32 MiB; a passing child
+whose complete logs cannot be retained is recorded as `UNRUN`.
 
-The path-aware gate does not run Markdown lint. Keep the targeted `docs-style` command separate. `check_docs_gate.py --changed-path <product-relative-path>` can be used to inspect or reproduce a plan for explicit paths; explicit paths replace Git change discovery, so the normal command is the evidence for the actual worktree change set.
+For an uncommitted worktree, omit both refs to select the real Git worktree diff
+against `HEAD`. The gate, style, build, and emitted-link checks can still run,
+but source-impact review is `UNRUN`: that comparison requires immutable base
+and head commits. A committed-window impact scan reads the committed head;
+worktree-only edits are outside that comparison. With explicit refs, the
+runner also checks that the checkout is at the requested head and the product
+worktree is clean. A mismatch makes the gate, style, build, and rendered-link
+checks `UNRUN`. The impact child can still compare the requested immutable
+trees, but runs from the current checkout; use a clean checkout at the head
+before treating the combined result as a matched review. `--dry-run` only
+records the selected paths and planned checks, so its overall result is
+`UNRUN` and it is not verification evidence. Never pass a hand-written path
+list as a substitute for Git discovery in a review record.
 
-Prefix the commands below with `UV_NO_SYNC=1` when reusing the existing compatible product environment described above.
+Read each child status in the summary. With a matching clean checkout, the
+docs gate is path-aware and stops at its first non-`PASS` child; later gate
+children are `BLOCKED`. If the checkout does not match the requested head, its
+planned gate children are `UNRUN`. A `FAIL`, `UNRUN`, or `REVIEW_REQUIRED` is
+not a green docs result. Source-impact `REVIEW_REQUIRED` means the changed
+paths matched declarations on pages that need human review; it does not prove
+that those pages are stale or incorrect. It matches changed paths against
+leading `Source of truth` declarations; it records `Source pin` and `Source
+snapshot` only as metadata and does not resolve or compare them. The scan reads
+every tracked `.md`, `.mdx`, `.markdown`, and `.mdc` page at the immutable
+head, but unsupported or missing source declarations, unreadable pages, and
+other incomplete coverage produce `UNRUN`, not a clean result. It cannot
+discover dependencies a page did not declare. The command exits 0 for `PASS`,
+1 for `FAIL` or `REVIEW_REQUIRED`, and 2 for `UNRUN`.
 
-For a new page under `docs/reference/`, add it to the source navigation fragment `architecture/tooling/mkdocs/nav/30-reference.yml`. Do not edit `mkdocs.yml` or `architecture/tooling/mkdocs/generated.yml` directly. The fragment and generated outputs are declared in `architecture/tooling/tool_config_split.toml`; `uv run polisyos-tools workspace tool-configs` renders them, while `uv run polisyos-tools workspace tool-configs --check` is read-only and verifies generated-file drift plus dead override state. The path-aware gate dispatches the `--check` form when the navigation fragment changes.
+The path-aware plan adds the checks needed for publication changes, including
+lifecycle, generated MkDocs configuration, accuracy, and strict build checks.
+For `docs/reference/tools.md`, the plan includes its generated-reference
+check. Other registered generated artifacts still require the exact family
+check in `architecture/generated_artifacts.toml`; use [Manage Generated
+Artifacts](../how-to/manage-generated-artifacts.md) for that workflow. A
+producer check proves only its declared source/output contract, not factual
+correctness or unrelated generated-page freshness.
 
-## Choose checks by change
+The standalone source-binding checker below remains optional: it compares the
+declared source set for explicitly selected pages and is a different question
+from impact review. The rendered-link checker is part of the independent
+review path after a matching strict build, and can also be run directly as
+documented below. Neither external URL liveness nor browser behavior is
+established by local link checks.
 
-| Change | Checks to run | What the result establishes | What remains outside the check |
-| --- | --- | --- | --- |
-| Authored Markdown wording or structure | `workspace docs-style <changed-paths>` and the path-aware docs gate with normal Git discovery | Markdownlint rules for the selected authored-file scope; then the path-aware checks triggered by actual changed paths | Style does not check links, truth, freshness or publication. The path-aware gate does not run Markdownlint and stops at its first failed child. |
-| Authored page under `docs/**` or a published README | `validation check-docs-freshness-baseline` and `python -m mkdocs build --strict` (both are dispatched by the path-aware gate for these paths) | Actual MkDocs included Markdown selection, the registered zero-violation baseline, and strict-build diagnostics | Accuracy does not validate prose, raw HTML/assets, root URLs, fragments or external liveness. A strict build can leave excluded-page links at `INFO`; it is not a complete reachability check. |
-| MkDocs publication fragment/config changed without a page edit | The path-aware gate plans `validation check-docs-lifecycle`, `workspace tool-configs --check`, `validation check-docs-freshness-baseline`, and `python -m mkdocs build --strict`, in that order | `test_publication_config_changes_run_accuracy_and_strict_build` asserts all four children for MkDocs fragments and `mkdocs.yml`; the publication-set checks are now planned even for fragment-only changes | The first nonzero child stops dispatch. In the recorded partial lifecycle state, lifecycle returns `UNRUN` (exit 2), so generated-config, accuracy and strict-build children later in that gate invocation are UNRUN even though they were planned. Run/record those children separately if they are needed to complete evidence. |
-| Generated reference or split configuration | The canonical producer's `--check` command; `workspace tool-configs --check` for outputs declared by `tool_config_split.toml` | Only the output families and source/output pairs owned by that producer; tool-config check also checks dead override state | There is no repository-wide generated-document verifier. A green producer does not validate unrelated generated pages or semantic correctness of its source. |
-| Source and emitted-site links | Source accuracy check; build the site under `_build/`; then run the standalone rendered-link checker below | Source accuracy covers supported Markdown page links against actual MkDocs inclusion. The rendered checker reports the emitted tree denominator and HTML/CSS read hashes, checks supported local targets and HTML fragments, and distinguishes `PASSED`, `FAILED`, and `UNRUN` | The rendered checker is standalone: it is not registered in the path-aware gate or CI. Its receipt does not bind the site to the MkDocs source commit or build invocation. External liveness, browser/JavaScript behavior, non-HTML fragments, and unsupported parser forms remain outside its proof. |
-| Explicit source-bound page review | `python -m tools.quality.validation.check_docs_source_bindings --repo-root . --doc <selected-page> --against-ref <comparison-commit> --format json` | For each explicitly selected page, resolves its declared source pin and compares the complete tracked path/glob expansion at that pin and the immutable comparison commit by blob bytes and Git mode; JSON reports the selected page, declarations, before/after pattern counts, matched count and drift categories | This standalone check is not dispatched by the docs gate. Equality does not establish that the declaration covers every claim, that prose is true, or that tests, runtime behavior or deployment are current. It ignores uncommitted source bytes; symlinks compare stored target text only; Gitlinks/LFS pointers are `UNRUN`. |
-| ADR, plan, archive, redirect, README/AUTHORING or lifecycle contract | `validation check-docs-lifecycle` (also dispatched by the path-aware gate for lifecycle-sensitive paths) | The named lifecycle subchecks run and report their findings; the reference-scan receipt discloses its own tracked/selected/read denominator | The receipt is only for removed-path reference scanning. Other lifecycle inputs are not covered by it. If the reference scan is partial, the command returns `UNRUN` (exit 2), even though other checks ran. Preserve findings; do not narrow selectors to force a pass. |
+For the earlier archived closeout replay, the lifecycle reference scan covered
+25,041 tracked paths: 24,823 selected, 218 selector-excluded, 23,879 decoded
+as text, 941 byte-read as opaque, and three ambiguous. It reported 1,159
+unresolved inputs and 10 direct-reference findings and returned `UNRUN`
+(exit 2). These are snapshot-specific counts from the [maintenance
+audit](https://github.com/DenisKopylov/polisyos/blob/47e1e59b569a5b922611f71a7f53fb6320abea4/policy-engine/docs/archive/reports/2026-10-14-documentation-maintenance-audit.md),
+not a permanent repository denominator. The full lifecycle command's receipt
+explicitly says other lifecycle input families are unmeasured; historical
+audit markers and archive-map member metadata do not verify backing bytes or
+source role (P32).
 
-For the last archived closeout replay, the lifecycle reference scan covered 25,041 tracked paths: 24,823 selected, 218 selector-excluded, 23,879 decoded as text, 941 byte-read as opaque, and three ambiguous. It reported 1,159 unresolved inputs and 10 direct-reference findings and returned `UNRUN` (exit 2). These are snapshot-specific counts from the [maintenance audit](https://github.com/DenisKopylov/polisyos/blob/47e1e59b569a5b922611f71a7f53fb6320abea4/policy-engine/docs/archive/reports/2026-10-14-documentation-maintenance-audit.md), not a permanent repository denominator. The full lifecycle command's receipt explicitly says other lifecycle input families are unmeasured; historical audit markers and archive-map member metadata do not verify backing bytes or source role (P32).
+The validation CLI discovers the review, impact, rendered-link, and
+source-binding tools as `polisyos-tools validation check-docs-review`,
+`check-docs-impact`, `check-docs-rendered-links`, and
+`check-docs-source-bindings`. CLI discovery does not add CI or direct D6 gate
+dispatch. The review runner invokes impact when `--run-independent` is
+requested and emitted-link checking after a matching strict build; the
+source-binding comparison remains opt-in. The generated [tools reference](tools.md)
+is maintained by its existing generator workflow.
 
-The emitted-link checker is available as a standalone tool. The existing registry automatically discovers both checker modules; they are also callable as `polisyos-tools validation check-docs-rendered-links` and `polisyos-tools validation check-docs-source-bindings`, with the same arguments shown below. This discovery does not dispatch them from CI or the path-aware gate. Regenerate the [tools reference](tools.md) through its existing owner when discovered tools change.
-
-Build into an explicit `_build/` directory, then pass that directory, the resolved MkDocs `site_url`, and an output receipt path under `_build/` but outside the site directory:
+For a direct emitted-link check outside the review runner, build the configured
+site once, then pass its configured output directory and `site_url`. The
+receipt must be under `_build/` and outside the site directory:
 
 ```bash
-UV_NO_SYNC=1 uv run --extra docs python -m mkdocs build --strict --site-dir _build/docs-verification/site
+UV_NO_SYNC=1 uv run --extra docs python -m mkdocs build --strict
 UV_NO_SYNC=1 uv run python -m tools.quality.validation.check_docs_rendered_links \
-  --site-dir _build/docs-verification/site \
+  --site-dir _build/site \
   --site-url "$SITE_URL" \
-  --output _build/docs-verification/rendered-links.json
+  --output _build/docs-maintenance/rendered-links.json
 ```
 
-Set `SITE_URL` to the resolved HTTP(S) `site_url` from the MkDocs configuration. The checker requires both paths to be under the repository `_build/`, does not follow site symlinks, and writes a JSON receipt with the enumerated path-set hash, entry/file-type counts, supported reference forms, findings, and explicit HTML/CSS read hashes. Exit 0 is a complete scan without local blockers; exit 1 is a complete scan with a missing local file or HTML fragment; exit 2 is `UNRUN` for incomplete enumeration, unreadable/unsupported input or an unsafe path. `UNRUN` preserves any findings.
+Set `SITE_URL` to the resolved HTTP(S) `site_url` from the MkDocs
+configuration; change `_build/site` if the configured `site_dir` differs. The
+checker requires the site and receipt under the repository `_build/`, does
+not follow site symlinks, and writes a JSON receipt with the enumerated
+path-set hash, entry/file-type counts, supported reference forms, findings,
+and explicit HTML/CSS read hashes. Exit 0 is a complete scan without local
+blockers; exit 1 is a complete scan with a missing local file or HTML
+fragment; exit 2 is `UNRUN` for incomplete enumeration, unreadable/unsupported
+input or an unsafe path. `UNRUN` preserves any findings.
 
-It checks the listed HTML URI attributes, `srcset`, meta-refresh URLs, inline/style-element CSS `url()` and `@import`, and external CSS `url()`/`@import`; it resolves local files and relevant HTML `id`/`name` fragments. Origin comparison uses bounded ASCII DNS labels (case-insensitive while preserving a trailing dot), canonical dotted-decimal IPv4, and bracketed IPv6. Non-ASCII, percent-encoded, and legacy/numeric IPv4 hosts return `UNRUN`; the smallest capability that closes this gap is a browser-equivalent WHATWG/UTS46 origin normalizer, which this checker does not provide. The checker enumerates the site and explicitly reads and re-reads HTML/CSS bytes; the re-read detects observed drift but does not establish an atomic filesystem snapshot or audit all process filesystem access. It does not use HTML5 tree construction, scan JavaScript/browser navigation or unlisted URI-bearing attributes/CSS constructs, fetch external URLs, or resolve CSS/SVG/non-HTML fragments. Its receipt binds emitted bytes, not the MkDocs source commit or build invocation, so pair it with a separately pinned build record. No CI or path-aware gate integration is approved; do not infer that the standard docs gate runs this tool.
+It checks the listed HTML URI attributes, `srcset`, meta-refresh URLs, inline/style-element CSS `url()` and `@import`, and external CSS `url()`/`@import`; it resolves local files and relevant HTML `id`/`name` fragments. Origin comparison uses bounded ASCII DNS labels (case-insensitive while preserving a trailing dot), canonical dotted-decimal IPv4, and bracketed IPv6. Non-ASCII, percent-encoded, and legacy/numeric IPv4 hosts return `UNRUN`; the smallest capability that closes this gap is a browser-equivalent WHATWG/UTS46 origin normalizer, which this checker does not provide. The checker enumerates the site and explicitly reads and re-reads HTML/CSS bytes; the re-read detects observed drift but does not establish an atomic filesystem snapshot or audit all process filesystem access. It does not use HTML5 tree construction, scan JavaScript/browser navigation or unlisted URI-bearing attributes/CSS constructs, fetch external URLs, or resolve CSS/SVG/non-HTML fragments. Its receipt binds emitted bytes, not the MkDocs source commit or build invocation, so pair it with a separately pinned build record. The direct D6 gate and CI do not invoke it; `check-docs-review --run-independent` does so after a matching strict build.
 
 The source-binding checker is standalone and opt-in: select pages with repeated `--doc` options. It does not scan every document, and this metadata is not required on every page. Each selected page needs exactly one leading `Source pin` and one leading `Source of truth`. The pin is one full 40- or 64-hex commit ID, optionally wrapped by one pair of backticks; no other characters or final punctuation are accepted. The source field contains one or more backticked paths/globs, with continuation tokens on indented lines. Do not use `::` function-selection syntax: the checker treats tokens as paths, and test references in the body do not select files.
 

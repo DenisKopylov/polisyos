@@ -13,6 +13,20 @@ Use the [2026-10-14 disposition](documentation-refresh-disposition-20261014.md)
 for the dated inventory and its move proposals. The disposition is a snapshot;
 the tracked tree and each owner's current evidence remain authoritative.
 
+## English migration boundary
+
+Repository documentation is authored and maintained in English under the
+[documentation language policy](../reference/documentation-language.md). This
+2026-10-14 migration defers plans for work that is still executing, including
+all E02 and E02-R2 work packages. Revisit their language with the owning team
+after closeout or re-baselining; directory placement alone does not establish
+whether work is still active.
+
+Historical plans in `archive/` remain unchanged as primary evidence during this
+migration. If readers need an English rendering later, label it as a
+translation, link it to the preserved source, and record the source revision.
+A translation does not create fresh implementation or verification evidence.
+
 ## Lifecycle locations
 
 | Location | Use |

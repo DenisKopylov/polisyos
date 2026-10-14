@@ -8,9 +8,9 @@ Owner: `@platform-owners`
 Source of truth: `architecture/local_runtime_state.toml`, `architecture/runtime_state_layout.toml`, `tools/ops_runners/runtime/runtime_state_cleanup.py`, `src/polisyos/core/artifacts/**`, `docs/reference/generated-artifacts.md`, and the linked replay/retention/corruption runbooks
 Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. Policy metadata does not establish that a retention or cleanup job is deployed or has run.
 
-> Эта страница описывает общую retention policy для operational artifacts.
-> Указанные ниже R0–R4 windows являются документированными рекомендациями, а
-> не общей автоматически применяемой TTL-настройкой.
+> This page describes the general retention policy for operational artifacts.
+> The R0–R4 windows below are documented recommendations, not a global
+> automatically applied TTL setting.
 
 ## Suggested Review Windows
 

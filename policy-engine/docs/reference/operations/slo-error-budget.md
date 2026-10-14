@@ -11,19 +11,19 @@ Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-1
 The command rows below describe intended repository gate coverage; those
 commands and workflows were not executed for this update.
 
-> Эта страница даёт общий язык для того, когда reliability “достаточно хороша”,
-> когда feature work идёт дальше, а когда платформа обязана приостановиться и
-> чинить устойчивость.
+> This page establishes a shared vocabulary for deciding when reliability is
+> “good enough,” when feature work can proceed, and when the platform must pause
+> to restore reliability.
 
 ## Service-Level View
 
-Эта policy рассматривает три operational service surfaces вокруг runtime/control plane:
+This policy covers three operational service surfaces around the runtime and control plane:
 
-| Service surface                 | User promise                                                                       | Primary signals                                                                               | Primary owner                                                 |
-| ------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Runtime API read surface        | Health, readiness, runs, artifacts и operator read APIs доступны и правдивы        | synthetic `/health`, `/ready`, request success/error/latency, trace/log correlation           | `@runtime-owners`                                             |
-| Control-plane write surface     | `POST /api/v1/control/*` создаёт и двигает jobs без silent stalls                  | job admission success, DAG success rate, outbox/worker health, queue age, timeline continuity | `@runtime-owners` + `@scientist-owners`                       |
-| Critical execution dependencies | LLM, connectors, authz, state store и security gates не разрушают runtime silently | connector error rate, agent errors, SBOM/security signals, dependency-specific dashboards     | affected subsystem owner with `@platform-owners` coordination |
+| Service surface                 | User promise                                                                           | Primary signals                                                                               | Primary owner                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Runtime API read surface        | Health, readiness, runs, artifacts, and operator read APIs are available and truthful  | synthetic `/health`, `/ready`, request success/error/latency, trace/log correlation           | `@runtime-owners`                                             |
+| Control-plane write surface     | `POST /api/v1/control/*` creates and advances jobs without silent stalls               | job admission success, DAG success rate, outbox/worker health, queue age, timeline continuity | `@runtime-owners` + `@scientist-owners`                       |
+| Critical execution dependencies | LLMs, connectors, authz, state store, and security gates do not silently break runtime | connector error rate, agent errors, SBOM/security signals, dependency-specific dashboards     | affected subsystem owner with `@platform-owners` coordination |
 
 ## Acceptance and Runtime Gates
 

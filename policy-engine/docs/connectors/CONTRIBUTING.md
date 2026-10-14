@@ -6,6 +6,8 @@ This guide covers the current Fabric connector contribution workflow. Its
 protocol, bounds, schema, fixture, registry, and test checks establish
 connector-level conformance. They do not establish live-provider readiness,
 scientific source truth, or a complete fetch-to-world/query/policy chain.
+Write or update accompanying repository documentation in English, following
+the [documentation language policy](../reference/documentation-language.md).
 
 When a contribution claims a downstream capability, name its production
 caller, persisted artifact, consumer, verification, and surfaced result. If a

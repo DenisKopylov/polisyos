@@ -1,50 +1,50 @@
 # Foundry V2 Authoring Guide
 
-`methods/catalog` является единственным источником истины для новых Foundry methods.
+`methods/catalog` is the single source of truth for new Foundry methods.
 
-## Где создавать новый метод
+## Where to create a new method
 
-- Реализацию добавляй только в `polisyos.foundry.methods.catalog.<domain>`.
-- Для публичного flat API используй пакетный `__init__.py` домена.
-- Не добавляй новые deep import paths в `polisyos.foundry.methods.<domain>.<module>` и не возвращай shim-модули.
+- Add implementations only under `polisyos.foundry.methods.catalog.<domain>`.
+- Use the domain package's `__init__.py` for the public flat API.
+- Do not add deep import paths under `polisyos.foundry.methods.<domain>.<module>` or restore shim modules.
 
-## Обязательные требования к V2 методу
+## Required V2 method fields
 
-- FQN должен следовать канону `domain.family.variant@semver`.
-- `MethodSignature.family` должен описывать stable family surface.
-- `MethodSignature.variant` должен описывать конкретный estimator/runtime variant.
-- `MethodSignature.kind` обязан быть одним из `pure`, `mechanism`, `simulation`.
-- `MethodSignature.execution_backend` должен описывать реальный способ исполнения.
-- `MethodSignature.data_modalities` должен отражать фактический тип данных, а не маркетинговый тег.
-- Каждый non-scalar slot обязан иметь заполненный `shape`.
+- The FQN must follow the `domain.family.variant@semver` convention.
+- `MethodSignature.family` must describe the stable family surface.
+- `MethodSignature.variant` must describe the specific estimator/runtime variant.
+- `MethodSignature.kind` must be one of `pure`, `mechanism`, or `simulation`.
+- `MethodSignature.execution_backend` must describe the actual execution mechanism.
+- `MethodSignature.data_modalities` must reflect the actual data type, not a marketing label.
+- Every non-scalar slot must declare a `shape`.
 
-## Когда variant должен быть отдельным методом
+## When a variant needs a separate method
 
-Вариант оформляется как отдельный method, если меняется хотя бы одно из:
+Create a separate method variant when at least one of the following changes:
 
-- ABI входов или выходов;
-- diagnostics или uncertainty surface;
+- input or output ABI;
+- diagnostics or uncertainty surface;
 - execution backend;
 - assumptions;
 - fallback behavior.
 
-Если меняется только внутренняя эвристика без смены ABI и diagnostics, это должен быть параметр, а не новый method.
+If only an internal heuristic changes while the ABI and diagnostics remain the same, use a parameter rather than a new method.
 
-## Metadata и capability truth
+## Metadata and capability truth
 
-- `required_deps` перечисляет зависимости, без которых метод нельзя честно объявить runnable.
-- `optional_deps` используются только для деградации качества, diagnostics или удобных extras.
-- `determinism_tier`, `fallback_policy` и `side_effect_profile` должны быть заданы явно.
-- Не кодируй deprecation через теги у канонического entry.
+- `required_deps` lists dependencies without which the method cannot honestly be declared runnable.
+- Use `optional_deps` only for quality degradation, diagnostics, or convenience extras.
+- Declare `determinism_tier`, `fallback_policy`, and `side_effect_profile` explicitly.
+- Do not encode deprecation through tags on the canonical entry.
 
-## Регистрация
+## Registration
 
-- Добавляй новый метод в `_registry_boot.py` только один раз.
-- Не регистрируй aggregate wrappers как first-class entries.
-- Если family расширяется variant-ами, регистрируй именно variant methods.
+- Add each new method to `_registry_boot.py` exactly once.
+- Do not register aggregate wrappers as first-class entries.
+- When extending a family with variants, register the variant methods themselves.
 
-## Проверка перед merge
+## Checks before merge
 
-- Запускай snapshot tests и contract tests для каталога.
-- Убедись, что метод появляется в `schema_version=2.0` snapshot с правдивыми `runnable`, `dependency_posture` и `capability_matrix`.
-- Убедись, что scientist selection видит family/variant и предлагает метод как canonical alternative.
+- Run the catalog snapshot and contract tests.
+- Confirm that the method appears in the `schema_version=2.0` snapshot with accurate `runnable`, `dependency_posture`, and `capability_matrix` values.
+- Confirm that scientist selection sees the family/variant and offers the method as a canonical alternative.

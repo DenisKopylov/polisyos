@@ -5,20 +5,23 @@ Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 Validation status: Procedure and source-reference inspection only for this documentation update; the scaffold, tests, and contract check were not run.
 
-> Добавьте новый runtime endpoint так, чтобы он оставался thin HTTP layer, не
-> ломал contract chain и не обходил container/service boundaries.
+> Add a runtime endpoint while keeping the HTTP layer thin, preserving the
+> contract chain, and respecting container and service boundaries.
 
 ## Inputs
 
-- имя route в `snake_case`;
-- решение, будет ли route публичным OpenAPI surface или route-only endpoint;
-- понимание, какой service/container dependency должна использовать route.
+- a route name in `snake_case`;
+- a decision about whether the route is part of the public OpenAPI surface or
+  is route-only;
+- an understanding of which service or container dependency the route should
+  use.
 
 ## Output
 
-- новый route module под `src/polisyos/runtime/http/routes/`;
-- route wired into `create_runtime_api_app(...)`;
-- если route публичный, обновлены OpenAPI snapshot и downstream generated clients.
+- a new route module under `src/polisyos/runtime/http/routes/`;
+- the route wired into `create_runtime_api_app(...)`;
+- if the route is public, an updated OpenAPI snapshot and downstream generated
+  clients.
 
 ## Commands
 

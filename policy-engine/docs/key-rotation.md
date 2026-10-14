@@ -8,7 +8,7 @@ Source of truth: `policy-engine/src/polisyos/core/security/rotation.py`, `policy
 
 ## Scope
 
-Документ описывает ротацию Ed25519 ключей для подписи CAS артефактов (Phase 6).
+This document describes Ed25519 key rotation for signing CAS artifacts (Phase 6).
 
 ## Trust Store Layout
 
@@ -32,8 +32,8 @@ Source of truth: `policy-engine/src/polisyos/core/security/rotation.py`, `policy
 
 ## Rotation Procedure
 
-1. Проверьте deployment-specific trust store, подписывающий secret и область CAS; этот документ не сообщает текущее состояние ключей в deployment.
-2. Сгенерируйте ключ и добавьте его публичную часть в trust store штатным CLI:
+1. Check the deployment-specific trust store, signing secret, and CAS scope; this document does not report the current key state of any deployment.
+2. Generate a key and add its public part to the trust store with the supported CLI:
 
    ```bash
    polisyos security rotate-ed25519 \
@@ -41,18 +41,18 @@ Source of truth: `policy-engine/src/polisyos/core/security/rotation.py`, `policy
      --identity ci-prod
    ```
 
-   На source pin ниже команда создаёт пару ключей, записывает private key с mode `0600`, копирует public key в `trusted/` и обновляет `identities.json`. По умолчанию эти каталоги находятся относительно текущего рабочего каталога в `.polisyos/keys/`; укажите абсолютные пути для другого deployment (CLI не раскрывает `~` в `--trust-dir`, `--revoked-dir` и `--identities`). Команда не переключает CI/runtime secret и не доказывает, что выбранный deployment принял новый ключ.
-3. Передайте новый private key в управляемый secret store и переключите signer отдельной контролируемой операцией. Не коммитьте ключ.
-4. Подписывайте только назначенную область. `polisyos sign --all` затрагивает все unsigned артефакты в выбранном CAS, а не только новые артефакты; укажите и проверьте правильный CAS scope.
-5. При плановой ротации сохраняйте старый public key в `trusted/` на весь согласованный release/grace period.
-6. После grace period поместите старый public key в `revoked/` и сохраните запись о периоде действия. Verifier проверяет revoked key до trusted key. Опция `--revoke-public-key` у `polisyos security rotate-ed25519` копирует указанный ключ в `revoked/`, но не удаляет его копию из `trusted/`; каждый запуск также создаёт и доверяет новый ключ, поэтому не используйте повторный запуск только для отзыва, если новая ротация не назначена.
-7. Проверьте нужные артефакты с `--strict-identity`. Полный `polisyos verify --all --fail-unsigned --strict-identity` охватывает весь выбранный CAS и завершится ошибкой, если среди них есть unsigned, revoked, untrusted, invalid записи или ошибки проверки. После отзыва исторические подписи старым ключом могут быть revoked; заранее определите ожидаемую область и не трактуйте ненулевой результат полного обхода как доказательство отказа нового signer.
+   At the source pin below, this command creates a key pair, writes the private key with mode `0600`, copies the public key to `trusted/`, and updates `identities.json`. By default, these directories are relative to the current working directory under `.polisyos/keys/`; use absolute paths for another deployment (the CLI does not expand `~` in `--trust-dir`, `--revoked-dir`, or `--identities`). The command does not switch the CI/runtime secret or prove that the selected deployment accepted the new key.
+3. Transfer the new private key to a managed secret store and switch the signer in a separate controlled operation. Do not commit the key.
+4. Sign only the assigned scope. `polisyos sign --all` affects every unsigned artifact in the selected CAS, not only new artifacts; specify and verify the correct CAS scope.
+5. For a planned rotation, keep the old public key in `trusted/` for the agreed release/grace period.
+6. After the grace period, move the old public key to `revoked/` and preserve a record of its validity period. The verifier checks revoked keys before trusted keys. The `--revoke-public-key` option on `polisyos security rotate-ed25519` copies the specified key to `revoked/` but does not remove its copy from `trusted/`; each invocation also creates and trusts a new key, so do not rerun it only to revoke a key unless a new rotation is intended.
+7. Verify the required artifacts with `--strict-identity`. A full `polisyos verify --all --fail-unsigned --strict-identity` covers the entire selected CAS and fails if it contains unsigned, revoked, untrusted, or invalid records, or verification errors. After revocation, historical signatures from the old key may be revoked; define the expected scope in advance and do not treat a nonzero result from a full scan as proof that the new signer was rejected.
 
 ## Operational Notes
 
-- Private keys не коммитятся в репозиторий.
-- Для локальной разработки private key должен иметь mode `0600`.
-- `signer_identity` в `.sig` используется как hint; доверие определяется `key_id` из trust store.
-- В строгом режиме (`--strict-identity`) mismatch между `signer_identity` и `identities.json` считается ошибкой.
+- Do not commit private keys to the repository.
+- For local development, the private key must have mode `0600`.
+- `signer_identity` in `.sig` is used as a hint; trust is determined by `key_id` in the trust store.
+- In strict mode (`--strict-identity`), a mismatch between `signer_identity` and `identities.json` is an error.
 
 Source inspection: `policy-engine/src/polisyos/core/security/rotation.py`, `policy-engine/src/polisyos/core/components/_cli_security.py`, `policy-engine/src/polisyos/core/components/_cli_crypto.py`, `policy-engine/src/polisyos/core/artifacts/signing.py`, and `policy-engine/tools/ops_runners/runtime_cli.py` at `8dd933600dd7a5a8a5b48432c6089d63b81ca641` (2026-10-14). Code inspected; CLI operations and tests were not run. These instructions describe a procedure, not evidence of a completed deployment rotation.

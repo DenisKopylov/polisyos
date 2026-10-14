@@ -129,6 +129,8 @@ Full statements: GY plan §3.5.7 (E11–E14) and §3.5.13; Atlas plan Execution 
 
 ## Instruction Hygiene
 
+- Write new or updated repository documentation in English; see
+  `policy-engine/docs/reference/documentation-language.md`. This does not constrain human conversation.
 - Keep `AGENTS.md` short enough to scan in one pass; target under roughly 100 lines.
 - **Rules with different motivations get separate lines and their own stated reason.** A bundled
   clause is followed in the shape it was written: "no merge, no push, no rebase" mixed a

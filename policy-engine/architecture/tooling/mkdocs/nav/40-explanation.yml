@@ -1,5 +1,6 @@
   - Explanation:
       - explanation/index.md
+      - Historical ADR Reader Editions: explanation/adr-readings/index.md
       - Architecture: explanation/architecture.md
       - End-to-End Data Flow: explanation/end-to-end-data-flow.md
       - Identity and Custody Boundary (Ratified): system-design-decisions/policyos-identity-and-custody-boundary.md

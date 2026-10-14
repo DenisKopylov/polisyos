@@ -191,6 +191,8 @@ CI responsibilities:
 
 ## Documentation Requirements
 
+- Write new or updated repository documentation in English. Localized copies are optional,
+  informational derivatives governed by `docs/reference/documentation-language.md`.
 - Every public class, function, and module needs a Google-style docstring.
 - A new module under `src/polisyos/**` should update the nearest parent `README.md`.
 - Major subsystem READMEs must keep `Where to Start` current when the recommended entrypoints move.

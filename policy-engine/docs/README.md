@@ -39,6 +39,12 @@ retain that limit even when an individual component or documentation check passe
 
 ## Maintain the documentation
 
+English is the sole official documentation language. The
+[language policy](reference/documentation-language.md) defines first-stage
+migration and source-preservation boundaries. Use the [reader vocabulary](reference/reader-vocabulary.md)
+for ordinary search terms and the [usability protocol](how-to/evaluate-documentation-usability.md)
+for a later human pilot; the human study has not run.
+
 Follow the [style guide](style-guide.md) and
 [verification contract](reference/documentation-verification.md). The
 [inventory](reference/documentation-inventory.md) records the measured scope;

@@ -1,22 +1,22 @@
 # Simulator (`polisyos.lex.simulator`)
 
-`polisyos.lex.simulator` выполняет what-if анализ изменений `NormPack`: mutation,
-diff и impact analysis до того, как изменения попадут в основной policy pipeline.
-Это безопасный legal sandbox для сравнения baseline и proposed norm bundles.
+`polisyos.lex.simulator` performs what-if analysis of `NormPack` changes:
+mutation, diff, and impact analysis before changes enter the main policy pipeline.
+This is a legal sandbox for comparing baseline and proposed norm bundles.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.governance`, `polisyos.ir.loading.norm_pack`
-- **Используется в:** policy-design review, governance validation, explicit norm change analysis
-- Пакет отделяет legal what-if analysis от production assembly/evaluation path.
+- **Depends on:** `polisyos.lex.normpack`, `polisyos.core.governance`, `polisyos.ir.loading.norm_pack`
+- **Used by:** policy-design review, governance validation, and explicit norm-change analysis
+- The package separates legal what-if analysis from the production assembly/evaluation path.
 
-## Ключевые концепции
+## Key concepts
 
-- **Deterministic mutation** — `NormPackMutator` строит новый `pack_id` и mutation trace для reproducible sandbox runs.
-- **Structured diff** — `diff_norm_packs()` вычисляет `added/removed/modified/unchanged` plus field-level deltas.
-- **Impact analysis** — `NormImpactAnalyzer` запускает governance passes на old/new packs и агрегирует compliance transitions.
-- **Persistence surface** — при `persist=True` публикуются `lex.norm_diff` и `lex.norm_impact_report`.
-- **Report models** — `NormImpactReport`, `ComplianceDelta` и `AffectedKPI` задают human-facing result surface.
+- **Deterministic mutation** — `NormPackMutator` creates a new `pack_id` and mutation trace for reproducible sandbox runs.
+- **Structured diff** — `diff_norm_packs()` computes `added/removed/modified/unchanged` plus field-level deltas.
+- **Impact analysis** — `NormImpactAnalyzer` runs governance passes on old/new packs and aggregates compliance transitions.
+- **Persistence surface** — with `persist=True`, `lex.norm_diff` and `lex.norm_impact_report` are published.
+- **Report models** — `NormImpactReport`, `ComplianceDelta`, and `AffectedKPI` define the human-facing result surface.
 
 ## Public API
 

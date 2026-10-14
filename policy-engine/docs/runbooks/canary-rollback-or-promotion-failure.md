@@ -3,7 +3,7 @@
 Related policy: [SLO and Error Budget Policy](../reference/operations/slo-error-budget.md).
 Related how-to: [Deploy Runtime](../how-to/deploy-runtime.md).
 
-> Используйте этот runbook для staged rollout, canary evaluation или любого
+> Use this runbook for a staged rollout, canary evaluation, or any
 > production promotion gate. The repository release workflow runs a local
 > health-probe canary against an installed release wheel before publishing a
 > release; this is not a production deployment or environment canary. This
@@ -18,88 +18,88 @@ Rollback path: return traffic and config to the last known-good candidate before
 
 ## Symptom
 
-- release candidate не проходит promotion checkpoint;
-- после limited rollout деградируют golden signals, и rollout останавливается;
-- rollback был запущен вручную или автоматически по alert threshold;
-- production deploy technically успешен, но runtime/control-plane surface стала
-  хуже baseline.
+- The release candidate fails a promotion checkpoint;
+- Golden signals degrade after a limited rollout and the rollout stops;
+- A rollback was triggered manually or automatically by an alert threshold;
+- The production deployment succeeds technically, but the runtime or control-plane surface becomes
+  worse than the baseline.
 
 ## Likely Causes
 
-- runtime/config drift между staging и production;
-- silent contract mismatch между runtime и dashboard/operator tooling;
-- hidden dependency на state store, auth, SBOM/signing, OPA или connector path;
-- SLO burn начал расти после rollout, хотя pre-release checks были зелёными;
-- release candidate содержал migration/feature flag combination, не покрытую
+- Runtime or configuration drift between staging and production;
+- A silent contract mismatch between the runtime and dashboard or operator tooling;
+- A hidden dependency on the state store, auth, SBOM/signing, OPA, or a connector path;
+- SLO burn begins to rise after rollout even though pre-release checks were green;
+- The release candidate contains a migration and feature-flag combination that is not covered by the
   smoke path.
 
 ## Timeline Capture Expectations
 
-Зафиксируйте обязательно:
+Record at least:
 
-- candidate build ID, commit SHA и release note summary;
-- точное окно rollout start / hold / rollback в UTC;
-- какой checkpoint не пройден: health, latency, errors, saturation, manual sign-off;
-- что сравнивалось против baseline;
-- какой decision maker нажал hold/rollback/promote;
-- какие user-facing routes, jobs или dashboards пострадали.
+- The candidate build ID, commit SHA, and release-note summary;
+- The exact rollout start, hold, and rollback window in UTC;
+- The checkpoint that failed: health, latency, errors, saturation, or manual sign-off;
+- What was compared with the baseline;
+- Who made the hold, rollback, or promotion decision;
+- Which user-facing routes, jobs, or dashboards were affected.
 
 ## First Triage Steps
 
-1. Подтвердите, что failure действительно promotion-related, а не older
+1. Confirm that the failure is related to promotion and not an older
    background incident.
-2. Сравните candidate против last known good по:
+2. Compare the candidate with the last known-good version across:
 
    - health/readiness;
    - runtime error rate;
    - DAG success rate;
    - control-plane queue/worker health;
    - frontend platform health.
-3. Откройте trusted dashboards:
+3. Open the trusted dashboards:
    `executive-overview`, `slo-overview`, `scientist-agents`,
    `security-phase4`.
-4. Если rollout partial, зафиксируйте scope: какой процент traffic/users/jobs
-   уже попал под candidate.
-5. Сразу проверьте, нет ли parallel failure в contracts, signing/SBOM,
-   docs publish или replay/state restore path.
+4. If the rollout is partial, record its scope: what percentage of traffic, users, or jobs
+   has already received the candidate.
+5. Check immediately for parallel failures in contracts, signing/SBOM,
+   documentation publishing, or replay/state-restore paths.
 
 ## Rollback / Mitigation
 
-- если candidate ухудшает golden signals, rollback имеет приоритет над поиском
-  идеального root cause;
+- If the candidate degrades golden signals, rollback takes priority over finding
+  the perfect root cause;
 
-- возвращайтесь к last known good artifact/config pair, а не только к коду;
-- заморозьте дальнейшую promotion активность до стабилизации и incident review;
-- security fixes и P0 restoration work остаются carve-out even under freeze, но
-  их scope должен быть минимальным и явно записан.
+- Return to the last known-good artifact/configuration pair, not only the code;
+- Freeze further promotion activity until the system is stable and the incident is reviewed;
+- Security fixes and P0 restoration work remain exceptions during the freeze, but
+  their scope must be minimal and explicitly recorded.
 
 ## Escalation Owner
 
 - primary: `@platform-owners`;
 - runtime evaluation: `@runtime-owners`;
-- affected subsystem owner joins after rollback decision, не вместо него.
+- The affected subsystem owner joins after the rollback decision, not instead of it.
 
 ## Follow-up Checklist
 
 - recorded candidate-vs-baseline comparison preserved;
-- root cause классифицирован: code, config, dependency, migration, traffic shape;
-- если rollback делался вручную, documented manual steps now exist;
-- release checklist amended, если missing checkpoint allowed bad candidate through;
+- The root cause was classified as code, configuration, dependency, migration, or traffic shape;
+- If rollback was manual, the manual steps are now documented;
+- The release checklist was amended if a missing checkpoint allowed a bad candidate through;
 - error-budget impact reflected in freeze/no-freeze decision.
 
 ## Blameless Postmortem
 
 ### What Went Well
 
-- какой checkpoint вовремя остановил bad promotion;
-- насколько быстро вернулся known-good state;
-- были ли sufficient ownership and decision rights.
+- Which checkpoint stopped the bad promotion in time;
+- How quickly the known-good state was restored;
+- Whether ownership and decision rights were sufficient.
 
 ### What Went Poorly
 
-- где rollout signal оказался ambiguous;
-- какие staged checks не отражали реальный production path;
-- было ли слишком много manual knowledge в rollback steps.
+- Where the rollout signal was ambiguous;
+- Which staged checks did not reflect the real production path;
+- Whether rollback steps depended too much on manual knowledge.
 
 ### Action Items
 

@@ -1,107 +1,107 @@
-# Зависимости повторное использование и отрицательные связи
+# Dependencies, Reuse, and Negative Interactions
 
-[Обзор](README.md) · [Сценарии](roadmap.md) · [Структурированный граф](dependencies.json)
+[Overview](README.md) · [Scenarios](roadmap.md) · [Structured graph](dependencies.json)
 
-## Как читать граф
+## How to read the graph
 
-Связь относится к **конкретному артефакту и приращению**, а не требует завершить всю upstream программу. Если нужный вход уже существует и пригоден, новую программу его создания запускать не надо. Исследовательская обратная связь не является взаимной календарной блокировкой.
+A relationship applies to a **specific artifact and increment**; it does not require completing the entire upstream program. If the required input already exists and is fit for purpose, there is no need to launch a new program to create it. Research feedback is not a mutual calendar dependency.
 
-Типы связей:
+Relationship types:
 
-- **Вход:** без указанного результата выбранный claim нельзя получить
-- **Общий актив:** одна и та же функция может обслужить два consumers; это пока не доказанная экономия
-- **Комплемент:** два компонента дают пользу совместно, которую нельзя корректно оценить по одиночке
-- **Обратная связь:** новый результат меняет следующий исследовательский вопрос, не передавая назад authority
-- **Условие употребления:** отдельное scientific, security, human или institutional основание только для требующего его band
-- **Конкуренция:** общий owner, reviewer, память, quota или меняющийся контракт ограничивают параллелизм
-- **Негативная связь:** совместное использование может переносить ошибку, раскрывать holdout или уничтожать возможность будущего вопроса
+- **Input:** without the stated result, the selected claim cannot be obtained.
+- **Shared asset:** one function may serve two consumers; the resulting savings have not yet been demonstrated.
+- **Complement:** two components provide joint value that cannot be assessed correctly in isolation.
+- **Feedback:** a new result changes the next research question without transferring authority back.
+- **Use condition:** a separate scientific, security, human, or institutional basis applies only to the band that requires it.
+- **Competition:** a shared owner, reviewer, memory, quota, or changing contract limits parallel work.
+- **Negative interaction:** reuse can propagate an error, expose holdout evidence, or destroy the ability to ask a future question.
 
-## Основные предметные связи
+## Primary subject-matter relationships
 
-| Откуда → куда | Тип | Передаваемый объект и точное условие |
-|---|---|---|
-| E1 → E2 | Вход | Source/measurement relation, если identification или transport требует именно её |
-| E2 → E1 | Обратная связь | Различающее измерение, связь или source profile для того же target |
-| E1 → M1 | Вход | Observation frame, единицы, время, missingness/censoring и нужная совместность |
-| E2 → M1 | Условие употребления | Causal interpretation только при identification/transport premise; обычный прогноз не ждёт причинного certificate без нужды |
-| M1 → P1 | Вход | Тот же target и joint evaluation alternatives; может быть existing native result |
-| P1 → P2 | Общий актив | Неизменная идентичность действия, ресурсы и evaluator; full static programme completion не prerequisite |
-| M1 → P2 | Вход | Transition/signal model и доступный information set; empirical или явно stipulated |
-| P3 → P1/P2 | Вход | Материальные shared capacity, calendars, exposure или response constraints |
-| P1/P2 → M2 | Общий актив | Предварительный prediction и exact intended/deployed rule; retrospective existing prediction также подходит |
-| E1/P3 → M2 | Вход | Observation и delivery evidence, позволяющие различить причины residual |
-| M2 → E2 | Обратная связь | Candidate hypothesis или competing explanations и полезный следующий опыт |
-| M2/O3 → M1/P1 | Вход | Отдельно допущенная новая world branch, действительно прочитанная следующим циклом |
-| WP01/WP02 → O3 | Условие употребления | Принятое update policy и научное основание; не блокирует весь O1/O2 |
-| O1 AND O3 → DS21 | Вход | Обе backend capabilities; O2 optional |
-| N → M1/P1/P2/P3 | Общий актив | Target-preserving plan, когда numerical workload действительно общий |
-| R → E1/E2/N | Общий актив | Улучшенное исследовательское решение на unseen задачах; ordinary routing остаётся baseline |
-| H → все human consumers | Обратная связь | Наблюдаемая ошибка понимания меняет представление и workflow, не научную истину |
-| A → E1/E2/M1 | Вход | Разрешённый holder output только для недоступного иначе нужного input |
-| C → все | Общий актив | Native source/target/assumption versions и exact historical/current use semantics |
-| E02 exact output → selected consumer | Вход | Только конкретный version-pinned repaired результат и его границы; не общий green label |
+| From → to                            | Type          | Transferred object and exact condition                                                                                                  |
+| ------------------------------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| E1 → E2                              | Input         | Source/measurement relation, when identification or transport specifically requires it                                                  |
+| E2 → E1                              | Feedback      | A discriminating measurement, relation, or source profile for the same target                                                           |
+| E1 → M1                              | Input         | Observation frame, units, time, missingness/censoring, and required joint structure                                                     |
+| E2 → M1                              | Use condition | Causal interpretation only when an identification/transport premise applies; ordinary prediction need not wait for a causal certificate |
+| M1 → P1                              | Input         | The same target and joint evaluation of alternatives; an existing native result may suffice                                             |
+| P1 → P2                              | Shared asset  | Stable action identity, resources, and evaluator; completing the full static program is not a prerequisite                              |
+| M1 → P2                              | Input         | Transition/signal model and available information set, empirical or explicitly stipulated                                               |
+| P3 → P1/P2                           | Input         | Material shared-capacity, calendar, exposure, or response constraints                                                                   |
+| P1/P2 → M2                           | Shared asset  | Prior prediction and exact intended/deployed rule; an existing retrospective prediction also qualifies                                  |
+| E1/P3 → M2                           | Input         | Observation and delivery evidence that can distinguish causes of a residual                                                             |
+| M2 → E2                              | Feedback      | Candidate hypothesis or competing explanations and a useful next experiment                                                             |
+| M2/O3 → M1/P1                        | Input         | A separately admitted new world branch that the next cycle actually reads                                                               |
+| WP01/WP02 → O3                       | Use condition | An adopted update policy and scientific basis; this does not block all of O1/O2                                                         |
+| O1 AND O3 → DS21                     | Input         | Both backend capabilities; O2 is optional                                                                                               |
+| N → M1/P1/P2/P3                      | Shared asset  | A target-preserving plan when the numerical workload is genuinely shared                                                                |
+| R → E1/E2/N                          | Shared asset  | Better research decisions on unseen tasks; ordinary routing remains the baseline                                                        |
+| H → all human consumers              | Feedback      | An observed comprehension failure changes the presentation and workflow, not scientific truth                                           |
+| A → E1/E2/M1                         | Input         | Permitted holder output only for an otherwise unavailable input that is actually needed                                                 |
+| C → all                              | Shared asset  | Native source/target/assumption versions and exact historical/current-use semantics                                                     |
+| Exact E02 output → selected consumer | Input         | Only a specific version-pinned repaired result and its limitations; not a generic green label                                           |
 
-## Комплементы которые нельзя ранжировать по отдельной отдаче
+## Complements that cannot be ranked by standalone return
 
-### Измерение и калибровка общего nuisance
+### Measuring and calibrating a shared nuisance
 
-Дополнительный канал может сам по себе не уменьшать uncertainty целевого параметра, но вместе с другим измерением устранять общий nuisance. Это известный конечный контрпример универсальному greedy selection. Полезность возникает только при настоящем общем nuisance и совместимой noise law. Оплачивается проверяемая пара против сильного прямого измерения, а не любые два источника с похожими именами.
+An additional channel may not reduce uncertainty in the target parameter on its own, yet may remove a shared nuisance when combined with another measurement. This is a known finite counterexample to universal greedy selection. Its value arises only when there is a genuine shared nuisance and a compatible noise law. Evaluate the verifiable pair against a strong direct measurement, not any two sources with similar names.
 
-### Действие и его оценка
+### An action and its evaluation
 
-Хорошие objective vectors без сохранённого исполнимого действия не дают повторного выбора. Сохранённое действие без пригодной оценки также недостаточно. Native ParetoRegistry уже содержит существенную часть этой пары; новый bridge финансируется лишь по отсутствующей точной связи.
+Good objective vectors without a preserved executable action do not support repeatable selection. A preserved action without a suitable evaluation is also insufficient. The native ParetoRegistry already contains a substantial part of this pair; fund a new bridge only for a specific missing relation.
 
-### Процесс наблюдения и диагноз
+### The observation process and diagnosis
 
-Новый cause classifier может не помочь, пока непонятно, что означает timestamp, исчезнувший case или смена регистрации. Общий source/process профиль способен дать большую часть полезности M2. Но основание атрибуции и heldout проверка остаются отдельными от механики журнала.
+A new cause classifier may not help until the meaning of a timestamp, a disappeared case, or a registration change is understood. A shared source/process profile may supply much of M2's value. The attribution basis and held-out validation nevertheless remain separate from the mechanics of the log.
 
-### Совместные ограничения и адаптивное продолжение
+### Joint constraints and adaptive continuation
 
-Допустимое сегодня действие может уничтожить все допустимые будущие продолжения. Для P2 action identity, available history и viability проверяются вместе. Статическому D1 это не создаёт обязательства заранее покупать общий controller.
+An action that is admissible today may eliminate every admissible continuation. For P2, action identity, available history, and viability are checked together. This does not require static D1 to purchase a general controller in advance.
 
-## Где синергия установлена а где ещё предполагается
+## Where synergy is established and where it remains assumed
 
-Подтверждённые source-level связи включают: packet→ClaimLedger owner; publisher→current owner export и public replay; policy runtime→predictive VOI report→packet; Scientist controller→ParetoRegistry; Calibrator→measurement adapter; transport node→catalog registry. Они дают основания для reuse существующего кода, но не измеренную денежную экономию нового портфеля.
+Confirmed source-level relationships include: packet → ClaimLedger owner; publisher → current-owner export and public replay; policy runtime → predictive VOI report → packet; Scientist controller → ParetoRegistry; Calibrator → measurement adapter; transport node → catalog registry. These justify reuse of existing code, but do not establish measured financial savings for a new portfolio.
 
-Синергия нового приращения считается заработанной только после названного общего output и двух **действительных** consumers с одним смыслом. Два будущих блока на схеме дают гипотезу. При смене source family, information regime, законного use или scientific target часть setup и почти вся проверка могут понадобиться заново.
+Synergy for a new increment is earned only after a named shared output and two **valid** consumers with the same meaning are identified. Two future boxes in a diagram establish a hypothesis. When the source family, information regime, lawful use, or scientific target changes, some setup and nearly all validation may need to be repeated.
 
-## Реестр уникальных затрат первого портфеля
+## Register of unique costs in the first portfolio
 
-Это правила учёта и предварительные work nodes, не смета реализации и не новый task register.
+These are accounting rules and preliminary work nodes, not an implementation estimate or a new task register.
 
-| Work node | Результат | Где считать | Что исключить |
-|---|---|---|---|
-| W00 Выполненная source/owner сверка | Это предложение, source census, named code boundaries | Уже выполненное исследование; будущий бюджет её не повторяет | Ещё один generic corpus audit |
-| W01 Точное чтение выбранного repaired пути | D1 output/consumer и фактический остаток после E02 | Один bounded discovery node выбранного среза | Отдельная «подготовка» в каждой программе |
-| W02 Модель D1 и exact reference | Все восемь наборов, constraints, objectives и value semantics уже заданы и аналитически проверены в этом исследовании | Повторная разработка этого reference не нужна; будущие production-harness, native reload и consumer проверки учитываются отдельно, только если требуются | Повторный бюджет derivation либо общий P10 foundation budget |
-| W03 Доказанно отсутствующее native изменение | Конкретная action/evaluation/consumer функция | Только если W01 нашёл полезный остаток | Новый registry, simulator и уже работающие carriers |
-| W04 Сквозная проверка D1 | Reload, consumer-removal, material/harmless controls | V выбранного пакета | Ещё одна оплата тех же tests под assurance |
-| W05 Источниковая квалификация D2 | Exact bounded source, definition, IDs, units/time/rights | E1/D2, если inputs доступны и задача выбрана | Полный D0–D5 rebuild и фиктивный live positive |
-| W06 Источниковый oracle D2 | Независимый ручной source-level расчёт | Отдельная предметная проверка E1 | Считать D1 enumerator тем же scientific gold |
-| W07 Общий artifact/readback | Только недостающий общий contract или reader | Один owner, несколько конкретных consumers | Второй CAS, ledger, packet или universal schema |
-| W08 Полный cost trace | Actual D/A/B/I/V, compute, waiting, rejected work и review | Один инструментальный output при совместимости | Складывать provider billing и тот же allocated usage дважды |
-| W09 Новая migration/compatibility | Только затронутые old/new readers и сохранённая история | I/V конкретного semantic change | Всё дерево прежних cleanup-планов |
-| W10 Независимая O/FA1 граница | Точный stronger use, если он нужен | Отдельный conditional decision/operation tranche | Разносить этот cost на все candidate вопросы |
+| Work node                                       | Result                                                                                                                       | Where to count it                                                                                                                          | What to exclude                                                 |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| W00 Completed source/owner reconciliation       | This proposal, source census, and named code boundaries                                                                      | Research already completed; future budgets do not repeat it                                                                                | Another generic corpus audit                                    |
+| W01 Exact reading of the selected repaired path | D1 output/consumer and actual residual after E02                                                                             | One bounded discovery node for the selected slice                                                                                          | A separate “preparation” charge in every program                |
+| W02 D1 model and exact reference                | All eight sets, constraints, objectives, and value semantics are already specified and analytically checked in this research | No need to redevelop this reference; account separately for future production harness, native reload, and consumer checks only if required | Re-deriving the budget or a general P10 foundation budget       |
+| W03 Proven-absent native change                 | A specific action/evaluation/consumer function                                                                               | Only if W01 finds a useful residual                                                                                                        | A new registry, simulator, or already-working carriers          |
+| W04 End-to-end D1 check                         | Reload, consumer-removal, material/harmless controls                                                                         | Verification for the selected package                                                                                                      | Charging the same tests again under assurance                   |
+| W05 D2 source qualification                     | Exact bounded source, definition, IDs, units/time/rights                                                                     | E1/D2, if inputs are available and the task is selected                                                                                    | A full D0–D5 rebuild or a fictitious live-positive case         |
+| W06 D2 source oracle                            | Independent manual source-level calculation                                                                                  | A separate subject-matter check for E1                                                                                                     | Treating the D1 enumerator as the same scientific gold standard |
+| W07 Shared artifact/readback                    | Only a missing shared contract or reader                                                                                     | One owner, several specific consumers                                                                                                      | A second CAS, ledger, packet, or universal schema               |
+| W08 Full cost trace                             | Actual D/A/B/I/V, compute, waiting, rejected work, and review                                                                | One instrumentation output when compatible                                                                                                 | Double-counting provider billing and the same allocated usage   |
+| W09 New migration/compatibility work            | Only affected old/new readers and preserved history                                                                          | I/V for a specific semantic change                                                                                                         | The entire tree of earlier cleanup plans                        |
+| W10 Independent O/FA1 boundary                  | Exact stronger use, if needed                                                                                                | A separate conditional decision/operations tranche                                                                                         | Spreading this cost across all candidate questions              |
 
-Общая цена выбранного портфеля могла бы складываться из уникальных новых nodes, integration/requalification и действительных внешних затрат. Сейчас их scope и actual effort ещё не измерены, поэтому числовой total не приводится. Нельзя суммировать standalone estimates программ и затем механически вычесть процент «синергии».
+The total cost of a selected portfolio could combine unique new nodes, integration/requalification, and valid external costs. Their scope and actual effort have not yet been measured, so no numerical total is provided. Do not sum standalone program estimates and mechanically subtract a percentage for “synergy.”
 
-## Отрицательные связи
+## Negative interactions
 
-1. **Общий источник умножает ошибку.** Неверная identity/unit/measurement relation одновременно портит calibration, policy choice и retrospective validation. Нужен понятный радиус зависимых выводов
-2. **Общая память раскрывает оценивание.** Learning, challenges, user feedback и cached summaries могут показать heldout evidence. Разные процессы не гарантируют независимость
-3. **Ранний screening необратим.** Потерянный exception, subgroup или допустимый candidate downstream уже не восстановит большее число simulation draws
-4. **Сжатие уничтожает будущие вопросы.** Marginals вместо joint law, один rollout вместо rule, aggregate без document ID, выбранный winner без alternatives сокращают option value
-5. **Currentness может стать all-refusal.** Слишком широкая invalidation лишает полезности, слишком узкая оставляет silent stale. Нужны material и unrelated controls
-6. **Оптимизация KPI меняет наблюдение.** Policy может улучшить отчётность, а не независимый outcome; прежний holdout теряет смысл
-7. **Слишком общая schema увеличивает цену второго кейса.** Придётся мигрировать множество consumers ради одного нового statistical target
-8. **Общий verifier создаёт общий blind spot.** Перенос harness допустим, перенос чужого gold и guarantee — нет
-9. **Больше альтернатив увеличивает человеческую нагрузку.** Более широкий frontier может ухудшить решение без подходящего представления и explicit values
-10. **Новая protected authority создаёт эксплуатационный хвост.** Retention, rotation, independent deployment и revocation не заканчиваются после первого receipt
+1. **A shared source multiplies errors.** Incorrect identity, units, or measurement relation can simultaneously corrupt calibration, policy choice, and retrospective validation. The radius of affected conclusions must be visible.
+2. **Shared memory exposes evaluation data.** Learning, challenges, user feedback, and cached summaries can reveal held-out evidence. Separate processes do not guarantee independence.
+3. **Early screening is irreversible.** A lost exception, subgroup, or admissible candidate cannot be recovered downstream by increasing the number of simulation draws.
+4. **Compression destroys future questions.** Marginals instead of a joint law, one rollout instead of a rule, an aggregate without a document ID, or a selected winner without alternatives all reduce option value.
+5. **Currentness checks can become all-refusal.** Overly broad invalidation removes utility; overly narrow invalidation leaves silent staleness. Use material and unrelated controls.
+6. **KPI optimization changes what is observed.** A policy may improve reporting rather than an independent outcome; the former holdout then loses its meaning.
+7. **An overly general schema raises the cost of the second case.** Many consumers may need migration to support one new statistical target.
+8. **A shared verifier creates a shared blind spot.** Reuse the harness when appropriate, but do not transfer another task's gold standard or guarantee.
+9. **More alternatives increase human workload.** A broader frontier may worsen decisions without suitable presentation and explicit values.
+10. **A new protected authority creates an operational tail.** Retention, rotation, independent deployment, and revocation do not end after the first receipt.
 
-## Что можно делать параллельно
+## What can proceed in parallel
 
-Параллельны независимые source profiles, аналитический finite reference, отдельные native modules с уже выбранным смыслом и независимая проверка замороженных inputs. Необязательно ждать окончания E1 целиком, чтобы исследовать P2 на честной stipulated модели.
+Independent source profiles, the analytical finite reference, separate native modules with an already-selected meaning, and independent checks of frozen inputs can proceed in parallel. It is not necessary to wait for E1 as a whole before studying P2 against an honest stipulated model.
 
-Сериализуются смысловое решение одного shared contract, совместимый publish/migration, финальное подключение к меняющемуся consumer и отдельные решения principal. Coding agents конкурируют за RAM/I/O/quota, но часто ещё сильнее — за компетентный review и shared-owner integration. Их число не является делителем нормированного труда или календаря.
+The semantic decision for one shared contract, compatible publication/migration, final connection to a changing consumer, and separate principal decisions must be serialized. Coding agents compete for RAM, I/O, and quota, but often compete even more for competent review and shared-owner integration. Their number does not divide normalized effort or calendar time.
 
-Активировать следующую ветвь стоит по доступному различающему основанию и очереди проверки. Набор всех допустимых опций одновременно — не рекомендуемый начальный портфель.
+Activate the next branch based on an available discriminating basis and the validation queue. Starting every admissible option at once is not the recommended initial portfolio.

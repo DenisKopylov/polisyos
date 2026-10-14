@@ -28,30 +28,17 @@ provider readiness, universal source completeness, or source truth.
 
 ## Fabric and Data Forge
 
-`polisyos.fabric` owns runtime connector access and retrieval, Fabric evidence
-and lineage artifacts, the data-plane modes, document and claim processing, and
-world-store emission, materialization, and query helpers. Its stable package
-facade is `src/polisyos/fabric/__init__.py`; subsystem responsibilities are
-documented in the package READMEs and pages below.
-
-Data Forge owns offline asset-oriented builds and publication. Runtime code
-uses `polisyos.data_forge.read_api`; Fabric's allowed Data Forge dependency is
-intended to be that read API, not `data_forge.kernel` or `data_forge.domains`.
-`architecture/packages/boundaries.toml` declares that narrow package rule, but
-`architecture/imports/policy.toml` allows Fabric the broader `data_forge` root.
-There is also an observed source exception: `src/polisyos/fabric/retrieval/service.py`
-imports `polisyos.data_forge.domains.catalog.batch.config._profile_input_coverage_currentness`
-inside `_catalog_profile_plan_admission`. The declared narrow boundary is
-therefore not the complete observed import picture.
-
-The `read_api` name also does not mean every export is read-only:
-`src/polisyos/data_forge/read_api/legal.py` exports `run_batch_pipeline`, and
-`src/polisyos/data_forge/read_api/academic.py` exports `run_edge_synthesize`,
-from domain batch modules. Treat the package boundary as the intended rule and
-the imports above as exceptions requiring consolidation; this page does not
-claim a fully enforced narrow matrix. See the
-[Data Fabric explanation](../../explanation/data-fabric.md#fabric-and-data-forge)
-for the conceptual build/runtime distinction.
+Fabric owns runtime connector access and retrieval, evidence/lineage artifacts,
+document and claim processing, data-plane modes, and world-store helpers; Data
+Forge owns offline asset builds and publication, with selected runtime reads
+through `polisyos.data_forge.read_api`. This map follows the implementation and
+selected tests listed above; tests were inspected, not run, and fixture evidence
+is bounded to the named paths. Fixtures do not establish live provider
+readiness, universal source completeness, or source truth. Start with the
+artifact map below for observed producers, persisted outputs, consumers, and
+test evidence; use [Current data paths](../data-forge/current-data-paths.md) for
+the Data Forge asset lifecycle and the [Data Fabric explanation](../../explanation/data-fabric.md#fabric-and-data-forge)
+for the conceptual boundary.
 
 ## Artifact and workflow map
 
@@ -61,6 +48,28 @@ for the conceptual build/runtime distinction.
 | Document and claim processing | `ingest_doc_bytes` accepts raw bytes plus `DocSourceSpec`; later stages normalize, structure, and chunk through explicit artifact refs. Claim extraction consumes an explicit normalized/chunked `DocMeta` artifact. | Document and claim stages persist artifacts, emit world facts/events, append fact-log segments, and can be materialized into world tables. | `tests/unit/fabric/test_docs_pipeline.py` covers bytes through document stages and DuckDB materialization. `tests/unit/fabric/test_claims_pipeline.py` covers claim persistence and materialization. These are specific pipelines, not a generic sink for every connector result. |
 | Catalog-bound fetch custody | Fabric retrieval takes a `FetchPlan` bound against the Data Forge catalog read API and executes its selected connector request. | CAS stores the complete payload, catalog binding, and `FabricFetchReceipt`. `src/polisyos/runtime/quality/data_forge_binding.py` resolves the receipt and current fetch before emitting a measurement-root payload. | `tests/unit/fabric/test_retrieval_fetch_custody.py` covers receipt and payload custody. `tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9` covers the bounded fixture-backed measurement-root consumer; `tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission` covers the admission recheck. The receipt authority is catalog selection and returned-result custody. |
 | Prepared Data Forge assets | Offline domain builders publish typed assets through Data Forge's build and publication surfaces. | `ArtifactRef` carries the content hash, producer/version, config hash, owner, license, regeneration command, PII and retention classifications, freshness SLA, and schema identity. Runtime readers enter through `polisyos.data_forge.read_api`. | See `src/polisyos/data_forge/README.md`, `src/polisyos/data_forge/kernel/artifacts.py`, and `src/polisyos/data_forge/read_api/`. This is a separate asset lifecycle from a Fabric connector fetch. |
+
+## Boundary and custody details
+
+The stable Fabric package facade is `src/polisyos/fabric/__init__.py`; subsystem
+responsibilities are documented in the package READMEs and pages below. The
+intended Fabric dependency on Data Forge is the narrow `read_api`, not
+`data_forge.kernel` or `data_forge.domains`. `architecture/packages/boundaries.toml`
+declares that rule, while `architecture/imports/policy.toml` allows the broader
+`data_forge` root. One observed exception is
+`src/polisyos/fabric/retrieval/service.py`, which imports
+`polisyos.data_forge.domains.catalog.batch.config._profile_input_coverage_currentness`
+inside `_catalog_profile_plan_admission`; the declared rule is not the complete
+observed import picture.
+
+The `read_api` name does not guarantee that every export is read-only:
+`src/polisyos/data_forge/read_api/legal.py` exports `run_batch_pipeline`, and
+`src/polisyos/data_forge/read_api/academic.py` exports `run_edge_synthesize`
+from domain batch modules. Treat the package boundary as the intended rule and
+the imports above as exceptions requiring consolidation; this page does not
+claim a fully enforced narrow matrix. See the
+[Data Fabric explanation](../../explanation/data-fabric.md#fabric-and-data-forge)
+for the conceptual build/runtime distinction.
 
 The world-store's retained `WorldSnapshot`/branch context is created from
 materialized world state for world-query time travel. It is distinct from the

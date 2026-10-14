@@ -8,9 +8,9 @@ Owner: `@platform-owners`
 Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/engine/{metrics.py,metrics_otel.py,operational_monitoring.py}`, `ops/observability/prometheus/**`, `ops/observability/grafana/**`, and the linked runbooks
 Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. No runtime telemetry, deployed dashboard, scrape, alert, or paging state was checked.
 
-> Observability в Phase 6 считается завершённой не тогда, когда “данные где-то
-> есть”, а тогда, когда понятно, какой сигнал trusted, где его смотреть и кто
-> обязан отреагировать.
+> Observability in Phase 6 is complete not when “data exists somewhere,” but
+> when readers know which signals are trusted, where to find them, and who must
+> respond.
 
 ## Signal Taxonomy
 

@@ -7,7 +7,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 # --- Enums (Словари) ---
 class EntityType(str, Enum):
-    """Типы агентов и объектов в системе."""
+    """Types of agents and objects in the system."""
 
     AGENT = "agent"  # Активный агент (человек, фирма)
     RESOURCE = "resource"  # Пассивный ресурс (бюджет, зерно)
@@ -16,7 +16,7 @@ class EntityType(str, Enum):
 
 
 class OptimizationDirection(str, Enum):
-    """Куда двигать метрику."""
+    """Direction in which to move a metric."""
 
     MAXIMIZE = "maximize"
     MINIMIZE = "minimize"
@@ -24,7 +24,7 @@ class OptimizationDirection(str, Enum):
 
 
 class TimeFrequency(str, Enum):
-    """Единицы времени для симуляции."""
+    """Time frequencies for simulation."""
 
     MONTH = "M"
     QUARTER = "Q"
@@ -32,7 +32,7 @@ class TimeFrequency(str, Enum):
 
 
 class TimeUnit(str, Enum):
-    """Единицы времени в IR (человеческий формат)."""
+    """IR time unit in human-readable form."""
 
     MONTH = "month"
     QUARTER = "quarter"
@@ -40,7 +40,7 @@ class TimeUnit(str, Enum):
 
 
 class SelectorOperator(str, Enum):
-    """Разрешенные операторы для TargetSelector (AST)."""
+    """Allowed operators for TargetSelector (AST)."""
 
     EQUALS = "=="
     NOT_EQUALS = "!="
@@ -56,9 +56,9 @@ class SelectorOperator(str, Enum):
 
 # --- Common Models ---
 class TranslatableString(BaseModel):
-    """
-    Мультиязычная строка.
-    LLM видит 'en' для логики, а 'ua'/'ru' используются для UI.
+    """Multilingual string.
+
+    The LLM sees 'en' for logic, while 'ua'/'ru' are used for the UI.
     """
 
     en: str = Field(

@@ -288,6 +288,9 @@ nav:
 
   - Reference:
       - reference/index.md
+      - Reading and Documentation:
+          - Language Policy: reference/documentation-language.md
+          - Vocabulary and Search Routes: reference/reader-vocabulary.md
       - IR:
           - reference/ir/index.md
           - reference/ir/public-surface.md
@@ -467,6 +470,7 @@ nav:
 
   - Explanation:
       - explanation/index.md
+      - Historical ADR Reader Editions: explanation/adr-readings/index.md
       - Architecture: explanation/architecture.md
       - End-to-End Data Flow: explanation/end-to-end-data-flow.md
       - Identity and Custody Boundary (Ratified): system-design-decisions/policyos-identity-and-custody-boundary.md

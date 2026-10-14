@@ -1,53 +1,52 @@
-# snapshots/connectors — baseline source connector-контрактов
+# snapshots/connectors — Source-Connector Contract Baseline
 
-Папка содержит snapshot контрактов источников данных, который используется для проверки drift и корректности version bump.
+This directory contains the data-source contract snapshot used to check drift and validate version bumps.
 
-## Роль в системе
+## Role in the System
 
-- Фиксирует публичные контракты, на которые опираются source connectors.
-- Проверяет эволюцию схем через `SchemaEvolution` (major/minor/patch рекомендации).
-- Валидируется в CI (`polisyos-tools connectors check-contracts --check`, workflow `.github/workflows/abi.yml`).
+- Records the public contracts used by source connectors.
+- Checks schema evolution through `SchemaEvolution` (major/minor/patch recommendations).
+- Validated in CI (`polisyos-tools connectors check-contracts --check`, workflow `.github/workflows/abi.yml`).
 
-## Формат `contracts.json`
+## `contracts.json` Format
 
-- `version`: версия формата snapshot (`1`).
-- `contracts`: объект `{ "<contract_id>": { ...meta... } }`.
-- Для каждого контракта сохраняются:
+- `version`: snapshot-format version (`1`).
+- `contracts`: object `{ "<contract_id>": { ...meta... } }`.
+- Each contract retains:
   - `connector_id`, `dataset_id`, `schema_version`, `content_hash`;
-  - `contract`: нормализованный `ConnectorSchemaContract` без runtime timestamp (`created_at`).
+  - `contract`: normalized `ConnectorSchemaContract` without the runtime timestamp (`created_at`).
 
-## Актуальное состояние (2026-10-14)
+## Inspected State (2026-10-14)
 
-Проверено статически по snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`:
-прочитаны `contracts.json` и `.github/workflows/abi.yml`; генератор и CI не запускались.
+Static inspection at snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`: `contracts.json` and `.github/workflows/abi.yml` were read; the generator and CI were not run.
 
-- Контрактов: `5`.
-- Ключи:
+- Contracts: `5`.
+- Keys:
   - `eurostat.data.generic`
   - `sdmx.generic`
   - `ukons.datasets.generic`
   - `worldbank.wdi.generic`
   - `wvs.wave7.generic`
-- Для всех контрактов текущая версия: `schema_version=2.0.0`.
+- Current version for all contracts: `schema_version=2.0.0`.
 
-## Источники и инструменты
+## Sources and Tools
 
-- Источник контрактов: `src/polisyos/fabric/connectors/sources/_contracts`.
-- Проверка и обновление snapshot: `polisyos-tools connectors check-contracts`.
+- Contract source: `src/polisyos/fabric/connectors/sources/_contracts`.
+- Snapshot check and update: `polisyos-tools connectors check-contracts`.
 
-## Команды (из `policy-engine/`)
+## Commands (from `policy-engine/`)
 
 ```bash
-# Проверка (по умолчанию script тоже работает в check-mode)
+# Check (the script also runs in check mode by default)
 uv run polisyos-tools connectors check-contracts --check
 ```
 
 ```bash
-# Обновление snapshot
+# Update the snapshot
 uv run polisyos-tools connectors check-contracts --update
 ```
 
-## Инварианты
+## Invariants
 
-- Не редактировать `contracts.json` вручную; использовать `--update`.
-- Если `SchemaEvolution` требует большее version bump, сначала обновить `schema_version` в контракте источника, затем обновлять snapshot.
+- Do not edit `contracts.json` manually; use `--update`.
+- If `SchemaEvolution` requires a larger version bump, update `schema_version` in the source contract first, then update the snapshot.

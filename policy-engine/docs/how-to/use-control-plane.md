@@ -1,27 +1,30 @@
-# Использование control plane
+# Use the Control Plane
 
 Related reference: [Control Plane API](../reference/api/control.md). Related how-to: [Deploy Runtime](deploy-runtime.md).
 
-> Эта страница для операторов и интеграторов, которым нужно запускать runs, ingestion и Lex jobs через runtime HTTP surface и понимать, как читать control-plane state.
+> This page is for operators and integrators who need to launch runs, ingestion,
+> and Lex jobs through the runtime HTTP surface and understand control-plane
+> state.
 
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/control.py`, the control-plane service bindings, and `docs/reference/api/control.md`.
 Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; route-source inspection only. No control-plane request or runtime service was exercised in this update.
 
-## Вход
+## Inputs
 
-- запущенный Runtime API
-- bearer token, если auth path включён
-- `data_snapshot_ref`, `input_bindings_ref` или `data_view_request_ref`
-- при полном workflow launch: при необходимости `trinity_bundle_ref` и связанные refs
+- a running Runtime API;
+- a bearer token, if the auth path is enabled;
+- `data_snapshot_ref`, `input_bindings_ref`, or `data_view_request_ref`;
+- for a full workflow launch, `trinity_bundle_ref` and related references when
+  needed.
 
-## Выход
+## Outputs
 
-- `job_id` для durable polling
-- `run_id` для run-facing debug APIs
-- доступ к workers/outbox/data/Lex control surface
+- a `job_id` for durable polling;
+- a `run_id` for run-facing debug APIs;
+- access to the workers/outbox/data/Lex control surface.
 
-## Команды
+## Commands
 
 ```bash
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
@@ -29,34 +32,35 @@ curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/job
 curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/workers"
 ```
 
-Control plane в PolicyOS отвечает за write-capable операции:
+The PolicyOS control plane handles write-capable operations:
 
-- запуск workflow run;
-- запуск natural-language run;
-- data discovery / resolve / ingest;
+- launching a workflow run;
+- launching a natural-language run;
+- data discovery/resolve/ingest;
 - Lex batch jobs;
-- operational visibility через jobs, workers, outbox и decision-validity endpoints.
+- operational visibility through jobs, workers, outbox, and decision-validity
+  endpoints.
 
-## Перед началом
+## Before you begin
 
-Убедитесь, что runtime поднят:
+Confirm that the runtime is running:
 
 ```bash
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 ```
 
-И что execution profile и state store заданы осознанно:
+Also make a deliberate choice of execution profile and state store:
 
 - `POLISYOS_EXECUTION_PROFILE`
 - `POLISYOS_CONTROL_WORKER_BACKEND`
 - `POLISYOS_CONTROL_STATE_STORE_BACKEND`
-- `POLISYOS_CONTROL_SQLITE_PATH` или `POLISYOS_CONTROL_POSTGRES_DSN`
+- `POLISYOS_CONTROL_SQLITE_PATH` or `POLISYOS_CONTROL_POSTGRES_DSN`
 
-Подробнее про env surface: [Deploy Runtime](deploy-runtime.md).
+For more about the environment surface, see [Deploy Runtime](deploy-runtime.md).
 
-## 1. Запустите workflow run
+## 1. Launch a workflow run
 
-Базовый launch:
+Basic launch:
 
 The hash below is an illustrative placeholder, not an available input artifact.
 A successful launch requires a persisted, authorized artifact whose content
@@ -74,33 +78,34 @@ curl -X POST "http://localhost:8000/api/v1/control/runs" \
   }'
 ```
 
-Ответ даёт:
+The response provides:
 
 - `run_id`
 - `job_id`
 - `effective_execution_profile`
 
-`run_id` нужен для run-facing debug APIs, `job_id` для durable control-job state.
+Use `run_id` for run-facing debug APIs and `job_id` for durable control-job
+state.
 
 ## 2. Poll durable job state
 
-Сразу после launch проверяйте job, а не пытайтесь гадать по логам:
+Check the job immediately after launch rather than infer its state from logs:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/control/jobs/$JOB_ID"
 ```
 
-Смотрите прежде всего на:
+Focus on:
 
 - `state`: `pending`, `running`, `completed`, `failed`
 - `kind`
 - `progress`
 - `started_at` / `finished_at`
 
-## 3. Просматривайте workers и outbox
+## 3. Inspect workers and the outbox
 
-Если job завис или не движется, переходите к operational endpoints:
+If a job is stuck or not progressing, inspect the operational endpoints:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
@@ -110,16 +115,16 @@ curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/control/outbox"
 ```
 
-Что искать:
+Look for:
 
-- есть ли активный lease на worker;
-- не застрял ли job без heartbeat;
-- копятся ли outbox events без downstream consumption;
-- совпадает ли ожидаемый backend с фактическим deployment mode.
+- whether a worker has an active lease;
+- whether a job is stuck without a heartbeat;
+- whether outbox events are accumulating without downstream consumption;
+- whether the expected backend matches the actual deployment mode.
 
-## 4. Используйте data endpoints как отдельный operational слой
+## 4. Use data endpoints as a separate operational layer
 
-Control plane умеет не только запускать Scientist workflow, но и подготавливать данные:
+The control plane can prepare data as well as launch Scientist workflows:
 
 - `POST /api/v1/control/data/discover`
 - `POST /api/v1/control/data/resolve`
@@ -129,16 +134,16 @@ Control plane умеет не только запускать Scientist workflow
 - `GET /api/v1/control/data/profiles`
 - `GET /api/v1/control/data/binding-profiles`
 
-Практический паттерн:
+Practical sequence:
 
-1. discover/resolve candidate datasets;
-2. preview coverage;
-3. ingest и получить `data_snapshot_ref`;
-4. запускать workflow run уже с готовым snapshot.
+1. Discover/resolve candidate datasets.
+2. Preview coverage.
+3. Ingest and obtain a `data_snapshot_ref`.
+4. Launch the workflow run with the prepared snapshot.
 
-## 5. Запускайте Lex jobs как control-plane workload
+## 5. Launch Lex jobs as a control-plane workload
 
-Для batch Lex path:
+For the Lex batch path:
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
@@ -153,60 +158,64 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
   }'
 ```
 
-Затем:
+Then use:
 
 - `GET /api/v1/control/jobs/{job_id}`
 - `GET /api/v1/control/lex/status/{pipeline_id}`
 - `GET /api/v1/control/lex/graph/stats`
 
-## 6. Понимайте границы control plane
+## 6. Understand the control-plane boundaries
 
-Control plane не заменяет собой весь runtime debug surface.
+The control plane does not replace the full runtime debug surface.
 
-Используйте его для:
+Use it for:
 
 - launch/poll/operate;
 - durable state;
 - worker/outbox visibility;
 - write-capable orchestration.
 
-Переходите в run/debug APIs, если вам нужно:
+Move to the run/debug APIs when you need:
 
-- timeline;
+- a timeline;
 - node outcomes;
 - artifact lineage;
 - evidence context;
-- decision-validity summary по конкретному run.
+- a decision-validity summary for a specific run.
 
-## 7. Минимальный операторский маршрут
+## 7. Minimal operator route
 
-Если нужно быстро понять состояние системы, последовательность обычно такая:
+To quickly understand system state, the usual sequence is:
 
-1. `POST /api/v1/control/runs` или `.../lex/trigger`
+1. `POST /api/v1/control/runs` or `.../lex/trigger`
 2. `GET /api/v1/control/jobs/{job_id}`
-3. при проблеме: `GET /api/v1/control/workers`
-4. затем: `GET /api/v1/control/outbox`
-5. если run уже создан: переход к `/api/v1/runs/{run_id}/timeline`, `/nodes`, `/lineage`
+3. if there is a problem: `GET /api/v1/control/workers`
+4. then: `GET /api/v1/control/outbox`
+5. if a run has been created: continue to `/api/v1/runs/{run_id}/timeline`,
+   `/nodes`, and `/lineage`
 
-## Откат
+## Rollback
 
-Для локального control-plane workflow безопасный rollback обычно означает:
+For a local control-plane workflow, a safe rollback usually means:
 
-1. остановить runtime;
-2. удалить scratch SQLite state store, если вы запускали control plane на локальном файле;
-3. очистить временные CAS/data outputs только в экспериментальном каталоге.
+1. Stop the runtime.
+2. Remove the scratch SQLite state store if the control plane used a local file.
+3. Clean up temporary CAS/data outputs only in the experimental directory.
 
-Если проблема уже дошла до release/canary уровня, переходите к operator
-runbooks, а не удаляйте состояние вручную.
+If the issue has reached the release/canary level, follow the operator runbooks
+instead of deleting state manually.
 
 ## Troubleshooting
 
-- Если launch отвечает `400 missing_data_source`, передайте один из трёх полей в `data_source`.
-- Если `job_id` есть, но прогресса нет, идите в `/workers` и `/outbox`, а не сразу в исходники.
-- Если вы уже получили `run_id`, дальнейшая triage почти всегда эффективнее через [Debug Failed Run](debug-failed-run.md).
+- If launch returns `400 missing_data_source`, provide one of the three fields
+  in `data_source`.
+- If a `job_id` exists but there is no progress, inspect `/workers` and `/outbox`
+  before opening source code.
+- If you already have a `run_id`, further triage is usually more effective
+  through [Debug Failed Run](debug-failed-run.md).
 
-## Что дальше
+## Next steps
 
-- Для развертывания и env policy смотрите [Deploy Runtime](deploy-runtime.md)
-- Для failure triage откройте [Debug Failed Run](debug-failed-run.md)
-- Для полного endpoint catalog смотрите [Control Plane API reference](../reference/api/control.md)
+- For deployment and environment policy, see [Deploy Runtime](deploy-runtime.md).
+- For failure triage, see [Debug Failed Run](debug-failed-run.md).
+- For the full endpoint catalog, see the [Control Plane API reference](../reference/api/control.md).

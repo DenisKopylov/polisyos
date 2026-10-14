@@ -1,26 +1,29 @@
-# Диагностика failed run
+# Debug a Failed Run
 
 Related reference: [Runs API](../reference/api/runs.md). Related how-to: [Use Control Plane](use-control-plane.md).
 
-> Эта страница для инженеров и операторов, которым нужно быстро локализовать failure: понять, это проблема orchestration, данных, governance или control-plane инфраструктуры.
+> This page is for engineers and operators who need to quickly locate a failure
+> and determine whether it comes from orchestration, data, governance, or
+> control-plane infrastructure.
 
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/routes/control.py`, and the linked Runtime API references.
 Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; route-source inspection only. No runtime request was made in this update.
 
-## Вход
+## Inputs
 
-- `job_id` и/или `run_id`
-- bearer token, если auth path включён
-- доступ к runtime URL и связанным runbooks
+- a `job_id` and/or `run_id`;
+- a bearer token, if the auth path is enabled;
+- access to the runtime URL and related runbooks.
 
-## Выход
+## Outputs
 
-- локализованный failing layer: control plane, runtime DAG, data/lineage или governance
-- минимальный набор endpoint-ов для следующего шага
-- решение: лечить входы, продолжать triage, replay/reissue или идти в rollback runbook
+- the failing layer: control plane, runtime DAG, data/lineage, or governance;
+- the smallest set of endpoints needed for the next step;
+- a decision to fix inputs, continue triage, replay/reissue, or follow a rollback
+  runbook.
 
-## Команды
+## Commands
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/control/jobs/$JOB_ID"
@@ -28,46 +31,49 @@ curl -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/runs/$RUN_I
 curl -N -H "Authorization: Bearer $TOKEN" "http://localhost:8000/api/v1/runs/$RUN_ID/live"
 ```
 
-Лучший practical подход в PolicyOS: не начинать с исходников, а идти по наблюдаемым слоям сверху вниз.
+In PolicyOS, the most practical approach is to start with observable layers and
+work downward, rather than begin with source code.
 
-## 1. Начните с job state
+## 1. Start with the job state
 
-Если run стартовал через control plane, первым делом проверьте job:
+If the run was started through the control plane, check the job first:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/control/jobs/$JOB_ID"
 ```
 
-Важные сигналы:
+Important signals:
 
-- `state=failed` сразу говорит, что проблема уже зафиксирована durable state store;
-- `progress` показывает, завис ли job посередине;
-- `kind` отделяет workflow failure от Lex pipeline failure.
+- `state=failed` indicates that the problem has been recorded in the durable
+  state store;
+- `progress` shows whether the job may be stuck partway through;
+- `kind` distinguishes a workflow failure from a Lex pipeline failure.
 
-Если job не двигается, сразу смотрите:
+If the job is not progressing, check these next:
 
 - `GET /api/v1/control/workers`
 - `GET /api/v1/control/outbox`
 
-## 2. Переключитесь на run timeline
+## 2. Move to the run timeline
 
-Как только у вас есть `run_id`, переходите к timeline:
+Once you have a `run_id`, inspect the timeline:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/runs/$RUN_ID/timeline"
 ```
 
-Timeline помогает ответить на три вопроса:
+The timeline helps answer three questions:
 
-- на каком узле остановился workflow;
-- был ли failure после governance gate или до него;
-- есть ли последний успешный checkpoint / artifact emission перед падением.
+- which node the workflow stopped at;
+- whether the failure occurred before or after a governance gate;
+- whether a successful checkpoint or artifact emission occurred immediately
+  before the failure.
 
-## 3. Посмотрите node outcomes и workflow view
+## 3. Inspect node outcomes and the workflow view
 
-Следующие два endpoint-а обычно дают самый высокий signal-to-noise ratio:
+The following two endpoints usually provide the highest signal-to-noise ratio:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
@@ -77,92 +83,94 @@ curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/runs/$RUN_ID/workflow"
 ```
 
-Ищите:
+Look for:
 
-- node со status/error, который оборвал граф;
+- a node status/error that stopped the graph;
 - missing prerequisites;
-- divergence между ожидаемым DAG и реально выполненными шагами.
+- divergence between the expected DAG and the steps that actually ran.
 
-## 4. Постройте lineage артефактов
+## 4. Trace artifact lineage
 
-Если есть подозрение на data/input/problem, переходите к lineage:
+If you suspect a data/input problem, inspect lineage:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/runs/$RUN_ID/lineage?max_depth=3&max_nodes=250"
 ```
 
-Это особенно полезно, когда нужно понять:
+This is especially useful when you need to determine:
 
-- какой `data_snapshot_ref` реально вошёл в запуск;
-- был ли собран `NormPack` или evidence bundle;
-- дошёл ли run до decision-packet / replay artifacts.
+- which `data_snapshot_ref` actually entered the run;
+- whether a `NormPack` or evidence bundle was assembled;
+- whether the run reached decision-packet or replay artifacts.
 
-## 5. Проверьте governance и decision-validity layer
+## 5. Check the governance and decision-validity layers
 
-Если run не упал технически, но остановился по policy/gate причинам, смотрите:
+If the run did not fail technically but stopped for policy/gate reasons, inspect:
 
 - `GET /api/v1/runs/{run_id}/evidence-context`
 - `GET /api/v1/control/runs/{run_id}/decision-validity`
 
-Симптомы governance-related stop:
+Signs of a governance-related stop:
 
-- issues с severity `BLOCKER`;
-- human-review requirement;
-- missing evidence / trust / replay prerequisites.
+- issues with severity `BLOCKER`;
+- a human-review requirement;
+- missing evidence/trust/replay prerequisites.
 
-## 6. Используйте live stream для активной отладки
+## 6. Use the live stream for active debugging
 
-Когда run ещё исполняется и вам нужен near-real-time след:
+When a run is still executing and you need a near-real-time trace:
 
 ```bash
 curl -N -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/runs/$RUN_ID/live"
 ```
 
-Live stream особенно полезен для:
+The live stream is especially useful for:
 
 - timeline events;
 - governance summaries;
 - decision-validity state;
 - agent/pipeline progress.
 
-## 7. Как думать про checkpoint и replay
+## 7. Think about checkpoints and replay
 
-Если failure случился после частичного прогресса, смотрите:
+If a failure occurred after partial progress, check:
 
-- какой `checkpoint_policy` использовался при launch;
-- есть ли `last_checkpoint_ref` в run-facing artifacts/state;
-- были ли уже собраны replayable audit artifacts.
+- which `checkpoint_policy` was used at launch;
+- whether `last_checkpoint_ref` exists in run-facing artifacts/state;
+- whether replayable audit artifacts have already been assembled.
 
-Практическое правило:
+Practical rule:
 
-- если failure до materialized artifacts, лечите input/orchestration;
-- если failure после checkpoint, выгоднее продолжать triage от lineage и replay-ready артефактов;
-- если failure выглядит nondeterministic, сравнивайте checkpoint/ref trail между двумя прогонами.
+- if the failure occurred before artifacts were materialized, fix the
+  input/orchestration;
+- if the failure occurred after a checkpoint, continue triage from lineage and
+  replay-ready artifacts;
+- if the failure appears nondeterministic, compare checkpoint/reference trails
+  across two runs.
 
 ## 8. Troubleshooting
 
-1. `job failed` и нет worker heartbeat:
-   смотрите control-plane backend и worker leases.
-2. `job completed`, но run unusable:
-   смотрите governance / decision-validity / evidence-context.
-3. `run stalled` в середине DAG:
-   смотрите `timeline`, `nodes`, `workflow`.
-4. `unexpected result` при успешном завершении:
-   смотрите `lineage`, входные артефакты и replay trail.
+1. `job failed` with no worker heartbeat: inspect the control-plane backend and
+   worker leases.
+2. `job completed`, but the run is unusable: inspect governance,
+   decision-validity, and evidence-context.
+3. `run stalled` mid-DAG: inspect `timeline`, `nodes`, and `workflow`.
+4. `unexpected result` after successful completion: inspect `lineage`, input
+   artifacts, and the replay trail.
 
-## Откат
+## Rollback
 
-Если failure уже влияет на canary или production path, прекращайте локальный
-forensics-only режим и переходите к операторскому откату:
+If the failure already affects a canary or production path, stop local-only
+forensics and follow the operational rollback procedures:
 
 - [Runtime API Outage](../runbooks/runtime-api-outage.md)
 - [Replay Or Restore](../runbooks/replay-or-restore.md)
 - [Canary Rollback Or Promotion Failure](../runbooks/canary-rollback-or-promotion-failure.md)
 
-## Что дальше
+## Next steps
 
-- Для launch/poll operational surface смотрите [Use Control Plane](use-control-plane.md)
-- Для env и deployment posture откройте [Deploy Runtime](deploy-runtime.md)
-- Для API деталей используйте [Runs API reference](../reference/api/runs.md)
+- For the launch/poll operational surface, see [Use Control Plane](use-control-plane.md).
+- For environment and deployment posture, see [Deploy Runtime](deploy-runtime.md).
+- For API details, see the [Runs API reference](../reference/api/runs.md).

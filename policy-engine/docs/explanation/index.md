@@ -7,10 +7,14 @@
 > **Evidence caveat:** source and test references identify evidence locations, not fresh execution
 > receipts. The architecture page states its inspected source snapshot and verification scope.
 
-These pages explain why the current architecture is shaped the way it is and
-which contracts, ADRs, tests, and runbooks back the published claims.
+Use these pages to understand why the system is shaped as it is. Start with
+[Architecture](architecture.md) for the boundary and design direction, then choose a topic below.
+For implementation behavior, follow the source-qualified references linked
+from each page; this index does not establish an end-to-end capability.
 
 ## Reading Order
+
+This is a topic map, not a required sequence.
 
 | Page                                              | Use it for                                                             | Primary anchors                            |
 | ------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------ |
@@ -49,3 +53,10 @@ See also:
 - [ADR index](../adr/index.md)
 - [Reference index](../reference/index.md)
 - [TRINITY contract](../contracts/TRINITY.md)
+
+## English readings of historical decisions
+
+The [ADR reader editions](adr-readings/index.md) provide complete English
+translations of selected original records. Each cites its immutable source and
+retains the original decision status; the translation is informational and
+neither ratifies a new decision nor establishes runtime implementation.

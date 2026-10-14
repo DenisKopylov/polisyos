@@ -2,90 +2,87 @@
 
 **Repo snapshot date**: 2026-02-03
 **Scope**: `policy-engine/src/polisyos/scientist/engine/*` (+ minimal builtins), `policy-engine/tests/unit/scientist/*`, `policy-engine/tests/contract/*`
-**Primary goal**: превратить Scientist из “набора хардкодных шагов” в **минимальный workflow‑движок**, который исполняет DAG узлов по единому протоколу и может оркестрировать Foundry/Fabric/Scholar/Lex через порты.
+**Primary goal**: turn Scientist from a “set of hard-coded steps” into a **minimal workflow engine** that executes a DAG of nodes through a unified protocol and can orchestrate Foundry/Fabric/Scholar/Lex through ports.
+
+> Historical snapshot note: Repository-state statements describe the dated snapshot above; phase labels and completion criteria belong to that historical plan. They do not establish current E02 status or end-to-end functionality.
 
 ---
 
-## 0) Цель фазы (что должно измениться “в ощущениях”)
+## 0) Phase goal (what should change in practice)
 
-После E1.6 Scientist получает “скелет” workflow engine:
+After E1.6, Scientist gets a workflow-engine “skeleton”:
 
-1. **Единый протокол Node**:
+1. **Unified Node protocol**:
+   - A Node is a “black box”: it receives `ExecutionContext` + `ExperimentState` and returns `NodeOutcome`.
+   - A node does not need to know about the rest of the workflow (apart from its own parameters and state).
 
-   - Node — “чёрный ящик”: получает `ExecutionContext` + `ExperimentState`, возвращает `NodeOutcome`.
-   - Узел не обязан знать про остальной workflow (кроме своих параметров и state).
+2. **Unified `WorkflowSpec` format (DAG)**:
+   - a serializable contract (Pydantic v2), suitable for future declarative workflows (E2/E3),
+   - with no hard-coded branching inside the engine.
 
-2. **Единый формат WorkflowSpec (DAG)**:
+3. **Unified executor v0**:
+   - correct DAG construction, validation, and topological sorting,
+   - execution (sequential first), with minimal “resume” support through `status=skip`.
 
-   - serializable контракт (Pydantic v2), пригодный для будущих declarative workflows (E2/E3),
-   - без hardcoded ветвлений внутри engine.
+4. **Node registry/discovery v0**:
+   - an in-process registry + minimal discovery through `polisyos.core.components` (if feasible),
+   - without the E3 package ecosystem (marketplace/package installation comes later).
 
-3. **Единый executor v0**:
+5. **Minimal built-in nodes**:
+   - 2–3 “empty” nodes for checking the engine (`noop`/`set_state`/`emit_artifact`),
+   - no domain logic (`compile`/`simulate`/`legal` must not live inside the engine).
 
-   - правильное построение DAG, валидация, топологическая сортировка,
-   - исполнение (сначала последовательное), минимальная поддержка “resume” через `status=skip`.
-
-4. **Registry/Discovery узлов v0**:
-
-   - in‑process registry + минимум discovery через `polisyos.core.components` (если возможно),
-   - без экосистемы пакетов E3 (маркетплейс/pack install — позже).
-
-5. **Минимальные built‑in узлы**:
-
-   - 2–3 “пустых” узла для проверки engine (noop/set_state/emit_artifact),
-   - без доменной логики (никакой “compile/simulate/legal” внутри engine).
-
-**Важно:** E1.6 **не** переносит весь текущий business‑код Scientist в Nodes (это E1.7). В этой фазе мы строим фундамент и проверяем, что он исполним и трассируем.
+**Important:** E1.6 does **not** move all existing Scientist business logic into Nodes (that is E1.7). This phase builds the foundation and verifies that it can execute and be traced.
 
 ---
 
-## 1) Входные условия (после фаз 1–5)
+## 1) Preconditions (after phases 1–5)
 
-### 1.1 Порты и ABI уже существуют
+### 1.1 Ports and ABI already exist
 
-Из E1.4:
+From E1.4:
 
-- `polisyos.core.contracts.*` — “ports” (только DTO/refs/Protocol без реализаций).
+- `polisyos.core.contracts.*` are “ports” (DTOs/refs/Protocol only, no implementations).
 - `polisyos.core.components.*` — `ComponentId`, `ComponentMetadata`, `Capability`, `ComponentRegistry`, `Discovery`.
-- `polisyos.core.run.context.RunContext` + `polisyos.core.trace.*` — базовый trace артефакт (`core.trace.jsonl`).
+- `polisyos.core.run.context.RunContext` + `polisyos.core.trace.*` provide the base trace artifact (`core.trace.jsonl`).
 
-Из E1.5:
+From E1.5:
 
-- Foundry умеет чистый `compile()/execute()` по контрактам `core.contracts.foundry` (CAS‑in/CAS‑out) и не зависит от Scientist.
+- Foundry supports clean `compile()/execute()` through `core.contracts.foundry` contracts (CAS-in/CAS-out) and does not depend on Scientist.
 
-### 1.2 Текущее состояние Scientist в репозитории (симптомы, которые E1.6 адресует)
+### 1.2 Current Scientist repository state (the symptoms E1.6 addresses)
 
-На snapshot 2026-02-03:
+In the 2026-02-03 snapshot:
 
-- Есть хардкод‑оркестрация на LangGraph:
-  - pre-decomposition orchestrator workflow builder собирает граф с условными роутингами,
-  - pre-decomposition flow-nodes module содержит большой объём доменной логики и прямых интеграций.
-- Есть абстракция `polisyos.scientist.workflows` (engine_simple / engine_langgraph), но:
-  - отсутствует единый Node protocol (ctx+state → outcome),
-  - отсутствует единый serializable workflow spec (DAG как контракт),
-  - отсутствует registry/discovery узлов с `ComponentId`.
+- LangGraph-based hard-coded orchestration exists:
+  - the pre-decomposition orchestrator workflow builder assembles a graph with conditional routing,
+  - the pre-decomposition flow-nodes module contains a large amount of domain logic and direct integrations.
+- The `polisyos.scientist.workflows` abstraction exists (`engine_simple` / `engine_langgraph`), but:
+  - there is no unified Node protocol (`ctx` + `state` → `outcome`),
+  - there is no unified serializable workflow spec (DAG as a contract),
+  - there is no node registry/discovery using `ComponentId`.
 
-E1.6 добавляет новый **канонический** слой: `polisyos.scientist.engine.*`.
-
----
-
-## 2) Негол (явно вне фазы)
-
-E1.6 **не** делает:
-
-- перенос существующих `flow_nodes.py` в Node‑плагины (это E1.7),
-- планирование/оптимизацию/LLM‑агенты/губернатор/рефлексию (они остаются в текущем Scientist до миграции),
-- scheduler/parallel execution (только последовательный executor),
-- Fabric World Graph / Scholar / Lex как подсистемы (это E2+), но `ExecutionContext` должен иметь порты под них,
-- “расширение = установить пакет” (E3): на E1.6 registry/discovery минимальные.
+E1.6 adds a new **canonical** layer: `polisyos.scientist.engine.*`.
 
 ---
 
-## 3) Deliverables (что обязано появиться после E1.6)
+## 2) Non-goals (explicitly out of scope for this phase)
 
-### 3.1 Новый пакет engine (скелет)
+E1.6 does **not**:
 
-Добавить пакет:
+- move existing `flow_nodes.py` into Node plugins (that is E1.7),
+- add planning/optimization/LLM agents/governor/reflection (these remain in the current Scientist until migration),
+- add a scheduler or parallel execution (the executor remains sequential only),
+- implement Fabric World Graph / Scholar / Lex as subsystems (those are E2+), although `ExecutionContext` must provide ports for them,
+- implement “extension = install a package” (E3); E1.6 keeps registry/discovery minimal.
+
+---
+
+## 3) Deliverables (what must be introduced after E1.6)
+
+### 3.1 New engine package (skeleton)
+
+Add the package:
 
 ```text
 policy-engine/src/polisyos/scientist/engine/
@@ -105,110 +102,110 @@ policy-engine/src/polisyos/scientist/engine/
     emit_artifact.py
 ```
 
-Распределение ответственности по файлам (нормативно):
+File responsibility (normative):
 
-- `engine/errors.py` — только исключения (taxonomy из §4.0).
-- `engine/state.py` — `ExperimentState` (Pydantic), без IO.
-- `engine/context.py` — `ExecutionContext` + port Protocols, без реализаций портов.
+- `engine/errors.py` — exceptions only (taxonomy from §4.0).
+- `engine/state.py` — `ExperimentState` (Pydantic), no I/O.
+- `engine/context.py` — `ExecutionContext` + port Protocols, no port implementations.
 - `engine/protocol.py` — `Node`, `NodeSpec`, `NodeOutcome`, `NodeEvent`, `NodeError`.
-- `engine/workflow_spec.py` — `WorkflowSpec` + `NodeInvocation` + валидации (уникальность alias и т.п.).
+- `engine/workflow_spec.py` — `WorkflowSpec` + `NodeInvocation` + validation (alias uniqueness, etc.).
 - `engine/registry.py` — `NodeRegistry` + discovery adapter (entry_points/dev scan).
-- `engine/executor.py` — последовательный executor v0 (DAG validate + execute + trace).
-- `engine/telemetry.py` — span helpers + атрибуты (не должен импортировать heavy deps при выключенной observability).
-- `engine/builtins/*` — только минимальные built‑in Nodes (noop/set_state/emit_artifact).
+- `engine/executor.py` — sequential executor v0 (DAG validation + execution + trace).
+- `engine/telemetry.py` — span helpers + attributes (must not import heavy dependencies when observability is disabled).
+- `engine/builtins/*` — minimal built-in Nodes only (`noop`/`set_state`/`emit_artifact`).
 
-Инварианты пакета `polisyos.scientist.engine`:
+Package invariants for `polisyos.scientist.engine`:
 
-- не импортирует `langgraph` (и любые orchestration-specific зависимости),
-- не импортирует конкретные реализации Foundry/Fabric/Scholar/Lex (только контракты + Protocol),
-- import side‑effects запрещены (особенно в `__init__.py`).
+- does not import `langgraph` (or orchestration-specific dependencies)
+- does not import concrete Foundry/Fabric/Scholar/Lex implementations (contracts + Protocol only)
+- import-time side effects are prohibited (especially in `__init__.py`).
 
-### 3.2 Тесты
+### 3.2 Tests
 
-- Unit tests для engine/executor/registry:
+- unit tests for engine/executor/registry:
   - `policy-engine/tests/unit/scientist/engine/test_engine_executor_v0.py`
   - `policy-engine/tests/unit/scientist/engine/test_engine_registry_v0.py`
-- Contract test для WorkflowSpec (serde):
+- contract test for `WorkflowSpec` serialization/deserialization:
   - `policy-engine/tests/contract/test_scientist_workflow_spec_contract.py`
 
-### 3.3 Artifact kinds (ABI для engine)
+### 3.3 Artifact kinds (engine ABI)
 
-Чтобы engine был воспроизводимым и не “жил только в памяти”, на E1.6 фиксируем минимальный набор kinds:
+To make the engine reproducible rather than “in-memory only,” E1.6 fixes this minimal set of kinds:
 
 - `scientist.workflow_spec` — `WorkflowSpec` (DAG)
-- `scientist.workflow_report` — `WorkflowReport` (execution summary; рекомендовано)
-- `scientist.experiment_state` — `ExperimentState` (переиспользуем существующий kind из `core.contracts.scientist.ExperimentStateRef`)
+- `scientist.workflow_report` — `WorkflowReport` (execution summary; recommended)
+- `scientist.experiment_state` — `ExperimentState` (reuse the existing kind from `core.contracts.scientist.ExperimentStateRef`)
 
-Примечание:
+Note:
 
-- `core.trace.jsonl` (из `RunContext.finalize()`) остаётся базовым trace артефактом для node‑execution.
+- `core.trace.jsonl` (from `RunContext.finalize()`) remains the base trace artifact for node execution.
 
-### 3.4 Public API surface (что экспортирует `polisyos.scientist.engine`)
+### 3.4 Public API surface (exports from `polisyos.scientist.engine`)
 
-Нормативно: `polisyos.scientist.engine.__init__` экспортирует только “готовые” абстракции:
+Normative: `polisyos.scientist.engine.__init__` exports only “ready” abstractions:
 
 - `Node`, `NodeSpec`, `NodeOutcome`, `NodeStatus`, `NodeEvent`, `NodeError`
 - `ExperimentState`
 - `WorkflowSpec`, `NodeInvocation`
-- `NodeRegistry` (+ минимальный discovery helper)
-- `WorkflowExecutor` (последовательный executor v0)
-- ошибки `EngineError`‑семейства
+- `NodeRegistry` (+ a minimal discovery helper)
+- `WorkflowExecutor` (sequential executor v0)
+- errors from the `EngineError` family
 
-Всё остальное (внутренние утилиты, детали telemetry, staging структуры) считается internal.
+Everything else (internal utilities, telemetry details, staging structures) is considered internal.
 
-### 3.5 Документация
+### 3.5 Documentation
 
-- Этот документ (E1.6) является source of truth для ABI engine.
-- (Опционально) `policy-engine/src/polisyos/scientist/engine/README.md` — короткий how‑to + пример.
+- This document (E1.6) is the source of truth for the engine ABI.
+- optionally, `policy-engine/src/polisyos/scientist/engine/README.md` — a short how-to + example.
 
 ---
 
-## 4) Node protocol (строгий минимум, который не сломает миграцию)
+## 4) Node protocol (the strict minimum that will not break migration)
 
-### 4.0 Ошибки (engine error taxonomy)
+### 4.0 Errors (engine error taxonomy)
 
-В `polisyos.scientist.engine.errors` завести минимальную иерархию ошибок:
+Define a minimal error hierarchy in `polisyos.scientist.engine.errors`:
 
-- `EngineError(Exception)` — базовая
-- `WorkflowSpecError(EngineError)` — ошибки валидации/построения DAG
-  - `UnknownNodeError` (node_id не найден в registry)
+- `EngineError(Exception)` — base class
+- `WorkflowSpecError(EngineError)` — DAG validation/construction errors
+  - `UnknownNodeError` (the `node_id` is not found in the registry)
   - `DuplicateAliasError`
   - `MissingDependencyError`
   - `CycleDetectedError`
-- `NodeExecutionError(EngineError)` — узел упал (исключение/невалидный outcome)
+- `NodeExecutionError(EngineError)` — the node failed (exception/invalid outcome)
 
-Нормативно: executor преобразует “сырой exception” узла в `NodeOutcome(status="fail", error=...)` + trace и/или бросает `NodeExecutionError` (см. §8.1/§8.3).
+Normative: the executor converts a node’s “raw exception” into `NodeOutcome(status="fail", error=...)` + trace and/or raises `NodeExecutionError` (see §8.1/§8.3).
 
-### 4.1 NodeId и версия: используем ComponentId (Core components)
+### 4.1 Node ID and version: use `ComponentId` (Core components)
 
-**Нормативно:** `NodeId = polisyos.core.components.ComponentId`.
+**Normative:** `NodeId = polisyos.core.components.ComponentId`.
 
-#### Важная оговорка про формат (существующий ABI E1.4)
+#### Important format caveat (existing E1.4 ABI)
 
-`ComponentId` в репозитории валидируется как `namespace.name@semver`, где `namespace` и `name` не содержат точек.
-Поэтому пример вида `scientist.node.plan@1.0.0` **невалиден** для текущей реализации `ComponentId`.
+`ComponentId` is validated in the repository as `namespace.name@semver`, where `namespace` and `name` contain no dots.
+Therefore, an example such as `scientist.node.plan@1.0.0` is **invalid** for the current `ComponentId` implementation.
 
-**Нормативная конвенция именования узлов на E1.6:**
+**Normative node-naming convention for E1.6:**
 
 - `namespace = "scientist"`
-- `name` кодирует категорию через `_`:
+- `name` encodes the category using `_`:
   - `scientist.node_noop@1.0.0`
   - `scientist.node_set_state@1.0.0`
   - `scientist.node_emit_artifact@1.0.0`
 
-(Если позже будет принято расширить грамматику ComponentId, эта конвенция останется совместимой — переименование решается через registry aliasing в E3.)
+(If the `ComponentId` grammar is extended later, this convention remains compatible — renaming can be handled through registry aliasing in E3.)
 
 ### 4.2 NodeSpec (metadata)
 
-**Цель:** единый “паспорт” узла (для registry/discovery/UI/валидаций), без привязки к реализации.
+**Goal:** one node “passport” (for registry/discovery/UI/validation), independent of implementation.
 
-Нормативно:
+Normative:
 
-- `NodeSpec.metadata` базируется на `polisyos.core.components.ComponentMetadata`
-- `capabilities` MUST включать `Capability.SCIENTIST_NODE`
-- дополнительные hints допускаются, но не обязательны
+- `NodeSpec.metadata` is based on `polisyos.core.components.ComponentMetadata`
+- `capabilities` MUST include `Capability.SCIENTIST_NODE`
+- additional hints are allowed, but not required
 
-Рекомендуемая модель:
+Recommended model:
 
 ```python
 from pydantic import BaseModel, ConfigDict, Field
@@ -218,15 +215,15 @@ class NodeSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     metadata: ComponentMetadata
-    # Optional: только hints (не hard contract)
+    # Optional: hints only (not a hard contract)
     state_reads: list[str] = Field(default_factory=list)
     state_writes: list[str] = Field(default_factory=list)
     produces: list[str] = Field(default_factory=list, description="Logical artifact keys")
 ```
 
-### 4.3 Node интерфейс (минимальный)
+### 4.3 Node interface (minimum)
 
-Нормативная сигнатура:
+Normative signature:
 
 - `spec` (metadata: id/version/capabilities)
 - `execute(ctx, state) -> NodeOutcome`
@@ -245,21 +242,21 @@ class Node(Protocol):
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome: ...
 ```
 
-**Инварианты:**
+**Invariants:**
 
-- Node не делает side‑effects “в обход” `ExecutionContext` (например, не пишет в произвольные файлы).
-  Пишем артефакты в CAS через `ctx.store` и фиксируем их через state/index + trace.
+- A Node must not perform side effects “around” `ExecutionContext` (for example, writing to arbitrary files).
+  Write artifacts to CAS through `ctx.store`, and record them through state/index + trace.
 
-- Node не импортируется из `polisyos.core.*` (только Scientist вверх).
+- Node must not be imported by `polisyos.core.*` (dependency direction is upward into Scientist only).
 
-### 4.4 NodeOutcome (обязательные поля)
+### 4.4 `NodeOutcome` (required fields)
 
-Нормативные поля:
+Normative fields:
 
 - `status: ok|skip|fail`
-- `state: ExperimentState` (обновлённый)
+- `state: ExperimentState` (updated)
 - `artifacts: list[ArtifactRef]` (produced)
-- `events: list[NodeEvent]` (структурированные события)
+- `events: list[NodeEvent]` (structured events)
 - `error: NodeError | None` (envelope)
 
 ```python
@@ -292,52 +289,52 @@ class NodeOutcome(BaseModel):
     error: NodeError | None = None
 ```
 
-**Нормативные правила:**
+**Normative rules:**
 
 - `status="fail"` ⇒ `error` MUST be non‑null.
 - `status="ok"|"skip"` ⇒ `error` SHOULD be null.
-- `artifacts` — это “что produced” для trace/observability.
-  Индексация (ключ → ArtifactRef) осуществляется через `state.artifacts_index`/`state.reports_index`.
+- `artifacts` are “what was produced” for trace/observability.
+  Indexing (key → `ArtifactRef`) is done through `state.artifacts_index`/`state.reports_index`.
 
 ---
 
-## 5) ExperimentState (минимально полезный контракт)
+## 5) `ExperimentState` (minimally useful contract)
 
-### 5.1 Назначение
+### 5.1 Purpose
 
-`ExperimentState` — состояние исполнения workflow как артефактно‑ориентированный контейнер:
+`ExperimentState` is the workflow execution state, modeled as an artifact-oriented container:
 
-- фиксирует **входы** (refs) на Trinity/DataSnapshot/RegistryBundle/…,
-- ведёт **индекс результатов** (артефакты/отчёты) по логическим ключам,
-- держит **params/budgets** как декларативные значения.
+- records **inputs** (refs) to Trinity/DataSnapshot/RegistryBundle/…;
+- maintains an **index of results** (artifacts/reports) by logical keys;
+- holds **params/budgets** as declarative values.
 
-### 5.2 Минимальная структура
+### 5.2 Minimum structure
 
-Нормативно (v0, “достаточно для engine”):
+Normative (v0, “sufficient for the engine”):
 
 - `run_id: str`
 - `inputs: dict[str, ArtifactRef]`
 - `artifacts_index: dict[str, ArtifactRef]`
 - `reports_index: dict[str, ArtifactRef]`
 - `params: dict[str, str|int|bool|Decimal]`
-- `budgets: dict[str, Decimal]` (или `params["budgets"]`, но лучше отдельным полем)
+- `budgets: dict[str, Decimal]` (or `params["budgets"]`, but a separate field is preferable)
 
-### 5.3 Reserved keys в `state.inputs` (конвенция E1.6+)
+### 5.3 Reserved keys in `state.inputs` (E1.6+ convention)
 
-Чтобы Nodes могли “договариваться” о стандартных входах без жёсткой типизации на уровне engine, вводим зарезервированные ключи `ExperimentState.inputs`:
+To let Nodes agree on standard inputs without hard-coding types in the engine, define reserved keys in `ExperimentState.inputs`:
 
 - `trinity_bundle_ref` — `ArtifactRef.kind in {"ir.trinity_bundle"}`
 - `data_snapshot_ref` — `ArtifactRef.kind == "fabric.data_snapshot"`
 - `registry_bundle_ref` — `ArtifactRef.kind == "core.registry_bundle"`
-- (опционально) `knowledge_bundle_ref` — `ArtifactRef.kind == "scholar.knowledge_bundle"`
-- (опционально) `norm_pack_ref` — `ArtifactRef.kind == "ir.norm_pack"` (или port из Lex, если появится)
+- optionally, `knowledge_bundle_ref` — `ArtifactRef.kind == "scholar.knowledge_bundle"`
+- optionally, `norm_pack_ref` — `ArtifactRef.kind == "ir.norm_pack"` (or a Lex port, if introduced)
 
-Нормативно на E1.6:
+Normative for E1.6:
 
-- engine **не валидирует** содержимое этих артефактов (это ответственность Node),
-- engine может валидировать “наличие ключа” через `WorkflowSpec.required_binds`.
+- the engine does **not validate** the contents of these artifacts (that is the Node’s responsibility),
+- the engine may validate that a key is present through `WorkflowSpec.required_binds`.
 
-Рекомендуемая модель:
+Recommended model:
 
 ```python
 from decimal import Decimal
@@ -361,28 +358,28 @@ class ExperimentState(BaseModel):
     budgets: dict[str, Decimal] = Field(default_factory=dict)
 ```
 
-### 5.4 Канонизация и “без float”
+### 5.4 Canonicalization and “no floats”
 
-По умолчанию `FileSystemCAS.put_json()` использует `CanonSpec(forbid_floats=True)`.
-Нормативно для engine:
+By default, `FileSystemCAS.put_json()` uses `CanonSpec(forbid_floats=True)`.
+Normative for the engine:
 
-- `ExperimentState`, `WorkflowSpec`, `WorkflowReport` должны сериализоваться без float,
-- для бюджетов/лимитов использовать `Decimal` или `int` (не `float`).
+- `ExperimentState`, `WorkflowSpec`, and `WorkflowReport` must serialize without floats,
+- use `Decimal` or `int` for budgets/limits (not `float`).
 
 ---
 
-## 6) ExecutionContext (инфраструктура + порты/клиенты)
+## 6) `ExecutionContext` (infrastructure + ports/clients)
 
-### 6.1 Назначение
+### 6.1 Purpose
 
-`ExecutionContext` — всё, что нужно Node для исполнения, но **не является state**:
+`ExecutionContext` is everything a Node needs to execute that is **not state**:
 
 - CAS store,
 - RunContext/trace,
 - logger/tracer,
-- порты (fabric/foundry/scholar/lex) как `Protocol`, чтобы engine не импортировал реализации.
+- ports (fabric/foundry/scholar/lex) as `Protocol`, so the engine does not import implementations.
 
-### 6.2 Минимальная структура
+### 6.2 Minimum structure
 
 ```python
 from dataclasses import dataclass
@@ -418,7 +415,7 @@ class ExecutionContext:
     store: FileSystemCAS
     run: RunContext
     logger: logging.Logger
-    # Optional: OpenTelemetry tracer (если включён observability слой)
+    # Optional: OpenTelemetry tracer (if the observability layer is enabled)
     tracer: "Tracer | None" = None
 
     fabric: FabricPort | None = None
@@ -427,11 +424,11 @@ class ExecutionContext:
     lex: LexPort | None = None
 ```
 
-**Нормативно:** engine не создаёт реализации портов. Он получает готовые реализации через `ExecutionContext`.
+**Normative:** the engine does not create port implementations. It receives ready implementations through `ExecutionContext`.
 
-### 6.3 RunContext lifecycle (как engine пишет trace)
+### 6.3 `RunContext` lifecycle (how the engine writes traces)
 
-`RunContext` в текущем Core API создаётся через:
+In the current Core API, `RunContext` is created through:
 
 ```python
 from polisyos.core.run.context import RunContext
@@ -443,28 +440,28 @@ run = RunContext.start(
 )
 ```
 
-Нормативно для E1.6:
+Normative for E1.6:
 
-- `registry_bundle_ref` берём из `state.inputs["registry_bundle_ref"]` (см. §5.3),
-- если ключ отсутствует — для тестов/локальных запусков допустимо собрать default bundle через `polisyos.core.registry.build_default_registry_bundle(store)`.
+- take `registry_bundle_ref` from `state.inputs["registry_bundle_ref"]` (see §5.3),
+- if the key is absent, tests/local runs may build a default bundle through `polisyos.core.registry.build_default_registry_bundle(store)`.
 
 ---
 
-## 7) WorkflowSpec (DAG) — контракт исполнения
+## 7) `WorkflowSpec` (DAG) — execution contract
 
-### 7.1 Требования
+### 7.1 Requirements
 
 WorkflowSpec MUST:
 
-- быть сериализуемым (Pydantic v2) и пригодным для хранения как CAS artifact,
-- описывать DAG узлов (без циклов),
-- позволять параметризовать узлы (params),
-- фиксировать error policy (fail_fast/continue),
-- явно декларировать входные binds (минимальная проверка state перед стартом).
+- be serializable (Pydantic v2) and suitable for storage as a CAS artifact,
+- describe a DAG of nodes (without cycles),
+- allow node parameterization (`params`),
+- fix an error policy (`fail_fast`/`continue`),
+- explicitly declare input binds (minimum state check before start).
 
-### 7.2 Модель WorkflowSpec (v0)
+### 7.2 `WorkflowSpec` model (v0)
 
-Нормативная модель:
+Normative model:
 
 ```python
 from decimal import Decimal
@@ -490,7 +487,7 @@ class WorkflowSpec(BaseModel):
 
     nodes: list[NodeInvocation] = Field(default_factory=list)
 
-    # Binds: какие ключи/пути должны быть заданы в state до старта
+    # Binds: keys/paths that must be set in state before execution starts
     required_binds: list[str] = Field(default_factory=list)
 
     error_policy: ErrorPolicy = "fail_fast"
@@ -504,92 +501,89 @@ class WorkflowSpec(BaseModel):
         return self
 ```
 
-### 7.3 Серилизация (контракт)
+### 7.3 Serialization contract
 
-WorkflowSpec должен roundtrip’иться:
+`WorkflowSpec` must round-trip:
 
 - `WorkflowSpec.model_dump_json()` → `WorkflowSpec.model_validate_json(...)`
-- без потерь и без floats.
+- without loss and without floats.
 
-WorkflowSpec хранится в CAS как:
+Store `WorkflowSpec` in CAS as:
 
 - kind: `scientist.workflow_spec`
 - schema: `SchemaInfo(name="polisyos.scientist.engine.WorkflowSpec", version="1.0")`
 
 ---
 
-## 8) Engine executor v0 (последовательный, но “правильный”)
+## 8) Engine executor v0 (sequential, but “correct”)
 
-### 8.1 Задачи executor
+### 8.1 Executor responsibilities
 
-Executor v0 обязан:
+Executor v0 must:
 
-1. Построить DAG и валидировать его:
+1. Build and validate the DAG:
+   - confirm there are no cycles,
+   - confirm `depends_on` refers to existing `alias` values,
+   - resolve every `node_id` through the registry.
 
-   - отсутствие циклов,
-   - `depends_on` ссылаются на существующие `alias`,
-   - все `node_id` резолвятся через registry.
+2. Execute nodes in topological order (sequentially):
+   - create a span/trace around each node,
+   - call `node.execute(ctx, state)`,
+   - update state,
+   - record the result in the run trace (through `RunContext.emit`).
 
-2. Исполнять узлы в топологическом порядке (последовательно):
+3. Handle `skip` and `fail`:
+   - honor `skip` (the node decides whether to resume),
+   - `fail_fast` stops after the first failure,
+   - `continue` skips downstream nodes that depend on failed nodes (mark them `skipped_due_to_upstream`).
 
-   - создать span/trace вокруг каждого узла,
-   - вызвать `node.execute(ctx, state)`,
-   - обновить state,
-   - записать результат в run trace (через `RunContext.emit`).
+Additionally (normative):
 
-3. Обработать `skip` и `fail`:
+- Any unhandled exception from `node.execute(...)`:
+  - is caught by the executor,
+  - is converted to `NodeOutcome(status="fail", error=NodeError(code="node.exception", ...))`,
+  - is recorded in the trace/logs,
+  - then `error_policy` is applied.
 
-   - `skip` уважать (узел сам решает resume),
-   - `fail_fast` — остановка при первом fail,
-   - `continue` — не исполнять downstream узлы, зависящие от упавших (mark skipped_due_to_upstream).
+### 8.2 Bind validation
 
-Дополнительно (нормативно):
+`required_binds` is a list of paths that must be set in state before execution starts.
 
-- Любое необработанное исключение из `node.execute(...)`:
-  - перехватывается executor’ом,
-  - конвертируется в `NodeOutcome(status="fail", error=NodeError(code="node.exception", ...))`,
-  - фиксируется в trace/логах,
-  - дальше применяется `error_policy`.
+Normative (v0): check that the value exists and is not `None`.
 
-### 8.2 Валидация binds
+Recommended implementation:
 
-`required_binds` — список путей, которые должны быть заданы в state до старта.
+- basic dot-path support (`inputs.trinity_bundle_ref`) is optional;
+- at minimum, top-level keys only (`inputs`, `run_id`, …) are allowed; complex checks belong in Nodes.
 
-Нормативно (v0): проверка “значение существует и не None”.
+### 8.3 Tracing and execution artifacts
 
-Рекомендуемая реализация:
+Normative for E1.6:
 
-- простая поддержка dot‑paths (`inputs.trinity_bundle_ref`) опциональна;
-- в минимуме допускается только top-level keys (`inputs`, `run_id`, …), а сложные проверки — в Nodes.
-
-### 8.3 Трассировка и артефакты исполнения
-
-Нормативно на E1.6:
-
-- на каждый NodeInvocation executor пишет минимум два события в `RunContext.trace`:
+- for each `NodeInvocation`, the executor writes at least two events to `RunContext.trace`:
   - `NODE_STARTED`
   - `NODE_OK|NODE_SKIP|NODE_FAIL`
-- trace сохраняется как CAS артефакт `core.trace.jsonl` на `RunContext.finalize()`.
+- save the trace as the CAS artifact `core.trace.jsonl` in `RunContext.finalize()`.
 
-Это удовлетворяет “node trace как артефакт” без введения дополнительных форматов.
+This provides “node trace as an artifact” without introducing additional formats.
 
-Ограничение текущего `RunContext.emit()`:
+Limitation of the current `RunContext.emit()`:
 
-- он не принимает `warnings/errors/events` как структуры, только `metrics` и `refs`.
+- it accepts `metrics` and `refs` only, not `warnings/errors/events` as structures.
 
-Поэтому на E1.6:
+Therefore, for E1.6:
 
-- `NodeOutcome.events` обязательно попадает в `ctx.logger` (structured log),
-- при наличии `ctx.tracer` executor может добавлять события как `span.add_event(...)`,
-- `NodeOutcome.error` фиксируется:
-  - минимум через `ctx.logger.exception(...)`,
-  - и/или через `RunContext.finalize(status="fail", errors=[...])` (run_manifest.errors).
+- `NodeOutcome.events` must be included in `ctx.logger` (structured log),
+- when `ctx.tracer` is available, the executor may add events through `span.add_event(...)`,
+- record `NodeOutcome.error`:
+  - at minimum, through `ctx.logger.exception(...)`,
+  - and/or through `RunContext.finalize(status="fail", errors=[...])` (`run_manifest.errors`).
 
-### 8.4 Рекомендуемая форма node trace events (семантика)
+### 8.4 Recommended node trace-event shape (semantics)
 
-Использовать `RunContext.emit(phase, event, inputs, outputs, metrics)`:
+Use `RunContext.emit(phase, event, inputs, outputs, metrics)`:
 
-- `phase = f"scientist.node.{alias}"` (или `phase="scientist.node"` + поле в event name)
+- `phase = f"scientist.node.{alias}"` (or `phase="scientist.node"` + a field in the event name)
 - `event`:
   - `NODE_STARTED`
   - `NODE_OK`
@@ -599,16 +593,16 @@ Executor v0 обязан:
   - `duration_ms`
   - `status_ok` (0/1)
 - `refs.inputs/refs.outputs`:
-  - по возможности включать produced `ArtifactRef` из `NodeOutcome.artifacts`.
+  - include produced `ArtifactRef`s from `NodeOutcome.artifacts` where possible.
 
 ### 8.4.1 Telemetry conventions (OpenTelemetry spans)
 
-Если `ExecutionContext.tracer` задан, executor создаёт span на каждый узел.
+If `ExecutionContext.tracer` is set, the executor creates a span for each node.
 
-Нормативно:
+Normative:
 
-- span name: `scientist.node` (или `scientist.node.<alias>`, но лучше фиксированное имя + атрибуты)
-- атрибуты (минимум):
+- span name: `scientist.node` (or `scientist.node.<alias>`, though a fixed name + attributes is preferable)
+- attributes (minimum):
   - `polisyos.run_id` = `state.run_id`
   - `polisyos.workflow_id` = `workflow.workflow_id`
   - `polisyos.node.alias` = `inv.alias`
@@ -616,72 +610,71 @@ Executor v0 обязан:
   - `polisyos.node.status` = `outcome.status`
   - `polisyos.node.duration_ms` = `<int>`
 
-Поведение:
+Behavior:
 
-- `NodeOutcome.events` добавляются как span events (например `span.add_event(...)`) и/или логируются через `ctx.logger`.
+- add `NodeOutcome.events` as span events (for example, `span.add_event(...)`) and/or log them through `ctx.logger`.
 
-### 8.5 Минимальный WorkflowReport (рекомендуемо, но допустимо как in-memory)
+### 8.5 Minimal `WorkflowReport` (recommended, but in-memory is allowed)
 
-Чтобы “корректно отразить skip/fail” и иметь стабильный артефакт отчёта, рекомендуется добавить `WorkflowReport`:
+To “properly represent skip/fail” and provide a stable report artifact, add a `WorkflowReport` if possible:
 
-- содержит список `NodeRunRecord` (alias, node_id, status, duration_ms, error?, produced artifacts keys/refs),
-- сохраняется в CAS:
+- contains a list of `NodeRunRecord` (alias, node_id, status, duration_ms, error?, produced artifact keys/refs),
+- is saved to CAS:
   - kind: `scientist.workflow_report`
   - schema: `polisyos.scientist.engine.WorkflowReport@1.0`
-- ref отчёта можно положить в `state.reports_index["workflow_report"]`.
+- the report ref may be placed in `state.reports_index["workflow_report"]`.
 
-Если нужно минимизировать объём работ, допускается:
+If minimizing the scope of work:
 
-- вернуть report из executor как Python object без записи в CAS,
-- но тест “observability smoke” тогда обязан проверять хотя бы `core.trace.jsonl`.
+- the executor may return the report as a Python object without writing it to CAS,
+- but the “observability smoke” test must then check at least `core.trace.jsonl`.
 
-### 8.6 Persist workflow inputs/outputs (рекомендуемый “repro path”)
+### 8.6 Persist workflow inputs/outputs (recommended “repro path”)
 
-Чтобы workflow был воспроизводимым “по артефактам”, executor должен:
+For artifact-based workflow reproducibility, the executor should:
 
-1. persist `WorkflowSpec` в CAS (kind `scientist.workflow_spec`) и добавить как input в `RunContext`:
-
+1. persist `WorkflowSpec` in CAS (kind `scientist.workflow_spec`) and add it as input to `RunContext`:
    - `run.add_input(workflow_spec_ref)`
-2. (опционально) persist initial `ExperimentState` как `scientist.experiment_state` и добавить как input.
-3. после исполнения:
 
-   - persist final `ExperimentState` (kind `scientist.experiment_state`) и добавить как output,
-   - persist `WorkflowReport` (kind `scientist.workflow_report`) и добавить как output,
+2. optionally, persist the initial `ExperimentState` as `scientist.experiment_state` and add it as input.
+3. after execution:
+   - persist the final `ExperimentState` (kind `scientist.experiment_state`) and add it as output,
+   - persist `WorkflowReport` (kind `scientist.workflow_report`) and add it as output,
    - `run.finalize(status="ok"|"fail")`.
 
-Нормативно на E1.6 достаточно пункта (1) + trace; пункты (2–3) настоятельно рекомендованы.
+For E1.6, item (1) + trace are sufficient as normative requirements; items (2–3) are strongly recommended.
 
 ---
 
 ## 9) Node registry/discovery v0
 
-### 9.1 Registry API (минимум)
+### 9.1 Registry API (minimum)
 
 `NodeRegistry` — in‑process registry:
 
 - `register(node)` / `register_provider(provider)`
 - `get(node_id)`
-- `list(filter)` (capabilities/domain/tag — минимум)
+- `list(filter)` (at minimum: capabilities/domain/tag)
 
-**Conflict policy:** при дубле `node_id` — **fail** (на E1.6 так безопаснее).
+**Conflict policy:** duplicate `node_id` ⇒ **fail** (safer for E1.6).
 
-Уточнение про версии:
+Versioning clarification:
 
-- workflow spec pin’ит `node_id` полностью (включая semver),
-- на E1.6 registry **не** делает semver‑резолв автоматически,
-- если обнаружены разные версии одного и того же компонента (`namespace.name@...`) — registry должен падать (чтобы workflow был воспроизводим).
+- the workflow spec pins the full `node_id` (including semver),
+- in E1.6, the registry does **not** resolve semver automatically,
+- if multiple versions of the same component (`namespace.name@...`) are found, the registry must fail (to keep the workflow reproducible).
 
-Нормативная структура registry (v0):
+Normative registry structure (v0):
 
-- primary key: полный `ComponentId` (`str(ComponentId)`)
-- secondary index: `component_key = f\"{namespace}.{name}\"` (без версии) → должен быть уникальным
+- primary key: full `ComponentId` (`str(ComponentId)`)
+- secondary index: `component_key = f\"{namespace}.{name}\"` (without version) → must be unique
 
-Это даёт:
+This provides:
 
-- воспроизводимость (workflow фиксирует точную версию),
-- раннее обнаружение конфликтов (две версии одной ноды в одном процессе).
+- reproducibility (the workflow pins an exact version),
+- early detection of conflicts (two versions of one node in the same process).
 
-Рекомендуемый API (точные сигнатуры):
+Recommended API (exact signatures):
 
 ```python
 from polisyos.core.components import ComponentId, Capability
@@ -693,147 +686,141 @@ class NodeRegistry:
     def list(self, *, capability: Capability | None = None, tag: str | None = None) -> list[NodeSpec]: ...
 ```
 
-### 9.2 Интеграция с Core components (если возможно)
+### 9.2 Integration with Core components (if feasible)
 
-В репозитории уже есть:
+The repository already has:
 
 - `polisyos.core.components.ComponentRegistry`
 - `polisyos.core.components.discover_entry_points()` (entry point group `polisyos.components`)
 
-Нормативный путь discovery на E1.6:
+Normative discovery path for E1.6:
 
-1. Вызываем `discover_entry_points()`.
-2. Отбираем объекты с `capabilities & Capability.SCIENTIST_NODE`.
-3. Если это `ComponentProvider` — создаём node через `create()` и регистрируем.
-4. Если это только `ComponentMetadata` — регистрируем metadata (опционально), но без instance (или отклоняем).
+1. Call `discover_entry_points()`.
+2. Select objects with `capabilities & Capability.SCIENTIST_NODE`.
+3. If the object is a `ComponentProvider`, create a node through `create()` and register it.
+4. If it is only `ComponentMetadata`, register the metadata (optional) without an instance, or reject it.
 
-**Fallback:** если discovery пока не используется/не настроен, registry грузит builtins напрямую.
+**Fallback:** if discovery is not yet used/configured, the registry loads built-ins directly.
 
 ---
 
-## 10) Минимальные built‑in узлы (для проверки engine)
+## 10) Minimal built-in nodes (for checking the engine)
 
-На E1.6 достаточно 3 узлов без доменной логики:
+Three nodes without domain logic are sufficient for E1.6:
 
 ### 10.1 `noop`
 
 - NodeId: `scientist.node_noop@1.0.0`
-- Поведение: ничего не делает, возвращает `status="ok"`, state без изменений (кроме опциональных events).
+- Behavior: does nothing, returns `status="ok"`, and leaves state unchanged (apart from optional events).
 
 ### 10.2 `set_state`
 
 - NodeId: `scientist.node_set_state@1.0.0`
 - Params:
-  - `key: str` (например `"params.foo"`, или просто `"foo"` в `state.params`)
-  - `value: str|int|bool` (без float)
-- Поведение: записывает значение в state (нормативно: `state.params[key]=value`).
+  - `key: str` (for example, `"params.foo"` or just `"foo"` in `state.params`)
+  - `value: str|int|bool` (no floats)
+- Behavior: writes the value to state (normative: `state.params[key]=value`).
 
 ### 10.3 `emit_artifact`
 
 - NodeId: `scientist.node_emit_artifact@1.0.0`
 - Params:
-  - `key: str` — ключ в `state.artifacts_index`
-  - `payload: dict` — небольшая JSON‑структура без float (для теста)
-- Поведение:
-  1. пишет `payload` в CAS через `ctx.store.put_json(...)` (kind например `scientist.builtin.dummy`),
-  2. добавляет `ArtifactRef` в `state.artifacts_index[key]`,
-  3. возвращает `NodeOutcome.artifacts=[ref]`.
+  - `key: str` — key in `state.artifacts_index`
+  - `payload: dict` — small JSON structure without floats (for testing)
+- Behavior:
+  1. writes `payload` to CAS through `ctx.store.put_json(...)` (for example, kind `scientist.builtin.dummy`),
+  2. adds an `ArtifactRef` to `state.artifacts_index[key]`,
+  3. returns `NodeOutcome.artifacts=[ref]`.
 
 ---
 
-## 11) Тестирование и валидация (обязательная часть фазы)
+## 11) Testing and validation (required for the phase)
 
 ### 11.1 Unit tests: executor
 
-1. **Executor исполняет DAG из 3 узлов**:
-
+1. **Executor runs a DAG of three nodes**:
    - workflow: set_state → emit_artifact → noop
-   - проверки:
-     - порядок выполнения соответствует зависимостям,
-     - state.params изменён,
-     - state.artifacts_index содержит ref,
-     - trace содержит события по каждому узлу (или report отражает статусы).
+   - assertions:
+     - execution order matches dependencies,
+     - `state.params` has changed,
+     - `state.artifacts_index` contains a ref,
+     - the trace has an event for each node (or the report shows their statuses).
 
 2. **Unknown node**:
-
-   - workflow с `node_id`, которого нет в registry → ошибка на этапе валидации DAG.
+   - a workflow with a `node_id` missing from the registry ⇒ error during DAG validation.
 
 3. **Cycle**:
-
-   - цикл через depends_on → ошибка “cycle detected”.
+   - a cycle through `depends_on` ⇒ “cycle detected” error.
 
 4. **Skip propagation (continue policy)**:
+   - the first node fails,
+   - a downstream node depends on it,
+   - with `error_policy="continue"`, the downstream node is marked `skipped_due_to_upstream` in the report/trace.
 
-   - первый узел fail,
-   - downstream узел зависит от него,
-   - при `error_policy="continue"` downstream помечается как skipped_due_to_upstream (в report/trace).
+Recommended test fixtures:
 
-Рекомендуемые test fixtures:
-
-- `store = FileSystemCAS(tmp_path)` (CAS в temp dir)
-- `registry_bundle = build_default_registry_bundle(store).bundle_ref` (или fixture)
+- `store = FileSystemCAS(tmp_path)` (CAS in a temporary directory)
+- `registry_bundle = build_default_registry_bundle(store).bundle_ref` (or a fixture)
 - `run = RunContext.start(store, registry_bundle=registry_bundle, run_id="R_test")`
 - `ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test"))`
 - `registry = NodeRegistry(); registry.register(Builtins...)`
 
 ### 11.2 Contract tests: WorkflowSpec serde
 
-- `WorkflowSpec.model_dump_json()` roundtrip без потерь.
-- canonical JSON (через `polisyos.core.canon.to_canonical_bytes`) не падает (без float).
+- `WorkflowSpec.model_dump_json()` round-trips without loss.
+- canonical JSON (through `polisyos.core.canon.to_canonical_bytes`) succeeds (no floats).
 
 ### 11.3 Observability smoke
 
-Минимум:
+Minimum:
 
-- на каждый узел есть span/trace запись (OpenTelemetry span или `RunContext.trace` record).
+- each node has a span/trace record (OpenTelemetry span or `RunContext.trace` record).
 
-Предпочтительно:
+Preferably:
 
-- `RunContext.finalize()` создаёт `core.trace.jsonl` артефакт и он содержит `NODE_*` события по всем узлам.
+- `RunContext.finalize()` creates a `core.trace.jsonl` artifact containing `NODE_*` events for every node.
 
 ---
 
-## 12) Definition of Done (формально проверяемые критерии)
+## 12) Definition of Done (formally verifiable criteria)
 
-1. Есть `polisyos.scientist.engine`:
-
+1. `polisyos.scientist.engine` exists:
    - Node protocol + WorkflowSpec + executor + registry + minimal telemetry helpers.
-2. Есть builtins (noop/set_state/emit_artifact) и тест, который реально прогоняет DAG.
-3. Engine не содержит доменной логики:
 
-   - никакого “compile/simulate/legal/data fetch” внутри engine пакета.
-4. Есть contract test serde для WorkflowSpec.
-5. Наблюдаемость:
+2. Built-ins (`noop`/`set_state`/`emit_artifact`) exist, with a test that actually runs a DAG.
+3. The engine contains no domain logic:
+   - no `compile`/`simulate`/`legal`/data fetching inside the engine package.
 
-   - trace/spans фиксируются на каждый узел (и это проверяется smoke test).
+4. A `WorkflowSpec` serialization/deserialization contract test exists.
+5. Observability:
+   - traces/spans are recorded for each node and checked by a smoke test.
 
 ---
 
-## 13) Рекомендуемая последовательность имплементации (чтобы не утонуть)
+## 13) Recommended implementation sequence (to keep the work bounded)
 
-1. **Модели и ошибки (контракты)**:
-
+1. **Models and errors (contracts):**
    - `engine/errors.py`, `engine/state.py`, `engine/protocol.py`, `engine/workflow_spec.py`
-   - добавить contract test для serde WorkflowSpec.
+   - add a `WorkflowSpec` serialization/deserialization contract test.
+
 2. **Registry v0**:
+   - in-process registry + built-in registration,
+   - optionally, a discovery adapter over `polisyos.core.components.discovery`.
 
-   - in‑process registry + регистрация builtins,
-   - (опц.) discovery адаптер поверх `polisyos.core.components.discovery`.
 3. **Executor v0**:
-
    - DAG validation + topo sort,
-   - исполнение + trace events в `RunContext`,
-   - базовая обработка исключений и `error_policy`.
-4. **Builtins**:
+   - execution + trace events in `RunContext`,
+   - basic exception handling and `error_policy`.
 
+4. **Builtins**:
    - noop/set_state/emit_artifact,
    - unit tests: DAG smoke + cycle/unknown node.
+
 5. **Telemetry helpers**:
+   - move span/trace attributes and names into `engine/telemetry.py`,
+   - add a smoke test for traces/spans.
 
-   - вынести span/trace атрибуты и names в `engine/telemetry.py`,
-   - добавить smoke test на trace/spans.
-
-## Appendix A — Рекомендуемая реализация DAG в executor (псевдокод)
+## Appendix A — Recommended DAG implementation in the executor (pseudocode)
 
 ```python
 def topo_sort(workflow: WorkflowSpec) -> list[str]:
@@ -879,7 +866,7 @@ def execute_workflow(ctx, registry, workflow, state):
 
 ---
 
-## Appendix B — Пример WorkflowSpec (JSON)
+## Appendix B — Example `WorkflowSpec` (JSON)
 
 ```json
 {
@@ -912,9 +899,9 @@ def execute_workflow(ctx, registry, workflow, state):
 
 ## D1-L4 Validation Links
 
-| Link type           | Current anchor                                                                                                                                                                                                                         |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source plan phase   | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff                                                                                                                                                          |
+| Link type           | Current anchor                                                                                                                                                                                                                                        |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff                                                                                                                                                                         |
 | Contract tests      | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/unit/scientist/governance/test_validation_pipeline.py`, `tests/unit/scientist/governance/test_pass_registry.py` |
-| Schema snapshots    | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`                                                                                   |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                 |
+| Schema snapshots    | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`                                                                                                  |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                                |

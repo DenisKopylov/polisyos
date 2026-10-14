@@ -1,38 +1,38 @@
-# snapshots/fabric — ABI baseline для enum world-ABI
+# snapshots/fabric — World-ABI Enum Baseline
 
-Папка хранит JSON Schema snapshot для `edge_kind` и `node_kind`, которые используются как стабильная enum-граница для world/fabric интеграций.
+This directory stores JSON Schema snapshots for `edge_kind` and `node_kind`, which serve as a stable enum boundary for world/Fabric integrations.
 
-## Роль в системе
+## Role in the System
 
-- Защищает совместимость graph-слоя через те же ABI-gate механизмы, что и `snapshots/ir`.
-- Служит baseline для `tools/quality/diagnostics/gen_schema.py --check` в CI.
+- Protects graph-layer compatibility through the same ABI-gate mechanisms as `snapshots/ir`.
+- Serves as the baseline for `tools/quality/diagnostics/gen_schema.py --check` in CI.
 
-## Источники данных
+## Data Sources
 
-- Реестр моделей: `src/polisyos/schemas/abi_models.py` (`module="fabric"`).
-- Источник enum-классов: `src/polisyos/ir/world/abi.py`.
-- Генератор: `tools/quality/diagnostics/gen_schema.py`.
+- Model registry: `src/polisyos/schemas/abi_models.py` (`module="fabric"`).
+- Enum-class source: `src/polisyos/ir/world/abi.py`.
+- Generator: `tools/quality/diagnostics/gen_schema.py`.
 
-## Содержимое
+## Contents
 
 - `edge_kind.schema.json`
 - `node_kind.schema.json`
-- `_manifest.json` (метаданные модели + `sha256_full`/`sha256_semantic`)
+- `_manifest.json` (model metadata plus `sha256_full`/`sha256_semantic`)
 
-## Актуальное состояние (2026-03-03)
+## Recorded State (2026-03-03)
 
-- Моделей: `2`.
+- Models: `2`.
 - `generated_at`: `2026-03-02T16:48:08+00:00`.
-- Оба контракта `priority=p0`, `compat_mode=strict`, `version_field=null`.
+- Both contracts have `priority=p0`, `compat_mode=strict`, and `version_field=null`.
 
-## Команды (из `policy-engine/`)
+## Commands (from `policy-engine/`)
 
 ```bash
 python3 tools/quality/diagnostics/gen_schema.py --models fabric --check
 python3 tools/quality/diagnostics/gen_schema.py --models fabric
 ```
 
-## Инварианты
+## Invariants
 
-- Не редактировать вручную схемы и `_manifest.json`.
-- Любое изменение enum в `src/polisyos/ir/world/abi.py` должно сопровождаться регенерацией snapshot и прохождением ABI gate.
+- Do not edit schemas or `_manifest.json` manually.
+- Every enum change in `src/polisyos/ir/world/abi.py` must be accompanied by snapshot regeneration and a passing ABI gate.

@@ -1,30 +1,46 @@
+---
+search:
+  boost: 1.2
+---
+
 # PolicyOS Documentation
 
-PolicyOS builds a causal operating system for policy. Its ratified identity is
-the **epistemic custodian of policy justification**: it owns everything it signs
-while their signatures publicly stand, and consumes other institutions' acts as
-typed evidence. The [identity and custody boundary](system-design-decisions/policyos-identity-and-custody-boundary.md)
-defines that responsibility. The [north star](system-design-decisions/policy-design-causal-operating-system-north-star.md)
-explains the wider causal world-model direction; a design target is not a claim
-that every runtime bridge is complete.
+PolicyOS is designed as a causal operating system for public policy and the
+**epistemic custodian of policy justification**. Its [identity and custody
+boundary](system-design-decisions/policyos-identity-and-custody-boundary.md)
+defines what it owns and signs; the [north star](system-design-decisions/policy-design-causal-operating-system-north-star.md)
+describes the wider design direction.
 
-The implementation maps in this handbook were inspected at source commit
-`bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14. E02 integration was
-still underway at that snapshot. Read the
-[E02 documentation snapshot](reference/e02-documentation-snapshot.md) for its
-scope and later revalidation needs. Source inspection and cited test coverage
-are distinct from freshly executed tests or deployment evidence.
+This handbook is a source-inspected map, not an end-to-end acceptance record.
+The implementation maps were inspected at source commit
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14, while E02 integration
+was still underway. The [E02 documentation snapshot](reference/e02-documentation-snapshot.md)
+records the comparison scope and which selected maps need re-review. A source
+path or cited test identifies evidence to inspect; it does not mean that a test
+was freshly run or that a deployed system was observed.
 
-The system is not yet functional end to end. Component maps describe the
-inspected producer and consumer paths and their missing bridges. Tutorials are
-explicit blueprints or bounded smoke examples; they do not demonstrate a
-completed policy-analysis, justification or publication chain.
+The system is not functional end to end. The maps below describe bounded,
+inspected paths and identify missing bridges. Tutorials are blueprints or
+bounded smoke examples, not demonstrations of a complete policy-analysis,
+justification, or publication chain.
 
-## System Context
+## Choose a route
 
-This diagram maps responsibilities and dependency directions. Follow the
-source maps below for concrete paths and missing bridges; the arrows do not
-establish a completed runtime chain.
+| If you need to… | Start here |
+| --- | --- |
+| Follow one inspected request from input to readback | [End-to-end data flow](explanation/end-to-end-data-flow.md) |
+| Change a component or its documentation | [Contributor Start Here](reference/contributor-start-here.md) |
+| Check a change | [Documentation checks](reference/documentation-verification.md) or the [contributor task map](reference/contributor-start-here.md) |
+| Investigate a failure | [Debug a failed run](how-to/debug-failed-run.md) or [incident runbooks](runbooks/index.md) |
+| Perform another operational task | [How-to guides](how-to/index.md) |
+| Look up an API, schema, or subsystem contract | [Reference](reference/index.md) |
+| Understand the system boundary, design, and tradeoffs | [Architecture](explanation/architecture.md) or [explanations by topic](explanation/index.md) |
+| Read a bounded smoke example or draft workflow | [Tutorials](tutorials/index.md); these do not establish end-to-end behavior |
+
+## System context
+
+This diagram shows responsibility and dependency directions. It does not
+establish that the full runtime chain is implemented.
 
 ```mermaid
 flowchart TB
@@ -57,59 +73,12 @@ flowchart TB
     Lex --> CAS
 ```
 
-## Start Here
+## Inspected implementation paths
 
-- [Architecture](explanation/architecture.md) explains responsibilities and the
-  boundary between the current implementation and the design target.
-- [End-to-end data flow](explanation/end-to-end-data-flow.md) follows one concrete
-  producer/artifact/consumer path and its limits.
-- [Contributor start here](reference/contributor-start-here.md) routes code,
-  contract, documentation and operational changes to their owners.
-- [Tutorials](tutorials/index.md) for bounded smoke examples and draft workflows.
-- [How-to guides](how-to/index.md) for operational tasks.
-- [Reference](reference/index.md) for API, schema, and subsystem contracts.
-- [Explanation](explanation/index.md) for architecture, security, governance,
-  and data-flow rationale.
-
-- [Runbooks](runbooks/index.md) for incident response and rollback.
-
-## Architecture Packages
-
-| Package                 | Main page                                                                                          | Default evidence                                                                                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| System context          | [Architecture](explanation/architecture.md)                                                        | [Platform acceptance audit](reference/operations/platform-acceptance-audit.md), [platform diagrams](reference/operations/platform-architecture-diagrams.md) |
-| Contract architecture   | [Trinity](explanation/trinity.md), [IR design](explanation/ir-design.md)                           | [TRINITY contract](contracts/TRINITY.md), [IR schema catalog](reference/ir/schema-catalog.md)                                                               |
-| Runtime and security    | [Security model](explanation/security-model.md)                                                    | [Auth and tenant model](reference/api/auth-tenant-model.md), [security compliance](reference/security-compliance.md)                                        |
-| Data architecture       | [Data fabric](explanation/data-fabric.md)                                                          | [Fabric reference](reference/fabric/index.md), [lineage](reference/fabric/lineage.md)                                                                       |
-| Scientific architecture | [Causal engine](explanation/causal-engine.md), [Governance model](explanation/governance-model.md) | [Foundry reference](reference/foundry/index.md), [Scientist reference](reference/scientist/index.md)                                                        |
-| Legal architecture      | [Lex pipeline](explanation/lex-pipeline.md)                                                        | [Lex reference](reference/lex/index.md), [NormPack contract](contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md)                                                  |
-| Observation contracts   | [Observation contracts](explanation/observation-contracts.md)                                      | [IR observation reference](reference/ir/observation.md)                                                                                                     |
-| Freeze and ratchets     | [Freeze policy](explanation/freeze-policy.md)                                                      | [Quality gates](reference/quality-gates.md), [ratchet policy](reference/ratchet-policy.md)                                                                  |
-
-## Operational Anchors
-
-- [Ownership](reference/ownership.md) routes reviews and escalations.
-- [Generated artifacts](reference/generated-artifacts.md) describes the durable
-  artifact families used by the runtime, Scientist, Foundry, and Fabric.
-
-- [Repository topology](reference/repository-topology.md) is the public map for
-  where product files, docs, tests, tools, ops material, data, and runtime state
-  belong.
-
-- [Operations reference](reference/operations/index.md) ties diagrams, SLOs,
-  retention, and closeout evidence together.
-
-- [Documentation inventory](reference/documentation-inventory.md) tracks the
-  bounded documentation census and the historical D0-D6 ledger.
-- [Documentation verification](reference/documentation-verification.md) explains
-  what the documentation checks actually establish.
-
-For a documentation contribution, use the contributor task map and verification
-contract together: select the affected owners, review changed claims, then run
-the checks for that surface. A recent edit date or unchanged source bytes alone
-does not establish semantic accuracy.
-
-## Current source maps
+These links route to inspected maps and subsystem references. The
+[E02 documentation snapshot](reference/e02-documentation-snapshot.md) records
+the selected maps that need re-review; follow each child page's evidence notes
+for its own scope.
 
 | Question | Start with |
 | --- | --- |
@@ -120,14 +89,30 @@ does not establish semantic accuracy.
 | Where do legal evidence and authority separate? | [Lex pipeline](explanation/lex-pipeline.md) |
 | What reaches a dashboard or other client? | [Frontend surface map][frontend-map] |
 
+## Maintain the documentation
+
+Use the [contributor task map](reference/contributor-start-here.md) and
+[verification contract](reference/documentation-verification.md) together:
+select the affected owners, review changed claims, and run the checks for that
+surface. An edit date or unchanged source bytes alone does not establish
+semantic accuracy. [Ownership](reference/ownership.md) routes reviews;
+[generated artifacts](reference/generated-artifacts.md) and
+[repository topology](reference/repository-topology.md) identify canonical
+locations. The [documentation inventory](reference/documentation-inventory.md)
+tracks the bounded census.
+
 ## Decisions, work in progress and history
 
-The [system-design decision index](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/docs/system-design-decisions/README.md) routes
+The [system-design decision index](system-design-decisions/README.md) routes
 ratifications and proposals; the [ADR index](adr/index.md) preserves each
 record's declared status. Acceptance of a decision is separate from
-implementation evidence. Active and accepted execution plans live in
-`docs/plans/`; completed and superseded plans belong in `docs/plans/archive/`.
-Reviewed historical evidence belongs in `docs/archive/`. Those repository-only
-trees are separate from this published handbook.
+implementation evidence. Active and accepted plans live in `docs/plans/`;
+completed and superseded plans live in `docs/plans/archive/`. Reviewed
+historical evidence belongs in `docs/archive/`. These repository-only trees
+are separate from the published handbook.
 
 [frontend-map]: reference/frontend/current-surface-map.md
+
+For plain-language terms and search prompts, use the [reader vocabulary](reference/reader-vocabulary.md).
+The [language policy](reference/documentation-language.md) defines canonical English
+and the source-preservation and translation boundaries.

@@ -1,25 +1,25 @@
 # Causal Runtime (`polisyos.scientist.methods.causal`)
 
-`causal` — новый Scientist-пакет для execution/readiness раннеров, которые
-обрабатывают observation-plane causal contracts и публикуют transportability,
-strategic-response, counterfactual и bounds artifacts.
+`causal` is a Scientist package for execution/readiness runners that process
+observation-plane causal contracts and publish transportability,
+strategic-response, counterfactual, and bounds artifacts.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `foundry.methods.catalog.causal`, `ir.observation`, `ir.analytics`
-- **Используется в:** `nodes.builtins.causal.run_causal_readiness`,
+- **Depends on:** `foundry.methods.catalog.causal`, `ir.observation`, `ir.analytics`
+- **Used by:** `nodes.builtins.causal.run_causal_readiness`,
   `nodes.builtins.causal.run_causal_contract_execution`
 
-- Пакет отделяет orchestration-level nodes от доменно-специализированных causal runners.
+- The package separates orchestration-level nodes from domain-specific causal runners.
 
-## Ключевые концепции
+## Key concepts
 
-- **Proxy identification** — readiness checks для proxy-based identification bundles.
-- **Transportability** — transport proof/status evaluation по selection diagrams.
-- **Strategic response** — strategic payoff/SCM solve и publication артефактов.
+- **Proxy identification** — readiness checks for proxy-based identification bundles.
+- **Transportability** — transport proof/status evaluation using selection diagrams.
+- **Strategic response** — strategic payoff/SCM solving and artifact publication.
 - **Counterfactual queries** — ID*/IDC* based readiness evaluation.
 - **Interference readiness** — family-aware interference loss requirements.
-- **Bounds execution** — contract-driven bounds estimation runner для C4b tasks.
+- **Bounds execution** — contract-driven bounds estimation runner for C4b tasks.
 
 ## Public API
 
@@ -30,11 +30,11 @@ strategic-response, counterfactual и bounds artifacts.
 - `TransportabilityChecker`
 - `build_interference_readiness_entries(...)`
 
-Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-14
+- Last updated: 2026-10-14
 - Python modules: 4 (excluding `__init__.py`, tree inventory)
 - Exports: 6
-- README создан для нового пакета, которого раньше не было в модульной документации
+- README created for a new package that had not previously been covered by the module documentation.

@@ -4,8 +4,8 @@ Related reference: [Fabric Data Plane](../reference/fabric/data-plane.md). Relat
 how-to: [Use Control Plane](../how-to/use-control-plane.md),
 [Debug Failed Run](../how-to/debug-failed-run.md).
 
-> Используйте этот runbook, когда нужно восстановить record/replay session,
-> checkpoint-backed workflow progress, snapshot manifest или retained archive.
+> Use this runbook when you need to restore a record/replay session,
+> checkpoint-backed workflow progress, a snapshot manifest, or a retained archive.
 
 Owner: `@platform-owners`
 Historical validation receipt (as recorded by this page): `2026-04-17` — replay/checkpoint regression and retained-artifact evidence available at that time; this is not a fresh validation.
@@ -14,29 +14,29 @@ Rollback path: stop destructive restore steps, preserve the current broken head 
 
 ## Symptom
 
-- `replay_ref` не воспроизводится или даёт другой результат, чем исходный run;
-- `record_mode` отработал, но fixtures/session не удаётся прочитать из CAS;
-- checkpoint resume path broken, current head corrupted или missing;
-- archived runs/snapshots/audit packages не удаётся восстановить для анализа.
+- A `replay_ref` cannot be replayed or produces a different result from the original run;
+- `record_mode` completed, but fixtures or a session cannot be read from CAS;
+- The checkpoint-resume path is broken, or the current head is corrupted or missing;
+- Archived runs, snapshots, or audit packages cannot be restored for analysis.
 
 ## Likely Causes
 
-- CAS artifact отсутствует, повреждён или был удалён вне retention policy;
-- replay session записан, но fixture layout не совпадает с expected connector
+- The CAS artifact is missing, corrupted, or was deleted outside the retention policy;
+- A replay session was recorded, but its fixture layout does not match the expected connector
   manifest;
 
-- checkpoint head указывает на artifact из другой workflow definition;
-- snapshot/archive существует, но нет manifest/report/sha256 для верификации;
-- restore делался без фиксации exact run ID, replay ref или archive hash.
+- The checkpoint head points to an artifact from a different workflow definition;
+- A snapshot or archive exists without a manifest, report, or SHA-256 for verification;
+- The restore was attempted without recording the exact run ID, replay reference, or archive hash.
 
 ## Timeline Capture Expectations
 
-Зафиксируйте:
+Record:
 
-- `run_id`, `job_id`, `replay_ref`, `checkpoint_ref`, `snapshot_root` или
+- `run_id`, `job_id`, `replay_ref`, `checkpoint_ref`, `snapshot_root`, or
   `archive_sha256`;
 
-- UTC время начала restore/replay attempt и кем он запущен;
+- The UTC time when the restore or replay attempt started and who started it;
 - desired outcome: reproduce incident, recover active run, restore audit package,
   restore legacy runs;
 
@@ -45,14 +45,14 @@ Rollback path: stop destructive restore steps, preserve the current broken head 
 
 ## First Triage Steps
 
-1. Если проблема в data-plane replay, подтвердите, что `replay_ref` или
-   `record_ref` вообще существует и относится к нужному connector manifest.
-2. Если restore идёт через control plane, проверьте request path, где
-   `replay_ref` dispatch-ится в `run_replay_mode(...)`.
-3. Для checkpoint recovery сначала проверьте current head, а потом payload, а
-   не наоборот.
-4. Для archived runs используйте archive report вместе с tarball, не один файл
-   без другого.
+1. If the issue is in data-plane replay, confirm that `replay_ref` or
+   `record_ref` exists and belongs to the intended connector manifest.
+2. If restoration goes through the control plane, inspect the request path where
+   `replay_ref` is dispatched to `run_replay_mode(...)`.
+3. For checkpoint recovery, inspect the current head first, then the payload,
+   not the other way around.
+4. For archived runs, use the archive report together with the tarball, not one file
+   without the other.
 
 ### Useful commands
 
@@ -80,44 +80,44 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_checkpoint.py tests
 
 ## Rollback / Mitigation
 
-- если replay session corrupted, не удаляйте исходные fixtures до копии в cold
+- If the replay session is corrupted, do not delete the original fixtures before copying them to a cold
   archive;
 
-- если checkpoint head corrupted, сохраняйте bad head отдельно перед repair;
-- если archive mismatch найден, останавливайте restore и запрашивайте another
-  retained copy вместо silent overwrite;
+- If the checkpoint head is corrupted, preserve the bad head separately before repair;
+- If an archive mismatch is found, stop the restore and request another
+  retained copy instead of silently overwriting it;
 
-- если deterministic reproduction не получается, зафиксируйте это явно и
-  переключитесь на timeline/lineage evidence, не продолжая “надеяться”.
+- If deterministic reproduction is not possible, record that explicitly and
+  switch to timeline or lineage evidence instead of continuing to “hope”.
 
 ## Escalation Owner
 
 - primary: `@platform-owners`;
-- supporting: `@fabric-owners` для ReplayStore/data plane,
-  `@scientist-owners` для checkpoint/resume,
-  affected owner для retained artifact family.
+- Supporting: `@fabric-owners` for ReplayStore and the data plane,
+  `@scientist-owners` for checkpoint/resume,
+  and the affected owner for the retained artifact family.
 
 ## Follow-up Checklist
 
 - verified source of truth for the restored artifact family;
 - retained copy re-hashed or otherwise validated;
 - restore drill outcome documented: success, partial success, failure;
-- retention policy updated, если artifact нужного класса не удалось найти;
+- Update the retention policy if an artifact in the required class could not be found;
 - runbook or recovery tooling improved when restore required ad hoc reasoning.
 
 ## Blameless Postmortem
 
 ### What Went Well
 
-- какой retained artifact оказался sufficient для recovery;
-- сработала ли reproduction path без live dependency calls;
-- какой manifest/report упростил restore.
+- Which retained artifact was sufficient for recovery;
+- Whether the reproduction path worked without live dependency calls;
+- Which manifest or report simplified the restore.
 
 ### What Went Poorly
 
-- где artifact sprawl мешал найти нужную копию;
-- какие metadata или hashes отсутствовали;
-- не был ли restore path понятен только автору системы.
+- Where artifact sprawl made the right copy hard to find;
+- Which metadata or hashes were missing;
+- Whether the restore path was understandable only to the system author.
 
 ### Action Items
 

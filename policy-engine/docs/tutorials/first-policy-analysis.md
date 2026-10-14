@@ -1,54 +1,58 @@
-# Первый policy-анализ: демонстрации и границы
+# First Policy Analysis: Demonstrations and Boundaries
+
+English edition: 2026-10-14 (translation only; not a source-freshness or execution claim).
 
 Related references: [Compile Execute](../reference/foundry/compile-execute.md), [Scientist Workflows](../reference/scientist/workflows.md), [Problem Framing](../reference/ir/problem-framing.md).
 
-> Учебная карта нескольких раздельных surfaces, а не функциональный end-to-end policy-анализ.
-> Ни один шаг здесь не выводит причинный эффект, допустимую рекомендацию или publishable result.
+> A learning map of several separate surfaces, not a functional end-to-end
+> policy analysis. No step here derives a causal effect, an admissible
+> recommendation, or a publishable result.
 
-!!! info "Основание этого обновления (2026-10-14)"
+!!! info "Review basis (2026-10-14)"
     Source inspected at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; production implementation under
-    `src/polisyos/` после этого pin не менялась. Кодовые и test entrypoints прочитаны, но tests,
-    snippets, package build, runtime, provider/network calls и services для этого docs refresh не запускались.
+    `src/polisyos/` has not changed since this pin. Code and test entry points were read, but tests,
+    snippets, package build, runtime, provider/network calls, and services were not run for this
+    documentation refresh.
 
-!!! note "Историческая запись от 2026-04-17"
-    Предыдущая редакция отмечала проверку imports `ProblemFrame` / `PolicySpec` / `ModelSpec`,
-    `WorldBankConnector`, `run_trivial_compile_execute` и `run_experiment` на тогдашнем дереве,
-    macOS, Python 3.14 и `uv`. Она не фиксировала выполнение полного walkthrough. Дата остаётся
-    исторической и не обозначает проверку источника или запуск в этом обновлении.
+!!! note "Historical record (2026-04-17)"
+    The previous revision recorded import checks for `ProblemFrame` / `PolicySpec` / `ModelSpec`,
+    `WorldBankConnector`, `run_trivial_compile_execute`, and `run_experiment` in the tree at that
+    time, on macOS with Python 3.14 and `uv`. It did not record execution of the complete walkthrough.
+    The date remains historical and does not indicate source verification or execution for this update.
 
-!!! info "Важное замечание про форму модели"
-    В source snapshot выше `ProblemFrame` нет полей вида `outcome_kpi`, `treatment`,
-    `entity_scope=EntityScope(region_codes=[...])` или `temporal_window=(...)`.
-    В просмотренном source эта семантика разделена между:
-    `ProblemFrame` для целей и KPI,
-    `PolicySpec` для интервенций и таргетинга по регионам,
-    Fabric-запросами для выбора страны и периода,
-    и causal-observation contracts для деталей идентификации.
+!!! info "Important note about the model shape"
+    In the source snapshot above, `ProblemFrame` has no fields such as `outcome_kpi`, `treatment`,
+    `entity_scope=EntityScope(region_codes=[...])` or `temporal_window=(...)`.
+    In the reviewed source, this semantics is split across:
+    `ProblemFrame` for objectives and KPIs;
+    `PolicySpec` for interventions and regional targeting;
+    Fabric queries for selecting the country and period; and
+    causal-observation contracts for identification details.
 
-## Три независимые части walkthrough
+## Three independent parts of the walkthrough
 
-Примеры ниже не образуют один связанный run:
+The examples below do not form one connected run:
 
-1. **Демонстрация постановки:** `ProblemFrame` / `PolicySpec` описывают вопрос об образовании,
-   а отдельный optional World Bank fetch возвращает raw country-year observations.
-2. **Ограниченный Foundry smoke:** другой `TrinityBundle` с registry-backed `income_tax`
-   механизмом и синтетическим пустым `GlobalState` иллюстрирует compile → execute.
-3. **Draft Scientist handoff:** предполагаемая передача education question/data в Scientist
-   остаётся непроверенной и в данном примере заблокирована отсутствующими связями между этими
-   объектами.
+1. **Framing demonstration:** `ProblemFrame` / `PolicySpec` describe an education question, while
+   a separate optional World Bank fetch returns raw country-year observations.
+2. **Bounded Foundry smoke:** a different `TrinityBundle` with the registry-backed `income_tax`
+   mechanism and a synthetic empty `GlobalState` illustrates compile → execute.
+3. **Draft Scientist handoff:** the proposed transfer of the education question/data to Scientist
+   remains unverified and is blocked in this example by missing links between these objects.
 
-Успех smoke не связывает World Bank panel с моделью, не проверяет causal identification и не
-подтверждает admissibility, authority или publishability policy claim.
+Successful smoke execution does not connect the World Bank panel to the model, verify causal
+identification, or establish admissibility, authority, or publishability of a policy claim.
 
-## Постановка задачи
+## Problem framing
 
-Учебная постановка: проверить, как исследователь мог бы изучать связь государственных расходов
-на образование и GDP growth в Украине в 2015–2023 годах. Сам вопрос и KPI — только candidate
-framing: этот tutorial не оценивает связь и не утверждает, что policy intervention вызвала рост.
+Learning scenario: consider how a researcher might study the relationship between public education
+spending and GDP growth in Ukraine from 2015 to 2023. The question and KPI are candidate framing
+only: this tutorial does not estimate the relationship or claim that a policy intervention caused
+growth.
 
-## Шаг 1: определить `ProblemFrame`
+## Step 1: Define `ProblemFrame`
 
-Используйте реальные поля из `polisyos.ir.governance.problem_frame`:
+Use the real fields from `polisyos.ir.governance.problem_frame`:
 
 ```python
 from polisyos.ir import KPISpec, ProblemDomain, ProblemFrame
@@ -76,21 +80,22 @@ frame = ProblemFrame(
 )
 ```
 
-Что означают поля в текущей схеме:
+What the fields mean in the current schema:
 
-- `problem_id`: стабильный идентификатор задачи
-- `domain`: крупная policy-область; здесь `ProblemDomain.EDUCATION`
-- `kpis`: измеримые outcomes, которые мы хотим улучшить
-- `objectives`: optimization goals, привязанные к KPI
+- `problem_id`: stable identifier for the problem;
+- `domain`: broad policy area; here, `ProblemDomain.EDUCATION`;
+- `kpis`: measurable outcomes to improve;
+- `objectives`: optimization goals linked to KPIs.
 
-В текущей версии репозитория страна и временное окно не лежат прямо в `ProblemFrame`. Мы переносим их в data query и в policy metadata.
+In the current repository version, the country and time window are not stored directly in
+`ProblemFrame`. They are carried in the data query and policy metadata.
 
-Этот объект служит framing-примером и не передаётся в Foundry smoke ниже. Создание объекта не
-подтверждает регистрацию механизма `education_spending_increase` или его исполнимость.
+This object is a framing example and is not passed to the Foundry smoke below. Creating the object
+does not establish that the `education_spending_increase` mechanism is registered or executable.
 
-## Шаг 2: создать `PolicySpec`
+## Step 2: Create `PolicySpec`
 
-Используйте реальные `PolicySpec` и governance `InterventionSpec`:
+Use the real `PolicySpec` and governance `InterventionSpec` types:
 
 ```python
 from decimal import Decimal
@@ -121,17 +126,17 @@ spec = PolicySpec(
 )
 ```
 
-Ключевые текущие поля:
+Key fields in the current schema:
 
-- `kind`: семейство интервенции
+- `kind`: intervention family;
 - `target`: selector expression
-- `schedule`: step-based окно активации
-- `params`: параметры интервенции
-- `target_region_ids`: региональная metadata, идущая вместе с интервенцией
+- `schedule`: step-based activation window;
+- `params`: intervention parameters;
+- `target_region_ids`: regional metadata carried with the intervention.
 
-## Шаг 3: привязать данные через Fabric
+## Step 3: Bind data through Fabric
 
-Используйте production `WorldBankConnector` и реальные indicator codes:
+Use the production `WorldBankConnector` and real indicator codes:
 
 - GDP growth, annual percent: `NY.GDP.MKTP.KD.ZG`
 - Government expenditure on education, percent of GDP: `SE.XPD.TOTL.GD.ZS`
@@ -172,21 +177,21 @@ panel = asyncio.run(fetch_world_bank_panel())
 print(panel[["country_code", "indicator_id", "date", "value"]].tail())
 ```
 
-При доступном API этот шаг показывает raw country-year panel. Он не превращает observations в
-causal evidence, не связывает их с intervention из шага 2 и не вычисляет treatment effect. В
-этом docs refresh запрос к World Bank не выполнялся.
+When the API is available, this step shows a raw country-year panel. It does not turn observations
+into causal evidence, connect them to the intervention in Step 2, or compute a treatment effect. No
+World Bank request was made for this documentation refresh.
 
-## Шаг 4: compile и execute
+## Step 4: Compile and execute
 
-!!! warning "Bounded smoke; не соединён с education demo"
-    Trinity linker требует registry-backed mechanism и metric ids. Поэтому код ниже использует
-    отдельный bundle с `income_tax`, созданный для compile/execute demonstration. Он не использует
-    `frame`, `spec` или World Bank `panel` из предыдущих шагов. `GlobalState.empty(...)` и нулевой
-    placeholder в `ModelSpec.data_snapshot_ref` — smoke scaffolding, не policy data и не evidence.
-    `TemporaryDirectory` удаляет CAS и его artifacts при выходе из блока.
-    Source entrypoint просмотрен на pin выше; этот пример не запускался в docs refresh. Его
-    успешное выполнение, если contributor запустит его локально, докажет только прохождение
-    ограниченного Foundry smoke path для этого синтетического bundle.
+!!! warning "Bounded smoke; not connected to the education demonstration"
+    The Trinity linker requires a registry-backed mechanism and metric IDs. Therefore, the code
+    below uses a separate bundle with `income_tax`, created for a compile/execute demonstration. It
+    does not use the `frame`, `spec`, or World Bank `panel` from the previous steps.
+    `GlobalState.empty(...)` and the zero placeholder in `ModelSpec.data_snapshot_ref` are smoke
+    scaffolding, not policy data or evidence. `TemporaryDirectory` removes the CAS and its artifacts
+    when the block exits. The source entry point was inspected at the pin above; this example was not
+    run for this documentation refresh. If a contributor runs it locally and it succeeds, that
+    establishes only that this synthetic bundle passed the bounded Foundry smoke path.
 
 ```python
 from decimal import Decimal
@@ -302,46 +307,45 @@ with TemporaryDirectory(prefix="polisyos-first-analysis-") as tmp:
     print("execute_ok:", exec_result.ok)
 ```
 
-## Что этот walkthrough фактически показывает
+## What this walkthrough actually shows
 
-Он показывает candidate framing, optional raw data retrieval и отдельный bounded
+It shows candidate framing, optional raw data retrieval, and a separate bounded
 `compile_ok` / `execute_ok` Foundry smoke. Causal graphs, effect estimates, backtest metrics,
-sensitivity reports и governance outcomes из этих шагов не производятся. Их описания в других
-reference/how-to страницах относятся к отдельным поверхностям, а не к результату этой страницы.
+sensitivity reports, or governance outcomes are produced by these steps. Their descriptions on
+other reference/how-to pages apply to separate surfaces, not to the result shown on this page.
 
-## Draft handoff в Scientist: пока не подтверждён
+## Draft handoff to Scientist: not yet verified
 
-Предыдущий вариант страницы представлял `run_experiment()` как продолжение тех же входов.
-Приведённые шаги этого не обеспечивают:
+The previous version of this page presented `run_experiment()` as a continuation using the same
+inputs. The steps shown here do not provide that:
 
-- education `frame` и `spec` не сериализуются в bundle, который компилируется ниже;
-- World Bank результат остаётся DataFrame; smoke не создаёт из него Fabric `DataSnapshot`;
-- bundle и bound state в Foundry smoke относятся к `income_tax` и синтетическому пустому
-  состоянию, а не к education panel;
-- CAS находится внутри `TemporaryDirectory`, поэтому ссылки становятся недоступны после блока;
-- само указание `scientist_causal_full` или профиля `research` не доказывает, что нужные
-  входы разрешены, связаны с claim или достаточны для причинного вывода.
+- the education `frame` and `spec` are not serialized into the bundle compiled below;
+- the World Bank result remains a DataFrame; the smoke does not create a Fabric `DataSnapshot` from it;
+- the bundle and bound state in the Foundry smoke concern `income_tax` and a synthetic empty state,
+  not the education panel;
+- the CAS lives inside `TemporaryDirectory`, so its references become unavailable after the block;
+- merely specifying `scientist_causal_full` or the `research` profile does not prove that the
+  required inputs are permitted, bound to a claim, or sufficient for causal inference.
 
-Поэтому здесь нет copy-paste вызова `run_experiment()` и нет ожидаемых Scientist outputs. Это
-**draft intended handoff**, а не runnable continuation: для этого tutorial instance, прежде чем
-называть его current, нужно построить и проверить bridge от education framing и source-bound
-data snapshot к registry-backed compiled policy, workflow-required evidence и разрешённым
-Scientist inputs.
-См. [Scientist Workflows](../reference/scientist/workflows.md) для описания существующих
-workflow contracts; ссылка не утверждает, что этот tutorial уже их связывает.
+Therefore, this page has no copy-paste call to `run_experiment()` and no expected Scientist outputs.
+It is a **draft intended handoff**, not a runnable continuation. Before calling this tutorial
+instance current, build and verify a bridge from the education framing and source-bound data
+snapshot to a registry-backed compiled policy, workflow-required evidence, and permitted Scientist
+inputs. See [Scientist Workflows](../reference/scientist/workflows.md) for the existing workflow
+contracts; the link does not claim that this tutorial connects them already.
 
-## Полный код демонстрации
+## Complete demonstration code
 
-Для стабильного запуска на Apple Silicon лучше явно переключить JAX на CPU:
+For a stable run on Apple Silicon, explicitly switch JAX to CPU:
 
 ```bash
 JAX_PLATFORM_NAME=cpu JAX_PLATFORMS=cpu python first_policy_analysis.py
 ```
 
-Скрипт ниже объединяет только две демонстрации: optional World Bank fetch и отдельный
-synthetic Foundry smoke. Он не соединяет панель с policy bundle. Если сетевой fetch недоступен,
-скрипт завершится ошибкой и не подставит fabricated observations. Скрипт и tests в docs refresh
-не запускались.
+The script below combines only two demonstrations: an optional World Bank fetch and a separate
+synthetic Foundry smoke. It does not connect the panel to a policy bundle. If the network fetch is
+unavailable, the script exits with an error and does not substitute fabricated observations. The
+script and tests were not run for this documentation refresh.
 
 ```python
 import asyncio
@@ -539,15 +543,15 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-Скрипт печатает реальные observations, полученные при локальном запуске, и flags smoke path;
-здесь нет ожидаемых числовых значений или сохранённых artifact IDs. CAS создаётся в
-`TemporaryDirectory` и удаляется при выходе из контекста, поэтому распечатанные artifact IDs не
-являются сохраняемыми ссылками. Чтобы осматривать их после выполнения, нужен явно выбранный
-persistent CAS path с собственным cleanup.
+The script prints the real observations obtained during a local run and the smoke-path flags; this
+page does not give expected numeric values or retained artifact IDs. The CAS is created in
+`TemporaryDirectory` and removed when the context exits, so the printed artifact IDs are not
+persistent references. To inspect them after execution, choose a persistent CAS path explicitly
+and manage its cleanup.
 
-## Что дальше
+## Next steps
 
-- [Getting Started](getting-started.md) — самый маленький Foundry smoke
-- [Run Causal Analysis](../how-to/run-causal-analysis.md) — новые causal runner API
-- [Installation](../how-to/install.md) — extras и runtime/causal setup
-- [Scientist Workflows](../reference/scientist/workflows.md) — routing и required binds
+- [Getting Started](getting-started.md) — the smallest Foundry smoke
+- [Run Causal Analysis](../how-to/run-causal-analysis.md) — current causal runner APIs
+- [Installation](../how-to/install.md) — extras and runtime/causal setup
+- [Scientist Workflows](../reference/scientist/workflows.md) — routing and required bindings

@@ -6,10 +6,11 @@ Owner: `@docs-owners`
 Backup owner: `@platform-owners`
 Source of truth: `mkdocs.yml`, `docs/reference/**`, and the generated/manual reference pages linked from this index
 
-> Полная справка по API, типам, эндпоинтам и конфигурации PolicyOS.
+> Reference for PolicyOS APIs, types, endpoints, and configuration.
 
-This page is a high-level navigation map only. Subsystem-specific behavioral
-claims live in the linked child reference pages.
+Use Modules to find subsystem references and Other for API, schema, governance,
+operations, and additional reference pages. Each child page's evidence notes
+define its own scope; this index is a navigation map, not a verification result.
 
 ## Modules
 
@@ -75,3 +76,10 @@ claims live in the linked child reference pages.
 
 [frontend-index]: frontend/index.md
 [frontend-map]: frontend/current-surface-map.md
+
+## Reading and maintaining documentation
+
+Use the [language policy](documentation-language.md),
+[reader vocabulary and search routes](reader-vocabulary.md), and
+[documentation verification workflow](documentation-verification.md) for
+English authoring, canonical routes and bounded checks.

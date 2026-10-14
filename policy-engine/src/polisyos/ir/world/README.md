@@ -1,39 +1,39 @@
 # World (`polisyos.ir.world`)
 
-`polisyos.ir.world` описывает канонические world-graph contracts: документы,
-claims, provenance events, conflict sets, trust assessments и quality reports.
-Это IR boundary для knowledge/world pipelines; хранение и querying остаются в
-`fabric`, а `world` фиксирует типы и deterministic identifiers.
+`polisyos.ir.world` defines canonical world-graph contracts: documents,
+claims, provenance events, conflict sets, trust assessments, and quality reports.
+This is the IR boundary for knowledge/world pipelines; storage and querying remain in
+`fabric`, while `world` defines the types and deterministic identifiers.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.ir.artifacts`, canonical ID helpers внутри `polisyos.ir`
-- **Используется в:** `polisyos.fabric.claims`, `polisyos.fabric.world`, `polisyos.lex`, `polisyos.scholar`, `polisyos.scientist`
-- World contracts стандартизируют evidence graph, который затем потребляют trust/conflict and analysis pipelines.
+- **Depends on:** `polisyos.ir.artifacts` and canonical ID helpers within `polisyos.ir`
+- **Used by:** `polisyos.fabric.claims`, `polisyos.fabric.world`, `polisyos.lex`, `polisyos.scholar`, `polisyos.scientist`
+- World contracts standardize the evidence graph consumed by trust/conflict and analysis pipelines.
 
-## Ключевые концепции
+## Key concepts
 
-- **World ABI** — `NodeKind`, `EdgeKind` и reserved prefixes задают графовую совместимость.
-- **Document and claim contracts** — `DocMeta`, `DocFragment`, `Claim` формируют базовые evidence units.
-- **Conflict resolution** — `ConflictSet` и related resolution models нормализуют competing claims.
-- **Provenance events** — `WorldEvent`, `ProvAgent`, `ProvActivity` описывают lineage изменений.
-- **Trust and quality** — отдельные contracts фиксируют scored assessments и issue ordering.
-- **Deterministic IDs** — `ids.py` вычисляет stable identifiers из canonical payload.
+- **World ABI** — `NodeKind`, `EdgeKind`, and reserved prefixes define graph compatibility.
+- **Document and claim contracts** — `DocMeta`, `DocFragment`, and `Claim` form the base evidence units.
+- **Conflict resolution** — `ConflictSet` and related resolution models normalize competing claims.
+- **Provenance events** — `WorldEvent`, `ProvAgent`, and `ProvActivity` describe change lineage.
+- **Trust and quality** — separate contracts record scored assessments and issue ordering.
+- **Deterministic IDs** — `ids.py` computes stable identifiers from canonical payloads.
 
 ## Public API
 
 | Type/Function                                              | Description                                       |
 | ---------------------------------------------------------- | ------------------------------------------------- |
-| `DocMeta`, `DocFragment`                                   | Контракты документа и его canonical fragments     |
-| `Claim`, `ClaimSourceKind`                                 | Evidence claim и тип источника                    |
+| `DocMeta`, `DocFragment`                                   | Document and canonical-fragment contracts         |
+| `Claim`, `ClaimSourceKind`                                 | Evidence claim and source type                    |
 | `ConflictSet`, `ConflictSetResolution`                     | Canonical representation claim conflicts          |
-| `WorldEvent`, `WorldObjectRef`                             | Provenance events и ссылки на world objects       |
+| `WorldEvent`, `WorldObjectRef`                             | Provenance events and references to world objects |
 | `TrustAssessment`, `QualityReport`                         | Trust/quality evaluation contracts                |
-| `claim_id_from_payload()`, `world_event_id_from_payload()` | Deterministic ID builders для core world entities |
+| `claim_id_from_payload()`, `world_event_id_from_payload()` | Deterministic ID builders for core world entities |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-## Снимок README (2026-04-03)
+## README snapshot (2026-04-03)
 
 - Files: 11 Python files in the snapshot recorded by this README
 - Exports: 43 public names in `__init__.py` in that same snapshot

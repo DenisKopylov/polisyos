@@ -1,6 +1,6 @@
-# Быстрый старт
+# Getting Started
 
-Revised: 2026-10-14
+English edition: 2026-10-14 (translation only; not a source-freshness or execution claim).
 Owner: `@docs-owners`
 Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, `package.json`,
 `tools/devx/workspace/{_common,bootstrap,doctor}.py`, `src/polisyos/foundry/_quickstart.py`,
@@ -11,38 +11,41 @@ Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
 Review basis: command/source paths inspected; tests, examples, installs and runtime were not run
 for this edit.
 
-> Подготовьте рабочее окружение, проверьте import surface и выполните минимальный
+> Set up the development environment, check the import surface, and run a minimal
 > `compile -> execute` smoke path.
 
 !!! info "Historical workstation receipt (2026-04-17)"
-    На локальном macOS workstation (Apple Silicon) использовались Python 3.14.0,
-    Node 22.22.2 и `uv 0.9.21`. Тогда реально выполнили `uv run polisyos --version`,
+    A local macOS workstation (Apple Silicon) used Python 3.14.0, Node 22.22.2,
+    and `uv 0.9.21`. At that time, `uv run polisyos --version`,
     `uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"`
-    и `python3 -m tools.cli workspace doctor --list-surfaces`. Это датированный receipt
-    конкретной машины, не повторный запуск при обновлении страницы.
+    and `python3 -m tools.cli workspace doctor --list-surfaces` were run. This is
+    a dated receipt from one machine, not a rerun performed while updating this
+    page.
 
-Текущие command entrypoints читаются из `pyproject.toml` и `tools/registry.py`; их наличие в
-source не подтверждает успешный запуск. Только callout выше содержит исторический execution
-receipt, а ожидаемые и иллюстративные результаты ниже не являются новыми receipts.
+Current command entry points are read from `pyproject.toml` and
+`tools/registry.py`; their presence in source does not prove successful
+execution. Only the callout above contains a historical execution receipt; the
+expected and illustrative results below are not new receipts.
 
-## Что понадобится
+## What you need
 
-- чистый checkout `polisyos/policy-engine`;
+- a clean `polisyos/policy-engine` checkout;
 - Python `3.14.x`;
 - `uv 0.9.21`.
 
-Этот walkthrough использует backend-only bootstrap и не требует Node workspace. Для полного
-runtime/frontend profile нужны Node `22.x`, Corepack и pnpm `10.33.2`; поддерживаемая матрица
-описана в [Environment Matrix](../reference/environment-matrix.md).
+This walkthrough uses backend-only bootstrap and does not require the Node
+workspace. A full runtime/frontend profile requires Node `22.x`, Corepack, and
+pnpm `10.33.2`; see the [Environment Matrix](../reference/environment-matrix.md)
+for the supported versions.
 
-## Что вы получите
+## What you will get
 
-- локально работающий CLI и import surface;
-- первый CAS-backed Foundry smoke run;
-- понятный следующий шаг для вашей роли: backend, frontend, platform, security
-  или domain/policy.
+- a locally working CLI and import surface;
+- a first CAS-backed Foundry smoke run;
+- a clear next step for your role: backend, frontend, platform, security, or
+  domain/policy.
 
-## 1. Клонируйте репозиторий и поднимите минимальный contributor path
+## 1. Clone the repository and set up the minimal contributor path
 
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git
@@ -50,20 +53,21 @@ cd polisyos/policy-engine
 uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
 ```
 
-Профиль `runtime` синхронизирует extras `lint + test + runtime`; `--skip-frontend` убирает
-проверку Node и установку JS workspace. Bootstrap всё равно установит pre-commit hook, если
-не добавить `--skip-hooks`. `--skip-doctor` предотвращает автоматический
-doctor, который независимо проверил бы Node, Playwright, lockfiles и generated contracts.
-В этом walkthrough намеренно используется backend-only path. Полный install matrix,
-frontend bootstrap и troubleshooting собраны в [Installation](../how-to/install.md).
+The `runtime` profile synchronizes the `lint + test + runtime` extras;
+`--skip-frontend` skips the Node check and JS workspace installation. Bootstrap
+still installs the pre-commit hook unless you add `--skip-hooks`. `--skip-doctor`
+prevents the automatic `doctor` run, which would independently check Node,
+Playwright, lockfiles, and generated contracts. This walkthrough deliberately
+uses the backend-only path. The full installation matrix, frontend bootstrap,
+and troubleshooting steps are in [Installation](../how-to/install.md).
 
-## 2. Проверьте CLI и import surface
+## 2. Check the CLI and import surface
 
 ```bash
 uv run polisyos --version
 ```
 
-Ожидаемый вывод:
+Expected output:
 
 ```text
 polisyos 0.1.0
@@ -73,21 +77,22 @@ polisyos 0.1.0
 uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"
 ```
 
-Ожидаемый вывод:
+Expected output:
 
 ```text
 ProblemFrame True
 ```
 
-Если на этом шаге что-то ломается, переходите к
+If something fails at this step, see
 [Installation](../how-to/install.md#troubleshooting).
 
-## 3. Выполните минимальный compile-and-execute пример
+## 3. Run the minimal compile-and-execute example
 
-В текущем source tree helper `run_trivial_compile_execute` показывает короткий
-compile-and-execute путь с файловым CAS. Более широкий workflow описан в
-[Foundry Compile/Execute reference](../reference/foundry/compile-execute.md) и tutorial
-[First Policy Analysis](first-policy-analysis.md).
+In the current source tree, the `run_trivial_compile_execute` helper shows a
+short compile-and-execute path with a filesystem CAS. A broader workflow is
+described in the
+[Foundry Compile/Execute reference](../reference/foundry/compile-execute.md) and the
+[First Policy Analysis](first-policy-analysis.md) tutorial.
 
 ```python
 from pathlib import Path
@@ -103,15 +108,16 @@ print("simulation_result_artifact:", result.simulation_result_artifact_id)
 print("cas_root:", cas_root)
 ```
 
-Helper задает CPU-first JAX defaults, если соответствующие environment variables еще не заданы:
+The helper sets CPU-first JAX defaults if the corresponding environment
+variables are not already set:
 
 - `JAX_PLATFORM_NAME=cpu`
 - `JAX_PLATFORMS=cpu`
 
-Это помогает первому запуску на Apple Silicon; явные значения в окружении сохраняются, а
-Metal остается opt-in через `apple-metal` extra.
+This helps with a first run on Apple Silicon; explicit environment values are
+preserved, and Metal remains opt-in through the `apple-metal` extra.
 
-Иллюстративный вывод; это не fresh-run receipt:
+Illustrative output; this is not a fresh-run receipt:
 
 ```text
 compile_ok: True
@@ -121,30 +127,32 @@ simulation_result_artifact: sha256:...
 cas_root: .polisyos/quickstart-cas
 ```
 
-!!! note "P02 / E02 F: граница этого smoke path"
-    Import check и вызов quickstart helper не доказывают, что нейтральный установленный
-    consumer читает curated defaults из упакованного артефакта и не закрывают E02 F.
-    Installed-default проверка требует такого consumer и привязки всех конечных catalog
-    resources от tracked source bytes через sdist и wheel; подробности задает
+!!! note "P02 / E02 F: boundary of this smoke path"
+    The import check and quickstart-helper call do not prove that a neutral
+    installed consumer reads curated defaults from a packaged artifact, and they
+    do not close E02 F. An installed-default check requires such a consumer and
+    bindings for all terminal catalog resources from tracked source bytes through
+    the sdist and wheel; details are defined by the
     [P02 installed-default consumer discriminator](../reference/policy-design-case-failure-patterns.md).
 
-Этот quickstart — короткий Foundry demo path. Даже успешные `compile_ok` и `execute_ok` не
-являются результатом policy analysis, evidence admissibility или разрешением публиковать
-рекомендацию.
+This quickstart is a short Foundry demo path. Even successful `compile_ok` and
+`execute_ok` results are not the outcome of a policy analysis, evidence
+admissibility, or authorization to publish a recommendation.
 
-## 4. Посмотрите, какие артефакты были созданы
+## 4. Inspect the artifacts that were created
 
-После запуска quickstart напечатает `cas_root`; пример выше сохраняет его в локальном,
-gitignored каталоге `.polisyos/quickstart-cas`, чтобы следующий шаг мог прочитать манифесты.
+After running, quickstart prints `cas_root`; the example above stores it in the
+local, gitignored `.polisyos/quickstart-cas` directory so the next step can read
+the manifests.
 
-Посмотреть манифесты:
+List the manifests:
 
 ```bash
 CAS_ROOT=.polisyos/quickstart-cas
 find "$CAS_ROOT/artifacts" -name '*.manifest.json' | head
 ```
 
-Прочитать `kind` и `artifact_id`:
+Read `kind` and `artifact_id`:
 
 ```python
 import json
@@ -157,30 +165,30 @@ for manifest_path in sorted(cas_root.glob("artifacts/**/*.manifest.json")):
     print(manifest["kind"], manifest["artifact_id"])
 ```
 
-Обычно вы увидите как минимум:
+You will usually see at least:
 
 - `foundry.exec_plan`
 - `foundry.simulation_result`
 - `foundry.metrics`
 - `foundry.state_snapshot`
 
-## 5. Прогоните быстрый локальный gate
+## 5. Run a fast local gate
 
 ```bash
 uv run polisyos-tools workspace verify --backend-only --skip-doctor
 ```
 
-Это не обязательный шаг для smoke tutorial, но он хороший marker, что рабочая
-поверхность уже пригодна для первых правок.
+This step is not required for the smoke tutorial, but it is a useful signal that
+the development surface is ready for initial changes.
 
-## Что дальше
+## Next steps
 
-- Если вы новый contributor, начните с
-  [Installation](../how-to/install.md) и
+- If you are a new contributor, start with
+  [Installation](../how-to/install.md) and
   [Contributor Start Here](../reference/contributor-start-here.md).
 
-- Если вам нужен первый аналитический walkthrough, откройте
+- For a first analytical walkthrough, open
   [First Policy Analysis](first-policy-analysis.md).
 
-- Если вы идете по роли, выберите нужный track в
+- For role-based onboarding, choose the appropriate track in
   [Onboarding Tracks](../how-to/onboarding/index.md).

@@ -2,12 +2,15 @@
 
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-`polisyos.foundry` owns executable computation: compiling Trinity bundles into
-CAS-backed plans, binding data snapshots into runtime state, executing program
-graphs, and exposing reusable methods and the standalone agent-simulation
-runtime. The Scientist workflow connects compile and execute artifacts to
-downstream analysis and governance. This boundary map reflects code inspected
-at [`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`](https://github.com/DenisKopylov/polisyos/tree/bafca83bff9ff49eef1466bc491a8420b5cd1dbb).
+Foundry compiles Trinity bundles, binds snapshot data into runtime state,
+executes plans, exposes reusable methods, and hosts a standalone
+agent-simulation runtime. This map follows implementation and linked test
+sources inspected at the source pin below; tests were not rerun for this docs
+pass. Simulation outputs remain model-conditioned predictions: the inspected
+contracts do not establish an observed policy effect or end-to-end
+publishability. Start with [Compile and Execute](compile-execute.md) for the
+plan and data path, then read [Causal Engine](../../explanation/causal-engine.md)
+for the boundary between model predictions and grounded effects.
 
 Freshness: 2026-10-14
 Owner: @foundry-owners

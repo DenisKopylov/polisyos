@@ -1,8 +1,9 @@
-# Управление schema snapshots
+# Manage Schema Snapshots
 
 Related reference: [Schemas](../reference/schemas.md). Related explanation: [IR Design](../explanation/ir-design.md).
 
-> Эта страница для инженеров, которые меняют публичные IR/runtime контракты и должны сохранить ABI discipline, а не просто "перегенерировать JSON".
+> This page is for engineers changing public IR/runtime contracts who need to
+> preserve ABI discipline instead of simply "regenerating JSON."
 
 Freshness: 2026-10-14.
 
@@ -14,19 +15,21 @@ Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspectio
 `docs/adr/0104-ir-canonical-cas-policy.md`; generators and checks were not run.
 This supersedes the previous 2026-04-17 freshness marker and is not a generation receipt.
 
-## Вход
+## Inputs
 
-- изменение публичной Pydantic модели, Enum или runtime DTO
-- понимание, это additive, breaking или accidental drift
-- готовность обновить docs/reference и generated client, если меняется runtime surface
+- a change to a public Pydantic model, Enum, or runtime DTO;
+- an assessment of whether the change is additive, breaking, or accidental
+  drift;
+- readiness to update docs/reference and the generated client when the runtime
+  surface changes.
 
-## Выход
+## Outputs
 
-- ABI snapshots и runtime OpenAPI соответствуют коду
-- compatibility story задокументирована
-- IR schema catalog и reference pages не расходятся с фактическим surface
+- ABI snapshots and runtime OpenAPI that match the code;
+- a documented compatibility story;
+- an IR schema catalog and reference pages that match the actual surface.
 
-## Команды
+## Commands
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
@@ -34,87 +37,95 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 cd apps/runtime-dashboard && corepack pnpm run generate:api
 ```
 
-В репозитории сейчас есть два важных schema surface:
+The repository currently has two important schema surfaces:
 
-- ABI snapshots в `schemas/snapshots/**`, которые собираются через `tools/quality/diagnostics/gen_schema.py`;
-- runtime OpenAPI snapshot `schemas/runtime_api_v1.openapi.json`, который экспортируется через `tools/ops_runners/runtime/export_runtime_openapi.py`.
+- ABI snapshots in `schemas/snapshots/**`, generated through
+  `tools/quality/diagnostics/gen_schema.py`;
+- the runtime OpenAPI snapshot `schemas/runtime_api_v1.openapi.json`, exported
+  through `tools/ops_runners/runtime/export_runtime_openapi.py`.
 
-Топ-уровневый `schemas/` содержит только committed data artifacts. ABI registry
-и Python helpers импортируются из `polisyos.schemas.*`.
+The top-level `schemas/` directory contains only committed data artifacts. The
+ABI registry and Python helpers are imported from `polisyos.schemas.*`.
 
-## 1. Когда менять snapshots
+## 1. When to update snapshots
 
-Запускайте schema flow, если вы:
+Run the schema workflow when you:
 
-- изменили публичную Pydantic модель или Enum, входящую в ABI registry;
-- добавили новый IR/fabric контракт;
-- изменили Runtime API request/response surface;
-- меняете generated runtime client.
+- change a public Pydantic model or Enum that belongs to the ABI registry;
+- add a new IR/Fabric contract;
+- change the Runtime API request/response surface;
+- change the generated runtime client.
 
-Если правка внутреннего helper-а не меняет публичный contract shape, snapshot update обычно не нужен.
+If an internal helper change does not affect the public contract shape, a
+snapshot update is usually unnecessary.
 
-## 2. Проверьте ABI drift без записи
+## 2. Check ABI drift without writing files
 
-Базовая локальная проверка:
+Basic local check:
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
-Если snapshot не совпадает с кодом, скрипт завершится ошибкой и покажет out-of-date файлы.
+If a snapshot does not match the code, the script exits with an error and lists
+the out-of-date files.
 
-Для точечной проверки подмножества моделей:
+To check a subset of models:
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema --check --models claim p0 ir
 ```
 
-## 3. Перегенерируйте ABI snapshots
+## 3. Regenerate ABI snapshots
 
-Когда изменение осознанное:
+When the change is intentional:
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema
 ```
 
-Что обновляется:
+The generator updates:
 
 - `schemas/snapshots/<module>/*.schema.json`
-- `_manifest.json` для соответствующего snapshot bundle
+- `_manifest.json` for the corresponding snapshot bundle
 - `docs/reference/ir/schema-catalog.md`
 - `docs/reference/schemas.md`
 
-Полезное правило: смотрите не только на diff JSON, но и на semantic intent изменения. Snapshot update без понятного contract story почти всегда плохой знак.
+As a rule, review the semantic intent of the change as well as the JSON diff. A
+snapshot update without a clear contract story is usually a warning sign.
 
-## 4. Проверьте runtime OpenAPI snapshot
+## 4. Check the runtime OpenAPI snapshot
 
-Runtime contract живёт отдельно:
+The runtime contract is maintained separately:
 
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
 ```
 
-Если вы меняли HTTP routes или DTO, после экспорта обычно нужно ещё обновить generated client:
+If you changed HTTP routes or DTOs, you will usually also need to update the
+generated client after exporting the snapshot:
 
 ```bash
 corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
-## 5. Как думать про drift
+## 5. Classify drift
 
-Полезно разделять три случая:
+It is useful to distinguish three cases:
 
-- additive drift: добавлено новое поле/модель с совместимой историей;
-- breaking drift: удаление/переименование/смена типа поля;
-- accidental drift: код поменялся, а contract story не задуман.
+- additive drift: a new field/model was added with a compatible history;
+- breaking drift: a field was removed, renamed, or changed to another type;
+- accidental drift: the code changed without an intentional contract decision.
 
-Первый случай обычно acceptable при правильном report/ADR. Второй требует явного compatibility decision. Третий лучше ловить и откатывать сразу.
+The first case is usually acceptable with an appropriate report/ADR. The second
+requires an explicit compatibility decision. The third should be caught and
+reverted promptly.
 
-## 6. Compatibility decision перед snapshot update
+## 6. Make a compatibility decision before updating snapshots
 
-Перед тем как принимать schema drift, задайте тот же вопрос, который будет
-использовать release review:
+Before accepting schema drift, ask the same question that release review will
+ask:
 
 ```python
 from polisyos.ir.migrations import negotiate_schema_version
@@ -127,38 +138,41 @@ decision = negotiate_schema_version(
 assert decision.can_read
 ```
 
-IR registry использует четыре режима:
+The IR registry uses four modes:
 
-- `FULL`: прямое чтение обещано в обе стороны в объявленной совместимой линии.
-- `BACKWARD`: новый consumer читает старый producer payload.
-- `FORWARD`: старый consumer читает объявленный новый producer payload.
-- `NONE`: прямое чтение не обещано; нужен migration edge или отказ.
+- `FULL`: direct reading is promised in both directions within the declared
+  compatibility line.
+- `BACKWARD`: a new consumer can read an old producer payload.
+- `FORWARD`: an old consumer can read a declared new producer payload.
+- `NONE`: direct reading is not promised; a migration edge or refusal is
+  required.
 
-Изменения классифицируются так:
+Classify changes as follows:
 
-- additive optional fields обычно `BACKWARD`, если старый payload валиден у
-  нового reader без silent defaults loss;
+- additive optional fields are usually `BACKWARD` if the old payload is valid
+  for the new reader without silent loss of defaults;
 
-- field removal и rename не считаются совместимыми сами по себе, им нужен
-  explicit dual-read alias или migration;
+- field removal and rename are not compatible by themselves; they require an
+  explicit dual-read alias or migration;
 
-- canonical defaults должны быть записаны в compatibility rule, если reader
-  проставляет или нормализует отсутствующее поле;
+- canonical defaults must be recorded in the compatibility rule if a reader
+  fills in or normalizes an absent field;
 
-- unknown canonical `_type` не является compatibility escape hatch и
-  fail-closed по ADR-0104.
+- an unknown canonical `_type` is not a compatibility escape hatch and fails
+  closed under ADR-0104.
 
-## 7. Что смотреть в PR
+## 7. What to review in a PR
 
-Когда вы ревьюите schema-related PR, проверьте:
+When reviewing a schema-related PR, check:
 
-- понятна ли причина contract change;
-- обновлены ли и ABI snapshots, и OpenAPI/client, если менялся runtime surface;
-- не затронуты ли unrelated snapshot bundles;
-- соответствуют ли docs/reference страницы новой форме контракта.
-- есть ли compatibility rule или ADR для producer/consumer mismatch.
+- whether the reason for the contract change is clear;
+- whether ABI snapshots and OpenAPI/client artifacts were updated when the
+  runtime surface changed;
+- whether unrelated snapshot bundles were left untouched;
+- whether docs/reference pages match the new contract shape;
+- whether a compatibility rule or ADR covers producer/consumer mismatch.
 
-## 8. Минимальный рабочий набор перед merge
+## 8. Minimum checks before merge
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
@@ -167,23 +181,28 @@ uv run --extra docs python -m mkdocs build --strict
 uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
-## Откат
+## Rollback
 
-Если drift оказался accidental:
+If the drift was accidental:
 
-1. откатите snapshot/OpenAPI/client diff;
-2. повторно запустите `--check` команды;
-3. убедитесь, что код снова совпадает с committed baseline без ручной правки generated files.
+1. Revert the snapshot/OpenAPI/client diff.
+2. Rerun the `--check` commands.
+3. Confirm that the code matches the committed baseline again without manually
+   editing generated files.
 
 ## Troubleshooting
 
-- Если непонятно, какая модель вызвала drift, начните с `gen_schema.py --check` и сузьте проверку до затронутых моделей.
-- Если runtime client расходится с OpenAPI, сначала экспортируйте committed OpenAPI, потом регенерируйте client.
-- Если change выглядит breaking, а compatible path неочевиден, нужен explicit compatibility rule или ADR, а не просто новый snapshot.
+- If it is unclear which model caused drift, start with `gen_schema.py --check`
+  and narrow the check to the affected models.
+- If the runtime client differs from OpenAPI, first export the committed OpenAPI
+  snapshot, then regenerate the client.
+- If a change appears breaking and the compatible path is unclear, define an
+  explicit compatibility rule or ADR instead of creating only a new snapshot.
 
-## Что дальше
+## Next steps
 
-- Для каталога текущих snapshots смотрите [Schemas reference](../reference/schemas.md)
-- Для полного generated inventory всех IR types и fields смотрите [IR Schema Catalog](../reference/ir/schema-catalog.md)
-- Для runtime contract tooling откройте `tools/ops_runners/runtime/README.md`
-- Для ABI tooling откройте `tools/quality/diagnostics/README.md`
+- For the current snapshot catalog, see the [Schemas reference](../reference/schemas.md).
+- For the complete generated inventory of IR types and fields, see the [IR
+  Schema Catalog](../reference/ir/schema-catalog.md).
+- For runtime contract tooling, see `tools/ops_runners/runtime/README.md`.
+- For ABI tooling, see `tools/quality/diagnostics/README.md`.

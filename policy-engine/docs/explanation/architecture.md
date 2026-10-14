@@ -36,17 +36,18 @@ is not a fresh pass receipt, a completeness claim, or institutional authority.
 
 The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../reference/e02-documentation-snapshot.md#source-drift-in-handbook-maps).
 
-This page answers three different questions: what boundary was ratified, what the north-star asks
-the system to become, and what selected paths exist in the inspected source. It is an orientation
-map, not a new architecture decision or a capability register. For task-specific owners and checks,
-start with [Contributor Start Here](../reference/contributor-start-here.md) and the nearest package
-README; use the [Reference index](../reference/index.md) for subsystem contracts. Read the
-[north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
-for the strategic model, the [identity and custody decision](../system-design-decisions/policyos-identity-and-custody-boundary.md)
-for PolicyOS's scope, and the
-[Stage-0 ratification](../system-design-decisions/stage0-custody-kernel-ratification.md) for the
-custody invariants. Ratification establishes a rule or direction; it does not establish that a
-capability is implemented.
+Use this page to distinguish PolicyOS's ratified boundary, its north-star target, and selected
+implementation paths inspected at the source pin above. It is an orientation map, not a new
+architecture decision or a capability register; the selected paths do not make the product
+functional end to end, and ratification does not prove implementation or grant authority. The
+affected claims remain pinned to the inspected snapshot and require re-review after E02 integration;
+the named source and test paths were inspected, but the tests were not run for this documentation
+refresh. Start with [Contributor Start Here](../reference/contributor-start-here.md) for task owners
+and checks and the [Reference index](../reference/index.md) for subsystem contracts, then read the
+linked [north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md),
+[identity and custody decision](../system-design-decisions/policyos-identity-and-custody-boundary.md),
+and [Stage-0 ratification](../system-design-decisions/stage0-custody-kernel-ratification.md) for
+product intent and scope.
 
 ---
 

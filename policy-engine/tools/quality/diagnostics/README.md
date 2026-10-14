@@ -1,43 +1,43 @@
 # tools/quality/diagnostics
 
-Диагностический слой для контрактов, качества и verification-отчетов. Папка объединяет как CI-gates, так и ручные инженерные проверки.
+Diagnostic tooling for contracts, quality, and verification reports. This directory contains both CI gates and manual engineering checks.
 
-## Роль в системе
+## Role in the System
 
-- Контроль ABI/Schema drift и SemVer дисциплины.
-- Проверка архитектурных контрактов Scientist/Foundry/Runtime.
-- Формирование verification evidence/matrix (включая SCM v3 full-spec отчеты).
-- Локальная диагностика окружения, provenance и data contracts.
+- Checks ABI/schema drift and enforces SemVer discipline.
+- Checks Scientist/Foundry/Runtime architecture contracts.
+- Produces verification evidence/matrices, including SCM v3 full-spec reports.
+- Supports local diagnostics for the environment, provenance, and data contracts.
 
-## Скрипты
+## Scripts
 
-| Скрипт                                 | Назначение                                                                                                   | Контур                              |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| `gen_schema.py`                        | Генерация/проверка ABI snapshots в `schemas/snapshots` (IR, Fabric и зарегистрированные Scientist payload variants) и generated IR reference pages | `pre-commit`, `arch.yml`, `abi.yml` |
-| `generate_ir_reference_catalog.py`     | Генерация/проверка `docs/reference/ir/schema-catalog.md` и `docs/reference/schemas.md` из reflection catalog | docs / ABI tooling                  |
-| `abi_diff.py`                          | Семантический diff baseline/current snapshots (`PASS/WARN/FAIL`)                                             | `abi.yml`                           |
-| `check_state_reads.py`                 | AST-проверка соответствия `state_reads` у Scientist builtin nodes                                            | `arch.yml`                          |
-| `check_scientist_node_version_bump.py` | Требует SemVer bump для измененных builtin-нод (`--base-ref`)                                                | `arch.yml`                          |
-| `check_perf_regression.py`             | Сравнение benchmark JSON по порогам latency/throughput                                                       | `perf.yml`                          |
-| `verify_scm_v3.py`                     | Прогон quick/full набора SCM v3 checks, генерация evidence/matrix + logs                                     | manual verification                 |
-| `verify_scm_v3_fullspec.py`            | Full-spec матрица DoD/Laws/SL на базе `verify_scm_v3.py`, синхронизация canonical отчетов                    | manual verification                 |
-| `check_setup.py`                       | Локальный smoke-check JAX/DuckDB/Pydantic и env настроек                                                     | local                               |
-| `capture_env.py`                       | `capture/compare/validate` для `EnvironmentManifest`                                                         | local                               |
-| `scan_fabric.py`                       | Генерация draft data-contracts из DuckDB схем                                                                | local                               |
-| `visualize_provenance.py`              | Валидация/визуализация provenance (core graph, PROV-JSON, CAS, audit package)                                | local                               |
-| `check_udf_perf.py`                    | UDF perf gate по baseline JSON                                                                               | legacy                              |
-| `generate_ir_schema.py`                | Deprecated shim: проксирует вызов в `gen_schema.py`                                                          | deprecated                          |
+| Script                                 | Purpose                                                                                                                                        | Scope                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `gen_schema.py`                        | Generates/checks ABI snapshots in `schemas/snapshots` (IR, Fabric, and registered Scientist payload variants) and generated IR reference pages | `pre-commit`, `arch.yml`, `abi.yml` |
+| `generate_ir_reference_catalog.py`     | Generates/checks `docs/reference/ir/schema-catalog.md` and `docs/reference/schemas.md` from the reflection catalog                             | docs / ABI tooling                  |
+| `abi_diff.py`                          | Semantic diff of baseline/current snapshots (`PASS/WARN/FAIL`)                                                                                 | `abi.yml`                           |
+| `check_state_reads.py`                 | AST check that Scientist builtin nodes match their `state_reads` declarations                                                                  | `arch.yml`                          |
+| `check_scientist_node_version_bump.py` | Requires a SemVer bump for changed builtin nodes (`--base-ref`)                                                                                | `arch.yml`                          |
+| `check_perf_regression.py`             | Compares benchmark JSON against latency/throughput thresholds                                                                                  | `perf.yml`                          |
+| `verify_scm_v3.py`                     | Runs the quick/full set of SCM v3 checks and generates evidence/matrices plus logs                                                             | manual verification                 |
+| `verify_scm_v3_fullspec.py`            | Full-spec DoD/Laws/SL matrix based on `verify_scm_v3.py`; synchronizes canonical reports                                                       | manual verification                 |
+| `check_setup.py`                       | Local smoke check for JAX/DuckDB/Pydantic and environment settings                                                                             | local                               |
+| `capture_env.py`                       | `capture/compare/validate` for `EnvironmentManifest`                                                                                           | local                               |
+| `scan_fabric.py`                       | Generates draft data contracts from DuckDB schemas                                                                                             | local                               |
+| `visualize_provenance.py`              | Validates/visualizes provenance (core graph, PROV-JSON, CAS, audit package)                                                                    | local                               |
+| `check_udf_perf.py`                    | UDF performance gate against a baseline JSON                                                                                                   | legacy                              |
+| `generate_ir_schema.py`                | Deprecated shim: forwards the call to `gen_schema.py`                                                                                          | deprecated                          |
 
-## Связи с репозиторием
+## Repository Connections
 
-- `src/polisyos/*`: runtime-контракты, builtin-ноды, артефактные модели.
+- `src/polisyos/*`: runtime contracts, builtin nodes, and artifact models.
 - `schemas/snapshots/*`: committed ABI snapshot outputs.
 - `src/polisyos/schemas/abi_models.py`: Python ABI registry imported through `polisyos.*`.
-- `docs/reports/*`: основная точка вывода verification отчетов (SCM v3 evidence/matrix + logs).
-- `data/curated/*`, `data/databases/*`: входы для fabric/UDF локальных проверок.
-- `baseline/*.json` и benchmark artifacts: входы perf-regression сценариев.
+- `docs/reports/*`: primary output location for verification reports (SCM v3 evidence/matrices and logs).
+- `data/curated/*`, `data/databases/*`: inputs for local Fabric/UDF checks.
+- `baseline/*.json` and benchmark artifacts: inputs for performance-regression scenarios.
 
-## Типовой запуск
+## Typical Usage
 
 ```bash
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
@@ -49,19 +49,19 @@ PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3.py --prof
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.py --output-dir docs/reports
 ```
 
-## Отфильтрованные запуски snapshots
+## Filtered Snapshot Runs
 
-Фильтр --models задаёт scope выбора, но canonical module manifest всегда перечисляет полный активный registry этого модуля.
+The `--models` filter selects the run scope, while the canonical module manifest always lists that module's full active registry.
 
-- Генерация в schemas/snapshots допускает фильтр только тогда, когда для каждого выбранного модуля выбраны все его registry entries. Попытка записать один snapshot в canonical каталог останавливается до записи; для частичного preview передайте отдельный --output-dir.
-- Проверка canonical каталога с фильтром проверяет все entries выбранных модулей и их полный manifest. Она не означает full-registry check, если выбраны не все модули; команда без --models проверяет весь registry.
-- При отдельном --output-dir генерация и проверка остаются в scope выбранных entries. Такие preview-запуски не записывают и не проверяют глобальные generated IR reference pages.
-- Результат печатает selection scope и число проверенных entries относительно полного registry, чтобы partial preview нельзя было принять за full acceptance.
-- Canonical scope определяется по физической identity каталога: существующие пути сравниваются средствами filesystem (включая case- и symlink-aliases), отсутствующие — через identity ближайшего существующего предка и весь unresolved suffix. Если оба пути отсутствуют под одним физическим предком, но их suffix различается, генератор возвращает UNRUN вместо предположения, что это отдельный preview. Создайте отдельный preview-каталог заранее или выберите путь под другим существующим предком.
+- Generation into `schemas/snapshots` accepts a filter only when every registry entry for each selected module is selected. An attempt to write a single snapshot into the canonical directory stops before writing; use a separate `--output-dir` for a partial preview.
+- A filtered check of the canonical directory checks every entry for the selected modules and their complete manifests. It is not a full-registry check unless all modules are selected; running without `--models` checks the entire registry.
+- With a separate `--output-dir`, generation and checking remain scoped to the selected entries. These preview runs do not write or check the global generated IR reference pages.
+- The result prints the selection scope and the number of checked entries relative to the full registry, so a partial preview cannot be mistaken for full acceptance.
+- Canonical scope is determined by the directory's physical identity: existing paths are compared through the filesystem (including case and symlink aliases), while missing paths are compared using the nearest existing ancestor's identity plus the full unresolved suffix. If both paths are missing beneath the same physical ancestor but have different suffixes, the generator returns `UNRUN` instead of assuming they are separate previews. Create the preview directory first or choose a path under a different existing ancestor.
 
-## Известные ограничения
+## Known Limitations
 
-- В кодовой базе отсутствуют `polisyos.fabric.udf.*` и `polisyos.fabric.io.graph_store`; поэтому `check_udf_perf.py` сейчас не соответствует текущей структуре `src/polisyos`.
-- `generate_ir_schema.py` оставлен только как backward-compatible alias к `gen_schema.py`.
-- `gen_schema.py` использует content-addressable schema cache; invalidation key включает source hash ABI model module, ABI metadata, schema mode/version variant, generator version и версию `pydantic`.
-- `gen_schema.py --changed-only` не урезает manifest correctness: unchanged модели читаются из cache, а run целиком skip-ается только если не изменились ABI sources или persisted successful baseline fingerprint совпадает.
+- The codebase does not contain `polisyos.fabric.udf.*` or `polisyos.fabric.io.graph_store`; therefore, `check_udf_perf.py` does not currently match the structure of `src/polisyos`.
+- `generate_ir_schema.py` remains only as a backward-compatible alias for `gen_schema.py`.
+- `gen_schema.py` uses a content-addressable schema cache; the invalidation key includes the ABI model module source hash, ABI metadata, schema mode/version variant, generator version, and `pydantic` version.
+- `gen_schema.py --changed-only` preserves manifest correctness: unchanged models are read from the cache, and the run is skipped entirely only when ABI sources are unchanged or the persisted successful-baseline fingerprint matches.

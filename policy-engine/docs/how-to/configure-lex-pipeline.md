@@ -1,31 +1,35 @@
-# Настройка Lex pipeline
+# Configure the Lex Pipeline
 
 Related explanation: [Lex Pipeline](../explanation/lex-pipeline.md). Related reference: [Lex](../reference/lex/index.md).
 Evidence: `tests/unit/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 
-Проверка исходников: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
-(2026-10-14); прочитаны `src/polisyos/data_forge/domains/legal/corpus/`,
+Source review: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+(2026-10-14); reviewed `src/polisyos/data_forge/domains/legal/corpus/`,
 `src/polisyos/data_forge/domains/legal/contracts.py`, `src/polisyos/lex/api.py`,
-`src/polisyos/lex/types.py`, `src/polisyos/runtime/http/routes/control.py` и
-`src/polisyos/runtime/http/services/control/lex_pipeline.py`. Команды, HTTP-запросы
-и тесты в рамках этой проверки не запускались; это не подтверждение готового
-runtime или внешней конфигурации.
+`src/polisyos/lex/types.py`, `src/polisyos/runtime/http/routes/control.py`, and
+`src/polisyos/runtime/http/services/control/lex_pipeline.py`. Commands, HTTP
+requests, and tests were not run as part of this review; this does not establish
+a working runtime or external configuration.
 
-> Эта страница для инженеров и операторов, которым нужно собрать устойчивый Lex ingestion path, а не просто разово вызвать один helper.
+> This page is for engineers and operators who need to assemble a reliable Lex
+> ingestion path rather than call a single helper once.
 
-## Вход
+## Inputs
 
-- сырой корпус legal documents или batch input directories;
-- решение, нужен ли вам stage-level API path или control-plane batch path;
-- настроенные artifact roots для CAS и provenance/fact logs.
+- a raw legal-document corpus or batch input directories;
+- a decision about whether you need a stage-level API path or a control-plane
+  batch path;
+- configured artifact roots for CAS and provenance/fact logs.
 
-## Выход
+## Outputs
 
-- reproducible Lex pipeline path для ingest, structure, versioning и NormPack;
-- понимание, какие job ids, artifact ids и world events ожидать на каждом шаге;
-- минимальный набор operational checks для локального triage.
+- a reproducible Lex pipeline path for ingest, structure, versioning, and
+  NormPack;
+- an understanding of which job IDs, artifact IDs, and world events to expect
+  at each step;
+- a minimal set of operational checks for local triage.
 
-## Команды
+## Commands
 
 ```bash
 cd policy-engine
@@ -36,27 +40,33 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
   -d '{"cards_path":"data/lex/cards","texts_path":"data/lex/texts","output_dir":".polisyos/lex-out","resume":true,"execution_profile":"research"}'
 ```
 
-В PolicyOS есть два нормальных способа работать с Lex:
+PolicyOS has two supported ways to work with Lex:
 
-- stage-level Python API для корпуса и версий закона из
-  `polisyos.data_forge.domains.legal.corpus`; для policy-facing `NormPack` и legal
-  evaluation используйте `polisyos.lex.api`;
-- control-plane endpoint `POST /api/v1/control/lex/trigger`, если нужен job-based batch запуск с `pipeline_id` и `job_id`.
+- the stage-level Python API for legal corpora and document versions in
+  `polisyos.data_forge.domains.legal.corpus`; use `polisyos.lex.api` for the
+  policy-facing `NormPack` and legal evaluation;
+- the control-plane endpoint `POST /api/v1/control/lex/trigger` for job-based
+  batch execution with `pipeline_id` and `job_id`.
 
-## Когда использовать какой путь
+## When to use each path
 
-- Используйте stage-level API, если вам нужны точные артефакты и контроль над `cas`, `fact_log_root`, version selection и `NormPackBuildRequest`; ingest, structure и version index принадлежат Data Forge corpus facade, а сборка `NormPack` — Lex API.
-- Используйте control plane, если важны очереди, `resume`, polling job status и operational visibility через `/api/v1/control/jobs/{job_id}`.
+- Use the stage-level API when you need precise artifacts and control over
+  `cas`, `fact_log_root`, version selection, and `NormPackBuildRequest`; ingest,
+  structure, and the version index belong to the Data Forge corpus facade, while
+  `NormPack` assembly belongs to the Lex API.
+- Use the control plane when queues, `resume`, job-status polling, and operational
+  visibility through `/api/v1/control/jobs/{job_id}` matter.
 
-## 1. Подготовьте artifact roots
+## 1. Prepare artifact roots
 
-Для stage-level path заранее определите:
+For the stage-level path, define the following in advance:
 
-- CAS root для артефактов;
-- `fact_log_root` для world events и segment manifests;
-- единый `doc_source_id` strategy, чтобы версии закона потом можно было собрать в version index.
+- a CAS root for artifacts;
+- `fact_log_root` for world events and segment manifests;
+- a consistent `doc_source_id` strategy so legal document versions can later be
+  assembled into a version index.
 
-Минимальная форма локального setup:
+Minimal local setup:
 
 ```python
 from pathlib import Path
@@ -67,9 +77,10 @@ cas = FileSystemCAS(Path(".polisyos/cas"))
 fact_log_root = Path(".polisyos/world")
 ```
 
-## 2. Ingest и structure legal documents
+## 2. Ingest and structure legal documents
 
-Для корпусного stage path используйте `ingest_legal_doc_bytes()` и затем `build_legal_structure()`:
+For the corpus stage path, call `ingest_legal_doc_bytes()` and then
+`build_legal_structure()`:
 
 ```python
 from polisyos.data_forge.domains.legal.contracts import (
@@ -107,16 +118,17 @@ structure_result = build_legal_structure(
 )
 ```
 
-На этом этапе вы уже получаете:
+At this stage, you receive:
 
 - `doc_meta_artifact_id`
 - `fragment_ids`
 - `provision_index_artifact_id`
 - world event refs / segment manifests
 
-## 3. Соберите version index
+## 3. Build the version index
 
-Если у документа несколько редакций, следующий обязательный слой для reproducible legal evaluation:
+If a document has multiple versions, this is the next required layer for
+reproducible legal evaluation:
 
 ```python
 from polisyos.data_forge.domains.legal.contracts import (
@@ -143,11 +155,24 @@ active = resolve_active_version(
 )
 ```
 
-Это даёт детерминированный локальный выбор среди известных записей version index по переданной metadata `effective_from`/`effective_to`: границы `as_of` включительные, а при нескольких подходящих версиях применяются tie-break по `effective_from`, `published_at`, затем `doc_version_id`. Это поведение задают `src/polisyos/data_forge/domains/legal/corpus/versioning.py::resolve_active_version()` и `src/polisyos/lex/normpack/select_sources.py::select_active_doc_versions()`. Сам индекс не доказывает, какая редакция юридически действовала: он не подтверждает происхождение источника у издателя, полноту корпуса или актуальность на момент чтения. В частности, невалидный непустой `effective_to` в текущем resolver трактуется как открытая верхняя граница; это известный validation gap, а не вывод о сроке действия акта. См. [Lex NormPack reference](../reference/lex/normpack.md#time-identity-and-replay) и [Lex Pipeline explanation](../explanation/lex-pipeline.md#unresolved-integration).
+This provides a deterministic local selection among the known version-index
+records using the supplied `effective_from`/`effective_to` metadata: `as_of`
+boundaries are inclusive, and when multiple versions qualify, ties are broken
+by `effective_from`, then `published_at`, then `doc_version_id`. This behavior
+is defined by
+`src/polisyos/data_forge/domains/legal/corpus/versioning.py::resolve_active_version()`
+and `src/polisyos/lex/normpack/select_sources.py::select_active_doc_versions()`.
+The index does not prove which version was legally in force: it does not verify
+the source's provenance with the publisher, corpus completeness, or currentness
+at the time of reading. In particular, the current resolver treats a non-empty
+but invalid `effective_to` as an open upper bound. This is a known validation
+gap, not a finding about the act's effective period. See the [Lex NormPack
+reference](../reference/lex/normpack.md#time-identity-and-replay) and [Lex
+Pipeline explanation](../explanation/lex-pipeline.md#unresolved-integration).
 
-## 4. Соберите `NormPack`
+## 4. Build the `NormPack`
 
-Когда versioning готов, переходите к policy-facing артефакту:
+When versioning is ready, move on to the policy-facing artifact:
 
 ```python
 from polisyos.lex.api import assemble_norm_pack
@@ -164,17 +189,17 @@ norm_result = assemble_norm_pack(
 )
 ```
 
-Ожидаемые ключевые выходы:
+Expected key outputs:
 
 - `norm_pack_artifact_id`
 - `norm_pack_world_id`
 - selected doc versions
 - conflict/trust outputs
-- `world_event_id` для `assemble_norm_pack`
+- `world_event_id` for `assemble_norm_pack`
 
-## 5. Используйте control-plane path, если нужен batch job
+## 5. Use the control-plane path for a batch job
 
-Для operator-friendly запуска у runtime есть control endpoint:
+For operator-friendly execution, the runtime provides a control endpoint:
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
@@ -196,22 +221,25 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
   }'
 ```
 
-После accepted response работайте с:
+After an accepted response, use:
 
 - `pipeline_id`
 - `job_id`
 - `GET /api/v1/control/jobs/{job_id}`
 - `GET /api/v1/control/lex/status/{pipeline_id}`
 
-## 6. Настройте quality toggles осознанно
+## 6. Set quality toggles deliberately
 
-Полезные практические правила:
+Useful practical rules:
 
-- отключайте `embed`, если вам нужен быстрый structural smoke run без vector layer;
-- включайте `resume=true` только если `output_dir` и предыдущие промежуточные артефакты действительно должны быть reused;
-- фиксируйте `execution_profile`, если поведение control plane должно быть воспроизводимым между dev/research/governed paths.
+- Disable `embed` when you need a quick structural smoke run without the vector
+  layer.
+- Set `resume=true` only when `output_dir` and previous intermediate artifacts
+  are intended to be reused.
+- Set `execution_profile` when control-plane behavior must be reproducible
+  across dev/research/governed paths.
 
-Для stage-level path полезно явно задавать:
+For the stage-level path, explicitly set:
 
 - `LexIngestOptions.run_normalize`
 - `LexIngestOptions.run_structure`
@@ -220,46 +248,62 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 - `ActiveVersionStrategy.include_candidates`
 - `NormPackBuildRequest.budgets`
 
-## 7. Какие артефакты ожидать
+## 7. Artifacts to expect
 
-Если pipeline настроен правильно, вы обычно увидите четыре слоя результатов:
+When the pipeline is configured correctly, you will usually see four layers of
+results:
 
 - corpus artifacts: raw/normalized/structured document payloads;
-- versioning artifacts: version index и active-version explanation;
-- policy artifacts: `NormPack` и trust/conflict outputs;
-- provenance artifacts: world events и fact segments.
+- versioning artifacts: the version index and active-version explanation;
+- policy artifacts: `NormPack` and trust/conflict outputs;
+- provenance artifacts: world events and fact segments.
 
-Это важнее, чем один финальный JSON: downstream governance и intervention layers читают именно этот bundle of evidence.
+This bundle matters more than a single final JSON: downstream governance and
+intervention layers read this evidence bundle.
 
-## 8. Актуальность источника и повторная оценка
+## 8. Source currentness and reassessment
 
-Считайте обнаруженную upstream-публикацию или поправку, а также исправление исходных байтов/метаданных (например, effective dates, jurisdiction или provenance) поводом вручную пересобрать затронутые corpus artifacts, version index и `NormPack`, затем повторить claim-level assessment для нужного legal `as_of`. Изменение claim requirement или Lex rule требует повторить scoped assessment; пересобирайте source artifacts только если изменились сами source inputs или extraction/selection basis. Это операционные prompts, а не встроенные freshness triggers: описанный путь не опрашивает издателя, не проверяет его подпись и сам по себе не запускает полный external-source invalidation/reissue cascade. Сохраняйте refs входов и version/rule basis прежней оценки для разбора; локальная воспроизводимость не подтверждает юридическую актуальность источника. Подробности о time/replay и issuer-verification границе: [Lex Pipeline](../explanation/lex-pipeline.md#time-and-replay) и [unresolved integration](../explanation/lex-pipeline.md#unresolved-integration).
+Treat a discovered upstream publication or amendment, and corrections to source
+bytes or metadata (such as effective dates, jurisdiction, or provenance), as a
+reason to manually rebuild the affected corpus artifacts, version index, and
+`NormPack`, then repeat the claim-level assessment for the required legal
+`as_of`. A change to a claim requirement or Lex rule calls for a scoped
+reassessment; rebuild source artifacts only when the source inputs or the
+extraction/selection basis changed. These are operational prompts, not built-in
+freshness triggers: the described path does not poll the publisher, verify its
+signature, or itself run a full external-source invalidation/reissue cascade.
+Preserve the previous assessment's input references and version/rule basis for
+review; local reproducibility does not establish the source's legal currentness.
+For time/replay and issuer-verification boundaries, see [Lex
+Pipeline](../explanation/lex-pipeline.md#time-and-replay) and [unresolved
+integration](../explanation/lex-pipeline.md#unresolved-integration).
 
-## Откат
+## Rollback
 
-- если batch path был запущен с неверным `output_dir` или `execution_profile`,
-  остановите дальнейшее переиспользование этих артефактов и перезапустите
-  pipeline с корректными параметрами;
+- if the batch path used an incorrect `output_dir` or `execution_profile`, stop
+  reusing those artifacts and restart the pipeline with the correct parameters;
 
-- если структура или version index собраны из неверного source payload,
-  пересоберите их из корректного ingest input, а не поверх спорного результата;
+- if the structure or version index was built from the wrong source payload,
+  rebuild it from the correct ingest input rather than on top of the disputed
+  result;
 
-- если ошибка касается only-docs/operator guidance, откатите workflow к
-  последнему verified stage sequence.
+- if the issue concerns only documentation/operator guidance, roll back the
+  workflow to the last verified stage sequence.
 
 ## Troubleshooting
 
-- Если stage-level pipeline даёт "правдоподобный, но непонятный" результат,
-  проверьте сначала `doc_source_id`, `fact_log_root` и active-version strategy.
+- If the stage-level pipeline produces a "plausible but unclear" result, first
+  check `doc_source_id`, `fact_log_root`, and the active-version strategy.
 
-- Если control-plane batch не даёт ожидаемых output artifacts, смотрите `job_id`
-  и status endpoint отдельно от content-level артефактов.
+- If a control-plane batch does not produce the expected output artifacts, check
+  the `job_id` and status endpoint separately from content-level artifacts.
 
-- Если нужен быстрый structural smoke run, выключите `embed`, чтобы не путать
-  Lex structure/debugging с vector-stage задержками.
+- If you need a quick structural smoke run, disable `embed` so vector-stage
+  latency does not complicate Lex structure/debugging.
 
-## Что дальше
+## Next steps
 
-- Для operational surface откройте [Use Control Plane](use-control-plane.md)
-- Для reason-why behind stage design смотрите [Lex Pipeline explanation](../explanation/lex-pipeline.md)
-- Для policy-facing contracts откройте [Lex reference](../reference/lex/index.md)
+- For the operational surface, see [Use Control Plane](use-control-plane.md).
+- For the rationale behind the stage design, see the [Lex Pipeline
+  explanation](../explanation/lex-pipeline.md).
+- For policy-facing contracts, see the [Lex reference](../reference/lex/index.md).

@@ -1,5 +1,8 @@
   - Reference:
       - reference/index.md
+      - Reading and Documentation:
+          - Language Policy: reference/documentation-language.md
+          - Vocabulary and Search Routes: reference/reader-vocabulary.md
       - IR:
           - reference/ir/index.md
           - reference/ir/public-surface.md

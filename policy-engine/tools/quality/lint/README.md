@@ -1,37 +1,37 @@
 # tools/quality/lint
 
-Архитектурные и quality-гейты для структуры зависимостей, import-policy и freeze-процесса.
+Architecture and quality gates for dependency structure, import policy, and the freeze process.
 
-## Роль в системе
+## Role in the System
 
-- проверка границ между пакетами `src/polisyos/*`;
-- контроль исключений (`architecture/imports/exceptions.toml`) и долгов (`import_debt_register.csv`);
-- сбор метрик для сравнения с baseline в CI.
+- checks boundaries between `src/polisyos/*` packages;
+- controls exceptions (`architecture/imports/exceptions.toml`) and debt (`import_debt_register.csv`);
+- collects metrics for comparison with the CI baseline.
 
-## Скрипты
+## Scripts
 
-| Скрипт                        | Что делает                                                                           | Где используется                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| `lint_imports.py`             | Главный import-gate (`ARCH00x`), циклы, deep-import/legacy-ограничения               | pre-commit, `arch.yml`, `arch-freeze.yml` (через метрики) |
-| `lint_foundry.py`             | Ban-list импортов и builtins в `foundry` (policy: `standard/mixed/no_jax`)           | `arch.yml`                                                |
-| `check_scholar_imports.py`    | Запрещает связь `scholar -> polisyos.fabric.io.db`                                   | `arch.yml`                                                |
-| `lint_connector_hardening.py` | P7-инварианты production-коннекторов (`world_bank`, `eurostat`, `ukons`)             | `arch-freeze.yml`                                         |
-| `lint_connectors.py`          | Law A/B для `fabric/connectors` (изоляция от `scientist`/`foundry`)                  | ручной запуск, используется в freeze-метриках             |
-| `collect_arch_metrics.py`     | Собирает freeze-артефакты (`architecture/imports/gate_summary.json`, `architecture/imports/gate_baseline.txt`, `ruff_stats.txt`, ...) | `arch-freeze.yml`                                         |
-| `compare_baseline.py`         | Сравнивает baseline/current, проверяет exception policy и deep-import drift          | `arch-freeze.yml`                                         |
-| `lint_foundry_data_plane.py`  | P8-инварианты data plane (workflow aliases, adapter, assumptions)                    | ручной запуск                                             |
-| `lint_legacy_cutover.py`      | P10-инварианты cutover legacy-runtime/facade                                         | ручной запуск                                             |
+| Script                        | What It Does                                                                                                                          | Used By                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `lint_imports.py`             | Main import gate (`ARCH00x`), cycles, deep-import/legacy constraints                                                                  | pre-commit, `arch.yml`, `arch-freeze.yml` (via metrics) |
+| `lint_foundry.py`             | Import and builtin ban list for `foundry` (policy: `standard/mixed/no_jax`)                                                           | `arch.yml`                                              |
+| `check_scholar_imports.py`    | Prohibits the `scholar -> polisyos.fabric.io.db` dependency                                                                           | `arch.yml`                                              |
+| `lint_connector_hardening.py` | P7 invariants for production connectors (`world_bank`, `eurostat`, `ukons`)                                                           | `arch-freeze.yml`                                       |
+| `lint_connectors.py`          | Law A/B for `fabric/connectors` (isolation from `scientist`/`foundry`)                                                                | manual run; used in freeze metrics                      |
+| `collect_arch_metrics.py`     | Collects freeze artifacts (`architecture/imports/gate_summary.json`, `architecture/imports/gate_baseline.txt`, `ruff_stats.txt`, ...) | `arch-freeze.yml`                                       |
+| `compare_baseline.py`         | Compares baseline/current and checks exception policy and deep-import drift                                                           | `arch-freeze.yml`                                       |
+| `lint_foundry_data_plane.py`  | P8 data-plane invariants (workflow aliases, adapter, assumptions)                                                                     | manual run                                              |
+| `lint_legacy_cutover.py`      | P10 invariants for the legacy-runtime/facade cutover                                                                                  | manual run                                              |
 
-## Входы и связи с репозиторием
+## Inputs and Repository Connections
 
 - `architecture/imports/policy.toml`, `architecture/imports/exceptions.toml`, `architecture/imports/exceptions.md`
 - `import_debt_register.csv`
 - `architecture/imports/gate_summary.json`, `architecture/imports/gate_baseline.txt`
-- исходники: `src/polisyos/**`
-- CI-конфиги: `ops/ci/templates/workflows/arch.yml`,
+- source code: `src/polisyos/**`
+- CI configuration: `ops/ci/templates/workflows/arch.yml`,
   `ops/ci/templates/workflows/arch-freeze.yml`
 
-## Типовой локальный запуск
+## Typical Local Run
 
 ```bash
 PYTHONPATH=src:. uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
@@ -43,14 +43,14 @@ PYTHONPATH=src:. uv run python tools/quality/lint/check_scholar_imports.py
 PYTHONPATH=src:. uv run python tools/quality/lint/compare_baseline.py --current .arch-freeze/current/summary.json --mode dry-run
 ```
 
-## Примечания
+## Notes
 
-- `compare_baseline.py` имеет режимы `dry-run` и `blocking`.
+- `compare_baseline.py` has `dry-run` and `blocking` modes.
 - Exception IDs are read from Markdown table cells with the shared tokenizer; header and
   alignment rows do not become registry IDs, while an unregistered TOML exception remains a
   blocking finding in `blocking` mode.
-- `lint_imports.py` учитывает `TYPE_CHECKING`-импорты только при флаге `--allow-type-checking`.
-- `lint_imports.py` использует content-addressable parse cache и умеет `--changed-only`; persisted baseline hash применяется только после успешного прогона, поэтому failing state не начинает silently skip-аться в CI.
-- `lint_imports.py --fix` сейчас выполняет только безопасную mechanical операцию: canonical rewrite `architecture/imports/exceptions.toml`. Source imports он не переписывает автоматически.
-- `lint_foundry.py` использует registry из `tools/quality/lint/rules/`; новые domain-specific правила можно добавить отдельным модулем без правок в core scanner.
-- `lint_foundry.py --fix` ограничен safe autofix-ами. На текущем этапе автоматически удаляются только standalone `print()` debug-вызовы, остальные нарушения остаются report-only.
+- `lint_imports.py` includes `TYPE_CHECKING` imports only when `--allow-type-checking` is set.
+- `lint_imports.py` uses a content-addressable parse cache and supports `--changed-only`; the persisted baseline hash is applied only after a successful run, so a failing state is not silently skipped in CI.
+- `lint_imports.py --fix` currently performs only one safe mechanical operation: a canonical rewrite of `architecture/imports/exceptions.toml`. It does not rewrite source imports automatically.
+- `lint_foundry.py` uses the registry in `tools/quality/lint/rules/`; new domain-specific rules can be added as separate modules without changing the core scanner.
+- `lint_foundry.py --fix` is limited to safe autofixes. At present, it automatically removes only standalone `print()` debug calls; other findings remain report-only.

@@ -4,9 +4,9 @@ Related reference: [Retention and Recovery Policy](../reference/operations/reten
 Related runbook: [Replay or Restore Workflow](replay-or-restore.md).
 Related Fabric reference: [Fabric Data Plane](../reference/fabric/data-plane.md).
 
-> Используйте этот runbook, когда нужно восстановить retained operational
+> Use this runbook when you need to recover a retained operational
 > artifact family: CI diagnostics, benchmark outputs, replay/state bundles,
-> audit packages, local snapshots или cold-tier archives.
+> audit packages, local snapshots, or cold-tier archives.
 
 Owner: `@platform-owners`
 Historical validation receipt (as recorded by this page): `2026-04-17` — retention policy and restore-drill evidence available at that time; this is not a fresh validation.
@@ -15,34 +15,34 @@ Rollback path: freeze cleanup on the affected artifact family, preserve survivin
 
 ## Symptom
 
-- требуемый retained artifact не находится в ожидаемом retention window;
-- archive, audit package или snapshot найден, но checksum/report не сходится;
-- restore drill не может воспроизвести артефакт на clean workspace;
-- инцидент или audit blocked, потому что непонятно, что именно является source
-  of truth для выбранной artifact family.
+- A required retained artifact cannot be found within the expected retention window;
+- An archive, audit package, or snapshot was found, but its checksum or report does not match;
+- A restore drill cannot reproduce an artifact in a clean workspace;
+- An incident or audit is blocked because it is unclear which artifact is the source
+  of truth for the selected family.
 
 ## Likely Causes
 
-- artifact был ошибочно классифицирован как reproducible и удалён слишком рано;
-- сохранён payload без manifest/report/checksum sidecars;
-- restore path зависит от knowledge only-in-head вместо documented procedure;
-- retained copy существует, но owner, storage tier или exact lookup key не
-  были зафиксированы в incident timeline;
+- An artifact was incorrectly classified as reproducible and deleted too early;
+- A payload was retained without its manifest, report, or checksum sidecars;
+- The restore path depends on knowledge held only in someone’s head instead of a documented procedure;
+- A retained copy exists, but its owner, storage tier, or exact lookup key was not
+  recorded in the incident timeline;
 
-- local snapshot promoted в archive без проверки целостности и restoreability.
+- A local snapshot was promoted to an archive without integrity and restoreability checks.
 - Fabric connector fixture, quarantine record, CDC event, quality report,
   lineage graph, or schema-governance evidence was produced but not retained
   with its manifest or lookup key.
 
 ## Timeline Capture Expectations
 
-Сразу зафиксируйте:
+Record these details immediately:
 
-- artifact family и retention class (`R0`-`R4`);
+- The artifact family and retention class (`R0`–`R4`);
 - exact lookup key: `run_id`, `job_id`, `artifact_id`, `replay_ref`,
   `snapshot_root`, `archive_sha256`, CI run URL;
 
-- UTC время начала restore attempt и owner, который его ведёт;
+- The UTC time when the restore attempt began and the owner leading it;
 - expected outcome: reproduce, audit evidence, release evidence, incident
   analysis, operational resume;
 
@@ -55,19 +55,19 @@ Rollback path: freeze cleanup on the affected artifact family, preserve survivin
 
 ## First Triage Steps
 
-1. Определите, это recoverable artifact или merely reproducible output.
-   Если семейство формально reproducible, сначала проверьте, не быстрее ли
-   законно пересобрать его из source commit и lockfiles.
-2. Проверьте retention class и owning team в
+1. Determine whether this is a recoverable artifact or merely reproducible output.
+   If the family is formally reproducible, first check whether it is faster to
+   rebuild it legitimately from the source commit and lockfiles.
+2. Check the retention class and owning team in
    [Retention and Recovery Policy](../reference/operations/retention-and-recovery.md).
    The R0–R4 windows there are manual guidance, not a global TTL. For local
    `.polisyos` slots, use the per-slot contract; for remote artifacts, use the
    owning system's retention record.
-3. Восстанавливайте family вместе с обязательными sidecars:
-   audit package с provenance/signature, archive с report/hash, snapshot с
-   manifest, replay bundle с connector context.
-4. Если restore касается evidence или compliance, не редактируйте bundle
-   in-place и не перепаковывайте его до верификации.
+3. Restore the family together with its required sidecars:
+   the audit package with provenance/signature, the archive with report/hash, the snapshot with
+   its manifest, and the replay bundle with connector context.
+4. If the restore involves evidence or compliance, do not edit the bundle
+   in place or repackage it before verification.
 
 ### Fabric retained families
 
@@ -124,36 +124,36 @@ uv run pytest tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/tes
 
 ## Rollback / Mitigation
 
-- если bundle integrity не подтверждена, stop restore и переключайтесь на
-  другую retained copy;
+- If bundle integrity is unconfirmed, stop the restore and switch to
+  another retained copy;
 
-- если evidence family missing, freeze destructive cleanup на affected surface
-  до завершения gap analysis;
+- If an evidence family is missing, freeze destructive cleanup on the affected surface
+  until the gap analysis is complete;
 
-- если source family оказалась wrongly discardable, promote surviving copy в
-  longer retention class до завершения postmortem;
+- If a source family was wrongly considered discardable, promote the surviving copy to a
+  longer retention class until the postmortem is complete;
 
-- если restore drill failed on clean workspace, treat it как operational defect
-  и открывайте remediation до следующего retention purge.
+- If a restore drill failed in a clean workspace, treat it as an operational defect
+  and open remediation before the next retention purge.
 
-- если Fabric artifact family восстановлена из replay, сохраните связь между
-  новым artifact id и original incident/ref, чтобы lineage не выглядела как
+- If a Fabric artifact family was recovered from replay, preserve the link between
+  the new artifact ID and the original incident/reference so its lineage does not appear to be an
   independent source.
 
 ## Escalation Owner
 
 - primary: `@platform-owners`;
 - supporting: affected artifact-family owner;
-- mandatory coordination: security/compliance owner для audit packages,
-  provenance, signing evidence и other evidentiary bundles.
+- Required coordination: the security/compliance owner for audit packages,
+  provenance, signing evidence, and other evidentiary bundles.
 
 ## Follow-up Checklist
 
-- зафиксирован final source of truth по выбранной artifact family;
-- checksum/report/manifest verified или explicitly marked missing;
-- documented, было ли восстановление recovery или reproduction;
-- retention class, owner и expiry assumptions обновлены, если были неверны;
-- restore drill backlog пополнен, если восстановление потребовало ad hoc шагов.
+- The final source of truth for the selected artifact family was recorded;
+- The checksum, report, or manifest was verified or explicitly marked missing;
+- It was documented whether the operation was recovery or reproduction;
+- Retention class, owner, and expiry assumptions were updated if they were wrong;
+- The restore-drill backlog was updated if recovery required ad hoc steps.
 - Fabric schema-governance evidence, quarantine report, quality report, or
   lineage export regenerated only from trusted source state.
 
@@ -161,15 +161,15 @@ uv run pytest tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/tes
 
 ### What Went Well
 
-- какой retention decision помог быстро найти нужную копию;
-- какой sidecar или manifest сделал restore repeatable;
-- где ownership и storage path были понятны без chat archaeology.
+- Which retention decision helped locate the right copy quickly;
+- Which sidecar or manifest made the restore repeatable;
+- Where ownership and storage paths were clear without searching through chat history.
 
 ### What Went Poorly
 
-- какая artifact family была классифицирована неверно;
-- где missing checksums/manifests сломали доверие к restore;
-- какая часть процедуры зависела от tacit knowledge.
+- Which artifact family was classified incorrectly;
+- Where missing checksums or manifests undermined trust in the restore;
+- Which part of the procedure depended on tacit knowledge.
 
 ### Action Items
 

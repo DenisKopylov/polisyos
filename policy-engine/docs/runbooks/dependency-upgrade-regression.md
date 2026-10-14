@@ -3,8 +3,8 @@
 Related how-to: [Installation](../how-to/install.md). Related reference:
 [Configuration](../reference/configuration.md).
 
-> Используйте этот runbook, когда regression появилась после upgrade Python,
-> Node, `uv.lock`, `pnpm-lock.yaml`, npm package, PyPI dependency или
+> Use this runbook when a regression appears after upgrading Python,
+> Node, `uv.lock`, `pnpm-lock.yaml`, an npm package, a PyPI dependency, or
 > optional extra.
 
 Owner: `@platform-owners`
@@ -14,50 +14,50 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
 ## Symptom
 
-- `polisyos-tools workspace doctor` или `polisyos-tools workspace verify` внезапно падают после dependency
+- `polisyos-tools workspace doctor` or `polisyos-tools workspace verify` unexpectedly fails after a dependency
   change;
 
-- backend или frontend тесты ломаются без изменения product logic;
-- появляются import/runtime/type errors, которых не было до bump;
-- lockfile freshness и generated contract checks начинают расходиться между CI
-  и локальной машиной.
+- Backend or frontend tests fail without a change to product logic;
+- Import, runtime, or type errors appear that were absent before the bump;
+- Lockfile freshness and generated contract checks start to diverge between CI
+  and a local machine.
 
 ## Likely Causes
 
-- несовместимый transitive bump в `uv.lock` или `pnpm-lock.yaml`;
-- dependency требует другой baseline, чем текущие Python `3.14.x` или Node
+- An incompatible transitive bump in `uv.lock` or `pnpm-lock.yaml`;
+- The dependency requires a different baseline from the current Python `3.14.x` or Node
   `22.x`;
 
-- upgrade изменил schema/OpenAPI/frontend generated surfaces;
-- новый пакет изменил performance footprint, serialization или optional extras;
-- lockfile перегенерирован не тем инструментом или не на supported baseline.
+- The upgrade changed schema, OpenAPI, or generated frontend surfaces;
+- A new package changed performance footprint, serialization, or optional extras;
+- The lockfile was regenerated with the wrong tool or on an unsupported baseline.
 
 ## Timeline Capture Expectations
 
-Зафиксируйте сразу:
+Record these details immediately:
 
-- UTC timestamp первого failing check;
-- PR / commit SHA, где впервые появилась regression;
-- какие файлы менялись:
+- The UTC timestamp of the first failing check;
+- The PR or commit SHA where the regression first appeared;
+- Which files changed:
   `pyproject.toml`, `uv.lock`,
   `apps/runtime-dashboard/package.json`,
   `pnpm-lock.yaml`,
   `.python-version`, `.nvmrc`;
 
-- полный список failing commands и их exit codes;
-- первый known-good commit и первый known-bad commit;
-- если regression user-facing, приложите affected dashboard/API surface.
+- The complete list of failing commands and their exit codes;
+- The first known-good commit and the first known-bad commit;
+- If the regression is user-facing, attach the affected dashboard or API surface.
 
 ## First Triage Steps
 
-1. Подтвердите baseline и workspace состояние:
+1. Confirm the baseline and workspace state:
 
    ```bash
    cd policy-engine
    uv run polisyos-tools workspace doctor
    ```
 
-2. Покажите, что именно менялось в dependency surface:
+2. Show exactly what changed in the dependency surface:
 
    ```bash
    git diff -- \
@@ -69,7 +69,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
      policy-engine/pnpm-lock.yaml
    ```
 
-3. Разделите regression по поверхности:
+3. Classify the regression by surface:
 
    ```bash
    cd policy-engine
@@ -77,7 +77,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
    uv run polisyos-tools workspace verify --frontend-only
    ```
 
-4. Если failure contract-related, прогоните canonical checks отдельно:
+4. If the failure is contract-related, run the canonical checks separately:
 
    ```bash
    cd policy-engine
@@ -86,58 +86,58 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
    corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify
    ```
 
-5. Если regression явно вызвана одним bump, попробуйте pin rollback в ветке и
-   подтвердите, что green state возвращается.
+5. If one bump clearly caused the regression, try rolling back the pin on a branch and
+   confirm that the green state returns.
 
 ## Rollback / Mitigation
 
-- откатите offending dependency или lock refresh в PR, если root cause ещё не
-  подтверждён;
+- Revert the offending dependency or lock refresh in the PR if the root cause is not yet
+  confirmed;
 
-- заморозьте дальнейшие bump-ы этой dependency family до postmortem;
-- если затронут runtime/control-plane surface, не продвигайте релиз дальше
-  staging/promotion gate;
+- Freeze further bumps in this dependency family until the postmortem;
+- If the runtime or control-plane surface is affected, do not promote the release beyond
+  the staging or promotion gate;
 
-- если нужен partial mitigation, добавьте upper bound или feature flag, а не
-  ad hoc локальный workaround у одного разработчика.
+- If partial mitigation is needed, add an upper bound or feature flag instead of
+  an ad hoc local workaround for one developer.
 
 ## Escalation Owner
 
 - primary: `@platform-owners`;
-- supporting: owner того subsystem, где проявилась regression
+- Supporting: the owner of the subsystem where the regression appeared
   (`@runtime-owners`, `@frontend-owners`, `@foundry-owners`, `@fabric-owners`);
 
-- если regression ломает release gate, incident commander тоже
+- If the regression breaks the release gate, the incident commander is also
   `@platform-owners`.
 
 ## Follow-up Checklist
 
-- зафиксирован offending package и exact version delta;
-- добавлен regression test или contract check;
-- добавлен/обновлён version constraint, если проблема системная;
-- если поменялся contributor path, обновлены docs в
+- The offending package and exact version delta were recorded;
+- A regression test or contract check was added;
+- A version constraint was added or updated if the issue is systemic;
+- If the contributor path changed, the docs in
   [Installation](../how-to/install.md);
 
-- если affected surface user-facing, обновлены release notes и upgrade notes;
-- если bump был automated, настроен denylist/ruleset для повторной волны.
+- If the affected surface is user-facing, release notes and upgrade notes were updated;
+- If the bump was automated, a denylist or ruleset was configured to prevent another wave.
 
 ## Blameless Postmortem
 
 ### What Went Well
 
-- какой check первым дал правдивый signal;
-- что помогло быстро сузить blast radius;
-- какие guardrails сработали до production.
+- Which check first provided a truthful signal;
+- What helped narrow the blast radius quickly;
+- Which guardrails worked before production.
 
 ### What Went Poorly
 
-- где dependency drift оставалась неявной;
-- какие сигналы были noisy, duplicated или опоздали;
-- где owner map или docs оказались недостаточно точными.
+- Where dependency drift remained implicit;
+- Which signals were noisy, duplicated, or late;
+- Where the owner map or docs were not precise enough.
 
 ### Action Items
 
-Заполните по итогам инцидента.
+Complete this section after the incident.
 
 | Action item                                                                | Owner                    | Due date   | Status |
 | -------------------------------------------------------------------------- | ------------------------ | ---------- | ------ |

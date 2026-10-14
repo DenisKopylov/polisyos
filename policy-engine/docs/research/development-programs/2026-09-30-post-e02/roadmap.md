@@ -1,155 +1,155 @@
-# Труд и сценарная последовательность
+# Work and Scenario Sequence
 
-[Обзор](README.md) · [Первый портфель](first_portfolio.md) · [Общие затраты](dependencies.md)
+[Overview](README.md) · [Initial portfolio](first_portfolio.md) · [Shared costs](dependencies.md)
 
-## Что означают числа
+## What the numbers mean
 
-Нормированный инженерный день — условная единица focused effort. Пять таких дней соответствуют одной условной человеко-неделе, но это **не прогноз elapsed времени кодирующих агентов Дениса**, не тариф и не измеренный throughput. Границы ниже отражают узкое переиспользование и более трудный, но всё ещё ограниченный scope; они не являются P10/P90 или статистическим интервалом.
+A normalized engineering day is a stipulated unit of focused effort. Five such days correspond to one stipulated person-week, but this is **not a forecast of elapsed time for Denis's coding agents**, a rate, or measured throughput. The ranges below reflect narrow reuse and a harder but still bounded scope; they are not P10/P90 or statistical intervals.
 
-Диапазоны относятся к самостоятельному первому приращению с необходимой обычной проверкой. Они заданы относительно сценария, в котором нужные E02 repairs выполнены их владельцами. Если научная предпосылка, новый trust boundary или действительно нужный carrier отсутствует, диапазон пересматривают, а не безгранично растягивают его верхний предел.
+The ranges apply to a standalone first increment with the necessary ordinary checks. They are defined against a scenario where the required E02 repairs have been completed by their owners. If a scientific premise, new trust boundary, or genuinely needed carrier is missing, revise the range instead of stretching its upper bound without limit.
 
-Подготовка источников и владельцев уже существенно выполнена в этом исследовании. Future discovery включает только оставшийся exact route вопрос. Ни диапазон D, ни отдельные «2–5 дней выбора» не должны автоматически добавляться к каждому пакету поверх уже сделанной работы.
+Source and owner preparation has already been substantially completed in this research. Future discovery includes only the remaining exact-route question. Neither the D range nor a separate “2–5 days for selection” should be added automatically to each package on top of work already done.
 
-## Пять частей активной работы
+## Five parts of active work
 
-| Часть | Содержание | Отдельная граница |
-|---|---|---|
-| D Исследование входов | Выбранный route, реальные inputs, comparator, оставшиеся unknowns | Не новый общий census корпуса |
-| A Архитектурно-научное решение | Target, representation, owner, assumptions, public/history compatibility | Не время ожидания решения principal или внешнего scientific evidence |
-| B Код | Конкретное native изменение и локальные checks | Не вся сквозная интеграция и не независимый oracle |
-| I Интеграция | Реальный caller, persistence/readback, конечный consumer, migration | Наличие helper не считается готовым маршрутом |
-| V Независимая проверка | Strong reference, harmful/harmless controls, consumer-removal, matched effect/cost | Независимые labels и human-study данные не появляются бесплатно |
+| Part                                | Content                                                                            | Separate boundary                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| D Input discovery                   | Selected route, real inputs, comparator, remaining unknowns                        | Not a new general corpus census                                           |
+| A Architectural/scientific decision | Target, representation, owner, assumptions, public/history compatibility           | Not waiting time for a principal decision or external scientific evidence |
+| B Code                              | Specific native change and local checks                                            | Not full end-to-end integration or independent oracle                     |
+| I Integration                       | Actual caller, persistence/readback, terminal consumer, migration                  | A helper's existence does not constitute a ready route                    |
+| V Independent verification          | Strong reference, harmful/harmless controls, consumer-removal, matched effect/cost | Independent labels and human-study data do not appear for free            |
 
-Внешнее ожидание, data/provider деньги, active human review, machine service time и recurring operations записываются отдельно. Provider billing и тот же allocated resource breakdown не складываются дважды.
+External waiting, data/provider costs, active human review, machine service time, and recurring operations are recorded separately. Provider billing and the same allocated resource breakdown must not be counted twice.
 
-## Условные оценки ограниченных приращений
+## Conditional estimates for bounded increments
 
-Ни одна строка не является ценой зрелой программы. Несколько строк могут быть альтернативами одной поставки. Идентификаторы I01–I15 служат только навигации этой исследовательской сметы; это не новые официальные task IDs.
+No row is the cost of a mature program. Several rows may be alternatives for one delivery. IDs I01–I15 are only for navigating this research estimate; they are not new official task IDs.
 
-| Срез | D | A | B | I | V | Первое приращение, нормированных дней | Условие применимости |
-|---|---:|---:|---:|---:|---:|---:|---|
-| I01 Уже поддержанный scalar contrast до consumer | 1–2 | 1–2 | 2–4 | 1–3 | 2–4 | 7–15 | Нужная величина уже корректно вычислена; если consumer также готов, нового роста нет |
-| I02 Ограниченная documentary source map | 1–2 | 1–2 | 1–3 | 0–2 | 1–4 | 4–13 | Один доступный corpus/profile; без calibrated confidence и bulk campaign |
-| I03 Один calibrated semantic profile | 2–4 | 3–5 | 4–8 | 2–5 | 4–8 | 15–30 | Независимые пригодные labels уже доступны; не новая causal-identification задача |
-| I04 Один различающий data-shaped route | 1–3 | 2–4 | 3–6 | 2–5 | 2–7 | 10–25 | Допустимый source route и repaired admission/re-entry; без fieldwork и общего VOI |
-| I05 Одна source revision и текущий ответ | 1–2 | 2–4 | 3–5 | 2–4 | 2–5 | 10–20 | Один dependency/reader scope; не global completeness |
-| I06 Один новый joint functional | 1–2 | 2–4 | 2–6 | 2–5 | 3–8 | 10–25 | Пригодные joint draws/law и конечный oracle уже есть |
-| I07 Конечное action menu и реальное чтение | 1–3 | 2–4 | 3–8 | 2–5 | 2–10 | 10–30 | Заданные coefficients; только обнаруженный после reuse-check остаток |
-| I08 Конечное адаптивное whole rule | — | — | — | — | — | **Оценка приостановлена** | Готовый retained-rule carrier и actual consumer не установлены |
-| I09 O1 с temporal/compound scope | 2–4 | 3–6 | 5–10 | 4–8 | 6–12 | 20–40 | Mature prediction/outcome, cause frame, independent holdout и reviewer readback |
-| I10 CB2 technical caller и readback | 1–2 | 1–2 | 1–4 | 1–3 | 1–4 | 5–15 | Одна роль/задача/modality, reuse CB1; без behavioral study |
-| I11 Один local numerical bottleneck | 1–3 | 2–4 | 3–6 | 2–4 | 2–8 | 10–25 | Измеренная полная цена; один target-preserving приём, без нового backend |
-| I12 Одна повторяемая research operation | 3–6 | 3–6 | 5–10 | 3–6 | 6–12 | 20–40 | Пригодные traces и сильные simple/single-agent comparators |
-| I13 Один holder-local output | 3–6 | 5–10 | 5–10 | 5–12 | 7–12 | 25–50 | Existing holder environment и разрешённый release mechanism |
-| I14 Решение об independent trust boundary | 3–5 | 5–10 | — | — | — | 8–15 только D+A | Implementation total и external calendar неизвестны |
-| I15 Один ready-profile process comparison | 2–4 | 3–6 | 5–10 | 3–5 | 7–15 | 20–40 | Lifecycle/object definitions и малый QueueDES/profile готовы |
+| Slice                                             |   D |    A |    B |    I |    V | First increment, normalized days | Applicability condition                                                                                |
+| ------------------------------------------------- | --: | ---: | ---: | ---: | ---: | -------------------------------: | ------------------------------------------------------------------------------------------------------ |
+| I01 Already supported scalar contrast to consumer | 1–2 |  1–2 |  2–4 |  1–3 |  2–4 |                             7–15 | Required quantity is already computed correctly; if the consumer is also ready, there is no new growth |
+| I02 Bounded documentary source map                | 1–2 |  1–2 |  1–3 |  0–2 |  1–4 |                             4–13 | One accessible corpus/profile; no calibrated confidence or bulk campaign                               |
+| I03 One calibrated semantic profile               | 2–4 |  3–5 |  4–8 |  2–5 |  4–8 |                            15–30 | Independent fit-for-purpose labels are already available; not a new causal-identification task         |
+| I04 One discriminating data-shaped route          | 1–3 |  2–4 |  3–6 |  2–5 |  2–7 |                            10–25 | Permitted source route and repaired admission/re-entry; no fieldwork or general VOI                    |
+| I05 One source revision and current answer        | 1–2 |  2–4 |  3–5 |  2–4 |  2–5 |                            10–20 | One dependency/reader scope; not global completeness                                                   |
+| I06 One new joint functional                      | 1–2 |  2–4 |  2–6 |  2–5 |  3–8 |                            10–25 | Suitable joint draws/law and a finite oracle already exist                                             |
+| I07 Finite action menu and actual read            | 1–3 |  2–4 |  3–8 |  2–5 | 2–10 |                            10–30 | Coefficients are given; only the residual found after a reuse check                                    |
+| I08 Finite adaptive whole rule                    |   — |    — |    — |    — |    — |              **Estimate paused** | A ready retained-rule carrier and actual consumer have not been established                            |
+| I09 O1 with temporal/compound scope               | 2–4 |  3–6 | 5–10 |  4–8 | 6–12 |                            20–40 | Mature prediction/outcome, cause frame, independent holdout, and reviewer readback                     |
+| I10 CB2 technical caller and readback             | 1–2 |  1–2 |  1–4 |  1–3 |  1–4 |                             5–15 | One role/task/modality, reusing CB1; no behavioral study                                               |
+| I11 One local numerical bottleneck                | 1–3 |  2–4 |  3–6 |  2–4 |  2–8 |                            10–25 | Full cost measured; one target-preserving improvement, no new backend                                  |
+| I12 One repeatable research operation             | 3–6 |  3–6 | 5–10 |  3–6 | 6–12 |                            20–40 | Fit-for-purpose traces and strong simple/single-agent comparators                                      |
+| I13 One holder-local output                       | 3–6 | 5–10 | 5–10 | 5–12 | 7–12 |                            25–50 | Existing holder environment and permitted release mechanism                                            |
+| I14 Decision on an independent trust boundary     | 3–5 | 5–10 |    — |    — |    — |                8–15 for D+A only | Implementation total and external calendar are unknown                                                 |
+| I15 One ready-profile process comparison          | 2–4 |  3–6 | 5–10 |  3–5 | 7–15 |                            20–40 | Lifecycle/object definitions and a small QueueDES/profile are ready                                    |
 
-Все оценки имеют низкую уверенность. Внешняя независимая adjudication, набор участников, зрелость outcomes, source access, institutional acts и широкие migrations не спрятаны в этих числах. Для Spending D2 полный пакет не выбран и техническая сумма не назначена.
+All estimates have low confidence. External independent adjudication, participant recruitment, outcome maturity, source access, institutional acts, and broad migrations are not hidden in these numbers. The full Spending D2 package was not selected and has no technical estimate.
 
-## Исправленные расхождения scope
+## Scope discrepancies corrected
 
-### Адаптивность
+### Adaptivity
 
-Прежние 20–40 дней описывали узкий конечный вариант первого приращения на достаточных existing carriers: две стадии, 2–3 stipulated persistent models, фиксированные signal/transition/history, exact enumeration, один сохранённый rule consumer. Широкая ранняя оценка включала новые reusable history/controller interfaces и более сильную continuation machinery. Усреднение этих оценок было бы бессмысленно.
+The earlier 20–40 days described a narrow first increment using sufficient existing carriers: two stages, 2–3 stipulated persistent models, fixed signal/transition/history, exact enumeration, and one preserved rule consumer. The broader early estimate included new reusable history/controller interfaces and stronger continuation machinery. Averaging these estimates would be meaningless.
 
-Свежий named DP path не экспортирует полное правило. Поэтому даже условие узкого варианта сейчас не установлено: оценка приостановлена как portfolio baseline. Сначала остаётся конкретно решить, хватает ли малого owner-local extension или существует другой подходящий native carrier/consumer. Расширенный вариант и зрелая область отдельно не оценены.
+The fresh named DP path does not export the complete rule. Therefore, even the narrow option's conditions are not currently established: its estimate is paused as a portfolio baseline. First decide specifically whether a small owner-local extension is sufficient or another suitable native carrier/consumer exists. The expanded option and mature scope are not separately estimated.
 
-### Человеческий consumer
+### Human consumer
 
-Ранний широкий технический минимум 15–55 дней не имел доказанной дополнительной change surface и снят. При точном reuse CB1/audience/compiler/UI он согласован с 5–15 днями для одного CB2 caller→persist→reload. Разницу нельзя приписывать behavioral study: обе исходные технические оценки её исключали. Новая participation programme, новая role/modality protocol и реальное исследование людей — отдельный scope без готовой сметы.
+The early broad technical minimum of 15–55 days had no demonstrated additional change surface and is withdrawn. With exact CB1/audience/compiler/UI reuse, it is reconciled with 5–15 days for one CB2 caller → persist → reload. The difference cannot be attributed to a behavioral study: both original technical estimates excluded one. A new participation program, a new role/modality protocol, and actual human research are separate scopes without a ready estimate.
 
-### Исполнительный процесс
+### Execution process
 
-Узкие 20–40 дней предполагают существующие lifecycle/object definitions, read-only log и готовый малый process profile. Широкие 45–120 включали новый authentic measurement/observation profile, handling незавершённых/shared events, independent outcome и reusable regime. Это не одна задача. Широкий диапазон снят как «минимум»; новый эмпирический вариант оценивается после точных inputs и реального consumer.
+The narrow 20–40 days assume existing lifecycle/object definitions, a read-only log, and a ready small process profile. The broad 45–120 days included a new authentic measurement/observation profile, handling of incomplete/shared events, an independent outcome, and reusable regime. These are not one task. The broad range is withdrawn as a “minimum”; a new empirical option should be estimated after exact inputs and an actual consumer are known.
 
-### Диагноз O1
+### O1 diagnosis
 
-15–30 дней относятся к подготовленному узкому cause-table/diagnosis случаю. В таблице I09 сохранён более содержательный temporal/compound пакет 20–40 с отдельно учитываемой независимой проверкой. Это альтернативы, а не добавки; конкретное задание должно выбрать одну. O2 и O3 не включены автоматически в I09.
+15–30 days refers to a prepared narrow cause-table/diagnosis case. Table I09 retains the more substantive temporal/compound package at 20–40 days, with independent verification counted separately. They are alternatives, not additive costs; a concrete assignment must choose one. O2 and O3 are not automatically included in I09.
 
-### Независимая оценка
+### Independent evaluation
 
-Обычный corpus/reference/controls уже находится в V каждого выбранного пакета. Ранняя отдельная оценка первого большого evaluator-приращения не добавляется к ним. Самостоятельное исследование методологии оценки получает отдельную смету только после определения новой способности и фактических consumers. Разные scientific, semantic и human oracles не удаляются как «дубликаты» только потому, что все названы проверкой.
+The ordinary corpus/reference/controls already sit in V for each selected package. The earlier separate estimate for evaluation of the first large evaluator increment is not added again. Standalone evaluation-methodology research receives a separate estimate only after a new capability and actual consumers are defined. Distinct scientific, semantic, and human oracles are not removed as “duplicates” merely because each is called a check.
 
-## Цена следующего случая
+## Cost of the next case
 
-| Приращение | Ещё один case при том же semantic contract | Новый source family или meaning |
-|---|---:|---:|
-| I01 Delivery | 2–5 дней | 5–12 дней |
-| I02 Source map | 1–4 | 4–10 |
-| I03 Semantic calibration | 4–8 | 10–25 плюс новые labels/qualification |
-| I04 Acquisition | 3–7 | 8–20 плюс новые source/scientific premises |
-| I05 Currentness | 2–5 | 5–15 |
-| I06 Functional | 3–7 | 8–20 |
-| I07 Action menu | 3–8 | 10–25 |
-| I09 Diagnosis | 5–12 | 12–30 плюс adjudication/maturity |
-| I10 CB2 engineering | 2–5 | 5–15; behavioral study отдельно |
-| I11 Numerical optimization | 2–6 | 7–18 |
-| I12 Procedural learning | 4–10 | 12–30 |
-| I13 Holder output | 5–12 | 15–35 плюс rights/environment |
-| I15 Process profile | 5–12 | 15–30 плюс новая measurement validity |
+| Increment                  | Another case under the same semantic contract |             New source family or meaning |
+| -------------------------- | --------------------------------------------: | ---------------------------------------: |
+| I01 Delivery               |                                      2–5 days |                                5–12 days |
+| I02 Source map             |                                           1–4 |                                     4–10 |
+| I03 Semantic calibration   |                                           4–8 |      10–25 plus new labels/qualification |
+| I04 Acquisition            |                                           3–7 | 8–20 plus new source/scientific premises |
+| I05 Currentness            |                                           2–5 |                                     5–15 |
+| I06 Functional             |                                           3–7 |                                     8–20 |
+| I07 Action menu            |                                           3–8 |                                    10–25 |
+| I09 Diagnosis              |                                          5–12 |         12–30 plus adjudication/maturity |
+| I10 CB2 engineering        |                                           2–5 |          5–15; behavioral study separate |
+| I11 Numerical optimization |                                           2–6 |                                     7–18 |
+| I12 Procedural learning    |                                          4–10 |                                    12–30 |
+| I13 Holder output          |                                          5–12 |            15–35 plus rights/environment |
+| I15 Process profile        |                                          5–12 |      15–30 plus new measurement validity |
 
-Эти marginal ranges также гипотетические и не гарантируют экономию. Новый source family может потребовать почти всей независимой проверки заново. Реальный design payoff устанавливается по сохранённой полезности, объёму core changes, active effort, external wait и upkeep второго случая. Новое название конфигурации не делает новую научную постановку дешёвой.
+These marginal ranges are also hypothetical and do not guarantee savings. A new source family may require almost all independent verification to be repeated. Actual design payoff is established from preserved usefulness, volume of core changes, active effort, external wait, and upkeep for the second case. Renaming a configuration does not make a new scientific problem cheap.
 
-Исторический G7 критерий `sublinear_marginal_cost_status` проверяет локальный перенос: минимум два grounded region cases, добавленный случай, отсутствие bespoke patch и semantic loss, added/seed ratio <1 и reuse выше локального порога 0,5. Это не доказательство асимптотически сублинейной общей стоимости: seed 100 и каждый последующий case по 50 дают линейный рост. В этом предложении сохраняется измеримая цена следующего полезного случая, а универсальный scaling law не заявляется. Источник: `docs/plans/active/layer3-slices/G7-envelope-widening-one-case-to-region.md`, L1186–1195; его исторический status не заменяет нынешнее измерение.
+The historical G7 criterion sublinear_marginal_cost_status checks local transfer: at least two grounded regional cases, an added case, no bespoke patch or semantic loss, added/seed ratio <1, and reuse above the local threshold 0.5. This does not prove asymptotically sublinear total cost: a seed of 100 and each subsequent case at 50 still produce linear growth. This proposal retains a measurable cost for the next useful case and does not claim a universal scaling law. Source: docs/plans/active/layer3-slices/G7-envelope-widening-one-case-to-region.md, L1186–1195; its historical status does not replace current measurement.
 
-## Утреннее уточнение существующей опоры
+## Morning update to the existing foothold
 
-Reported-local срез 1 октября подтверждает интеграцию внутреннего B197 covariance/report/welfare path и B61 prepared-read consumers. Их повторная реализация не входит в новый рост. Поскольку E02 repairs уже исключались из условных смет, нельзя ещё раз механически вычитать их цену и объявлять дополнительную экономию. Для выбранного среза остаются точный configured producer, typed report intake, actual consumer, authority и научная пригодность. Численные диапазоны автоматически не меняются.
+The reported-local slice from October 1 confirms integration of the internal B197 covariance/report/welfare path and B61 prepared-read consumers. Reimplementing these is not part of new growth. Since E02 repairs were already excluded from conditional estimates, their cost must not be mechanically deducted again to claim additional savings. The exact configured producer, typed report intake, actual consumer, authority, and scientific suitability remain to be established for the selected slice. Numerical ranges do not change automatically.
 
-R1 V3 engineering draft/GO и resource-guard UNRUN не являются принятым served результатом. R9 pre-repair `d0e65aa`, последующая candidate попытка `336d0ab` и более ранний replay имеют разные denominators. На финальном HEAD `8b40f8f5` canonical-ID правка уже интегрирована; новый receipt сохраняет CAS failures и invalid report authentication при corrected-fixture HTTP 201/200. Эти результаты не складываются в общий regression или closure и не создают новую смету на уже сделанный repair.
+The R1 V3 engineering draft/GO and resource-guard UNRUN are not an accepted served result. R9 pre-repair d0e65aa, the subsequent candidate attempt 336d0ab, and the earlier replay have different denominators. At final HEAD 8b40f8f5, the canonical-ID change is already integrated; the new receipt retains CAS failures and invalid report authentication with corrected-fixture HTTP 201/200. These results are not combined into one regression or closure and do not create a new estimate for a repair already completed.
 
-## Путь по заработанной способности
+## Path through earned capability
 
-### Состояние A Применён существующий native результат
+### State A: Use an existing native result
 
-Известны exact target, версия входов, допустимая сила вывода и actual consumer. Сначала D1 проверяет, что можно получить на уже существующих owners. Готовый результат относится к reuse, а не повторно финансируемому build.
+The exact target, input version, admissible strength of claim, and actual consumer are known. First, D1 checks what can be obtained from existing owners. A ready result is classified as reuse, not a newly funded build.
 
-Переход к следующему состоянию оправдан только конкретным недостающим вопросом или потерей смысла, которую нельзя устранить простой manual/native альтернативой.
+Move to the next state only for a specific unanswered question or loss of meaning that cannot be fixed by a simple manual/native alternative.
 
-### Состояние B Получено одно настоящее новое приращение
+### State B: Obtain one genuine new increment
 
-Оно изменило полезный ответ, набор допустимых действий или следующую проверку. Пройдены supported positive, harmful и harmless controls, consumer-removal и полная стоимость. Нет подмены target, scope, baseline или authority.
+It changes a useful answer, admissible action set, or next check. Supported positive, harmful, and harmless controls, consumer-removal, and full cost have been checked. There is no substitution of target, scope, baseline, or authority.
 
-После этого оценивается второй иной случай. Если новый case требует центрального fork, нужно понять: это оправданная новая семантика или неудачная граница первого решения.
+Then evaluate a second, different case. If the new case requires a central fork, determine whether this is justified new semantics or a poor boundary in the first decision.
 
-Затем возможна проверка класса задач: когорта действительных grounded случаев в объявленной области, исключения, происхождение повторно используемого механизма, semantic loss и полная цена добавленного случая. G7 cohort adapter и отдельная S14 evaluation battery имеют разные роли; новый feed не может менять или становиться sealed evaluation set. Candidate list, готовый runner и будущая positive fixture не доказывают фактическую широту. Это развитие выбранной программы после полезных случаев, без обязательного нового region engine. Источник: `docs/plans/active/layer3-slices/G7-envelope-widening-one-case-to-region.md`, L424–543/L1111–1515/L1873–1922.
+Next, class-level evaluation may be appropriate: a cohort of valid grounded cases in the declared scope, exceptions, provenance of the reused mechanism, semantic loss, and full cost for an added case. The G7 cohort adapter and separate S14 evaluation battery serve different roles; a new feed cannot change or become the sealed evaluation set. A candidate list, ready runner, or future positive fixture does not prove actual breadth. This extends the selected program after useful cases, without requiring a new regional engine. Source: docs/plans/active/layer3-slices/G7-envelope-widening-one-case-to-region.md, L424–543/L1111–1515/L1873–1922.
 
-### Состояние C Перенос оказался полезным и экономичным
+### State C: Transfer is useful and economical
 
-Повторяется конкретный профиль или общее подвычисление. Только теперь можно выделять shared primitive, numerical plan, learned operation либо отдельную forecasting/strategic программу. Общий актив имеет двух настоящих consumers; его поддержка измерена.
+A specific profile or shared computation is repeated. Only then consider a shared primitive, numerical plan, learned operation, or separate forecasting/strategic program. A shared asset has two real consumers and measured upkeep.
 
-### Состояние D Расширена область или сила употребления
+### State D: Expand scope or claim strength
 
-Новый scientific scope, реальная человеческая компетенция, holder access, O3 update или production authority получают свои основания и внешний календарь. Этот переход не обязателен для каждого bounded результата и не выводится из количества ранее выполненных tests.
+A new scientific scope, actual human competence, holder access, O3 update, or production authority gets its own basis and external schedule. This transition is not required for every bounded result and cannot be inferred from the number of tests already run.
 
-## Три E02 сценария
+## Three E02 scenarios
 
-**Релевантные repairs закрыты.** Потребить exact approved output и убрать повторный repair budget. Если underlying quantity готов, выбрать delivery/reuse. Если он не отвечает вопросу, выбрать содержательный E1/E2/M1/P1/P2/P3 increment. Deferred scientific и principal choices не считаются решёнными по умолчанию.
+**Relevant repairs are closed.** Consume the exact approved output and remove duplicate repair budget. If the underlying quantity is ready, choose delivery/reuse. If it does not answer the question, choose a substantive E1/E2/M1/P1/P2/P3 increment. Deferred scientific and principal decisions are not considered resolved by default.
 
-**Repairs закрыты частично.** Продолжать по stable existing owner/profile, если он честно отвечает полезному вопросу. Для меняющегося общего владельца учесть конкретные rebase/requalification tasks. Не добавлять произвольный процент «на E02» ко всему портфелю и не прикрывать отсутствующий consumer новым UI.
+**Repairs are partly closed.** Continue with a stable existing owner/profile if it honestly answers a useful question. For a changing shared owner, account for specific rebase/requalification tasks. Do not add an arbitrary “E02 percentage” to the whole portfolio or cover a missing consumer with a new UI.
 
-**Нужный repair задержан.** Закончить независимый exact reference, source-definition dossier или bounded design choice; при наличии другого поддержанного owner выбрать его. Отдельный аналитический пример не объявлять served продуктом. Не строить конкурирующий production stack и не создавать artificial authority ради зелёной демонстрации.
+**The needed repair is delayed.** Complete the independent exact reference, source-definition dossier, or bounded design decision; if another supported owner exists, use it. Do not present a separate analytical example as a served product. Do not build a competing production stack or create artificial authority for a green demonstration.
 
-## Что определяет реальный календарь
+## What determines the actual schedule
 
-Семантическое решение, один меняющийся contract owner, независимый reviewer, source access и observation maturity могут определять критический путь сильнее coding throughput. Параллельно выполняются независимые source/reference работы и native изменения после согласования смысла. Финальная migration, сравнение по одному frozen basis и решение principal не масштабируются линейно числом агентов.
+A semantic decision, one changing contract owner, an independent reviewer, source access, and observation maturity can dominate the critical path more than coding throughput. Independent source/reference work and native changes can proceed in parallel once meaning is agreed. Final migration, comparison against one frozen basis, and a principal decision do not scale linearly with the number of agents.
 
-Регулярная эксплуатация оценивается по частоте source/model/schema изменений, числу случаев, cost of review/requalification, retention и failure handling. Произвольный процент от build не используется: нет измеренной частоты и цены этих событий.
+Recurring operations are estimated from source/model/schema change frequency, case count, review/requalification cost, retention, and failure handling. An arbitrary percentage of build cost is not used; the frequency and cost of these events have not been measured.
 
-Для повторяющегося workload экономия оправдывает setup, когда суммарное снижение полной цены пригодных случаев превышает дополнительную подготовку и upkeep за тот же период. Смысл вопроса и обязательные ограничения должны сохраняться. Для нового класса ответов денежный break-even не заменяет оценку ценности способности.
+For repeated workloads, savings justify setup when the total reduction in full cost for suitable cases exceeds additional preparation and upkeep over the same period. The question's meaning and required constraints must be preserved. For a new class of answers, monetary break-even does not replace assessment of capability value.
 
-## Когда менять инвестиционный порядок
+## When to change investment order
 
-- Подлинные независимые labels готовы: E1 semantic calibration становится конкурентнее источниковой карты
-- Нужная величина уже вычисляется: соответствующий новый estimator исключается; проверяются discovery, разрешение нужного certificate и actual consumer
-- Пригодные методы и proofs существуют, но не находятся по требованиям: E2/M1 discovery profile может быть полезнее нового estimator
-- Ограничение лежит в понимании запроса или невидимом выборе инструментов: bounded P1/R profile предшествует новому general agent
-- Зрелое наблюдение выявило неэффективный review или задержку пересмотра: M2/C accountability может опередить другое расширение без автоматического принятия O3
-- Review дороже compute: N не первое вложение; точность смысла и H могут дать больше
-- Повторяемости нет: оставить простое правило, template или native method вместо R
-- Mature outcomes доступны: M2/O1 может начинаться без ожидания полной historical campaign
-- Fixed policy не решает нужный вопрос: P2 получает высокую ценность исследовательской опции
-- Exact small baseline достаточен: сложный optimizer не нужен
-- Требуется реальный protected use: O/FA1/V3 рассматриваются отдельно, вместе с их эксплуатацией
+- Authentic independent labels are ready: E1 semantic calibration becomes more competitive than source mapping.
+- The needed quantity is already computed: exclude the corresponding new estimator; check discovery, permission to use the required certificate, and the actual consumer instead.
+- Suitable methods and proofs exist but cannot be found by requirements: an E2/M1 discovery profile may be more useful than a new estimator.
+- The bottleneck is request comprehension or invisible tool selection: a bounded P1/R profile precedes a new general agent.
+- Mature observation reveals inefficient review or delayed reconsideration: M2/C accountability may precede another expansion without automatically adopting O3.
+- Review costs more than compute: N is not the first investment; semantic precision and H may yield more.
+- There is no repeatability: retain a simple rule, template, or native method instead of R.
+- Mature outcomes are available: M2/O1 can begin without waiting for a full historical campaign.
+- A fixed policy does not answer the required question: P2 has high research-option value.
+- An exact small baseline is sufficient: a complex optimizer is unnecessary.
+- Real protected use is required: consider O/FA1/V3 separately with its operational obligations.
 
-Методическая опора оценки — явный technical baseline, состав работ, предпосылки и обновление по actuals. [GAO Cost Estimating Guide](https://www.gao.gov/products/gao-20-195g) поддерживает такой способ организации оценки, но не подтверждает приведённые сроки PolicyOS. Activity counts и число строк не считаются продуктивностью сами по себе; это согласуется с [SPACE](https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/).
+The methodological basis for the estimates is an explicit technical baseline, work breakdown, assumptions, and updates from actuals. The [GAO Cost Estimating Guide](https://www.gao.gov/products/gao-20-195g) supports this estimation structure but does not validate the PolicyOS estimates above. Activity counts and line counts are not productivity by themselves; this is also consistent with [SPACE](https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/).

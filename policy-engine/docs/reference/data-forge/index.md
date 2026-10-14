@@ -4,12 +4,21 @@ Owner: @data-forge-owners
 Last updated: 2026-10-14
 Source of truth: canonical implementation at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; package boundaries are described in `policy-engine/src/polisyos/data_forge/README.md` and `policy-engine/src/polisyos/data_forge/domains/README.md`.
 
-Data Forge builds and publishes domain knowledge artifacts, then exposes selected runtime APIs. It is not a universal source connector or an always-running acquisition service. The current implementation, its evidence, and the limits of its capability claims are mapped in [Current data paths](current-data-paths.md).
+Data Forge builds and publishes domain assets and exposes selected runtime APIs
+through `read_api`. At the source pin above, this index maps observed acquisition
+and materialization paths, artifact and provenance contracts, canonicalization,
+Fabric boundaries, runtime consumers, and documented gaps; it does not describe
+a universal connector or always-running acquisition service. Start with [Current
+data paths](current-data-paths.md) for those implementation routes and limits,
+then use [Catalog default resources](catalog-default-resources.md) for packaged
+configuration inputs.
 
 | Reference | Covers |
 | --- | --- |
 | [Current data paths](current-data-paths.md) | Acquisition and materialization paths, artifact/provenance/schema/time contracts, canonicalization, Fabric boundaries, runtime consumers, and concrete gaps. |
 | [Catalog default resources](catalog-default-resources.md) | Catalog-specific default resource behavior. |
+
+## Lifecycle and import boundaries
 
 Use [Current data paths](current-data-paths.md) to compare two related but distinct routes:
 requirement-driven acquisition and its accepted N7 receipt, and domain-produced publish

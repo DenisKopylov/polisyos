@@ -23,11 +23,17 @@ Related architecture:
 
 ---
 
-IR gives PolicyOS a shared vocabulary for policy inputs, model assumptions,
-observations, analytics, and artifact references. It lets producers and
-consumers exchange versioned contracts without importing each other's
-implementation. It is a contract and reflection layer; a valid IR object is not
-by itself a runtime result, evidence finding, or authority decision.
+IR defines shared, versioned contracts for policy inputs, model assumptions,
+observations, analytics, and artifact references, so producers and consumers
+can exchange those shapes across package boundaries. This page maps the
+inspected package boundaries and selected Trinity parse, validation, and linking
+path at the source pin above. A valid or linked object is still a contract
+input: it does not execute a policy, establish substantive evidence, or grant
+authority, and this page does not claim that E02 or PolicyOS is complete end to
+end. The listed tests were inspected but not rerun for this documentation
+update. Start with the [IR index](../reference/ir/index.md) and
+[schema catalog](../reference/ir/schema-catalog.md) for contract details, then
+use the package READMEs for owners and source entrypoints.
 
 ## Present package boundaries
 

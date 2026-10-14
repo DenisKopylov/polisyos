@@ -6,24 +6,24 @@ Related reference: [Security and Compliance Operations](../../reference/security
 
 ## Goal
 
-Научиться собирать review packet из текущих docs, tests, workflows и retained
-evidence, а не из устных объяснений.
+Learn to assemble a review packet from current documentation, tests, workflows,
+and retained evidence rather than verbal explanations.
 
 ## Inputs
 
-- доступ к коду и docs;
-- понимание текущего review scope: authz, signing, SBOM, tenancy, replay,
-  release evidence или acceptance;
+- access to the code and documentation;
+- an understanding of the current review scope: authz, signing, SBOM, tenancy,
+  replay, release evidence, or acceptance;
 
-- готовность опираться на validation anchors из tests/workflows.
+- readiness to rely on validation anchors from tests/workflows.
 
 ## Output
 
-После этого onboarding вы должны уметь:
+After this onboarding, you should be able to:
 
-- собрать проверяемый evidence map для одной review темы;
-- связать control claim с кодом, docs и validation anchor;
-- быстро понять, где не хватает owner, evidence или rollback story.
+- assemble a verifiable evidence map for one review topic;
+- connect a control claim to code, documentation, and a validation anchor;
+- quickly identify a missing owner, evidence, or rollback story.
 
 ## Canonical Commands
 
@@ -40,30 +40,32 @@ uv run pytest -q \
   tests/property/runtime/http/test_access_invariants_properties.py
 ```
 
-Флаги `doctor` здесь пропускают Playwright, lockfile и generated-contract checks, но не базовые
-проверки Python `3.14.x`, Node `22.x` и `uv 0.9.21`. `runtime-signing` и `runtime-oidc` в этой
-команде проверяют только наличие непустых env values; это не проверка подписания, ключей или
-реальной OIDC-аутентификации. См. [Installation](../install.md) для точных границ `doctor`.
+The `doctor` flags here skip Playwright, lockfile, and generated-contract checks,
+but not the baseline checks for Python `3.14.x`, Node `22.x`, and `uv 0.9.21`.
+`runtime-signing` and `runtime-oidc` in this command check only that environment
+values are non-empty; they do not verify signing, keys, or actual OIDC
+authentication. See [Installation](../install.md) for the exact boundaries of
+`doctor`.
 
 ## Start Here By Task
 
-| Task                                      | Primary doc                                                                                                                                                          |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Операционный security contract            | [Security and Compliance Operations](../../reference/security-compliance.md)                                                                                         |
-| Где искать proof/evidence по control area | [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) and `docs/fedramp/gap-analysis.md`                                              |
-| Rotation / incident response              | [Key Rotation](../../runbooks/key-rotation.md), [Artifact Signing or SBOM Failure](../../runbooks/artifact-signing-sbom-failure.md)                                  |
-| Retention, replay, acceptance evidence    | [Retention and Recovery](../../reference/operations/retention-and-recovery.md), [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) |
+| Task                                            | Primary doc                                                                                                                                                          |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Operational security contract                   | [Security and Compliance Operations](../../reference/security-compliance.md)                                                                                         |
+| Where to find proof/evidence for a control area | [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) and `docs/fedramp/gap-analysis.md`                                              |
+| Rotation / incident response                    | [Key Rotation](../../runbooks/key-rotation.md), [Artifact Signing or SBOM Failure](../../runbooks/artifact-signing-sbom-failure.md)                                  |
+| Retention, replay, acceptance evidence          | [Retention and Recovery](../../reference/operations/retention-and-recovery.md), [Platform Acceptance Audit](../../reference/operations/platform-acceptance-audit.md) |
 
 ## First Productive Slice
 
-Выберите один control area:
+Choose one control area:
 
 - JWT/OIDC and tenant enforcement;
 - artifact signing and trust anchors;
 - SBOM and supply-chain evidence;
 - replay/retention and audit export.
 
-Для него соберите четыре anchors:
+For that area, collect four anchors:
 
 1. reference doc;
 2. code surface;
@@ -72,21 +74,22 @@ uv run pytest -q \
 
 ## Rollback / Handoff
 
-- если control claim не подтверждается тестом, не заменяйте это prose-only
-  утверждением: зафиксируйте gap;
+- if a test does not support the control claim, do not replace the evidence with
+  a prose-only assertion; record the gap;
 
-- если review уходит в deployment plumbing, передайте operational часть в
+- if the review moves into deployment plumbing, hand the operational part to
+  the
   [Platform / Ops Engineer](platform-ops-engineer.md);
 
-- если проблема purely API/DTO-level, синхронизируйтесь с backend owner.
+- if the issue is purely API/DTO-level, coordinate with the backend owner.
 
 ## Troubleshooting
 
-- security docs кажутся слишком широкими: начните с evidence map, а не со всего
-  reference page сразу;
+- security documentation seems too broad: start with the evidence map rather
+  than reading the entire reference page at once;
 
-- локальный review не требует полного browser stack, поэтому `skip-playwright`
-  path часто нормален;
+- a local review does not require the full browser stack, so the `skip-playwright`
+  path is often appropriate;
 
-- если workflow evidence отсутствует в repo, фиксируйте это как missing control
-  anchor, а не как "наверное где-то есть".
+- if workflow evidence is absent from the repository, record a missing control
+  anchor instead of assuming it exists somewhere.

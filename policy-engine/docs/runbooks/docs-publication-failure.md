@@ -3,8 +3,8 @@
 Related docs: [Home](../index.md), [Reference](../reference/index.md),
 the repository documentation program plan.
 
-> Используйте этот runbook, когда docs pipeline не может собрать, проверить или
-> провести publication-ready validation через repo-tracked documentation gate.
+> Use this runbook when the documentation pipeline cannot build, validate, or
+> complete publication-ready validation through the repository-tracked documentation gate.
 
 Owner: `@docs-owners`
 Historical validation receipt: `2026-04-17` — at that time, the strict MkDocs build, docs-accuracy check, and published QA ledger were used. This is not a fresh validation.
@@ -13,33 +13,33 @@ Rollback path: revert or minimally fix the docs/nav/config change that broke pub
 
 ## Symptom
 
-- `uv run --extra docs python -m mkdocs build --strict` падает локально или в CI;
+- `uv run --extra docs python -m mkdocs build --strict` fails locally or in CI;
 - docs quality or publication workflow (`.github/workflows/abi.yml` or
-  `.github/workflows/docs-pages.yml`) не проходит;
-- docs accuracy / broken-link / nav issue ломает publish path;
-- опубликованный docs site stale относительно `main`, хотя code CI green.
+  `.github/workflows/docs-pages.yml`) fails;
+- A docs accuracy, broken-link, or navigation issue breaks the publish path;
+- The published docs site is stale relative to `main` even though code CI is green.
 
 ## Likely Causes
 
-- broken nav path или missing file in `mkdocs.yml`;
-- broken relative links, missing reference page или moved doc;
-- docs page описывает несуществующую command/API surface;
-- docs build зависит от Python/dev tooling, который не был synced;
-- `workflow_run` publish path не стартует из-за состояния upstream `CI`.
+- A broken navigation path or missing file in `mkdocs.yml`;
+- Broken relative links, a missing reference page, or a moved document;
+- A docs page describes a command or API surface that does not exist;
+- The docs build depends on Python or development tooling that was not synchronized;
+- The `workflow_run` publish path does not start because of the upstream `CI` state.
 
 ## Timeline Capture Expectations
 
-Зафиксируйте:
+Record:
 
-- failing local command или workflow step;
-- `Documentation` run URL / run ID и related upstream `CI` run;
-- commit SHA и список changed docs/nav files;
-- затронутый раздел: tutorials, how-to, reference, explanation, runbooks;
-- impact: publish blocked полностью или site stale частично.
+- The failing local command or workflow step;
+- The `Documentation` run URL or run ID and the related upstream `CI` run;
+- The commit SHA and list of changed documentation or navigation files;
+- The affected section: tutorials, how-to, reference, explanation, or runbooks;
+- The impact: publication is fully blocked or the site is partially stale.
 
 ## First Triage Steps
 
-1. Воспроизведите build локально:
+1. Reproduce the build locally:
 
    ```bash
    cd policy-engine
@@ -47,7 +47,7 @@ Rollback path: revert or minimally fix the docs/nav/config change that broke pub
    uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
    ```
 
-2. Если проблема выглядит как чистый content/nav failure, сузьте reproduction до
+2. If the problem appears to be a content or navigation failure, narrow reproduction to a
    strict MkDocs build:
 
    ```bash
@@ -55,57 +55,57 @@ Rollback path: revert or minimally fix the docs/nav/config change that broke pub
    uv run --extra docs python -m mkdocs build --strict
    ```
 
-3. Если проблема про factual drift, прогоните docs accuracy checker:
+3. If the problem concerns factual drift, run the docs-accuracy checker:
 
    ```bash
    cd policy-engine
    uv run polisyos-tools validation check-docs-accuracy --repo-root .
    ```
 
-4. Проверьте `mkdocs.yml` nav и наличие всех referenced files.
-5. Если documentation gate запускался как PR check, сравните failing diff с
-   ожидаемым docs-sensitive scope и убедитесь, что changed-file rules не
-   пропустили нужный evidence update.
-6. Если stale site already published, определите: это build failure,
-   upload-pages-artifact failure или deploy-pages failure.
+4. Check `mkdocs.yml` navigation and confirm that all referenced files exist.
+5. If the documentation gate ran as a PR check, compare the failing diff with
+   the expected docs-sensitive scope and confirm that changed-file rules did not
+   miss a required evidence update.
+6. If a stale site was already published, determine whether this is a build failure,
+   an upload-pages-artifact failure, or a deploy-pages failure.
 
 ## Rollback / Mitigation
 
-- если broken docs change очевиден, откатите его или подготовьте minimal fix PR;
-- если build ломает nav drift, временно снимите broken entry только вместе с
-  replacement page или redirect note;
+- If the documentation change is clearly broken, revert it or prepare a minimal fix PR;
+- If a navigation change breaks the build, temporarily remove the broken entry only with
+  a replacement page or redirect note;
 
-- если publication gate blocked, но source docs критичны для incident response,
-  распространите temporary internal link to rendered artifact or PR preview;
+- If the publication gate is blocked but source docs are critical for incident response,
+  share a temporary internal link to the rendered artifact or PR preview;
 
-- не публикуйте site с `--strict` выключенным как permanent workaround.
+- Do not publish the site with `--strict` disabled as a permanent workaround.
 
 ## Escalation Owner
 
 - primary: `@docs-owners`;
 - platform for CI/publish plumbing: `@platform-owners`;
-- subsystem owner joins, если docs failure вызван contract drift в его area.
+- The subsystem owner joins if the documentation failure was caused by contract drift in their area.
 
 ## Follow-up Checklist
 
 - root cause classified: content drift, nav drift, tooling drift, publish plumbing;
-- docs accuracy or link-check coverage updated, если нужно;
+- Docs-accuracy or link-check coverage was updated if needed;
 - publish freshness expectation re-documented;
-- runbook, landing page или nav updated if discoverability was poor.
+- The runbook, landing page, or navigation was updated if discoverability was poor.
 
 ## Blameless Postmortem
 
 ### What Went Well
 
-- что быстро локализовало failure: local build, CI step, accuracy checker;
-- насколько reproducible оказался build locally;
-- как быстро удалось вернуть docs publish.
+- What quickly localized the failure: local build, CI step, or the accuracy checker;
+- How reproducible the local build was;
+- How quickly documentation publishing was restored.
 
 ### What Went Poorly
 
-- где docs source-of-truth был размытым;
-- какие changes дошли до `main` без local validation;
-- какие stale docs увеличили operator risk.
+- Where the documentation source of truth was unclear;
+- Which changes reached `main` without local validation;
+- Which stale docs increased operator risk.
 
 ### Action Items
 

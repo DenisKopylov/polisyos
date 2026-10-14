@@ -1,9 +1,9 @@
 # Lex (`polisyos.lex`)
 
-`polisyos.lex` покрывает runtime-юридический контур PolicyOS: сборку
-`NormPack`, compliance-оценку, what-if симуляцию, read-only legal knowledge
-graph и слой `lex -> intervention`, который переводит
-provision-level правила в tunable policy/runtime artifacts.
+`polisyos.lex` covers PolicyOS's runtime legal domain: building
+`NormPack`, compliance evaluation, what-if simulation, a read-only legal knowledge
+graph, and the `lex -> intervention` layer that translates
+provision-level rules into tunable policy/runtime artifacts.
 
 ## Purpose
 
@@ -12,32 +12,32 @@ reasoning. Offline legal corpus extraction and batch graph construction live in
 Data Forge; Lex reads those published artifacts and turns legal provisions into
 typed runtime/evaluation contracts.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.ir`, `polisyos.core`, `polisyos.fabric`
-- **Используется в:** `polisyos.scientist`, `polisyos.runtime`, governance and policy-design flows
-- Модуль связывает опубликованные legal artifacts, factual world state и policy execution surface через CAS, fact log и typed contracts.
+- **Depends on:** `polisyos.ir`, `polisyos.core`, `polisyos.fabric`
+- **Used by:** `polisyos.scientist`, `polisyos.runtime`, governance and policy-design flows
+- The module connects published legal artifacts, factual world state, and the policy execution surface through CAS, the fact log, and typed contracts.
 
-## Ключевые концепции
+## Key concepts
 
-- **Compliance path** — `read_api.legal -> normpack -> legal_evaluation -> simulator` формирует юридическую проверку и change proposals.
-- **Knowledge path** — Data Forge legal batch публикует DuckDB/HNSW graph, а `lex.knowledge` читает его без write-side логики.
-- **Intervention mapping** — `interventions.py` и `intervention_artifacts.py` компилируют provision directives в neutral IR intervention contracts, temporal sequences и strategic-response specs; Scientist owns policy-search and DTR execution bridges.
-- **Version-aware reads** — `resolve_active_version()` читает Data Forge version-index artifacts через `polisyos.data_forge.read_api.legal`.
-- **Component-driven extensibility** — providers, evaluators и extractors поднимаются через registry/entry points, а не хардкодятся в orchestration.
-- **Artifact-first execution** — ключевые выходы сохраняются как `lex.*` artifacts и world events с provenance.
+- **Compliance path** — `read_api.legal -> normpack -> legal_evaluation -> simulator` produces legal evaluations and change proposals.
+- **Knowledge path** — the Data Forge legal batch publishes the DuckDB/HNSW graph, and `lex.knowledge` reads it without write-side logic.
+- **Intervention mapping** — `interventions.py` and `intervention_artifacts.py` compile provision directives into neutral IR intervention contracts, temporal sequences, and strategic-response specs; Scientist owns policy-search and DTR execution bridges.
+- **Version-aware reads** — `resolve_active_version()` reads Data Forge version-index artifacts through `polisyos.data_forge.read_api.legal`.
+- **Component-driven extensibility** — providers, evaluators, and extractors are loaded through registries/entry points rather than hard-coded into orchestration.
+- **Artifact-first execution** — key outputs are persisted as `lex.*` artifacts and world events with provenance.
 
 ## Public API
 
-| Type/Function                                                | Description                                                       |
-| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Type/Function                                                | Description                                                             |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | `resolve_active_version()`                                   | Query active-version indexes for legal docs through Data Forge read API |
-| `assemble_norm_pack()`                                       | Assemble a `NormPack` through provider or pipeline path           |
-| `evaluate_legality()`                                        | Produce `lex.legal_report` and optional change proposals          |
-| `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes                 |
-| `LegalKnowledgeGraph`                                        | Read-only search API over the offline legal graph                 |
+| `assemble_norm_pack()`                                       | Assemble a `NormPack` through provider or pipeline path                 |
+| `evaluate_legality()`                                        | Produce `lex.legal_report` and optional change proposals                |
+| `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes                       |
+| `LegalKnowledgeGraph`                                        | Read-only search API over the offline legal graph                       |
 | `run_legal_benchmark()`, `LexBenchmarkOutcome`               | Execute Lex-owned semantic readiness over published Data Forge fixtures |
-| `LexInterventionCompiler`, `TemporalInterventionSequencer`   | Compile legal provisions into intervention/runtime artifacts      |
+| `LexInterventionCompiler`, `TemporalInterventionSequencer`   | Compile legal provisions into intervention/runtime artifacts            |
 
 Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 

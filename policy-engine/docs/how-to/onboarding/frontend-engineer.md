@@ -5,24 +5,24 @@ Related reference: [REST API](../../reference/api/index.md),
 
 ## Goal
 
-Быстро войти в runtime-consumer surface: dashboard, generated API types,
-contract fixtures и operator-facing UX.
+Quickly become productive with the runtime-consumer surface: the dashboard,
+generated API types, contract fixtures, and operator-facing UX.
 
 ## Inputs
 
-- `workspace bootstrap --profile runtime` уже выполнен;
-- `apps/runtime-dashboard` dependencies установлены через Corepack/pnpm;
-- используется Node `22.x` и pnpm `10.33.2`, закрепленный в `package.json`;
-- вы понимаете, меняете ли вы dashboard UI, generated API types или сам runtime
-  contract.
+- `workspace bootstrap --profile runtime` has been run;
+- `apps/runtime-dashboard` dependencies are installed through Corepack/pnpm;
+- Node `22.x` and pnpm `10.33.2`, pinned in `package.json`, are in use;
+- you understand whether you are changing the dashboard UI, generated API types,
+  or the runtime contract itself.
 
 ## Output
 
-После этого onboarding вы должны уметь:
+After this onboarding, you should be able to:
 
-- локально поднять dashboard;
-- обновить dashboard API types без drift;
-- отличать frontend bug от backend contract change.
+- run the dashboard locally;
+- update dashboard API types without drift;
+- distinguish a frontend bug from a backend contract change.
 
 ## Canonical Commands
 
@@ -41,34 +41,37 @@ corepack pnpm run typecheck
 | Task                                                    | Primary doc                                                                             | Why it matters                                         |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Contract-first overview of frontend surfaces            | [REST API](../../reference/api/index.md) plus `apps/runtime-dashboard/README.md`        | dashboard, generated API client, and validation chain  |
-| Обновить generated dashboard types после runtime change | [REST API](../../reference/api/index.md) plus `packages/runtime-api-client/README.md`   | OpenAPI -> generated client -> dashboard type sync     |
-| Понять operator UX и runtime boundaries                 | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
+| Update generated dashboard types after a runtime change | [REST API](../../reference/api/index.md) plus `packages/runtime-api-client/README.md`   | OpenAPI -> generated client -> dashboard type sync     |
+| Understand operator UX and runtime boundaries           | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
 
 ## First Productive Slice
 
-Хороший первый change:
+Good first changes include:
 
-- исправить `corepack pnpm run contracts:verify` после intentional backend contract change;
-- обновить один dashboard workspace/query path после новой runtime возможности;
-- улучшить operator-facing error/loading state, не ломая contract fixtures.
+- fix `corepack pnpm run contracts:verify` after an intentional backend contract
+  change;
+- update one dashboard workspace/query path after a runtime capability is added;
+- improve an operator-facing error/loading state without breaking contract
+  fixtures.
 
 ## Rollback / Handoff
 
-- если change требует новый endpoint или DTO, передайте или синхронизируйтесь с
+- if the change requires a new endpoint or DTO, hand it off to or coordinate
+  with the
   [Backend Engineer](backend-engineer.md);
 
-- если `corepack pnpm run generate:api` ничего не должен менять, а diff появился,
-  проверьте, не дрейфует ли committed OpenAPI snapshot;
+- if `corepack pnpm run generate:api` should make no changes but produces a diff,
+  check whether the committed OpenAPI snapshot has drifted;
 
-- не исправляйте backend drift локальными frontend hacks.
+- do not patch backend drift with local frontend hacks.
 
 ## Troubleshooting
 
-- `generate:api` обновляет только `src/api/types.ts`; JS/TS client лежит в
+- `generate:api` updates only `src/api/types.ts`; the JS/TS client lives in
   `packages/runtime-api-client/`;
 
-- `contracts:verify` падает: сначала сверяйте runtime snapshot и fixtures, а не
-  переписывайте ожидания вслепую;
+- `contracts:verify` fails: compare the runtime snapshot and fixtures before
+  changing expectations blindly;
 
-- UI issue на `/platform` почти всегда требует чтения runtime/control docs, а
-  не только React tree.
+- a UI issue on `/platform` usually requires reading runtime/control documentation,
+  not only the React tree.

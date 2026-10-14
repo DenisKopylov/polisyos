@@ -42,14 +42,12 @@ The template badge is part of the trust layer. It is not decorative chrome.
 
 The first supported Ukrainian genres are:
 
-- `ua.kmu.postanova.v1` — Постанова КМУ
-- `ua.rada.zakonoproekt.v1` — Законопроект
-- `ua.expert_vysnovok.v1` — Експертний висновок
-- `ua.analitichna_zapyska.v1` — Аналітична записка
+- `ua.kmu.postanova.v1` — Resolution of the Cabinet of Ministers of Ukraine (Постанова КМУ)
+- `ua.rada.zakonoproekt.v1` — Draft Law (Законопроект)
+- `ua.expert_vysnovok.v1` — Expert Opinion (Експертний висновок)
+- `ua.analitichna_zapyska.v1` — Analytical Note (Аналітична записка)
 
-Template changes require a new version and migration note. Do not silently
-change numbering, реквізити, signature placeholders or disclaimer language under
-an existing template id.
+Template changes require a new version and migration note. Do not silently change numbering, document particulars, signature placeholders, or disclaimer language under an existing template ID.
 
 ## Trust Layer
 
@@ -79,7 +77,7 @@ the template.
 `pending_external_review` until that registry records an approved Ukrainian
 legal/document specialist sign-off for:
 
-- structure and реквізити for all four genres;
+- structure and required document particulars for all four genres;
 - watermark and disclaimer language;
 - numbering rules;
 - signature and seal placeholders;

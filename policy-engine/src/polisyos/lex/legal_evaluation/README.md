@@ -1,30 +1,30 @@
 # Legal Evaluation (`polisyos.lex.legal_evaluation`)
 
-`polisyos.lex.legal_evaluation` сравнивает policy/simulation output с `NormPack`,
-строит `lex.legal_report`, формирует change proposals и публикует bridge-слой
-между юридическими ограничениями и causal transportability constraints.
+`polisyos.lex.legal_evaluation` compares policy/simulation output with a `NormPack`,
+builds `lex.legal_report`, produces change proposals, and provides the bridge
+between legal constraints and causal transportability constraints.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.contracts.lex`, `polisyos.ir`, `polisyos.fabric.world`
-- **Используется в:** policy validation, governance passes, transportability gating, change-proposal flows
-- Пакет превращает нормы и observed values в explicit compliance verdicts вместо ad-hoc post-hoc reasoning.
+- **Depends on:** `polisyos.lex.normpack`, `polisyos.core.contracts.lex`, `polisyos.ir`, `polisyos.fabric.world`
+- **Used by:** policy validation, governance passes, transportability gating, and change-proposal flows
+- The package turns norms and observed values into explicit compliance verdicts instead of ad hoc post hoc reasoning.
 
-## Ключевые концепции
+## Key concepts
 
-- **Evaluator registry** — `LexEvaluatorRegistry` поднимает built-in и внешние evaluators по `eval_policy_id`.
-- **Context normalization** — `evaluate_legality_impl()` извлекает policy source, metrics и norm context в единый `LegalContext`.
-- **Rule observations** — `context_builder.py` резолвит observed values из metrics и policy parameters с явными `quality_issues`.
-- **Change proposals** — `propose_changes_impl()` генерирует `policy_patch` или `add_metric` actions для actionable failures.
-- **Transport constraints** — `LegalConstraintBridge` и `is_transport_blocked()` связывают legal limits с causal graph/transportability checks.
-- **Norm comparison** — `impact_diff.NormImpactAnalyzer` сравнивает два `NormPack`,
-  запускает выбранные built-in `legal`/`safety` passes и сохраняет diff/report в CAS.
-  Нормы для каждого запуска берутся из сравниваемого pack; одноимённый ключ в
-  дополнительном context их не подменяет. `passes=None` выбирает оба pass,
-  `passes=()` оставляет только norm diff; неизвестные pass IDs отклоняются.
-  Историческое поле `affected_kpis` схемы `1.0` содержит candidate impact topics,
-  без измеренной величины или установленного направления эффекта. Старые
-  `polisyos.lex.simulator` импорты и CLI используют этот же canonical owner.
+- **Evaluator registry** — `LexEvaluatorRegistry` loads built-in and external evaluators by `eval_policy_id`.
+- **Context normalization** — `evaluate_legality_impl()` extracts policy source, metrics, and norm context into a unified `LegalContext`.
+- **Rule observations** — `context_builder.py` resolves observed values from metrics and policy parameters, with explicit `quality_issues`.
+- **Change proposals** — `propose_changes_impl()` generates `policy_patch` or `add_metric` actions for actionable failures.
+- **Transport constraints** — `LegalConstraintBridge` and `is_transport_blocked()` connect legal limits to causal-graph/transportability checks.
+- **Norm comparison** — `impact_diff.NormImpactAnalyzer` compares two `NormPack` objects,
+  runs the selected built-in `legal`/`safety` passes, and persists the diff/report in CAS.
+  Each run takes its norms from the compared pack; a same-named key in the
+  additional context does not replace them. `passes=None` selects both passes,
+  while `passes=()` keeps only the norm diff; unknown pass IDs are rejected.
+  The historical schema `1.0` field `affected_kpis` contains candidate impact topics,
+  without a measured magnitude or established effect direction. Legacy
+  `polisyos.lex.simulator` imports and CLI use this same canonical owner.
 
 ## Public API
 

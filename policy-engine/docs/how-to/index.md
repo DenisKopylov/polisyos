@@ -1,59 +1,66 @@
 # How-to Guides
 
-Практические рецепты для конкретных задач. Если вы только подключаетесь к
-репозиторию, начните с [Contributor Start Here](../reference/contributor-start-here.md).
-Для общего понимания продукта и его границ используйте архитектурные документы,
-связанные на странице для contributors; здесь собраны шаги для уже выбранной задачи.
+Task-focused procedures for work you have already scoped. If you are new to the
+repository, start with [Contributor Start Here](../reference/contributor-start-here.md).
+For the product's goals and boundaries, follow the architecture pages linked
+from the contributor guide; this section covers steps for a selected task.
 
-Для первого прохода используйте маршрут [Contributor Start Here](../reference/contributor-start-here.md)
+For an initial reading route, use [Contributor Start Here](../reference/contributor-start-here.md)
 → [Getting Started](../tutorials/getting-started.md) → [Onboarding Tracks](onboarding/index.md)
-→ нужный recipe ниже → ближайший reference/package README. Tutorials демонстрируют отдельные
-surfaces; они не являются доказательством функционального E2E policy flow или готовой к
-публикации рекомендации.
+→ the relevant recipe below → the nearest reference or package README. Tutorials
+demonstrate individual surfaces; they do not prove a functional end-to-end policy
+flow or a recommendation ready for publication.
 
-## Подготовить окружение и выбрать путь
+Repository documentation is authored in English as its sole official language.
+See the [Documentation Language Policy](../reference/documentation-language.md)
+for translation and localization rules, the [Reader Vocabulary and Search
+Routes](../reference/reader-vocabulary.md) for canonical destinations, and
+[Evaluate Documentation Usability](evaluate-documentation-usability.md) for a
+human-study protocol. The protocol has not yet been run with human participants.
 
-| Задача | Guide | Что покрывает |
+## Prepare the environment and choose a path
+
+| Task | Guide | Coverage |
 | --- | --- | --- |
-| Установка Python, docs или frontend toolchain | [Installation](install.md) | Профили bootstrap, prerequisites и troubleshooting |
-| Выбрать путь для своей роли | [Onboarding Tracks](onboarding/index.md) | Backend, frontend, platform, security и domain/policy tracks |
-| Перенести старую ветку на текущие контракты | [Post-Refactor Migration](post-refactor-migration.md) | Trinity, public surface, runtime contracts и path-aware docs checks |
+| Install the Python, documentation, or frontend toolchain | [Installation](install.md) | Bootstrap profiles, prerequisites, and troubleshooting |
+| Choose a path for your role | [Onboarding Tracks](onboarding/index.md) | Backend, frontend, platform, security, and domain/policy tracks |
+| Migrate an older branch to current contracts | [Post-Refactor Migration](post-refactor-migration.md) | Trinity, public surface, runtime contracts, and path-aware documentation checks |
 
-## Добавить или изменить поверхность продукта
+## Add or change a product surface
 
-| Задача | Guide | Что покрывает |
+| Task | Guide | Coverage |
 | --- | --- | --- |
-| Добавить runtime endpoint | [Add Runtime Route](add-runtime-route.md) | Scaffold, app wiring, OpenAPI и client checks |
-| Добавить поддерживаемый Python import path | [Add Public Facade](add-public-facade.md) | `__all__`, facade ownership и public-surface guardrails |
-| Добавить IR type с schema lifecycle | [Add Schema-Backed IR Type](add-schema-backed-ir-type.md) | Model/enum, schema catalog и ABI snapshot |
-| Подключить data source или Fabric connector | [Add Data Source](add-data-source.md) | Connector registration и profile |
-| Обновить dashboard API client | [Update Runtime Dashboard API Client](update-runtime-dashboard-api-client.md) | OpenAPI → generated client → dashboard types |
-| Добавить Scientist governance pass | [Write Governance Pass](write-governance-pass.md) | Pass registration и blocker/warning semantics |
-| Обновить схемы и API snapshots | [Manage Schemas](manage-schemas.md) | ABI snapshots, OpenAPI export и drift checks |
+| Add a runtime endpoint | [Add Runtime Route](add-runtime-route.md) | Scaffold, app wiring, OpenAPI, and client checks |
+| Add a supported Python import path | [Add Public Facade](add-public-facade.md) | `__all__`, facade ownership, and public-surface guardrails |
+| Add an IR type with a schema lifecycle | [Add Schema-Backed IR Type](add-schema-backed-ir-type.md) | Model/enum, schema catalog, and ABI snapshot |
+| Connect a data source or Fabric connector | [Add Data Source](add-data-source.md) | Connector registration and profile |
+| Update the dashboard API client | [Update Runtime Dashboard API Client](update-runtime-dashboard-api-client.md) | OpenAPI → generated client → dashboard types |
+| Add a Scientist governance pass | [Write Governance Pass](write-governance-pass.md) | Pass registration and blocker/warning semantics |
+| Update schemas and API snapshots | [Manage Schemas](manage-schemas.md) | ABI snapshots, OpenAPI export, and drift checks |
 
-## Запустить и сопровождать систему
+## Run and operate the system
 
-| Задача | Guide | Что покрывает |
+| Task | Guide | Coverage |
 | --- | --- | --- |
-| Развернуть Runtime API | [Deploy Runtime](deploy-runtime.md) | App factory, config, dashboard и production notes |
-| Выполнить run или ingestion через control plane | [Use Control Plane](use-control-plane.md) | Run/ingest/Lex операции, jobs, workers и outbox |
-| Диагностировать неудачный run | [Debug Failed Run](debug-failed-run.md) | Timeline, lineage и control-plane state |
-| Выполнить causal analysis | [Run Causal Analysis](run-causal-analysis.md) | Discovery, identification, bounds, sensitivity и strategic response |
-| Настроить Lex pipeline | [Configure Lex Pipeline](configure-lex-pipeline.md) | Stage-level и control-plane сценарии |
-| Запустить benchmarks | [Run Benchmarks](run-benchmarks.md) | Benchmark registry и report artifacts |
+| Deploy the Runtime API | [Deploy Runtime](deploy-runtime.md) | App factory, configuration, dashboard, and production notes |
+| Run or ingest through the control plane | [Use Control Plane](use-control-plane.md) | Run/ingest/Lex operations, jobs, workers, and outbox |
+| Diagnose a failed run | [Debug Failed Run](debug-failed-run.md) | Timeline, lineage, and control-plane state |
+| Perform causal analysis | [Run Causal Analysis](run-causal-analysis.md) | Discovery, identification, bounds, sensitivity, and strategic response |
+| Configure the Lex pipeline | [Configure Lex Pipeline](configure-lex-pipeline.md) | Stage-level and control-plane procedures |
+| Run benchmarks | [Run Benchmarks](run-benchmarks.md) | Benchmark registry and report artifacts |
 
-## Проверить и выпустить изменение
+## Verify and release a change
 
-| Задача | Guide | Что покрывает |
+| Task | Guide | Coverage |
 | --- | --- | --- |
-| Изменить CI/CD или release workflow | [Operate the CI/CD Platform](operate-ci-cd-platform.md) | Canonical workflows, required checks и supply-chain policy |
-| Проверить migration или rollout | [Review Migrations and Rollouts](review-rollouts.md) | Migration class, rollout checklist, rollback и owner |
-| Изменить committed generated output | [Manage Generated Artifacts](manage-generated-artifacts.md) | Lifecycle map, regeneration и approval owners |
-| Изменить version/deprecation policy | [Release, Versioning, and Deprecation Policy](release-policy.md) | Version namespaces, deprecation windows и migration guides |
-| Применить GitHub labels и branch rules | [Apply GitHub Governance](apply-github-governance.md) | Ручной UI checklist для tracked governance |
+| Change CI/CD or a release workflow | [Operate the CI/CD Platform](operate-ci-cd-platform.md) | Canonical workflows, required checks, and supply-chain policy |
+| Review a migration or rollout | [Review Migrations and Rollouts](review-rollouts.md) | Migration class, rollout checklist, rollback, and owner |
+| Change a committed generated output | [Manage Generated Artifacts](manage-generated-artifacts.md) | Lifecycle map, regeneration, and approval owners |
+| Change versioning or deprecation policy | [Release, Versioning, and Deprecation Policy](release-policy.md) | Version namespaces, deprecation windows, and migration guides |
+| Apply GitHub labels and branch rules | [Apply GitHub Governance](apply-github-governance.md) | Manual UI checklist for tracked governance |
 
-Для документации используйте [Documentation Style Guide](../style-guide.md) и
-docs-only workflow на странице [Contributor Start Here](../reference/contributor-start-here.md).
-Там же указаны профиль `docs`, targeted Markdown lint, strict MkDocs build и
-docs-accuracy check; path-aware `check-docs-gate` выбирает дополнительные проверки
-по изменённым путям.
+For documentation changes, use the [Documentation Style Guide](../style-guide.md)
+and the documentation-only workflow in [Contributor Start Here](../reference/contributor-start-here.md).
+That page also identifies the `docs` profile, targeted Markdown lint, strict
+MkDocs build, and documentation-accuracy check; the path-aware
+`check-docs-gate` selects additional checks based on changed paths.

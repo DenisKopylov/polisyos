@@ -1,22 +1,22 @@
 # Kernel (`polisyos.scientist.orchestration.kernel`)
 
-`kernel` содержит lightweight orchestration primitives Scientist: phase FSM,
-budget models и typed human-gate protocol, который связывает runtime governance
-с canonical gate artifacts.
+`kernel` contains lightweight Scientist orchestration primitives: a phase FSM,
+budget models, and a typed human-gate protocol that connects runtime governance
+to canonical gate artifacts.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `ir.governance.gate`
-- **Используется в:** `scientist.governance`, builtin governance nodes, orchestration guards
-- Пакет небольшой, но критичен для phase transitions и human-review lifecycle.
+- **Depends on:** `ir.governance.gate`
+- **Used by:** `scientist.governance`, built-in governance nodes, and orchestration guards
+- The package is small but critical to phase transitions and the human-review lifecycle.
 
-## Ключевые концепции
+## Key concepts
 
-- **Phase FSM** — допустимые переходы orchestration phases.
+- **Phase FSM** — allowed orchestration-phase transitions.
 - **KernelState** — minimal phase-state carrier.
-- **Guards** — helpers для phase advance и artifact requirements.
-- **HumanGateProtocol** — typed request/decision persistence path для human review.
-- **Budget models** — compute/evidence/legitimacy/complexity envelopes для orchestration.
+- **Guards** — helpers for phase advancement and artifact requirements.
+- **HumanGateProtocol** — typed request/decision persistence path for human review.
+- **Budget models** — compute/evidence/legitimacy/complexity envelopes for orchestration.
 
 ## Public API
 
@@ -24,11 +24,11 @@ budget models и typed human-gate protocol, который связывает ru
 - `advance_phase(...)`
 - `gate_protocol.py` and `budgets.py` provide the supporting human-gate and budget models
 
-Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-14
+- Last updated: 2026-10-14
 - Python modules: 5 direct `.py` modules in this package.
 - Public surface: imported symbols in `__init__.py` plus `gate_protocol.py`/`budgets.py`
-- README расширен: раньше пакет был описан слишком минимально относительно его runtime роли
+- The README was expanded because the previous description understated the package's runtime role.

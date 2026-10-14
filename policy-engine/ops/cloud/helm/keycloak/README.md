@@ -1,41 +1,41 @@
 # keycloak chart
 
-Baseline chart для Keycloak (OIDC identity provider) в PolicyOS.
+Baseline Helm chart for Keycloak, the OIDC identity provider used by PolicyOS.
 
-## Роль в системе
+## Role in the System
 
-- выдает JWT/OIDC identity для пользовательских и сервисных вызовов;
-- используется runtime security-слоем для проверки tenant/role/MFA claims.
+- issues JWT/OIDC identities for user and service calls;
+- is used by the runtime security layer to validate tenant, role, and MFA claims.
 
-## Что разворачивает
+## Resources Deployed
 
-- `Namespace` (`infra` по умолчанию);
+- `Namespace` (`infra` by default);
 - `StatefulSet` `keycloak`;
-- `Service` `keycloak` (порт `8080` по умолчанию).
+- `Service` `keycloak` (port `8080` by default).
 
-## Основные values
+## Main Values
 
-| Value                               | По умолчанию                       | Назначение                 |
+| Value                               | Default                            | Purpose                    |
 | ----------------------------------- | ---------------------------------- | -------------------------- |
-| `namespace`                         | `infra`                            | namespace установки        |
-| `replicas`                          | `1`                                | количество pod'ов          |
-| `image`                             | `quay.io/keycloak/keycloak:26.0.7` | образ Keycloak             |
-| `service.port`                      | `8080`                             | HTTP-порт                  |
+| `namespace`                         | `infra`                            | Installation namespace     |
+| `replicas`                          | `1`                                | Number of pods             |
+| `image`                             | `quay.io/keycloak/keycloak:26.0.7` | Keycloak image             |
+| `service.port`                      | `8080`                             | HTTP port                  |
 | `admin.username` / `admin.password` | `admin` / `change-me`              | bootstrap admin credential |
 | `resources.*`                       | preset                             | requests/limits            |
 
-## Ограничения baseline
+## Baseline Limitations
 
-- запускается в `start-dev` режиме;
-- нет ingress/TLS/persistence/HA;
-- admin password хранится в `values.yaml` (для production нужен Secret/Vault flow).
+- runs in `start-dev` mode;
+- has no ingress, TLS, persistence, or HA;
+- the admin password is stored in `values.yaml` (production requires a Secret/Vault flow).
 
-## Связи с другими директориями
+## Related Directories
 
-- `src/polisyos/core/security/identity.py` — runtime JWT validation и обязательные claims.
-- `ops/cloud/helm/spire` — дополняет identity plane для mTLS/SPIFFE сценариев.
+- `src/polisyos/core/security/identity.py` — runtime JWT validation and required claims.
+- `ops/cloud/helm/spire` — extends the identity plane for mTLS/SPIFFE scenarios.
 
-## Быстрые команды
+## Quick Commands
 
 ```bash
 helm template keycloak policy-engine/ops/cloud/helm/keycloak

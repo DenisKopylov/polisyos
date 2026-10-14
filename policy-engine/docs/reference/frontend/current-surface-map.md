@@ -16,20 +16,16 @@ Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 
 The declared source set differs from the separately observed E02 commit. This page still describes its inspected source pin; its affected claims require [re-review after integration](../e02-documentation-snapshot.md#source-drift-in-handbook-maps).
 
-This is a manual source-and-test map for the frontend in the pinned repository
-snapshot. Source files and test cases below were inspected; no tests were run,
-and no browser or server was started. The map therefore does not establish
-runtime availability, rendered appearance, visual behavior, or deployed data.
-The source pin scopes only the declared tracked paths: a source-binding result
-can establish stored Git bytes and modes for those paths, not that this set
-covers every claim or that tests, prose references, transitive dependencies,
-or deployed behavior are current.
-For change ownership, generated-output procedure, and validation commands,
-continue through the [Frontend reference index](index.md). Recheck this map
-against a new source pin when route/workspace or flag declarations, ownership
-or generated-output registration, API contracts or generators,
-permission/verification behavior, or audience projections change; the date
-and pin below describe only the inspected snapshot.
+This map records the pinned route and workspace registries, generated API-client
+flow, and source-mapped candidate, status, and authority surfaces. Route and
+workspace visibility rules do not establish server authorization or prove that
+each feature has a complete end-to-end producer, verification, and authority
+path. Source and test references below were inspected, but no tests were run, no
+browser or server was started, and deployed behavior was not checked; treat this
+as a source map rather than runtime evidence. For ownership and generated-output
+procedure, use the [Frontend reference index](index.md); for operation shapes use
+the [REST API reference](../api/index.md), and for frontend change workflow use
+the [frontend engineer onboarding guide](../../how-to/onboarding/frontend-engineer.md).
 
 ## Route And Workspace Shape
 

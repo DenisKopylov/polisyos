@@ -1,10 +1,10 @@
 # Testing Tools
 
-`tools/quality/testing` содержит Phase 4 tooling для локального smoke path и экономики тестов.
+`tools/quality/testing` contains Phase 4 tooling for the local smoke path and test-suite economics.
 
-## Команды
+## Commands
 
-Рабочая директория: `policy-engine/`.
+Working directory: `policy-engine/`.
 
 ### Local integration stack
 
@@ -13,12 +13,12 @@ uv run python tools/quality/testing/local_integration_stack.py up
 uv run python tools/quality/testing/local_integration_stack.py smoke
 ```
 
-Что делает:
+What it does:
 
-- поднимает fixture-backed Runtime API на `127.0.0.1:8000`;
-- поднимает dashboard dev server на `127.0.0.1:5173`;
-- проверяет `/health`, корневую страницу dashboard и proxy health на `/api/v1/health`;
-- в режиме `smoke` запускает `corepack pnpm run test:e2e:smoke` и затем корректно останавливает стек.
+- starts a fixture-backed Runtime API on `127.0.0.1:8000`;
+- starts the dashboard development server on `127.0.0.1:5173`;
+- checks `/health`, the dashboard root page, and proxy health at `/api/v1/health`;
+- in `smoke` mode, runs `corepack pnpm run test:e2e:smoke` and then shuts down the stack cleanly.
 
 ### Test economics report
 
@@ -31,11 +31,11 @@ uv run python tools/quality/testing/report_test_economics.py \
   --output _build/.tmp/test-reports/test-economics-summary.md
 ```
 
-Что рендерит:
+What it renders:
 
-- totals по suite lanes;
+- totals by suite lane;
 - top slowest tests;
-- active/expired quarantines из `tests/quarantine.toml`.
+- active and expired quarantines from `tests/quarantine.toml`.
 
 ## Local production-data status
 
@@ -56,11 +56,11 @@ close the capability-graph replay requirements.
 uv run python tools/quality/testing/check_playwright_quarantines.py
 ```
 
-Что валидирует:
+What it validates:
 
-- каждый `@flaky` / `@quarantine` Playwright test имеет запись в `tests/quarantine.toml`;
-- selector для `runner = "playwright"` совпадает с полным tagged title теста;
-- в registry нет устаревших Playwright selectors, которые больше ни на что не указывают.
+- each `@flaky` / `@quarantine` Playwright test has an entry in `tests/quarantine.toml`;
+- the selector for `runner = "playwright"` matches the test's full tagged title;
+- the registry contains no stale Playwright selectors that match nothing.
 
 ### E11 review freeze and batch gate
 
@@ -225,18 +225,18 @@ uv run python tools/quality/testing/mutation.py --suite scientist --target all
 uv run python tools/quality/testing/mutation.py --suite foundry --target results
 ```
 
-Что делает:
+What it does:
 
-- предоставляет canonical mutation-testing surface через `polisyos-tools`;
-- запускает `mutmut` по reviewed Foundry/Scientist target maps;
-- считает kill rate и валидирует threshold в одном месте.
+- exposes the canonical mutation-testing surface through `polisyos-tools`;
+- runs `mutmut` against reviewed Foundry/Scientist target maps;
+- calculates the kill rate and validates the threshold in one place.
 
 ## Sharding guidance
 
-Инструменты раннеров уже поддерживают нативное шардирование:
+The test runners already support native sharding:
 
-- `pytest`: шардировать по top-level directories и historical durations;
+- `pytest`: shard by top-level directory and historical duration;
 - `vitest`: `vitest --shard=<index>/<count>`;
 - `playwright`: `playwright test --shard=<index>/<count>`.
 
-Политика и рекомендуемые границы описаны в [`tests/TESTING_POLICY.md`](../../../tests/TESTING_POLICY.md).
+The policy and recommended boundaries are described in [`tests/TESTING_POLICY.md`](../../../tests/TESTING_POLICY.md).

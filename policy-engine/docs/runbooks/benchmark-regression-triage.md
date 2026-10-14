@@ -3,8 +3,8 @@
 Related how-to: [Run Benchmarks](../how-to/run-benchmarks.md). Related reference:
 [Foundry](../reference/foundry/index.md).
 
-> Используйте этот runbook, когда benchmark suite начинает проигрывать по
-> quality, latency, stability, comparator completeness или release gate result.
+> Use this runbook when a benchmark suite regresses in
+> quality, latency, stability, comparator completeness, or release-gate results.
 
 Owner: `@foundry-owners`
 Historical validation receipt (as recorded by this page): `2026-04-17` — benchmark and release-gate evidence surfaces available at that time; this is not a fresh validation.
@@ -13,77 +13,77 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 
 ## Symptom
 
-- smoke или extended benchmark reports показывают lower pass rate;
-- release summary или comparator matrix ухудшаются по suite/circuit;
-- benchmark JSON output отличается между двумя одинаковыми runs без
-  оправданной nondeterminism note;
+- Smoke or extended benchmark reports show a lower pass rate;
+- The release summary or comparator matrix worsens for a suite or circuit;
+- Benchmark JSON output differs between two otherwise identical runs without
+  a justified nondeterminism note;
 
-- regression попадает в local validation, nightly pack или release review.
+- The regression appears in local validation, the nightly pack, or release review.
 
 ## Likely Causes
 
-- change в Foundry/Scientist/Fabric logic ухудшил factual metrics;
-- dependency/toolchain bump изменил numerics, runtime cost или JIT behavior;
-- baseline snapshot устарел или был заменён без явной фиксации;
-- comparator, ablation или shadow evidence path перестал быть complete;
-- regression связана не с model quality, а с data or fixture drift.
+- A change to Foundry, Scientist, or Fabric logic degraded factual metrics;
+- A dependency or toolchain bump changed numerics, runtime cost, or JIT behavior;
+- The baseline snapshot is stale or was replaced without an explicit record;
+- A comparator, ablation, or shadow-evidence path is no longer complete;
+- The regression comes from data or fixture drift rather than model quality.
 
 ## Timeline Capture Expectations
 
-Зафиксируйте:
+Record:
 
-- suite ID, circuit, mode, profile и report path;
-- baseline report и candidate report;
+- The suite ID, circuit, mode, profile, and report path;
+- The baseline report and candidate report;
 - commit SHA, environment, seed/profile if relevant;
 - regression type: pass rate, latency, NaN rate, comparator completeness,
   release gate, memory/cost;
 
-- был ли regression замечен локально, в nightly или в release review.
+- Whether the regression was detected locally, in the nightly pack, or during release review.
 
 ## First Triage Steps
 
-1. Повторите failing suite через canonical registry-backed runner:
+1. Rerun the failing suite with the canonical registry-backed runner:
 
    ```bash
    cd policy-engine
    uv run polisyos-tools benchmarks run-all --circuit <suite-or-circuit> --mode smoke
    ```
 
-2. Если regression выглядит performance-specific, запустите узкий pytest path
-   или benchmark-specific test рядом с suite family.
-3. Сравните generated JSON reports, а не только console summary.
-4. Проверьте, не затронуты ли одновременно:
+2. If the regression appears performance-specific, run a narrow pytest path
+   or a benchmark-specific test next to the suite family.
+3. Compare generated JSON reports, not only the console summary.
+4. Check whether any of these changed at the same time:
 
    - dependency upgrades;
    - schema/contract refresh;
    - replay/data fixture drift;
    - observability or instrumentation overhead.
-5. Если regression user-visible only after aggregation, rebuild release summary
-   и comparator completeness, а не делайте вывод по одному suite.
+5. If the regression becomes visible to users only after aggregation, rebuild the release summary
+   and comparator-completeness results; do not draw a conclusion from one suite alone.
 
 ## Rollback / Mitigation
 
-- если regression severe и confirmed, не повышайте candidate в release;
-- если regression caused by recent merge, откатите offending change или
-  temporarily pin feature flag/profile;
+- If the regression is severe and confirmed, do not promote the candidate to release;
+- If a recent merge caused the regression, revert the offending change or
+  temporarily pin the feature flag or profile;
 
-- если regression only on one benchmark family, ограничьте blast radius и не
-  останавливайте unrelated work без evidence;
+- If only one benchmark family regressed, limit the blast radius and do not
+  stop unrelated work without evidence;
 
-- если baseline устарел, обновление baseline допустимо только после явного
-  review и rationale.
+- If the baseline is stale, update it only after explicit
+  review and recording the rationale.
 
 ## Escalation Owner
 
 - primary: `@foundry-owners`;
-- supporting: owner затронутого subsystem surface
+- Supporting: the owner of the affected subsystem surface
   (`@scientist-owners`, `@fabric-owners`, `@platform-owners`).
 
 ## Follow-up Checklist
 
-- regression подтверждена повторным run на canonical runner;
-- baseline и candidate artifacts preserved;
-- root cause классифицирован как code, data, dependency, tooling или baseline drift;
+- The regression was confirmed by a rerun on the canonical runner;
+- Baseline and candidate artifacts were preserved;
+- The root cause was classified as code, data, dependency, tooling, or baseline drift;
 - benchmark registry / release summary / docs updated if expectations changed;
 - added targeted regression coverage if blind spot was discovered.
 
@@ -91,15 +91,15 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 
 ### What Went Well
 
-- какой suite или metric first exposed the regression;
-- что помогло быстро локализовать источник;
-- насколько reproducible оказался benchmark path.
+- Which suite or metric first exposed the regression;
+- What helped locate the source quickly;
+- How reproducible the benchmark path was.
 
 ### What Went Poorly
 
-- где suite semantics или report format были неочевидны;
-- какие baseline assumptions не были записаны явно;
-- была ли путаница между benchmark drift и expected product evolution.
+- Where suite semantics or report formats were unclear;
+- Which baseline assumptions were not recorded explicitly;
+- Whether benchmark drift was confused with expected product evolution.
 
 ### Action Items
 

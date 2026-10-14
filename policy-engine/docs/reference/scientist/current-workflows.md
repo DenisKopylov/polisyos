@@ -17,16 +17,16 @@ complete claim coverage. The direct-reference policy-grounding source census was
 documentation author with the command below: 628 Python files under
 `policy-engine/src/polisyos/scientist`.
 
-This page records observed runtime paths and their current boundaries. The inspected implementation is
-not a demonstrated end-to-end policy-proof system: the request-to-Trinity producer is missing, the
-builtin workflow does not consume the grounding matrix, and default Claim-owner currentness is not
-established. A typed component or focused test does not establish a complete
-producer/artifact/bridge/consumer/surface chain. It complements [the Scientist index](index.md), [the
-workflow engine reference](workflows.md), and [the claim spine reference](claims.md), plus [Claim Ledger
-lifecycle](claim-ledger.md), [Research DAG replay](research-dag-replay.md), [source quality
-calibration](source-quality-calibration.md), and [Foundry compile and
-execute](../foundry/compile-execute.md). The workflow reference remains the deeper DAG catalog; this page
-focuses on state transitions, evidence handoffs, freshness boundaries, and integration status.
+This page traces selected Scientist request-routing, workflow-state, and evidence-handoff paths at the
+source pin above. The inspected implementation is not an end-to-end policy-proof system: request-to-Trinity
+production is missing, the builtin workflow does not consume the grounding matrix, and default Claim-owner
+currentness is not established; a typed component or focused test does not establish the complete
+producer/artifact/bridge/consumer/surface chain. Use this page for observed transitions, evidence handoffs,
+freshness, and integration boundaries; [Workflow Engine](workflows.md) and [Builtin Nodes](nodes.md) contain
+the deeper DAG and node catalogs. For claim support and current-head authority, continue to [Claims](claims.md)
+and [Claim Ledger](claim-ledger.md); for source freshness and replay, see [Source Quality Calibration](source-quality-calibration.md)
+and [Research DAG replay](research-dag-replay.md). Follow [Foundry Compile and Execute](../foundry/compile-execute.md)
+for the compile/bind/execute handoff.
 
 ## Run routing and state machines
 

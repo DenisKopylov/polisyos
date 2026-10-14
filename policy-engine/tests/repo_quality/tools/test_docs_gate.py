@@ -26,6 +26,44 @@ def _finding_ids(plan) -> set[str]:
     return {finding.rule_id for finding in plan.findings}
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "architecture/tooling/mkdocs/nav/30-reference.yml",
+        "architecture/tooling/mkdocs/base.yml",
+        "architecture/tooling/mkdocs/validation.yml",
+        "architecture/tooling/mkdocs/exclude_docs.yml",
+        "architecture/tooling/mkdocs/generated.yml",
+        "mkdocs.yml",
+    ],
+)
+def test_publication_config_changes_run_accuracy_and_strict_build(path: str) -> None:
+    plan = build_gate_plan((path,))
+
+    assert tuple(command.key for command in plan.commands) == (
+        "docs_lifecycle",
+        "tool_configs",
+        "docs_accuracy",
+        "strict_docs_build",
+    )
+    assert plan.findings == ()
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "architecture/tooling/ruff/workspace_root.toml",
+        "architecture/tooling/mypy/workspace_root.ini",
+        "architecture/tooling/tool_config_split.toml",
+    ],
+)
+def test_unrelated_tooling_config_changes_keep_their_existing_gate_plan(path: str) -> None:
+    plan = build_gate_plan((path,))
+
+    assert tuple(command.key for command in plan.commands) == ("tool_configs",)
+    assert plan.findings == ()
+
+
 def test_runtime_http_changes_require_runtime_api_evidence() -> None:
     plan = build_gate_plan(("src/polisyos/runtime/http/app.py",))
 
@@ -127,9 +165,7 @@ def test_security_sensitive_changes_require_docs_and_runbook_evidence() -> None:
 
 
 def test_frontend_api_client_changes_run_contract_check_and_require_docs() -> None:
-    missing_docs = build_gate_plan(
-        ("packages/runtime-api-client/canonicalRuntimeApiClient.ts",)
-    )
+    missing_docs = build_gate_plan(("packages/runtime-api-client/canonicalRuntimeApiClient.ts",))
     with_docs = build_gate_plan(
         (
             "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -144,9 +180,7 @@ def test_frontend_api_client_changes_run_contract_check_and_require_docs() -> No
 
 
 def test_production_quality_maturity_reference_is_published_in_nav() -> None:
-    nav_source = (
-        REPO_ROOT / "architecture" / "tooling" / "mkdocs" / "nav" / "30-reference.yml"
-    )
+    nav_source = REPO_ROOT / "architecture" / "tooling" / "mkdocs" / "nav" / "30-reference.yml"
 
     assert (
         "Production Quality Maturity: reference/runtime/production-quality-maturity.md"
@@ -308,9 +342,7 @@ def test_docstring_quality_resolves_reexported_submodule_without_recursion(
         encoding="utf-8",
     )
     (package_root / "__init__.py").write_text(
-        '"""Example facade package."""\n'
-        "from . import foo\n\n"
-        "__all__ = ['foo']\n",
+        '"""Example facade package."""\nfrom . import foo\n\n__all__ = [\'foo\']\n',
         encoding="utf-8",
     )
     (package_root / "foo.py").write_text(

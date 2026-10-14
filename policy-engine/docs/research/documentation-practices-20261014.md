@@ -5,9 +5,20 @@
 
 ## Scope and standing
 
-This review uses the assigned baseline `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on
-`codex/docs-refresh-e02-20261014`. The worktree already contains unrelated documentation edits;
-they were not used as evidence for the baseline comparison and are outside this note's scope.
+The initial comparison used the assigned source snapshot
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`. This third pass was read on branch
+`codex/docs-refresh-e02-20261014` at `47e1e59b569a5b922611f71a7f53fb6320abea4c` on
+2026-10-14. The worktree has concurrent documentation edits. I read the current
+working copy of `docs/style-guide.md` as coordination context, not as a committed or
+ratified rule; no other concurrent edits are treated as authority by this note.
+
+The local pin identifies the source snapshot inspected, not proof that every
+implementation map is current. In particular, [`docs/index.md`](../index.md) pins its
+implementation maps to `bafca83…`; this pass does not refresh those maps or turn them
+into current runtime evidence. The cited URLs and access date identify external guidance
+consulted for recommendations; they are not immutable pins and do not ratify local rules.
+Local adoption still requires the repository's existing owner and decision path; this
+research note changes no local policy or capability.
 
 The repo's own instructions and accepted decisions govern PolicyOS. External documentation guidance
 below is evidence for recommendations, not authority to replace local rules. ADR-0126 is relevant but
@@ -45,6 +56,12 @@ research-only artifact. A contract can be reference-like while its authority com
 schema or runtime consumer. The current style guide's “one of four types” rule is easiest to apply if
 it describes the primary reader purpose of a page, while the existing artifact directories continue
 to identify record role and lifecycle.
+
+The current working copy of `docs/style-guide.md` adds a change-triggered review and evidence-binding
+section. Its narrow approach—revisit affected claims after a source change, bind consequential
+claims to the minimum relevant source pin, finding, or measurement scope, and preserve primary
+records—is consistent with the recommendations below. Since that file is modified in the worktree,
+this note treats the addition as an in-progress local proposal, not an adopted rule.
 
 The publication boundary is also explicit. `policy-engine/mkdocs.yml` inherits the generated
 `architecture/tooling/mkdocs/generated.yml`, which is itself produced from the source fragments
@@ -104,6 +121,51 @@ reference ([GitHub reference content type](https://docs.github.com/en/contributi
 Together these support keeping publication and generation decisions in their existing source
 fragments and generators, with each generated page pointing to its source and regeneration command.
 
+## Small practices current owners can reuse
+
+These are advisory techniques that fit the existing layout; they do not create new page classes,
+metadata fields, reviewer roles, or release gates.
+
+1. **Open with the reader's job.** For a substantial page, state who it serves, what question or task
+   it covers, and the expected outcome. Name important prerequisites or exclusions where readers
+   could reasonably expect coverage. Then order sections around that route. Google recommends
+   defining audience, scope, and outcomes before organizing a document; Diátaxis distinguishes
+   learning, task completion, lookup, and understanding as separate needs
+   ([Google: documents](https://developers.google.com/tech-writing/one/documents),
+   [Google: audience](https://developers.google.com/tech-writing/one/audience),
+   [Diátaxis](https://www.diataxis.fr/start-here/)).
+2. **Review facts at their source-change boundary.** When code, schema, API, generator, or decision
+   material changes, follow the affected claims to their existing owner and update or qualify only
+   those claims. Keeping docs changes with, or linked closely to, the source change makes review
+   examples and behavior together easier. GitLab documents that workflow in its own project; PolicyOS
+   should reuse its current local owners and review paths rather than importing GitLab's staffing or
+   process requirements ([GitLab documentation workflow](https://docs.gitlab.com/development/documentation/workflow/)).
+3. **Carry a small evidence envelope, not a new schema.** For a claim whose truth depends on a
+   particular source state, include the source and immutable snapshot; for an audit or decision,
+   cite the primary record and finding; for a measurement, state method, denominator, and read limits.
+   Keep edit time, verification time, and the time of the described state distinct when the difference
+   matters. W3C PROV provides a useful mental model for source entity, revision activity, responsible
+   agent, and time; it does not justify copying PROV's ontology into every page. This matches the
+   minimum-evidence intent of the current working-tree style-guide section
+   ([W3C PROV Primer](https://www.w3.org/TR/prov-primer/)).
+4. **Route by question before adding hierarchy.** Prefer the existing landing and subsystem indexes,
+   use link text that names the destination, and group an index by the question a reader is trying to
+   answer. Add a deeper level or another index only when a concrete reader route needs it. GitHub's
+   content model describes the tradeoff: excessive depth slows navigation, while excessive breadth
+   makes choices harder to assess; Google also notes that readers use both site search and in-page
+   search ([GitHub content model](https://docs.github.com/en/contributing/style-guide-and-content-model/about-the-content-model),
+   [Google: large documents](https://developers.google.com/tech-writing/two/large-docs)).
+5. **Keep generated facts attached to their owner.** Use generated reference for facts with a
+   canonical machine-readable source and regeneration path. Put interpretation, rationale, and
+   procedures in authored pages that link to that reference. Keep publication decisions in the
+   existing MkDocs source configuration; `nav` and `exclude_docs` govern distinct parts of that
+   surface ([MkDocs configuration](https://www.mkdocs.org/user-guide/configuration/),
+   [GitHub reference content](https://docs.github.com/en/contributing/style-guide-and-content-model/reference-content-type)).
+
+For PolicyOS, these practices are recommendations for owners to consider through the existing local
+style-guide and review paths. A cited recommendation is not an implementation receipt: a local claim
+about behavior still needs a pinned local source and a check whose method actually covers that claim.
+
 ## Reuse-first recommendation
 
 For the current docs refresh, retain the existing directory layout and update the affected page or
@@ -143,26 +205,14 @@ Useful acceptance signals for an individual documentation change are:
 These are proposed review signals that reuse existing checks and fields. They do not require a new
 gate, metadata type, or documentation subsystem.
 
-## Optional larger restructure — approval required
+## Larger changes are not recommended by this pass
 
-If measured reader or contributor failures show that the current separation is not navigable, the
-larger option is to formalize a two-axis content model in the style guide and generate a single
-cross-link index from the existing ADR, research, plan, contract, and reference inventories. Keep
-Diátaxis as the reader-purpose axis and use the existing artifact status/source/owner data for the
-record axis. Consider physical file moves only if the evidence shows the existing paths themselves
-cause the failure.
-
-Potential benefit: one entrypoint could make a claim's reader explanation, authoritative contract,
-decision history, generator, and verification signal easier to follow as a chain. Costs: changing
-the canonical style rule or ADR-0126 needs owner review; a new registry and gate add maintenance;
-renaming or moving files creates link, anchor, index, generated-navigation, and historical-reference
-work; a second taxonomy can obscure ownership if it duplicates existing metadata. A broad hierarchy
-can also trade one kind of navigation burden for another, as the GitHub content model cautions.
-
-Do not start that migration from directory size or an assumed “SOTA” target. First collect a complete
-path inventory with file-type denominators and concrete reader failures; then ask the docs owner and
-principal whether ADR-0126 should be accepted, amended, or rejected. If approved, use that decision
-as the migration boundary and preserve existing record identity and supersession history.
+This review found no reader-task evidence that would justify another taxonomy, registry, gate, or
+broad path migration. If an owner later observes a concrete navigation failure, record the reader's
+question, current route, and where it breaks; then ask the docs owner whether the existing index or
+ADR-0126 needs review. A change to publication scope or canonical paths needs the appropriate owner
+decision. Before such a change, account for inbound links, anchors, navigation, generated references,
+and historical citations. Do not infer a migration need from page count or directory shape alone.
 
 ## Pattern pass
 
@@ -182,19 +232,29 @@ as the migration boundary and preserve existing record identity and supersession
 
 ## Sources
 
-Repository sources read for this review: `AGENTS.md`, `policy-engine/CONTRIBUTING.md`,
+The initial repository pass used `AGENTS.md`, `policy-engine/CONTRIBUTING.md`,
 `policy-engine/docs/style-guide.md`, `policy-engine/docs/index.md`,
-`policy-engine/docs/research/README.md`, `policy-engine/docs/adr/0126-docs-lifecycle-diataxis-plans-archive.md`,
+`policy-engine/docs/research/README.md`,
+`policy-engine/docs/adr/0126-docs-lifecycle-diataxis-plans-archive.md`,
 `policy-engine/docs/reference/documentation-inventory.md`,
 `policy-engine/docs/reference/generated-artifacts.md`,
 `policy-engine/architecture/tooling/mkdocs/generated.yml`,
 `policy-engine/tools/quality/validation/check_docs_accuracy.py`, and
-`policy-engine/tools/quality/validation/check_docs_lifecycle.py`.
+`policy-engine/tools/quality/validation/check_docs_lifecycle.py` at the original
+`bafca83…` comparison snapshot. This third pass additionally read the working-tree copies of
+`policy-engine/docs/style-guide.md`, `policy-engine/docs/index.md`,
+`policy-engine/docs/README.md`, `policy-engine/docs/plans/README.md`,
+`policy-engine/docs/research/README.md`,
+`policy-engine/docs/adr/0126-docs-lifecycle-diataxis-plans-archive.md`, and
+`policy-engine/docs/reference/index.md`. `style-guide.md` was modified in the worktree; the
+uncommitted portion is contextual evidence only, not adopted policy.
 
-External sources were accessed on 2026-10-14:
+Primary external sources accessed on 2026-10-14:
 
 - [Diátaxis primer](https://diataxis.fr/start-here/)
 - [Google technical writing: documents](https://developers.google.com/tech-writing/one/documents)
+- [Google technical writing: audience](https://developers.google.com/tech-writing/one/audience)
+- [Google technical writing: organizing large documents](https://developers.google.com/tech-writing/two/large-docs)
 - [GitHub content model](https://docs.github.com/en/contributing/style-guide-and-content-model/about-the-content-model)
 - [GitHub reference content type](https://docs.github.com/en/contributing/style-guide-and-content-model/reference-content-type)
 - [GitLab documentation workflow](https://docs.gitlab.com/development/documentation/workflow/)

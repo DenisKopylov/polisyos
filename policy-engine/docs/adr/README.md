@@ -37,6 +37,11 @@ System-level design proposals and ratification records are indexed separately in
   establish an accepted or implemented replacement. This is the `P36`
   authority-by-adjacency hazard; see the
   [failure-pattern register](../reference/policy-design-case-failure-patterns.md).
+- Narrative claims inside an ADR, such as "current" or "migrated", are claims
+  in that record, not source verification. To describe behavior as current,
+  follow the source snapshot and verification rules in the
+  [documentation style guide](../style-guide.md) and state the checked source,
+  method, and scope; keep any source drift explicit.
 - The generated relation fields come only from explicit relation labels or a
   `Superseded by ADR-…` status value. Narrative words such as “replaces” do not
   declare a direction. The ADR-0045 → ADR-0064 handoff therefore records only
@@ -47,7 +52,11 @@ System-level design proposals and ratification records are indexed separately in
 - For the system identity and custody boundary, read the
   [system design decision index](../system-design-decisions/README.md) and its
   ratification records; a ratification is authoritative only for the scope
-  named by that record.
+  named by that record. Cite the exact invariant identifier (for example,
+  `S0-K06`) in its
+  [Stage-0 ratification record](../system-design-decisions/stage0-custody-kernel-ratification.md),
+  then check `authoritative_for` and `may_not_use_for`; this index is a route to
+  the finding, not a substitute for it.
 
 ## Required Shape
 

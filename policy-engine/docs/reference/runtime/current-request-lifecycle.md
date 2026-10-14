@@ -1,14 +1,18 @@
 # Current Runtime Request Lifecycle
 
 Owner: `@runtime-owners`
-Source of truth: `policy-engine/src/polisyos/runtime/http/app.py`, `policy-engine/src/polisyos/runtime/http/dependencies.py`, `policy-engine/src/polisyos/runtime/http/authorization.py`, `policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`, `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `policy-engine/src/polisyos/runtime/http/services/control_worker.py`, `policy-engine/src/polisyos/runtime/quality/candidate_firewall.py`, and the linked tests
+Source of truth: `repo:policy-engine/schemas/runtime_api_v1.openapi.json`, `repo:policy-engine/src/polisyos/runtime/http/app.py`, `repo:policy-engine/src/polisyos/runtime/http/dependencies.py`, `repo:policy-engine/src/polisyos/runtime/http/authorization.py`, `repo:policy-engine/src/polisyos/runtime/http/routes/control.py`, `repo:policy-engine/src/polisyos/runtime/http/routes/public_decisions.py`, `repo:policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`, `repo:policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `repo:policy-engine/src/polisyos/runtime/http/services/control_worker.py`, `repo:policy-engine/src/polisyos/runtime/http/services/run_index.py`, `repo:policy-engine/src/polisyos/runtime/quality/candidate_firewall.py`, `repo:policy-engine/src/polisyos/runtime/quality/claim_registry.py`, `repo:policy-engine/src/polisyos/runtime/quality/authority.py`, and the linked tests
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 Validation status: Source and test-reference inspection only for this documentation update; the linked tests and HTTP runtime were not run.
 
 This page traces the current HTTP path from app composition to response or
 durable effect. It describes source-owned behavior; it is not an endpoint
 inventory and it does not grant authority to a route, caller, or response DTO.
-For operation shapes, use the [REST API reference](../api/index.md).
+For schema-described operation shapes, start with the committed
+`policy-engine/schemas/runtime_api_v1.openapi.json` snapshot and the
+[REST API reference](../api/index.md). Route handlers remain the source for
+admission and lifecycle behavior, including routes the snapshot does not
+describe.
 
 ## Lifecycle at a glance
 
@@ -82,10 +86,13 @@ in `policy-engine/src/polisyos/runtime/http/dependencies.py`.
 The app-scoped `policy-engine/src/polisyos/runtime/http/dependencies.py`
 holds the guarded CAS stores and services for run indexing, timelines, debug,
 lineage, artifacts, comparison, and other read surfaces. The run index rebuilds
-from persisted Core run directories, then caches the resulting snapshots for a
-short refresh interval. It overlays current decision-validity state when a run
-is read, so the cached run summary alone is not the current validity owner.
-The implementation is in `policy-engine/src/polisyos/runtime/http/services/run_index.py`.
+from persisted Core run directories and caches the resulting snapshots for two
+seconds by default. Each run read separately overlays the current
+decision-validity projection and its `decision_validity_checked_at` time. The
+cached summary is not the validity owner, and this check time is not the
+producer time or the time its evidence was collected. See
+`policy-engine/src/polisyos/runtime/http/services/run_index.py` and
+`policy-engine/src/polisyos/scientist/validation/decision_validity.py`.
 
 Read routes resolve the requested run or artifact, apply tenant ownership,
 then construct their response DTO from the appropriate service. Artifact
@@ -114,7 +121,7 @@ owner and deliberately bypass the generic response cache; their typed intent,
 actor scope, and durable owner state determine retry behavior. Route
 authorization and business admission still run for those operations.
 
-Natural-language run launch is a representative end-to-end path:
+Natural-language run launch is a representative request-to-queue path:
 
 1. `POST /api/v1/control/runs/nl` requires the server-derived route permission,
    the exact bound action proof, an authenticated actor/tenant/cell, and an
@@ -145,6 +152,43 @@ Natural-language run launch is a representative end-to-end path:
    job events through the control store; Core run outputs and CAS artifacts
    are then served through the read owners. `GET /api/v1/control/jobs/{job_id}`
    reads a status projection from that persisted owner.
+
+For this route, `RunLaunchResponse.status="accepted"` means the job was
+admitted and queued; it does not mean the worker finished, the run produced a
+decision packet, or any claim passed a governance consumer. A preflight refusal
+can persist a failed job and return `status="rejected"`. Reusing the same
+idempotency key with the same bound intent returns the existing attempt; a
+changed intent conflicts, and an unresolved attempt conflicts until its
+history is inspected. The attempt lookup routes are
+`GET /api/v1/control/admission-attempts/{attempt_id}` and
+`GET /api/v1/control/admission-attempts/by-idempotency-key`. A timeout or lost
+worker lease is not proof that no producer ran; reconcile the durable job and
+attempt records before retrying. These results and recovery rules are owned by
+`policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`
+and `policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`.
+
+## Following a queued result to a consumer
+
+Use the owner at each boundary rather than treating the launch response as the
+result:
+
+| Boundary | Runtime owner and durable/read surface | What the boundary establishes |
+| --- | --- | --- |
+| Request admission | `POST /api/v1/control/runs/nl`; route authorization, request-bound proof, actor/tenant/cell scope, immutable request intent, and idempotency key | Permission to attempt this scoped operation and, when returned as accepted, admission to a durable job. It does not establish execution completion or claim admissibility. |
+| Pre-admission | `control_pre_admission_attempts` and its event history, written by `ControlPlaneStore` before execution admission | A recoverable attempt and observed settlement state. Provider-settlement preflight is required only for the configured profiles that require it. Missing scope, producer binding, or unreadable/incomplete settlement remains refusal or unresolved state; a local settlement record is not a provider invoice or provider-side exactly-once proof. |
+| Job and worker | `ControlPlaneStore.create_job` writes the job, initial progress, creation event, outbox notification, and linked attempt in a transaction. `ControlWorker` leases and renews a specific job attempt. | Durable queue/lifecycle state. Store failure can stop progress; a stale or lost lease can reject fenced persistence while handler activity may still be in progress. Neither an accepted response nor an audit event substitutes for a terminal job state. |
+| Producer output | `ControlPlaneService.launch_nl_run` in `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py` queues the selected execution intent; `ControlWorker` in `policy-engine/src/polisyos/runtime/http/services/control_worker.py` invokes the lifecycle and persists run outputs and CAS artifacts, while job progress/events record control state. | Producer output under its declared profile and provenance. Persistence alone does not promote candidate material to authority or prove causal adequacy. |
+| Read projection | `GET /api/v1/control/jobs/{job_id}`, run routes, and artifact routes read through their respective owners; the run index overlays current validity on reads. | A projection of owner state at that read. Run and artifact routes apply their own tenant-ownership checks; job and attempt status use their distinct route and owner paths. Projection freshness, signature verification, or a successful status is not policy closure. |
+| Claim or authority consumer | `policy-engine/src/polisyos/runtime/quality/claim_registry.py`, `policy-engine/src/polisyos/runtime/quality/authority.py`, and other consumers call `policy-engine/src/polisyos/runtime/quality/candidate_firewall.py` where candidate references enter protected slots. | Candidate refs need a runtime ledger entry, compatible admission state, admission lineage, validation refs, and an envelope permitting the requested purpose. Missing ledger, unknown or unverified candidates, state mismatch, and missing evidence produce issues or a refusal at the consuming gate. This is a consumer-side boundary, not proof that every claim has adequate causal evidence. |
+| External projection | Artifact routes apply purpose-specific export checks; `policy-engine/src/polisyos/runtime/http/routes/public_decisions.py` invokes the report verifier or governed-record owner. | A bounded projection or verified retained record for its declared purpose. It does not establish all policy-authority dimensions or authorize later use by itself. |
+
+These adjacent rows describe existing owners and consumers; they are not
+evidence that every natural-language run traverses every boundary or produces
+a claim that is admissible for publication. The API reference links the
+generated schema to the manual route explanations:
+[Runs API](../api/runs.md), [Artifact Inspection API](../api/artifacts.md), and
+[Runtime API Reference](../api/index.md). Use the router and service owners
+above for behavior the schema cannot prove.
 
 The route and lifecycle owners are `policy-engine/src/polisyos/runtime/http/routes/control.py`,
 `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`,
@@ -178,6 +222,25 @@ See `policy-engine/src/polisyos/runtime/http/routes/human_decisions.py`,
 `policy-engine/src/polisyos/runtime/http/services/human_decisions.py`,
 `policy-engine/src/polisyos/runtime/http/routes/public_decisions.py`,
 and `policy-engine/src/polisyos/runtime/http/services/public_decision_verification.py`.
+
+For public verification, `POST /api/v1/runs/{run_id}/public-verification-record`
+requires `PLATFORM_ADMIN` plus an `OWNED_EXISTING_PATH` binding for `run_id`,
+then resolves the tenant-owned run and its declared decision-packet profile.
+The caller selects an output class; it does not provide the public document,
+signing key, or authority verdict.
+The route checks the declared `Content-Length` header and rejects a nonzero
+value; this check does not prove that the received body bytes are empty, and
+missing-length or chunked-body behavior was not exercised for this review. The
+report-only `pvr_` path signs and verifies the retained projection, but all
+seven public-authority dimensions remain `not_established` and
+`promoted_record` is null. The distinct governed `gpr_` path may establish
+issuer issuance and projection faithfulness after owner verification; its other
+five dimensions remain `not_established`. `GET /api/v1/public-decisions/verification`
+verifies the issued locator; it is not a policy-admission or publication gate.
+See the detailed dimension contract in
+[Artifact Inspection API](../api/artifacts.md) and the wire DTOs in
+`policy-engine/src/polisyos/runtime/http/services/public_decision_verification_contracts.py`
+and `policy-engine/src/polisyos/scientist/governance/continuous/governed_public_record_contracts.py`.
 
 These boundaries distinguish request admission from policy admissibility:
 authorization permits a scoped API action; execution policy chooses an allowed
@@ -240,5 +303,19 @@ test-run receipt for this page or source pin.
 This lifecycle was written from source and test inspection. No API server,
 deployed security providers, external producer, or database concurrency test
 was run for it. E02 remains unfinished at this source pin.
+
+Recheck this page when app composition or profile security resolution changes;
+when route permission/resource binding or tenant checks change; when job
+admission, persistence, worker lease, or event/outbox behavior changes; or when
+run validity, candidate-firewall, claim-registry, export, or public-record
+consumers change. The generated contract is
+`policy-engine/schemas/runtime_api_v1.openapi.json`; relevant behavioral probes
+include `policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py`,
+`policy-engine/tests/unit/runtime/http/test_runtime_api_write_path_hardening.py::test_control_run_launch_replays_idempotent_post`,
+`policy-engine/tests/unit/runtime/http/test_control_worker_custody.py`,
+`policy-engine/tests/unit/runtime/quality/test_candidate_firewall.py`, and
+`policy-engine/tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound`.
+These sources and test references were inspected at the pinned revision; the
+tests, schema generator, and HTTP path were not run for this edit.
 
 - Last updated: 2026-10-14

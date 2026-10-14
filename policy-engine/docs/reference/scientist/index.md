@@ -87,13 +87,30 @@ prose is not treated as the active layout here.
 selects a workflow id through `resolve_workflow_id()`, and delegates execution
 to the workflow builder/runtime.
 
-## Workflow and execution handoffs
+## Runtime and evidence route
 
-For routing precedence, state machines, evidence handshakes, and explicitly
-bounded integration gaps, see [Current Scientist Workflows and Evidence
-Handoffs](current-workflows.md). The full workflow catalog is in
-[Workflow Engine and Routing](workflows.md). The bounded compile, bind, execute,
-and Scientist bridge account is in [Foundry Compile and Execute](../foundry/compile-execute.md).
+Start with [Current Scientist Workflows and Evidence Handoffs](current-workflows.md)
+for the observed path from producers and persisted refs across workflow dependencies
+to consumers: request frame, legal/source packs, verification report, option set,
+the formalizer guard, then downstream compile/simulation and packet consumers. That
+page names the missing internal options-to-Trinity producer and the bounded
+grounding-matrix and Claim-owner gaps. The formalizer's local `ok` is only caller-ref
+key presence; it does not resolve or verify the referenced Trinity artifact.
+
+For age-based source assessment, use [Source Quality Calibration](source-quality-calibration.md);
+for propagation from an explicit source ref already in a Research DAG, use
+[Research DAG replay](research-dag-replay.md). These are separate routes: assessment
+reports do not imply an automatic refetch or Claim reissue. For claim support and
+readiness use [Claims](claims.md); for lifecycle projections and the current-head
+authority boundary use [Claim Ledger](claim-ledger.md). Use
+[Foundry Compile and Execute](../foundry/compile-execute.md) for the Trinity
+compile/bind/execute handoff, and [Workflow Engine and Routing](workflows.md) plus
+[Builtin Nodes](nodes.md) for the detailed DAG and node catalogs.
+
+Node `ok` and workflow-report `ok` are execution results. A policy-output bundle,
+decision packet, or decision-card projection does not by itself establish evidence
+admission, Claim publishability, or an owner-issued current Claim head; see the
+workflow and Claim references above for those separate boundaries.
 
 ## Reference Map
 

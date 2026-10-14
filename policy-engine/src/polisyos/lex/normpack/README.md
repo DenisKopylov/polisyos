@@ -9,7 +9,7 @@
 
 - **Зависит от:** `polisyos.data_forge.read_api.legal`, `polisyos.fabric.claims`, `polisyos.core.components`, `polisyos.ir.loading.norm_pack`
 - **Используется в:** `polisyos.lex.legal_evaluation`, `polisyos.lex.simulator`, policy validation flows
-- Пакет переводит corpus/provision evidence в executable legal rules для compliance и what-if analysis.
+- Пакет превращает выбранные локальные corpus/provision/claim inputs в date-scoped claims и applicability records для local evaluation и what-if flows. Это derived inputs для runtime, а не исполняемая копия закона, юридический акт или подтверждение того, что выбранная редакция является текущей.
 
 ## Ключевые концепции
 
@@ -23,6 +23,36 @@
   `polisyos.legal_requirement.LegalAuthorityRequirementSpec`; broad
   jurisdiction/topic hits remain `context_only` until claim-level competence
   facets satisfy the compiled requirement.
+
+## Граница источника и актуальности
+
+Проверка этого описания ограничена чтением реализации на source pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; тесты для этой правки не запускались.
+
+`as_of` используется для выбора по effective-date metadata, переданной вместе
+с локальными source artifacts. Это отдельное время от retrieval time и
+transaction time fact log; результат выбора не подтверждает источник у
+издателя и не доказывает, что выбрана действующая редакция права.
+В просмотренной реализации `src/polisyos/data_forge/domains/legal/corpus/versioning.py::resolve_active_version()`
+и `src/polisyos/lex/normpack/select_sources.py::_fallback_select_active_version()`
+считают невалидный непустой `effective_to` неограниченной верхней границей,
+поскольку он разбирается в `None`. `src/polisyos/lex/normpack/extract_norm_claims.py::_to_datetime_utc()`
+также возвращает `None` для неверной конечной даты, поэтому в
+`src/polisyos/lex/normpack/applicability.py::applies_to_context()` верхняя
+граница отсутствует. Это ограниченный пробел валидации, а не свидетельство,
+что правовое окно действительно открыто. Receipt для amendment window идёт по
+отдельному пути и оставляет невалидные непустые окна unresolved. Подробности:
+[NormPack reference](../../../../docs/reference/lex/normpack.md#time-identity-and-replay)
+и [Lex Pipeline explanation](../../../../docs/explanation/lex-pipeline.md#unresolved-integration).
+
+Если upstream-процесс выявил новую публикацию, поправку либо исправление байтов
+или metadata источника, используйте это как ручной повод обновить затронутые
+corpus artifacts, version index и `NormPack`, а затем повторить scoped
+assessment. Новое требование к claim или правило Lex требует повторной оценки;
+пересобирайте source artifacts только при изменении входа или extraction/
+selection basis. Это операционные сигналы, а не triggers пакета: пакет не
+опрашивает внешние источники, не аутентифицирует подписи издателя и не
+обеспечивает полный автоматический каскад от устаревания источника до reissue.
 
 ## Public API
 

@@ -11,6 +11,15 @@ Evidence level: Historical figures and findings are retained as reported; the so
 >
 > **Historical record:** This page preserves the architecture descriptions, counts, benchmark outputs, readiness labels, and comparisons reported for v26. They are dated claims, not a current source inventory, current test receipt, or current readiness decision. The underlying report corpus and run inputs are unavailable in this checkout, so the results cannot be independently replayed from this page. The figures and findings below remain for traceability. For current source claims, follow the [Foundry reference map](index.md) and [Causal Engine explanation](../../explanation/causal-engine.md).
 
+The v26 pipeline sketch lists `graph` and `data` as query inputs; those labels
+are a report-level sketch, not a current, traceable binding contract. Keep the
+objects distinct: observed values and their source evidence do not, by
+themselves, specify or validate the causal graph and mechanisms used for
+simulation. This record does not establish which candidate model was selected,
+how observations were bound to its mechanisms, or whether an effect claim
+passed a current grounding gate. See the [current source-owner map](index.md)
+for those separate contracts and their evidence.
+
 ---
 
 ## Table of Contents
@@ -669,6 +678,11 @@ These principles are preserved as the original report's design statements;
 this section does not establish that every listed behavior is implemented or
 wired in the current runtime. Use the current source map linked above for
 implementation claims.
+
+Re-review this historical account only if its original report corpus and run
+inputs become available for reconciliation. Changes to current implementation
+belong in the current Foundry map, not as a new interpretation of these v26
+figures or pre-split paths.
 
 1. **Symbolic-then-numeric**: Always identify symbolically before estimating numerically. If identification fails, produce constructive certificates rather than silent failure.
 

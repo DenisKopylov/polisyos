@@ -3,7 +3,13 @@
 Freshness: 2026-10-14
 Owner: `@docs-owners`
 Source of truth: `CONTRIBUTING.md`, `docs/style-guide.md`, `docs/reference/environment-matrix.md`,
-`tools/registry.py`, `tools/devx/workspace/**`, and the architecture references linked below.
+`docs/reference/ownership.md`, `docs/reference/quality-gates.md`, `tools/registry.py`,
+`tools/devx/workspace/**`, `tools/quality/validation/check_docs_gate.py`,
+`tools/quality/validation/check_docs_freshness_baseline.py`, and the architecture references linked
+below.
+Source snapshot: `47e1e59b569a5b922611f71a7f53fb6320abea4c`; file-scoped `docs-style` inputs,
+docs-gate path dispatch, and the docs-freshness baseline delegation were inspected at this pin.
+This update did not execute commands, tests, or builds.
 
 This page routes contributors to the detailed guide for their task. Product code, tools, and
 contributor commands live under `policy-engine/`; run the commands below from that directory.
@@ -43,6 +49,32 @@ run receipt for claims about a particular machine or validation run.
     the environment and pin that produced them. Receipts in the linked installation and quick-start
     guides apply only to the environment and date printed there.
 
+## Before coding, trace one capability
+
+For a behavior change, map one bounded capability, its owner, and the evidence for each step:
+`contract → producer → persisted artifact/event → orchestration bridge → consumer`
+→ `verification → external/audit/API/dashboard surface → negative semantic test`.
+Keep the trace to the task you plan to change; a package or subsystem may contain both implemented
+and intended paths.
+
+- **Owner:** [Ownership](ownership.md) maps logical subsystem owners and tracked reviewer routing;
+  use the nearest package `README.md` for package-local scope. Tracked routing does not prove that
+  GitHub has applied a review rule.
+- **Contract and source:** start from `architecture/imports/policy.toml` or
+  `architecture/public_surface/contract.toml` when relevant, then follow the nearest package
+  `README.md` to the canonical implementation and registry where present.
+- **Verification:** use [Quality Gates](quality-gates.md), the owning test under `tests/`, and the
+  relevant workflow under repository-root `.github/workflows/`. A listed test or command is a
+  recipe, not evidence that it passed.
+- **Known limits:** read the [failure and repair register](policy-design-case-failure-patterns.md)
+  and the subsystem reference or runbook. Label proposed behavior and unresolved chain steps as
+  such; do not infer a working capability from a contract, README, or command entrypoint alone.
+
+When reporting checks, distinguish an **inspected check** (source, test, or workflow read at a named
+pin), a **run recipe** (command offered for a contributor to execute), and an **actual result**
+(command run with its source pin, environment, and result recorded). Historical receipts retain the
+date and environment where they were produced.
+
 ## First contributor path
 
 1. Check the [Environment Matrix](environment-matrix.md), then follow
@@ -50,7 +82,7 @@ run receipt for claims about a particular machine or validation run.
 2. Use [Getting Started](../tutorials/getting-started.md) for a first local walkthrough, or choose
    a role in [Onboarding Tracks](../how-to/onboarding/index.md).
 3. Pick the detailed task guide from the map below. Read the nearest package README before changing
-   a package boundary.
+   a package boundary, and trace the affected capability before changing behavior.
 4. Run the narrow gate for the changed surface. Use the broader `workspace verify` or
    `workspace ci-parity` only when the change scope calls for it.
 
@@ -90,7 +122,22 @@ bootstrap steps. The browserless command in [Installation](../how-to/install.md)
 entirely. It still installs pre-commit hooks unless `--skip-hooks` is also supplied. Bare
 `bootstrap --profile docs` keeps the default hooks, frontend, Playwright, and `doctor` steps; that
 `doctor` checks Node `22.x`, Corepack/pnpm lockfiles, and generated contracts. After prerequisites
-are prepared, run these checks from `policy-engine/`:
+are prepared, make a small first contribution by improving an existing page selected from the
+[How-to index](../how-to/index.md) or the task map above. Follow its owner and source notes when
+present; if ownership is unclear, use [Ownership](ownership.md) and the nearest package README.
+With an existing docs environment, start with a file-scoped style check from `policy-engine/`
+(substitute the page you edited):
+
+```bash
+uv run polisyos-tools workspace docs-style docs/reference/contributor-start-here.md
+```
+
+`workspace docs-style` accepts explicit Markdown files or directories through
+`tools/devx/workspace/docs_style.py`; that check covers style for the selected files, not site
+navigation, rendered links, or source accuracy. If the Markdown hook environment has not been
+prepared, its first run may prepare that isolated hook environment; it is separate from installing
+the frontend workspace. See [Installation](../how-to/install.md#docs-only-onboarding) for bootstrap
+side effects. For a published docs change, run the broader closeout checks from `policy-engine/`:
 
 ```bash
 uv run polisyos-tools workspace docs-style docs/
@@ -98,8 +145,10 @@ uv run --extra docs python -m mkdocs build --strict
 uv run polisyos-tools validation check-docs-accuracy --repo-root .
 ```
 
-For a documentation-sensitive PR, the path-aware gate dispatches the additional checks selected by
-the changed paths:
+For a documentation-sensitive PR, the path-aware gate dispatches checks selected by the changed
+paths. A docs or README change dispatches the docs-freshness baseline and strict MkDocs build; the
+baseline owns the docs-accuracy invocation. Path-aware selection adds relevant checks for other
+changed surfaces, but does not turn those publication checks into per-file checks:
 
 ```bash
 uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main

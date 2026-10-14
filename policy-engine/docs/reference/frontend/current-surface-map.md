@@ -5,15 +5,29 @@ Freshness: 2026-10-14
 Owner: `team-frontend`
 
 Source of truth: `architecture/frontend_workspaces.toml`,
-`architecture/generated_artifacts.toml`, `schemas/runtime_api_v1.openapi.json`,
-`src/polisyos/runtime/http/**`, `apps/runtime-dashboard/**`,
-`packages/runtime-api-client/**`, and `apps/runtime-reference-shell/**`.
-Evidence pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+  `architecture/generated_artifacts.toml`, `schemas/runtime_api_v1.openapi.json`,
+  `src/polisyos/runtime/http/**/*.py`, `apps/runtime-dashboard/src/**/*.ts`,
+  `apps/runtime-dashboard/src/**/*.tsx`,
+  `apps/runtime-dashboard/scripts/generate-api-client.sh`,
+  `packages/runtime-api-client/**/*.ts`,
+  `packages/runtime-api-client/scripts/generate-runtime-api-client.sh`, and
+  `apps/runtime-reference-shell/app.js`.
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 
 This is a manual source-and-test map for the frontend in the pinned repository
 snapshot. Source files and test cases below were inspected; no tests were run,
 and no browser or server was started. The map therefore does not establish
 runtime availability, rendered appearance, visual behavior, or deployed data.
+The source pin scopes only the declared tracked paths: a source-binding result
+can establish stored Git bytes and modes for those paths, not that this set
+covers every claim or that tests, prose references, transitive dependencies,
+or deployed behavior are current.
+For change ownership, generated-output procedure, and validation commands,
+continue through the [Frontend reference index](index.md). Recheck this map
+against a new source pin when route/workspace or flag declarations, ownership
+or generated-output registration, API contracts or generators,
+permission/verification behavior, or audience projections change; the date
+and pin below describe only the inspected snapshot.
 
 ## Route And Workspace Shape
 
@@ -229,15 +243,31 @@ request helper; this dashboard flow does not use that helper
 
 ### Public decision verification
 
-The public viewer fetches `/api/v1/public-decisions/verification` directly,
+The public viewer directly GETs `/api/v1/public-decisions/verification`
 without credentials, with `no-store` caching and redirects rejected. It checks
 that the response record ID matches the requested ID and parses either a
 strict report-only schema or the separately discriminated governed-record
-schema. The governed schema also binds document/record schema version and the
-record ID, decision, issuer, issue time, and digest (`apps/runtime-dashboard/src/features/runs/api/publicDecisionVerification.ts#L152-L220`,
-`apps/runtime-dashboard/src/features/runs/api/publicDecisionVerification.ts#L245-L267`).
+schema (`apps/runtime-dashboard/src/features/runs/api/publicDecisionVerification.ts#L245-L267`).
+For a governed response, the browser schema requires the document and record
+schema versions to correspond and cross-checks record ID, decision, issuer,
+issue time, and digest fields between the response and promoted-record
+projection (`apps/runtime-dashboard/src/features/runs/api/publicDecisionVerification.ts#L152-L220`).
+Those browser checks validate the server response shape and declared bindings;
+they do not recompute the document digest or cryptographic signature.
 The server route resolves the ID through its verifier and sets
 `Cache-Control: no-store` (`src/polisyos/runtime/http/routes/public_decisions.py#L99-L127`).
+
+The public viewer's mapped user flow is that read-only GET; its route calls the
+fetch helper and presents the returned report or governed-record status
+(`apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx#L185-L216`).
+The server also declares a separate permission-gated POST that issues report-only
+or governed records, or prepares a governed-record candidate. The caller
+selects a run and publication class, not a document or authority verdict. The
+route declares `require_action_permission(RuntimePermission.PLATFORM_ADMIN, ...)`
+bound to the owned existing `run_id` path, and enforces tenant access before
+issuance or preparation (`src/polisyos/runtime/http/routes/public_decisions.py#L48-L56`,
+`src/polisyos/runtime/http/routes/public_decisions.py#L130-L237`). The mapped
+viewer source does not establish that this separate POST is a dashboard action.
 
 The display keeps authentication separate from authority:
 
@@ -266,16 +296,10 @@ withheld, and a route change cannot display a late response for the old ID
 `apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.governed.test.tsx#L206-L265`,
 `apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.governed.test.tsx#L385-L535`).
 
-The server source also contains an authenticated issuance route for
-report-only, governed-record, and governed-record-candidate variants; the
-caller selects a run and publication class, not a document or authority
-verdict. Its POST declares `require_action_permission(RuntimePermission.PLATFORM_ADMIN, ...)`
-bound to the owned existing `run_id` path, and then enforces tenant access
-before issuance (`src/polisyos/runtime/http/routes/public_decisions.py#L48-L56`,
-`src/polisyos/runtime/http/routes/public_decisions.py#L130-L237`). This
-corrects the July audit's source-snapshot claim that no server verification
-route or POST action-permission gate existed; it establishes the declarations
-in this source, not deployment configuration or successful access enforcement.
+The separate POST corrects the July audit's source-snapshot claim that no
+server verification route or POST action-permission gate existed; this source
+inspection establishes route declarations, not deployment configuration or
+successful access enforcement.
 A backend test issues and reads back a synthetic governed record and asserts
 its limited use/dimension semantics
 (`tests/unit/runtime/http/test_public_export.py#L363-L402`). Those source and

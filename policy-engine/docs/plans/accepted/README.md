@@ -5,6 +5,15 @@ directory name describes program routing; it does not say that a plan's work is
 implemented, verified, or closed. Read each plan's own status and evidence.
 `accepted` means the program was approved, not that implementation is complete.
 
+Plan status is not a capability status: `proposed` records intent, `accepted`
+records approval, and `completed` is a plan/document lifecycle claim; none
+proves an end-to-end product capability. For a capability claim, use the
+[capability check](../../reference/policy-design-case-failure-patterns.md#capability-reality-check);
+a plan or procedure alone remains `absent/unallocated`. For claims about
+current behavior, follow the source snapshot and verification rules in the
+[documentation style guide](../../style-guide.md) and preserve their source,
+method, and scope.
+
 The nine plan documents below were enumerated from the complete accepted
 directory at branch snapshot `8dd933600dd7a5a8a5b48432c6089d63b81ca641`:
 9 Markdown plan files plus the non-plan `.gitkeep` placeholder. The complete

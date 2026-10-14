@@ -68,6 +68,46 @@ The census follows P35: every count below names its complete path and file-type
 denominator. The summary and manifest preserve the derived result and the full
 path set rather than copying a large dump into this page.
 
+The path census can also be recomputed from an ordinary clone containing the
+source commit, without the originating audit's ignored script or a second
+checkout. Run from the Git root:
+
+```sh
+python3 - <<'PY'
+import json
+import subprocess
+from collections import Counter
+from pathlib import PurePosixPath
+
+pin = "bafca83bff9ff49eef1466bc491a8420b5cd1dbb"
+prefix = "policy-engine/docs/"
+raw = subprocess.check_output(["git", "ls-tree", "-r", "-z", pin, "--", prefix])
+entries = [entry.split(b"\t", 1) for entry in raw.split(b"\0") if entry]
+paths = [path.decode("utf-8") for _, path in entries]
+markdown = [path for path in paths if path.endswith(".md")]
+print(json.dumps({
+    "source_pin": pin,
+    "tracked_paths_all_types": len(paths),
+    "git_entry_types": dict(Counter(meta.split()[1].decode() for meta, _ in entries)),
+    "markdown_paths": len(markdown),
+    "markdown_top_level": dict(sorted(Counter(
+        path[len(prefix):].split("/", 1)[0] if "/" in path[len(prefix):] else "[root]"
+        for path in markdown
+    ).items())),
+    "suffixes_all_types": dict(sorted(Counter(
+        PurePosixPath(path).suffix or "[no extension]" for path in paths
+    ).items())),
+}, indent=2))
+PY
+```
+
+This recipe reads Git-tree entries, not document bodies. It reproduces path,
+entry-type and suffix counts; it does not reproduce the original marker scan,
+navigation join or semantic review. Missing local commit objects are an
+unavailable input, not a zero. The source-binding and emitted-link instruments
+in [Documentation Verification](documentation-verification.md) address their
+own explicit sets, without converting this baseline census into currentness.
+
 ### Tracked file types
 
 All suffix categories below partition the 14,817 tracked blob paths; their counts

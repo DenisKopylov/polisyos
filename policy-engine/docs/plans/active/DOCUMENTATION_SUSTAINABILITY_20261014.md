@@ -62,6 +62,15 @@ CI workflows, deployment or the existing lifecycle check's unresolved scope.
 Use real public callers, negative fixtures and marker-preserving property
 removal probes. Mirror tests under `tests/repo_quality/tools/`.
 
+The existing docs gate also needs a bounded dependency correction: changes to
+any `architecture/tooling/mkdocs/**` publication fragment must plan its existing
+accuracy/freshness and strict-build commands, as `mkdocs.yml` already does.
+Preserve early-failure behavior and do not relabel planned children as run.
+The canonical vocabulary generator may refresh the single stale bound-source
+digest only after complete expected/actual comparison establishes unchanged
+terms, IDs, rulings and authority restrictions. Its checker and a corrupted
+artifact probe must verify the revision; no production vocabulary is changed.
+
 ## Direct ownership
 
 All twenty lanes are direct and reuse this directory. Root serializes Git,
@@ -73,7 +82,7 @@ read-only reviews and source inspection may overlap.
 | architecture | Architecture explanation; source-binding instrument and mirrored test after design review |
 | data_flows | Existing end-to-end data-flow explanation |
 | data_forge | Data Forge index and current-data-paths reference |
-| decisions | ADR and accepted-plan routing READMEs |
+| decisions | ADR/accepted-plan routing; existing docs-gate dispatch correction and mirrored tests |
 | developer_guides | Contributor Start Here; desk-based reader walkthrough |
 | docs_census | Read-only organization, coverage and final preservation reconciliation |
 | fabric | Fabric index/explanation and source-qualified lineage gap alignment |

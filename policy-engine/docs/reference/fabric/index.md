@@ -4,10 +4,23 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
+Source pin: `78a7b7b9cdab2b16e9d4ecd56c15bece38728f3b`
 Source of truth: `src/polisyos/fabric/**`, `src/polisyos/data_forge/read_api/**`,
+  `src/polisyos/data_forge/README.md`, `src/polisyos/data_forge/kernel/artifacts.py`,
+  `src/polisyos/runtime/http/services/control/run_lifecycle.py`,
+  `src/polisyos/runtime/quality/data_forge_binding.py`,
   `architecture/imports/policy.toml`, `architecture/packages/boundaries.toml`,
-  and the named tests below.
+  `architecture/public_surface/contract.toml`,
+  `architecture/public_surface/inventory.json`, `docs/reference/public-surface.md`,
+  `tests/unit/fabric/connectors/test_integration.py`,
+  `tests/unit/fabric/connectors/test_protocol_compliance.py`,
+  `tests/unit/fabric/connectors/test_source_contract_v2.py`,
+  `tests/unit/fabric/data_plane/test_orchestrator.py`,
+  `tests/unit/fabric/test_claims_pipeline.py`, `tests/unit/fabric/test_docs_pipeline.py`,
+  `tests/unit/fabric/test_lineage.py`, `tests/unit/fabric/test_retrieval_fetch_custody.py`,
+  `tests/unit/runtime/http/test_e2e_ingestion.py`,
+  `tests/unit/runtime/quality/test_promotion_sequence.py`,
+  `tests/repo_quality/tools/test_fabric_source_contracts.py`
 Evidence level: implementation and test behavior inspected at the source pin.
 Test status: tests were inspected but not run in this documentation pass.
 Test fixtures establish the named paths only; this page makes no claim of live
@@ -69,6 +82,40 @@ are not captured responses from the named providers. A source-platform
 `production_visible` label and fixture count therefore describe declared
 contract artifacts, not live provider availability or source truth.
 
+Read connector identity at each boundary. A connector class and its
+`connector_id` identify an adapter declaration; a SourceContract has its own
+`contract_id` and names a `connector_id`. The separate
+`validate_source_conformance_v2` path compares a SourceContract's declared
+connector ID with the connector metadata's qualified ID and, when set, checks
+that the connector class ID is represented. `tests/repo_quality/tools/test_fabric_source_contracts.py`
+asserts zero conformance errors for the generated set. The checker and test
+source were inspected, not run, for this page. This is bounded declaration-level
+identity evidence; it does not establish native or stable facade resolution,
+provider readiness, or the family-level mapping measured by the inventory. The
+[best-in-class inventory](best-in-class-inventory.md) therefore remains
+`partial` for `source.entrypoint_coverage.direct_import_families`.
+
+## How to read evidence and capability state
+
+These artifacts answer different questions; none is a substitute for the next
+producer or consumer in a workflow.
+
+| Evidence layer | What the inspected path establishes | What remains unestablished | Follow the source change in |
+| --- | --- | --- | --- |
+| Connector declaration and contract | Source declares the adapter, `connector_id`, profile and schema/quality metadata; a separate conformance checker compares generated SourceContracts with connector metadata. | Live provider reachability, provider-backed fixture provenance, the inventory's family-level mapping, or source truth. Conformance-test execution for this page is not established. | [Connectors](connectors.md), [source platform](source-platform.md), and [schema compatibility](schema-compatibility.md); inspect `tests/unit/fabric/connectors/test_protocol_compliance.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, and `tests/repo_quality/tools/test_fabric_source_contracts.py`. |
+| Persisted connector result | With CAS configured, connector ingestion stores payload artifacts and a provenance graph, then returns an `EvidenceBundleRef`; the optional `DataSnapshot` points at the bundle's first source artifact. | A merge of every connector result into a world dataset, or a generic downstream consumer of that snapshot. | [Data plane](data-plane.md) and `tests/unit/fabric/connectors/test_integration.py` / `tests/unit/fabric/data_plane/test_orchestrator.py`. |
+| Catalog-bound retrieval | `FabricFetchReceipt` binds a selected catalog target to the returned persisted payload; the bounded measurement-root path resolves it and rechecks against a current fetch. | Historical transport occurrence at the recorded time or scientific truth of the result. | `src/polisyos/fabric/retrieval/custody.py`, `src/polisyos/runtime/quality/data_forge_binding.py`, and `tests/unit/fabric/test_retrieval_fetch_custody.py`. |
+| Document and claim producers | Explicit document stages and claim extraction persist their own artifacts and emit their own world facts/events. | A generic bridge from connector results or snapshots into those producers. That end-to-end bridge is `bridge_missing`. | [Data plane](data-plane.md), [product/API integration](product-api-integration.md), and `tests/unit/fabric/test_docs_pipeline.py` / `tests/unit/fabric/test_claims_pipeline.py`. |
+| Lineage and world query | Connector ingestion records fetch provenance and, when a transform applies, can merge its transform graph. `FabricLineageTracker` can represent later graph nodes. | Production call sites connecting materialized columns, claims, facts, and query results into one automatic source-to-query graph: `bridge_missing`; the end-to-end semantic test is also `semantic_test_missing`. | [Lineage](lineage.md), [time travel](time-travel.md), and `tests/unit/fabric/test_lineage.py`. |
+| Runtime operation | Named unit tests exercise fixture-backed code paths; the ingestion HTTP test patches the producer. | Live provider readiness, deployed behavior, or a complete input-to-policy workflow. These are `not_established` by the inspected tests. | [Product/API integration](product-api-integration.md) and the specific producer/consumer tests linked on each reference page. |
+
+Connector quality has the same evidence boundary. Source-supplied quality,
+freshness, version, and update fields are typed inputs; local validators can
+compute bounded indicators over returned data; and the orchestrator's
+`fabric.quality_report` is metadata-only. None independently establishes
+provider truth. See [quality](quality.md) for the distinction between computed
+checks and the report attached during snapshot assembly.
+
 ## Time, provenance, and trust
 
 | Field or artifact | What it establishes | What it does not establish |
@@ -92,12 +139,15 @@ paths.
   document and claim pipelines emit their own world facts and events. The
   presence of both APIs does not establish a general connector-result-to-world
   materialization bridge.
-- **`semantic_test_missing` for automatic source-to-query lineage.**
+- **`bridge_missing` for automatic cross-producer lineage, with
+  `semantic_test_missing` as a secondary gap.**
   `tests/unit/fabric/test_lineage.py` builds the source, transform,
   materialization, claim, fact, and query nodes directly through
   `FabricLineageTracker`; it verifies graph trace and impact behavior, not that
   operational connector and world-store producers automatically emit one
-  complete graph.
+  complete graph. The downstream producer call sites are absent, so the bridge
+  itself is missing; `semantic_test_missing` records that no end-to-end test
+  proves the intended bridge.
 - **Source truth remains unestablished by custody.**
   `resolve_persisted_fetch` explicitly says that a current-source comparison
   does not establish the historical transport occurrence or scientific truth.
@@ -127,10 +177,15 @@ paths.
 | [Product/API integration](product-api-integration.md) | Runtime routes, downstream payloads, and compatibility bridges. |
 | [Best-in-class inventory](best-in-class-inventory.md) | Report-only inventory and its validation boundary. |
 
-## Stable Fabric facade
+## Declared Fabric facade exports
 
-`polisyos.fabric` exposes `run_connectors_ingestion`, `fabric_get_data`,
+`src/polisyos/fabric/__init__.py` declares a facade export list (`__all__`)
+that includes `run_connectors_ingestion`, `fabric_get_data`,
 `execute_world_query`, `query_world_table`, `query_claims`, and `query_events`.
+These are declared names, not proof that the names resolve to native or stable
+public exports. The [public-surface inventory](../public-surface.md) classifies
+the package as `public_stable` but reports export resolution as
+`unresolved_exports`; the resolved export set and its count remain unknown.
 The orchestrated fetch-to-snapshot entrypoint is
 `polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion`.
 Catalog-bound retrieval and persisted fetch resolution live under

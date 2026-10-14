@@ -2,7 +2,23 @@
 
 Owner: @data-forge-owners
 Last updated: 2026-10-14
-Source of truth: implementation inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`. Source and test references below are repository paths/symbols at that pin.
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source of truth: `repo:policy-engine/src/polisyos/data_requirement/compiler.py`,
+  `repo:policy-engine/src/polisyos/data_requirement/_impl/models.py`,
+  `repo:policy-engine/src/polisyos/runtime/quality/acquisition_planner.py`,
+  `repo:policy-engine/src/polisyos/runtime/quality/generation_cycle.py`,
+  `repo:policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py`,
+  `repo:policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py`,
+  `repo:policy-engine/src/polisyos/runtime/quality/data_forge_binding.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/artifacts.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py`,
+  `repo:policy-engine/src/polisyos/data_forge/kernel/snapshot/finalize.py`, and
+  `repo:policy-engine/src/polisyos/data_forge/_impl/provenance_manifest.py`.
+
+This declared set covers the requirement/acquisition, shared asset-planning, and snapshot-binding paths. Domain-specific sources and tests cited below are bounded evidence for their stated rows, not an exhaustive or transitive source audit.
 Verification: source and named test files were inspected; this documentation review did not run tests.
 
 This page traces the paths that exist today. Data Forge has several domain-owned batch pipelines and selected lazy runtime APIs. Shared planning and artifact contracts do not, by themselves, mean that every domain has a common executor, persistent schema lifecycle, or automatic source-acquisition loop.
@@ -52,6 +68,17 @@ Academic retrieval and grounding are separate steps. `polisyos.ir.analytics.lite
 
 These are domain compositions, not a universal list of policy-domain templates. External domains are registered through the domain entrypoint mechanism described in `policy-engine/src/polisyos/data_forge/domains/README.md`; their existence does not imply that all domain lifecycle capabilities are equivalent.
 
+For Catalog stage reuse, the actionable currentness owner is
+`policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py`, with its
+invalidation rules summarized in
+`policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md`. That basis snapshots
+selected local configuration and assets; documented same-ID or byte changes invalidate covered
+stage receipts, while mtime-only changes do not. It excludes remote response/version identity,
+raw observation-corpus changes, and complete effective header policy. This is a bounded Catalog
+producer rule, not a Data Forge-wide freshness guarantee. Curated default-resource packaging has a
+separate owner in `policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py` and is
+described in [Catalog default resources](catalog-default-resources.md).
+
 The shared asset kernel in `policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py` and `policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py` defines asset specs and materialization callables. `plan_asset_specs` orders dependencies and rejects missing dependencies and cycles. It does not provide a generic executor/persisted-output bridge. The shared execution bridge is therefore **`bridge_missing`** at this kernel level; domain pipelines perform their own orchestration.
 
 ## Artifact, provenance, schema, and time
@@ -59,6 +86,26 @@ The shared asset kernel in `policy-engine/src/polisyos/data_forge/kernel/pipelin
 `policy-engine/src/polisyos/data_forge/kernel/artifacts.py` defines `ArtifactRef` with snapshot-qualified URI and content hash, producer/version, config hash, trace/span, ownership/license/regeneration metadata, PII and retention fields, freshness SLA, and schema ID/version. Pipeline manifest helpers in `policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py` preserve legacy raw/stage/publish forms with payload digests, fetch time/filters/parser version, stage time/status/hashes, and publish time/artifacts/QC.
 
 Snapshot finalization in `policy-engine/src/polisyos/data_forge/kernel/snapshot/finalize.py` consumes configured publish manifests and writes snapshot binding/provenance manifests. `policy-engine/src/polisyos/data_forge/_impl/provenance_manifest.py` exposes official snapshot answers with `satisfied`, `blocked`, and `not_found` statuses. Rows bind hashes, lineage, quality gates, builder revision, transform lineage, and claim requirements. Runtime admission/consumption is exercised by `policy-engine/src/polisyos/runtime/quality/data_forge_binding.py` and its tests.
+
+Keep the evidence roles separate when routing readers. An `OfficialSnapshotAnswer` reports a
+claim/requirement binding and recorded gate statuses; it is not an independent authority or
+quality verifier. The finalized-manifest lookup checks the stored `SnapshotQualityGate.status`
+values in `policy-engine/src/polisyos/data_forge/_impl/provenance_manifest.py`. Runtime binding in
+`policy-engine/src/polisyos/runtime/quality/data_forge_binding.py` checks gate presence,
+pass-like status, and artifact-reference shape; a bare reference is treated as `pass`, and the
+referenced quality result is not resolved or recomputed there. The runtime claim-binding check
+rejects an empty or context-only `authority_level`, but any other non-empty string passes that
+check; `policy-engine/src/polisyos/data_forge/kernel/snapshot/finalize.py` defaults an omitted
+level to `closeout`, and `OfficialSnapshotAnswer` does not return the level. These fields therefore
+record declared binding evidence, not independently verified quality or authority substance.
+
+Runtime snapshot binding also checks a timestamp (`published_at`, `snapshot_created_at`, or
+`as_of`) against `freshness_ttl_seconds` or `max_age_seconds`; the implementation default is 90
+days. That check is snapshot age, not a substitute for source publication, observation, or legal
+effective time. Likewise, `ArtifactRef.freshness_sla_seconds` is an artifact contract field; its
+presence alone does not show that a consumer evaluated it. The N7 receipt above carries local
+`same_cycle_reentry` authority and is not a finalized official snapshot or proof of current source
+data.
 
 Time is domain-specific. A freshness SLA is not a substitute for source publication time, legal effective time, observation time, or build/stage time. Legal versioning resolves effective and publication dates and emits warnings for unresolved temporal metadata; Ukraine manifests retain run/stage times; academic source metadata includes publication time where available. Consumers must interpret the time role carried by the relevant artifact rather than infer it from a manifest timestamp.
 
@@ -105,7 +152,21 @@ Some internal cross-package consumers also import narrowly selected domain modul
 manifests. These are specific internal dependencies, not additional supported general runtime
 surfaces or a shared batch contract.
 
-Import consolidation and boundary behavior are covered by `policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py`, `policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py`, and `policy-engine/tests/unit/data_forge/read_api/test_surfaces.py`. Snapshot provenance and acquisition paths have focused coverage in `policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py`, `policy-engine/tests/unit/data_forge/test_w9c_provenance_manifest.py`, `policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py::test_voi_ranking_is_filtered_by_eligibility_before_recommendation`, and `policy-engine/tests/unit/runtime/quality/test_acquisition_source_replay.py`. Academic grounding is covered by `policy-engine/tests/unit/ir/test_literature_openalex_grounding.py` and `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py`; evidence-axis normalization and the legacy absence adapter by `policy-engine/tests/unit/data_forge/domains/academic/batch/test_article_extractor.py`, `policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py`, and `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py`. Domain-specific behavior also has tests under `policy-engine/tests/unit/data_forge/domains/`. These test sources were inspected but not executed.
+### Reader routing and source-change triggers
+
+Use this as a routing aid, not a repository-wide freshness contract. Reinspect the named owner
+when that source path or its consumer changes; test references elsewhere on this page were
+inspected at the pin above, not executed.
+
+| Reader question or source change | Start with | Evidence boundary |
+| --- | --- | --- |
+| Which Catalog YAML default is resolved, or did its package projection change? | `policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py`, `policy-engine/src/polisyos/data_forge/read_api/catalog.py`, and [Catalog default resources](catalog-default-resources.md) | Curated configuration path and packaging evidence; it does not show that external observations were refreshed. |
+| Can a Catalog batch stage reuse its prior output? | `policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py` and `policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py` | The stage receipt is checked against its bounded selected local-input basis; it does not bind all headers or remote response versions. |
+| What does quality or readiness establish? | Domain quality owners such as `policy-engine/src/polisyos/data_forge/domains/catalog/quality.py`, `policy-engine/src/polisyos/data_forge/domains/academic/quality.py`, and the [Fabric quality reference](../fabric/quality.md) | Domain QC/readiness and Fabric connector scoring have distinct owners. A passing readiness result is not itself a source-time or snapshot-age check. |
+| Did a domain producer run and publish these artifacts? | The selected producer in the [Domain materialization owners](#domain-materialization-owners) table, `policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py`, and its domain `publish.py` | Stage and publish manifests describe the producer run and outputs; inspect that producer's source inputs and time roles for freshness. |
+| Is a published snapshot bound for a claim requirement, and is its binding within its configured age? | `policy-engine/src/polisyos/data_forge/kernel/snapshot/finalize.py`, `policy-engine/src/polisyos/data_forge/_impl/provenance_manifest.py`, and `policy-engine/src/polisyos/runtime/quality/data_forge_binding.py` | Official snapshot provenance and runtime binding are separate from N7's locally accepted acquisition receipt; a binding-age pass does not prove source-observation recency. |
+
+Import consolidation and boundary behavior are covered by `policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py`, `policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py`, and `policy-engine/tests/unit/data_forge/read_api/test_surfaces.py`. Snapshot provenance and acquisition paths have focused coverage in `policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py` and `policy-engine/tests/unit/data_forge/test_w9c_provenance_manifest.py`; their fixture-backed answers do not establish independent gate-result or authority verification. Other named coverage includes `policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py::test_voi_ranking_is_filtered_by_eligibility_before_recommendation`, `policy-engine/tests/unit/runtime/quality/test_acquisition_source_replay.py`, `policy-engine/tests/unit/ir/test_literature_openalex_grounding.py`, `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py`, `policy-engine/tests/unit/data_forge/domains/academic/batch/test_article_extractor.py`, `policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py`, and `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py`. Domain-specific behavior also has tests under `policy-engine/tests/unit/data_forge/domains/`. These test sources were inspected but not executed.
 
 ## Capability gaps found in this inspection
 

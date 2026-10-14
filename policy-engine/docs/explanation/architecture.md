@@ -1,24 +1,50 @@
 # PolicyOS architecture: target and current code
 
-> **Owner:** `team-architecture`
->
-> **Source of truth:** ratified identity/custody decisions, `architecture/imports/policy.toml`,
-> `architecture/public_surface/contract.toml`, and the source paths named below.
->
-> **Source snapshot reviewed:** `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14).
->
-> **Evidence caveat:** source and test paths below were inspected at this snapshot. This
-> documentation refresh did not run those tests. A test reference identifies a test's scope; it
-> is not a fresh pass receipt, a completeness claim, or institutional authority.
+Owner: team-architecture
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source of truth:
+  `docs/system-design-decisions/policy-design-causal-operating-system-north-star.md`,
+  `docs/system-design-decisions/policyos-identity-and-custody-boundary.md`,
+  `docs/system-design-decisions/stage0-custody-kernel-ratification.md`,
+  `docs/reference/policy-design-case-failure-patterns.md`,
+  `architecture/imports/policy.toml`, `architecture/packages/boundaries.toml`,
+  `architecture/public_surface/contract.toml`,
+  `src/polisyos/core/contracts/**/*.py`, `src/polisyos/core/artifacts/**/*.py`,
+  `src/polisyos/core/security/**/*.py`, `src/polisyos/ir/**/*.py`,
+  `src/polisyos/data_forge/read_api/**/*.py`, `src/polisyos/data_forge/domains/legal/**/*.py`,
+  `src/polisyos/fabric/**/*.py`, `src/polisyos/lex/**/*.py`,
+  `src/polisyos/foundry/compile/**/*.py`, `src/polisyos/foundry/execute/**/*.py`,
+  `src/polisyos/foundry/agent_sim/world/**/*.py`,
+  `src/polisyos/scientist/orchestration/workflows/**/*.py`,
+  `src/polisyos/scientist/nodes/**/*.py`, `src/polisyos/scientist/governance/**/*.py`,
+  `src/polisyos/scientist/evidence/claims/**/*.py`,
+  `src/polisyos/runtime/http/**/*.py`, `src/polisyos/runtime/quality/**/*.py`,
+  `packages/runtime-api-client/**/*.ts`,
+  `apps/runtime-dashboard/src/**/*.ts`, `apps/runtime-dashboard/src/**/*.tsx`,
+  `tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py`,
+  `tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py`,
+  `tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py`,
+  `tests/integration/foundry_scientist/test_method_node_bridge.py`,
+  `tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py`,
+  `tests/integration/core_runtime/test_acquisition_authority_served.py`,
+  `apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts`
 
-This page is an orientation map, not a new architecture decision or a capability register. It
-separates the strategic target and ratified identity/custody boundary from the paths that can be
-located in the current repository. Read the
+The declared source paths bind only these selected owners; paths mentioned later in the body are not
+automatically added to the binding set. Source and test paths below were inspected at this snapshot.
+This documentation refresh did not run those tests. A test reference identifies a test's scope; it
+is not a fresh pass receipt, a completeness claim, or institutional authority.
+
+This page answers three different questions: what boundary was ratified, what the north-star asks
+the system to become, and what selected paths exist in the inspected source. It is an orientation
+map, not a new architecture decision or a capability register. For task-specific owners and checks,
+start with [Contributor Start Here](../reference/contributor-start-here.md) and the nearest package
+README; use the [Reference index](../reference/index.md) for subsystem contracts. Read the
 [north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
 for the strategic model, the [identity and custody decision](../system-design-decisions/policyos-identity-and-custody-boundary.md)
 for PolicyOS's scope, and the
 [Stage-0 ratification](../system-design-decisions/stage0-custody-kernel-ratification.md) for the
-custody invariants. These design records do not establish that a capability is implemented.
+custody invariants. Ratification establishes a rule or direction; it does not establish that a
+capability is implemented.
 
 ---
 
@@ -40,14 +66,17 @@ administrator, executor, court, payment system, notification channel, or case-ma
 See the identity decision's §1 and §5 for the signature rule and four-way `own / integrate /
 observe / out_of_scope` test.
 
-Stage-0 makes the boundary operational. **S0-K03** requires classifying one plane at a time along
-external act → evidence emission → receipt and verification → admission → scoped claim reaction →
-public projection. **S0-K05** and **S0-K07** prohibit authority by observation, transport, or
-projection. **S0-K06** binds fail-closed behavior to protected actions, published claims, and custody facts: a
-candidate computation may continue with an explicit unknown carried as a limitation, but that
-unknown cannot silently become a closed scope for authority use. **S0-K08** keeps corrections
-append-only. The ratification is authoritative for these boundary rulings, not for production
-schemas, capability status, or owner assignment.
+Stage-0 makes the boundary operational. **S0-K03** is a classification rule: identify the external
+institutional act, evidence emission, our receipt and verification, admission, our scoped claim
+reaction, and public projection as separate planes. Split a path that crosses planes before assigning
+an owner. The four-way `own / integrate / observe / out_of_scope` test then determines our role;
+integration means we own the typed evidence contract and its fail-closed absence behavior, not the
+partner's function. **S0-K05** and **S0-K07** prohibit authority by observation, transport, or
+projection. **S0-K06** applies fail-closed behavior to protected actions, published claims, and
+custody facts; candidate work may continue with an explicit unknown carried as a limitation, but
+that unknown cannot silently become a closed scope for authority use. **S0-K08** keeps corrections
+append-only. These ratifications govern boundary decisions, not production schemas, capability
+status, or package ownership.
 
 LLM-generated claims, legal readings, risk assessments, and method choices remain candidates until
 admitted by the relevant producer and consumer path. A response that looks complete, a typed field,
@@ -55,15 +84,16 @@ or a dashboard label does not itself establish authority. This is the candidate-
 boundary described by P05 and P15 in the
 [failure and repair register](../reference/policy-design-case-failure-patterns.md).
 
-## 2. Two views of the architecture
+## 2. Target and inspected paths
 
-The upper lane is the north-star flow. The lower lane is a set of representative code paths found
-in the snapshot. The lower lane is not a single universal workflow, and matching names between the
-two lanes do not prove that a target capability is complete.
+The upper lane is the north-star target; its custody boundary is ratified, but the flow is not an
+implemented end-to-end system. The lower lane shows selected source paths at the pinned snapshot.
+The two lanes are deliberately unconnected: shared vocabulary does not establish a bridge, and the
+lower lane is not one universal workflow.
 
 ```mermaid
 flowchart LR
-    subgraph target["North-star direction + ratified custody boundary"]
+    subgraph target["North-star target; custody rules constrain it"]
         problem["Policy problem and declared scope"] --> need["Required vs available evidence"]
         need --> acquire["Decision-relevant acquisition"]
         acquire --> world["Growing causal world model"]
@@ -75,7 +105,7 @@ flowchart LR
         learn --> world
     end
 
-    subgraph code["Observed repository paths — selected seams"]
+    subgraph code["Observed source paths — separate selected seams"]
         req["Requirement specs"] --> pipeline["Runtime producer pipeline"]
         pipeline --> planner["Acquisition planner"]
         catalog["Data Forge catalog + Fabric source contract"] --> fabric_api["Runtime Fabric API"]
@@ -88,14 +118,15 @@ flowchart LR
     end
 ```
 
-The code lane is backed by the tests listed in §5. Some tests prove a positive bounded path; others
-prove a refusal path. Their presence does not mean those suites were run during this document
-update.
+Section 5 names the source and test for each selected seam and states what it establishes. Some tests
+exercise a bounded positive path; others exercise refusal. Their source was inspected, not run for
+this update.
 
 ## 3. Repository boundaries and entrypoints
 
-The source tree is organized by package ownership, but there are three different maps to keep
-separate:
+Use three maps for three different questions. For package boundaries or a supported import, consult
+the first two files below; for task ownership and checks, follow Contributor Start Here to the
+nearest package README.
 
 - `architecture/imports/policy.toml` is the enforced import-direction matrix. Its `internal.allow`
   entries say which package roots may import which others; they are dependency constraints, not a
@@ -103,6 +134,20 @@ separate:
   on `data_requirement`, `data_forge`, `core`, and `ir`, and permits `foundry` to depend on
   `method_requirement`, `calibration`, `data_forge`, `fabric`, `core`, and `ir`. The file also records
   an existing package-cycle baseline, so do not read it as proof of a strictly acyclic layer stack.
+
+  Fabric has a narrower declared package boundary than this matrix alone shows:
+  `architecture/packages/boundaries.toml` allows `polisyos.fabric` to depend on
+  `polisyos.data_forge.read_api`, while `architecture/imports/policy.toml` still permits the broader
+  `polisyos.data_forge` root. The inspected `src/polisyos/fabric/retrieval/service.py` also imports
+  the private `polisyos.data_forge.domains.catalog.batch.config._profile_input_coverage_currentness`
+  helper inside `_catalog_profile_plan_admission`. The `read_api` facade is not uniformly
+  read-only either: `src/polisyos/data_forge/read_api/legal.py::_EXPORTS` exposes
+  `run_batch_pipeline` from the legal batch pipeline, and
+  `src/polisyos/data_forge/read_api/academic.py::_EXPORTS` exposes `run_edge_synthesize` from an
+  academic batch module through lazy `__getattr__` resolution. These are observed boundary limits at
+  this page's source snapshot, not a call-count or a claim that every Fabric/Data Forge path behaves
+  this way. Review both the package-boundary intent and the observed imports when either map or the
+  named source paths change.
 
 - `architecture/public_surface/contract.toml` defines supported Python entrypoints and their
   compatibility class. An unlisted `polisyos` module is internal by default. The contract marks
@@ -116,7 +161,7 @@ separate:
   import or public contract is not evidence that an artifact is produced, persisted, consumed, or
   checked end to end.
 
-Representative package owners and canonical starting points:
+Canonical source starting points for the main architectural seams:
 
 | Area | Current owner and starting point | Boundary to keep in view |
 | --- | --- | --- |
@@ -129,13 +174,9 @@ Representative package owners and canonical starting points:
 | Workflow and governance | `src/polisyos/scientist/orchestration/workflows/`, `src/polisyos/scientist/nodes/`, `src/polisyos/scientist/governance/`, `src/polisyos/scientist/evidence/claims/` | Scientist routes work and owns claim/lifecycle mechanisms; internal subpackages are not automatically stable public APIs. |
 | HTTP and operator-facing projection | `src/polisyos/runtime/http/app.py::create_runtime_api_app`, `src/polisyos/runtime/http/routes/`, `packages/runtime-api-client/`, `apps/runtime-dashboard/` | The stable Python facade is `polisyos.runtime`; HTTP implementation modules remain internal unless separately documented. API projections do not mint authority. |
 
-Policy grammar and requirement/admissibility work has dedicated owners, including
-`polisyos.data_requirement`, `polisyos.legal_requirement`, `polisyos.obligation_rules`,
-`polisyos.obligation_graph`, `polisyos.method_requirement`, and
-`polisyos.participation_requirement`. Their location as separate packages is visible in the import
-policy, while their current public status is determined by the public-surface contract. This is
-how the repository can reuse a universal grammar and facet requirements without presenting every
-internal compiler as an external API.
+Policy-grammar and requirement packages have separate source boundaries in the import policy. Check
+the public-surface contract before treating any such package as a supported caller entrypoint; a
+package's location or role in the design does not make its internal modules public.
 
 ## 4. Contracts, bridges, and capability claims
 
@@ -167,31 +208,44 @@ observed source reference, while its authority purpose remains candidate-only. T
 intentional: a verified provenance join can answer *which persisted continuation produced this
 candidate* without answering *whether the signed policy claim is currently admissible*.
 
-## 6. What remains beyond this map
+## 6. Boundaries that remain unresolved at this snapshot
 
 - The north-star's growing causal world model, joint simulation of composed interventions, and
-  two-contour post-deployment learning loop are design targets. The identity decision describes the
-  learning loop as greenfield; the presence of Foundry synthetic worlds or drift monitors does not
-  complete it.
-
-- The claim lifecycle bridge has useful review projections and a fail-closed completed-batch
-  admission path. The inspected owner-missing case remains a nonreceipt; do not describe it as an
-  authority-grade revalidation or head-advance demonstration.
-
-- The selected lifecycle and presentation paths keep separate roles visible: the Scientist bridge
-  records a `projection_only` review revision, while the Runtime E02 history route and dashboard
-  expose candidate provenance with `publication_authority = false`. These paths do not establish a
-  signer, a publisher, or successful authority-bearing claim-head advancement. Those properties
-  remain `not_established` by the evidence cited here; a public projection is not a signature.
-
-- Runtime acquisition history has a consumer surface and a checked same-candidate join. It remains
-  candidate-only and makes no currentness or publication claim.
+  confirmatory/exploratory post-deployment learning loop remain design targets. Foundry synthetic
+  worlds and drift monitors do not establish those system-level capabilities.
+- The selected Scientist lifecycle and Runtime E02 history seams in §5 do not form one authority
+  path. The event bridge can emit a `projection_only` review revision; its completed-batch path
+  accepts verified persisted evidence but, in the cited default composition,
+  `build_default_claim_ledger_owner()` returns `UnappointedClaimLedgerOwner` and the inspected
+  fixture ends in `claim_ledger_owner_not_established`. The separate Runtime history path is
+  `candidate_observation_only`, with `currentness_status = not_established` and
+  `publication_authority = false`. These selected seams establish neither current-head advancement
+  under authority nor reissue, and they do not prove every claim path is absent.
+- Together, these selected seams do not demonstrate one policy workflow from an input problem through
+  an admissible PolicyOS-owned signature and later staleness, invalidation, or reissue. Treat that
+  whole-claim trace as not established at this source snapshot, rather than inferring it from the
+  north-star diagram or combining neighboring component tests.
 
 - The import and public-surface contracts govern different questions. An import edge says where a
   dependency is allowed; a public entrypoint says what callers may rely on; neither proves the
   end-to-end property. Use the capability labels in the
   [failure and repair register](../reference/policy-design-case-failure-patterns.md) when a producer,
   artifact, bridge, consumer, verification, or external surface is missing.
+
+## 7. When to re-review this map
+
+Re-read the affected sections against a new immutable source snapshot when:
+
+- a ratified identity or Stage-0 ruling changes (§1 and the target lane);
+- `architecture/imports/policy.toml`, `architecture/public_surface/contract.toml`, package ownership,
+  or a supported facade changes (§3); or
+- a producer, persisted artifact, bridge, claim owner, consumer, or public projection named in §5
+  changes. Recheck the test body as well as its path before retaining an evidence statement.
+
+Update the source pin only after inspecting the new snapshot. Keep test-source inspection separate
+from test execution, and keep both separate from deployment evidence. If a changed path no longer
+establishes a claim, narrow it or mark it `not_established`; do not carry it forward by matching
+names or adjacent components.
 
 For detailed operational topology and durable artifact families, see
 [operations diagrams](../reference/operations/platform-architecture-diagrams.md),

@@ -99,7 +99,7 @@ do not demonstrate a universally wired materialization-regression gate.
 | Claim | State at this pin | Evidence-based boundary |
 | --- | --- | --- |
 | Generic connector-result-to-world-fact and world-table path | `bridge_missing` | Connector ingestion writes CAS evidence; document and claim producers write their own world facts and segments. No general connector-result consumer bridge is established by the inspected path. |
-| Automatic source-to-query lineage across ingestion, world materialization, claims, and query | `semantic_test_missing` | `FabricLineageTracker` can represent those nodes, but the all-node trace test manually calls the tracker methods. Connector ingestion captures fetch/transform lineage only. |
+| Automatic source-to-query lineage across ingestion, world materialization, claims, and query | `bridge_missing`; `semantic_test_missing` secondary | `FabricLineageTracker` can represent those nodes, but production call sites for downstream materialized columns, claims, world facts, and query results are absent in the inspected source. The all-node trace test manually calls the tracker methods, so it also does not prove the bridge end to end. Connector ingestion captures fetch/transform lineage only. |
 | Live provider readiness or source truth | `not_established` | The cited fixtures use local or test connectors and prove the named code paths only. |
 
 These boundaries keep the snapshot, world-store, and lineage claims tied to the

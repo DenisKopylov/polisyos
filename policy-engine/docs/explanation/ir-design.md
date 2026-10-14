@@ -53,7 +53,11 @@ owned by `architecture/imports/policy.toml`.
 
 ## From payload to linked contract
 
-The current Trinity path has distinct checks at each boundary:
+The current Trinity path has distinct checks at each boundary. In this path,
+`TrinityBundle` means the nested payload type
+`polisyos.ir.trinity.TrinityBundle`. The same-named
+`polisyos.core.contracts.trinity.TrinityBundle` is a separate DTO containing
+typed artifact references, not that nested payload.
 
 1. `polisyos.ir.trinity.loaders.load_trinity_bundle()` parses a mapping, JSON,
    YAML, or UTF-8 bytes and requires exact equality with the requested bundle
@@ -62,12 +66,16 @@ The current Trinity path has distinct checks at each boundary:
    `polisyos.ir.loading.loaders` API has different return and version behavior;
    see the [TRINITY contract](../contracts/TRINITY.md).
 2. `TrinityBundle` and its nested models validate field types, allowed fields,
-   identifiers, bounds, and local relationships. The common `KernelModel`
-   base forbids extra fields and freezes instantiated models.
+   identifiers, bounds, and implemented local relationships. The common
+   `KernelModel` base forbids extra fields and freezes instantiated models.
+   This is strict DTO structure and local invariant checking, not validation of
+   whether a policy's assumptions or effects are substantively adequate.
 3. `polisyos.ir.linker.link_trinity()` resolves the bundle against the supplied
    registries. It returns a `LinkedTrinityBundle` and a typed `LinkReport` for
    mechanism, parameter, selector, slot, metric, constraint, and schedule
-   checks covered by the linker.
+   checks covered by the linker. `LinkReport.ok` means that this run emitted no
+   error-severity `LinkIssue`; warnings may remain, and the result is scoped to
+   the checks and registry inputs the linker received.
 4. Downstream compilers and workflows consume the linked contract. Core owns
    the separate artifact and persistence machinery when a payload crosses a
    storage boundary.
@@ -94,6 +102,21 @@ versions a reader can accept or migrate. Compatibility is explicit and
 versioned. It does not imply that an old payload regains authority or that a
 consumer's present-day evidence requirements are met.
 
+Keep the serialization and version coordinates separate as well. The nested
+payload's `TrinityBundle.schema_version` is checked by its selected loader;
+Core's `SchemaInfo` names a persisted payload schema; `CanonInfo` records the
+canonicalization profile used for serialization. IR's `to_canonical_bytes()`
+produces canonical bytes and `content_hash()` hashes bytes; Core's
+`ArtifactID` identifies a CAS blob by its SHA-256 digest, with the store
+checking the blob bytes against that ID on read. These are different
+coordinates and are also separate from the explicit migration registry. A
+successful CAS integrity check binds the observed bytes to the ID; the ID
+alone does not establish producer authorship, factual grounding, or
+admissibility. The canonical definitions are `polisyos.ir.artifacts.contracts`
+(`ArtifactID`, `SchemaInfo`, `CanonInfo`), `polisyos.ir.model_layer.canon`,
+`polisyos.core.artifacts.ids.ArtifactID`, and
+`polisyos.core.artifacts.manifest` (`SchemaInfo`, `CanonInfo`).
+
 ## Authority, status, and time
 
 Authority is not inferred from a schema version, content digest, typed
@@ -114,11 +137,18 @@ admissible, limited, contested, blocked, or publishable. A local flag or
 warning must not be projected into a broader decision without an explicit
 composition rule and consumer.
 
-`ModelSpec.time_semantics` and intervention schedules describe simulation
-time: frequency, start, horizon, and step behavior. They do not by themselves
-represent legal effective time, observation time, transaction time, freshness,
-or the validity epoch of a published claim. The custody and runtime layers
-must preserve those time roles where their claims depend on them.
+`ModelSpec.time_semantics` (`TimeSemantics`) describes a simulation calendar
+through `frequency`, `start_date`, and `step_count` or `end_date`;
+`ScheduleSpec` describes an inclusive step range through `start_step` and
+`end_step` or `duration_steps`. Neither is legal effective time, observation
+time, transaction time, freshness, or the validity epoch of a published
+claim. The custody and runtime layers must preserve those time roles where
+their claims depend on them. The optional `created_at` string on Core's
+`TrinityManifest` is creation metadata; it is not a substitute for those
+validity or evidence-time roles. The canonical types are
+`polisyos.ir.kernel.time_semantics.TimeSemantics`,
+`polisyos.ir.governance.schedule.ScheduleSpec`, and
+`polisyos.core.contracts.trinity.TrinityManifest`.
 
 ## Current implementation and design target
 

@@ -31,6 +31,40 @@ remains the logical owner-group reference for reviews and escalation.
   `@DenisKopylov` as the current reviewer under its personal-repository
   exception.
 
+The `Logical owner group` and `Reviewer in tracked CODEOWNERS` columns below
+describe human review routing; they are distinct from an artifact or public
+surface contract's `owner` field. For `polisyos.fabric`, the public-surface
+contract says `team-polisyos`, while this table lists `@fabric-owners` and the
+tracked CODEOWNERS path routes to `@DenisKopylov`. The control-plane mapping
+records `team-polisyos` with `@platform-owners` and `team-fabric` with
+`@fabric-owners`, both covering `polisyos.fabric`. These records do not establish
+that the artifact owner label and the human review group are equivalent or
+which group is accountable for that artifact. Preserve the labels as declared;
+neither one proves team provisioning, an accepted appointment, or approval of a
+change.
+
+## Change-Triggered Documentation Review
+
+When a canonical implementation, contract, schema, public surface, generated
+reference, or owner mapping changes, review the documentation claims that depend
+on that source. The relevant subsystem owner checks technical accuracy; the
+docs owner checks audience, scope, and navigation. Review only affected claims
+and qualify any part that the inspected source does not establish.
+
+Keep the roles distinct: a logical owner group is the repository's
+responsibility label; a checked-in `CODEOWNERS` entry is tracked reviewer
+routing; an approval is evidenced by the review record for the change. Neither
+the group label nor a tracked route proves that a team is provisioned, a person
+accepted a current appointment, or a review occurred. The approval matrix below
+states the expected route, not evidence that approval was obtained. If the
+available source does not establish an owner, live routing, or approval, say so
+explicitly rather than inferring one.
+
+Keep ratified decisions and historical ownership records in their original
+role and time context. Record a changed assignment in its current canonical
+source and update this projection; do not silently rewrite a historical lane
+as a present appointment.
+
 ## Subsystem Owners
 
 <!-- markdownlint-disable MD060 -->

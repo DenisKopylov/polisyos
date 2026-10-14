@@ -1,5 +1,9 @@
 # Data Quality Validation
 
+Supplemental implementation notes. The canonical published summary is the
+[Fabric Quality reference](../reference/fabric/quality.md), which carries the
+current source pin and validation limits.
+
 This page describes the current Fabric connector quality validator. The dated Phase 2.6 design
 specification is historical; its original three-component weights are not the current defaults.
 

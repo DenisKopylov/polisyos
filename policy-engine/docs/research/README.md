@@ -11,10 +11,16 @@ chain and the owner decision that admits it.
   finding-level research separate from independent verification and ratification.
 - [Universal policy design](universal-policy-design/README.md) collects design rationale; use the
   owning architecture records and semantic tests for accepted behavior.
+- [Universal Policy Design Case research-results consolidation](../backlog/universal-policy-design-case-research-results-consolidation.md)
+  is a `normalized-final-synthesis-draft`, not an accepted requirement or
+  execution authority; its synthesis status does not ratify its findings.
 - [Post-E02 development programs](development-programs/2026-09-30-post-e02/README.md) is a proposed
   portfolio and sequence, not authorization to start work, obtain data, or publish a claim.
 - [Remaining deep-research backlog](remaining-deep-research-backlog.md) contains research prompts,
   not accepted product requirements.
+- [Documentation organization research](documentation-practices-20261014.md)
+  records advisory practices; the style guide and verification owners define
+  the repository's applied documentation rules.
 - Topic-specific notes and ledgers remain beside their subject. Read their local README and cited
   owner source before reusing a claim.
 

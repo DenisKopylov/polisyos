@@ -98,9 +98,11 @@ The resulting capability states are:
 - **Generic connector-result-to-world-fact bridge:** `bridge_missing`;
   document and claim producers emit their own world facts and segments, as
   described in the [data-plane reference](data-plane.md).
-- **Automatic source-to-query lineage across connector ingestion, world
-  materialization, claims, and query:** `semantic_test_missing`; the all-node
-  test assembles the graph by calling tracker methods directly.
+- **Automatic cross-producer lineage across connector ingestion, world
+  materialization, claims, and query:** `bridge_missing`; production call sites
+  for the downstream tracker methods are absent in the inspected source.
+  `semantic_test_missing` is secondary: the all-node test assembles the graph
+  by calling tracker methods directly and does not prove the intended bridge.
 - **Source truth and operational freshness inferred from exported lineage:**
   `not_established`; graph edges and projection defaults establish only what
   their recorded inputs and metadata say.

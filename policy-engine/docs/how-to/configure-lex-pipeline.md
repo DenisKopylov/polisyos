@@ -143,7 +143,7 @@ active = resolve_active_version(
 )
 ```
 
-Это даёт детерминированный answer на вопрос "какая версия закона действовала на дату анализа", вместо случайного выбора document id.
+Это даёт детерминированный локальный выбор среди известных записей version index по переданной metadata `effective_from`/`effective_to`: границы `as_of` включительные, а при нескольких подходящих версиях применяются tie-break по `effective_from`, `published_at`, затем `doc_version_id`. Это поведение задают `src/polisyos/data_forge/domains/legal/corpus/versioning.py::resolve_active_version()` и `src/polisyos/lex/normpack/select_sources.py::select_active_doc_versions()`. Сам индекс не доказывает, какая редакция юридически действовала: он не подтверждает происхождение источника у издателя, полноту корпуса или актуальность на момент чтения. В частности, невалидный непустой `effective_to` в текущем resolver трактуется как открытая верхняя граница; это известный validation gap, а не вывод о сроке действия акта. См. [Lex NormPack reference](../reference/lex/normpack.md#time-identity-and-replay) и [Lex Pipeline explanation](../explanation/lex-pipeline.md#unresolved-integration).
 
 ## 4. Соберите `NormPack`
 
@@ -230,6 +230,10 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 - provenance artifacts: world events и fact segments.
 
 Это важнее, чем один финальный JSON: downstream governance и intervention layers читают именно этот bundle of evidence.
+
+## 8. Актуальность источника и повторная оценка
+
+Считайте обнаруженную upstream-публикацию или поправку, а также исправление исходных байтов/метаданных (например, effective dates, jurisdiction или provenance) поводом вручную пересобрать затронутые corpus artifacts, version index и `NormPack`, затем повторить claim-level assessment для нужного legal `as_of`. Изменение claim requirement или Lex rule требует повторить scoped assessment; пересобирайте source artifacts только если изменились сами source inputs или extraction/selection basis. Это операционные prompts, а не встроенные freshness triggers: описанный путь не опрашивает издателя, не проверяет его подпись и сам по себе не запускает полный external-source invalidation/reissue cascade. Сохраняйте refs входов и version/rule basis прежней оценки для разбора; локальная воспроизводимость не подтверждает юридическую актуальность источника. Подробности о time/replay и issuer-verification границе: [Lex Pipeline](../explanation/lex-pipeline.md#time-and-replay) и [unresolved integration](../explanation/lex-pipeline.md#unresolved-integration).
 
 ## Откат
 

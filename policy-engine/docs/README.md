@@ -34,6 +34,7 @@ retain that limit even when an individual component or documentation check passe
 | Locate current execution or a historical plan | [Plans lifecycle](plans/README.md), [active index](plans/active/README.md), [archive disposition](plans/documentation-refresh-disposition-20261014.md) |
 | Find research and E02 evidence owners | [Research map](research/README.md) |
 | Read frozen evidence | [Archive lifecycle and entrypoints](archive/README.md) |
+| Review migration and rollback records | [Migration record map](migration/README.md) |
 | Work on visual identity or compliance records | [Brand](brand/README.md), [accessibility records](compliance/README.md) |
 
 ## Maintain the documentation
@@ -56,3 +57,8 @@ Stable behavior belongs in authored explanation/reference/procedure pages;
 plans and receipts retain their historical authority and explicit scope.
 Generated references link to their canonical owners and regeneration commands.
 Do not copy their inventories into a second manual source of truth.
+
+When an implementation, schema, rule or generator changes, review the affected
+claims through their existing owner. The verification contract distinguishes
+source-binding comparison, generated-output drift and rendered-link checks;
+none substitutes for checking the meaning of the changed claim.

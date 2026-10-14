@@ -1,17 +1,32 @@
 # Current Scientist Workflows and Evidence Handoffs
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/engine/**`,
-  `src/polisyos/scientist/orchestration/workflows/**`, `src/polisyos/scientist/nodes/builtins/**`,
-  `src/polisyos/scientist/evidence/claims/**`, `src/polisyos/scientist/validation/policy_grounding.py`,
-  `src/polisyos/scientist/validation/__init__.py`, and the tests named below.
-Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/engine/**/*.py`,
+  `src/polisyos/scientist/orchestration/workflows/**/*.py`,
+  `src/polisyos/scientist/nodes/builtins/**/*.py`,
+  `src/polisyos/scientist/evidence/claims/**/*.py`, `src/polisyos/scientist/validation/policy_grounding.py`,
+  `src/polisyos/scientist/validation/__init__.py`, `src/polisyos/scientist/evidence/source_quality.py`,
+  `src/polisyos/scientist/methods/research_dag/invalidation.py`,
+  `src/polisyos/scientist/methods/research_dag/projections.py`,
+  `src/polisyos/runtime/http/services/control/nl_pipeline.py`.
+Source pin: bafca83bff9ff49eef1466bc491a8420b5cd1dbb
 Evidence level: implementation and test sources were inspected at this pin; tests were not executed for
-this docs-only update. The direct-reference policy-grounding source census was `recomputed` by this
+this docs-only update. The source-binding checker compares only the leading `Source of truth` paths;
+test paths named in the body are not automatically scanned. This metadata does not prove prose truth or
+complete claim coverage. The direct-reference policy-grounding source census was `recomputed` by this
 documentation author with the command below: 628 Python files under
 `policy-engine/src/polisyos/scientist`.
 
-This page records the observed runtime paths and their current boundaries. The inspected implementation is not a demonstrated end-to-end policy-proof system: the request-to-Trinity producer is missing, the builtin workflow does not consume the grounding matrix, and default Claim-owner currentness is not established. A typed component or focused test does not establish a complete producer/artifact/bridge/consumer/surface chain. It complements [the Scientist index](index.md), [the workflow engine reference](workflows.md), and [the claim spine reference](claims.md), plus [Claim Ledger lifecycle](claim-ledger.md) and [Research DAG replay](research-dag-replay.md). The workflow reference remains the deeper DAG catalog; this page focuses on state transitions, evidence handshakes, and integration status.
+This page records observed runtime paths and their current boundaries. The inspected implementation is
+not a demonstrated end-to-end policy-proof system: the request-to-Trinity producer is missing, the
+builtin workflow does not consume the grounding matrix, and default Claim-owner currentness is not
+established. A typed component or focused test does not establish a complete
+producer/artifact/bridge/consumer/surface chain. It complements [the Scientist index](index.md), [the
+workflow engine reference](workflows.md), and [the claim spine reference](claims.md), plus [Claim Ledger
+lifecycle](claim-ledger.md), [Research DAG replay](research-dag-replay.md), [source quality
+calibration](source-quality-calibration.md), and [Foundry compile and
+execute](../foundry/compile-execute.md). The workflow reference remains the deeper DAG catalog; this page
+focuses on state transitions, evidence handoffs, freshness boundaries, and integration status.
 
 ## Run routing and state machines
 
@@ -61,7 +76,12 @@ workflow report is `fail` if any node failed and otherwise `ok`; skipped nodes a
 report-level `fail` is recorded in the result rather than converted into an exception. Setup/execution
 exceptions can still propagate. Read `src/polisyos/scientist/orchestration/engine/executor.py`,
 `src/polisyos/scientist/orchestration/engine/state.py`, and `src/polisyos/scientist/api.py` for these
-distinct contracts.
+distinct contracts. These are local execution outcomes, not policy or evidence authority: a node-level
+`ok` means only that the node returned `ok` under its implementation, and a report-level `ok` means the
+execution recorded no failed node. Neither establishes that a referenced artifact was resolved and bound,
+that a claim is publishable, or that a current Claim head was issued. In particular, the formalizer's `ok`
+is only the caller-ref key-presence guard described below; Claim readiness and Claim-owner currentness are
+separate.
 
 ## Policy request, grounding, and packaging
 
@@ -95,6 +115,27 @@ verified evidence:
    Phase 5 artifact preflight and publication enforcement. A Phase 5 block returns a failing node outcome
    with validation evidence; otherwise the policy-design DAG makes the bundle an input to decision-packet
    construction. A bundle or decision-card projection is not itself proof of Claim-owner currentness.
+
+### Source freshness and invalidation
+
+`build_source_quality_report()` assesses the supplied source metadata when a caller builds the report. It
+uses `page_age_days`, or `published_at`/`fetched_at`, against the TTL for the normalized claim family and
+source class; an exceeded TTL is `stale`, while missing machine-readable age is `unknown`. A non-publishable
+freshness, invalidation, or conflict state fails the report, while its composite score remains advisory. The
+documented runtime consumer is the serious HTTP natural-language path in
+`src/polisyos/runtime/http/services/control/nl_pipeline.py`; this does not establish that every builtin
+Scientist DAG runs or consumes source-quality assessment. The report can surface a refresh or review need,
+but it is not a scheduled fetch or an automatic Claim update. See
+[Source Quality Calibration](source-quality-calibration.md) for TTL and decision-state details.
+
+Source invalidation is a separate handoff. A caller-supplied `SourceInvalidationEvent` must name a
+`source_ref` present in the Research DAG; propagation then identifies downstream nodes and dependent
+claims. `stale`/`unavailable` map to `marked_stale`, while `withdrawn`/`contradicted` map to `invalidated`.
+The invalidation helpers can construct typed lifecycle events, but the linked Research DAG reference
+describes its replay/invalidation controls as shadow/read-only and Phase 2.6 as a later consumer of reports
+for review and reissue triggers. The propagation helper itself processes a supplied event; it does not
+fetch a replacement source, issue a Claim root, or advance a current Claim head. See [Research DAG
+replay](research-dag-replay.md) and [Claim Ledger lifecycle](claim-ledger.md).
 
 The grounding matrix has substantive claim-bound behavior in
 `src/polisyos/scientist/validation/policy_grounding.py`: it checks claim-registry membership, required

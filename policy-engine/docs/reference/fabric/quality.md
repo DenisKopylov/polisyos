@@ -4,9 +4,9 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/quality/quality.py`, `src/polisyos/fabric/quality/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`, and `tests/unit/fabric/connectors/test_quality_statistics.py`
+Source of truth: `src/polisyos/fabric/quality/quality.py`, `src/polisyos/fabric/quality/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `src/polisyos/core/evaluation/scoring.py`, `src/polisyos/scientist/governance/passes/quality_gate_pass.py`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`, `tests/unit/fabric/connectors/test_quality_statistics.py`, `tests/unit/fabric/test_observability_governance_quality_phase4.py`, and `tests/unit/scientist/governance/test_quality_gate_pass.py`
 Evidence level: implementation and named unit-test behavior inspected at the source pin. Tests were not run in this documentation pass.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 Inventory scope: code counts reflect statically resolved source declarations;
@@ -67,6 +67,26 @@ Its default tier mapping is:
 - consistency violations for bounds, categories, and non-finite numerics;
 - dataset profiles, anomaly findings, drift findings, and quality trend deltas;
 - inline YAML quality contracts that can fail validation.
+
+## Coverage And Governance Limits
+
+`CompletenessAnalyzer.analyze` accepts `expected_row_count`, but
+`DataQualityValidator._check_completeness` calls it with
+`expected_row_count=None`. The generic `DataQualityValidator.validate(...)`
+path therefore does not compare returned row count with an expected total,
+even if that total is available elsewhere. This limitation is specific to that
+validator path; it does not mean no other caller can supply an expected count.
+
+`QualityGatePass` consumes `ctx.state["data_quality_report"]` when a caller has
+put a report there, then attaches normalized Fabric quality evidence to
+governance state. Otherwise, it follows its evidence-bundle path. The inspected
+tests construct the pass context with the report already present. They do not
+show an automatic bridge from every connector validation run to the governance
+pass: that automatic path is `bridge_missing`, and the end-to-end production to
+consumption behavior is `semantic_test_missing`.
+
+The source and test files named above were inspected at this pin; tests were
+not executed during this update.
 
 ## Evidence And Downstream Use
 

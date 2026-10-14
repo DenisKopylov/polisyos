@@ -13,9 +13,26 @@ semantic adequacy, admissibility, or publishability. See
 [Trinity](../../contracts/TRINITY.md) and [Causal Identification Candidates](causal-identification-candidates.md)
 for concrete boundaries.
 
+Read the surface in stages: `polisyos.ir.trinity.TrinityBundle` represents the
+nested payload; `polisyos.ir.kernel.base.KernelModel` sets the
+`extra="forbid"` and `frozen=True` base options; and
+`polisyos.ir.linker.link_trinity()` adds checks against supplied registries and
+returns a linked DTO plus diagnostics. A downstream consumer still owns its
+admission and authority decision. Use [Public Surface](public-surface.md) for
+supported imports, [Schema Catalog](schema-catalog.md) for generated field
+details, and [IR Design](../../explanation/ir-design.md) for the
+representation/validation/admission/authority distinctions, serialization
+identity, version, and time semantics. The TRINITY contract explains its
+same-named payload and reference DTOs and distinct loader contracts.
+
 Freshness: 2026-10-14
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/**`, `src/polisyos/schemas/abi_models.py`, `tests/unit/ir/**`, `tests/contract/**`; [Trinity Contracts](../../contracts/TRINITY.md) maps the current payload, reference, and linker owners.
+Source of truth: `src/polisyos/ir/**`, `src/polisyos/schemas/abi_models.py`,
+`src/polisyos/core/contracts/trinity.py`, `src/polisyos/core/artifacts/ids.py`,
+`src/polisyos/core/artifacts/manifest.py`, `src/polisyos/common/canonical.py`,
+`src/polisyos/common/hashing.py`, `tests/unit/ir/**`, `tests/contract/**`;
+[Trinity Contracts](../../contracts/TRINITY.md) maps the current payload,
+reference, linker, and loader owners.
 Historical snapshots: `docs/contracts/E1_*.md` and `docs/contracts/E2_*.md` record phase contracts; they are not current implementation inventories.
 Source plan: `docs/plans/active/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Snapshot and evidence level: inspected at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; the paths named in the corrected rows were checked for existence in the source and test trees. No tests were executed for this manual-reference update.

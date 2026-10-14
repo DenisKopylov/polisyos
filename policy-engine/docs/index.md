@@ -104,6 +104,11 @@ flowchart TB
 - [Documentation verification](reference/documentation-verification.md) explains
   what the documentation checks actually establish.
 
+For a documentation contribution, use the contributor task map and verification
+contract together: select the affected owners, review changed claims, then run
+the checks for that surface. A recent edit date or unchanged source bytes alone
+does not establish semantic accuracy.
+
 ## Current source maps
 
 | Question | Start with |

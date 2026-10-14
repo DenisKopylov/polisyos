@@ -3473,6 +3473,7 @@ def test_measurement_verification_time_cannot_claim_invalid_custody(
         future.model_dump(mode="json"),
         fabric_fetch_ref=future.fetch_receipt_ref,
         source_checked_at=future.source_agreement_checked_at,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     assert source_profile is not None
     with pytest.raises(ValueError, match="verification_time_in_future"):

@@ -63,6 +63,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
+_ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
 
 
 def _problem(
@@ -885,6 +886,7 @@ def _real_acq01_route(
             evidence=evidence,
             data_snapshot_ref=data_snapshot_ref,
             admission=admission,
+            execution_scope_binding=execution_scope_binding,
             registry_ref=route_registry_ref,
             world_build=world_build,
             context=context,
@@ -986,6 +988,7 @@ def _build_acq01_real_route_controller(
     repo_root: Path,
     authority_scope: str = "contract_testing",
     artifact_store: object = _ACQ01_ROUTE_STORE_UNSPECIFIED,
+    value_port: Any = _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED,
 ) -> GenerationCycleController:
     class _RouteGenerationPort:
         async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
@@ -1013,11 +1016,14 @@ def _build_acq01_real_route_controller(
     selected_store = (
         route.store if artifact_store is _ACQ01_ROUTE_STORE_UNSPECIFIED else artifact_store
     )
+    selected_value_port = (
+        _PendingFixtureValue() if value_port is _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED else value_port
+    )
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
         grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
         simulation_port=simulation,
-        value_port=_PendingFixtureValue(),
+        value_port=selected_value_port,
         acquisition_owner_gateway=gateway,
         artifact_store=(
             cast("ArtifactStore | None", selected_store)
@@ -1026,6 +1032,9 @@ def _build_acq01_real_route_controller(
         ),
         repo_root=repo_root,
         cycle_substrate_context=case.before_context,
+        measurement_root_execution_binding=(
+            route.execution_scope_binding if authority_scope == "contract_testing" else None
+        ),
         authority_scope=authority_scope,
     )
     if isinstance(simulation, _ContextRecordingSimulation):
@@ -1468,22 +1477,6 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         candidate_content_hash=case.candidate.atom.content_hash,
     ) as route:
 
-        class _RouteGenerationPort:
-            async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
-                del current, cycle_index
-                return SimpleNamespace(
-                    status="generated",
-                    candidates=(case.candidate,),
-                    surrogate_rankings=(
-                        SimpleNamespace(
-                            candidate_id=case.candidate.candidate_id,
-                            score=0.2,
-                            voi_estimate=0.2,
-                        ),
-                    ),
-                    grounding_dispositions=(),
-                )
-
         class _RecordingN5Controller:
             def __init__(self) -> None:
                 self.requests: list[Any] = []
@@ -1495,27 +1488,19 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
 
         n5 = _RecordingN5Controller()
         runtime_store = route.store
-        gateway = RecordedAcquisitionOwnerGateway(
-            artifacts_by_requirement={
-                case.data_spec.requirement_id: route.owner_artifact,
-            }
-        )
-        gateway.catalog = route.catalog
-        gateway.providers = route.providers
-        controller = GenerationCycleController(
-            generation_port=_RouteGenerationPort(),
-            grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
-            simulation_port=JointSimulationPort(
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=JointSimulationPort(
                 controller=n5,
                 repo_root=tmp_path,
                 cycle_substrate_context=case.before_context,
                 artifact_store=runtime_store,
             ),
-            acquisition_owner_gateway=gateway,
             repo_root=tmp_path,
-            cycle_substrate_context=case.before_context,
             authority_scope="contract_testing",
             artifact_store=runtime_store,
+            value_port=None,
         )
 
         run = await controller.run(

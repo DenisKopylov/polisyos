@@ -4465,6 +4465,116 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             lambda: analyst_claims,
         )
         context_store = cast("FileSystemCAS", app.state.runtime_api_ctx.store)
+
+        def local_cas_byte_inventory() -> dict[str, str]:
+            artifact_root = cas_root / "artifacts" / "sha256"
+            return {
+                path.relative_to(artifact_root).as_posix(): hashlib.sha256(
+                    path.read_bytes()
+                ).hexdigest()
+                for path in sorted(artifact_root.rglob("*"))
+                if path.is_file()
+            }
+
+        def predictive_event_receipts():
+            return tuple(
+                (
+                    record.event.event_id,
+                    tuple(record.event.artifact_refs),
+                    record.payload_sha256,
+                )
+                for record in event_log.list_events(run_id=core_run_id, job_id=job_id)
+                if record.event.producer_component == "polisyos.runtime.http.predictive_calibration"
+            )
+
+        root_bound_roles = (
+            ("observed_source_ref", "observed_source"),
+            ("model_spec_ref", "model_spec"),
+            ("policy_spec_ref", "policy_spec"),
+            ("calibration_rule_ref", "calibration_rule"),
+        )
+        owner_calls_before_root_binding: list[Any] = []
+
+        def reject_owner_before_root_binding(_self: ForecastOwner, owner_request: Any) -> None:
+            owner_calls_before_root_binding.append(owner_request)
+            raise AssertionError("unrooted input reached ForecastOwner")
+
+        with monkeypatch.context() as source_root_probe:
+            source_root_probe.setattr(
+                ForecastOwner,
+                "run",
+                reject_owner_before_root_binding,
+            )
+            for role_field, error_role in root_bound_roles:
+                selected_ref = ArtifactRef.model_validate(body[role_field])
+                with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                    sibling_profile_ref = context_store.put_bytes(
+                        context_store.get_bytes(selected_ref),
+                        PutOptions(
+                            kind=selected_ref.kind,
+                            media_type=selected_ref.media_type,
+                            schema=SchemaInfo(
+                                name=f"test.unrooted.{error_role}",
+                                version="nondefault-view",
+                            ),
+                        ),
+                        return_selected_profile=True,
+                    )
+                    assert context_store.verify(sibling_profile_ref).ok
+                assert sibling_profile_ref.artifact_id == selected_ref.artifact_id
+                assert sibling_profile_ref.kind == selected_ref.kind
+                assert sibling_profile_ref.media_type == selected_ref.media_type
+                assert sibling_profile_ref.manifest_profile_sha256 is not None
+                assert (
+                    sibling_profile_ref.manifest_profile_sha256
+                    != selected_ref.manifest_profile_sha256
+                )
+                assert not any(
+                    actual_ref["artifact_id"] == str(sibling_profile_ref.artifact_id)
+                    and actual_ref["kind"] == sibling_profile_ref.kind
+                    and actual_ref["media_type"] == sibling_profile_ref.media_type
+                    and actual_ref["manifest_profile_sha256"]
+                    == sibling_profile_ref.manifest_profile_sha256
+                    for actual_ref in input_refs
+                )
+
+                rejected_body = {
+                    **body,
+                    role_field: sibling_profile_ref.model_dump(mode="json"),
+                }
+                typed_request = PredictiveCalibrationRequest.model_validate(rejected_body)
+                intent_key = calibration_service.RuntimeOperationIntentKey(
+                    purpose="run.predictive_calibration.v1",
+                    tenant_id="tenant-fixture",
+                    cell_id="cell-fixture",
+                    actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
+                    run_id=core_run_id,
+                    intent_id=body["intent_id"],
+                    body_sha256=calibration_service._operation_body_sha256(
+                        request=typed_request,
+                        run_id=core_run_id,
+                        job_id=job_id,
+                        tenant_id="tenant-fixture",
+                        cell_id="cell-fixture",
+                        run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
+                    ),
+                )
+                cas_before = local_cas_byte_inventory()
+                events_before = predictive_event_receipts()
+                rejected = client.post(
+                    f"/api/v1/runs/{core_run_id}/predictive-calibration",
+                    json=rejected_body,
+                )
+                assert rejected.status_code == 422, rejected.text
+                assert rejected.json()["code"] == (
+                    f"predictive_calibration_{error_role}_not_run_root"
+                )
+                assert local_cas_byte_inventory() == cas_before
+                assert predictive_event_receipts() == events_before
+                intent = event_log._store.get_runtime_operation_intent(intent_key)
+                assert intent.status == "unknown"
+                assert intent.record is None
+        assert owner_calls_before_root_binding == []
         profileless_candidate_ref = dict(body["candidate_source_ref"])
         profileless_candidate_ref.pop("manifest_profile_sha256", None)
         profileless_response = client.post(

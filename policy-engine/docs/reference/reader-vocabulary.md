@@ -7,17 +7,18 @@ search:
 
 Owner: `@docs-owners`
 Source of truth: `docs/index.md`, `docs/reference/index.md`,
-`docs/explanation/architecture.md`,
-`docs/reference/e02-documentation-snapshot.md`,
-`docs/system-design-decisions/policyos-identity-and-custody-boundary.md`,
-`docs/explanation/ir-design.md`, `docs/reference/ir/index.md`,
-`docs/reference/api/auth-tenant-model.md`, `docs/reference/local-runtime-state.md`,
-`docs/reference/fabric/lineage.md`,
-`docs/reference/scientist/current-workflows.md`,
-`docs/reference/foundry/index.md`,
-`docs/reference/canonical-vocabulary-crosswalk.md`,
-`docs/reference/contributor-start-here.md`, and
-`docs/reference/documentation-verification.md`.
+  `docs/explanation/architecture.md`,
+  `docs/reference/e02-documentation-snapshot.md`,
+  `docs/system-design-decisions/policyos-identity-and-custody-boundary.md`,
+  `docs/explanation/ir-design.md`, `docs/reference/ir/index.md`,
+  `docs/reference/api/auth-tenant-model.md`, `docs/reference/local-runtime-state.md`,
+  `docs/reference/fabric/lineage.md`,
+  `docs/reference/scientist/current-workflows.md`,
+  `docs/reference/foundry/index.md`,
+  `docs/reference/canonical-vocabulary-crosswalk.md`,
+  `docs/reference/contributor-start-here.md`,
+  `docs/reference/operations/cas-storage.md`, and
+  `docs/reference/documentation-verification.md`.
 Related pages: [Documentation index](../index.md), [Reference index](index.md),
 [Contributor Start Here](contributor-start-here.md), and
 [Documentation Verification](documentation-verification.md).

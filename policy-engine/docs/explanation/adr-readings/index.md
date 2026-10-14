@@ -35,6 +35,7 @@ neither label proves that the decision is implemented.
   — source status `accepted`.
 
 The ADR status index and source records remain available at their existing
-routes: [ADR status index](../../adr/index.md) and [ADR rules](../../adr/README.md).
+routes: [ADR status index](../../adr/index.md). The ADR authoring rules remain
+in the repository-only `docs/adr/README.md`.
 These reader translations add routes; they do not replace or redirect the
 original ADR URLs.

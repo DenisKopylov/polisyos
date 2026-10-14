@@ -103,8 +103,9 @@ tracks the bounded census.
 
 ## Decisions, work in progress and history
 
-The [system-design decision index](system-design-decisions/README.md) routes
-ratifications and proposals; the [ADR index](adr/index.md) preserves each
+The [architecture overview](explanation/architecture.md) routes ratified
+system-design boundaries; the repository-only `docs/system-design-decisions/README.md`
+catalog also lists proposals. The [ADR index](adr/index.md) preserves each
 record's declared status. Acceptance of a decision is separate from
 implementation evidence. Active and accepted plans live in `docs/plans/`;
 completed and superseded plans live in `docs/plans/archive/`. Reviewed

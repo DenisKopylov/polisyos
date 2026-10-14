@@ -1,0 +1,80 @@
+{
+  "schema": "policyos.e02.local.implementation_handoff.v1",
+  "slice": "can-paired-post-lifespan",
+  "slice_base": {
+    "sha": "315a87d4199b1ac0a526484e01a9b83f1ccf0708",
+    "tree": "af764e93675c82cfc14ba631da33badd39566be1",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "candidate_sha": "8a2e2749e1cef68a54c9fc93788875666e62eb59",
+  "candidate_tree": "3ca6d9b2cda4f63636336e5298a41f97568b4481",
+  "candidate_parents": [
+    "315a87d4199b1ac0a526484e01a9b83f1ccf0708"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+      "sha256": "dfc9f58759dd2cba99cb6e57816bb6b81865917e241b57ec8bfa78a229c58465",
+      "kind": "testfixturecompanion"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input": "controlled temporary tenant-selected FileSystemCAS and owner-bound public-verification request fixture",
+    "backend": "macos-arm64Python3.14.3 CPU numerical1thread",
+    "surface": "actualdebug/workflow/public-verificationAPI plus scenario andbinaryfullfile cases",
+    "production_authenticity": "notclaimed"
+  },
+  "real_chain": "sameclientlifespan firstrealPOST refusesnonconformantselectedpayload; selectedsidecar wholecanonremoved; secondrealPOST refusescanon_profile_absent; neither issuespublicrecord; validruntimecontainerbind/shutdown guardretained",
+  "source_bound_command": {
+    "command_packet": "implementation-handoffs/LOCAL/raw/r1856-can-11-case-fixture-native-actual-20261014/command.json",
+    "sha256": "3852b36ccfddcca53bda515f924db67c21ba2195c31c67c992f3960a8f571625",
+    "test_argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_declared_profile_api_refusal.py"
+    ],
+    "complete_invocation_note": "Capture packet retains the exact3plugins/environment/basetemp/JUnit/source7715 denominator; abbreviatedtestargvabove is navigationonly",
+    "exit_code": 0,
+    "wall_seconds": 70.89121316594537,
+    "source_stable": true,
+    "PASS": 11,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "deciding_stdout": {
+      "path": "implementation-handoffs/LOCAL/raw/r1856-can-11-case-fixture-native-actual-20261014/stdout.txt",
+      "sha256": "8148b92b0af863de99dfbd9448d287438437c87709f99e536a7fb11d64d9cb6c"
+    },
+    "deciding_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "prior_boundaries": [
+    "R1843 complete4file136case source4353:135PASS/1FAIL; thisreceipt does notaggregate toonefresh136PASS run",
+    "R1843remainingfailure was fixturesecondlifespanstartup duplicateacquisitionhandler, notprofileclaim"
+  ],
+  "adversarial_removal_controls": [
+    "nonconformantselectedpayloadfixedprofile refuses",
+    "wholecanonmetadata removedwhilecontentID/selectedprofile/ref markersremain refuses",
+    "bothactualPOST noissuedrecords",
+    "profile mismatch/raw/nonJSON/scenario/binary/actionreceiptguard fullfilecontrols retained"
+  ],
+  "independent_review": {
+    "path": "implementation-handoffs/LOCAL/raw/r1848-can-whole-paired-post-lifespan-independent-20261014/review.md",
+    "sha256": "7b4ed2f4ecd67c718c3bf77d093d38799f193e574083b5477deceb31f6119527"
+  },
+  "limitations": [
+    "Onlyfixture lifecycle changed; runtimecontainerrestartbehavior notasserted/fixed",
+    "NamespacedAPI publicwire compatibility Gdecision remainspending",
+    "CanonicalgeneratedAPI companion typecheck failurecurrentlyblocks ownremote publication; codepreservedlocal ordinarycommits",
+    "NativeSOTA/Linux/installed/source/inputbackendfreeze/fullIDcloseout outstanding"
+  ],
+  "proposal_fields": {
+    "outcome": "GO for thisboundedfixture/pathwitness; noformal findingclosure",
+    "G_acceptance": "pending"
+  },
+  "closure_ids": []
+}

@@ -1,7 +1,7 @@
 # Documentation Verification Contract
 
 Owner: team-docs
-Source pin: `6fd47dc693b8f79993876bc28a55421cc0196027`
+Source pin: `4b1204481fdeff627e360b2f66ae554899c8333a`
 
 Source of truth: `tools/registry.py`, `tools/cli.py`, `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_review.py`, `tools/quality/validation/check_docs_impact.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, `tests/repo_quality/tools/test_docs_gate.py`, `tests/repo_quality/tools/test_docs_review.py`, `tests/repo_quality/tools/test_docs_impact.py`, `tests/repo_quality/tools/test_docs_source_bindings.py`, and `tests/repo_quality/tools/test_docs_rendered_links.py`.
 
@@ -13,17 +13,18 @@ current or that every factual claim is true.
 Review note: the original style, path-aware gate, accuracy, freshness and lifecycle
 sources were read at snapshot `47e1e59b569a5b922611f71a7f53fb6320abea4c`.
 
-A later pass reviewed the rendered-link and source-binding implementations, their
-mirrored tests, and the publication-config gate plan. This pass inspected the
-docs-review runner and docs-impact scanner, tracing CLI arguments, Git path
-selection, workspace matching, child dispatch, status mapping, and output
-retention against their implementations and mirrored tests.
+At the pinned source snapshot above, review covered the docs-review runner and
+docs-impact scanner, including CLI arguments, Git path selection, workspace
+matching, child dispatch, status mapping, output retention, and the actual
+Source of truth field-counting grammar. It also covered their mirrored tests,
+the rendered-link and source-binding implementations and tests, and the
+publication-config gate plan. The impact parser counts actual leading metadata
+fields; supported continuation lines contribute path patterns without counting
+as additional fields.
 
-Test files were reviewed as source; this note does not claim that they ran. The
-review and impact sources were inspected in the current worktree and are not
-bound by the earlier source pin shown above. The closeout record reports actual
-command execution separately. This note records review scope, not a universal
-source-pin requirement.
+Mirrored tests were reviewed as source; this note does not claim they ran. The
+closeout record reports actual command execution separately. This note records
+review scope, not a universal source-pin requirement.
 
 ## Quick author path
 
@@ -145,7 +146,7 @@ input or an unsafe path. `UNRUN` preserves any findings.
 
 It checks the listed HTML URI attributes, `srcset`, meta-refresh URLs, inline/style-element CSS `url()` and `@import`, and external CSS `url()`/`@import`; it resolves local files and relevant HTML `id`/`name` fragments. Origin comparison uses bounded ASCII DNS labels (case-insensitive while preserving a trailing dot), canonical dotted-decimal IPv4, and bracketed IPv6. Non-ASCII, percent-encoded, and legacy/numeric IPv4 hosts return `UNRUN`; the smallest capability that closes this gap is a browser-equivalent WHATWG/UTS46 origin normalizer, which this checker does not provide. The checker enumerates the site and explicitly reads and re-reads HTML/CSS bytes; the re-read detects observed drift but does not establish an atomic filesystem snapshot or audit all process filesystem access. It does not use HTML5 tree construction, scan JavaScript/browser navigation or unlisted URI-bearing attributes/CSS constructs, fetch external URLs, or resolve CSS/SVG/non-HTML fragments. Its receipt binds emitted bytes, not the MkDocs source commit or build invocation, so pair it with a separately pinned build record. The direct D6 gate and CI do not invoke it; `check-docs-review --run-independent` does so after a matching strict build.
 
-The source-binding checker is standalone and opt-in: select pages with repeated `--doc` options. It does not scan every document, and this metadata is not required on every page. Each selected page needs exactly one leading `Source pin` and one leading `Source of truth`. The pin is one full 40- or 64-hex commit ID, optionally wrapped by one pair of backticks; no other characters or final punctuation are accepted. The source field contains one or more backticked paths/globs, with continuation tokens on indented lines. Do not use `::` function-selection syntax: the checker treats tokens as paths, and test references in the body do not select files.
+The source-binding checker is standalone and opt-in: select pages with repeated `--doc` options. It does not scan every document, and this metadata is not required on every page. Each selected page needs exactly one leading `Source pin` and one leading `Source of truth`. The pin is one full 40- or 64-hex commit ID, optionally wrapped by one pair of backticks; no other characters or final punctuation are accepted. The source field contains one or more backticked paths/globs. Indented and blockquote continuation lines add path patterns to that single field; a second actual `Source of truth` field is unsupported. Do not use `::` function-selection syntax: the checker treats tokens as paths, and test references in the body do not select files.
 
 Path namespaces are explicit and stable across invocation roots: `repo:<path-or-glob>` is Git-root-relative; `product:<path-or-glob>` and unqualified paths are product-root-relative. Namespace selection never depends on whether a candidate file exists. Unknown namespace-like prefixes, colons outside these prefixes, absolute/traversing paths, backslashes, braces and character classes return `UNRUN`; a repository-root path must use `repo:`. `*` and `?` match within one component, while a complete `**` component matches zero or more components. A complete equal comparison returns 0; source-set drift returns 1; unresolved pins, malformed metadata, Gitlinks or LFS pointers return 2/`UNRUN`.
 

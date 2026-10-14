@@ -75,27 +75,27 @@ sum to that denominator. `[no extension]` is a path suffix category.
 
 | Suffix               | Paths | Suffix           | Paths |
 | -------------------- | ----: | ---------------- | ----: |
-| `.bin`               | 2     | `.blob`          | 31    |
-| `.candidate`         | 1     | `.css`           | 2     |
-| `.diff`              | 15    | `.docx`          | 1     |
-| `.exitcode`          | 8     | `.gz`            | 799   |
-| `.html`              | 1     | `.in`            | 1     |
-| `.initial-candidate` | 1     | `.json`          | 6,050 |
-| `.jsonl`             | 13    | `.lock`          | 16    |
-| `.log`               | 51    | `.md`            | 2,791 |
-| `.mjs`               | 2     | `.ndjson`        | 2     |
-| `.nul`               | 1     | `.patch`         | 30    |
-| `.png`               | 9     | `.pt`            | 8     |
-| `.py`                | 1,161 | `.receiver-only` | 1     |
-| `.sh`                | 2     | `.sha256`        | 6     |
-| `.sqlite`            | 2     | `.sqlite-wal`    | 2     |
-| `.stderr`            | 606   | `.stdin`         | 1     |
-| `.stdout`            | 537   | `.toml`          | 4     |
-| `.tsv`               | 6     | `.txt`           | 2,329 |
-| `.webm`              | 6     | `.xml`           | 199   |
-| `.xz`                | 62    | `.yaml`          | 1     |
-| `.yml`               | 2     | `.zip`           | 7     |
-| `[no extension]`     | 48    | —                | —     |
+| `.bin`               |     2 | `.blob`          |    31 |
+| `.candidate`         |     1 | `.css`           |     2 |
+| `.diff`              |    15 | `.docx`          |     1 |
+| `.exitcode`          |     8 | `.gz`            |   799 |
+| `.html`              |     1 | `.in`            |     1 |
+| `.initial-candidate` |     1 | `.json`          | 6,050 |
+| `.jsonl`             |    13 | `.lock`          |    16 |
+| `.log`               |    51 | `.md`            | 2,791 |
+| `.mjs`               |     2 | `.ndjson`        |     2 |
+| `.nul`               |     1 | `.patch`         |    30 |
+| `.png`               |     9 | `.pt`            |     8 |
+| `.py`                | 1,161 | `.receiver-only` |     1 |
+| `.sh`                |     2 | `.sha256`        |     6 |
+| `.sqlite`            |     2 | `.sqlite-wal`    |     2 |
+| `.stderr`            |   606 | `.stdin`         |     1 |
+| `.stdout`            |   537 | `.toml`          |     4 |
+| `.tsv`               |     6 | `.txt`           | 2,329 |
+| `.webm`              |     6 | `.xml`           |   199 |
+| `.xz`                |    62 | `.yaml`          |     1 |
+| `.yml`               |     2 | `.zip`           |     7 |
+| `[no extension]`     |    48 | —                |     — |
 
 ### Markdown path taxonomy
 
@@ -105,18 +105,18 @@ categories partition all 2,791 Markdown paths.
 
 | Path-derived bucket        | Markdown paths |
 | -------------------------- | -------------: |
-| `tutorials/`               | 5              |
-| `how-to/`                  | 31             |
-| `reference/`               | 202            |
-| `explanation/`             | 13             |
-| `adr/`                     | 197            |
-| `plans/`                   | 339            |
-| `archive/`                 | 53             |
-| `system-design-decisions/` | 20             |
-| `runbooks/`                | 27             |
-| Docs root                  | 4              |
-| Other top-level paths      | 1,900          |
-| **Total**                  | **2,791**      |
+| `tutorials/`               |              5 |
+| `how-to/`                  |             31 |
+| `reference/`               |            202 |
+| `explanation/`             |             13 |
+| `adr/`                     |            197 |
+| `plans/`                   |            339 |
+| `archive/`                 |             53 |
+| `system-design-decisions/` |             20 |
+| `runbooks/`                |             27 |
+| Docs root                  |              4 |
+| Other top-level paths      |          1,900 |
+| **Total**                  |      **2,791** |
 
 The four Diataxis directories contain 251 Markdown paths. `Other top-level
 paths` is deliberately broad; it is not a semantic category or a judgment that
@@ -132,11 +132,11 @@ build or rendered navigation.
 
 | Disjoint static path class      | Markdown paths | Basis                                                |
 | ------------------------------- | -------------: | ---------------------------------------------------- |
-| Explicit `nav` target           | 358            | Parsed YAML strings ending in `.md`, exact path join |
-| Candidate `exclude_docs` match  | 417            | Python `fnmatchcase` against tracked Markdown paths  |
-| Declared `not_in_nav` path      | 117            | Listed paths joined to tracked Markdown paths        |
-| No match in those three classes | 1,899          | Residual of the complete Markdown set                |
-| **Total**                       | **2,791**      | No class overlaps in this static partition           |
+| Explicit `nav` target           |            358 | Parsed YAML strings ending in `.md`, exact path join |
+| Candidate `exclude_docs` match  |            417 | Python `fnmatchcase` against tracked Markdown paths  |
+| Declared `not_in_nav` path      |            117 | Listed paths joined to tracked Markdown paths        |
+| No match in those three classes |          1,899 | Residual of the complete Markdown set                |
+| **Total**                       |      **2,791** | No class overlaps in this static partition           |
 
 The generated config has 27 `exclude_docs` patterns; 19 match no path in the
 complete 14,817-path tree under the census's `fnmatchcase` approximation.
@@ -159,12 +159,12 @@ are not an additive lifecycle score.
 
 | First-80-line marker           | Markdown paths with marker |
 | ------------------------------ | -------------------------: |
-| Front matter delimiters        | 422 / 2,791                |
-| Status                         | 554 / 2,791                |
-| Date-like field                | 379 / 2,791                |
-| Freshness / last-updated field | 90 / 2,791                 |
-| Owner                          | 496 / 2,791                |
-| Last-tested field              | 23 / 2,791                 |
+| Front matter delimiters        |                422 / 2,791 |
+| Status                         |                554 / 2,791 |
+| Date-like field                |                379 / 2,791 |
+| Freshness / last-updated field |                 90 / 2,791 |
+| Owner                          |                496 / 2,791 |
+| Last-tested field              |                 23 / 2,791 |
 
 For the 27 paths under `runbooks/`, the same scan found owner markers in 26,
 last-tested markers in 23, evidence markers in 26, and rollback markers in 25.
@@ -275,7 +275,7 @@ retained in the repository's instrument completion journal and runner.
 | ----------------------------------------- | ------ | -------------------------------------------------------------------------------- |
 | Inventory page exists                     | active | This page is the D0 inventory skeleton.                                          |
 | Six source remediation plans are linked   | active | See [Historical D0 plan map](#historical-d0-canonical-source-plan-map).          |
-| Every lane has owner and doc surfaces     | active | See [Ownership](ownership.md#documentation-sota-lane-owners).                    |
+| Every lane has owner and doc surfaces     | active | See [Ownership](ownership.md#historical-documentation-sota-lane-owners).         |
 | D0 QA evidence was recorded               | active | See [Historical QA Ledger](#historical-qa-ledger-recorded-2026-05-03-not-rerun). |
 | Shared coordination files were identified | active | See [Historical Conflict Map](#historical-conflict-map).                         |
 

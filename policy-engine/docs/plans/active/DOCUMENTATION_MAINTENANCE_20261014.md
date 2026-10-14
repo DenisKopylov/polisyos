@@ -168,8 +168,22 @@ pinned tools; generated references retain canonical ownership. The scoped
 MD051 TOC exception follows verified MkDocs `attr_list` IDs, which the linter
 does not understand; actual rendered fragment QA remains required.
 
-The source is being frozen for the final targeted test, lint, canonical drift,
-architecture, accuracy, lifecycle, source/emitted-link and strict-build wave.
+The source was frozen at `c2346b78ff812f0cabad5a48f456ae46de0fcb1c` for the
+targeted test, lint, canonical drift, architecture, accuracy, lifecycle,
+source/emitted-link and strict-build wave. Its emitted crawl exposed one
+historical-owner anchor mismatch. The path-aware gate also exposed stale tools
+reference entries and a checkout-dependent absolute footer. The blocking batch
+repairs the anchor, regenerates the reference and changes only
+`tools.registry.render_reference_docs()` plus its real CLI regression tests;
+command metadata, statuses and execution dispatch stay unchanged. The renderer
+also qualifies the expired Phase 1D mapping prose as declared historical input.
+
+The public-surface Phase 3A snapshot test reproduced identically at the slice
+base with zero selected-input overlap; that narrow failure is inherited/disjoint.
+The full architecture and lifecycle gates retain separate incomplete verdicts.
+The blocking batch requires a new content freeze, delta checks and emitted-site
+verification; completed inputs are reused only after byte-equality proof.
+
 The closeout is `docs/archive/reports/2026-10-14-documentation-maintenance-audit.md`;
 its verification section remains pending until those outputs are captured.
 Whole lifecycle coverage remains bounded/UNRUN rather than being forced green.

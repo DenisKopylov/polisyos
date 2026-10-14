@@ -7,7 +7,6 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
-from tools.lib.imports import repo_root_from
 from tools.lib.runner import ToolSpec, ToolStatus
 
 TOOLS_ROOT = Path(__file__).resolve().parent
@@ -397,7 +396,6 @@ def _canonical_command(spec: ToolSpec) -> str:
 
 
 def render_reference_docs() -> str:
-    repo_root = repo_root_from(__file__)
     lines = [
         "# Polisyos Tools Reference",
         "",
@@ -471,10 +469,14 @@ def render_reference_docs() -> str:
         lines.append("")
     lines.extend(
         [
-            "## Retired Compatibility Wrappers",
+            "## Legacy Compatibility Mappings",
             "",
-            "Legacy path-based wrappers are retained only for the Phase 1D migration window.",
-            "All wrappers emit a deprecation warning and sunset on 2026-09-01.",
+            "Registry mappings below are declared compatibility metadata and a current removal "
+            "warning.",
+            "They do not establish the mapped paths' current disposition, owner sign-off, or "
+            "closeout receipt.",
+            "The historical Phase 1D migration note recorded a planned sunset of "
+            "2026-09-01; that date is not a current retirement receipt.",
             "",
             "| Legacy path | Replacement |",
             "| ----------- | ----------- |",
@@ -520,7 +522,7 @@ def render_reference_docs() -> str:
             render_graph("mermaid").rstrip(),
             "```",
             "",
-            f"_Repo root: `{repo_root}`_",
+            "_Paths and commands are relative to the `policy-engine/` product root._",
             "",
         ]
     )

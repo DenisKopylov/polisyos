@@ -283,6 +283,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `run-policy-design-case-rollout-decision` | `active` | `polisyos-tools validation run-policy-design-case-rollout-decision` | Run the W12.G rollout decision phase. | - | - | - |
 | `validation` | `run-universal-compilation-integration-realism-check` | `active` | `polisyos-tools validation run-universal-compilation-integration-realism-check` | Run I7-bis universal compilation integration realism check. | - | - | - |
 | `validation` | `run-universal-outcome-corpus` | `active` | `polisyos-tools validation run-universal-outcome-corpus` | Run W12.D universal outcome corpus evidence over W6/W7/W8. | - | - | - |
+| `validation` | `schema-fqn-census` | `active` | `polisyos-tools validation schema-fqn-census` | Measure local references and unresolved loaders for the DFK-01 schema family. | - | - | - |
 | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
 | `validation` | `validate-foundry-phase2-closure` | `active` | `polisyos-tools validation validate-foundry-phase2-closure` | Emit a machine-readable closure report for Foundry Phase 2. | - | - | - |
 | `validation` | `validate-phase-closure` | `active` | `polisyos-tools validation validate-phase-closure` | Emit a machine-readable closure report for the causal research phases. | - | - | - |
@@ -390,6 +391,8 @@ Generated from `tools.registry` command metadata.
 | `ukraine_data` | `harvest-spending-contracts-by-disposer` | `active` | `polisyos-tools ukraine_data harvest-spending-contracts-by-disposer` | Resumable server-side harvest for Spending contracts grouped by disposerId. | - | - | - |
 | `ukraine_data` | `harvest-spending-daily` | `active` | `polisyos-tools ukraine_data harvest-spending-daily` | Resumable server-side backfill for Spending.gov.ua daily transactions. | - | - | - |
 | `ukraine_data` | `pre-shard-lex-corpus` | `active` | `polisyos-tools ukraine_data pre-shard-lex-corpus` | Pre-materialize the ЄДРНПА corpus into per-pass shard JSONL.ZST manifests. | - | - | - |
+| `ukraine_data` | `server-bootstrap` | `active` | `polisyos-tools ukraine_data server-bootstrap` | Ops-facing owner for Ukraine server bootstrap composition. | - | - | - |
+| `ukraine_data` | `validate-part-a` | `active` | `polisyos-tools ukraine_data validate-part-a` | Run the Ukraine repository-only Part A gate from the ops layer. | - | - | - |
 
 ### `research`
 
@@ -413,10 +416,11 @@ Generated from `tools.registry` command metadata.
 | `research-experiments` | `filter-topics` | `active` | `polisyos-tools research-experiments filter-topics` | Filter OpenAlex topics down to policy-relevant rows. | - | - | - |
 | `research-experiments` | `organize-relevant-topics` | `active` | `polisyos-tools research-experiments organize-relevant-topics` | Theme-based ordering for relevant OpenAlex topics. | - | - | - |
 
-## Retired Compatibility Wrappers
+## Legacy Compatibility Mappings
 
-Legacy path-based wrappers are retained only for the Phase 1D migration window.
-All wrappers emit a deprecation warning and sunset on 2026-09-01.
+Registry mappings below are declared compatibility metadata and a current removal warning.
+They do not establish the mapped paths' current disposition, owner sign-off, or closeout receipt.
+The historical Phase 1D migration note recorded a planned sunset of 2026-09-01; that date is not a current retirement receipt.
 
 | Legacy path | Replacement |
 | ----------- | ----------- |
@@ -462,4 +466,4 @@ graph TD
   "workspace.python-base-mypy" --> "workspace.lint-full"
 ```
 
-_Repo root: `/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine`_
+_Paths and commands are relative to the `policy-engine/` product root._

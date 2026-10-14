@@ -1,0 +1,96 @@
+{
+  "artifact_id": "r1370-r1357-expiry-fresh-get-independent-20261014",
+  "candidate": {
+    "author_static_readback": {
+      "path": "raw/r1357-r3-expiry-fresh-get-candidate-20261014/static-readback.json",
+      "sha256": "713261fe6cb6b84d617ee04b0b00d785f1e71949cbc015f2a37c58fba64a744a"
+    },
+    "candidate_applied": false,
+    "manifest": {
+      "path": "raw/r1357-r3-expiry-fresh-get-candidate-20261014/manifest.json",
+      "sha256": "b7577e4172dc53f4e5021dbda8767c82abf7b7841d76bc5699f0dc5784ea7d92"
+    },
+    "patch": {
+      "path": "raw/r1357-r3-expiry-fresh-get-candidate-20261014/candidate_test.patch",
+      "sha256": "833347e227dc962dcc4cfb6a4ae08550acb14ed9e4635913b9145083167ebf5c"
+    },
+    "postimage_bytes": 51933,
+    "postimage_sha256": "53b78c322aec4b11ccbfa1346aa4ab5ca15c981135e3f09eeaa372f70a9c1e8b",
+    "preimage_sha256": "d85790cd89d335dcde5839323277bbe8449c7283a4c8ed80c5106b0312be848d",
+    "removal_probe_execution": "UNRUN",
+    "target_path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+    "test_execution": "UNRUN"
+  },
+  "closure_ids": [],
+  "current_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": {
+      "path": "root-author-source-frame-r1371-20261014.json",
+      "sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5"
+    },
+    "head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "overlap_with_bound_30_paths": 0,
+    "parent": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "r1341_binding": {
+      "bound_paths": 30,
+      "current_mismatches": 0,
+      "path": "raw/r1341-r3-monetary-whole-property-audit-20261014/source-binding.json",
+      "sha256": "ccfb83bd320443eed9a2fedabf1d3e13624a3dac8401e89a040a4f7af198c4a5"
+    },
+    "source_paths_changed_since_r1357_source_head": 10,
+    "target_test_sha256": "d85790cd89d335dcde5839323277bbe8449c7283a4c8ed80c5106b0312be848d",
+    "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+  },
+  "decision": "GO_FOR_ROOT_FOCUSED_COMPOSED_REPLAY_ONLY",
+  "independent_checks": {
+    "candidate_ast_parse": "PASS",
+    "candidate_sha_matches_manifest": true,
+    "git_apply_check": "exit 0; one test path; no application",
+    "patch_hunks_replayed_in_memory": 2,
+    "runtime_imports_tests_native_or_heavy": "NOT_RUN per task boundary",
+    "source_index_history_writes": "NONE"
+  },
+  "original_criteria": [
+    {
+      "candidate_contribution": "none; competing-candidate discriminator absent",
+      "id": "B10",
+      "ordinal": 10,
+      "state": "UNRUN / not_established / not_adjudicated"
+    },
+    {
+      "candidate_contribution": "proposed local expiry/ledger/fresh-GET subproperty only; test and removal control unrun; no external invoice reconciliation",
+      "id": "B66",
+      "ordinal": 192,
+      "state": "UNRUN / not_established / not_adjudicated"
+    },
+    {
+      "candidate_contribution": "none; no selected frozen evidence plus current permission owner; retain held state",
+      "id": "B67",
+      "ordinal": 193,
+      "state": "UNRUN / not_established / not_adjudicated"
+    },
+    {
+      "candidate_contribution": "none; sequential calls do not exercise single-flight/cancellation; retain held state",
+      "id": "B68",
+      "ordinal": 194,
+      "state": "UNRUN / not_established / not_adjudicated"
+    }
+  ],
+  "p37": {
+    "cache_expiry_and_provider_count": "candidate is designed to recompute from actual cache telemetry/calls, but current state remains not_established because UNRUN",
+    "invoice_current_price_permission_or_production_workload": "not_established and outside this fixture",
+    "ledger_and_get_projection": "candidate is designed to independently reconcile exact owner rows, but current state remains not_established because UNRUN"
+  },
+  "p40_bucket": "SAME_CLASS_DEEPER",
+  "review_markdown": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1370-r1357-expiry-fresh-get-independent-20261014.md",
+    "sha256": "7dfd04e3e8bb8dfef16d80ef15a2c346229d92055560b4328e3d389664ebe93d"
+  },
+  "schema": "polisyos.e02.r1370.r1357_independent_review.v1",
+  "scoped_limitations": [
+    "controlled producer call follows an actual ordinary POST/job/run owner but is not an expiry inside the live worker",
+    "fresh reader is a distinct object over the same file in one test process, not a cross-process recovery proof",
+    "synthetic provider and environment-configurable default estimates are not billing/invoice evidence",
+    "no formal closure is proposed"
+  ]
+}

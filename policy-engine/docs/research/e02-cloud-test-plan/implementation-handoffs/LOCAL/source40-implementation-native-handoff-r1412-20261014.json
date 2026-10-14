@@ -1,0 +1,785 @@
+{
+  "bounded_capability_statement": {
+    "demonstrated_properties": "The owner-resume/fresh-CAS and owner-negative paths are exercised in the actual focused suite; the synthetic Q2 self-test exercises complete origin/drift and marker-preserving controls; the canonical authored Ruff command returns zero diagnostics for its declared scope.",
+    "property_failure": "The actual Darwin spawn path fails before worker startup because the run AccessScope cannot be represented by the current timeout-worker wire profile. The caller has a non-null AccessScope while decoder schema accepts only None. Preserve this as a real bounded boundary; do not describe it as a 30-second elapsed timeout.",
+    "remaining_proof": "No Q2 package build/install or installed-product proof in R1408; no global source/input/backend freeze or V3/B33 closure; R1407 has one actual failure; the source-frame path count 627 is not the native input denominator.",
+    "source_scope": "Seven-path Source40 composition spanning Q2 audit/origin logic, lifecycle owner helper, and focused test companions."
+  },
+  "criterion_handling": {
+    "author_proposals": [],
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "status": "Implementation/native handoff only; no G acceptance or original-criterion closure is inferred."
+  },
+  "date": "2026-10-14",
+  "independent_review_refs": [
+    {
+      "disposition": "GO_FOR_FOCUSED_COMPOSED_REPLAY_ONLY; final R1386 manifest binding verified; external issuer/billing/currentness remain not established.",
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1392-r1386-fresh-cas-reader-independent-r2-binding-20261014.json",
+        "sha256": "7260fe45ccd4d31b5cd701ff3253143663f3e9352043c7efaaccc4365c83efda"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1392-r1386-fresh-cas-reader-independent-r2-binding-20261014.md",
+        "sha256": "69a1319f57e796a7c0133c335af23d0a7f831e70d9da262294dcc06860be65c2"
+      },
+      "review_id": "R1392-r2-binding"
+    },
+    {
+      "disposition": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_VERIFICATION_ONLY; not formal acceptance.",
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1393-r1385-scope-successor-independent-20261014.json",
+        "sha256": "07aeff43a7d6aede51ddd00e1bb646d683d153d328ed3e30c10e6721f5a77d06"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1393-r1385-scope-successor-independent-20261014.md",
+        "sha256": "9b3538a1ecac4a7c9e5d1cfb4652e48c79fdbf0a2c0cfc9427b1ff0bfee10f26"
+      },
+      "review_id": "R1393-scope"
+    },
+    {
+      "disposition": "Independent Q2 review; subsequent correction repairs R1397 paths in the review JSON and leaves hashes/analysis/verdict unchanged.",
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1394-r1388-dual-root-independent-20261014.json",
+        "sha256": "3841d3fcc4e9d662aedf88f9243e59e9a7b325dbcbb04bcab2ed36b06a46db4f"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1394-r1388-dual-root-independent-20261014.md",
+        "sha256": "12e2e095bc9788bc9a99d44b9cfda6c5923c24a666f607caa04b8e91df2dbade"
+      },
+      "review_id": "R1394-Q2-path-correction"
+    },
+    {
+      "disposition": "Path correction only; verdict unchanged.",
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1394-r1388-dual-root-independent-20261014-path-correction.json",
+        "sha256": "123a2ba260b8dc2b406980ac2d3035173c55d35b786d203f19f167038808b187"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1394-r1388-dual-root-independent-20261014-path-correction.md",
+        "sha256": "4c1295551646f3f6d50c528a7814b6aea3d0c620d2c8fd83dcd9b24809c05c10"
+      },
+      "review_id": "R1394-Q2-path-correction-addendum"
+    },
+    {
+      "disposition": "GO_FOR_ROOT_COMPOSITION_AND_FOCUSED_NATIVE_REPLAY; R7 current-input owner binding, limitations retained.",
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1400-r7-owner-inputs-independent-20261014.json",
+        "sha256": "ee477757f3b841569fa8de1a6767fed995c131ec7bad8dd1cfc3b2a3211191af"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1400-r7-owner-inputs-independent-20261014.md",
+        "sha256": "484f6c8660762a9b2eced3f93474dc27f3202fcd6e418970386010d6740884bf"
+      },
+      "review_id": "R1400-R7-owner-inputs"
+    }
+  ],
+  "native_deciding_receipts": [
+    {
+      "artifacts": [
+        {
+          "bytes": 3000594,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/command.json",
+          "sha256": "12d67f918463290483142e1964e132f728200d1b35caff69c0544c95df95120f"
+        },
+        {
+          "bytes": 8804,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/full-nonpass.json",
+          "sha256": "543f500c2d2e6d3430bfd90e61a77f4cf0546421267d237bdb2c6a4d97c00a9b"
+        },
+        {
+          "bytes": 18796,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/junit.xml",
+          "sha256": "5e3c6ce1527a72d80ac838418d67e66363dc2a57e734d4252ea935806ea2cd22"
+        },
+        {
+          "bytes": 630555,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/module-origins.json",
+          "sha256": "8cb5b7fa34c7f0fdf1a50d15658c45cb69722050335ca418360b7d94153fab90"
+        },
+        {
+          "bytes": 83004,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/progress.json",
+          "sha256": "2f51d91f12e8623bd9483705b36bf059c8ea9d68a688c582d636e7597a3003d4"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 9491,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/stdout.txt",
+          "sha256": "a076e94aeedee319e2665a7a24f4acdf2b3cfece2f1540611c369986632e349c"
+        }
+      ],
+      "bounded_failure_cause": {
+        "causal_explanation": "The Darwin spawn path builds the timeout task before entering the process/queue block. Task construction calls serialize_timeout_context, which refuses a non-null RunContext.access_scope as timeout_worker_access_scope_not_serializable. The exact worker decoder uses a closed context/run key schema and reconstructs the worker RunContext with access_scope=None, so a serializer-only addition would drop or reject the field. The underlying unsupported-admission refusal is node.timeout_worker_unsupported; the executor currently persists the generic node.timeout code. Refusal occurs before process.start. Trace duration is 232 ms and pytest call duration is about 1.166 s; configured 30 s is a threshold, not elapsed wait.",
+        "causal_source_refs": [
+          {
+            "finding": "run.access_scope is rejected before timeout-context wire serialization",
+            "line_spans": [
+              [
+                840,
+                846
+              ],
+              [
+                875,
+                876
+              ]
+            ],
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+            "sha256": "f2e9048c32a28acee19fcfea3ad8b7476a552be1c2b9f28f33d5231303513077"
+          },
+          {
+            "finding": "unsupported context is converted to a typed refusal while task construction precedes process.start",
+            "line_spans": [
+              [
+                1614,
+                1620
+              ],
+              [
+                1881,
+                1938
+              ],
+              [
+                2027,
+                2036
+              ],
+              [
+                2037,
+                2081
+              ]
+            ],
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+            "sha256": "75ce04e34998709e2e36b6961efad4bb29f6f2e5fde89580e1ea6d31ec8a7cfa"
+          },
+          {
+            "finding": "decoder uses exact context/run keys and reconstructs worker RunContext with access_scope=None",
+            "line_spans": [
+              [
+                550,
+                587
+              ],
+              [
+                662,
+                675
+              ]
+            ],
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+            "sha256": "296dcc2af4f74f0cdb8f205ccfc2a7dd6e466b39ecde464588073283a890ef9f"
+          },
+          {
+            "finding": "executor catches NodeTimeoutError and persists default timeout code",
+            "line_spans": [
+              [
+                1537,
+                1545
+              ]
+            ],
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "sha256": "174c48d699b6b8ddf402bde0e3152b88a7a25803ca1a9ce944ab1d8b4f47bc42"
+          },
+          {
+            "finding": "NodeError.for_timeout defaults code to node.timeout",
+            "line_spans": [
+              [
+                33,
+                51
+              ]
+            ],
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+            "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f"
+          },
+          {
+            "finding": "test admits owner_scope, resumes with same scope, then configures 30 second timeout",
+            "line_spans": [
+              [
+                955,
+                959
+              ],
+              [
+                985,
+                991
+              ],
+              [
+                1059,
+                1066
+              ],
+              [
+                1073,
+                1109
+              ]
+            ],
+            "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+            "sha256": "c627c7bbac8c139eb4ca2bf6d0dd8cd5a093fa8d378a4ed921ec7b845bc1ae39"
+          }
+        ],
+        "classification": "pre-child timeout-context admission refusal; not worker boot, node computation, result framing, or a 30-second deadline expiration",
+        "diagnostic_receipt": {
+          "bytes": 11025,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1410-source40-spawn-access-scope-refusal-cause-20261014.json",
+          "sha256": "baf91ea7d173bf08f5e2e10636d4c780645e9ff2667ad8b1565eaacc790327bd"
+        },
+        "not_a_deadline_expiry": true,
+        "parent_correction": "R1412 correction supersedes any earlier “30-second timeout” shorthand.",
+        "persisted_report": {
+          "artifact": {
+            "bytes": 502,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/artifacts/sha256/8c/ba/8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff.blob",
+            "sha256": "8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff"
+          },
+          "artifact_ref": {
+            "artifact_id": "sha256:8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff",
+            "kind": "scientist.workflow_report",
+            "manifest_profile_field_present": false,
+            "manifest_profile_sha256": null,
+            "media_type": "application/json"
+          },
+          "configured_timeout_seconds": 30.0,
+          "manifest": {
+            "bytes": 643,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/artifacts/sha256/8c/ba/8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff.manifest.json",
+            "sha256": "d9d629a0dfc86c045f71cd90e1449937e8a14caf01531e0ca8bc48716a78ce79"
+          },
+          "node_duration_ms": 232,
+          "node_error_code": "node.timeout",
+          "node_error_message": "Timed node execution refused: timeout_worker_access_scope_not_serializable",
+          "node_status": "fail",
+          "pytest_call_duration_seconds": 1.165716375107877,
+          "status": "fail"
+        },
+        "persisted_trace": {
+          "artifact": {
+            "bytes": 8108,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/runs/R_skg_spawn_timeout_lifetime/trace.jsonl",
+            "sha256": "370d303b22f93a2b7b2e27c6ae21379a1b824262e1277d19115b4a059a431efa"
+          },
+          "report_output_event_index": 18,
+          "selected_events": [
+            {
+              "event": "NODE_STARTED",
+              "index": 14,
+              "metrics": {},
+              "phase": "scientist.node.resolve",
+              "run_id": "R_skg_spawn_timeout_lifetime",
+              "ts": "2026-10-14T00:11:40Z"
+            },
+            {
+              "event": "NODE_CACHE_BYPASS",
+              "index": 15,
+              "metrics": {
+                "cache_bypass": 1,
+                "duration_ms": 0,
+                "reason_code": 7
+              },
+              "phase": "scientist.node.resolve",
+              "run_id": "R_skg_spawn_timeout_lifetime",
+              "ts": "2026-10-14T00:11:40Z"
+            },
+            {
+              "event": "NODE_FAIL",
+              "index": 16,
+              "metrics": {
+                "duration_ms": 232,
+                "status_ok": 0
+              },
+              "phase": "scientist.node.resolve",
+              "run_id": "R_skg_spawn_timeout_lifetime",
+              "ts": "2026-10-14T00:11:40Z"
+            },
+            {
+              "event": "RUN_FINALIZED",
+              "index": 19,
+              "metrics": {
+                "status_ok": 0
+              },
+              "phase": "core",
+              "run_id": "R_skg_spawn_timeout_lifetime",
+              "ts": "2026-10-14T00:11:40Z"
+            }
+          ],
+          "sha256": "370d303b22f93a2b7b2e27c6ae21379a1b824262e1277d19115b4a059a431efa"
+        }
+      },
+      "command": {
+        "bytes": 3000594,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/command.json",
+        "sha256": "12d67f918463290483142e1964e132f728200d1b35caff69c0544c95df95120f"
+      },
+      "exit_code": 1,
+      "input_sha256_map": {
+        "count_after": 6957,
+        "count_before": 6957,
+        "unchanged": true
+      },
+      "loaded_modules_outside_selected_source_root": 0,
+      "loaded_product_modules_from_selected_source_root": 1990,
+      "positive_and_negative_controls": "The focused suite retained passing owner-scope, expiry, fresh-CAS behavior and both owner-negative controls; only the named Darwin spawn case failed.",
+      "run_id": "R1407",
+      "runtime_profile": {
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_THREADS": "1"
+      },
+      "single_failed_test": {
+        "assertion": "AssertionError: assert 'fail' == 'ok'\n  \n  - ok\n  + fail",
+        "class": "tests.integration.scientist.orchestration.engine.test_skg_prepared_read_cache",
+        "name": "test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineage"
+      },
+      "source_head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+      "test_summary": {
+        "errors": 0,
+        "failed": 1,
+        "passed": 54,
+        "skipped": 0,
+        "tests": 55
+      },
+      "wall_seconds": 53.39225366699975
+    },
+    {
+      "actual_node_ids": 2,
+      "all_reported_controls_true": true,
+      "artifacts": [
+        {
+          "bytes": 1839806,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-q2-full-origin-and-drift-selftest-actual-r1408-20261014/command.json",
+          "sha256": "6b83d496ef904f2cca6fd04650f037f45f0a9cf0fe47a1a1cf2924ea529608e5"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-q2-full-origin-and-drift-selftest-actual-r1408-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 1369,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-q2-full-origin-and-drift-selftest-actual-r1408-20261014/stdout.txt",
+          "sha256": "166eedc26a101995830b32f7e6345061c7308897d8d1da03b08d5594c4f30587"
+        }
+      ],
+      "build_or_install": false,
+      "command": {
+        "bytes": 1839806,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-q2-full-origin-and-drift-selftest-actual-r1408-20261014/command.json",
+        "sha256": "6b83d496ef904f2cca6fd04650f037f45f0a9cf0fe47a1a1cf2924ea529608e5"
+      },
+      "control_count": 21,
+      "exit_code": 0,
+      "input_sha256_map": {
+        "count_after": 6957,
+        "count_before": 6957,
+        "unchanged": true
+      },
+      "product_source_read": false,
+      "run_id": "R1408",
+      "scope_limit": "Synthetic Q2 full-origin/drift self-test only; not a Q2 package build/install or installed-product proof.",
+      "selftest_status": "pass",
+      "source_head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+      "wall_seconds": 0.07541362498886883
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 1621248,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-canonical-authored-ruff-actual-r1409-20261014/command.json",
+          "sha256": "906fb319f9737d6a782ca86961825bab659f04dfd90ed0050ef3f0e545ac2189"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-canonical-authored-ruff-actual-r1409-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-canonical-authored-ruff-actual-r1409-20261014/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "authored_subject_count": 6221,
+      "captured_input_count": 6224,
+      "command": {
+        "bytes": 1621248,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-canonical-authored-ruff-actual-r1409-20261014/command.json",
+        "sha256": "906fb319f9737d6a782ca86961825bab659f04dfd90ed0050ef3f0e545ac2189"
+      },
+      "exit_code": 0,
+      "input_sha256_map": {
+        "count_after": 6224,
+        "count_before": 6224,
+        "unchanged": true
+      },
+      "ruff_diagnostic_count": 0,
+      "run_id": "R1409",
+      "scope_limit": "Canonical authored Ruff scope only; not a full repository SOTA/CI result.",
+      "source_head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+      "wall_seconds": 0.15773087495472282
+    }
+  ],
+  "record_id": "R1412-Source40",
+  "record_type": "implementation_native_handoff",
+  "source_artifacts": {
+    "commit_readback": {
+      "all_physical_and_HEAD_bytes_match": true,
+      "application_readback_sha256": "2b4739bcd731513422c84754f9d82145446a711b9bbb373e281ca561195311b5",
+      "native_runtime_status_when_committed": "UNRUN",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/committed-source40-byte-readback.json",
+      "sha256": "4f50d6dae81dd1c3c2ea6e9749ff002f78330fb6c5f523bad8e9912d35e35a0c"
+    },
+    "composition": {
+      "net_patch_sha256": "50806abf3962257cc0761344546880913467bf747e17822016212dc6f121de66",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/composition.json",
+      "sha256": "d9e791a8060191c46d68fbf2b6dff946ca9a340fb2b81da8cc7b68842ad74f62"
+    },
+    "composition_lineage_artifacts": [
+      {
+        "bytes": 7272,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1401-source40-review-freeze-virtual-20261014/composition.json",
+        "sha256": "0e4af4756fa657c9e0aee1d6dbdcd6340062575b95cae86b5093f67e8568e761"
+      },
+      {
+        "bytes": 35394,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1401-source40-review-freeze-virtual-20261014/net.patch",
+        "sha256": "4448d51e1a3496e8719dc5c3a2bcec39073fc84fb374f40ca640e7cde6552bab"
+      },
+      {
+        "bytes": 76984,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1401-source40-review-freeze-virtual-20261014/root-quality-r1093.json",
+        "sha256": "2a1ca4062edfb6ad4f6b305eef9eafd299ec9dfdee240957d62fac6033a52513"
+      },
+      {
+        "bytes": 2769,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/application-readback.json",
+        "sha256": "2b4739bcd731513422c84754f9d82145446a711b9bbb373e281ca561195311b5"
+      },
+      {
+        "bytes": 3022,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/committed-source40-byte-readback.json",
+        "sha256": "4f50d6dae81dd1c3c2ea6e9749ff002f78330fb6c5f523bad8e9912d35e35a0c"
+      },
+      {
+        "bytes": 7908,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/composition.json",
+        "sha256": "d9e791a8060191c46d68fbf2b6dff946ca9a340fb2b81da8cc7b68842ad74f62"
+      },
+      {
+        "bytes": 787,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/implementation-commit-message.txt",
+        "sha256": "1e5feac8a909d29700105b2fc9a928b37cfbbffce680c089e36c9049e2585ab6"
+      },
+      {
+        "bytes": 653,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/implementation-commit.stderr.txt",
+        "sha256": "622c9fde5231e36247cc7fd03b25d007752381a331c34e10d08c7d1e84116b37"
+      },
+      {
+        "bytes": 170,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/implementation-commit.stdout.txt",
+        "sha256": "f04a794a78a41f313b94ca01693cba2b0e10cbe64223035c492df9b54a87b3ad"
+      },
+      {
+        "bytes": 35366,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/net.patch",
+        "sha256": "50806abf3962257cc0761344546880913467bf747e17822016212dc6f121de66"
+      },
+      {
+        "bytes": 75715,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1403-source40-final-virtual-20261014/root-quality-r1093.json",
+        "sha256": "bd05e6e86f2710979d75a3f42276194e70b0a907a07913462dfaa9682566cc9e"
+      }
+    ],
+    "current_source_frame": {
+      "formal_closure_ids": [],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1406-20261014.json",
+      "physical_source_path_count": 627,
+      "qualification": "Every changed-source physical postimage equals current HEAD; this map is not the complete native input denominator.",
+      "sha256": "34f569d2c01e5b3929c41428186852e35c84e87777432e77e171b945d8720e5b",
+      "source_freeze_boundary": "Source40 independently reviewed bounded repairs; V3/B33 and global source/input/backend freeze pending"
+    },
+    "frame_correction_note": "R1406 is the current Source40 frame. Older R1383 auxiliary Source35 values are superseded; the Source40 source postimages themselves match Git and disk, so this is not a source-byte mismatch.",
+    "stage_packets": [
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014",
+        "patch": {
+          "bytes": 491,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/candidate.patch",
+          "sha256": "ec7f19082b02f079942cba10db21e134425afc8d256bf55adf63a1eeba53ffa6"
+        },
+        "stage": 1,
+        "stage_artifacts": [
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/apply_check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/apply_check.stdout.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 1251,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/candidate-report.md",
+            "sha256": "6c87c1b4fbd1280776c0588246c171455ffc17e6f87d015c33a4c7005c33d42e"
+          },
+          {
+            "bytes": 491,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/candidate.patch",
+            "sha256": "ec7f19082b02f079942cba10db21e134425afc8d256bf55adf63a1eeba53ffa6"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/candidate_test.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 583,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/candidate_test.stdout.txt",
+            "sha256": "8e56bba85267046a09ce81bdf07c53955db4ac32c4dc1cdcaa0a081ff6524b8e"
+          },
+          {
+            "bytes": 4933,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/manifest.json",
+            "sha256": "102dac0d9985bb3e8426ff869853696a71a12b03d95c5f164638de6f4ea7dee5"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/ruff_check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 2,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/ruff_check.stdout.txt",
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/ruff_format_check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/ruff_format_check.stdout.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 3615,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/verification.json",
+            "sha256": "1ad5be8157f4f89933812d5ee91cb7b9c6add05cbd797bf79beffe65bdb08f38"
+          }
+        ]
+      },
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014",
+        "patch": {
+          "bytes": 6016,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/candidate.patch",
+          "sha256": "dcf3d7e7a3fa16b168a80be9b65842d4d428f9b8dd89af315d705d02539a63be"
+        },
+        "stage": 2,
+        "stage_artifacts": [
+          {
+            "bytes": 6016,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/candidate.patch",
+            "sha256": "dcf3d7e7a3fa16b168a80be9b65842d4d428f9b8dd89af315d705d02539a63be"
+          },
+          {
+            "bytes": 3670,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/decision.md",
+            "sha256": "ae3190f8203eb693448852c72cabeea5f604eb854ed069ab0c8af12c480a8aeb"
+          },
+          {
+            "bytes": 4951,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/manifest.json",
+            "sha256": "7537b0c4ebba33afaf0854e8ed922a1ac9efcc2072fd9b3beef46f1702585819"
+          },
+          {
+            "bytes": 540,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/patch-materialization-check.json",
+            "sha256": "69eb07ad18658f8708b68653d85dfaa1eca04f3e0bd85e0e5d7da354a77ba348"
+          },
+          {
+            "bytes": 433,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/ruff-format-output.json",
+            "sha256": "5160b4a4a71b528763dc770e602f5392f87c910411e54b1408889bcdc758dbba"
+          },
+          {
+            "bytes": 527,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/ruff-full-output.json",
+            "sha256": "3aead036252f99205b5f860bd236e9e97d88f367647f0263db3ad2ebebe52350"
+          },
+          {
+            "bytes": 388,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/ruff-output.json",
+            "sha256": "df4f7a47cd32d1f69eb290b75019a8525849bea57e835c289a731bbb07881bc9"
+          },
+          {
+            "bytes": 2742,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/static-checks.json",
+            "sha256": "75afaa6e06c95fe49efc2041133bb5e8ea423b25aaa7a9ab97fc03e7279cb587"
+          }
+        ]
+      },
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014",
+        "patch": {
+          "bytes": 19463,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/candidate-r1388.patch",
+          "sha256": "898a40a67cf6cb3769c56856f1173912689b0de1b81c367a44c27d6cfad9a80e"
+        },
+        "stage": 3,
+        "stage_artifacts": [
+          {
+            "bytes": 19463,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/candidate-r1388.patch",
+            "sha256": "898a40a67cf6cb3769c56856f1173912689b0de1b81c367a44c27d6cfad9a80e"
+          },
+          {
+            "bytes": 2148,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/decision-r1388.md",
+            "sha256": "e95475f4c82a35f717b21ef5ae70dc402ac3c2676d3f28574783fbfc7705f255"
+          },
+          {
+            "bytes": 8349,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/manifest-r1388.json",
+            "sha256": "6cc718cdd5eee154d287d0dfec03856ea02baa26685f529bce9c100e3c5254da"
+          },
+          {
+            "bytes": 510,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/static-checks-r1388.txt",
+            "sha256": "73cc0c98efdd9d685ff3acf0d89d479c1f30f2c3568b7fd856618ccd8fc94e2b"
+          }
+        ]
+      },
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014",
+        "patch": {
+          "bytes": 2053,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014/style.patch",
+          "sha256": "a0ee8e672ce7f9af6a85f06635485d516ab3293befd293ea942cd6f8c8c516f8"
+        },
+        "stage": 4,
+        "stage_artifacts": [
+          {
+            "bytes": 1094,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014/manifest.json",
+            "sha256": "d66e284b492402d6fe872dd2f878aee0244879ffb68b27d8cd52b5137d8f27f7"
+          },
+          {
+            "bytes": 2053,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014/style.patch",
+            "sha256": "a0ee8e672ce7f9af6a85f06635485d516ab3293befd293ea942cd6f8c8c516f8"
+          }
+        ]
+      },
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014",
+        "patch": {
+          "bytes": 10808,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/proposal.patch",
+          "sha256": "bc17ee413352f01000715962dd3b694b4b57be6f952e0f609e78bc8a768330eb"
+        },
+        "stage": 5,
+        "stage_artifacts": [
+          {
+            "bytes": 2891,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/decision.md",
+            "sha256": "7875a207b961e5815e1fdc2ca29a92f8fea47263c1d5319a15ae1892ed15447b"
+          },
+          {
+            "bytes": 3355,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/manifest.json",
+            "sha256": "2f6debaed166568c7a9a83badcb76328b7a8f10994d7e2506317096200bb732b"
+          },
+          {
+            "bytes": 10808,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/proposal.patch",
+            "sha256": "bc17ee413352f01000715962dd3b694b4b57be6f952e0f609e78bc8a768330eb"
+          }
+        ]
+      },
+      {
+        "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1402-r7-combined-context-style-20261014",
+        "patch": {
+          "bytes": 2095,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1402-r7-combined-context-style-20261014/style.patch",
+          "sha256": "26cf094200d68e8afdad5febe815125937fc7c9bae2183a8f2f3b8ba93ddd0b4"
+        },
+        "stage": 6,
+        "stage_artifacts": [
+          {
+            "bytes": 526,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1402-r7-combined-context-style-20261014/manifest.json",
+            "sha256": "4153db0479150b0ecfd241c1578520b379cf9c735ee17c29be38f2741481f166"
+          },
+          {
+            "bytes": 2095,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1402-r7-combined-context-style-20261014/style.patch",
+            "sha256": "26cf094200d68e8afdad5febe815125937fc7c9bae2183a8f2f3b8ba93ddd0b4"
+          }
+        ]
+      }
+    ]
+  },
+  "source_snapshot": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+    "commit_subject": "fix(e02): preserve owner and installed-reader boundaries through replay",
+    "commit_tree_and_current_physical_postimages_match": true,
+    "implementation_path_count": 7,
+    "implementation_paths": [
+      {
+        "bytes": 15945,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/installed_origin_gate_r4.py",
+        "postimage_sha256": "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872",
+        "preimage_sha256": "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2"
+      },
+      {
+        "bytes": 74177,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "7b873f9a78feea57b4b5fc57e36ae6b3d6985df178577de8ce76ad839e2efdfd",
+        "preimage_sha256": "3f5cfc7152e8954951ee37d1f28fb8c7508646e2141c63e6bb2907abbc29fb5b"
+      },
+      {
+        "bytes": 105680,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "postimage_sha256": "4b76acc7ee9c4373b44020530568f4b083fd412a22a7018021710a0a571e9e98",
+        "preimage_sha256": "624cad8497dd3ba3622b2a0aba38bd24ec0a38f494cab62980438a54590ac466"
+      },
+      {
+        "bytes": 8083,
+        "path": "policy-engine/tests/_helpers/run_lifecycle.py",
+        "postimage_sha256": "0d84e6cb007050bde1ca44172ba3d5f02e6d7c9d335476398631c0f6c981ac82",
+        "preimage_sha256": "5eb57f0631ba2e3393732d17b1aa5bc4a0f1384ed5a48f1adc97a67e1d503f39"
+      },
+      {
+        "bytes": 72727,
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "postimage_sha256": "c627c7bbac8c139eb4ca2bf6d0dd8cd5a093fa8d378a4ed921ec7b845bc1ae39",
+        "preimage_sha256": "934bc31fee0973512eb1c0297b21998ab182498a2f6a789a4ad3af211a6d5792"
+      },
+      {
+        "bytes": 5768,
+        "path": "policy-engine/tests/repo_quality/tools/test_workspace_lint_fast_source_scope.py",
+        "postimage_sha256": "af5a10076f7fa0b76b964adbbdf1856454672bb9d1a2c0f6206cecd881dad54a",
+        "preimage_sha256": "540e9ea390bfb72cb9533b4c46df595c99f3fdea2b284259d4783eb3cc53de7d"
+      },
+      {
+        "bytes": 55249,
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "7e3d206a7c244866daa3250580e1c89b7aa99ccffdfb41d3d307a7320fc1cac3",
+        "preimage_sha256": "5092c6a52fa96ba5e89e610cef5936b08c2cd92fbec8e86b94fcacd2e887699f"
+      }
+    ],
+    "index_tree_at_readback": "6f18e73b7a222ca027e1ccee36be5f96064b346f",
+    "parent": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "parent_tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f",
+    "slice_base": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "slice_base_subject": "fix(e02): compose rooted lint scope and real resumed consumer fixtures",
+    "tracked_and_index_clean_at_readback": true,
+    "tree": "6f18e73b7a222ca027e1ccee36be5f96064b346f"
+  }
+}

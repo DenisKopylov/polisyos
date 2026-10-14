@@ -1,0 +1,92 @@
+{
+  "candidate": {
+    "authoring_base_head": "5dbe52f869cb259871bb9df4d84be60b2f3310c2",
+    "current_readback_head": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "manifest_sha256": "cbe6091c703f65e94ba0b7335f6282785ccd5f59f4345580ec04eeff1d28b590",
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/",
+    "patch_sha256": "b315e5dca520bde9629a2878d210128ca319f05546b81fce27a7fabc60559800",
+    "quality_receipt_sha256": "036ca5c524e107947715ccf9f05900ffccc7316f819fea7e97fe782f92abc05b",
+    "readback_sha256": "d1823f79b55d8054f3b97c32b6bd60a8e30eb2668bc289fa642eb16d1a789549",
+    "recorded_git_apply_check_base_head": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "recorded_git_apply_check_exit_code": 0
+  },
+  "changed_path_denominator": {
+    "all_current_preimages_and_postimages_match_manifest_and_overlay": true,
+    "independent_in_memory_patch_reconstruction": true,
+    "mandatory_companions": 2,
+    "mechanism_paths": 2,
+    "paths": [
+      {
+        "before_sha256": "fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09",
+        "check": "current HEAD blob equals declared preimage; reconstructed patch and overlay equal manifest postimage",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "postimage_bytes": 105413,
+        "postimage_sha256": "624cad8497dd3ba3622b2a0aba38bd24ec0a38f494cab62980438a54590ac466"
+      },
+      {
+        "before_sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c",
+        "check": "byte-identical to R3 postimage",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_bytes": 71274,
+        "postimage_sha256": "5163ca7a579c1a32c5b1a2719c43ef78556f610cdc205b50aa4b36eed1249389"
+      },
+      {
+        "before_sha256": "3435b4dd3df4d31546ea260d149764d67856c1a57ee25e20bd30583ddf1eb3ce",
+        "check": "AST-equal to R3 plus R1348 formatter-only patch",
+        "path": "policy-engine/tests/unit/foundry/methods/test_dependency_profile.py",
+        "postimage_bytes": 293639,
+        "postimage_sha256": "409fd6a341a17d62b488e7ecfaf0d9aed0691c5b5799f6430004e8baa9a07542"
+      },
+      {
+        "before_sha256": null,
+        "check": "new helper; AST-equal to R3 after flattening adjacent import aliases; non-import AST nodes match",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/installed_origin_gate_r4.py",
+        "postimage_bytes": 15283,
+        "postimage_sha256": "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2"
+      }
+    ],
+    "total_paths": 4
+  },
+  "closure_ids": [],
+  "current_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1364-20261014.json",
+    "sha256": "9e8268acc71c50a23f453801b90a3490b83379a8d8e214d0b2f1fb29953c8b56",
+    "tree": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+  },
+  "delta_review": {
+    "audit": "Byte-identical to R3. Its AST reader extracts one top-level HERE-relative helper filename and one full lowercase SHA from the committed runner bytes; the derived ignored path is read, hashed, recorded, and inserted into capsule_contents.",
+    "binding": "R4 helper SHA independently matches the runner literal. Audit binding derives from runner AST; it does not trust a manually duplicated path/count or a self-reported digest.",
+    "helper": "Only import splitting/sorting and formatter wrapping are visible relative to R3. Flattening adjacent Import aliases yields the same AST, including unchanged literal/docstring values and all non-import nodes.",
+    "runner": "Exact R3 postimage apart from replacing the helper digest 779b21a6487902a79ee3dd191aa817230cf867124716a425d40f34aa58185ab6 with the computed R4 helper digest f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2. The path points to installed_origin_gate_r4.py.",
+    "semantic_review_reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1343-q2-installed-origin-and-registry-input-behavior-independent-20261014.md",
+      "qualification": "Earlier static semantic GO; this review only confirms the R4 quality delta preserves those semantics. Runtime acceptance remains open.",
+      "sha256": "f6ae1d2fa49963b585398b3af55d63bb1069626236116b1aa979aea4106a3708"
+    },
+    "test": "R1348 formatter patch reapplied in memory to the R3 test postimage reproduces the R4 test hash exactly; AST is unchanged."
+  },
+  "formal_acceptance": "not_established",
+  "next_scope": "Root apply, then focused installed-consumer verification; no formal acceptance follows from this static review.",
+  "p40": "No new semantic class found; this is a quality-only successor to the same R3 candidate.",
+  "p41": "No inherited-red claim made. The raw run/audit diagnostics stay unqualified.",
+  "quality_boundary": {
+    "Ruff": "Quality receipt records product-cwd Ruff check and format check exit 0 for helper and test, with zero diagnostics. The helper is supplied under its product-relative stdin filename.",
+    "nonruns": [
+      "runtime/import",
+      "pytest",
+      "package build",
+      "installed-consumer/native wave"
+    ],
+    "scope_reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1352-ruff-root-scan-diagnosis-20261014/report.json",
+      "sha256": "db7d1a7fec27c2abc4f6c47e980d3bff9b16e77c164d0fb8a81377766caf2af1",
+      "use": "Documents canonical authored Ruff roots and ignored-raw boundary; it does not turn the targeted checks into a whole-raw lint receipt."
+    },
+    "unqualified": "Runner and audit raw-source lint diagnostics remain unqualified. The packet explicitly does not claim whole raw-source Ruff cleanliness or P41 inheritance; R1344 B023 notes remain unchanged and are not adjudicated here."
+  },
+  "schema": "e02.q2.r1365-quality-only-independent-review.v1",
+  "scope": "Read-only quality-only delta review of R1364 R4-R2; no source, Git, test, import, build, or native action.",
+  "verdict": "GO_FOR_ROOT_APPLY_AND_FOCUSED_VERIFICATION_ONLY"
+}

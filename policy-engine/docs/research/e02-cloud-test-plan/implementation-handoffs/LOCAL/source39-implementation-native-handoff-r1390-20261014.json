@@ -1,0 +1,314 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_lineage_and_review_refs": {
+    "full_composition_artifact": {
+      "net_patch_sha256": "d0f0f843fd4d05829208968330bff5a79bc74db838dc1aa708aa9ebf4cbb6c87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1381-ruff-expiry-owner-and-q2-baseline-composition-20261014/composition.json",
+      "sha256": "9e049c82f4736bbdf1802541b51cd2f254143280a86c226c6adf3a6a8d6a65c6"
+    },
+    "net_patch_sha256": "d0f0f843fd4d05829208968330bff5a79bc74db838dc1aa708aa9ebf4cbb6c87",
+    "stages": [
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate.patch",
+          "sha256": "a1a0efb88b36facbaff2c06051d3b119e01e3c7764ecbcd433824f60630bce17"
+        },
+        "stage": 1,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 1125,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/binding_i001_before.json",
+            "sha256": "4d75e5fda540c8d74d2b8dda0f6c8d91d38f54a2de2b4b1bdec650c79b44a5e4"
+          },
+          {
+            "bytes": 429,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/binding_import_ast.json",
+            "sha256": "3008d94bfe36e316a3768f4ff66ed7ca0b8ba9f895c676dca5bf8c6faa288c0d"
+          },
+          {
+            "bytes": 2719,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate-report.md",
+            "sha256": "0a0e6a0537ac3368e10f9f0f9a41e7ab80f92efab5fd9321adb3e9874631eb3f"
+          },
+          {
+            "bytes": 12369,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate.patch",
+            "sha256": "a1a0efb88b36facbaff2c06051d3b119e01e3c7764ecbcd433824f60630bce17"
+          },
+          {
+            "bytes": 46,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate_apply_check.txt",
+            "sha256": "efe847267b0bc47d6d2dfa4a289016ee1a4644feac0bcb0324723c055eea8e41"
+          },
+          {
+            "bytes": 440,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate_diffstat.txt",
+            "sha256": "d9c321f314855383e9b7fe8d604e47203b35b03baa91d3cbf57f85baae1fd337"
+          },
+          {
+            "bytes": 3703,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate_python_gates.json",
+            "sha256": "b6b46c4b55461d2e17d92082d68866266cd2e399e788d463724f9e3de7dcea76"
+          },
+          {
+            "bytes": 575,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/candidate_ruff_results.json",
+            "sha256": "15cb153f5be90a47611ec39831b516247f869d8ffc2f321e694b0bdffdbaf177"
+          },
+          {
+            "bytes": 17758,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/manifest.json",
+            "sha256": "ad4f6f7a45e4d8407f3867c42a223b0cba43dbc73bb04d6b066703651edac98b"
+          },
+          {
+            "bytes": 1249,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/newly_included_ruff.json",
+            "sha256": "fb411a84ce011ae22d9776451e3610ea0609a5db27e7aae1832e674d33ea379f"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/newly_included_ruff.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 2,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/newly_included_ruff.stdout.json",
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "bytes": 762,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/root_pattern_removal_exploration.json",
+            "sha256": "bd1978fedcd3b4f6500961b35fecb1a6d585debeb0b6a6af54064d552d65b1f4"
+          },
+          {
+            "bytes": 2904,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/scope_probe.py",
+            "sha256": "664fa450e4aa933dfdc92baac294940f9d244c8e52dcc8d6f170356f436eefe6"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/scope_probe.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 1517,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/scope_probe.stdout.json",
+            "sha256": "65536f90334a398c68e0f74dfc22f54a9c414663b3bd367c5c67fb58ef2f87bd"
+          },
+          {
+            "bytes": 1517,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/scope_probe_output.json",
+            "sha256": "37c728c02439d05f15e1d14bcb8d4be7704a056a5b49237132a29e65e0b45289"
+          },
+          {
+            "bytes": 2053,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/specific_root_removal_control.json",
+            "sha256": "920069bb03b34a66fcd240498a23e9e1a8c6f0a406ba97b23ef9b46b4ffdddfa"
+          }
+        ]
+      },
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1357-r3-expiry-fresh-get-candidate-20261014/candidate_test.patch",
+          "sha256": "833347e227dc962dcc4cfb6a4ae08550acb14ed9e4635913b9145083167ebf5c"
+        },
+        "stage": 2,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1357-r3-expiry-fresh-get-candidate-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 5200,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1357-r3-expiry-fresh-get-candidate-20261014/candidate_test.patch",
+            "sha256": "833347e227dc962dcc4cfb6a4ae08550acb14ed9e4635913b9145083167ebf5c"
+          },
+          {
+            "bytes": 5004,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1357-r3-expiry-fresh-get-candidate-20261014/manifest.json",
+            "sha256": "b7577e4172dc53f4e5021dbda8767c82abf7b7841d76bc5699f0dc5784ea7d92"
+          },
+          {
+            "bytes": 1881,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1357-r3-expiry-fresh-get-candidate-20261014/static-readback.json",
+            "sha256": "713261fe6cb6b84d617ee04b0b00d785f1e71949cbc015f2a37c58fba64a744a"
+          }
+        ]
+      },
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1377-real-expiry-canonical-format-companion-20261014/format.patch",
+          "sha256": "c2dd0cf5e11f2ababc33a18831d91e0ca7274de939ad7876df8c5149719f25dc"
+        },
+        "stage": 3,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1377-real-expiry-canonical-format-companion-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 2950,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1377-real-expiry-canonical-format-companion-20261014/format.patch",
+            "sha256": "c2dd0cf5e11f2ababc33a18831d91e0ca7274de939ad7876df8c5149719f25dc"
+          },
+          {
+            "bytes": 702,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1377-real-expiry-canonical-format-companion-20261014/manifest.json",
+            "sha256": "3624adf5e676abc68cb0523522494f8d1d6e876edbb6f3b84f20fa667b188010"
+          }
+        ]
+      },
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/proposal.patch",
+          "sha256": "d5d9e6da1dbf75c5663f3c38a2e216a1516b6d549cac07c7de3f466323ae5490"
+        },
+        "stage": 4,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 3311,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/decision.md",
+            "sha256": "39bec1bcdc00c9b7af65b2bccfe9f1789fc17afc4bec78b7410d96ad9757aa94"
+          },
+          {
+            "bytes": 8150,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/manifest.json",
+            "sha256": "4f0382caa38535185308f99c33a308aae5bbcf2d2ecf95f865ab9e09dce3ea65"
+          },
+          {
+            "bytes": 21613,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/proposal.patch",
+            "sha256": "d5d9e6da1dbf75c5663f3c38a2e216a1516b6d549cac07c7de3f466323ae5490"
+          }
+        ]
+      },
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/candidate-r3.patch",
+          "sha256": "91d7a69dd65de64dd9f202b8ff401fb961519825a82d9d542e93686963294bb0"
+        },
+        "stage": 5,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 6783,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/candidate-r3.patch",
+            "sha256": "91d7a69dd65de64dd9f202b8ff401fb961519825a82d9d542e93686963294bb0"
+          },
+          {
+            "bytes": 2054,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/decision-r3.md",
+            "sha256": "b42af0d7cf77df33a5c7df3cb52caadcff367f987281c463916384bd6611e552"
+          },
+          {
+            "bytes": 3608,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/manifest-r3.json",
+            "sha256": "79005ca33f4254918ae5a6e24d23982fd68e0165d0aeb85581bacb2af1d1844a"
+          }
+        ]
+      }
+    ]
+  },
+  "criterion_handling": {
+    "author_proposals": [],
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "note": "No original-criterion closure or broad acceptance is inferred from this source handoff."
+  },
+  "date": "2026-10-14",
+  "native_receipt_ids": [
+    "R1384",
+    "R1387",
+    "R1389"
+  ],
+  "native_receipt_packet": "r1390-source37-source38-source39-native-deciding-packet-20261014.json",
+  "record_id": "R1390-Source39",
+  "record_type": "implementation_native_handoff",
+  "slice_interpretation": "Eleven-path cumulative composition. The focused owner/Ruff-scope/expiry replay is red: 55 cases, 52 passed and 3 failed. The Q2 baseline self-test also exits 1 on a lexical-alias installed-origin probe. Canonical authored Ruff returns zero diagnostics for its declared 6,221 subjects over a stable 6,224-input map; that narrow lint receipt does not turn the failed runtime gates green.",
+  "source_slice": "Source39",
+  "source_snapshot": {
+    "commit": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "committed_readback": {
+      "all_physical_and_HEAD_bytes_match_at_capture": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1381-ruff-expiry-owner-and-q2-baseline-composition-20261014/committed-source39-byte-readback.json",
+      "runtime_status_in_readback": "UNRUN",
+      "sha256": "08b5231752328bc1ed9a6559b558f79da003b32628442206b7cedbfa969e71fe",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+      "source_frame_path_count": 627,
+      "source_frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+      "tracked_and_index_clean_at_capture": true
+    },
+    "composition": {
+      "net_patch_sha256": "d0f0f843fd4d05829208968330bff5a79bc74db838dc1aa708aa9ebf4cbb6c87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1381-ruff-expiry-owner-and-q2-baseline-composition-20261014/composition.json",
+      "sha256": "9e049c82f4736bbdf1802541b51cd2f254143280a86c226c6adf3a6a8d6a65c6"
+    },
+    "implementation_paths": [
+      {
+        "bytes": 11670,
+        "path": "policy-engine/docs/reference/repository-hygiene.md",
+        "postimage_sha256": "e0a697201b0265754799b716c4128bc1003b3e4ecd2401c29e51150332f7aa00",
+        "preimage_sha256": "61819965a29b9f451cf2ba8fdf633ce14dee100ebc1b31a146a9cecfd0ad111e"
+      },
+      {
+        "bytes": 72806,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "3f5cfc7152e8954951ee37d1f28fb8c7508646e2141c63e6bb2907abbc29fb5b",
+        "preimage_sha256": "5163ca7a579c1a32c5b1a2719c43ef78556f610cdc205b50aa4b36eed1249389"
+      },
+      {
+        "bytes": 6488,
+        "path": "policy-engine/tests/_helpers/run_lifecycle.py",
+        "postimage_sha256": "5eb57f0631ba2e3393732d17b1aa5bc4a0f1384ed5a48f1adc97a67e1d503f39",
+        "preimage_sha256": "d97cdbd4f78f7e3db3aaa3ff41c96a62027afa7297719c1c18dd36e12d9b03bf"
+      },
+      {
+        "bytes": 70522,
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "postimage_sha256": "934bc31fee0973512eb1c0297b21998ab182498a2f6a789a4ad3af211a6d5792",
+        "preimage_sha256": "f12c651390ff99c6ea65f6e8b8bbffbc9f395b1ba4704afa60e7014e9c4b39c2"
+      },
+      {
+        "bytes": 5777,
+        "path": "policy-engine/tests/repo_quality/tools/test_workspace_lint_fast_source_scope.py",
+        "postimage_sha256": "540e9ea390bfb72cb9533b4c46df595c99f3fdea2b284259d4783eb3cc53de7d",
+        "preimage_sha256": null
+      },
+      {
+        "bytes": 37895,
+        "path": "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+        "postimage_sha256": "11e8fc89bc3c3f29a9f6d856aa690f3107ab30c0b03f29179bbc516f9f3379fe",
+        "preimage_sha256": "be3d67f9c87088c62528007974eb6ceb1988e537ccda106cc1ef27abe6a890c8"
+      },
+      {
+        "bytes": 51857,
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "5092c6a52fa96ba5e89e610cef5936b08c2cd92fbec8e86b94fcacd2e887699f",
+        "preimage_sha256": "d85790cd89d335dcde5839323277bbe8449c7283a4c8ed80c5106b0312be848d"
+      },
+      {
+        "bytes": 22108,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "postimage_sha256": "c00059cdde3d7b0b97ac3694aa71b6454a23e0404dcd50438a9fb20310041d4a",
+        "preimage_sha256": "442cabf574bfe46cb64e5f082b9f131c0a3e1a2ea888b697c135df2e68a6857b"
+      },
+      {
+        "bytes": 17690,
+        "path": "policy-engine/tools/devx/workspace/README.md",
+        "postimage_sha256": "a5279153c1a34349f028074c20219df5a0208407e3b0633297956701ed3de8b9",
+        "preimage_sha256": "e32f019c56aa026212508028ebd3e90e0853524196af0362054b32c25a466876"
+      },
+      {
+        "bytes": 7672,
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "postimage_sha256": "d0e28850bcb035ace9fb134a4f2c10c01d1be69bcef3ac7fe7525f3366cbc64d",
+        "preimage_sha256": "7ed1b535f3a253e3cc53edf37429cac9a47ccd22742c7b3fa78ed0f748c65cb4"
+      },
+      {
+        "bytes": 2308,
+        "path": "policy-engine/tools/devx/workspace/lint_fast.py",
+        "postimage_sha256": "4a826ceab00945827524acc365fcefa1f62ddecec0968d0db371816a6b5bf55b",
+        "preimage_sha256": "8a347c43d7f0a9a06a5fadd660b9197b0a5a67abf42b1e0bff7b6a7b6a87b061"
+      }
+    ],
+    "parent": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "subject": "fix(e02): compose rooted lint scope and real resumed consumer fixtures",
+    "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+  }
+}

@@ -1,0 +1,349 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "date": "2026-10-14",
+  "native_inputs": {
+    "captured_run_commands_and_full_outputs": "referenced below by exact path and SHA-256; no output bodies copied",
+    "selected_device": "cpu",
+    "selected_thread_profile": "single-thread"
+  },
+  "native_runs": [
+    {
+      "artifacts": [
+        {
+          "bytes": 2735265,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/command.json",
+          "sha256": "5b815ea7c956eb1ecc2634d61a10a719ebfe9004f560a73b76d7c0f7ced5ae72"
+        },
+        {
+          "bytes": 78306,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/full-nonpass.json",
+          "sha256": "71ad01cf42e9f88742ef47833c688645e94aeee0dbc3daffe9853792fb662b67"
+        },
+        {
+          "bytes": 81869,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/junit.xml",
+          "sha256": "da6a2e2b977f94dc7e8c8bcf29ab3f2447597b761bb191c7419108bbdafd3b18"
+        },
+        {
+          "bytes": 489700,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/module-origins.json",
+          "sha256": "943ffd4ea5c1e37d849bca2c70c2fd45fdccae5bd82b4e8f13b0cbbbc33d9fe5"
+        },
+        {
+          "bytes": 146110,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/progress.json",
+          "sha256": "4f4f4f1988d557b01ed0080465d36088197147bd4a5f58bca0a88686433b78d9"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 75272,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/stdout.txt",
+          "sha256": "0d3b47efa8ffb3c42c77ae7375ee8f48da298bc7c284a949d7c1f030d7b817c9"
+        }
+      ],
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/command.json",
+        "sha256": "5b815ea7c956eb1ecc2634d61a10a719ebfe9004f560a73b76d7c0f7ced5ae72"
+      },
+      "environment_subset": {
+        "BLIS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONPATH": "src:.",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "exit_code": 1,
+      "file_input_map": {
+        "after_count": 6953,
+        "before_count": 6953,
+        "captured_hash_maps_are_in_command_json": true,
+        "unchanged": true
+      },
+      "id": "R1366",
+      "interpretation": "Source37 focused owner/resume/cache control replay; 51=32P/19F/0E/0S; 6,953 input hashes unchanged; 1,548 product modules loaded from selected source root, none outside it.",
+      "ruff_diagnostic_count": null,
+      "source_head": "3d03c1e4cc1e686983f0def199465dd801457991",
+      "test_result": {
+        "errors": 0,
+        "failures": 19,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/junit.xml",
+        "junit_sha256": "da6a2e2b977f94dc7e8c8bcf29ab3f2447597b761bb191c7419108bbdafd3b18",
+        "passed": 32,
+        "skipped": 0,
+        "tests": 51
+      },
+      "wall_seconds": 30.051318207988515
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 1839584,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source38-q2-generic-origin-and-drift-selftest-actual-r1372-20261014/command.json",
+          "sha256": "76aa715c82332afb6777744873e3debc7d6f1d25e07a1411a3d6b5dd65eacf33"
+        },
+        {
+          "bytes": 1602,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source38-q2-generic-origin-and-drift-selftest-actual-r1372-20261014/stderr.txt",
+          "sha256": "7c8cb90fd0cf0308f455f4e03e9cfa5b80fc7bc7c2aa86d57b041974fd4c2f95"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source38-q2-generic-origin-and-drift-selftest-actual-r1372-20261014/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source38-q2-generic-origin-and-drift-selftest-actual-r1372-20261014/command.json",
+        "sha256": "76aa715c82332afb6777744873e3debc7d6f1d25e07a1411a3d6b5dd65eacf33"
+      },
+      "environment_subset": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1"
+      },
+      "exit_code": 1,
+      "file_input_map": {
+        "after_count": 6956,
+        "before_count": 6956,
+        "captured_hash_maps_are_in_command_json": true,
+        "unchanged": true
+      },
+      "id": "R1372",
+      "interpretation": "Source38 actual Q2 audit self-test; exit 1 after 0.137 s; 6,956 input hashes unchanged; stderr says force-include resources differ from frozen hatch.toml and source bytes.",
+      "ruff_diagnostic_count": null,
+      "source_head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+      "test_result": null,
+      "wall_seconds": 0.1373897090088576
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 2986268,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/command.json",
+          "sha256": "55df803a79d97f1f9388450c7be9d7bb6d4def646dffd0ad5a978beee2daaf9c"
+        },
+        {
+          "bytes": 35119,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/full-nonpass.json",
+          "sha256": "64c7a0b0fd5d8091d664c094795a0e47154a339b2f0497b4805003ed3208300d"
+        },
+        {
+          "bytes": 44119,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/junit.xml",
+          "sha256": "d64d40e496590336282240aa962840dbbd0ad91427bd3934945093bc7ad2bf59"
+        },
+        {
+          "bytes": 630555,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/module-origins.json",
+          "sha256": "8cb5b7fa34c7f0fdf1a50d15658c45cb69722050335ca418360b7d94153fab90"
+        },
+        {
+          "bytes": 108135,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/progress.json",
+          "sha256": "d67c81730972942cbc4317f6d18a09c341f23e410f8e1402df333c88cf5c35de"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 34113,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/stdout.txt",
+          "sha256": "688a7f3a81068cc9287e93139e5ed02cbeda46ee074a5ef5318e13f8585f3101"
+        }
+      ],
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/command.json",
+        "sha256": "55df803a79d97f1f9388450c7be9d7bb6d4def646dffd0ad5a978beee2daaf9c"
+      },
+      "environment_subset": {
+        "BLIS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONPATH": "src:.",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "exit_code": 1,
+      "file_input_map": {
+        "after_count": 6957,
+        "before_count": 6957,
+        "captured_hash_maps_are_in_command_json": true,
+        "unchanged": true
+      },
+      "id": "R1384",
+      "interpretation": "Source39 focused replay; 55=52P/3F/0E/0S in 53.159 s; 6,957 input hashes unchanged; 1,990 product modules loaded from selected source root, none outside it. Three failures remain: resumed owner-input mismatch, basename escape in Ruff scope control, and closed content-addressed-storage dependency guard.",
+      "ruff_diagnostic_count": null,
+      "source_head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+      "test_result": {
+        "errors": 0,
+        "failures": 3,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/junit.xml",
+        "junit_sha256": "d64d40e496590336282240aa962840dbbd0ad91427bd3934945093bc7ad2bf59",
+        "passed": 52,
+        "skipped": 0,
+        "tests": 55
+      },
+      "wall_seconds": 53.15881095803343
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 1839805,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-q2-baseline-and-origin-selftest-actual-r1387-20261014/command.json",
+          "sha256": "7b9bdc8ce4c07045195399c82832b9db995d46d33052c26913d57b6274042997"
+        },
+        {
+          "bytes": 1687,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-q2-baseline-and-origin-selftest-actual-r1387-20261014/stderr.txt",
+          "sha256": "206488c0568607145192202da51df848c992b221ae711f063192f852877e771f"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-q2-baseline-and-origin-selftest-actual-r1387-20261014/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-q2-baseline-and-origin-selftest-actual-r1387-20261014/command.json",
+        "sha256": "7b9bdc8ce4c07045195399c82832b9db995d46d33052c26913d57b6274042997"
+      },
+      "environment_subset": {},
+      "exit_code": 1,
+      "file_input_map": {
+        "after_count": 6957,
+        "before_count": 6957,
+        "captured_hash_maps_are_in_command_json": true,
+        "unchanged": true
+      },
+      "id": "R1387",
+      "interpretation": "Source39 actual Q2 audit self-test; exit 1 after 0.074 s; 6,957 input hashes unchanged; installed-origin lexical-alias probe is rejected as escaping installed purelib.",
+      "ruff_diagnostic_count": null,
+      "source_head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+      "test_result": null,
+      "wall_seconds": 0.0737286249641329
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 1621246,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-canonical-authored-ruff-complete-inputs-actual-r1389-20261014/command.json",
+          "sha256": "0c7230d484e3515d9fbd4d3b6dd8ae9dc873788dfe47108c4153deb7a01dd03f"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-canonical-authored-ruff-complete-inputs-actual-r1389-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-canonical-authored-ruff-complete-inputs-actual-r1389-20261014/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-canonical-authored-ruff-complete-inputs-actual-r1389-20261014/command.json",
+        "sha256": "0c7230d484e3515d9fbd4d3b6dd8ae9dc873788dfe47108c4153deb7a01dd03f"
+      },
+      "environment_subset": {},
+      "exit_code": 0,
+      "file_input_map": {
+        "after_count": 6224,
+        "before_count": 6224,
+        "captured_hash_maps_are_in_command_json": true,
+        "unchanged": true
+      },
+      "id": "R1389",
+      "interpretation": "Canonical authored Ruff check; exit 0 after 1.004 s; 6,224 input hashes unchanged and zero diagnostics for the declared 6,221 authored subjects. This is the scoped Ruff result only, not repository SOTA.",
+      "ruff_diagnostic_count": 0,
+      "source_head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+      "test_result": null,
+      "wall_seconds": 1.004431499983184
+    }
+  ],
+  "ownership_and_limitations": {
+    "closure_ids": [],
+    "criterion_status": "These slice receipts do not adjudicate or close original criteria. Any author proposal remains separately scoped by original criterion and pending its complete verification.",
+    "failure_provenance": "R1366/R1372/R1384/R1387 are exact-source red receipts, not inherited green. The R1384 owner/Ruff/dependency failure routes R7/R1385/R1386/R1388 are explicitly owned for follow-up and are not excluded as inherited.",
+    "no_formal_closures": true,
+    "not_run": [
+      "V3",
+      "B33",
+      "source input freeze",
+      "Linux replay",
+      "Q2 acceptance",
+      "repository SOTA"
+    ],
+    "scope_limit": "The focused suites and Ruff command are separate receipts; their counts are not a combined pass rate and the 627-path source frame is not a test-input denominator."
+  },
+  "record_id": "R1390",
+  "record_type": "source_slice_native_deciding_packet",
+  "source_frame": {
+    "count_semantics": "source-frame paths only; not the native test denominator",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+    "physical_source_path_count": 627,
+    "sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38"
+  },
+  "source_head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+  "source_slices": [
+    {
+      "commit": "3d03c1e4cc1e686983f0def199465dd801457991",
+      "id": "Source37",
+      "implementation_path_commit_tree_match": true,
+      "implementation_path_count": 6,
+      "interpretation": "Six-path test/helper lifecycle-owner slice. The focused replay is red: 51 cases, 32 passed and 19 failed. Fifteen async cases fail because the fixture helper receives unsupported resume=; four SKG cases fail lifecycle finalization/owner checks. This receipt preserves the red; it is not a green acceptance.",
+      "native_receipt_ids": [
+        "R1366"
+      ],
+      "parent": "5dbe52f869cb259871bb9df4d84be60b2f3310c2",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1364-20261014.json",
+      "source_frame_path_count": 620,
+      "source_frame_sha256": "9e8268acc71c50a23f453801b90a3490b83379a8d8e214d0b2f1fb29953c8b56",
+      "tree": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+    },
+    {
+      "commit": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+      "id": "Source38",
+      "implementation_path_commit_tree_match": true,
+      "implementation_path_count": 4,
+      "interpretation": "Four-path Q2 audit/test slice. Its actual self-test exits 1 because the fixture force-include resources differ from frozen hatch.toml and source bytes. The failing precondition is retained; no Q2 acceptance is claimed.",
+      "native_receipt_ids": [
+        "R1372"
+      ],
+      "parent": "3d03c1e4cc1e686983f0def199465dd801457991",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+      "source_frame_path_count": 623,
+      "source_frame_sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5",
+      "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+    },
+    {
+      "commit": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+      "id": "Source39",
+      "implementation_path_commit_tree_match": true,
+      "implementation_path_count": 11,
+      "interpretation": "Eleven-path cumulative composition. The focused owner/Ruff-scope/expiry replay is red: 55 cases, 52 passed and 3 failed. The Q2 baseline self-test also exits 1 on a lexical-alias installed-origin probe. Canonical authored Ruff returns zero diagnostics for its declared 6,221 subjects over a stable 6,224-input map; that narrow lint receipt does not turn the failed runtime gates green.",
+      "native_receipt_ids": [
+        "R1384",
+        "R1387",
+        "R1389"
+      ],
+      "parent": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+      "source_frame_path_count": 627,
+      "source_frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+      "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+    }
+  ],
+  "source_tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+}

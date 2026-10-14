@@ -1,0 +1,266 @@
+{
+  "captured_before_virtual_repair": true,
+  "causal_trace": [
+    {
+      "fact": "On Darwin spawn, retry builds the typed task and catches task-build refusal before entering the process/queue try block.",
+      "source": "retry.py:2027-2036"
+    },
+    {
+      "fact": "Task construction calls serialize_timeout_context.",
+      "source": "retry.py:1927"
+    },
+    {
+      "fact": "Serializer raises timeout_worker_access_scope_not_serializable when RunContext.access_scope is present.",
+      "source": "serialization.py:875-876"
+    },
+    {
+      "fact": "process.start is later; this refusal occurs before that line.",
+      "source": "retry.py:2081"
+    },
+    {
+      "fact": "Underlying worker-admission refusal is represented as NodeTimeoutError code node.timeout_worker_unsupported.",
+      "source": "retry.py:1614-1619"
+    },
+    {
+      "fact": "WorkflowExecutor converts it to NodeError.for_timeout without forwarding exc.code, so persisted report says node.timeout with a 30s threshold even though no deadline elapsed.",
+      "source": "executor.py:1537-1545; protocol.py:33-51"
+    },
+    {
+      "fact": "Decoder requires exact context/run key sets and reconstructs the worker RunContext with access_scope=None; a serializer-only field addition would still be rejected and scope would be dropped.",
+      "source": "_activity_worker.py:550-587,662-675"
+    }
+  ],
+  "closure_ids": [],
+  "decision": "pre-child timeout-context admission refusal; not worker boot, node computation, result framing, or a 30-second deadline expiration",
+  "interpretation_limits": [
+    "The refusal is thrown during spawn-task construction, before process.start in the inspected synchronous Darwin path.",
+    "Trace records NODE_STARTED, NODE_CACHE_BYPASS reason_code=7, NODE_FAIL duration_ms=232, then RUN_FINALIZED; the persisted workflow report supplies the exact refusal message.",
+    "No timing-budget increase or OOM hypothesis is supported by this evidence.",
+    "This is a closed-wire transport compatibility defect after owner-scoped RunContext admission; repair must carry the exact typed AccessScope and reconcile it to the persisted owner snapshot, tenant/CAS owner, and run identity while preserving explicit no-scope behavior."
+  ],
+  "persisted_report": {
+    "artifact_ref_from_trace": {
+      "artifact_id": "sha256:8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff",
+      "kind": "scientist.workflow_report",
+      "manifest_profile_field_present": false,
+      "manifest_profile_sha256": null,
+      "media_type": "application/json"
+    },
+    "body_facts": {
+      "node_duration_ms": 232,
+      "node_error_code": "node.timeout",
+      "node_error_message": "Timed node execution refused: timeout_worker_access_scope_not_serializable",
+      "node_status": "fail",
+      "status": "fail",
+      "timeout_seconds_binary64_hex": "0x1.e000000000000p+4"
+    },
+    "cas_blob_absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/artifacts/sha256/8c/ba/8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff.blob",
+    "cas_blob_bytes": 502,
+    "cas_blob_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/artifacts/sha256/8c/ba/8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff.blob",
+    "cas_blob_sha256": "8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff",
+    "cas_manifest_bytes": 643,
+    "cas_manifest_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/artifacts/sha256/8c/ba/8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff.manifest.json",
+    "cas_manifest_sha256": "d9d629a0dfc86c045f71cd90e1449937e8a14caf01531e0ca8bc48716a78ce79",
+    "manifest_schema": {
+      "name": "polisyos.scientist.orchestration.engine.WorkflowReport",
+      "version": "1.0"
+    }
+  },
+  "persisted_trace": {
+    "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/runs/R_skg_spawn_timeout_lifetime/trace.jsonl",
+    "bytes": 8108,
+    "relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/fixtures/test_darwin_spawn_timeout_reco0/cas/runs/R_skg_spawn_timeout_lifetime/trace.jsonl",
+    "report_output_event": {
+      "artifact_ref": {
+        "artifact_id": "sha256:8cba4c4340b5f0904a42f45f26363ea01bb61e60f6b082b27c7cf30bd623bcff",
+        "kind": "scientist.workflow_report",
+        "media_type": "application/json"
+      },
+      "index": 18
+    },
+    "selected_event_facts": [
+      {
+        "event": "NODE_STARTED",
+        "index": 14,
+        "metrics": {},
+        "phase": "scientist.node.resolve",
+        "run_id": "R_skg_spawn_timeout_lifetime",
+        "ts": "2026-10-14T00:11:40Z"
+      },
+      {
+        "event": "NODE_CACHE_BYPASS",
+        "index": 15,
+        "metrics": {
+          "cache_bypass": 1,
+          "duration_ms": 0,
+          "reason_code": 7
+        },
+        "phase": "scientist.node.resolve",
+        "run_id": "R_skg_spawn_timeout_lifetime",
+        "ts": "2026-10-14T00:11:40Z"
+      },
+      {
+        "event": "NODE_FAIL",
+        "index": 16,
+        "metrics": {
+          "duration_ms": 232,
+          "status_ok": 0
+        },
+        "phase": "scientist.node.resolve",
+        "run_id": "R_skg_spawn_timeout_lifetime",
+        "ts": "2026-10-14T00:11:40Z"
+      },
+      {
+        "event": "RUN_FINALIZED",
+        "index": 19,
+        "metrics": {
+          "status_ok": 0
+        },
+        "phase": "core",
+        "run_id": "R_skg_spawn_timeout_lifetime",
+        "ts": "2026-10-14T00:11:40Z"
+      }
+    ],
+    "sha256": "370d303b22f93a2b7b2e27c6ae21379a1b824262e1277d19115b4a059a431efa"
+  },
+  "record_id": "R1410-cause-source40-spawn-access-scope-refusal-20261014",
+  "record_type": "diagnostic_receipt",
+  "source_baseline": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+    "tree": "6f18e73b7a222ca027e1ccee36be5f96064b346f",
+    "working_source_matches_head": true
+  },
+  "source_refs": [
+    {
+      "finding": "run.access_scope is rejected before timeout-context wire serialization",
+      "line_spans": [
+        [
+          840,
+          846
+        ],
+        [
+          875,
+          876
+        ]
+      ],
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "sha256": "f2e9048c32a28acee19fcfea3ad8b7476a552be1c2b9f28f33d5231303513077"
+    },
+    {
+      "finding": "unsupported context is converted to a typed refusal while task construction precedes process.start",
+      "line_spans": [
+        [
+          1614,
+          1620
+        ],
+        [
+          1881,
+          1938
+        ],
+        [
+          2027,
+          2036
+        ],
+        [
+          2037,
+          2081
+        ]
+      ],
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "sha256": "75ce04e34998709e2e36b6961efad4bb29f6f2e5fde89580e1ea6d31ec8a7cfa"
+    },
+    {
+      "finding": "decoder uses exact context/run keys and reconstructs worker RunContext with access_scope=None",
+      "line_spans": [
+        [
+          550,
+          587
+        ],
+        [
+          662,
+          675
+        ]
+      ],
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "sha256": "296dcc2af4f74f0cdb8f205ccfc2a7dd6e466b39ecde464588073283a890ef9f"
+    },
+    {
+      "finding": "executor catches NodeTimeoutError and persists default timeout code",
+      "line_spans": [
+        [
+          1537,
+          1545
+        ]
+      ],
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "sha256": "174c48d699b6b8ddf402bde0e3152b88a7a25803ca1a9ce944ab1d8b4f47bc42"
+    },
+    {
+      "finding": "NodeError.for_timeout defaults code to node.timeout",
+      "line_spans": [
+        [
+          33,
+          51
+        ]
+      ],
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f"
+    },
+    {
+      "finding": "test admits owner_scope, resumes with same scope, then configures 30 second timeout",
+      "line_spans": [
+        [
+          955,
+          959
+        ],
+        [
+          985,
+          991
+        ],
+        [
+          1059,
+          1066
+        ],
+        [
+          1073,
+          1109
+        ]
+      ],
+      "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "sha256": "c627c7bbac8c139eb4ca2bf6d0dd8cd5a093fa8d378a4ed921ec7b845bc1ae39"
+    }
+  ],
+  "test_receipt": {
+    "invocation_timeout_seconds": 30.0,
+    "pytest_nodeid": "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineage",
+    "retained_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/stdout.txt",
+        "sha256": "a076e94aeedee319e2665a7a24f4acdf2b3cfece2f1540611c369986632e349c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/full-nonpass.json",
+        "sha256": "543f500c2d2e6d3430bfd90e61a77f4cf0546421267d237bdb2c6a4d97c00a9b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/progress.json",
+        "sha256": "2f51d91f12e8623bd9483705b36bf059c8ea9d68a688c582d636e7597a3003d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/command.json",
+        "sha256": "12d67f918463290483142e1964e132f728200d1b35caff69c0544c95df95120f"
+      }
+    ],
+    "suite_counts": {
+      "call_reports": 55,
+      "failed": 1,
+      "passed": 54,
+      "skipped": 0
+    },
+    "target_call": {
+      "duration_seconds": 1.165716375107877,
+      "outcome": "failed"
+    }
+  }
+}

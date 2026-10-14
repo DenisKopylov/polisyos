@@ -1,0 +1,121 @@
+{
+  "closure_ids": [],
+  "denominator": {
+    "candidate_claim": 8,
+    "candidate_scope_ambiguity": "8 is the immediate-child .py count, not recursive.",
+    "direct_physical_python_files": 8,
+    "occurrence_roles": [
+      "helper definition",
+      "audit self-test lookup",
+      "runner pytest-plugin call",
+      "runner isolated-proof call"
+    ],
+    "recursive_git_tracked_python_files": 6,
+    "recursive_physical_python_files": 144,
+    "recursive_rg_files_nonignored": 84,
+    "verify_loaded_module_origins_occurrences_in_recursive_physical_set": 4
+  },
+  "property": {
+    "actual_gate": "Two explicit lexical roots plus canonical resolution; strict stat type and parent-segment guard retained.",
+    "bucket": "SAME_CLASS_DEEPER",
+    "controls": {
+      "canonical_root_spelling": "positive",
+      "inside_lexical_to_outside_resolved_alias": "rejected by canonical resolved containment",
+      "link_parent_traversal": "rejected",
+      "outside_lexical_to_inside_resolved_alias": "rejected by lexical containment",
+      "reported_root_symlink_spelling": "positive",
+      "samefile_binding": "retained"
+    },
+    "expected": "Reported module/spec/namespace paths must be lexically under sysconfig's reported purelib spelling or its canonical resolution and must resolve under the canonical root; file-backed __file__ and spec.origin remain samefile-bound."
+  },
+  "r1388_virtual_postimages": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/installed_origin_gate_r4.py": {
+      "post_bytes": 16009,
+      "post_sha256": "f3db83c6eaa8beae7145c8ee1045b42d9412e7e43f7533bffd94168882099792",
+      "pre_bytes": 15283,
+      "pre_sha256": "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py": {
+      "post_bytes": 74177,
+      "post_sha256": "7b873f9a78feea57b4b5fc57e36ae6b3d6985df178577de8ce76ad839e2efdfd",
+      "pre_bytes": 72806,
+      "pre_sha256": "3f5cfc7152e8954951ee37d1f28fb8c7508646e2141c63e6bb2907abbc29fb5b"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py": {
+      "post_bytes": 105680,
+      "post_sha256": "24162087beef840d4c50ca7dd9096caeebce414b100f1e18f0540e88a7457547",
+      "pre_bytes": 105413,
+      "pre_sha256": "624cad8497dd3ba3622b2a0aba38bd24ec0a38f494cab62980438a54590ac466"
+    }
+  },
+  "r1397_delta": {
+    "helper_ast_same": true,
+    "helper_post_sha256": "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872",
+    "manifest_sha256": "d66e284b492402d6fe872dd2f878aee0244879ffb68b27d8cd52b5137d8f27f7",
+    "patch_sha256": "a0ee8e672ce7f9af6a85f06635485d516ab3293befd293ea942cd6f8c8c516f8",
+    "pin_matches_helper": true,
+    "runner_delta": "one exact helper SHA pin replacement",
+    "runner_post_sha256": "4b76acc7ee9c4373b44020530568f4b083fd412a22a7018021710a0a571e9e98"
+  },
+  "reviewed_inputs": {
+    "r1387_failure": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-q2-baseline-and-origin-selftest-actual-r1387-20261014/stderr.txt",
+      "sha256": "206488c0568607145192202da51df848c992b221ae711f063192f852877e771f"
+    },
+    "r1388_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/decision-r1388.md",
+      "sha256": "e95475f4c82a35f717b21ef5ae70dc402ac3c2676d3f28574783fbfc7705f255"
+    },
+    "r1388_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/manifest-r1388.json",
+      "sha256": "6cc718cdd5eee154d287d0dfec03856ea02baa26685f529bce9c100e3c5254da"
+    },
+    "r1388_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/candidate-r1388.patch",
+      "sha256": "898a40a67cf6cb3769c56856f1173912689b0de1b81c367a44c27d6cfad9a80e"
+    },
+    "r1388_static_checks": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1388-q2-sysconfig-purelib-spelling-repair-20261014/static-checks-r1388.txt",
+      "sha256": "73cc0c98efdd9d685ff3acf0d89d479c1f30f2c3568b7fd856618ccd8fc94e2b"
+    },
+    "r1397_style_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-gate-style-ignored/manifest.json",
+      "sha256": "d66e284b492402d6fe872dd2f878aee0244879ffb68b27d8cd52b5137d8f27f7"
+    },
+    "r1397_style_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-gate-style-ignored/style.patch",
+      "sha256": "a0ee8e672ce7f9af6a85f06635485d516ab3293befd293ea942cd6f8c8c516f8"
+    }
+  },
+  "schema": "r1394-q2-dual-root-independent-review-v1",
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+    "frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+    "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+  },
+  "status": {
+    "candidate_applied": false,
+    "q2_acceptance": "verification_missing"
+  },
+  "verdict": "GO_FOR_ROOT_OWNED_FOCUSED_Q2_ORIGIN_SELFTEST",
+  "verification": {
+    "not_performed": [
+      "origin self-test",
+      "pytest",
+      "Ruff",
+      "build/install",
+      "supported-Linux/native Q2 wave"
+    ],
+    "performed": [
+      "exact branch/HEAD/tree/frame binding",
+      "reconstructed all R1388 pre/post hashes and byte counts",
+      "recursive 144-file reference scan",
+      "R1397 virtual overlay hash verification",
+      "stdlib helper AST-equivalence check",
+      "runner exact-pin-only check"
+    ]
+  }
+}

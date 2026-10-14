@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "r1392_decision": {
+      "path": "raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/decision.md",
+      "sha256": "7875a207b961e5815e1fdc2ca29a92f8fea47263c1d5319a15ae1892ed15447b"
+    },
+    "r1392_manifest": {
+      "path": "raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/manifest.json",
+      "sha256": "2f6debaed166568c7a9a83badcb76328b7a8f10994d7e2506317096200bb732b"
+    },
+    "r1392_patch": {
+      "path": "raw/r1392-skg-resumed-owner-inputs-r7-virtual-20261014/proposal.patch",
+      "sha256": "bc17ee413352f01000715962dd3b694b4b57be6f952e0f609e78bc8a768330eb"
+    },
+    "r1402_style_patch": {
+      "path": "raw/r1402-r7-combined-context-style-20261014/style.patch",
+      "sha256": "26cf094200d68e8afdad5febe815125937fc7c9bae2183a8f2f3b8ba93ddd0b4"
+    },
+    "r1403_composition": {
+      "net_patch_sha256": "50806abf3962257cc0761344546880913467bf747e17822016212dc6f121de66",
+      "path": "raw/r1403-source40-final-virtual-20261014/composition.json",
+      "sha256": "d9e791a8060191c46d68fbf2b6dff946ca9a340fb2b81da8cc7b68842ad74f62"
+    }
+  },
+  "base": {
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+    "frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+    "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+  },
+  "closure_ids": [],
+  "evidence": {
+    "digest_basis": "AccessScope.to_dict includes spiffe_id and identity/scope fields; _access_scope_sha256 canonicalizes that representation (context.py:260-269).",
+    "owner_binding": [
+      "The dispatcher now receives the current typed access scope from get_current_access_scope_or_none while inside tenant_scope; tenant_scope only sets/resets tenant and cell ContextVars and does not clear the access-scope ContextVar.",
+      "The dispatcher validates requested run id and tenant/cell against the prior owner and reuses the prior persisted registry ArtifactRef; it forwards the current producer/env/access_scope to RunContext.resume.",
+      "RunContext.resume still verifies the incomplete trace and owner snapshot, compares registry/producer/env and a recomputed canonical access-scope digest before emitting RUN_RESUMED; no production guard or state is rewritten.",
+      "The changed-tenant and same-tenant/different-SPIFFE controls reject before successful resume and assert trace bytes remain unchanged; then the original owner scope resumes the same run."
+    ],
+    "preimage_reconstruction": "The R1392 and R1402 patches were reconstructed in memory from qualified preimages; both final R7 path hashes match R1403 composition metadata and both parse with stdlib AST.",
+    "r1384_failure_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/full-nonpass.json",
+      "relevant_case": "test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineage: RunContext resume refused with run_resume_owner_inputs_mismatch.",
+      "sha256": "64c7a0b0fd5d8091d664c094795a0e47154a339b2f0497b4805003ed3208300d"
+    },
+    "style_delta": "R1402 combines each nested pair of context managers into a parenthesized with statement preserving enter and exit order; it changes no behavior."
+  },
+  "formal_closure": false,
+  "limitations": [
+    "The changed-tenant control is rejected at dispatcher coordinate validation; the changed-SPIFFE control reaches the unchanged Core digest check. Both preserve the trace.",
+    "This SKG fixture has no non-null producer or environment fields. The dispatcher and RunContext API carry those typed values, but this review does not claim a new non-null producer/env test.",
+    "Direct legacy test-helper callers that omit owner_inputs retain the prior persisted-owner behavior; this packet does not claim those calls establish a changed caller identity. The Darwin path under review uses the current-input dispatcher.",
+    "No pytest, product import, native/spawn, CAS/DB, or runtime execution was performed. Root focused native replay remains required."
+  ],
+  "p40": {
+    "basis": "Same run-owner input-binding class: the prior R6 dispatcher echoed a persisted AccessScope instead of carrying the current caller scope. R7 forwards the typed current scope and exercises tenant and principal-identity mismatches in the actual SKG resume path.",
+    "bucket": "SAME_CLASS_DEEPER"
+  },
+  "r7_paths": {
+    "policy-engine/tests/_helpers/run_lifecycle.py": {
+      "postimage": {
+        "bytes": 8083,
+        "sha256": "0d84e6cb007050bde1ca44172ba3d5f02e6d7c9d335476398631c0f6c981ac82"
+      },
+      "preimage": {
+        "bytes": 6488,
+        "sha256": "5eb57f0631ba2e3393732d17b1aa5bc4a0f1384ed5a48f1adc97a67e1d503f39"
+      }
+    },
+    "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+      "final_after_r1402_style": {
+        "bytes": 72727,
+        "sha256": "c627c7bbac8c139eb4ca2bf6d0dd8cd5a093fa8d378a4ed921ec7b845bc1ae39"
+      },
+      "preimage": {
+        "bytes": 70522,
+        "sha256": "934bc31fee0973512eb1c0297b21998ab182498a2f6a789a4ad3af211a6d5792"
+      },
+      "r1392_postimage_sha256": "22eba93e55c0021b2c367f94431d9260892bee233025ae0196a9b28d9b852600"
+    }
+  },
+  "review_id": "R1400",
+  "review_scope": "R1392 resumed-owner-input change plus the R1402 nested-context style delta; reviewed only its two affected test/helper paths within the larger R1403 Source40 composition.",
+  "verdict": "GO_FOR_ROOT_COMPOSITION_AND_FOCUSED_NATIVE_REPLAY"
+}

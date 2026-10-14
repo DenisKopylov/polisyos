@@ -1,0 +1,64 @@
+{
+  "authority": "Author evidence update; not G adjudication",
+  "updates_exact_predecessor": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1404-full-id-proposal-readiness-r4-20261014.json",
+    "sha256": "cbd3624b40a840d00b64a045d40bf6ca9333cdc93d4e444cf996a8c740092a14"
+  },
+  "source_head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+  "source_tree": "6f18e73b7a222ca027e1ccee36be5f96064b346f",
+  "current_source40_runtime_gates_are_executed": [
+    {
+      "gate": "R1407 selected six-module owner/scope/cost replay",
+      "tests": 55,
+      "pass": 54,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "remaining_failure": "pre-start AccessScope serialization refusal, not actual30-second deadline",
+      "native_input_count": 6957,
+      "inputs_unchanged": true
+    },
+    {
+      "gate": "R1408 synthetic origin/drift verifier self-test",
+      "exit": 0,
+      "native_input_count": 6957,
+      "inputs_unchanged": true,
+      "limitations": "No actual build/install/profile runtime or product collection"
+    },
+    {
+      "gate": "R1409 canonical authored Ruff",
+      "exit": 0,
+      "diagnostics": 0,
+      "subject_count": 6221,
+      "native_input_count": 6224,
+      "inputs_unchanged": true,
+      "limitations": "Scoped Ruff only; repositorySOTA remainsUNRUN"
+    }
+  ],
+  "full_occurrence_property_admission": "not_established until individual original criterion and dependency chain are checked; code gate PASS never closes rows",
+  "native_scope_update_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-owner-scope-expiry-and-fresh-cas-actual-r1407-20261014/command.json",
+      "sha256": "12d67f918463290483142e1964e132f728200d1b35caff69c0544c95df95120f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-q2-full-origin-and-drift-selftest-actual-r1408-20261014/command.json",
+      "sha256": "6b83d496ef904f2cca6fd04650f037f45f0a9cf0fe47a1a1cf2924ea529608e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source40-canonical-authored-ruff-actual-r1409-20261014/command.json",
+      "sha256": "906fb319f9737d6a782ca86961825bab659f04dfd90ed0050ef3f0e545ac2189"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source40-implementation-native-handoff-r1412-20261014.json",
+      "sha256": "f9d1aa2a9b8cb8d54fbbb295d51da117c70353f68c586afba2d6b9c2979c33d9"
+    }
+  ],
+  "cause_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1410-source40-spawn-access-scope-refusal-cause-20261014.json",
+    "sha256": "baf91ea7d173bf08f5e2e10636d4c780645e9ff2667ad8b1565eaacc790327bd"
+  },
+  "preserves_full_291_occurrences_282_ids_and_historical_decisions": true,
+  "closure_ids": [],
+  "proposal_ids": []
+}

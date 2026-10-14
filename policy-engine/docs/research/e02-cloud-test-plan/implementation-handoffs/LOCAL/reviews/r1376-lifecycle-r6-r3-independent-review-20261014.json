@@ -1,0 +1,84 @@
+{
+  "base": {
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+    "frame_sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5",
+    "head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+  },
+  "candidate": {
+    "decision": "raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/decision.md",
+    "decision_sha256": "39bec1bcdc00c9b7af65b2bccfe9f1789fc17afc4bec78b7410d96ad9757aa94",
+    "manifest": "raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/manifest.json",
+    "manifest_sha256": "4f0382caa38535185308f99c33a308aae5bbcf2d2ecf95f865ab9e09dce3ea65",
+    "patch": "raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r6-r3-20261014/proposal.patch",
+    "patch_sha256": "d5d9e6da1dbf75c5663f3c38a2e216a1516b6d549cac07c7de3f466323ae5490",
+    "postimages": {
+      "policy-engine/tests/_helpers/run_lifecycle.py": {
+        "bytes": 6488,
+        "sha256": "5eb57f0631ba2e3393732d17b1aa5bc4a0f1384ed5a48f1adc97a67e1d503f39"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+        "bytes": 70522,
+        "sha256": "934bc31fee0973512eb1c0297b21998ab182498a2f6a789a4ad3af211a6d5792"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": {
+        "bytes": 22108,
+        "sha256": "c00059cdde3d7b0b97ac3694aa71b6454a23e0404dcd50438a9fb20310041d4a"
+      }
+    },
+    "preimages": {
+      "policy-engine/tests/_helpers/run_lifecycle.py": {
+        "bytes": 3871,
+        "sha256": "d97cdbd4f78f7e3db3aaa3ff41c96a62027afa7297719c1c18dd36e12d9b03bf"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+        "bytes": 67954,
+        "sha256": "f12c651390ff99c6ea65f6e8b8bbffbc9f395b1ba4704afa60e7014e9c4b39c2"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": {
+        "bytes": 22059,
+        "sha256": "442cabf574bfe46cb64e5f082b9f131c0a3e1a2ea888b697c135df2e68a6857b"
+      }
+    },
+    "source_paths": [
+      "policy-engine/tests/_helpers/run_lifecycle.py",
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py"
+    ]
+  },
+  "closure_ids": [],
+  "evidence": {
+    "lifecycle_source": [
+      "RunContext.start refuses an existing trace or finalize journal (context.py:837-861).",
+      "RunContext.resume re-reads the incomplete trace and owner-snapshot chain, validates run id, registry owner, producer, environment, and scope, and emits RUN_RESUMED (context.py:908-985).",
+      "suspend_for_resume validates the incomplete trace, marks the same context suspended/closed, and releases its actual lease (context.py:1037-1059).",
+      "The candidate calls this production suspension method and resumes using the prior persisted RunManifest fields; no lifecycle guard or private owner field is reset or fabricated."
+    ],
+    "prior_actual_failure_set": {
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/junit.xml",
+      "junit_sha256": "da6a2e2b977f94dc7e8c8bcf29ab3f2447597b761bb191c7419108bbdafd3b18",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source37-real-owner-resume-and-shared-cache-controls-actual-r1366-20261014/full-nonpass.json",
+      "sha256": "71ad01cf42e9f88742ef47833c688645e94aeee0dbc3daffe9853792fb662b67",
+      "summary": "19 failures: 15 async cases from one cold_setup resume=True keyword mismatch; two SKG cases tried RunContext.start against an existing lifecycle; two SKG cases emitted through a writer already finalized by warmup."
+    },
+    "removal_controls": "The five Source37 shared-run presence cases, remove-presence negative control, and spawn/cache controls remain byte-identical at test_native_state_cache_semantics.py@1bd4c99f068deea0e4106e990800feaedfa080f1079dbe075296aef3294d0f04.",
+    "static": "All three reconstructed virtual postimages matched manifest SHA-256/byte lengths and parsed with stdlib AST. Candidate-provided exact-product Ruff 0.14.10 check/format and apply-check receipts were inspected; this review did not execute pytest, product imports, native/spawn replay, CAS/DB writes, or build/generation.",
+    "workflow_output_readback": [
+      "WorkflowExecutor persists final ExperimentState and WorkflowReport and invokes RunContext.add_output for both before terminal finalize (executor.py:1974-1977).",
+      "RunContext.add_output emits RUN_OUTPUT_ADDED with TraceRefs.outputs; JsonlTraceSink persists TraceRecord JSON (context.py:1115-1117; trace/record.py:27-35,55; trace/sink.py:31-37).",
+      "The new SKG helper extracts ArtifactRefs from those actual output events, reads the referenced CAS bytes, decodes them with Core from_canonical_bytes, and model-validates the fresh WorkflowReport/ExperimentState. The next() selections are backed by those outputs on the successful WorkflowExecutor path; they are not test-authored marker refs."
+    ]
+  },
+  "formal_closure": false,
+  "limitations": [
+    "This is a static independent review, not runtime acceptance. Root must run the focused native batch against the composed source after freeze.",
+    "No G acceptance or closure is claimed; closure_ids is empty."
+  ],
+  "p40": {
+    "basis": "The failures are one shared run-owner lifecycle class across the affected async and SKG callers. The candidate widens the owner dispatch and explicit suspension behavior across the complete 19-case failure set, not one assertion or marker.",
+    "bucket": "SAME_CLASS_DEEPER"
+  },
+  "review_id": "R1376",
+  "reviewer_role": "independent static delta review",
+  "verdict": "GO_FOR_ROOT_COMPOSITION_AND_FOCUSED_NATIVE_REPLAY"
+}

@@ -1,0 +1,27 @@
+{
+  "authority": "author metadata correction, not G acceptance",
+  "corrected_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+  "corrected_frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+  "correct_fields_preserved": [
+    "head",
+    "tree",
+    "parents",
+    "slice_base",
+    "slice_base_tree",
+    "physical_postimages"
+  ],
+  "stale_auxiliary_fields": [
+    "actual_head",
+    "source_implementation_head",
+    "index_tree",
+    "source_commit_readback_path",
+    "source_commit_readback_sha256",
+    "qualification",
+    "native_precommit_boundary_ref",
+    "source_checkpoint_readback_sha256"
+  ],
+  "meaning": "These carried Source35/receipt-only historical metadata and must not be interpreted as the Source39 current snapshot. Source39 exact implementation identity is f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8 / e0e1d31e7f7d76e0b9af487261566105fbd57c3f, established by its dedicated committed readback and R1390 handoff. New Source40 frame rebuilds auxiliary identities from actual HEAD rather than copying them.",
+  "replacement_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1406-20261014.json",
+  "replacement_frame_sha256": "34f569d2c01e5b3929c41428186852e35c84e87777432e77e171b945d8720e5b",
+  "closure_ids": []
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "e02.r1369-rooted-authored-ruff-scope-independent-review.v1",
+  "scope": "Read-only independent review of R1358 rooted Ruff scope mechanism and companions.",
+  "verdict": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_VERIFICATION_ONLY",
+  "closure_ids": [],
+  "formal_acceptance": "not_established",
+  "candidate": {
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1358-rooted-authored-ruff-scope-20261014/",
+    "patch_sha256": "a1a0efb88b36facbaff2c06051d3b119e01e3c7764ecbcd433824f60630bce17",
+    "manifest_sha256": "ad4f6f7a45e4d8407f3867c42a223b0cba43dbc73bb04d6b066703651edac98b",
+    "source37_base": {
+      "head": "3d03c1e4cc1e686983f0def199465dd801457991",
+      "tree": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+    },
+    "source38_readback": {
+      "head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+      "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e",
+      "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+      "frame_sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5"
+    },
+    "candidate_paths": [
+      "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "policy-engine/tools/devx/workspace/lint_fast.py",
+      "policy-engine/tests/repo_quality/tools/test_workspace_lint_fast_source_scope.py",
+      "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+      "policy-engine/tools/devx/workspace/README.md",
+      "policy-engine/docs/reference/repository-hygiene.md"
+    ],
+    "current_source_preimages_match": true,
+    "overlay_postimages_match": true,
+    "source38_advance_disjoint": true,
+    "recorded_apply_check_exit": 0
+  },
+  "review": {
+    "property": "Actual lint-fast Ruff files equal full authored Ruff files minus actual Phase 8 files, with disjoint sets and exact union; source/test Python Ruff inventory equals independent Git inventory.",
+    "mechanism": "Path-rooted Phase 8 exclusions are derived from the existing PHASE8_LIMITED_PYTHON_SCOPE tuple. BENCHMARK_RESEARCH_SCOPE aliases that same tuple; lint-fast uses the rooted patterns in its actual PRODUCT_ROOT CommandSpec.",
+    "actual_cwd_boundary": "The test extracts arguments from _authored_python_ruff_check() and invokes Ruff at the same CommandSpec.cwd (PRODUCT_ROOT); patterns are checked against product Ruff config rather than ambient test cwd.",
+    "denominator": {
+      "ruff": "0.14.10",
+      "full_authored": 6398,
+      "phase8": 178,
+      "strict_rooted": 6220,
+      "strict_legacy": 6205,
+      "source_test_git": 5763,
+      "source_test_ruff": 5763,
+      "source_test_sets_equal": true,
+      "nested_benchmark_paths_lost_by_old_matcher": 15,
+      "new_paths_diagnostics": 0
+    },
+    "marker_preserving_removal": {
+      "removed_exclusion": "tools/research/**",
+      "exact_delta": true,
+      "leaked_paths": [
+        "tools/research/__init__.py",
+        "tools/research/experiments/__init__.py",
+        "tools/research/experiments/filter_topics.py",
+        "tools/research/experiments/organize_relevant_topics.py"
+      ]
+    },
+    "import_companion": {
+      "baseline_i001": true,
+      "same_import_identity_multiset": true,
+      "same_non_import_ast": true
+    },
+    "candidate_ruff_check_and_format": "Recorded exit 0 for all four candidate Python files, using product-relative stdin filenames.",
+    "p40": "SAME_CLASS_DEEPER; the repair and test cover the complete observed authored denominator and derive future paths dynamically.",
+    "p41": "No inherited-red claim.",
+    "limitations": [
+      "New regression pytest not run by this review.",
+      "Full lint-fast and native SOTA not run.",
+      "The test uses sys.executable -m ruff; root should run focused verification inside the locked project environment to ensure it matches uv run ruff.",
+      "No installed-consumer or full repository acceptance is claimed."
+    ]
+  },
+  "next_scope": "Root may apply the candidate and run focused pytest plus actual locked-environment lint-fast verification; global/native acceptance remains open."
+}

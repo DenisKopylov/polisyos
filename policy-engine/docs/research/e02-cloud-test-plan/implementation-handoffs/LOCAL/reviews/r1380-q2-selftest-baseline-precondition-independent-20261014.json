@@ -1,0 +1,120 @@
+{
+  "behavior_review": {
+    "baseline": "expected_assets is created first; candidate_baseline.force_include_count is len(expected_assets); validate_recomputed_ids(template, actual, expected_assets) succeeds before any mutation loop.",
+    "failure_reason_binding": "Each candidate is a fresh deep copy of the independently validated template; each loop case catches AuditFailure and checks its expected message prefix. A different earlier failure sets the case false.",
+    "negative_controls": [
+      {
+        "assessment": "other fields remain the valid baseline",
+        "case": "corrupt-count-mismatch",
+        "expected_reason": "selected_node_count does not equal the declared ID list length",
+        "mutation": "selected_node_count only"
+      },
+      {
+        "assessment": "strict count predicate is exercised",
+        "case": "float-count-alias",
+        "expected_reason": "selected_node_count does not equal the declared ID list length",
+        "mutation": "selected_node_count only"
+      },
+      {
+        "assessment": "boolean/int alias is rejected",
+        "case": "boolean-count-alias",
+        "expected_reason": "selected_node_count does not equal the declared ID list length",
+        "mutation": "selected_node_count only"
+      },
+      {
+        "assessment": "other fields remain the valid baseline",
+        "case": "string-count-alias",
+        "expected_reason": "selected_node_count does not equal the declared ID list length",
+        "mutation": "selected_node_count only"
+      },
+      {
+        "assessment": "other fields remain the valid baseline",
+        "case": "negative-count",
+        "expected_reason": "selected_node_count does not equal the declared ID list length",
+        "mutation": "selected_node_count only"
+      },
+      {
+        "assessment": "count and IDs remain valid",
+        "case": "corrupt-digest",
+        "expected_reason": "selected_node_ids_sha256 does not recompute from the ID list",
+        "mutation": "selected_node_ids_sha256 only"
+      },
+      {
+        "assessment": "count/digest stay consistent; the additional-consumer selector marker remains, so set equality is the distinguishing predicate",
+        "case": "remove-selected-id-with-marker-preserved",
+        "expected_reason": "declared node IDs differ from actual source collection",
+        "mutation": "removes one selected ID and recomputes the derived count and digest"
+      },
+      {
+        "assessment": "expected asset content remains valid; count guard must reject",
+        "case": "force-include-count-mismatch",
+        "expected_reason": "manifest force-include resources differ from frozen hatch.toml and source bytes",
+        "mutation": "force_include_count only"
+      },
+      {
+        "assessment": "count remains valid; asset equality must reject",
+        "case": "remove-config-derived-resource-with-map-preserved",
+        "expected_reason": "manifest force-include resources differ from frozen hatch.toml and source bytes",
+        "mutation": "force_include_assets only; count stays len(expected_assets)"
+      }
+    ],
+    "origin_control": "self_test_origin_gate_symlink AST is unchanged, and self_test still calls it after these drift checks. The actual R1372 abort is before that call; R1373 fixes the precondition without changing the origin/path-traversal falsifier.",
+    "primary_and_expanded_id_sets": "selected_node_ids are sorted from actual/expanded_actual, counts use len of those complete sets, and digests are recomputed from those sets. The expanded set grows from two to five IDs.",
+    "validator_order": "The existing validator checks sorted/unique IDs, exact non-boolean count, digest, equality with actual IDs, then expected asset count and content. The negative cases preserve earlier predicates so each reaches its named refusal."
+  },
+  "candidate": {
+    "candidate_only": true,
+    "decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/decision-r3.md",
+    "decision_sha256": "b42af0d7cf77df33a5c7df3cb52caadcff367f987281c463916384bd6611e552",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/manifest-r3.json",
+    "manifest_sha256": "79005ca33f4254918ae5a6e24d23982fd68e0165d0aeb85581bacb2af1d1844a",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1373-q2-selftest-baseline-precondition-r3-20261014/candidate-r3.patch",
+    "patch_sha256": "91d7a69dd65de64dd9f202b8ff401fb961519825a82d9d542e93686963294bb0"
+  },
+  "changed_path_denominator": {
+    "mandatory_companions": 0,
+    "mechanism_paths": 1,
+    "paths": [
+      {
+        "after_sha256": "3f5cfc7152e8954951ee37d1f28fb8c7508646e2141c63e6bb2907abbc29fb5b",
+        "before_sha256": "5163ca7a579c1a32c5b1a2719c43ef78556f610cdc205b50aa4b36eed1249389",
+        "hunk_count": 3,
+        "in_memory_patch_reconstruction_matches_overlay": true,
+        "independent_current_head_readback": true,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_bytes": 72806,
+        "scope": "All changed hunks are within self_test; top-level AST outside self_test is unchanged.",
+        "static_ast_parse": "pass"
+      }
+    ],
+    "suffixes": {
+      ".py": 1
+    },
+    "total_paths": 1
+  },
+  "closure_ids": [],
+  "formal_acceptance": "not_established",
+  "limits": {
+    "cardinality": "The fixture has one expected asset. The reviewed correction uses len(expected_assets), validates it against the expected asset set, and includes a separate count-mismatch refusal; no broader cardinality property claim is made.",
+    "overall": "No Q2 runtime, package, installed-consumer, or native acceptance is established.",
+    "quality": "No Ruff command was run. The raw audit path is outside canonical Ruff scope; its raw diagnostics remain unqualified, with no P41 inheritance claim.",
+    "self_test_execution": "not run per read-only task scope; post-application focused self-test remains required"
+  },
+  "next_scope": "Root may apply the one-path candidate and run the focused self-test; Q2 acceptance remains open.",
+  "p40": "Same self-test baseline/precondition class; no deeper escape found in the declared delta. No recursive verifier expansion claimed.",
+  "schema": "e02.q2.r1380-selftest-baseline-precondition-independent-review.v1",
+  "scope": "Read-only review of the one-path R1373-R3 Q2 audit self-test precondition correction. No source edits, tests, imports, native checks, builds, or Git writes.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+    "sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5",
+    "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+  },
+  "trigger": {
+    "observed": "self_test fails while validating expanded_manifest because candidate_baseline lacks force_include_count; AuditFailure occurs before self_test_origin_gate_symlink is called.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source38-q2-generic-origin-and-drift-selftest-actual-r1372-20261014/stderr.txt",
+    "sha256": "7c8cb90fd0cf0308f455f4e03e9cfa5b80fc7bc7c2aa86d57b041974fd4c2f95"
+  },
+  "verdict": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_SELF_TEST_ONLY"
+}

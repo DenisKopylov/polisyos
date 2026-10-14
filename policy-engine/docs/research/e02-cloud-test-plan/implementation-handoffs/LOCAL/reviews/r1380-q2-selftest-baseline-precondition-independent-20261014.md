@@ -1,0 +1,13 @@
+# R1380 — Q2 self-test baseline precondition review
+
+**Verdict: GO for root application and the focused self-test only.** `closure_ids=[]`; this is not Q2 acceptance. The review is bound to HEAD `1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974`, tree `01f8ef015bd60ca4115b9d19435ebd53f1f3f26e`, and source frame `root-author-source-frame-r1371-20261014.json@0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5`.
+
+The R1372 receipt (`stderr.txt@7c8cb90fd0cf0308f455f4e03e9cfa5b80fc7bc7c2aa86d57b041974fd4c2f95`) confirms the self-test aborts while validating the expanded baseline: `candidate_baseline` has no `force_include_count`, so it fails asset validation before the later origin test.
+
+I independently read the current HEAD blob, applied R1373-R3 in memory, and confirmed the result matches the declared 72,806-byte overlay (`before 5163ca7a579c1a32c5b1a2719c43ef78556f610cdc205b50aa4b36eed1249389`; `after 3f5cfc7152e8954951ee37d1f28fb8c7508646e2141c63e6bb2907abbc29fb5b`). Static AST parsing passes. All three patch hunks are within `self_test`; the top-level AST outside that function is unchanged.
+
+The baseline now sets `force_include_count = len(expected_assets)` and validates the unmutated template against both the actual selected-ID set and expected assets before any drift mutation. Primary and expanded selected-ID counts and digests are recomputed from complete sets (two IDs and five IDs). Each negative starts from a fresh copy of that validated baseline. Count variants change only the count; digest corruption changes only the digest; selected-ID removal recomputes count and digest so it reaches source-set equality while leaving the additional-consumer selector marker; asset-count mismatch changes only count; resource removal keeps the expected count and changes only the asset list. The validator’s ordering and expected refusal prefixes distinguish each intended predicate from an earlier failure.
+
+The origin symlink/parent-traversal helper is AST-identical to the current preimage, and the self-test still invokes it after the repaired drift preconditions. This fixes the premature failure without changing the origin falsifier.
+
+I did not execute the candidate self-test, imports, Ruff, package builds, or native checks. The raw audit path is outside canonical Ruff scope, so raw lint diagnostics remain unqualified and I make no P41 inheritance claim. The asset fixture contains one expected item; the source derives its count with `len(expected_assets)`, and this review makes no claim beyond that correction and its separate count-refusal control. Root application followed by the focused self-test remains necessary.

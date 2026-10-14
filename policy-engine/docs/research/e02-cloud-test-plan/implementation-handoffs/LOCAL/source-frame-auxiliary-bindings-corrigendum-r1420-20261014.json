@@ -1,0 +1,183 @@
+{
+  "schema": "author_source_frame_binding_correction.v1",
+  "authority": "Author append-only correction; no G acceptance",
+  "applies_to_exact_frame_hashes_only": true,
+  "primary_head_tree_parents_and_physical_maps_remain_valid": true,
+  "corrected_binding_overlays": [
+    {
+      "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1345-20261014.json",
+      "frame_sha256": "b0e3c42afbf644fb367b0417a70db6635ed030fa43c85e958d56c69aae6ba845",
+      "superseded_auxiliary_binding_fields": {
+        "actual_head": {
+          "recorded": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+          "corrected": "35356748a873037f67f0198f2d0b99a9bd09cf94"
+        },
+        "index_tree": {
+          "recorded": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+          "corrected": "733ec0727f819d7f9990cd9e22d2efa927d92617"
+        },
+        "source_implementation_head": {
+          "recorded": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+          "corrected": "35356748a873037f67f0198f2d0b99a9bd09cf94"
+        },
+        "source_commit_readback_path": {
+          "recorded": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+          "corrected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/committed-source36-byte-readback.json"
+        },
+        "source_commit_readback_sha256": {
+          "recorded": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7",
+          "corrected": "71223b015193b0ab458a7f51c9656f65d96fe31260c646584ffea594811a4b06"
+        }
+      },
+      "correct_primary_identity": {
+        "head": "35356748a873037f67f0198f2d0b99a9bd09cf94",
+        "tree": "733ec0727f819d7f9990cd9e22d2efa927d92617"
+      },
+      "physical_source_path_count": 617,
+      "physical_map_unchanged": true,
+      "do_not_admit_prior_qualification_as_current": true
+    },
+    {
+      "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1360-20261014.json",
+      "frame_sha256": "943a69894d574a0c26fbe7f60d5cbf3e4fbbc74b6c6b1673e4fb378476c0ed61",
+      "superseded_auxiliary_binding_fields": {
+        "actual_head": {
+          "recorded": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+          "corrected": "5dbe52f869cb259871bb9df4d84be60b2f3310c2"
+        },
+        "index_tree": {
+          "recorded": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+          "corrected": "75c35b2cf401fd0db1ec7dfe7886ea633cbd8459"
+        },
+        "source_implementation_head": {
+          "recorded": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+          "corrected": "35356748a873037f67f0198f2d0b99a9bd09cf94"
+        },
+        "source_commit_readback_path": {
+          "recorded": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+          "corrected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1359-source36-receipt-commit-selection-20261014/committed-source36-receipt-readback.json"
+        },
+        "source_commit_readback_sha256": {
+          "recorded": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7",
+          "corrected": "439b88960dc078f59b93ee8cf1b9830bc3f533b57b63e40d3acaa8917610687e"
+        }
+      },
+      "correct_primary_identity": {
+        "head": "5dbe52f869cb259871bb9df4d84be60b2f3310c2",
+        "tree": "75c35b2cf401fd0db1ec7dfe7886ea633cbd8459"
+      },
+      "physical_source_path_count": 617,
+      "physical_map_unchanged": true,
+      "do_not_admit_prior_qualification_as_current": true
+    },
+    {
+      "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1364-20261014.json",
+      "frame_sha256": "9e8268acc71c50a23f453801b90a3490b83379a8d8e214d0b2f1fb29953c8b56",
+      "superseded_auxiliary_binding_fields": {
+        "actual_head": {
+          "recorded": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+          "corrected": "3d03c1e4cc1e686983f0def199465dd801457991"
+        },
+        "index_tree": {
+          "recorded": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+          "corrected": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+        },
+        "source_implementation_head": {
+          "recorded": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+          "corrected": "3d03c1e4cc1e686983f0def199465dd801457991"
+        },
+        "source_commit_readback_path": {
+          "recorded": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+          "corrected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1363-lifecycle-r5-root-virtual-quality-20261014/committed-source37-byte-readback.json"
+        },
+        "source_commit_readback_sha256": {
+          "recorded": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7",
+          "corrected": "dd431401c830013a1e3fb6eae6d7dd52c91be3dd986465a6d49b87edb199d23f"
+        }
+      },
+      "correct_primary_identity": {
+        "head": "3d03c1e4cc1e686983f0def199465dd801457991",
+        "tree": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+      },
+      "physical_source_path_count": 620,
+      "physical_map_unchanged": true,
+      "do_not_admit_prior_qualification_as_current": true
+    },
+    {
+      "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+      "frame_sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5",
+      "superseded_auxiliary_binding_fields": {
+        "actual_head": {
+          "recorded": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+          "corrected": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974"
+        },
+        "index_tree": {
+          "recorded": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+          "corrected": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+        },
+        "source_implementation_head": {
+          "recorded": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+          "corrected": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974"
+        },
+        "source_commit_readback_path": {
+          "recorded": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+          "corrected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1367-q2-canonical-quality-root-virtual-20261014/committed-source38-byte-readback.json"
+        },
+        "source_commit_readback_sha256": {
+          "recorded": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7",
+          "corrected": "72da59cd6409741a47ddf7d6a6ae508d59eb32afc6358a73a6915ae1aa068713"
+        }
+      },
+      "correct_primary_identity": {
+        "head": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+        "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+      },
+      "physical_source_path_count": 623,
+      "physical_map_unchanged": true,
+      "do_not_admit_prior_qualification_as_current": true
+    },
+    {
+      "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+      "frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+      "superseded_auxiliary_binding_fields": {
+        "actual_head": {
+          "recorded": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+          "corrected": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8"
+        },
+        "index_tree": {
+          "recorded": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+          "corrected": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+        },
+        "source_implementation_head": {
+          "recorded": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+          "corrected": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8"
+        },
+        "source_commit_readback_path": {
+          "recorded": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1266-reviewed-source35-implementation-commit-20261014/committed-source-readback.json",
+          "corrected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1381-ruff-expiry-owner-and-q2-baseline-composition-20261014/committed-source39-byte-readback.json"
+        },
+        "source_commit_readback_sha256": {
+          "recorded": "578199977b519b36562090c1369d75c90babdef292239d099be32e5e827fa3b7",
+          "corrected": "08b5231752328bc1ed9a6559b558f79da003b32628442206b7cedbfa969e71fe"
+        }
+      },
+      "correct_primary_identity": {
+        "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+        "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f"
+      },
+      "physical_source_path_count": 627,
+      "physical_map_unchanged": true,
+      "do_not_admit_prior_qualification_as_current": true
+    }
+  ],
+  "retired_fields_for_current_admission": [
+    "native_precommit_boundary_ref",
+    "source_checkpoint_readback_sha256",
+    "qualification"
+  ],
+  "replacement_current_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1406-20261014.json",
+    "sha256": "34f569d2c01e5b3929c41428186852e35c84e87777432e77e171b945d8720e5b"
+  },
+  "closure_ids": []
+}

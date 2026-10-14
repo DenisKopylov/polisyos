@@ -1,0 +1,112 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_lineage_and_review_refs": {
+    "full_composition_artifact": {
+      "net_patch_sha256": "7b4a28a91e35a2b724f6b4f4b7910630843c2d74899782b5a968c030d1ea730f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1363-lifecycle-r5-root-virtual-quality-20261014/composition.json",
+      "sha256": "58158c1d6769ac8764d70246dc5bedd27b620933d5ef95b2bd2fd8933bc6cbd2"
+    },
+    "net_patch_sha256": "7b4a28a91e35a2b724f6b4f4b7910630843c2d74899782b5a968c030d1ea730f",
+    "stages": [
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/proposal.patch",
+          "sha256": "b900b3fd5273610e3f6edc73ba44d71c39c0782030c05b8514761ed522effca8"
+        },
+        "stage": 1,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 2574,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/decision.md",
+            "sha256": "829e7f3475228c99982b8fc7f014e775eeb29b4fdaafc95607d1b9510ac0a1ef"
+          },
+          {
+            "bytes": 16875,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/manifest.json",
+            "sha256": "91e72a625f9840ce026da03879de5863569f83b1a20a0c041ddd6df14f72ac72"
+          },
+          {
+            "bytes": 46320,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/proposal.patch",
+            "sha256": "b900b3fd5273610e3f6edc73ba44d71c39c0782030c05b8514761ed522effca8"
+          }
+        ]
+      }
+    ]
+  },
+  "criterion_handling": {
+    "author_proposals": [],
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "note": "No original-criterion closure or broad acceptance is inferred from this source handoff."
+  },
+  "date": "2026-10-14",
+  "native_receipt_ids": [
+    "R1366"
+  ],
+  "native_receipt_packet": "r1390-source37-source38-source39-native-deciding-packet-20261014.json",
+  "record_id": "R1390-Source37",
+  "record_type": "implementation_native_handoff",
+  "slice_interpretation": "Six-path test/helper lifecycle-owner slice. The focused replay is red: 51 cases, 32 passed and 19 failed. Fifteen async cases fail because the fixture helper receives unsupported resume=; four SKG cases fail lifecycle finalization/owner checks. This receipt preserves the red; it is not a green acceptance.",
+  "source_slice": "Source37",
+  "source_snapshot": {
+    "commit": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "committed_readback": {
+      "all_physical_and_HEAD_bytes_match_at_capture": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1363-lifecycle-r5-root-virtual-quality-20261014/committed-source37-byte-readback.json",
+      "runtime_status_in_readback": "UNRUN",
+      "sha256": "dd431401c830013a1e3fb6eae6d7dd52c91be3dd986465a6d49b87edb199d23f",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1364-20261014.json",
+      "source_frame_path_count": 620,
+      "source_frame_sha256": "9e8268acc71c50a23f453801b90a3490b83379a8d8e214d0b2f1fb29953c8b56",
+      "tracked_and_index_clean_at_capture": true
+    },
+    "composition": {
+      "net_patch_sha256": "7b4a28a91e35a2b724f6b4f4b7910630843c2d74899782b5a968c030d1ea730f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1363-lifecycle-r5-root-virtual-quality-20261014/composition.json",
+      "sha256": "58158c1d6769ac8764d70246dc5bedd27b620933d5ef95b2bd2fd8933bc6cbd2"
+    },
+    "implementation_paths": [
+      {
+        "bytes": 3137,
+        "path": "policy-engine/tests/_helpers/process_run_lifecycle.py",
+        "postimage_sha256": "fbbcdf853f23a0d8103bc28c13a7b9a9b303580e829da1da113693552d62b58a",
+        "preimage_sha256": null
+      },
+      {
+        "bytes": 3871,
+        "path": "policy-engine/tests/_helpers/run_lifecycle.py",
+        "postimage_sha256": "d97cdbd4f78f7e3db3aaa3ff41c96a62027afa7297719c1c18dd36e12d9b03bf",
+        "preimage_sha256": null
+      },
+      {
+        "bytes": 67954,
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "postimage_sha256": "f12c651390ff99c6ea65f6e8b8bbffbc9f395b1ba4704afa60e7014e9c4b39c2",
+        "preimage_sha256": "64114b3b330a9fe9f78033de92fa97b1003d787c87f2907a8774001d904a6ec8"
+      },
+      {
+        "bytes": 22059,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "postimage_sha256": "442cabf574bfe46cb64e5f082b9f131c0a3e1a2ea888b697c135df2e68a6857b",
+        "preimage_sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee"
+      },
+      {
+        "bytes": 19993,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "postimage_sha256": "ac51ff9d86bb3d14a89ecdc8eccd562ff163f0853ec2457f6a1c6ed69edf9737",
+        "preimage_sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703"
+      },
+      {
+        "bytes": 14743,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "postimage_sha256": "1bd4c99f068deea0e4106e990800feaedfa080f1079dbe075296aef3294d0f04",
+        "preimage_sha256": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2"
+      }
+    ],
+    "parent": "5dbe52f869cb259871bb9df4d84be60b2f3310c2",
+    "subject": "test(e02): replay selected owner inputs within one resumed cache scope",
+    "tree": "3d95c2600d4da77b6c292a419d68af72cd28797d"
+  }
+}

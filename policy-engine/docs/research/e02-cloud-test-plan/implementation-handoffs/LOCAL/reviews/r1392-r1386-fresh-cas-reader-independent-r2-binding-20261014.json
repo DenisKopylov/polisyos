@@ -1,0 +1,37 @@
+{
+  "binding": {
+    "candidate_patch_sha256": "dcf3d7e7a3fa16b168a80be9b65842d4d428f9b8dd89af315d705d02539a63be",
+    "earlier_temporary_manifest_sha256": "dbfcc65f704c68c133a24ded192f592d80f2efa9271f46ca71e22d470113e405",
+    "final_author_announced_decision_sha256": "ae3190f8203eb693448852c72cabeea5f604eb854ed069ab0c8af12c480a8aeb",
+    "final_author_announced_manifest_sha256": "7537b0c4ebba33afaf0854e8ed922a1ac9efcc2072fd9b3beef46f1702585819",
+    "final_packet_binding": "VERIFIED",
+    "materialization_receipt_sha256": "69eb07ad18658f8708b68653d85dfaa1eca04f3e0bd85e0e5d7da354a77ba348",
+    "observed_adjacent_decision_sha256": "ae3190f8203eb693448852c72cabeea5f604eb854ed069ab0c8af12c480a8aeb",
+    "observed_adjacent_manifest_sha256": "7537b0c4ebba33afaf0854e8ed922a1ac9efcc2072fd9b3beef46f1702585819"
+  },
+  "date": "2026-10-14",
+  "disposition": {
+    "closure_ids": [],
+    "ownership_issuer_billing_currentness": "NOT_ESTABLISHED_OUTSIDE_CLAIM",
+    "pytest": "UNRUN",
+    "runtime_imports": "UNRUN",
+    "source_property": "GO_FOR_FOCUSED_COMPOSED_REPLAY_ONLY"
+  },
+  "kind": "append_only_packet_binding_addendum",
+  "original_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1392-r1386-fresh-cas-reader-independent-20261014.json",
+    "preserved_unchanged": true,
+    "sha256": "262292950c6415e9050453fd8e5bc42beecbda6f02e5e7ab87c5ba2e80a25439"
+  },
+  "review_id": "R1392-r2",
+  "unchanged_source_binding": {
+    "base_head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "base_tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f",
+    "matches_materialization_receipt": true,
+    "matches_original_review": true,
+    "postimage_sha256": "7e3d206a7c244866daa3250580e1c89b7aa99ccffdfb41d3d307a7320fc1cac3",
+    "preimage_sha256": "5092c6a52fa96ba5e89e610cef5936b08c2cd92fbec8e86b94fcacd2e887699f",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json@a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+    "source_path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+  }
+}

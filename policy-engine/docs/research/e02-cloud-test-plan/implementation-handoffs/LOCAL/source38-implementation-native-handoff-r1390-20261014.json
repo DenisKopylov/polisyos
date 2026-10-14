@@ -1,0 +1,110 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_lineage_and_review_refs": {
+    "full_composition_artifact": {
+      "net_patch_sha256": "89e8f1f30c9c429e468dd7430bdfd84086e893b0c52cd895a34880131277da87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1367-q2-canonical-quality-root-virtual-20261014/composition.json",
+      "sha256": "9a32c9b16d31cff1926bcae55817fa45f3728ba99d9c7aa1ee74e4f2538d2f2f"
+    },
+    "net_patch_sha256": "89e8f1f30c9c429e468dd7430bdfd84086e893b0c52cd895a34880131277da87",
+    "stages": [
+      {
+        "patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/proposal-r4-r2.patch",
+          "sha256": "b315e5dca520bde9629a2878d210128ca319f05546b81fce27a7fabc60559800"
+        },
+        "stage": 1,
+        "stage_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014",
+        "stage_packet_artifacts": [
+          {
+            "bytes": 2132,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/decision-r4-r2.md",
+            "sha256": "9dedca9f1075ab1c415c2b967225997d81c31dd80183714ee2e36390a2dd491c"
+          },
+          {
+            "bytes": 6136,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/manifest-r4-r2.json",
+            "sha256": "cbe6091c703f65e94ba0b7335f6282785ccd5f59f4345580ec04eeff1d28b590"
+          },
+          {
+            "bytes": 76173,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/proposal-r4-r2.patch",
+            "sha256": "b315e5dca520bde9629a2878d210128ca319f05546b81fce27a7fabc60559800"
+          },
+          {
+            "bytes": 1721,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/quality-r4-r2.json",
+            "sha256": "036ca5c524e107947715ccf9f05900ffccc7316f819fea7e97fe782f92abc05b"
+          },
+          {
+            "bytes": 2636,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1364-q2-r3-canonical-quality-successor-r2-20261014/readback-current-head-r4-r2.json",
+            "sha256": "d1823f79b55d8054f3b97c32b6bd60a8e30eb2668bc289fa642eb16d1a789549"
+          }
+        ]
+      }
+    ]
+  },
+  "criterion_handling": {
+    "author_proposals": [],
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "note": "No original-criterion closure or broad acceptance is inferred from this source handoff."
+  },
+  "date": "2026-10-14",
+  "native_receipt_ids": [
+    "R1372"
+  ],
+  "native_receipt_packet": "r1390-source37-source38-source39-native-deciding-packet-20261014.json",
+  "record_id": "R1390-Source38",
+  "record_type": "implementation_native_handoff",
+  "slice_interpretation": "Four-path Q2 audit/test slice. Its actual self-test exits 1 because the fixture force-include resources differ from frozen hatch.toml and source bytes. The failing precondition is retained; no Q2 acceptance is claimed.",
+  "source_slice": "Source38",
+  "source_snapshot": {
+    "commit": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "committed_readback": {
+      "all_physical_and_HEAD_bytes_match_at_capture": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1367-q2-canonical-quality-root-virtual-20261014/committed-source38-byte-readback.json",
+      "runtime_status_in_readback": "UNRUN",
+      "sha256": "72da59cd6409741a47ddf7d6a6ae508d59eb32afc6358a73a6915ae1aa068713",
+      "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1371-20261014.json",
+      "source_frame_path_count": 623,
+      "source_frame_sha256": "0b6eed59afa437cebdad6b2dacdd4ffed9d15316edeb7dac2828faeac609ddb5",
+      "tracked_and_index_clean_at_capture": true
+    },
+    "composition": {
+      "net_patch_sha256": "89e8f1f30c9c429e468dd7430bdfd84086e893b0c52cd895a34880131277da87",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1367-q2-canonical-quality-root-virtual-20261014/composition.json",
+      "sha256": "9a32c9b16d31cff1926bcae55817fa45f3728ba99d9c7aa1ee74e4f2538d2f2f"
+    },
+    "implementation_paths": [
+      {
+        "bytes": 15283,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/installed_origin_gate_r4.py",
+        "postimage_sha256": "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2",
+        "preimage_sha256": null
+      },
+      {
+        "bytes": 71274,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "5163ca7a579c1a32c5b1a2719c43ef78556f610cdc205b50aa4b36eed1249389",
+        "preimage_sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c"
+      },
+      {
+        "bytes": 105413,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "postimage_sha256": "624cad8497dd3ba3622b2a0aba38bd24ec0a38f494cab62980438a54590ac466",
+        "preimage_sha256": "fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09"
+      },
+      {
+        "bytes": 293639,
+        "path": "policy-engine/tests/unit/foundry/methods/test_dependency_profile.py",
+        "postimage_sha256": "409fd6a341a17d62b488e7ecfaf0d9aed0691c5b5799f6430004e8baa9a07542",
+        "preimage_sha256": "3435b4dd3df4d31546ea260d149764d67856c1a57ee25e20bd30583ddf1eb3ce"
+      }
+    ],
+    "parent": "3d03c1e4cc1e686983f0def199465dd801457991",
+    "subject": "fix(e02): bind installed consumer origins and registry input failures",
+    "tree": "01f8ef015bd60ca4115b9d19435ebd53f1f3f26e"
+  }
+}

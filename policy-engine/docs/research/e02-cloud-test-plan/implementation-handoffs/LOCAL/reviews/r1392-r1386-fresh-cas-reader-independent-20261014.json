@@ -1,0 +1,80 @@
+{
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "parent": "1387e46f4a2f9e4f95cdc17ca5d7e31f8e506974",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+    "source_frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+    "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "candidate": {
+    "announced_manifest_sha256": "dbfcc65f704c68c133a24ded192f592d80f2efa9271f46ca71e22d470113e405",
+    "git_apply_check_exit": 0,
+    "git_apply_check_output": "Checking patch policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py...",
+    "manifest_body_binds_patch_sha": true,
+    "observed_adjacent_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/manifest.json",
+    "observed_adjacent_manifest_sha256": "7537b0c4ebba33afaf0854e8ed922a1ac9efcc2072fd9b3beef46f1702585819",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1386-cost-projection-fresh-cas-read-20261014/candidate.patch",
+    "patch_sha256": "dcf3d7e7a3fa16b168a80be9b65842d4d428f9b8dd89af315d705d02539a63be",
+    "physical_patch_applied": false,
+    "postimage_sha256": "7e3d206a7c244866daa3250580e1c89b7aa99ccffdfb41d3d307a7320fc1cac3",
+    "preimage_sha256": "5092c6a52fa96ba5e89e610cef5936b08c2cd92fbec8e86b94fcacd2e887699f",
+    "target_path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+  },
+  "date": "2026-10-14",
+  "decision": {
+    "announced_packet_identity": "UNRESOLVED_MANIFEST_SHA_MISMATCH",
+    "closure_ids": [],
+    "runtime": "UNRUN",
+    "source_property": "GO_FOR_FOCUSED_COMPOSED_REPLAY_ONLY"
+  },
+  "failure_input": {
+    "nodeid": "tests.unit.runtime.http.test_nl_pipeline_cost_projection::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+    "observed_failure": "RuntimeDependencyUnavailableError: content_addressed_storage dependency guard is closed",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-owner-ruff-scope-and-expiry-controls-actual-r1384-20261014/full-nonpass.json",
+    "sha256": "64c7a0b0fd5d8091d664c094795a0e47154a339b2f0497b4805003ed3208300d"
+  },
+  "property_review": {
+    "P38": "bounded property is persisted exact-profile selected reads after service close; candidate exercises CAS and strict decoder, no divergence found within this scope",
+    "billing_provider_issuer_or_currentness": "not_established / outside claim",
+    "bucket": "SAME_CLASS_DEEPER",
+    "checks": [
+      "kind",
+      "media_type",
+      "schema",
+      "typed tenant/cell context from controlled input",
+      "selected profile digest",
+      "raw byte size",
+      "content SHA-256",
+      "strict Core JSON conformance",
+      "decoded dict",
+      "payload authority links to exact envelope/event IDs and profile digests"
+    ],
+    "negative_controls": [
+      "profileless default view rejected by existing authority verifier",
+      "same artifact ID with different selected profile rejected by existing authority verifier"
+    ],
+    "ownership_claim": "not_established; unscoped test reader; no for_tenant and no synthetic owner record",
+    "post_close_reader": "fresh FileSystemCAS rooted at the same cas_root; old service proxy remains closed",
+    "quantity": "all captured authority write results x payload, envelope, and diagnostic-event selected refs",
+    "selectors": "full typed ArtifactRef passed intact; no artifact-id-only or default-profile fallback"
+  },
+  "recommendation": "Rebind the manifest identity to the observed bytes (or provide the exact announced bytes), then the parent may compose/apply this exact test-only patch and run the targeted node. Do not report runtime verification or ownership/billing closure from this review.",
+  "review_id": "R1392",
+  "validation": {
+    "AST": "PASS per observed retained receipt",
+    "in_memory_patch_reconstruction": "PASS per observed retained receipt; postimage SHA independently inspected",
+    "independent_base_preimage_hash_match": true,
+    "pytest": "UNRUN; parent owns composed runtime wave",
+    "readonly_git_apply_check": true,
+    "receipt_hashes": {
+      "patch-materialization-check.json": "69eb07ad18658f8708b68653d85dfaa1eca04f3e0bd85e0e5d7da354a77ba348",
+      "ruff-format-output.json": "5160b4a4a71b528763dc770e602f5392f87c910411e54b1408889bcdc758dbba",
+      "ruff-full-output.json": "3aead036252f99205b5f860bd236e9e97d88f367647f0263db3ad2ebebe52350"
+    },
+    "ruff": "PASS per observed retained receipt",
+    "ruff_format": "PASS per observed retained receipt",
+    "runtime_imports": "UNRUN"
+  }
+}

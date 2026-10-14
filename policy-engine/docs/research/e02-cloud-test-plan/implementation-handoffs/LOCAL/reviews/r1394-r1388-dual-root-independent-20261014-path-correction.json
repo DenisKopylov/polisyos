@@ -1,0 +1,15 @@
+{
+  "closure_ids": [],
+  "correction": "The R1397 paths in reviewed_inputs were mistyped in the original JSON; hashes and analysis are unchanged.",
+  "corrects": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1394-r1388-dual-root-independent-20261014.json",
+  "r1397_style_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014/manifest.json",
+    "sha256": "d66e284b492402d6fe872dd2f878aee0244879ffb68b27d8cd52b5137d8f27f7"
+  },
+  "r1397_style_patch": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1397-q2-gate-format-and-exact-pin-20261014/style.patch",
+    "sha256": "a0ee8e672ce7f9af6a85f06635485d516ab3293befd293ea942cd6f8c8c516f8"
+  },
+  "schema": "r1394-path-correction-v1",
+  "verdict_unchanged": "GO_FOR_ROOT_OWNED_FOCUSED_Q2_ORIGIN_SELFTEST"
+}

@@ -1,0 +1,94 @@
+{
+  "review_id": "s1-b33-r1356-r2-independent-review-861154d1-20261014",
+  "review_type": "read_only_independent_source_and_virtual_patch_review",
+  "disposition": "BLOCK",
+  "scope": [
+    "B33"
+  ],
+  "closure_ids": [],
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1521bb4e98e89970ed1fa581fca166a4e22a7feb",
+    "tree": "6f18e73b7a222ca027e1ccee36be5f96064b346f",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1406-20261014.json",
+    "frame_sha256": "34f569d2c01e5b3929c41428186852e35c84e87777432e77e171b945d8720e5b627",
+    "frame_physical_source_count": 568
+  },
+  "original_criterion": {
+    "id": "B33",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      621,
+      634
+    ],
+    "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "span_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "coverage_state": "not_adjudicated",
+    "capability_label": "bridge_missing"
+  },
+  "candidate": {
+    "packet_id": "r1356-b31-b33-source-bound-candidate-r2-20261014",
+    "status": "unapplied_virtual_candidate",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1356-b31-b33-source-bound-candidate-r2-20261014/candidate.patch",
+    "patch_sha256": "861154d1a0a7525bf64a35c024da2d3f0bf2c6565b1289d9d21b1f0390798395",
+    "manifest_sha256": "8a7216d879c3a5e44599c60a30f4e274b1089a374a2221f482e114c326a2487d",
+    "decision_sha256": "c7ca41275ef052a99ad94411a6397f1ea203587a7ba1661c8e815af7110c9a75",
+    "final_composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1417-b33-r2-styled-final-virtual-20261014/net.patch",
+    "final_composition_sha256": "ae1c384a4022aa78a9d541032472d4ba522c7360da0a17adc84b3515e72135bf",
+    "composition_manifest_sha256": "3fea9c9d7306541ff41474b53bbfa28c970a46798372ec06c641817782b8d5c4"
+  },
+  "blocking_findings": [
+    {
+      "finding_id": "B33-R2-SEMANTIC-PATH-UNREACHABLE",
+      "bucket": "P40_SAME_CLASS_DEEPER",
+      "pattern_ids": [
+        "P29",
+        "P38",
+        "P40"
+      ],
+      "property": "The persisted/fresh-consumed solver result must change in a topology-relevant semantic field when selected graphs differ but names and measured rows stay fixed.",
+      "actual": "The producer hardcodes solver_mode=auto and invokes solve_transportability with allow_degraded_transport=False. Auto order omits simplified legacy. Y0 TRSO refuses absent surrogate_data_profile; R supports no families; bounds-only emits BOUNDED_NON_IDENTIFIED without a formula.",
+      "divergent_case": "The new test asserts identified transport formulas with empty versus school_quality stratification, but the configured producer cannot yield those results under any backend-availability combination.",
+      "evidence_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1356-b31-b33-source-bound-candidate-r2-20261014/candidate.patch@861154d1a0a7525bf64a35c024da2d3f0bf2c6565b1289d9d21b1f0390798395",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py@256eaa71b80d12cbaef7e37fa2e0a59312d22ff5ec95507e408648c0d05e19a5",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py@805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/capabilities.py@a54da90b72bf5914c15cefd45da17fd3f20355d604d6dae7be137fd3f083c4bc"
+      ],
+      "minimum_repair": "Expose an explicit existing solver-mode choice on the producer call, persist it in the immutable request/basis, and recompute with that same choice in the fresh consumer. Any simplified legacy mode must be explicitly selected as candidate-grade; do not invent a Y0 profile.",
+      "verification": "Static source trace only; no runtime tests or imports were run."
+    }
+  ],
+  "positive_controls_present": [
+    "Two selected DAGs share names and measured rows but differ in edges; test asserts empty versus school_quality stratification and the conditional-on-treatment detail.",
+    "Producer persists request, selected graph, diagram, result, and basis with selected profiles; fresh resolver reopens and recomputes.",
+    "Cross-context and graphless controls refuse.",
+    "Post-run selected-graph payload unavailability is tested with basis/receipt markers retained.",
+    "Source-flip mutation targets the live integration test and removes graph re-resolution."
+  ],
+  "authority_and_surface": {
+    "selected_graph_truth": "not_established",
+    "external_graph_authority": "not_established",
+    "calibration_and_value_promotion": "not_established",
+    "candidate_surface": "new public package facade is included in candidate source and asserted by the test",
+    "higher_level_value_gate": "not wired by this candidate; do not treat the candidate receipt as an authority or publication certificate",
+    "generated_companions_pending": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
+      "policy-engine/architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+      "policy-engine/docs/reference/generated-artifacts.md if the canonical generator reports the newly persisted kinds in its inventory"
+    ]
+  },
+  "verification": {
+    "git_apply_check": "PASS",
+    "final_virtual_postimage_manifest": "PASS: all 8 postimages matched; all 8 preimages matched current source",
+    "python_ast": "PASS: 6 Python postimages parsed",
+    "runtime_pytest": "UNRUN",
+    "source_flip_validator": "UNRUN",
+    "canonical_generated_companions": "UNRUN",
+    "product_source_or_git_written": false
+  }
+}

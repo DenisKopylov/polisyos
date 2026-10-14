@@ -1,0 +1,150 @@
+{
+  "candidate": {
+    "decision_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/decision.md",
+    "decision_sha256": "829e7f3475228c99982b8fc7f014e775eeb29b4fdaafc95607d1b9510ac0a1ef",
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/manifest.json",
+    "manifest_sha256": "91e72a625f9840ce026da03879de5863569f83b1a20a0c041ddd6df14f72ac72",
+    "packet_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014",
+    "patch_bytes": 46320,
+    "patch_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1289-prepared-b-run-lifecycle-resume-composed-successor-r5-20261014/proposal.patch",
+    "patch_sha256": "b900b3fd5273610e3f6edc73ba44d71c39c0782030c05b8514761ed522effca8"
+  },
+  "closure_ids": [],
+  "delta_vs_r4": {
+    "change": "Exactly three builder calls in the changed test now pass return_selected_profile=True: the typed ArtifactRef resume, five-variant shared-run, and missing-to-null removal-control cases. No other R4 postimage differs.",
+    "changed_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "changed_postimage_from_r4_sha256": "295564276b8b7aaf89c3ff1c2bd7ac5e4b7fa0c301d8d13c86f44d6a178b8632",
+    "r4_manifest_sha256": "7b06cc97a96738227621b0c488bd2b3ef931df994a931c81c77a59ad107828af",
+    "r4_patch_sha256": "fcf5b167d4385c2dc73968bab5d535d729944c694146790366be94758588159b",
+    "unchanged_paths": [
+      "policy-engine/tests/_helpers/process_run_lifecycle.py",
+      "policy-engine/tests/_helpers/run_lifecycle.py",
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py"
+    ],
+    "unchanged_paths_count": 5
+  },
+  "next_check": "Root-owned focused native verification after full source freeze; the prior R1353 command is: cd policy-engine && uv run pytest -q tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle",
+  "owner_profile_review": {
+    "producer_source": {
+      "behavior": "The selected-profile branch calls put_json(..., return_selected_profile=True), then rejects a ref with no manifest_profile_sha256. The default branch preserves the profileless legacy view.",
+      "path": "policy-engine/src/polisyos/core/registry/builder.py",
+      "sha256": "72305d4a3c31559ccc5ac2e8092ce9af465c7850943a424494fa7bd2b2d31739"
+    },
+    "profileless_nonresume": "The remaining profileless builder call in the scoped idempotency test is a standalone rollback fixture with no RunContext.resume route; it is not promoted to a resumed-owner fixture.",
+    "resume_source": {
+      "behavior": "Owner snapshot validation requires the registry ref profile and verifies the selected CAS artifact. RunContext.resume exact-compares the supplied registry_bundle with the persisted manifest ref before resuming.",
+      "path": "policy-engine/src/polisyos/core/run/context.py",
+      "sha256": "1a0addac958a12edd34b380b8a8176222dc2f871d8ffe669594d8a241f6e59e2"
+    },
+    "six_path_quantity": "The reconstructed six-file AST/call census shows the process helper starts with the selected writer result; the shared resume helper reads the prior persisted RunManifest ref unchanged; SKG and async fixtures select the profile on initial start; idempotency fixtures select it on initial or spawned receiver start; all three native presence fixtures now do the same. Later resume calls use the persisted owner ref."
+  },
+  "p40": {
+    "bounded_stop": "A further profileless fixture in this same six-file resume class is covered by this class-level correction and is not a reason for another site-by-site repair. Any actual resume route outside the enumerated packet needs separate evidence.",
+    "bucket": "SAME_CLASS_DEEPER",
+    "finding": "R1353 exposed the same resumed-owner profile-boundary class in three newly added fixtures.",
+    "repair_quantity": "The complete resumed-fixture quantity in the six-file packet is now bound to selected writer output or the exact persisted owner ref."
+  },
+  "r1353_block": {
+    "finding": "Three newly resumed native-cache fixtures used the default registry view, whose ref is profileless; RunContext.resume rejects that persisted owner before the presence/cache assertions.",
+    "json_sha256": "8e258ed2fb76e110dc366e7e637fddefd1bfa666409753d496df2c325c1f8b3b",
+    "resolution": "R5 changes all three affected writes to build_default_registry_bundle(store, return_selected_profile=True) and passes the exact returned bundle_ref to RunContext.start. The later resume helper loads registry_bundle unchanged from the prior RunManifest.",
+    "review_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1353-lifecycle-presence-shared-run-independent-review-20261014.md",
+    "review_sha256": "b6c93f380595ed7a08342be5df2ef9b5fae2f3901883f3351d46791d67cfaa42"
+  },
+  "reconstruction": {
+    "ast_parse_passed": 6,
+    "files": [
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/_helpers/process_run_lifecycle.py",
+        "postimage_sha256": "fbbcdf853f23a0d8103bc28c13a7b9a9b303580e829da1da113693552d62b58a",
+        "preimage_sha256": null
+      },
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/_helpers/run_lifecycle.py",
+        "postimage_sha256": "d97cdbd4f78f7e3db3aaa3ff41c96a62027afa7297719c1c18dd36e12d9b03bf",
+        "preimage_sha256": null
+      },
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "postimage_sha256": "f12c651390ff99c6ea65f6e8b8bbffbc9f395b1ba4704afa60e7014e9c4b39c2",
+        "preimage_sha256": "64114b3b330a9fe9f78033de92fa97b1003d787c87f2907a8774001d904a6ec8"
+      },
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "postimage_sha256": "442cabf574bfe46cb64e5f082b9f131c0a3e1a2ea888b697c135df2e68a6857b",
+        "preimage_sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee"
+      },
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "postimage_sha256": "ac51ff9d86bb3d14a89ecdc8eccd562ff163f0853ec2457f6a1c6ed69edf9737",
+        "preimage_sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703"
+      },
+      {
+        "ast": "PASS",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "postimage_sha256": "1bd4c99f068deea0e4106e990800feaedfa080f1079dbe075296aef3294d0f04",
+        "preimage_sha256": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2"
+      }
+    ],
+    "method": "A standard-library-only unified-diff hunk applier reconstructed every postimage in memory from the exact current HEAD bytes; file SHA-256s were checked against the R5 manifest and each Python postimage was parsed with ast.parse.",
+    "postimages_matched": 6,
+    "preimages_matched": 6
+  },
+  "refusal_controls": {
+    "controls": [
+      {
+        "effect": "Missing required nullable owner wire fields and legacy R379 encoding are refused; trace remains unchanged and no terminal event is added.",
+        "line": 1394,
+        "test": "test_run_owner_snapshot_refuses_missing_required_nullable_wire_fields"
+      },
+      {
+        "effect": "Includes a registry-profileless owner case; resume is refused, trace remains unchanged, and no terminal event is added. The assertion uses the run_resume_ family; source validation identifies the specific profileless registry refusal token.",
+        "line": 1487,
+        "test": "test_incomplete_resume_requires_the_exact_selected_owner_snapshot"
+      },
+      {
+        "effect": "A well-shaped but forged replacement registry profile is refused as run_resume_owner_inputs_mismatch before trace mutation; no terminal event is added.",
+        "line": 1551,
+        "test": "test_incomplete_resume_rejects_changed_owner_inputs"
+      },
+      {
+        "effect": "A legacy writer that cannot return a selected profile is refused before the run directory is created.",
+        "line": 1725,
+        "test": "test_start_requires_selected_profile_writer_before_creating_run_state"
+      }
+    ],
+    "scope": "These controls are existing source-side coverage and were read-only inspected; they are not claimed as executed in this review.",
+    "source_test_path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+    "source_test_sha256": "d19d5909e89a737660b98d60446aea6afd43a51956b9af9887e757ff044a2d1c"
+  },
+  "review_id": "R1361",
+  "runtime_acceptance": "UNRUN",
+  "scope": {
+    "allowed": "Read-only source and packet inspection; review receipts only were written.",
+    "kind": "delta-only review of R5 over the independently reviewed R4 packet",
+    "not_run": [
+      "pytest",
+      "product imports",
+      "CAS/DB mutation",
+      "spawn/native replay",
+      "git apply --check"
+    ]
+  },
+  "source_base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1360-20261014.json",
+    "frame_sha256": "943a69894d574a0c26fbe7f60d5cbf3e4fbbc74b6c6b1673e4fb378476c0ed61",
+    "head": "5dbe52f869cb259871bb9df4d84be60b2f3310c2",
+    "tree": "75c35b2cf401fd0db1ec7dfe7886ea633cbd8459",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "title": "Independent R1289-r5 profiled-resume delta review",
+  "verdict": "GO_FOR_ROOT_MATERIALIZATION_AND_FOCUSED_NATIVE_REVIEW"
+}

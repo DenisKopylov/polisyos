@@ -1,0 +1,78 @@
+{
+  "schema": "e02.r1393-ruff-scope-successor-independent-review.v1",
+  "scope": "Read-only independent delta-oracle review of R1385 against the Source39 Ruff scope property.",
+  "verdict": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_VERIFICATION_ONLY",
+  "closure_ids": [],
+  "formal_acceptance": "not_established",
+  "source_boundary": {
+    "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+    "tree": "e0e1d31e7f7d76e0b9af487261566105fbd57c3f",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1383-20261014.json",
+    "frame_sha256": "a8042763d5fc41bd1db8490c46cb7899dc2765f391a09f1e576ff4a42e60cd38",
+    "current_preimage_sha256": "540e9ea390bfb72cb9533b4c46df595c99f3fdea2b284259d4783eb3cc53de7d",
+    "candidate_postimage_sha256": "af5a10076f7fa0b76b964adbbdf1856454672bb9d1a2c0f6206cecd881dad54a"
+  },
+  "candidate": {
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1385-ruff-scope-test-assertion-successor-20261014/",
+    "patch_sha256": "ec7f19082b02f079942cba10db21e134425afc8d256bf55adf63a1eeba53ffa6",
+    "manifest_sha256": "102dac0d9985bb3e8426ff869853696a71a12b03d95c5f164638de6f4ea7dee5",
+    "paths": [
+      "policy-engine/tests/repo_quality/tools/test_workspace_lint_fast_source_scope.py"
+    ],
+    "change": "Replace the stale disjointness assertion for nested out-of-Phase-8 benchmark paths with the property-consistent subset assertion."
+  },
+  "property_review": {
+    "expected_relation": "nested_benchmarks_outside_phase8 <= native",
+    "reason": "The nested set is derived from the actual full authored Ruff set and excludes the declared Phase 8 roots; it must therefore be included by strict native lint.",
+    "preserved_controls": [
+      "native == full_authored - phase8",
+      "native disjoint from phase8",
+      "native union phase8 == full_authored",
+      "tracked and nonignored-untracked src/polisyos/tests Python inventory equals Ruff inventory",
+      "exact legacy basename-matcher loss set equals nested benchmarks outside Phase 8",
+      "marker-preserving removal of tools/research/** leaks exactly four broad-root-only files"
+    ],
+    "R1384_scoped_failure": "The Ruff scope test failed only at its last stale isdisjoint assertion; preceding property checks passed.",
+    "R1384_full_nonpass_limitation": "The whole nonpass receipt also has two unrelated failures (run lifecycle owner-input mismatch and NL pipeline CAS dependency guard); the overall suite was not green.",
+    "p40": "SAME_CLASS_DEEPER",
+    "p41": "No inherited-red claim."
+  },
+  "verification": {
+    "focused_candidate_test": {
+      "status": "PASS",
+      "result": "1 passed in 2.337s",
+      "stdout_sha256": "8e56bba85267046a09ce81bdf07c53955db4ac32c4dc1cdcaa0a081ff6524b8e",
+      "warning": "Pytest cache_dir unknown-option warning because cacheprovider was disabled."
+    },
+    "ruff_check": {
+      "status": "PASS",
+      "diagnostics": 0,
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ruff_format": {
+      "status": "PASS",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "apply_check": {
+      "status": "PASS",
+      "returncode": 0
+    },
+    "source39_actual_ruff": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source39-canonical-authored-ruff-complete-inputs-actual-r1389-20261014/command.json",
+      "sha256": "0c7230d484e3515d9fbd4d3b6dd8ae9dc873788dfe47108c4153deb7a01dd03f",
+      "head": "f0ebb3c7a4f042bd00eebfbc3166573e0d8289d8",
+      "exit_code": 0,
+      "diagnostics": 0,
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "input_hashes_unchanged": true,
+      "input_count": 6224,
+      "input_suffix_counts": {
+        ".py": 6209,
+        ".pyi": 5,
+        ".toml": 10
+      }
+    },
+    "native_sota": "UNRUN for this review; overall composed acceptance remains open."
+  },
+  "next_scope": "Root may apply the one-line test correction and continue composed verification; no formal finding closure follows from this review."
+}

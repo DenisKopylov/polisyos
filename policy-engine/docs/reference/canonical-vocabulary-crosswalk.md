@@ -7,7 +7,7 @@ qualified candidate-reason vocabulary. It preserves source identities beside the
 status. It never issues institutional authority, diagnosis, legal equivalence or a new Atlas status.
 
 The source/target and owner decisions, source boundaries, production caller and falsifiers are in
-[the VC1 decision](../superpowers/specs/2026-09-10-gy-vc1-decision.md). The JSON is the sole crosswalk
+[the VC1 decision at the source snapshot](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/docs/superpowers/specs/2026-09-10-gy-vc1-decision.md). The JSON is the sole crosswalk
 artifact; this page explains its use rather than repeating its rows.
 
 `source_sha256` binds complete source bytes. `vocabularies` names every source denominator and the

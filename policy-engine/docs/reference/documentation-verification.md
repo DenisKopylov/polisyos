@@ -61,6 +61,21 @@ The freshness wrapper is a baseline comparison, not a page-age scan. The current
 
 `uv run --extra docs python -m mkdocs build --strict` builds the site with the configured theme, plugins, Markdown extensions, navigation, and included pages. It is the rendered-build check; it does not prove that claims in the rendered pages are true, check external link liveness, or deploy the site. The root `mkdocs.yml` inherits generated configuration, including its assembled navigation, from `architecture/tooling/mkdocs/generated.yml`.
 
+The actual build input can exceed the explicit `nav`/`not_in_nav` page set:
+MkDocs also includes unlisted documents unless excluded. For a publication-scope
+change, enumerate `mkdocs.structure.files.get_files(load_config(...))` and its
+included files, then check links from that complete Markdown set and the
+included assets. Comparing only the accuracy check's declared set does not
+establish reachability for every built page. This is a P35 denominator boundary.
+
+Strict mode fails on warnings, not every diagnostic. With the current default
+MkDocs link-validation configuration, a link to an excluded page can be logged
+at `INFO` and still leave the strict build green. A publication change therefore
+needs the complete included-set link check as well as the strict build; for
+retained repository evidence, use a source-qualified repository link rather
+than a local site link to an excluded page. This is the P38 difference between
+a warning-free build and complete local reachability.
+
 ### Docs lifecycle
 
 `uv run polisyos-tools validation check-docs-lifecycle` checks a set of lifecycle contracts: ADR index inputs and generated outputs; required ADR navigation entries; a declared Policy Design Case ADR pack; active-plan status/owner and closeout rules; redirect-stub metadata; known removed-path references; archive placement and authoring docs; README/AUTHORING coverage for a fixed list of high-volume subtrees and public-stable packages; and extension-example structure. The exact checks are in `tools/quality/validation/check_docs_lifecycle.py`.

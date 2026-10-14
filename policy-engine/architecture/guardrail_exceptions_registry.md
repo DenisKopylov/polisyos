@@ -1,8 +1,8 @@
 # Architecture Guardrail Exceptions Registry
 
-Все временные исключения для новых архитектурных guardrails должны иметь owner, expiry и запись в этом реестре.
-Используйте `subject_glob`/`detail_glob` для `public_surface`, `generated_artifact`,
-`workflow_config`, `readme_policy`, а для `deep_import` — `source_module_glob` и
+All temporary exceptions for new architecture guardrails must have an owner, an expiry, and an entry in this registry.
+Use `subject_glob`/`detail_glob` for `public_surface`, `generated_artifact`,
+`workflow_config`, and `readme_policy`; for `deep_import`, use `source_module_glob` and
 `target_module_glob`.
 
 | id                       | check | owner | reason | added_on | expires | status |

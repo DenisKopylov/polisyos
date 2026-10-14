@@ -2,12 +2,12 @@
 
 Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 
-Актуально на **3 апреля 2026**.
+Current as of **April 3, 2026**.
 
 ## 1. Canonical Fixture Families
 
 | Family | Purpose | Canonical path(s) | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Session/runtime fixtures | repo-wide test environment, artifact helpers, observability shims | `tests/conftest.py`, `tests/_helpers/artifacts.py`, `tests/_helpers/observability.py` | loaded automatically for pytest |
 | Runtime HTTP environment | fixture-backed FastAPI app and metadata used by backend + dashboard tests | `tests/_helpers/runtime_http.py`, `tests/unit/runtime/http/conftest.py`, `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py` | canonical local integration demo dataset |
 | Deterministic synthetic builders | generated data when static JSON is too brittle | `tests/_helpers/c7_synthetic_data.py`, `tests/_helpers/causal_scm_fixtures.py`, `tests/_helpers/search_strategies.py` | prefer seeded builders over sprawling static blobs |

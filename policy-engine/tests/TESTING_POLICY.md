@@ -2,7 +2,7 @@
 
 Phase 4 ownership document for `policy-engine/tests` and `apps/runtime-dashboard`.
 
-Актуально на **3 апреля 2026**.
+Current as of **April 3, 2026**.
 
 ## 1. Taxonomy
 

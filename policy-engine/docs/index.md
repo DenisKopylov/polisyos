@@ -30,14 +30,11 @@ justification, or publication chain.
 
 | If you need to… | Start here |
 | --- | --- |
-| Follow one inspected request from input to readback | [End-to-end data flow](explanation/end-to-end-data-flow.md) |
+| Understand the system, its logic, and data flow | [Architecture](explanation/architecture.md), then [End-to-end data flow](explanation/end-to-end-data-flow.md) |
 | Change a component or its documentation | [Contributor Start Here](reference/contributor-start-here.md) |
 | Check a change | [Documentation checks](reference/documentation-verification.md) or the [contributor task map](reference/contributor-start-here.md) |
 | Investigate a failure | [Debug a failed run](how-to/debug-failed-run.md) or [incident runbooks](runbooks/index.md) |
-| Perform another operational task | [How-to guides](how-to/index.md) |
 | Look up an API, schema, or subsystem contract | [Reference](reference/index.md) |
-| Understand the system boundary, design, and tradeoffs | [Architecture](explanation/architecture.md) or [explanations by topic](explanation/index.md) |
-| Read a bounded smoke example or draft workflow | [Tutorials](tutorials/index.md); these do not establish end-to-end behavior |
 
 ## System context
 

@@ -54,7 +54,7 @@ than treating navigation as the complete build input. At `ab899ef` with the
 recorded documentation-only working-tree delta, it collected 2,803 Markdown
 paths, of which 2,383 were included. The projected exclusions remove 1,845
 included Markdown paths: 1,537 under `research/`, 296 under `superpowers/`,
-six under `backlog/`, and the six exact files below. The rules have no overlaps.
+six under `backlog/`, and the six exact files above. The rules have no overlaps.
 The projected included set has 538 Markdown paths: all 493 declared pages and
 45 additional unlisted pages. This change is not a strict 493-page allowlist.
 The complete census and reproduction script are local receipts:
@@ -88,6 +88,17 @@ accepts this source-build boundary only; before any deployment, the publishing
 owner must decide whether formerly deployed URLs need compatible redirects,
 retained landing pages or explicit retirement. No redirects are asserted to
 exist here.
+
+The existing repository-root `.github/workflows/docs-pages.yml` can deploy
+automatically: its build runs after a successful `PR Fast` workflow whose event
+is a push and whose head branch is `main`, or after `workflow_dispatch`; the
+deploy job follows a successful build. This is a source observation at the
+pinned base, not evidence that the live hosting environment is configured.
+The URL decision therefore belongs **before merge to `main` or dispatch**, not
+after a merge. This local branch has no merge, push, dispatch or deployment
+authorization. No technical deployment hold is added by this documentation
+change; the publishing owner must resolve the named URL boundary as part of a
+separate merge/publication decision.
 
 ## Pattern pass and acceptance
 

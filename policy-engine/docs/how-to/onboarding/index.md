@@ -3,8 +3,13 @@
 Related guides: [Installation](../install.md), [Deploy Runtime](../deploy-runtime.md),
 [Use Control Plane](../use-control-plane.md), [Manage Schemas](../manage-schemas.md).
 
-> Role-based onboarding reduces the amount of system a newcomer must understand
-> before becoming useful.
+Source snapshot for the command paths below: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
+`src/polisyos/` production implementation is unchanged at that pin. Command, test-path and
+local-link references were inspected, but onboarding commands and tests were not run for this
+documentation refresh.
+
+> Role-based onboarding gives a newcomer a bounded reading and task path. It does not claim that
+> every listed surface forms a working end-to-end product flow.
 
 ## Tracks
 

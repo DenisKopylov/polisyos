@@ -3,6 +3,11 @@
 > Добавьте или измените поддерживаемый import surface так, чтобы он прошел через
 > `__all__`, guardrails и published public-surface docs.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked by
+reading `architecture/public_surface/contract.toml` and representative package
+facades such as `src/polisyos/ir/__init__.py`. The checks below were not run;
+the contract and one facade do not establish the status of every package.
+
 ## Inputs
 
 - модуль или package root, который вы хотите сделать supported surface;

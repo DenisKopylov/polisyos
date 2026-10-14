@@ -1,11 +1,14 @@
 # Установка
 
-Freshness: 2026-10-14
+Revised: 2026-10-14
 Owner: `@platform-owners`
 Source of truth: `CONTRIBUTING.md`, `docs/reference/environment-matrix.md`, `pyproject.toml`,
 `.python-version`, `.nvmrc`, `package.json`, `tools/devx/workspace/_common.py`,
 `tools/devx/workspace/bootstrap.py`, `tools/devx/workspace/doctor.py`, `tools/registry.py`,
 `.pre-commit-config.yaml`.
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
+`src/polisyos/` production implementation unchanged.
+Review basis: command/source paths inspected; tests and install commands were not run for this edit.
 
 !!! info "Historical command-surface receipt (2026-04-17)"
 На локальном macOS workstation были проверены
@@ -27,7 +30,7 @@ bootstrap или проверки на свежем checkout. Команды у�
 - checkout `policy-engine/`;
 - Python `3.14.x`;
 - `uv 0.9.21`;
-- Node `22.x` для `docs-style` и frontend workflows;
+- Node `22.x` для frontend workflows и стандартного `doctor` preflight;
 - для frontend workflow и стандартных `doctor` lockfile/contract checks — Corepack и pnpm
   `10.33.2` (версию pnpm задает `package.json`);
 - решение, нужен ли вам frontend и Playwright на этой машине.
@@ -119,9 +122,13 @@ uv run polisyos-tools validation check-docs-accuracy --repo-root .
 ```
 
 Этот профиль ставит только Python extras `lint + docs`; Node/Corepack/pnpm и browser stack
-не устанавливаются автоматически. Для `docs-style` нужен Node `22.x`, так как authored
-Markdown проверяет Node-based `markdownlint-cli2` hook; Corepack/pnpm и browser stack для
-этого targeted docs path не нужны. Если отдельно запускаете полный `doctor`, он снова проверит
+не устанавливаются автоматически. Сам bootstrap всё ещё устанавливает pre-commit hook по
+умолчанию; добавьте `--skip-hooks`, если в этом окружении hook устанавливать не нужно.
+Profile выбирает Python extras, а `--skip-frontend`, `--skip-playwright`, `--skip-hooks` и
+`--skip-doctor` управляют отдельными bootstrap side effects. `docs-style` вызывает настроенный
+Node-based `markdownlint-cli2` pre-commit hook; этот entrypoint сам не вызывает Corepack/pnpm
+или Playwright. При первом запуске pre-commit может подготовить isolated hook environment.
+Если отдельно запускаете полный `doctor`, он проверит
 Node, lockfiles и generated contracts; browser smoke можно отключить флагом `--skip-playwright`,
 а остальные поверхности — соответствующими `--skip-*` флагами.
 
@@ -135,18 +142,23 @@ corepack pnpm run generate:api
 corepack pnpm run contracts:verify
 ```
 
-## Manual editable install
+## Manual setup from the contributor baseline
 
-Если вам нужен ручной path вместо workspace bootstrap:
+Если нужен ручной путь из `CONTRIBUTING.md` вместо workspace bootstrap:
 
 ```bash
-python3.14 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-pip install -e "."
+uv sync --frozen --extra lint --extra test --extra runtime
+uv run pre-commit install
+corepack pnpm install --frozen-lockfile --ignore-scripts
+cd apps/runtime-dashboard
+corepack pnpm run playwright:install
 ```
 
-Частые варианты extras:
+Эти команды устанавливают полный backend и frontend contributor baseline. Для более узкого
+набора Python extras используйте соответствующий bootstrap profile выше; не смешивайте его
+с установкой произвольного editable package без проверки совместимости lockfile.
+
+В `pyproject.toml` также объявлены отдельные extras:
 
 | Extra                            | Когда нужен                                              |
 | -------------------------------- | -------------------------------------------------------- |

@@ -1,7 +1,11 @@
 # Fabric Processing Guarantees
 
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source of truth: `schemas/fabric/processing_guarantee.schema.json`, `src/polisyos/fabric/data_plane/**`, `schemas/snapshots/fabric/source_contracts_v2.json`, and `tools/quality/validation/fabric_processing_guarantees.py`
+Evidence level: contract, implementation, and named test behavior inspected at the source pin. Tests were not run in this documentation pass; declared guarantee fields do not establish deployment readiness or a workflow-wide guarantee.
+Test status: cited tests were inspected but not run in this documentation pass.
 
 Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Related ADR: [0133 Fabric Streaming and Scale Semantics](../../adr/0133-fabric-streaming-scale-semantics.md).

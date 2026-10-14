@@ -49,6 +49,9 @@ store contract, schema metadata и helpers, через которые `analytics
 
 ## Public API
 
+The table lists selected facade names. The complete export set is owned by
+`__all__` in `src/polisyos/ir/artifacts/__init__.py`.
+
 | Type/Function                                        | Description                                                             |
 | ---------------------------------------------------- | ----------------------------------------------------------------------- |
 | `ArtifactID`                                         | Валидируемый canonical artifact identifier                              |
@@ -62,7 +65,7 @@ Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
-- Files: 4 Python files
-- Exports: 12 public names in `__init__.py`
+- Последнее обновление: 2026-10-14
+- Files: 5 Python files under this package tree
+- Exports: 33 public names in `__all__` in `__init__.py`
 - Current usage: общий I/O слой для analytics artifacts, observation bundles и typed `ir.refs`

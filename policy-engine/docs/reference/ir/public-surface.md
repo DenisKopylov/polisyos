@@ -4,20 +4,23 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 
 > Package-level IR facades are now explicit, lazy, and export-audited.
 
-The broad compatibility boundary remains `polisyos.ir`. The package facades
-below serve a different purpose: predictable tooling/discovery imports that do
-not eagerly load whole dependency trees.
+The supported root import surface is `polisyos.ir`. The package facades below
+provide predictable tooling and discovery imports without eagerly loading
+whole dependency trees. Root exports and package facades describe current
+supported imports; they do not imply that deprecated module paths are
+registered as compatibility aliases.
 
-Freshness: 2026-04-26
+Freshness: 2026-10-14
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/api.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/unit/ir/test_public_surface.py`
+Snapshot and evidence level: the three facade counts were statically enumerated from the literal maps in `src/polisyos/ir/api.py` at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; the maps have no duplicate names. `tests/unit/ir/test_public_surface.py` was read but not run; it checks these table counts against the export manifest, checks package `__all__` values against that manifest, and exercises lazy import behavior. Those checks cover documentation/manifest consistency and import mechanics, not runtime semantics or authority/admissibility proof.
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
 
 ## Facade Inventory
 
 | Facade | Symbol count | Import policy |
 | --- | --- | --- |
-| `polisyos.ir.analytics` | 274 | curated lazy facade |
+| `polisyos.ir.analytics` | 285 | curated lazy facade |
 | `polisyos.ir.kernel` | 52 | full lazy facade |
 | `polisyos.ir.world` | 54 | full lazy facade |
 
@@ -37,9 +40,13 @@ submodules, for example `polisyos.ir.analytics.causal_graph`,
 
 ## Export Audit
 
-- The source of truth for package facades lives in `polisyos.ir.api`.
-- Tests verify that documented facade counts match the code manifest and that
-  importing package facades does not eagerly import their full submodule trees.
+- The source of truth for package facades lives in `polisyos.ir.api`; the table
+  counts are a static census of its three literal facade maps.
+- `tests/unit/ir/test_public_surface.py` verifies that the table counts match
+  the export manifest, package `__all__` values match that manifest, and the
+  facades retain their lazy-import behavior. These are documentation/manifest
+  consistency and import-mechanics checks, not proof of runtime semantics or
+  authority/admissibility.
 
 - `polisyos.ir.analytics` is intentionally curated: if a symbol is not listed in
   its package facade, import it from the specific analytics submodule instead.

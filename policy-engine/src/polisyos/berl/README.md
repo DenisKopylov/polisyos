@@ -64,8 +64,10 @@ contract.
 The controlled integration witness demonstrates producer → same-write selected-profile CAS ref →
 fresh Phase-5 and Runtime readers. Historical valid profileless default refs remain readable when
 the default manifest satisfies the fixed BERL contract; newly persisted refs always preserve the
-profile selected by their own write. A full source AST census found no in-repository caller of the
-public `build_quality_scorecard` function beyond its facade re-export, so higher-level scorecard
-wiring remains `implemented_but_not_orchestrated`; this witness is not a production caller or
-currentness assertion. Conditional-law evidence remains `producer_missing`; a self-declared artifact
-ref does not admit a conditional profile.
+profile selected by their own write. The public `build_quality_scorecard` function belongs to
+Runtime quality, not BERL. Known source-snapshot uses include `tools/ops_runners/runtime/canary_evidence.py`
+and `tests/_helpers/hds_quality.py` at source snapshot
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; those uses do not establish an orchestrated BERL
+scorecard capability. This BERL witness is not a production caller or currentness assertion.
+Conditional-law evidence remains `producer_missing`; a self-declared artifact ref does not admit a
+conditional profile.

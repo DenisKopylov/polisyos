@@ -1,5 +1,10 @@
 # Causal estimates and identification admission
 
+Freshness: 2026-10-14
+Owner: `@ir-owners`
+Source of truth: `src/polisyos/ir/analytics/causal.py`, `src/polisyos/scientist/governance/passes/confidence_pass.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/runtime/quality/evaluation_safety.py`, `src/polisyos/runtime/quality/intervention_atom_binding.py`, `src/polisyos/runtime/quality/workspace/foundry_consumption.py`, `src/polisyos/runtime/quality/promotion_sequence.py`, `src/polisyos/foundry/methods/components/value_evidence.py`, `tests/unit/scientist/governance/test_causal_confidence_candidate.py`, `tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py`
+Snapshot and evidence level: code paths were inspected at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; cited tests were read but not executed for this audit. The negative-admission statement is scoped to the causal-purpose confidence intake and the named consumer routes, not a census of all workflow or extension paths.
+
 A successful `CausalEffectReport` preserves its point estimate, interval,
 confidence level, and numerical status. These statistics describe an estimator
 result. They do not establish that the requested effect is identified for the
@@ -21,7 +26,9 @@ admission. Supported noncausal simulation confidence checks retain their normal
 threshold behavior. This contract applies when the workflow executes the
 confidence pass; it does not claim that every workflow profile selects that pass.
 
-The current contracts do not supply a positive identification-admission bridge.
+Within the causal-purpose confidence intake and the named Runtime/Foundry
+consumer routes, current contracts do not supply a positive
+identification-admission bridge.
 `ProofBundle` persistence preserves a producer's structural proof description;
 `IdentificationPlanRef` projects an identification plan. Neither constitutes
 independent admission merely because it resolves or declares `identified`.

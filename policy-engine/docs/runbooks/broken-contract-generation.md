@@ -7,7 +7,7 @@ Related how-to: [Manage Schemas](../how-to/manage-schemas.md). Related reference
 > расходятся между backend, committed snapshots, OpenAPI и frontend fixtures.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against current schema, OpenAPI, frontend-contract, and docs build checks.
+Historical validation receipt (as recorded by this page): `2026-04-17` — schema, OpenAPI, frontend-contract, and docs-build checks available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/quality-gates.md`; `schemas/runtime_api_v1.openapi.json`; `docs/archive/reports/platform-acceptance.md`
 Rollback path: revert the unintended contract change or regenerate all affected artifacts and docs in one change set before promotion.
 

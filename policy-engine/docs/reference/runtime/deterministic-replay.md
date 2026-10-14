@@ -1,9 +1,9 @@
 # Deterministic Replay
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/quality/replay.py`,
-`tools/ops_runners/runtime/replay_canary_bundle.py`, and
-`tests/unit/runtime/quality/test_replay.py`.
+Source of truth: `src/polisyos/runtime/quality/replay.py`, `tools/ops_runners/runtime/replay_canary_bundle.py`, and `tests/unit/runtime/quality/test_replay.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the runner and tests were not run.
 
 Deterministic replay records the minimum sanitized material needed to reproduce
 and compare a serious canary without reusing runtime secrets.
@@ -64,6 +64,9 @@ operator records an explicit reason.
 
 Unexplained drift fails production readiness. This includes deterministic output
 or quality summary changes that do not have an accepted difference entry.
+Replay evidence compares retained inputs and outputs; a matching local replay
+does not establish that a deployed policy is currently effective, causally
+valid, or authorized for publication.
 
 ## Canary Bundle Runner
 

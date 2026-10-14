@@ -13,8 +13,9 @@
 
 ## Состав
 
-- `policies/*.rego` — 7 policy modules;
-- `policies/*_test.rego` — 7 unit tests.
+- `ops/policy/policies/` is the canonical inventory of tracked Rego policy
+  and rule-test source files. Files ending in `_test.rego` are test modules;
+  their file count does not represent the number of Rego test cases.
 
 ## Entry points
 

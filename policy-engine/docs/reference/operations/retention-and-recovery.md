@@ -5,20 +5,29 @@ Related runbooks: [Replay or Restore Workflow](../../runbooks/replay-or-restore.
 Related reference: [Operations Reference](index.md).
 
 Owner: `@platform-owners`
-Source of truth: `src/polisyos/core/artifacts/**`, `docs/reference/generated-artifacts.md`, and the linked replay/retention/corruption runbooks
+Source of truth: `architecture/local_runtime_state.toml`, `architecture/runtime_state_layout.toml`, `tools/ops_runners/runtime/runtime_state_cleanup.py`, `src/polisyos/core/artifacts/**`, `docs/reference/generated-artifacts.md`, and the linked replay/retention/corruption runbooks
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. Policy metadata does not establish that a retention or cleanup job is deployed or has run.
 
-> Эта страница задаёт lifecycle rules для operational artifacts, чтобы storage
-> growth и restore expectations были intentional, а не accidental.
+> Эта страница описывает общую retention policy для operational artifacts.
+> Указанные ниже R0–R4 windows являются документированными рекомендациями, а
+> не общей автоматически применяемой TTL-настройкой.
 
-## Retention Classes
+## Suggested Review Windows
 
-| Class                  | Default retention | Purpose                                                       |
-| ---------------------- | ----------------- | ------------------------------------------------------------- |
-| `R0 Ephemeral`         | 14 days           | short-lived CI diagnostics and local debugging outputs        |
-| `R1 Short operational` | 30 days           | near-term troubleshooting, replay, and benchmark working sets |
-| `R2 Release evidence`  | 90 days           | release-adjacent summaries and reproducible decision support  |
-| `R3 Compliance`        | 365 days          | audit packages, signed outputs, provenance evidence           |
-| `R4 Cold archive`      | 730 days          | long-tail restores, legacy archives, incident preservation    |
+The R0–R4 windows below are manual policy guidance in this document; the
+repository does not apply them as a global artifact TTL. Local `.polisyos`
+cleanup uses the per-slot contract in `architecture/local_runtime_state.toml`
+and `architecture/runtime_state_layout.toml` through
+`tools/ops_runners/runtime/runtime_state_cleanup.py`. Those files define local
+slot policy, not deployment or cleanup-job status.
+
+| Class                  | Suggested window | Purpose                                                       |
+| ---------------------- | ---------------- | ------------------------------------------------------------- |
+| `R0 Ephemeral`         | 14 days          | short-lived CI diagnostics and local debugging outputs        |
+| `R1 Short operational` | 30 days          | near-term troubleshooting, replay, and benchmark working sets |
+| `R2 Release evidence`  | 90 days          | release-adjacent summaries and reproducible decision support  |
+| `R3 Compliance`        | 365 days         | audit packages, signed outputs, provenance evidence           |
+| `R4 Cold archive`      | 730 days         | long-tail restores, legacy archives, incident preservation    |
 
 ## Artifact Family Policy
 
@@ -53,7 +62,8 @@ Source of truth: `src/polisyos/core/artifacts/**`, `docs/reference/generated-art
 
 ## Restore Drills
 
-Phase 6 standardizes four restore drills:
+The policy defines four expected restore drills; this page does not record
+their execution or results:
 
 | Drill                     | Cadence   | Success condition                                                              |
 | ------------------------- | --------- | ------------------------------------------------------------------------------ |

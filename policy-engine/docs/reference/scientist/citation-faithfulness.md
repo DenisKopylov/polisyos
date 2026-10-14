@@ -3,7 +3,9 @@
 Related references: [Claim support semantics](claim-support-semantics.md), [Source quality calibration](source-quality-calibration.md), [Benchmark authority](benchmark-authority.md).
 
 Owner: `@scientist-owners`  
-Source of truth: `src/polisyos/scientist/validation/citation_faithfulness.py` and `tests/unit/scientist/validation/test_citation_faithfulness.py`.
+Source of truth: `src/polisyos/scientist/validation/citation_faithfulness.py`, `src/polisyos/runtime/http/services/control/nl_pipeline.py`, and `tests/unit/scientist/validation/test_citation_faithfulness.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. Runtime integration below is the HTTP NL path, not a universal Scientist workflow gate.
 
 Citation faithfulness is an offline deterministic quality gate for cited public
 factual and legal claims. It intentionally avoids live LLM judging in CI and
@@ -31,9 +33,12 @@ Missing citation refs are also blocking and set the per-claim status to `fail`.
 
 `build_policy_context_citation_faithfulness_report(...)` converts runtime Lex
 norms and Fabric selected sources into the evidence shape consumed by
-`build_citation_faithfulness_report(...)`. Serious runtime NL profiles persist
-the resulting `policyos.scientist.citation_faithfulness.v1` artifact and fold
-non-pass issues into the final policy grounding matrix.
+`build_citation_faithfulness_report(...)`. The serious HTTP runtime NL path in
+`src/polisyos/runtime/http/services/control/nl_pipeline.py` persists the
+resulting `policyos.scientist.citation_faithfulness.v1` artifact and folds
+non-pass issues into the final policy grounding matrix. This is not a
+builtin-DAG consumer claim; see [Current Scientist Workflows and Evidence
+Handoffs](current-workflows.md) for that boundary.
 
 ## Residual Risk
 

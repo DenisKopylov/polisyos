@@ -130,37 +130,48 @@ through `RuntimeExecutionPolicyResolver`.
 
 ## Security Env Vars
 
-| Variable                                   | Default                         | Effect                                                |
-| ------------------------------------------ | ------------------------------- | ----------------------------------------------------- |
-| `POLISYOS_ENV`                             | `dev`                           | Normalized to `dev`, `prod`, or `airgap`              |
-| `POLISYOS_MULTI_TENANT_ENABLED`            | `false`                         | Enable tenant/cell-aware runtime behavior             |
-| `POLISYOS_CELL_ID`                         | empty                           | Expected cell binding for JWT middleware              |
-| `POLISYOS_CELL_REGISTRY_PATH`              | empty                           | Path to cell/tenant registry JSON                     |
-| `POLISYOS_DEFAULT_CELL_TIER`               | `shared`                        | Fallback cell tier                                    |
-| `POLISYOS_ALLOWED_REGIONS`                 | empty                           | Region allowlist for cell placement                   |
-| `POLISYOS_MULTI_TENANT_FAIL_CLOSED`        | `true`                          | Deny requests when tenant routing metadata is missing |
-| `POLISYOS_AUTHN_ENABLED`                   | env-dependent                   | Enable JWT auth middleware                            |
-| `POLISYOS_AUTHZ_MODE`                      | `off` in dev, `enforce` in prod | `off`, `shadow`, or `enforce`                         |
-| `POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK` | `true`                          | Allow trusted tenant headers when claims are absent   |
-| `POLISYOS_KEYCLOAK_ISSUER_URL`             | empty                           | OIDC issuer for JWT validation                        |
-| `POLISYOS_KEYCLOAK_JWKS_URI`               | empty                           | JWKS endpoint for JWT signature verification          |
-| `POLISYOS_KEYCLOAK_CLIENT_ID`              | `polisyos-web`                  | Client role namespace used by role mapping            |
-| `POLISYOS_KEYCLOAK_AUDIENCE`               | `polisyos-web`                  | Expected JWT audience                                 |
-| `POLISYOS_JWT_REQUIRED_MFA_ROLES`          | `admin,analyst`                 | Roles that require MFA claims                         |
-| `POLISYOS_SERVICE_SPIFFE_ID`               | unset                           | Env override for local service SPIFFE identity        |
-| `POLISYOS_MTLS_SPIFFE_HEADER`              | `l5d-client-id`                 | Header carrying peer SPIFFE identity                  |
-| `POLISYOS_OPA_URL`                         | `http://localhost:8181`         | OPA base URL                                          |
-| `POLISYOS_OPA_POLICY_PATH`                 | `polisyos/authz/decision`       | OPA data path queried by the authz client             |
-| `POLISYOS_OPA_TIMEOUT`                     | `2.0`                           | Authorization query timeout in seconds                |
-| `POLISYOS_OPA_CACHE_TTL`                   | `30.0`                          | TTL for authz result cache                            |
-| `POLISYOS_OPA_CACHE_SIZE`                  | `1000`                          | Max cached authz decisions                            |
-| `POLISYOS_DELEGATION_REQUIRED`             | `false`                         | Require signed delegation context headers             |
-| `POLISYOS_DELEGATION_HEADER`               | `x-policyos-context`            | Delegation JWT header name                            |
-| `POLISYOS_DELEGATION_SECRET`               | empty                           | HMAC secret for delegation context                    |
-| `POLISYOS_DELEGATION_ALGORITHM`            | `HS256`                         | Delegation signing algorithm                          |
-| `POLISYOS_DELEGATION_TTL_SECONDS`          | `60`                            | Delegation context TTL                                |
-| `POLISYOS_TRUSTED_DELEGATORS`              | empty                           | Allowed delegator SPIFFE IDs                          |
-| `POLISYOS_PII_ENABLED`                     | env-dependent                   | Enable PII handling controls                          |
+| Variable                                   | Default                         | Effect                                                                      |
+| ------------------------------------------ | ------------------------------- | --------------------------------------------------------------------------- |
+| `POLISYOS_ENV`                             | `dev`                           | Normalized to `dev`, `prod`, or `airgap`                                    |
+| `POLISYOS_MULTI_TENANT_ENABLED`            | `false`                         | Bootstrap/security setting; does not select current HTTP tenant routing     |
+| `POLISYOS_CELL_ID`                         | empty                           | Expected cell binding for JWT middleware                                    |
+| `POLISYOS_CELL_REGISTRY_PATH`              | empty                           | Path to cell/tenant registry JSON                                           |
+| `POLISYOS_DEFAULT_CELL_TIER`               | `shared`                        | Fallback cell tier                                                          |
+| `POLISYOS_ALLOWED_REGIONS`                 | empty                           | Region allowlist for cell placement                                         |
+| `POLISYOS_MULTI_TENANT_FAIL_CLOSED`        | `true`                          | Deny requests when tenant routing metadata is missing                       |
+| `POLISYOS_AUTHN_ENABLED`                   | env-dependent                   | Parsed by `SecuritySettings`; does not install HTTP JWT middleware          |
+| `POLISYOS_AUTHZ_MODE`                      | `off` in dev, `enforce` in prod | `off`, `shadow`, or `enforce`                                               |
+| `POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK` | `true`                          | Parsed by `SecuritySettings`; no downstream runtime reader in this snapshot |
+| `POLISYOS_KEYCLOAK_ISSUER_URL`             | empty                           | OIDC issuer for JWT validation                                              |
+| `POLISYOS_KEYCLOAK_JWKS_URI`               | empty                           | JWKS endpoint for JWT signature verification                                |
+| `POLISYOS_KEYCLOAK_CLIENT_ID`              | `polisyos-web`                  | Client role namespace used by role mapping                                  |
+| `POLISYOS_KEYCLOAK_AUDIENCE`               | `polisyos-web`                  | Expected JWT audience                                                       |
+| `POLISYOS_JWT_REQUIRED_MFA_ROLES`          | `admin,analyst`                 | Roles that require MFA claims                                               |
+| `POLISYOS_SERVICE_SPIFFE_ID`               | unset                           | Env override for local service SPIFFE identity                              |
+| `POLISYOS_MTLS_SPIFFE_HEADER`              | `l5d-client-id`                 | Header carrying peer SPIFFE identity                                        |
+| `POLISYOS_OPA_URL`                         | `http://localhost:8181`         | OPA base URL                                                                |
+| `POLISYOS_OPA_POLICY_PATH`                 | `polisyos/authz/decision`       | OPA data path queried by the authz client                                   |
+| `POLISYOS_OPA_TIMEOUT`                     | `2.0`                           | Authorization query timeout in seconds                                      |
+| `POLISYOS_OPA_CACHE_TTL`                   | `30.0`                          | TTL for authz result cache                                                  |
+| `POLISYOS_OPA_CACHE_SIZE`                  | `1000`                          | Max cached authz decisions                                                  |
+| `POLISYOS_DELEGATION_REQUIRED`             | `false`                         | Require signed delegation context headers                                   |
+| `POLISYOS_DELEGATION_HEADER`               | `x-policyos-context`            | Delegation JWT header name                                                  |
+| `POLISYOS_DELEGATION_SECRET`               | empty                           | HMAC secret for delegation context                                          |
+| `POLISYOS_DELEGATION_ALGORITHM`            | `HS256`                         | Delegation signing algorithm                                                |
+| `POLISYOS_DELEGATION_TTL_SECONDS`          | `60`                            | Delegation context TTL                                                      |
+| `POLISYOS_TRUSTED_DELEGATORS`              | empty                           | Allowed delegator SPIFFE IDs                                                |
+| `POLISYOS_PII_ENABLED`                     | env-dependent                   | Enable PII handling controls                                                |
+
+Source-snapshot boundary: read-only inspection at
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb` covered the complete tracked Python
+surface under `src/polisyos/**/*.py`. The three rows above are parsed settings,
+not independent runtime switches: `POLISYOS_MULTI_TENANT_ENABLED` has no
+downstream HTTP-routing consumer, and `POLISYOS_AUTHN_ENABLED` plus
+`POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK` have no downstream reader in that
+source snapshot. HTTP middleware composition is selected through execution
+profile validation and explicit identity, cell-registry, and OPA collaborators
+in `runtime/http/app.py` and `runtime/http/execution_policy.py`. Tests were not
+run for this documentation review.
 
 ## TEE, SLSA, SBOM, And Observability Env Vars
 

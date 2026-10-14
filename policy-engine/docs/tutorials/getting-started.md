@@ -1,11 +1,15 @@
 # Быстрый старт
 
-Freshness: 2026-10-14
+Revised: 2026-10-14
 Owner: `@docs-owners`
 Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, `package.json`,
 `tools/devx/workspace/{_common,bootstrap,doctor}.py`, `src/polisyos/foundry/_quickstart.py`,
 `src/polisyos/ir/__init__.py`, `src/polisyos/foundry/__init__.py`,
 `docs/reference/policy-design-case-failure-patterns.md`.
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
+`src/polisyos/` production implementation unchanged.
+Review basis: command/source paths inspected; tests, examples, installs and runtime were not run
+for this edit.
 
 > Подготовьте рабочее окружение, проверьте import surface и выполните минимальный
 > `compile -> execute` smoke path.
@@ -47,7 +51,8 @@ uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --sk
 ```
 
 Профиль `runtime` синхронизирует extras `lint + test + runtime`; `--skip-frontend` убирает
-проверку Node и установку JS workspace. `--skip-doctor` также предотвращает автоматический
+проверку Node и установку JS workspace. Bootstrap всё равно установит pre-commit hook, если
+не добавить `--skip-hooks`. `--skip-doctor` предотвращает автоматический
 doctor, который независимо проверил бы Node, Playwright, lockfiles и generated contracts.
 В этом walkthrough намеренно используется backend-only path. Полный install matrix,
 frontend bootstrap и troubleshooting собраны в [Installation](../how-to/install.md).
@@ -122,6 +127,10 @@ cas_root: .polisyos/quickstart-cas
     Installed-default проверка требует такого consumer и привязки всех конечных catalog
     resources от tracked source bytes через sdist и wheel; подробности задает
     [P02 installed-default consumer discriminator](../reference/policy-design-case-failure-patterns.md).
+
+Этот quickstart — короткий Foundry demo path. Даже успешные `compile_ok` и `execute_ok` не
+являются результатом policy analysis, evidence admissibility или разрешением публиковать
+рекомендацию.
 
 ## 4. Посмотрите, какие артефакты были созданы
 

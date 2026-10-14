@@ -6,6 +6,10 @@ INT-R6's binding semantic identifiers, and INT-R5's local results, lifecycle, cu
 qualified candidate-reason vocabulary. It preserves source identities beside the existing custody
 status. It never issues institutional authority, diagnosis, legal equivalence or a new Atlas status.
 
+Owner: team-architecture
+Source of truth: `docs/reference/canonical-vocabulary-crosswalk.v1.json`, `tools/quality/validation/check_canonical_vocabulary_crosswalk.py`, `src/polisyos/runtime/quality/vocabulary_crosswalk.py`, `src/polisyos/runtime/quality/adaptation_transition.py`, and the [GY-VC1 decision at its source snapshot](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/docs/superpowers/specs/2026-09-10-gy-vc1-decision.md).
+Snapshot and evidence level: implementation sources were inspected at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`. In the committed JSON, `source_sha256["src/polisyos/fabric/evidence/non_data_acquisition.py"]` is `b094a50c2290f821828182b2224ec0edcf818f08d7bc2a6a386618a7800ae7b8`; the complete file at that source pin and branch snapshot `36ac90f829b95e9874c5340fc2f1d0e595adf6d7` hashes to `92c64d1f4e29b2f8ccf58de2362f0fdd1c943e39258d80cd699bc75411fd1910`. The JSON value matches the bytes at `992aa493f23d797c7566dca443bd67e0b4294dd3`. Artifact/source alignment and artifact currentness at the claimed pin are therefore `not established`. This page is explanatory: the JSON is unchanged and the checker was not run, so no current-artifact validation is claimed.
+
 The source/target and owner decisions, source boundaries, production caller and falsifiers are in
 [the VC1 decision at the source snapshot](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/docs/superpowers/specs/2026-09-10-gy-vc1-decision.md). The JSON is the sole crosswalk
 artifact; this page explains its use rather than repeating its rows.

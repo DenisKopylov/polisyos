@@ -3,6 +3,12 @@
 This page is the Wave 1 contrast specification index. The canonical generated
 artifact lives in [`../compliance/A11Y_CONTRAST.md`](../compliance/A11Y_CONTRAST.md).
 
+The matrix is a generated token-pair artifact, not a complete browser
+accessibility audit or proof of every rendered surface's conformance. The
+current source and verification limits for the frontend are in the
+[frontend surface map](../reference/frontend/current-surface-map.md); no
+browser or accessibility suite was run for this documentation pass.
+
 Why two pages exist:
 
 - `docs/compliance/A11Y_CONTRAST.md` is machine-generated from runtime theme

@@ -1,15 +1,20 @@
 # Data Lake And Committed Data Policy
 
-Freshness: 2026-05-03
+Last updated: 2026-10-14
 Owner: `team-data-forge`
-Source of truth: `architecture/policies/data.toml`
+Source pin: `8dd933600dd7a5a8a5b48432c6089d63b81ca641`
+Source of truth: `architecture/policies/data.toml`, `.gitignore`,
+`architecture/generated_artifacts.toml`, and `data/policy-engine-local/README.md`
+Evidence status: the data policy, ignore rules, and tracked data paths were
+inspected at the source pin; tests were not run and local data contents were not
+measured.
 
 The collapsed product-root workspace has one data surface with two policies:
 
 - `data/academic_gold/` and `data/dataset_catalog/` are committed only by
   allowlist;
-- `data/policy-engine-local/` and medallion-style local zones under `data/`
-  are ignored local data.
+- `data/policy-engine-local/` contains ignored local data apart from its tracked
+  explanatory `README.md`; medallion-style local zones under `data/` are ignored.
 
 ## Local Data Lake
 
@@ -32,6 +37,8 @@ Committed `data/` content may contain only:
 
 - tiny gold examples under `data/academic_gold/`;
 - registry YAML under `data/dataset_catalog/`;
+- the explanatory `data/policy-engine-local/README.md`, the documented
+  exception for the legacy local-state directory name;
 - reviewed fixtures, contracts, manifests, or examples registered in
   `architecture/generated_artifacts.toml`.
 

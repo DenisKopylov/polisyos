@@ -1,5 +1,11 @@
 # Persisted TMLE confidence and value consumers
 
+Owner: `polisyos.scientist.governance.passes.confidence_pass.ConfidencePass` and the existing method-value projection consumer.
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/treatment_effects.py`, `src/polisyos/foundry/methods/components/value_evidence.py`, and `src/polisyos/scientist/governance/passes/confidence_pass.py`.
+Tests inspected (not run): `tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test source inspected at this pin; tests were not run for this docs-only review.
+
 The registered cross-sectional TMLE method can emit a numerically successful
 regular-IID report with an EIF interval. This is a candidate estimate. Its
 `SUCCESS`, interval, execution evidence, and artifact identity do not establish

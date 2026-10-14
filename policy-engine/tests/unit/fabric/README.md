@@ -2,7 +2,11 @@
 
 `tests/unit/fabric` covers the data-fabric layer: connectors, data plane,
 provenance, trust, world queries, claims/docs pipelines, and the fabric-facing
-parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
+parts of lex and scholar. At source snapshot
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`, a full tracked-path census under
+`tests/unit/fabric/` counted `187` files whose basename matches `test_*.py`.
+That path count is not a pytest collection or execution result; tests were not
+run during this documentation review.
 
 ## Purpose
 
@@ -22,18 +26,13 @@ parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
 - `data_plane/` for semantic diff, cursor store, replay, and ingestion
   orchestration issues.
 
-## Public Entrypoints
+## Where Tests Are Grouped
 
-- `tests/unit/fabric/` root: `39` tests for trust, provenance, world, claims/docs,
-  legal-evaluation, lex-corpus, and scholar-facing flows.
-
-- `tests/unit/fabric/connectors/`: `36` tests for protocol compliance, registry,
-  schema/type systems, transform pipeline, cache, federation, and sources.
-
-- `tests/unit/fabric/data_plane/`: `11` tests for incremental ingestion, replay,
-  watermarks, cursor store, and semantic diff.
-
-- `tests/unit/fabric/pii/`: `1` test for PII detection behavior.
+`connectors/` groups protocol, registry, schema, transform, cache, federation,
+and source-adapter coverage. `data_plane/` groups ingestion, replay, watermarks,
+cursor-store, and semantic-diff coverage. Other focused areas include
+`mirror_contracts/` and `pii/`; consult the directory tree for the current
+complete grouping rather than relying on a fixed inventory here.
 
 ## Depends On / Depended On By
 

@@ -9,9 +9,10 @@ It turns heterogeneous evidence into typed records and panels, routes that
 evidence through governance and measurement-aware rules, and materializes the
 bundle manifests that Scientist and Foundry exchange.
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/references/`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/observation/**`
+Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/registry/refs.py`, `src/polisyos/ir/loading/citations.py`, `src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py`, `src/polisyos/scientist/nodes/builtins/causal/counterfactual_identification_gate.py`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/observation/**`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 Source plan phases: D1-L4 Phase 2 lineage/analysis contracts and Phase 4 transport/interoperability.
 
 ## Contract Layers
@@ -32,7 +33,12 @@ Source plan phases: D1-L4 Phase 2 lineage/analysis contracts and Phase 4 transpo
 
 - Readiness manifests: `CausalReadinessBundle` records proxy,
   transportability, counterfactual, interference, and strategic-response
-  preflight outcomes before execution is allowed.
+  preflight outcomes. The DTO declares schema version `1.0`; its persistence
+  helper writes the corresponding `ir.causal_readiness_bundle` artifact schema
+  at version `1.0` by default. Scientist persists it as an artifact, and selected
+  downstream gates load and evaluate the relevant entries. Parsing or
+  persisting this DTO alone neither authorizes execution nor establishes that
+  every readiness obligation passed.
 
 - Execution manifests: `BoundsEstimationTask`, `TemporalDTRTask`, and
   `CausalExecutionBundle` represent the task/result boundary after readiness
@@ -90,10 +96,10 @@ still documented primarily in source.
 
 ## Validation Hooks
 
-| Claim                                                                       | Source of truth                                             | Evidence                                                                                                                                              |
-| --------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claim                                                                       | Source of truth                                             | Evidence                                                                                                                                                   |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Observation records, panels, and family policies are ABI-visible contracts  | `src/polisyos/ir/observation/contracts.py`, `governance.py` | `schemas/snapshots/ir/observation_record.schema.json`, `schemas/snapshots/ir/observation_panel.schema.json`, `tests/unit/ir/observation/test_contracts.py` |
-| Measurement routing selects trust tiers and identification modes explicitly | `src/polisyos/ir/observation/measurement.py`                | `tests/unit/ir/observation/test_measurement.py`, `tests/unit/ir/observation/test_causal_readiness.py`                                                           |
+| Measurement routing selects trust tiers and identification modes explicitly | `src/polisyos/ir/observation/measurement.py`                | `tests/unit/ir/observation/test_measurement.py`, `tests/unit/ir/observation/test_causal_readiness.py`                                                      |
 | Bundle manifests preserve downstream contract targets and lineage           | `src/polisyos/ir/observation/bundles.py`                    | `tests/unit/ir/observation/test_bundle_schemas.py`, [JSON Schema Catalog](../schemas.md)                                                                   |
 | Observation bridge contracts remain dependency-light                        | `src/polisyos/ir/observation/bridges.py`                    | `tests/unit/ir/test_interoperability_bridges.py`                                                                                                           |
 | Execution bundles feed compiler-pipeline lineage analysis                   | `src/polisyos/ir/observation/causal_execution.py`           | `tests/unit/ir/test_phase2_passes.py`                                                                                                                      |

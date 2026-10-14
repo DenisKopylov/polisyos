@@ -2,7 +2,14 @@
 
 > Используйте этот guide, когда меняете ABI snapshots, runtime OpenAPI, generated clients/types или любые другие committed generated outputs.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14.
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspection of
+`architecture/generated_artifacts.toml`,
+`tools/quality/validation/fabric_schema_governance.py`,
+`tools/quality/ci/check_fabric_schema_registry.py`, and `tools/registry.py`;
+generators and checks were not run. This supersedes the previous 2026-04-17
+freshness marker and is not a generation receipt.
 
 ## Вход
 
@@ -36,12 +43,12 @@ Human-readable reference map:
 
 Fabric-specific source-of-truth surfaces:
 
-| Artifact                                                     | Source of truth                                                                   | Check                                                                                                              |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `src/polisyos/schemas/abi_models.py` and Fabric/world ABI models                               | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
+| Artifact                                                     | Source of truth                                                                   | Check                                                                                                                     |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `src/polisyos/schemas/abi_models.py` and Fabric/world ABI models                  | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                         |
 | `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
-| `schemas/snapshots/connectors/contracts.json`                | `polisyos-tools connectors check-contracts` and `ALL_SOURCE_CONTRACTS`                  | `uv run polisyos-tools connectors check-contracts --check`                                                        |
-| `tests/_data/fabric/connectors/sources/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
+| `schemas/snapshots/connectors/contracts.json`                | `polisyos-tools connectors check-contracts` and `ALL_SOURCE_CONTRACTS`            | `uv run polisyos-tools connectors check-contracts --check`                                                                |
+| `tests/_data/fabric/connectors/sources/`                     | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                                   |
 
 ## Базовый цикл
 

@@ -1,5 +1,10 @@
 # Add Runtime Route
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/routes/`, `src/polisyos/runtime/http/services/`, `schemas/runtime_api_v1.openapi.json`, and `tests/unit/runtime/http/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Procedure and source-reference inspection only for this documentation update; the scaffold, tests, and contract check were not run.
+
 > Добавьте новый runtime endpoint так, чтобы он оставался thin HTTP layer, не
 > ломал contract chain и не обходил container/service boundaries.
 
@@ -141,3 +146,18 @@ If the route changes visible API behavior, also add or update focused tests unde
 
 - route should be stream-only or experimental: keep it route-only and document
   it manually instead of forcing it into generated clients.
+
+## Capability and authority boundary
+
+Router wiring, an OpenAPI operation, and generated client types establish an
+HTTP surface only. Before describing a route as a complete capability, account
+for its producer, typed artifact/event, orchestration bridge, consumer,
+verification, audit/API/dashboard surface (or explicit `out_of_scope`), and a
+negative or semantic integration test. Record missing links with the repository
+capability labels instead of implying that the route is complete.
+
+LLM-produced and simulated results remain candidates. Candidate-band work may
+carry unknown scope only when its owner preserves that unknown as a typed
+limitation; protected actions, custody facts, and published claims fail closed.
+A successful status or response DTO does not establish a causal policy chain,
+admissibility, or publication authority.

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import datetime as dt
+import gzip
 import hashlib
+import json
 import re
 import sys
 import tomllib
@@ -19,8 +21,15 @@ OLD_FRONTEND_DASHBOARD = "frontend" + "/runtime-dashboard"
 OLD_FRONTEND_CLIENT = "frontend" + "/runtime-api-client"
 
 
-def test_phase6_4_docs_lifecycle_gate_passes_current_contract() -> None:
-    assert check_docs_lifecycle.run_checks(REPO_ROOT) == []
+def test_phase6_4_docs_lifecycle_receipt_discloses_current_partial_scan() -> None:
+    receipt: dict[str, object] = {}
+
+    findings = check_docs_lifecycle.run_checks(REPO_ROOT, reference_scan_receipt=receipt)
+
+    assert receipt["scope"] == "removed-stub-reference-scan-only"
+    assert receipt["receipt_coverage"] == "partial"
+    assert receipt["reference_scan_status"] == "partial"
+    assert any(finding.check == "reference_scan_unresolved" for finding in findings)
 
 
 def test_decision_log_has_no_due_unresolved_hds_entries() -> None:
@@ -187,6 +196,77 @@ def test_phase6_2_stale_removed_stub_references_are_rejected(tmp_path: Path) -> 
             f"stale direct reference `{OLD_FRONTEND_CLIENT}`; use `packages/runtime-api-client`.",
         ),
     ]
+
+
+def test_reference_scan_receipt_is_explicitly_partial_for_lifecycle_gate_inputs(
+    tmp_path: Path,
+) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "live.md").write_text("The current guide is scanned.\n", encoding="utf-8")
+    receipt: dict[str, object] = {}
+
+    check_docs_lifecycle.check_removed_stub_references(tmp_path, receipt=receipt)
+
+    assert receipt["scope"] == "removed-stub-reference-scan-only"
+    assert receipt["receipt_coverage"] == "partial"
+    assert receipt["selected_reference_scan_complete"] is True
+    assert receipt["lifecycle_gate_input_coverage"] == "not-measured-by-this-receipt"
+    assert "complete_verdict" not in receipt
+    boundaries = receipt["unresolved_by_construction"]
+    assert isinstance(boundaries, list)
+    assert any("other docs lifecycle checks" in boundary.lower() for boundary in boundaries)
+    assert any(
+        "archive-map" in boundary.lower()
+        and "verify member bytes" in boundary.lower()
+        and "p32" in boundary.lower()
+        for boundary in boundaries
+    )
+    assert any(
+        "markdown archive-table" in boundary.lower() and "journals path" in boundary.lower()
+        for boundary in boundaries
+    )
+
+
+def test_main_marks_incomplete_reference_scan_unrun_and_keeps_findings(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "live.md").write_text(
+        f"Use {OLD_FRONTEND_DASHBOARD}.\n",
+        encoding="utf-8",
+    )
+    (docs / "history.gz").write_bytes(gzip.compress(b"stale historical path"))
+    production_data = tmp_path / "production_data"
+    production_data.mkdir()
+    (production_data / "ignored.md").write_text(
+        f"Use {OLD_FRONTEND_DASHBOARD}.\n",
+        encoding="utf-8",
+    )
+
+    exit_code = check_docs_lifecycle.main(["--repo-root", str(tmp_path)])
+
+    output = capsys.readouterr().out
+    payload = output.split("Docs lifecycle reference-scan receipt:\n", 1)[1].split(
+        "\nDocs lifecycle gate UNRUN:", 1
+    )[0]
+    receipt = json.loads(payload)
+    assert exit_code == 2
+    assert receipt["receipt_coverage"] == "partial"
+    assert receipt["reference_scan_status"] == "partial"
+    assert receipt["selected_reference_scan_complete"] is False
+    boundaries = receipt["unresolved_by_construction"]
+    assert isinstance(boundaries, list)
+    assert any(
+        "archive-map" in boundary.lower() and "p32" in boundary.lower() for boundary in boundaries
+    )
+    assert "Docs lifecycle gate passed." not in output
+    assert "Reference-scan findings:" in output
+    assert "[removed_stub_reference] docs/live.md" in output
+    assert "[reference_scan_unresolved] docs/history.gz" in output
+    assert "[reference_scan_unresolved] production_data/ignored.md" in output
 
 
 def test_phase6_2_reference_scan_skips_runtime_data_roots(tmp_path: Path) -> None:
@@ -508,7 +588,9 @@ def _write_docs_freshness_fixture(
     docs.mkdir(parents=True, exist_ok=True)
     (docs / "index.md").write_text(page, encoding="utf-8")
     (repo_root / "mkdocs.yml").write_text(
-        "site_url: https://docs.example.test/\nnav:\n  - Home: index.md\n",
+        "site_name: Docs freshness fixture\n"
+        "site_url: https://docs.example.test/\n"
+        "nav:\n  - Home: index.md\n",
         encoding="utf-8",
     )
     exceptions = repo_root / "architecture" / "exceptions"
@@ -564,6 +646,56 @@ def test_phase6_4_adr_index_covers_every_adr_by_status_and_topic() -> None:
     assert indexed_paths == expected_paths
     assert all(row["status"] for row in rows)
     assert all(row["topic"] for row in rows)
+
+
+def test_adr_lifecycle_reuses_generator_source_inventory_binding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    adr_root = tmp_path / "docs" / "adr"
+    adr_root.mkdir(parents=True)
+    document = adr_root / "0001-sample.md"
+    document.write_text("# ADR-0001: Sample\n\n## Status\n\nProposed\n", encoding="utf-8")
+    (adr_root / "README.md").write_text("# ADR routing\n", encoding="utf-8")
+    index_toml = adr_root / "index.toml"
+    index_toml.write_text(
+        "\n".join(
+            (
+                "[adr_index]",
+                "schema_version = 1",
+                'generated_on = "source-controlled"',
+                'source = "docs/adr"',
+                "",
+                "[[adr]]",
+                'id = "0001"',
+                'title = "Sample"',
+                'status = "proposed"',
+                'topic = "schemas"',
+                'package = "repository"',
+                'path = "docs/adr/0001-sample.md"',
+                "supersedes = []",
+                "superseded_by = []",
+                "related = []",
+                "",
+            )
+        ),
+        encoding="utf-8",
+    )
+    generator = check_docs_lifecycle.generate_adr_index
+    monkeypatch.setattr(generator, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(generator, "ADR_DIR", adr_root)
+    monkeypatch.setattr(generator, "DEFAULT_TOML", index_toml)
+    monkeypatch.setattr(generator, "DEFAULT_INDEX", adr_root / "index.md")
+    monkeypatch.setattr(generator, "DEFAULT_BY_TOPIC", adr_root / "by-topic.md")
+    monkeypatch.setattr(
+        generator,
+        "DEFAULT_STALE_REPORT",
+        tmp_path / "docs" / "archive" / "reports" / "ADR_STALE_LINK_REPORT.md",
+    )
+
+    assert generator.main([]) == 0
+    capsys.readouterr()
+    assert check_docs_lifecycle.check_adr_index(tmp_path) == []
+    assert document.exists()
 
 
 def test_wave26_second_governance_adr_pack_is_lifecycle_checked() -> None:

@@ -1,8 +1,10 @@
 # Demo Tests
 
 `tests/e2e/demos` is the small maintained smoke slice for demo-oriented execution
-paths. Right now it contains `1` `test_*.py` file focused on the WS9 frontier
-demo path.
+paths. The README snapshot dated `2026-04-17` records `1`
+`test_*.py` file focused on the WS9 frontier demo path. This dated count is not a
+current denominator; re-enumerate `tests/e2e/demos/` before relying on it as a
+current inventory.
 
 ## Purpose
 

@@ -15,7 +15,16 @@ still underway at that snapshot. Read the
 scope and later revalidation needs. Source inspection and cited test coverage
 are distinct from freshly executed tests or deployment evidence.
 
+The system is not yet functional end to end. Component maps describe the
+inspected producer and consumer paths and their missing bridges. Tutorials are
+explicit blueprints or bounded smoke examples; they do not demonstrate a
+completed policy-analysis, justification or publication chain.
+
 ## System Context
+
+This diagram maps responsibilities and dependency directions. Follow the
+source maps below for concrete paths and missing bridges; the arrows do not
+establish a completed runtime chain.
 
 ```mermaid
 flowchart TB
@@ -56,7 +65,7 @@ flowchart TB
   producer/artifact/consumer path and its limits.
 - [Contributor start here](reference/contributor-start-here.md) routes code,
   contract, documentation and operational changes to their owners.
-- [Tutorials](tutorials/index.md) for the first working flows.
+- [Tutorials](tutorials/index.md) for bounded smoke examples and draft workflows.
 - [How-to guides](how-to/index.md) for operational tasks.
 - [Reference](reference/index.md) for API, schema, and subsystem contracts.
 - [Explanation](explanation/index.md) for architecture, security, governance,

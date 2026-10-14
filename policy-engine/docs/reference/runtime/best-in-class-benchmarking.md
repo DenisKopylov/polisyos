@@ -1,9 +1,14 @@
 # Best-In-Class Benchmarking Record
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/quality/policy_benchmarking.py`, `src/polisyos/runtime/quality/policy_design_case.py`, and `tests/unit/runtime/quality/test_policy_benchmarking.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests were not run.
+
 `policyos.runtime.policy_design_case.best_in_class_benchmarking.v1` is the Wave 31
 Policy Design Case record that makes "best in class" claims falsifiable.
 
-The record is runtime quality authority, not dashboard copy. A passing record
+The record is a runtime quality evidence contract, not dashboard copy. A passing record
 must bind the relevant claim ids to benchmark evidence for:
 
 - external audit pass rate;
@@ -32,3 +37,7 @@ Negative control:
 
 - best-in-class final major claims without a validated benchmarking record fail
   with `policy_design_best_in_class_benchmarking_record_missing`.
+
+The record and scorecard gate do not independently establish the truth of
+benchmark inputs or authorize publication. Evidence provenance and any
+publication decision remain with their respective owners.

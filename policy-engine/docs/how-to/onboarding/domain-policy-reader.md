@@ -31,8 +31,9 @@ uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --sk
 uv run polisyos --version
 ```
 
-Этот путь не устанавливает Node workspace и пропускает workstation `doctor`; полный baseline
-и профиль `runtime` описаны в [Installation](../install.md).
+Этот путь не устанавливает Node workspace и пропускает workstation `doctor`, но bootstrap всё
+ещё устанавливает pre-commit hook, если не добавить `--skip-hooks`; профиль выбирает только
+Python extras. Полный baseline описан в [Installation](../install.md).
 
 Если нужен живой runtime/control-plane read path:
 
@@ -52,7 +53,9 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 ## First Productive Slice
 
-Возьмите один completed run и ответьте:
+Если доступен completed run, разберите его и ответьте. Tutorial examples сами по себе не являются
+completed runs; если реального run нет, отметьте отсутствующие artifacts и остановитесь на
+reference-level чтении:
 
 - какой policy question моделировался;
 - какое evidence/data snapshot вошло в run;

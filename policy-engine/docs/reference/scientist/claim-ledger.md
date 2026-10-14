@@ -11,9 +11,11 @@ Evidence level: implementation and test sources inspected at this pin; tests not
 `decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
 producer; `build_decision_packet.py` remains a compatibility facade.
 
-The Claim Ledger is the Wave 2 object that links research, governance,
-provenance, human review, UI export and audit at claim level. It extends the
-Phase 1.1 `ClaimLedger` sidecar; it does not replace `ClaimRecord`,
+The Claim Ledger v2 contract defines claim-level lifecycle and projection
+surfaces for research, governance, provenance, human review, export and audit.
+These integrations are additive and selected; they do not establish a universal
+end-to-end chain or an appointed current-head authority. It extends the Phase
+1.1 `ClaimLedger` sidecar; it does not replace `ClaimRecord`,
 `ClaimLedger`, `claims_ref` or the public `DecisionReadinessContract` ladder.
 
 ## Runtime Contracts

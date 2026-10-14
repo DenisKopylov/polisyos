@@ -4,7 +4,9 @@ Related reference: [Runs API](../reference/api/runs.md). Related how-to: [Use Co
 
 > Эта страница для инженеров и операторов, которым нужно быстро локализовать failure: понять, это проблема orchestration, данных, governance или control-plane инфраструктуры.
 
-Freshness: 2026-04-17.
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/routes/control.py`, and the linked Runtime API references.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; route-source inspection only. No runtime request was made in this update.
 
 ## Вход
 

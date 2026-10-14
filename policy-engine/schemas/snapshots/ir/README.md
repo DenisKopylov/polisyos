@@ -5,13 +5,16 @@
 ## Роль в системе
 
 - Фиксирует публичный ABI между `src/polisyos/ir/**` и потребителями (runtime, пайплайны, аналитика, governance).
-- Проверяется в `.github/workflows/abi.yml` и `.github/workflows/arch.yml`.
+- Проверяется в tracked [`abi.yml`](../../../../.github/workflows/abi.yml).
+- Похожий [`arch.yml`](../../../ops/ci/templates/workflows/arch.yml) находится
+  в каталоге workflow-шаблонов `ops`; файл `.github/workflows/arch.yml` в
+  snapshot отсутствует, поэтому эту ссылку не следует считать root CI trigger.
 
 ## Источники
 
-- Реестр: `src/polisyos/schemas/abi_models.py` (entries с `module="ir"`).
-- Генератор: `tools/quality/diagnostics/gen_schema.py`.
-- Проверка совместимости: `tools/quality/diagnostics/abi_diff.py`.
+- Реестр: [`abi_models.py`](../../../src/polisyos/schemas/abi_models.py) (entries с `module="ir"`).
+- Генератор: [`gen_schema.py`](../../../tools/quality/diagnostics/gen_schema.py).
+- Проверка совместимости: [`abi_diff.py`](../../../tools/quality/diagnostics/abi_diff.py).
 
 ## Что хранится
 
@@ -20,7 +23,11 @@
   - `schema_file`, `schema_version`, `priority`, `compat_mode`, `version_field`;
   - `sha256_full` и `sha256_semantic` для drift/compatibility проверки.
 
-## Актуальное состояние (2026-03-03)
+## Историческая сводка README (2026-03-03)
+
+Числа и значения ниже сохранены из сводки README на указанную дату и не
+описывают текущий manifest. Для состава и метаданных проверяемого snapshot
+используйте канонический [`_manifest.json`](_manifest.json).
 
 - Моделей: `48`.
 - `generated_at`: `2026-03-03T16:49:25+00:00`.

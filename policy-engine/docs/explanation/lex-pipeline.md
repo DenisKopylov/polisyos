@@ -24,6 +24,8 @@ flowchart LR
     Pack --> Assessment["Lex evaluates candidate norms against claim requirements"]
     Assessment --> Consumer["Runtime claim registry and semantic binding"]
     Assessment --> GL["GL typed legal report and S6 handoff"]
+    Bytes -. "issuer/source binding required; not established here" .-> Verification["External evidence verification/admission integration gap"]
+    Verification -. "not a wired input to this adapter" .-> Assessment
 ```
 
 The stages have distinct authority:
@@ -38,6 +40,8 @@ The stages have distinct authority:
 | GL mandate handoff | A `Layer3GLMandateAuthorityRecord` that carries Lex record and source refs | A compatibility handoff that requires S6 evaluation. Its `compatibility_only` disposition and empty `s6_evaluation_ref` are explicit; it is not an evaluated legal mandate or a legitimacy verdict. |
 
 The legal authority adapter accepts candidate norm mappings and requirement specs. It checks that `norm_version_ref` and `source_provenance_ref` are present, but a nonempty reference is not resolved there to source bytes, an independent verifier, or issuer credentials. It explicitly returns LLM-labeled candidates as `context_only`; labels and field shape supplied by a caller do not independently establish provenance. A Lex grade such as `admissible` therefore means the record passed this implementation's claim-scoped checks over the inputs it received. It must not be described as verified by the external legal institution.
+
+In the corpus-backed NormPack path, the default extractor is `lex.norm_extractor.regex_v1`; callers can also supply claim-set artifacts directly. Both paths yield inputs to a derived snapshot, not verified legal conclusions. On the local metadata path, malformed nonempty `effective_to` values currently become an absent upper bound during version selection and claim applicability. The cited source and tests do not establish that such an open window is legally correct, and the named tests omit this malformed-end case. The amendment-window receipt is a separate half-open path that keeps invalid nonempty windows unresolved.
 
 The amendment-window receipt is stronger and narrower than a report assembled from field presence: `LexEpochBoundaryOwnerAdapter` reloads the complete local snapshot, checks its content address, recomputes the receipt denominator, and reconciles each assessment against those owner bytes before persisting the receipt. This is consumer-side reconciliation against the DTO's assertions, not an independent witness of the Lex data owner's completeness or the institution's source set. Missing owner tables, invalid temporal windows, unresolved scope, or unresolved cutoffs remain typed failures. The receipt's `independently_reconciled` class is bounded to that local owner snapshot.
 

@@ -13,9 +13,9 @@ front matter and closeout evidence before relying on its status.
 
 | Area | Start here | Routing note |
 | --- | --- | --- |
-| PolicyOS E02 | [Combined package start](agent-packages/PolicyOS_E02_Combined_Agent_Package/README_START_HERE.md) | E02 remains active. Use its [execution guide](agent-packages/PolicyOS_E02_Combined_Agent_Package/EXECUTION_GUIDE.md) and current task receipts; this index does not declare E02 complete. |
+| PolicyOS E02 | [Combined package start](agent-packages/PolicyOS_E02_Combined_Agent_Package/README_START_HERE.md) | E02 remains active. This docs refresh does not establish system-wide functional E2E. Use its [execution guide](agent-packages/PolicyOS_E02_Combined_Agent_Package/EXECUTION_GUIDE.md) and current task receipts; this index does not declare E02 complete. |
 | PolicyOS E02R2 | [Crosswalk](agent-packages/PolicyOS_E02R2/CROSSWALK.md) | Current residual and source-binding route for R2. Preserve its pinned source receipts. |
-| Data Forge | [Consolidation plan](DATA_FORGE_CONSOLIDATION_PLAN.md) | The Phase 0 cutover record is a bounded completed item; the consolidation plan retains active shim-sunset work. |
+| Data Forge | [Consolidation plan](DATA_FORGE_CONSOLIDATION_PLAN.md) | The Phase 0 cutover record is a bounded completed item. The master plan remains `active`, although its phase table reports the Phase 8 shim sunset complete; use it as the owner record and do not infer parent-program closure from either fact alone. |
 | Layer 3 grounding | [Implementation plan](POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md) | Route G2–GX slices through the master plan and their current readiness artifacts. |
 | Atlas surface | [Surface implementation master plan](POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md) | Current owner program for the Atlas slices. |
 | Evidence capability graph | [Capability graph plan](POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md) | Read its current status and source bindings before treating a phase label as closure. |

@@ -5,13 +5,19 @@ Related reference: [Operations](../operations/index.md).
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
 Source of truth: `src/polisyos/scientist/validation/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/repo_quality/tools/test_scientist_reliability_gate.py`
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: scorecard contract and gate/test source paths inspected at this pin; no gate or test was executed for this docs update.
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
 > Source of truth: `src/polisyos/scientist/validation/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/repo_quality/tools/test_scientist_reliability_gate.py`.
 
-The Scientist reliability scorecard is the repo-tracked gate for runtime
-readiness. The canonical helper is
+The Scientist reliability scorecard is a repo-tracked gate for its defined
+scenario, benchmark and operational-signal evidence set. Its pass is not a
+system-wide end-to-end readiness result and does not close the producer,
+artifact, bridge, consumer, surface and semantic-test gaps recorded in
+[Current Scientist Workflows and Evidence Handoffs](current-workflows.md). The
+canonical helper is
 `build_scientist_reliability_scorecard(...)`, and the canonical evidence-based
 builder is `build_scientist_reliability_scorecard_from_evidence(...)`.
 

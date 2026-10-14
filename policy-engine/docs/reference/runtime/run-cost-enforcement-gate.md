@@ -6,11 +6,9 @@ W10.D adds authority-level enforcement on top of W2.C cost/degradation
 telemetry. The runtime artifact is `quality_evidence/run_cost_gate.json` with
 schema version `policyos.runtime.policy_design_case.run_cost_gate.v1`.
 
-Source of truth:
-
-- `src/polisyos/runtime/quality/cost_gate.py`
-- `src/polisyos/runtime/quality/performance_budget.py`
-- `tests/unit/runtime/quality/test_cost_gate.py`
+Source of truth: `src/polisyos/runtime/quality/cost_gate.py`, `src/polisyos/runtime/quality/performance_budget.py`, and `tests/unit/runtime/quality/test_cost_gate.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and gate-producing runtime path were not run.
 
 ## Semantics
 
@@ -35,3 +33,7 @@ block closeout, while research limitations surface as closeout limitations.
 project a governed `wall_clock_seconds` policy from canary performance budget
 evidence without double-counting nested queue/execution phases when
 `control.job_total` is present.
+
+The gate evaluates its supplied local cost evidence and governed policy refs; it
+does not establish an external provider invoice or decide whether a policy
+claim is causally supported or publishable.

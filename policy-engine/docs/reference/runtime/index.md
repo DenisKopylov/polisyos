@@ -89,6 +89,18 @@ deployment identity provider, OPA service, external producer, or database
 concurrency scenario is exercised by this reference. Endpoint schemas and
 contract snapshots are maintained separately; schema-hidden live run streams
 and route behavior should be checked against the route owners.
+
+Source presence and route availability are not proof of an end-to-end causal
+policy capability or a publishable recommendation. Such a claim needs the
+producer, typed artifact/event, orchestration bridge, consumer, verification,
+audit/public surface, and semantic test to be demonstrated together. Keep
+candidate output candidate-only; an unknown candidate scope may remain only as
+a typed limitation where that path permits it. Protected actions, custody
+facts, and published claims fail closed rather than silently replacing unknown
+scope with a concrete value.
+
+Validation status: Source and test-reference inspection only for this
+documentation update; no runtime, provider, or end-to-end scenario was run.
 E02 remains unfinished at this source pin.
 
 - Last updated: 2026-10-14

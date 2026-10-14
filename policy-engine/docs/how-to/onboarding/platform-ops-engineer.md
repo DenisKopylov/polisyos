@@ -59,10 +59,11 @@ docker compose -f ops/docker/observability.compose.yml up
 
 ## First Productive Slice
 
-Сделайте один реальный drill:
+Проведите небольшой operator rehearsal по документированным шагам и фиксируйте границы между
+ними. Сам по себе такой drill не подтверждает интегрированный E2E policy flow:
 
 1. поднимите observability stack;
-2. проверьте одну optional surface через `doctor --surface ...`;
+2. проверьте наличие env values для одной optional surface через `doctor --surface ...`;
 3. пройдите один recovery path из `Replay or Restore Workflow`;
 4. зафиксируйте missing owner, missing signal или missing doc step.
 

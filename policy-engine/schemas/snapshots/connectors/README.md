@@ -6,7 +6,7 @@
 
 - Фиксирует публичные контракты, на которые опираются source connectors.
 - Проверяет эволюцию схем через `SchemaEvolution` (major/minor/patch рекомендации).
-- Валидируется в CI (`polisyos-tools connectors check-contracts --check`, workflow `.github/workflows/arch.yml`).
+- Валидируется в CI (`polisyos-tools connectors check-contracts --check`, workflow `.github/workflows/abi.yml`).
 
 ## Формат `contracts.json`
 
@@ -16,7 +16,10 @@
   - `connector_id`, `dataset_id`, `schema_version`, `content_hash`;
   - `contract`: нормализованный `ConnectorSchemaContract` без runtime timestamp (`created_at`).
 
-## Актуальное состояние (2026-05-08)
+## Актуальное состояние (2026-10-14)
+
+Проверено статически по snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`:
+прочитаны `contracts.json` и `.github/workflows/abi.yml`; генератор и CI не запускались.
 
 - Контрактов: `5`.
 - Ключи:

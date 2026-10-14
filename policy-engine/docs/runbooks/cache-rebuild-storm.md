@@ -8,11 +8,9 @@ Related reference: [Observability Topology](../reference/operations/observabilit
 > sustained CPU, I/O, or latency spikes.
 
 Owner: `@runtime-owners`
-Last tested: `2026-04-17` against current cache, streaming, and lineage regression coverage.
+Historical validation receipt (as recorded by this page): `2026-04-17` — cache, streaming, and lineage regression coverage available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/operations/observability-topology.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/fabric/data_plane/test_streaming_runtime.py`
 Rollback path: reduce rebuild pressure or roll back the invalidation change, preserve one failing cache snapshot, and only then clear or rebuild state.
-
-Freshness: 2026-04-17.
 
 ## Symptom
 

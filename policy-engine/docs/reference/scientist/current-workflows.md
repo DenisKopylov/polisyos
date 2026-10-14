@@ -11,7 +11,7 @@ this docs-only update. The direct-reference policy-grounding source census was `
 documentation author with the command below: 628 Python files under
 `policy-engine/src/polisyos/scientist`.
 
-This page records the observed runtime paths and their current boundaries. It complements [the Scientist index](index.md), [the workflow engine reference](workflows.md), and [the claim spine reference](claims.md), plus [Claim Ledger lifecycle](claim-ledger.md) and [Research DAG replay](research-dag-replay.md). The workflow reference remains the deeper DAG catalog; this page focuses on state transitions, evidence handshakes, and integration status.
+This page records the observed runtime paths and their current boundaries. The inspected implementation is not a demonstrated end-to-end policy-proof system: the request-to-Trinity producer is missing, the builtin workflow does not consume the grounding matrix, and default Claim-owner currentness is not established. A typed component or focused test does not establish a complete producer/artifact/bridge/consumer/surface chain. It complements [the Scientist index](index.md), [the workflow engine reference](workflows.md), and [the claim spine reference](claims.md), plus [Claim Ledger lifecycle](claim-ledger.md) and [Research DAG replay](research-dag-replay.md). The workflow reference remains the deeper DAG catalog; this page focuses on state transitions, evidence handshakes, and integration status.
 
 ## Run routing and state machines
 
@@ -45,7 +45,7 @@ downstream evidence requirements.
 | `scientist_default` | Baseline data/Foundry/simulation path, then legal, causal, distributional, welfare, uncertainty, governance, and decision-packet work. |
 | `scientist_discovery` | Discovery blueprint runtime without the Foundry/governance execution path. |
 | `scientist_causal_full` | Adds literature/graph reconciliation, causal readiness and transportability work before downstream governance. |
-| `scientist_policy_verified` | Builds a policy request and legal/source packs, verifies and repairs source gaps, drafts options, then expects a real Trinity input before compile/simulation and report/packet work. |
+| `scientist_policy_verified` | Builds a policy request and legal/source packs, verifies and repairs source gaps, drafts options, then reaches a formalizer that checks for a caller-supplied Trinity-reference key before compile/simulation and report/packet work. The guard does not resolve or validate the referenced artifact. |
 | `scientist_policy_design` | Adds the same request/source chain, hierarchical search, causal readiness and counterfactual gate, then simulation, translation, policy-output packaging, and a decision packet. |
 
 These are separate from the iterative plan lifecycle.
@@ -54,7 +54,7 @@ preflight_running → ready_to_run → executing → evaluating`, with explicit 
 and terminal `approved`, `stopped_budget`, `stopped_no_delta`, and `stopped_guardrail` outcomes. A workflow
 report status is not an iteration-state verdict.
 
-All five builtin workflow specs set `error_policy="continue"`. At node level, a failed prerequisite causes
+Every builtin workflow spec sets `error_policy="continue"`. At node level, a failed prerequisite causes
 dependent nodes to be skipped with an upstream-failure blocker; independent branches can continue. The
 workflow report is `fail` if any node failed and otherwise `ok`; skipped nodes alone do not make it fail.
 `run_experiment()` returns the final state and its workflow-report ref when node execution completes, so a

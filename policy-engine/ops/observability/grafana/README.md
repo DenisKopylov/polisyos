@@ -9,13 +9,15 @@
 - `dashboards/foundry-hpc.json` (`uid=polisyos-foundry`)
 - `dashboards/slo-overview.json` (`uid=polisyos-slo-overview`)
 - `dashboards/knowledge-freshness.json` (`uid=polisyos-knowledge-freshness`)
+- `dashboards/runtime-operability.json` (`uid=polisyos-runtime-operability`)
 - `dashboards/security-phase4.json` (`uid=polisyos-security-phase4`)
+- `dashboards/scientist-llm-cost.json` (`uid=polisyos-scientist-llm-cost`)
 - `provisioning/dashboards.yml` (file-provider в folder `PolicyOS`)
 
 ## Роль в системе
 
 - визуализирует метрики из `ops/observability/prometheus`;
-- поддерживает отдельные представления для exec/scientist/foundry/security/SLO контуров.
+- поддерживает отдельные представления для exec/scientist/scientist-LLM-cost/foundry/runtime-operability/security/SLO контуров.
 
 ## Provisioning
 

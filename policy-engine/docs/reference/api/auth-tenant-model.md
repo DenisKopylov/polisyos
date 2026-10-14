@@ -26,10 +26,10 @@ the request chain in this exact order:
 `_assert_runtime_security_middleware_order()` treats any reordering as a boot
 error.
 
-The `_PUBLIC_PATHS` assignments were enumerated from both middleware Python
-source files, `src/polisyos/runtime/http/jwt_auth_middleware.py` and
-`src/polisyos/runtime/http/fail_closed_middleware.py`; the two sets match. These
-paths bypass those middleware checks:
+I compared the complete `_PUBLIC_PATHS` assignments in JWT authentication,
+fail-closed access-scope, and authorization middleware; their members match.
+The cell router has its own path short-circuit, which includes the verification
+route but does not include `/auth/callback`. The matching path set is:
 
 - `/health`
 - `/ready`
@@ -37,10 +37,15 @@ paths bypass those middleware checks:
 - `/auth/callback`
 - `/api/v1/public-decisions/verification`
 
-The last path serves the public `GET` verification route. This bypass skips JWT
-identity and fail-closed access-scope middleware checks for that path; it does
-not turn a verification report or its signature into policy-decision or
-publication authority. See [the request lifecycle](../runtime/current-request-lifecycle.md)
+The last path serves the public `GET` verification route. JWT and fail-closed
+middleware bypass matching paths; the authorization middleware bypasses only
+methods outside its explicit unsafe set (`POST`, `PUT`, `PATCH`, `DELETE`) on
+those paths. The cell router short-circuits its own tenant
+routing for `/health`, `/ready`, `/metrics`, and the verification route.
+`DevelopmentFixtureIdentityMiddleware` has a separate path set and does
+not include the verification route. These path exceptions do not turn a
+verification report or its signature into policy-decision or publication
+authority. See [the request lifecycle](../runtime/current-request-lifecycle.md)
 for the separate verification and custody dimensions.
 
 ## Authentication Modes

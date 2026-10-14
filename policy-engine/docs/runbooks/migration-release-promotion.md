@@ -7,7 +7,7 @@ Related contracts: `ops/migrations/migration-contracts.toml`,
 `ops/release/promotion-gates.toml`.
 
 Owner: `@platform-owners`
-Last tested: `2026-05-06` against Phase 5.6 migration and release topology contracts.
+Historical validation receipt (as recorded by this page): `2026-05-06` — Phase 5.6 migration and release-topology contracts; this is not a fresh rollout validation.
 Evidence path: release candidate evidence bundle plus the owning migration class README under `ops/migrations/`.
 Rollback path: hold promotion, keep the previous artifact/config pair active, and use the affected surface runbook for recovery.
 

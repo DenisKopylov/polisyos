@@ -6,11 +6,28 @@ Source of truth: exact finding-to-criterion bindings, owner handoffs, deciding r
 integration checkpoints cited below. This page is a dated reading map, not an acceptance record.
 
 **Reviewed against:** documentation and receipts at
-`bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on `codex/docs-refresh-e02-20261014` (2026-10-14).
+`c35222b3dcf103338175cf300c5fe9487e6416f3` on `codex/docs-refresh-e02-20261014` (2026-10-14).
 The latest author candidate named by the E02 handoff is a different source:
 `4e37301ee205bfc3a913993a5da81bbf292be3ef`, tree
 `bc56dde4f4ac5611d65266bbc9cb09bc80bc5348`, based on
 `28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3`.
+
+The repository evidence-navigation census walked every regular file, of every suffix and
+extensionless type, under `docs/research/`, `docs/superpowers/`, and both E02 agent-package
+directories at the reviewed tree: 13,996 paths and 471,200,979 bytes. All paths were tracked; the
+walk found no ignored or untracked paths in those roots. The scoped counts are: research 11,409
+paths / 270,873,940 bytes; the E02 plan subtree 11,010 / 256,887,714; superpowers 2,348 /
+181,581,585; the combined E02 package 185 / 11,516,567; and the distinct E02-R2 package 54 /
+7,228,887. These are inventory counts, not evidence-status counts. The ignored local receipt
+`policy-engine/_build/docs-maintenance/raw/research-e02-audit.json` contains the per-path hashes,
+complete file-type histogram, lexical-scan counts, and read limits; it is not published and contains
+no source bytes.
+
+The read boundary matters: all 13,996 files were streamed and SHA-256 hashed; 13,052 UTF-8 files
+were fully decoded, 936 binary/container files and 8 non-UTF-8 files were hashed only. Decoding and
+the recorded full-text lexical scan do not amount to line-by-line semantic review of every archived
+record. The owner records below were read as source-qualified evidence. No test or functional E2E
+was run for this documentation snapshot.
 
 As of this snapshot, E02 has a pinned Source41 author candidate and bounded owner results, but the
 shared source/input/backend freeze is explicitly false, the handoff records no new formal closure
@@ -80,8 +97,10 @@ Counts below describe the exact selected test runs named by each receipt.
   production calibration or persisted-calibration producer proof.
 - Foundry access-scope (`policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-access-scope-foundry-native-result-r1533-20261014.json@sha256:e5de590f3c8e79ef341bbdca58c61ec9cc6daf2e8edff7fea0a85ea36760e07f`): 75/79 selected
   cases passed; four failed. Three new basis-reference negatives failed on a raw absent-field
-  `KeyError` before the intended receiver, so they do not prove the negative property. The receipt
-  is limited to its selected tier and adds no finding closure IDs.
+  `KeyError` before the intended receiver, so they do not prove the negative property. One actual
+  benchmark-to-Search positive also failed on an empty `tenant_hash` scope supplied by the benchmark
+  producer; the receipt does not classify it as inherited. It is limited to its selected tier and
+  adds no finding closure IDs.
 - C12/V3 actual-boundary record (`policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-c12-v3-actual-boundary-results-r1558-20261014.json@sha256:f231f1ffe2da52c4216da104b93bdcf18bf7cba5d0789520d338fe37b078f784`): it preserves
   per-command dirty-source records and marks a shared freeze **not established**. The C12 facade
   test-double refusal repair still needed a rerun; the V3 served attempt stalled before acquisition
@@ -106,6 +125,11 @@ Counts below describe the exact selected test runs named by each receipt.
 The reviewed-companion and media-aware CAN receipts are distinct runs, not additive coverage. The
 candidate handoff is the owner’s synthesis; neither a bounded pass nor the clean candidate readback
 changes its empty formal-closure set.
+
+At the reviewed tree, the full set of eight direct `.json` files matching `source41-*.json` under
+`policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/` consists of one
+candidate handoff and seven result/diagnostic receipts. A full parse found `closure_ids: []` in all
+eight. This source-file result does not create G acceptance or a finding-status transition.
 
 ## Current unresolved source mechanisms
 
@@ -155,8 +179,8 @@ leaves that freeze unset and lists these verification items:
   the remaining S1/refinement/law criteria.
 - Run the required native SOTA rows/children and Linux LA-029 plus the exact installed/rebuilt wheel
   consumers.
-- Reconcile authentic read-only production pairing/currentness and issue a successor
-  full-occurrence report bound to the same freeze.
+- Reconcile authentic read-only production pairing/currentness and issue a successor report for
+  the 282 finding IDs / 291 occurrences, bound to the same freeze.
 
 These are owner-listed remaining checks, not commands run by this documentation snapshot. Before a
 closure or inherited-red statement, bind each result to the exact candidate SHA/tree,
@@ -164,27 +188,48 @@ source/config/fixture/test inputs, command, and environment. Preserve complete d
 keep UNRUN/SKIP separate from PASS. For P41, replay the exact command at the slice base before the
 author’s changes and prove disjointness against the complete input denominator.
 
-## Active corpus and archival exclusions
+## Repository corpus, evidence roles, and archival exclusions
 
-Relevant tracked E02 records for this map include the transferred source reports and indexes,
-criterion/owner maps, integration checkpoints/reviews, and committed owner handoff/result summaries.
-This is a navigation description, not a new corpus census.
-The initial publication record (`policy-engine/docs/research/e02-cloud-test-plan/PUBLICATION.md@sha256:aa4113e8b783d4e30a819d688506c79c930dc1060f8e41294a0dbeb67822ada8`) is the source for the
-original inclusion and exclusion decisions, not a fresh inventory of every later handoff. It
-records that earlier research commits stayed on a local source branch and were not imported. It
-also excludes superseded `jobs.json`/`jobs-current.json`, pilot files and Fxx prompt copies, old
-planner and verification exports, temporary audit dumps, duplicate reports, VM raw archives, full
-production data, and large source-audit intermediates.
+Keep three roles separate. Assignments, criteria/cards, prompts, bundle and owner maps, and the
+publication rules are documentation inputs. Transferred reports, owner handoffs, per-command
+receipts, and G checkpoints are documentary evidence for their own pinned sources, commands,
+inputs, and limitations. The Source41 handoff is the latest owner-authored candidate proposal in
+this snapshot; it does not certify its bounded checks or transfer authority to the separate G
+checkpoint. The `PolicyOS_E02R2` package is a separate assignment and source cut; its handoff records
+`stopped_at_principal_request; assignment_definition_of_done_not_met`. Its ledger does not update
+Source41.
+
+The complete repository census included 11,010 E02 research-subtree files across all file types,
+including 9,810 implementation-handoff paths, 1,034 integration paths, 27 results paths, 18
+closure-decision paths, and the documentation inputs and indexes. The complete
+`docs/superpowers/` census included
+2,251 journal paths, 39 plan Markdown files, 47 specification Markdown files, 6 research paths, and
+4 timing-evidence paths. The large historical record is part of the repository inventory; its
+presence does not make each file active or authoritative. An exact-SHA scan found repeated bytes,
+including 1,422 empty files. Exact duplication identifies review candidates but does not establish
+obsolete knowledge, and this lane removed or relocated nothing.
+
+The initial publication record
+(`policy-engine/docs/research/e02-cloud-test-plan/PUBLICATION.md@sha256:aa4113e8b783d4e30a819d688506c79c930dc1060f8e41294a0dbeb67822ada8`)
+is the source for its original inclusion and exclusion decisions, not a fresh inventory of every
+later handoff. It records that earlier research commits stayed on a local source branch and were
+not imported. It also excludes superseded `jobs.json`/`jobs-current.json`, pilot files and Fxx prompt
+copies, old planner and verification exports, temporary audit dumps, duplicate reports, VM raw
+archives, full production data, and large source-audit intermediates. Those are historical
+publication boundaries; this census does not establish whether corresponding bytes still exist on
+the author's host.
 
 The Source41 raw source readback and full-occurrence JSON cited by the handoff are separately marked
 local-on-G and are not tracked here. Their hashes are locators, not bytes available for independent
-recensus in this checkout.
+recensus here. Later integration decisions require a new exact source freeze and recensus; this
+inventory does not recover the missing raw outputs or reissue their bindings.
 
-Pattern pass: `P35` requires complete source denominators; `P37`/`P38` keep gate predicates and
-measured properties distinct; `P41` requires the slice base and full disjointness proof for inherited
-red. The correct closeout pattern is a source-frozen owner slice with a consumed producer-to-consumer
-witness and exact deciding output. Capability labels remain criterion-specific; this snapshot does
-not assign a single completion state to the E02 corpus.
+Pattern pass: `P35` requires complete source denominators; `P36` keeps claims bound to the finding or
+owner record that establishes them; `P37`/`P38` keep gate predicates and measured properties
+distinct; `P41` requires the slice base and full disjointness proof for inherited red. The correct
+closeout pattern is a source-frozen owner slice with a consumed producer-to-consumer witness and
+exact deciding output. Capability labels remain criterion-specific; this snapshot does not assign
+a single completion state to the E02 corpus.
 
 ## Reading and binding path
 

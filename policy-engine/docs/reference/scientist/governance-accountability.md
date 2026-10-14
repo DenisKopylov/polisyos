@@ -3,8 +3,9 @@
 Related reference: [Calibration Governance](calibration-governance.md), [Governance Passes](governance-passes.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/governance/{accountability.py,calibration_validation.py}`, `src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py`, and `tests/unit/scientist/governance/{test_accountability.py,test_calibration_validation.py}`
-Evidence pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; source and test paths below were inspected, not run for this documentation update.
+Source of truth: `src/polisyos/scientist/governance/accountability.py`, `src/polisyos/scientist/governance/calibration_validation.py`, `src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py`, `tests/unit/scientist/governance/test_accountability.py`, and `tests/unit/scientist/governance/test_calibration_validation.py`
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: source and test paths below were inspected, not run for this documentation update.
 
 `polisyos.scientist.governance.accountability` builds a persisted C5b
 accountability artifact from governance verdicts, threshold evaluations, calibration,
@@ -83,16 +84,19 @@ The implementation adds triggers for:
 - an input governance verdict of `human_gate`;
 - a failed threshold whose severity is `human_gate`;
 - failed adversarial results;
-- `missing_group_labels` or `missing_probabilistic_outputs` if those gaps are already present when
-  the escalation policy is built.
+- `missing_group_labels` when that gap is present before the escalation policy is built. With both
+  `predicted_scores` and `observed_outcomes` present, `_build_fairness_summary` adds this gap before
+  escalation, so absent protected attributes do trigger review on that path;
+- neither `missing_group_labels` nor `missing_probabilistic_outputs` when they are first detected by
+  the builder's late input-completeness checks.
 
-There is an ordering gap in the last rule: `build_governance_accountability_artifact` constructs
-the escalation policy before it appends the final `missing_group_labels` and
-`missing_probabilistic_outputs` gaps. Consequently those two missing-only conditions do not reach
-the trigger checks through this path; the artifact can record the gap without setting
-`requires_human_review` from that gap alone. The current test source exercises a failed
-human-gate fairness threshold and checks the resulting review recommendation, but contains no
-missing-only counterexample (`semantic_test_missing`, `P09`, `P38`).
+`build_governance_accountability_artifact` constructs the escalation policy before its final
+input-completeness checks. As a result, `missing_probabilistic_outputs` is always appended too
+late to trigger review through this list. `missing_group_labels` reaches the trigger when scores
+and outcomes are both available, but is appended too late when either probability input is absent.
+The current test source exercises a failed human-gate fairness threshold and checks the resulting
+review recommendation, but contains no missing-only counterexample for these late-gap cases
+(`semantic_test_missing`, `P09`, `P38`).
 
 ## Missing Evidence Behavior
 
@@ -104,8 +108,9 @@ The builder does not invent calibration inputs. It records gaps such as:
 - `missing_counterfactual_fairness_report`
 
 Those gap fields make missing evidence visible in the artifact. They are not, by themselves, proof
-that a promotion consumer stopped or required review; the missing-only review composition above is
-not established.
+that a promotion consumer stopped or required review. The escalation behavior described above is
+local to gaps available before policy construction; consumer-side enforcement remains
+`not_established` by the inspected paths.
 
 ## Verdict Versus Consumer Enforcement
 

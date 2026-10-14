@@ -2,15 +2,22 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-10-11
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
+Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/runtime/http/routes/public_decisions.py`, `src/polisyos/runtime/http/services/public_decision_verification.py`, `src/polisyos/runtime/http/services/public_decision_verification_contracts.py`, `src/polisyos/scientist/governance/continuous/governed_public_record_contracts.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the listed tests and contract check were not run.
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_artifact_inspector_api.py tests/unit/runtime/http/test_artifact_inspector_service.py tests/unit/runtime/http/test_runtime_api_authz.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 The artifact surface provides manifest, content, schema, and lineage inspection over CAS-backed runtime artifacts.
+
+Inspection, rendering, and export describe or materialize selected stored
+content. They do not prove the producer's causal claims or grant external
+institutional approval to publish; each surface remains subject to its own
+purpose-specific authority and custody checks.
 
 Related L1 references:
 
@@ -44,7 +51,7 @@ Omitted profile selection is unqualified legacy access and makes no selected-pro
 bytes remain addressed by `artifact_id`, while the response metadata and cache identity retain the
 selected profile.
 
-For the eight single-artifact operations that use the shared manifest resolver (manifest, predictive
+For single-artifact operations that use the shared manifest resolver (manifest, predictive
 diagnostic, content, lineage, schema, render, export, and download), route-specific conflicts or
 refusals use `application/problem+json` and reference the strict `RuntimeApiProblem` schema. Verified CAS corruption is one such `409 artifact_integrity_failed` outcome. The `code` field identifies the reason when an operation has multiple 409 conditions. A missing artifact is
 `404 artifact_not_found`. An unavailable selected profile is `404 artifact_manifest_profile_not_found`
@@ -64,22 +71,22 @@ is required.
 
 ## Endpoint Summary
 
-| Method | Path                                       | Response body              | Notes                                                |
-| ------ | ------------------------------------------ | -------------------------- | ---------------------------------------------------- |
-| `POST` | `/api/v1/artifacts/batch`                  | `ArtifactBatchResponse`    | Bulk manifest lookup for dashboard/operator clients  |
-| `GET`  | `/api/v1/artifacts/{artifact_id}`          | `ArtifactManifestResponse` | Manifest metadata and references                     |
-| `GET`  | `/api/v1/artifacts/{artifact_id}/content`  | `ArtifactContentResponse`  | Content preview, text/JSON decode, or binary preview |
+| Method | Path                                                             | Response body                         | Notes                                                                            |
+| ------ | ---------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------- |
+| `POST` | `/api/v1/artifacts/batch`                                        | `ArtifactBatchResponse`               | Bulk manifest lookup for dashboard/operator clients                              |
+| `GET`  | `/api/v1/artifacts/{artifact_id}`                                | `ArtifactManifestResponse`            | Manifest metadata and references                                                 |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/content`                        | `ArtifactContentResponse`             | Content preview, text/JSON decode, or binary preview                             |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic` | `PredictiveCoverageDiagnosticPreview` | Limited reader-materialized coverage projection; server gate disabled by default |
-| `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`  | `ArtifactLineageResponse`  | Profile-qualified rooted lineage graph               |
-| `GET`  | `/api/v1/artifacts/{artifact_id}/schema`   | `ArtifactSchemaResponse`   | Schema metadata and schema ref                       |
-| `POST` | `/api/v1/artifacts/{packet_id}/render`     | `BureaucraticRenderResponse` | Rendered bureaucratic document                      |
-| `GET`  | `/api/v1/artifacts/{packet_id}/export`     | `BureaucraticExportResponse` | Rendered export representation                       |
-| `GET`  | `/api/v1/artifacts/{artifact_id}/download` | raw bytes                  | OpenAPI-described raw download                       |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`                        | `ArtifactLineageResponse`             | Profile-qualified rooted lineage graph                                           |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/schema`                         | `ArtifactSchemaResponse`              | Schema metadata and schema ref                                                   |
+| `POST` | `/api/v1/artifacts/{packet_id}/render`                           | `BureaucraticRenderResponse`          | Rendered bureaucratic document                                                   |
+| `GET`  | `/api/v1/artifacts/{packet_id}/export`                           | `BureaucraticExportResponse`          | Rendered export representation                                                   |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/download`                       | raw bytes                             | OpenAPI-described raw download                                                   |
 
 Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`, `409`,
 `422`, `500`. The route-scoped `409` declaration uses the same
 `application/problem+json` media type and `RuntimeApiProblem` model as the runtime serializer. It
-applies to the eight resolver-backed operations above; batch is not included.
+applies to the resolver-backed operations above; batch is not included.
 
 Validation anchors:
 
@@ -87,6 +94,66 @@ Validation anchors:
 - `tests/unit/runtime/http/test_artifact_inspector_service.py`
 - `tests/unit/runtime/http/test_runtime_api_authz.py`
 - `tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
+- `tests/unit/runtime/http/test_public_decision_verification.py`
+- `tests/unit/runtime/http/test_public_decision_verification_routes.py`
+
+## Public Decision Verification Routes
+
+These routes issue and verify public projections for an owned run; they are
+separate from the `/api/v1/artifacts/*` inspection routes. A verified report
+authenticates the retained record and its exact document bytes. It is not proof
+that the underlying policy decision is admissible, currently authoritative, or
+approved for publication.
+
+### `POST /api/v1/runs/{run_id}/public-verification-record`
+
+Issue one of the explicitly selected output classes. `publication_class` is a
+query parameter and defaults to `verification_report_only`; the request body
+is expected to be empty. The inspected route rejects a nonzero declared
+`Content-Length`; missing-length or chunked-body rejection was not exercised
+by this source review. The caller does not supply a document, signing key, or authority
+verdict.
+
+- Authorization requires `RuntimePermission.PLATFORM_ADMIN`; the pre-policy
+  binder resolves `run_id` through `ResourceBindingSource.OWNED_EXISTING_PATH`
+  for `runtime.run.public_verification_record`. The handler then resolves that
+  run, enforces tenant access, and requires its declared decision-packet
+  artifact.
+- `verification_report_only` builds the redacted export from the owned packet,
+  applies the public-export limits, persists and signs a verification report,
+  verifies it before publishing its opaque locator, and returns
+  `publication_class="verification_report_only"` with `promoted_record=null`.
+- `governed_public_record_candidate` requires a configured governed owner and
+  returns a prepared candidate reference, document, and digest. It does not
+  issue a public record locator.
+- `governed_public_record` requires the same owner, asks it to issue the record,
+  and returns only after owner verification reads back a promoted record. This
+  is a distinct governed-owner path; the route's report signer does not supply
+  that authority. Missing owner composition fails with `503`.
+
+### `GET /api/v1/public-decisions/verification?record_id=...`
+
+Read an opaque issued `pvr_…` report ID, or a `gpr_…` ID when the governed
+owner is composed. The no-store response separates report authentication,
+cryptographic signature validity, and trusted-key status. A `pvr_` report's
+`PublicDecisionVerificationResponse` fixes all seven authority dimensions to
+`not_established`: `issuer_issuance`, `projection_faithfulness`,
+`public_history_establishment`, `durable_verifiability`, `current_authority`,
+`status_snapshot_selection`, and `public_evidence_obtainability`. Its
+`promoted_record` is always null. Only a verified result exposes the bound
+issuer, decision ID, issue time, digest, and public document.
+
+The separate governed `gpr_` response may establish only
+`issuer_issuance` and `projection_faithfulness` after owner verification. It
+still reports `public_history_establishment`, `durable_verifiability`,
+`current_authority`, `status_snapshot_selection`, and
+`public_evidence_obtainability` as `not_established`. Thus a successful GET is
+verification evidence for its declared class, not an admission or publication
+gate for later policy use.
+
+Source and test references above were inspected at the pinned source revision;
+the listed tests and HTTP contract check were not run for this documentation
+update.
 
 ## `POST /api/v1/artifacts/batch`
 
@@ -277,13 +344,11 @@ http GET :8000/api/v1/artifacts/$ARTIFACT_ID/download \
 4. Read `/lineage` to understand upstream sources, derived artifacts, and downstream dependents.
 5. Read `/download` only when the client needs raw immutable bytes.
 
-
 Selected manifest profiles are exact views of a CAS artifact. A request that
 supplies `manifest_profile_sha256` is immutable-cacheable; a request that omits
 it resolves the current default view and must revalidate. The resolved profile is
 returned and carried by artifact links. Authority admission resolves the same
 selected manifest view used by the route before reading its envelope.
-
 
 A selected manifest envelope is checked together with any authority boundary in
 the artifact payload. Both constraints must permit the requested surface purpose;
@@ -310,16 +375,16 @@ envelope.
 The route checks compose by effective purpose; every check in the path must allow
 its purpose. The HTTP route matrix follows the current route/service call chain:
 
-| Route representation | Ordered effective-purpose checks |
-| --- | --- |
-| `GET /{artifact_id}` manifest | `runtime_closeout_authority` (route and inspector), then `dashboard_display` |
+| Route representation                      | Ordered effective-purpose checks                                             |
+| ----------------------------------------- | ---------------------------------------------------------------------------- |
+| `GET /{artifact_id}` manifest             | `runtime_closeout_authority` (route and inspector), then `dashboard_display` |
 | `GET /{artifact_id}/content` JSON preview | `runtime_closeout_authority` (route and inspector), then `dashboard_display` |
-| `GET /{artifact_id}/content` raw bytes | `runtime_closeout_authority` (route, inspector, and raw-response branch) |
-| `GET /{artifact_id}/lineage` | `runtime_closeout_authority` (inspector, lineage service, and route) |
-| `GET /{artifact_id}/schema` | `runtime_closeout_authority` (schema inspector), then `dashboard_display` |
-| `GET /{artifact_id}/download` | `runtime_closeout_authority` (raw admission checks) |
-| `POST /{artifact_id}/render` | `dashboard_display` before and after rendering |
-| `GET /{artifact_id}/export` | `publication` before and after export |
+| `GET /{artifact_id}/content` raw bytes    | `runtime_closeout_authority` (route, inspector, and raw-response branch)     |
+| `GET /{artifact_id}/lineage`              | `runtime_closeout_authority` (inspector, lineage service, and route)         |
+| `GET /{artifact_id}/schema`               | `runtime_closeout_authority` (schema inspector), then `dashboard_display`    |
+| `GET /{artifact_id}/download`             | `runtime_closeout_authority` (raw admission checks)                          |
+| `POST /{artifact_id}/render`              | `dashboard_display` before and after rendering                               |
+| `GET /{artifact_id}/export`               | `publication` before and after export                                        |
 
 This table records existing gates; it does not change their purposes or introduce a
 new grant. A runtime-purpose refusal blocks the schema inspector before the
@@ -357,7 +422,6 @@ raw-response and authority gates without decoding them. Render and export
 materialize the selected semantic view and retain its `canon_read_status` in the
 HTML response metadata and PDF/DOCX output packet. Predictive diagnostic
 reports are likewise reader-materialized and never raw-byte responses.
-
 
 ## Typed refusal for malformed selected profiles
 

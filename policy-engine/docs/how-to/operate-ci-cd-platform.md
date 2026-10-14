@@ -1,8 +1,13 @@
 # Operate the CI/CD Platform
 
-This guide documents the current repo-tracked CI/CD surface. It intentionally
-describes only workflows, commands, and evidence paths that exist in the
-repository today.
+Owner: `@platform-owners`
+Source of truth: `.github/workflows/`, `policy-engine/ops/ci/templates/workflows/`, and the referenced local workspace tools. Live GitHub settings are managed separately.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; workflow-file and trigger inspection only. GitHub settings and workflow run state were not queried.
+
+This guide documents the repository-declared CI/CD surface at that source
+snapshot. It describes workflows, commands, and evidence paths found in source;
+it does not establish that a workflow is enabled in GitHub or has a recent
+successful run.
 
 ## Inputs
 
@@ -10,13 +15,13 @@ repository today.
   or platform evidence;
 
 - the current checkout of `.github/workflows/**`, docs, and workspace tooling;
-- intent to validate or operate the active CI/CD platform rather than historical
-  workflows.
+- intent to validate repo-tracked workflow definitions or reconcile live
+  platform settings.
 
 ## Output
 
-- a verified understanding of which workflows and local commands are canonical
-  today;
+- a source-backed understanding of which workflow definitions and local
+  commands are canonical at the reviewed pin;
 
 - a minimal operating path for local parity, GitHub governance reconciliation,
   and release/security evidence.
@@ -30,37 +35,48 @@ uv run polisyos-tools workspace ci-parity --skip-browser
 uv run polisyos-tools docs --output docs/reference/tools.md
 ```
 
+Run from `policy-engine/` after provisioning the supported contributor
+environment in `CONTRIBUTING.md`; the docs gate also requires the selected base
+ref to resolve locally. This page reviewed the source commands and workflows
+at the pin above; none of these commands or any GitHub settings was queried in
+this update.
+
 ## 1. Workflow Inventory
 
-The maintained GitHub-executed automation surface is the repository-root
-inventory under `.github/workflows/`; reusable product templates live under
+The repo-tracked workflow definitions are under `.github/workflows/`; reusable product templates live under
 `policy-engine/ops/ci/templates/workflows/`.
 
-The repo-tracked default-branch ruleset requires the status checks named
-`Fast PR / Gate` and `Standard PR / Gate`; keep those names stable when
-renaming workflow files or local command wrappers.
+The repo-tracked workflows define jobs named `Fast PR / Gate` and
+`Standard PR / Gate`. Whether the live GitHub default-branch ruleset requires
+those checks is a manual platform setting and was not verified here; keep the
+job names stable when changing the workflows or local command wrappers.
 
-| Workflow file                                          | Status | Tier                   | Trigger                              | Purpose                                                                                                      |
-| ------------------------------------------------------ | ------ | ---------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `.github/workflows/abi.yml`                            | active | PR gate                | pull request on ABI-visible paths    | ABI snapshot generation, semantic diff, docs quality, public-surface docstring quality, and fast tests       |
-| `.github/workflows/ci.yml`                             | active | PR gate                | pull request and push                | Runtime HTTP, frontend contracts/smoke, integration, and test-economics surfaces                             |
-| `.github/workflows/core-runtime-long-soak.yml`         | active | scheduled/manual soak  | schedule, manual                     | Core-runtime long-soak evidence                                                                              |
-| `.github/workflows/core-runtime-release-gate.yml`      | active | release-grade gate     | runtime/docs paths, push, manual     | Core-runtime contracts, docs, mutation subset, benchmarks, and release-review evidence                       |
-| `.github/workflows/docs-pages.yml`                     | active | docs publication       | manual and successful docs gate      | Strict docs build before Pages publication                                                                   |
-| `.github/workflows/fabric-remediation.yml`             | active | subsystem remediation  | Fabric remediation paths, manual     | Fabric connector/data-plane/schema-governance remediation gates                                              |
-| `.github/workflows/frontend-nightly.yml`               | active | nightly frontend       | schedule, manual, frontend paths     | Broader frontend quality and nightly coverage                                                                |
-| `.github/workflows/frontend-quality.yml`               | active | archival notice        | manual                               | Documents the archived frontend-quality workflow state                                                       |
-| `.github/workflows/release.yml`                        | active | release orchestration  | release tags, manual                 | Release packaging, dashboard artifact, SBOM, and canary evidence                                             |
-| `ops/ci/templates/workflows/{arch,perf,replay,...}.yml` | template | reusable product specs | not GitHub-executed from this path   | Retained product workflow specs and generated-artifact references                                            |
+| Workflow file                                           | Source state    | Tier                     | Trigger                            | Purpose                                                                                                |
+| ------------------------------------------------------- | --------------- | ------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `.github/workflows/abi.yml`                             | repo-defined    | PR gate                  | pull request on ABI-visible paths  | ABI snapshot generation, semantic diff, docs quality, public-surface docstring quality, and fast tests |
+| `.github/workflows/ci.yml`                              | repo-defined    | PR gate                  | pull request and push              | Runtime HTTP, frontend contracts/smoke, integration, and test-economics surfaces                       |
+| `.github/workflows/core-runtime-long-soak.yml`          | repo-defined    | scheduled/manual soak    | schedule, manual                   | Core-runtime long-soak evidence                                                                        |
+| `.github/workflows/core-runtime-release-gate.yml`       | repo-defined    | release-grade gate       | runtime/docs paths, push, manual   | Core-runtime contracts, docs, mutation subset, benchmarks, and release-review evidence                 |
+| `.github/workflows/docs-pages.yml`                      | repo-defined    | docs publication         | manual and successful docs gate    | Strict docs build before Pages publication                                                             |
+| `.github/workflows/fabric-remediation.yml`              | repo-defined    | subsystem remediation    | Fabric remediation paths, manual   | Fabric connector/data-plane/schema-governance remediation gates                                        |
+| `.github/workflows/frontend-nightly.yml`                | repo-defined    | nightly frontend         | schedule, manual, frontend paths   | Broader frontend quality and nightly coverage                                                          |
+| `.github/workflows/frontend-quality.yml`                | archival notice | archived workflow record | manual                             | Documents the archived frontend-quality workflow state                                                 |
+| `.github/workflows/release.yml`                         | repo-defined    | release orchestration    | release tags, manual               | Release packaging, dashboard artifact, SBOM, and canary evidence                                       |
+| `ops/ci/templates/workflows/{arch,perf,replay,...}.yml` | template        | reusable product specs   | not GitHub-executed from this path | Retained product workflow specs and generated-artifact references                                      |
 
 Historical workflow names that are absent from the repository-root workflow
 inventory should not be used as current automation anchors. Template workflows
 are factual repo artifacts, but they are not active GitHub Actions until they
 are intentionally promoted to the root `.github/workflows/` surface.
 
+“Repo-defined” means that source declares a workflow and its triggers at the
+reviewed pin. It does not prove GitHub registration, enablement, current branch
+protection, or recent execution. The `frontend-quality.yml` entry is retained
+as an archival notice, not an active quality workflow.
+
 Operational rule:
 
-- If a CI/CD control matters, it should either exist in the active root
+- If a CI/CD control matters, it should either exist in the repo-tracked root
   workflow inventory above, be documented as a reusable template, or be
   documented as a canonical local command.
 
@@ -114,7 +130,7 @@ inventory and docs.
 
 ## 4. Release, Build, and Security Surfaces
 
-The current repo-tracked release/build/security surfaces are:
+The repo-declared release/build/security surfaces are:
 
 - `.github/workflows/release.yml` for release packaging, dashboard artifact,
   SBOM, and canary evidence;

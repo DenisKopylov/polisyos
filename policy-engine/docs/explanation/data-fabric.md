@@ -24,6 +24,12 @@ reference records an observed catalog-domain import exception and domain batch
 execution exports through `read_api`, so they should not be read as proof of a
 fully enforced narrow runtime matrix.
 
+`read_api` is also not uniformly read-only by export semantics:
+`src/polisyos/data_forge/read_api/legal.py` exposes `run_batch_pipeline`, and
+`src/polisyos/data_forge/read_api/academic.py` exposes `run_edge_synthesize`.
+The import boundary names the intended package surface; these selected exports
+retain batch execution behavior.
+
 ## The concrete paths
 
 Connector-backed acquisition starts with a `ConnectorManifestSpec` containing
@@ -54,12 +60,16 @@ flowchart LR
 
 The document path is a separate producer: raw bytes become `DocMeta`, then
 normalization, structure, and chunk artifacts; those stages append document
-facts and events to world fact-log segments for later materialization. The claim
-path likewise persists claim artifacts and writes its own world segment. A
-connector `EvidenceBundleRef` or `DataSnapshotRef` is not itself a world fact.
+facts and events to world fact-log segments for later materialization. Claim
+extraction consumes an explicit normalized/chunked `DocMeta` artifact and writes
+its own claim artifacts and world segment. No generic connector-result-to-claim
+or connector-result-to-world-fact bridge is established here. A connector
+`EvidenceBundleRef` or `DataSnapshotRef` is not itself a world fact.
 
 `run_orchestrated_ingestion` uses the first source artifact in the evidence
-bundle as `DataSnapshot.data_ref`. Its `fabric.quality_report` records the
+bundle as `DataSnapshot.data_ref`. This CAS `DataSnapshot` is distinct from a
+retained world snapshot, which is created from materialized world state for
+world-query time travel. Its `fabric.quality_report` records the
 ingestion source, dataset count, and evidence notes; this wrapper does not
 compute a full content-quality assessment. Use the quality modules and their
 own contracts for those checks.

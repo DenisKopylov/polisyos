@@ -16,7 +16,7 @@ mechanism types, merge rules, units, metrics, constraints и time semantics.
 - [`merge_rules.py`](./merge_rules.py) — merge algebra для конкурентных writes.
 - [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) — базовые registries для domain semantics.
 - [`time_semantics.py`](./time_semantics.py) — step-to-date semantics.
-- Для составления registry bundle откройте [`../registry_fragments.py`](../registry_fragments.py), для downstream linking — [`../linker/README.md`](../linker/README.md).
+- Для составления registry bundle откройте [`../registry/registry_fragments.py`](../registry/registry_fragments.py), для downstream linking — [`../linker/README.md`](../linker/README.md).
 
 ## Public entrypoints
 
@@ -68,4 +68,4 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 ## Last updated
 
-`2026-04-17`
+`2026-10-14` (broken registry source link corrected; smoke-test date above is historical and was not rerun)

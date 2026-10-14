@@ -3,13 +3,16 @@
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
 The Foundry method catalog is the typed ABI for reusable scientific
-computations. It covers the Phase 2 execution-kernel ABI, Phase 4 capability and
-replay metadata, and the Phase 5/6 frontier method surfaces.
+computations. It describes method inputs, outputs, backend posture, runtime
+availability, and selection metadata. Historical phase labels belong to the
+remediation plan; they are not capability or release statuses.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/methods/**`, `src/polisyos/foundry/methods/catalog/**`, and generated `MethodCatalogSnapshot` inputs from `src/polisyos/foundry/methods/catalog_snapshot.py`
+Historical freshness receipt: 2026-04-17 (an earlier documentation pass; not a
+current verification receipt).
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/methods/**` and the catalog snapshot producer at `src/polisyos/foundry/methods/catalog/snapshot.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation source inspected at this pin; linked tests were not run for this docs-only review.
 
 ## When to Use This Surface
 
@@ -59,38 +62,44 @@ bootstrap logs before the JSON document on stdout.
 
 ## Architecture Layers
 
-| Layer                | Contract                                                           | Responsibility                                                                                          |
-| -------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Method ABI           | `FoundryMethod`, `MethodSignature`, `MethodMetadata`               | Declares slots, params, backend, determinism tier, and use/not-use guidance.                            |
-| Registry/discovery   | `polisyos.foundry.extensions`, `MethodRegistry`                    | Discovers builtin and external method plugins, loads methods lazily, and keeps version resolution explicit. |
-| Backend dispatch     | `MethodRunner`, `MethodDispatcher`, `MethodResult`                 | Executes one protocol-compliant method on JAX, NumPy, solver, Ray, or Bayesian-style runtimes.          |
-| Specialization/cache | `Specialization`, `BackendSpec`, `CompilationCache`                | Reuses compiled variants for static params, shapes, and backend fingerprint.                            |
-| Evidence/artifacts   | `MethodArtifact`, `ChainArtifact`, `ExecutionEvidence`             | Persists immutable receipts linking source/signature hashes, chain structure, RNG, and device metadata. |
+| Layer                | Contract                                               | Responsibility                                                                                              |
+| -------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Method ABI           | `FoundryMethod`, `MethodSignature`, `MethodMetadata`   | Declares slots, params, backend, determinism tier, and use/not-use guidance.                                |
+| Registry/discovery   | `polisyos.foundry.extensions`, `MethodRegistry`        | Discovers builtin and external method plugins, loads methods lazily, and keeps version resolution explicit. |
+| Backend dispatch     | `MethodRunner`, `MethodDispatcher`, `MethodResult`     | Executes one protocol-compliant method on JAX, NumPy, solver, Ray, or Bayesian-style runtimes.              |
+| Specialization/cache | `Specialization`, `BackendSpec`, `CompilationCache`    | Reuses compiled variants for static params, shapes, and backend fingerprint.                                |
+| Evidence/artifacts   | `MethodArtifact`, `ChainArtifact`, `ExecutionEvidence` | Persists immutable receipts linking source/signature hashes, chain structure, RNG, and device metadata.     |
 
 ## High-Signal Entry Points
 
-| API                                | Use it when                                                            |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| `ensure_all_methods_registered()`  | A registry needs every shipped catalog family loaded.                  |
+| API                                   | Use it when                                                                                         |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `ensure_all_methods_registered()`     | A registry needs every shipped catalog family loaded.                                               |
 | `bootstrap_foundry_method_registry()` | A registry needs builtin plus installed `polisyos.foundry_methods` plugins loaded through one path. |
-| `build_method_catalog_snapshot()`  | Release gates, docs, or operators need an immutable registry snapshot. |
-| `build_method_capability_matrix()` | A consumer needs runtime applicability and replay metadata.            |
-| `advise_methods()`                 | A planner needs a ranked answer to "which methods fit this problem?"   |
-| `suggest_alternative_methods()`    | A selected method is unavailable or not runnable.                      |
-| `suggest_adapter_methods()`        | Two methods do not link directly.                                      |
-| `authoring_catalog_payload()`      | Prompt or docs generation needs a compact family summary.              |
+| `build_method_catalog_snapshot()`     | Release gates, docs, or operators need an immutable registry snapshot.                              |
+| `build_method_capability_matrix()`    | A consumer needs runtime applicability and replay metadata.                                         |
+| `advise_methods()`                    | A planner needs a ranked answer to "which methods fit this problem?"                                |
+| `suggest_alternative_methods()`       | A selected method is unavailable or not runnable.                                                   |
+| `suggest_adapter_methods()`           | Two methods do not link directly.                                                                   |
+| `authoring_catalog_payload()`         | Prompt or docs generation needs a compact family summary.                                           |
 
 ## Truthfulness Tiers
 
 Catalog rows carry `truthfulness_tier` so docs and planners do not present every
 method as the same implementation depth.
 
-| Tier                 | Meaning                                                                        | Presentation rule                                       |
-| -------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------- |
-| `heuristic_baseline` | Fast proxy, heuristic, or baseline implementation.                             | Present as a baseline, not a production estimator.      |
-| `structural_scoring` | Structural, diagnostic, identification, or scoring logic.                      | Use for screening, planning, or diagnostics.            |
-| `production_method`  | Production-oriented estimator/mechanism surface with explicit runtime posture. | Safe default for ordinary planning and execution flows. |
-| `frontier_trainable` | Trainable or frontier method with stronger dependency/runtime assumptions.     | Present with operational cost and risk.                 |
+| Tier                 | Meaning                                                                        | Presentation rule                                                        |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `heuristic_baseline` | Fast proxy, heuristic, or baseline implementation.                             | Present as a baseline, not a production estimator.                       |
+| `structural_scoring` | Structural, diagnostic, identification, or scoring logic.                      | Use for screening, planning, or diagnostics.                             |
+| `production_method`  | Production-oriented estimator/mechanism surface with explicit runtime posture. | Select only within its declared input, assumption, and runtime contract. |
+| `frontier_trainable` | Trainable or frontier method with stronger dependency/runtime assumptions.     | Present with operational cost and risk.                                  |
+
+These catalog fields and method-specific tests describe bounded scientific
+contracts. They do not assemble an end-to-end policy design, establish that a
+study's identification assumptions hold, ground predicted effects in observed
+outcomes, or authorize a recommendation. The implemented compile/execute,
+design-composition, and grounding boundaries are described in [Causal Engine](../../explanation/causal-engine.md).
 
 ## Advisor Example
 

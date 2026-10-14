@@ -2,7 +2,13 @@
 
 Related: [IR observation reference](../reference/ir/observation.md), [causal validity](../reference/scientist/causal-validity.md), [PolicyOS identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md), [Stage-0 custody kernel](../system-design-decisions/stage0-custody-kernel-ratification.md), and the [causal operating-system north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md).
 
-Evidence basis: implementation and semantic-test paths below were inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; tests were inspected as source evidence and not run for this documentation update. The implemented observation contracts describe evidence intake and causal-readiness routing. The post-deployment confirmatory/exploratory learning loop described in the north star is a target, not an established runtime capability at this pin.
+Evidence basis: implementation and semantic-test paths below were inspected at code pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Runtime source and tests are unchanged between
+those revisions. Tests were inspected as source evidence and not run for this documentation
+update. The implemented contracts cover evidence intake and causal-readiness routing; the
+post-deployment confirmatory/exploratory learning loop is a target, not an established runtime
+capability at this pin.
 
 ## Purpose and boundary
 
@@ -34,7 +40,7 @@ implying that compiler output is automatically the readiness-node input (`P01`, 
 
 `ObservationRecord` in `src/polisyos/ir/observation/contracts.py` carries a schema version, observation family and time grain, period, entity scope, metric and value, coverage, bias and censoring flags, trust weight, source ID and version, regime and schema-regime IDs, identification mode, confidence tier, and optional proxy source. `ObservationPanel` requires records to share family and time grain so a compiler can align them. These types preserve measurement context; they do not themselves establish source truth.
 
-`MeasurementRegistry` in `src/polisyos/ir/observation/measurement.py` maps the source confidence and coverage metadata to a local measurement trust tier. A proxy becomes `derived_proxy`; an `exploratory` source-confidence tier becomes `weak_anchor`; `core` data is `authoritative_high_coverage` only when it meets the family coverage threshold and has no measurement-bias flag, otherwise it is `authoritative_partial_coverage`. Other records map to `administrative_noisy`. Those names are measurement-routing tiers, not the publication-authority band.
+`MeasurementRegistry` in `src/polisyos/ir/observation/measurement.py` maps the source confidence and coverage metadata to a local measurement trust tier. A proxy becomes `derived_proxy`; an `exploratory` source-confidence tier becomes `weak_anchor`; `core` data is `authoritative_high_coverage` only when it meets the family coverage threshold and has no measurement-bias flag, otherwise it is `authoritative_partial_coverage`. Other records map to `administrative_noisy`. These names are measurement-routing tiers, not a global `partial` or `review_required` state and not the publication-authority band.
 
 `IdentificationModeRouter` in `src/polisyos/ir/observation/measurement.py` selects a family’s primary or fallback identification mode. Low coverage, censoring, measurement bias, or a shock triggers a configured fallback when available. For example, a family may fall back to `bounds_only`; this preserves a bounded candidate result instead of silently claiming point identification. An incompatible explicit mode is reported rather than silently normalized. Compilers then build the typed readiness contracts, and the Scientist `RunCausalReadinessNode` in `src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py` persists a `CausalReadinessBundle` and its leaf references for downstream use.
 

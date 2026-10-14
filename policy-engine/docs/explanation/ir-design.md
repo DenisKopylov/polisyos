@@ -12,6 +12,7 @@ Related architecture:
 - [Causal operating-system north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
 - [Universal policy-design target](../system-design-decisions/universal-policy-design-target-architecture-and-gap.md)
 - [Identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md)
+- [Stage-0 custody ratification](../system-design-decisions/stage0-custody-kernel-ratification.md)
 
 - Owner: `@ir-owners`
 - Source of truth: `src/polisyos/ir/`, `src/polisyos/core/`,
@@ -98,7 +99,10 @@ contract identity or local validation results. For Trinity payloads, the
 authority boundary is downstream: a proposal remains a candidate until the
 evidence and custody path that owns the relevant claim admits it. This follows
 the [identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md)
-and the north star's candidate-to-authority firewall.
+and the north star's candidate-to-authority firewall. Stage-0 **S0-K05** and
+**S0-K07** prohibit authority by transport or projection, while **S0-K12** says
+content equality is not authority. These are ratified boundary rules, not
+evidence that every current consumer enforces them.
 
 Statuses also stay local to their contracts. For example, `ConstraintType`
 distinguishes hard constraints from soft penalties, and `FidelityLevel`

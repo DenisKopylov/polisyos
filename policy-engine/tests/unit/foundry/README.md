@@ -2,7 +2,11 @@
 
 `tests/unit/foundry` covers the compute layer: compile/execute, methods catalogs,
 calibration, uncertainty, runtime batches, plugins, and agent-simulation
-support. The slice currently contains `374` `test_*.py` files.
+support. A complete static census of Git-tracked files at source revision
+`36ac90f829b95e9874c5340fc2f1d0e595adf6d7` found 565 files: 554 `.py` and 11
+`.md`. Of the tracked Python files, 526 basenames match `test_*.py`. This is a
+filename census, not pytest collection or execution; no tests were run for this
+inventory.
 
 ## Purpose
 
@@ -13,31 +17,34 @@ support. The slice currently contains `374` `test_*.py` files.
 
 ## Where To Start
 
-- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
-- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
+- [`../../../src/polisyos/foundry/README.md`](../../../src/polisyos/foundry/README.md)
+- [`../../../src/polisyos/foundry/methods/README.md`](../../../src/polisyos/foundry/methods/README.md)
 - `methods/`, `calibration/`, `runtime/`, and `uncertainty/` depending on the
   part of Foundry you touched.
 
-## Public Entrypoints
+## Representative test areas
 
-- `tests/unit/foundry/facade/`: `4` tests for compile/execute facades,
+These folders are starting points, not a complete inventory; the source tree is
+the canonical file list.
+
+- `tests/unit/foundry/facade/`: tests for compile/execute facades,
   quickstart behavior, and public modules.
 
-- `tests/unit/foundry/methods/`: `241` tests for registry, protocol/compiler
+- `tests/unit/foundry/methods/`: tests for registry, protocol/compiler
   plumbing, backends, and catalog coverage.
 
-- `tests/unit/foundry/agent_sim/`: `21` tests for simulation and monitoring paths.
-- `tests/unit/foundry/calibration/`: `18` tests for calibration behavior.
-- `tests/unit/foundry/runtime/`: `19` tests for runtime-adjacent execution behavior.
-- `tests/unit/foundry/uncertainty/`: `13` tests for uncertainty interfaces and
+- `tests/unit/foundry/agent_sim/`: simulation and monitoring paths.
+- `tests/unit/foundry/calibration/`: calibration behavior.
+- `tests/unit/foundry/runtime/`: runtime-adjacent execution behavior.
+- `tests/unit/foundry/uncertainty/`: uncertainty interfaces and
   propagation.
 
 ## Depends On / Depended On By
 
 ### Depends On
 
-- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
-- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
+- [`../../../src/polisyos/foundry/README.md`](../../../src/polisyos/foundry/README.md)
+- [`../../../src/polisyos/foundry/methods/README.md`](../../../src/polisyos/foundry/methods/README.md)
 - `src/polisyos/core`
 - `src/polisyos/ir`
 
@@ -45,7 +52,7 @@ support. The slice currently contains `374` `test_*.py` files.
 
 - [`../scientist/README.md`](../scientist/README.md),
   [`../runtime/README.md`](../runtime/README.md), and
-  [`../performance/README.md`](../performance/README.md)
+  [`../../performance/README.md`](../../performance/README.md)
 
 - Demo and benchmark flows that rely on stable compile/execute behavior
 
@@ -78,11 +85,11 @@ uv run pytest --collect-only tests/unit/foundry/methods -q
 
 ## Reference Docs
 
-- [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
-- [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
-- [`../../docs/how-to/run-benchmarks.md`](../../docs/how-to/run-benchmarks.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../../src/polisyos/foundry/README.md`](../../../src/polisyos/foundry/README.md)
+- [`../../../src/polisyos/foundry/methods/README.md`](../../../src/polisyos/foundry/methods/README.md)
+- [`../../../docs/how-to/run-benchmarks.md`](../../../docs/how-to/run-benchmarks.md)
+- [`../../TESTING_POLICY.md`](../../TESTING_POLICY.md)
 
 ## Last Updated
 
-2026-05-03
+2026-10-14 (static file census and relative links refreshed; test commands were not run)

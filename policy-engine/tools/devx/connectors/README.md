@@ -10,8 +10,8 @@ source adapters.
 
 - Contract drift check: `tools/devx/connectors/check_contracts.py`.
 - Scaffold generator: `tools/devx/connectors/scaffold.py`.
-- Live source-of-truth registry:
-  `src/polisyos/fabric/connectors/sources/_contracts.py`.
+- Live contract definitions:
+  `src/polisyos/fabric/connectors/sources/_contracts/`.
 
 - Snapshot target:
   `schemas/snapshots/connectors/contracts.json`.
@@ -22,16 +22,18 @@ source adapters.
 
 ## Public Entrypoints
 
-| Entrypoint                                                                   | Purpose                                                                                    |     |                  |                                                              |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --- | ---------------- | ------------------------------------------------------------ |
-| `uv run polisyos-tools connectors check-contracts --check`                   | Проверить, что committed snapshot и текущие contracts совпадают и version bumps корректны. |     |                  |                                                              |
-| `uv run polisyos-tools connectors check-contracts --update`                  | Перезаписать snapshot после осознанного schema change.                                     |     |                  |                                                              |
-| `uv run polisyos-tools connectors scaffold create --name <Name> --type <REST | CSV                                                                                        | SQL | SDMX> --dry-run` | Сгенерировать connector skeleton и тестовый harness preview. |
+| Entrypoint                                                                             | Purpose                                                                                    |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `uv run polisyos-tools connectors check-contracts --check`                             | Проверить, что committed snapshot и текущие contracts совпадают и version bumps корректны. |
+| `uv run polisyos-tools connectors check-contracts --update`                            | Перезаписать snapshot после осознанного schema change.                                     |
+| `uv run polisyos-tools connectors scaffold create --name <Name> --type TYPE --dry-run` | Сгенерировать connector skeleton и тестовый harness preview.                               |
+
+`TYPE` принимает `REST`, `CSV`, `SQL` или `SDMX`.
 
 ## Depends On / Depended On By
 
 - **Depends on:** `polisyos.fabric.connectors.contracts.*`,
-  `src/polisyos/fabric/connectors/sources/_contracts.py`,
+  `src/polisyos/fabric/connectors/sources/_contracts/`,
   `schemas/snapshots/connectors/contracts.json` и connector test harness.
 
 - **Depended on by:** connector authors, `workspace verify`, Fabric schema
@@ -40,21 +42,22 @@ source adapters.
 
 ## Common Commands
 
-Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
-`conceptual`.
+Статусы ниже записывают исторический smoke run от `2026-04-17`. Эти команды
+не запускались при данной документационной правке; актуальный статус snapshot
+drift не устанавливался.
 
-| Command                                                                                  | Purpose                                                | Status                                                          |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------- |
-| `uv run polisyos-tools connectors check-contracts --check`                               | Проверить contract snapshot drift без записи файлов.   | `smoke-tested` (сейчас сигналит, что committed snapshot отстал) |
-| `uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run` | Проверить scaffold output для нового REST connector-а. | `smoke-tested`                                                  |
-| `uv run polisyos-tools connectors check-contracts --update`                              | Обновить committed snapshot после review.              | `conceptual` (изменяет checked-in snapshot)                     |
+| Command                                                                                  | Purpose                                                | Status                                                    |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| `uv run polisyos-tools connectors check-contracts --check`                               | Проверить contract snapshot drift без записи файлов.   | 2026-04-17: smoke-tested; receipt reported stale snapshot |
+| `uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run` | Проверить scaffold output для нового REST connector-а. | 2026-04-17: smoke-tested                                  |
+| `uv run polisyos-tools connectors check-contracts --update`                              | Обновить committed snapshot после review.              | Conceptual; changes the checked-in snapshot               |
 
 ## Test And Verification
 
-| Command                                                                                                                                              | What it verifies                                                            | Status         |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_contract_system.py tests/repo_quality/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`   |
-| `uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json`                                | Governance-level compatibility evidence поверх connector contract changes.  | `smoke-tested` |
+| Command                                                                                                                                                                     | What it verifies                                                            | Status                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------ |
+| `uv run pytest -q tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_contract_system.py tests/repo_quality/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`             |
+| `uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json`                                                | Governance-level compatibility evidence поверх connector contract changes.  | 2026-04-17: smoke-tested |
 
 ## Reference Docs
 
@@ -70,4 +73,4 @@ source adapters.
 - `check_contracts.py` — canonical drift gate для `schemas/snapshots/connectors/contracts.json`.
 - `scaffold.py` генерирует и source file, и базовый test harness skeleton.
 - Legacy path-based connector wrappers retired in Phase 1D; use `polisyos-tools connectors ...`.
-- Last updated: 2026-04-17
+- Last updated: 2026-10-14

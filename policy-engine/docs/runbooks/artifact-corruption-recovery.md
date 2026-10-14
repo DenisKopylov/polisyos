@@ -7,11 +7,9 @@ Related Fabric reference: [Fabric Data Plane](../reference/fabric/data-plane.md)
 > artifact blob, manifest mismatch, or related CAS corruption.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against the linked recovery checks and current retained-artifact evidence.
+Historical validation receipt (as recorded by this page): `2026-04-17` — linked recovery checks and retained-artifact evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/fabric/test_lineage.py`
 Rollback path: isolate the corrupted artifact, restore from a trusted retained copy or reissue from trusted upstream state, and keep the corrupted evidence for postmortem.
-
-Freshness: 2026-04-17.
 
 ## Symptom
 

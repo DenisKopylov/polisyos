@@ -6,6 +6,12 @@ repository.
 Use it whenever you need to reconcile the live GitHub repository with the
 repo-tracked docs and workflow inventory.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+the repository-tracked `.github/workflows/`, `.github/repository-rulesets/main.yml`,
+`.github/CODEOWNERS`, `.github/labels.yml`, and
+`policy-engine/architecture/control_plane_supply_chain.toml`. This records local
+intent only; no live GitHub settings or workflow runs were inspected.
+
 ## Inputs
 
 - repository admin or equivalent settings access in GitHub;
@@ -95,9 +101,12 @@ As of this docs refresh, the active inventory includes:
 - `core-runtime-long-soak.yml`
 - `core-runtime-release-gate.yml`
 - `docs-pages.yml`
+- `external-link-liveness.yml`
 - `fabric-remediation.yml`
 - `frontend-nightly.yml`
 - `frontend-quality.yml`
+- `honest-diagnostics-substrate.yml`
+- `policyos-canary-matrix.yml`
 - `release.yml`
 
 Product-local templates under `policy-engine/ops/ci/templates/workflows/` are
@@ -164,8 +173,10 @@ attention explicitly.
   enable it in GitHub, update the tracked contract first and add
   merge_group-compatible required checks.
 
-- `signatures.yml` and `build-and-push.yml` are the repo-tracked signing and
-  SBOM surfaces.
+- `policy-engine/ops/ci/templates/workflows/signatures.yml` and
+  `policy-engine/ops/ci/templates/workflows/build-and-push.yml` are tracked
+  signing and SBOM workflow templates. They are not active repository-root
+  workflows unless promoted into `.github/workflows/`.
 
 - Signed release tags are required by the tracked ruleset. Commit-signature
   enforcement on `main` remains recommended but is not enforced until key

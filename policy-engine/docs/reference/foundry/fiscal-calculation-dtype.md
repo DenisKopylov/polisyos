@@ -1,6 +1,9 @@
 # Native fiscal calculation dtype
 
-Owner: `@foundry-owners`
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/execute/mechanisms/fiscal.py`, `tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py`, and `tests/unit/foundry/plugins/test_economics_dtype.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and test sources inspected at this pin; tests were not run for this docs-only review. The recorded finite-case results remain bound to their original evidence.
 
 `IncomeTax` applies its rate to `agents.reported_income`. `TaxSubsidy`
 applies its rate and sector weights to `agents.income`. Each calculation

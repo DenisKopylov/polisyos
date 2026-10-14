@@ -22,11 +22,11 @@
 - `IssuesSummary`
 - `KeyMetric`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
+- Последнее обновление: 2026-10-14
 - Python modules: 2
 - Exports: 3
 - README переписан по общему шаблону; пакет остается intentionally small

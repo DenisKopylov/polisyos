@@ -13,9 +13,21 @@ Validation:
 - `uv run pytest -q tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
-The runs surface is the read-only operational view over runtime executions. Every run-specific endpoint enforces tenant access before returning data.
+Validation status: Source and test-reference inspection only for this
+documentation update; the listed tests, generator, SQLite cross-process checks,
+and PostgreSQL behavior were not run.
+
+The runs surface is the read-only operational view over runtime executions.
+Every run-specific endpoint enforces tenant access before returning data.
+Read access, response status, or a persisted diagnostic does not establish a
+causal effect, producer authority, or publication permission; the endpoint
+sections identify candidate-only projections and their typed limits.
 
 ## Endpoint Summary
+
+This is a selected summary of the operations detailed on this page, not an
+exhaustive route inventory. See the committed OpenAPI snapshot and the router
+for the complete schema-described and route-only surfaces.
 
 | Method | Path                                           | Response body                   | Notes                                                                  |
 | ------ | ---------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
@@ -47,7 +59,7 @@ Validation anchors:
 - `tests/unit/runtime/http/test_runtime_api_authz.py`
 - `tests/unit/runtime/http/test_lineage_routes.py`
 - `tests/unit/runtime/http/test_temporal_routes.py`
-- `tests/unit/runtime/http/test_access_invariants_properties.py`
+- `tests/property/runtime/http/test_access_invariants_properties.py`
 
 ## `GET /api/v1/runs`
 
@@ -335,8 +347,8 @@ http GET :8000/api/v1/runs/$RUN_ID/workflow \
 
 ## Live Streams
 
-The runtime also exposes two server-sent event streams from `routes/runs.py`.
-Both are current runtime routes, but they are deliberately excluded from the
+The runtime also exposes server-sent event streams from `routes/runs.py`.
+These are current runtime routes, but they are deliberately excluded from the
 committed OpenAPI snapshot and generated clients with `include_in_schema=False`.
 They are operator affordances, not a versioned SDK contract.
 
@@ -394,7 +406,7 @@ described, not one of the schema-hidden live streams.
 
 `POST` accepts an explicit `intent_id`, selected refs for the run's candidate
 source and observed snapshot, model, policy, and calibration rule, a contiguous
-train/holdout split, six distinct caller-declared temporal roles, a threshold,
+train/holdout split, distinct caller-declared temporal roles, a threshold,
 method parameters, and a seed. It requires the existing
 `runs.feedback.evaluate` action permission bound to the exact owned run, then
 checks that the authenticated tenant and cell match the run. The service

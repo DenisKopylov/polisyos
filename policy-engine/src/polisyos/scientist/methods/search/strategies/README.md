@@ -38,11 +38,14 @@ Bayesian и multi-objective контуров.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
+- Последнее обновление: 2026-10-14
   - WS-3C advanced policy surface обновлён: 2026-04-12
   - Canonical path moved under `polisyos.scientist.methods.search`: 2026-05-05
-- Python modules: 24
-- Exports: 18 base exports plus optional heavy-dependency strategy exports
+- Исходники Python: 24 модуля кроме `__init__.py` (25 файлов `.py` вместе с
+  `__init__.py`) в snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+- Статическая публичная поверхность: 36 имён в `__all__`, включая 18 базовых и 18
+  WS-3C toolkit names; optional Bayesian imports can append four names when their
+  dependencies load successfully.
 - README синхронизирован с текущим lazy/optional import поведением пакета
 
 `BayesianOptimizer.warm_start` сохраняет каждую отклонённую `Evaluation` вместе
@@ -61,7 +64,6 @@ Cold-start Sobol index и adaptive single-candidate acquisition planning пол�
 представления одинаковых разрешённых записей дают согласованный план. Batch
 сохраняет существующий fixed qEI путь; current-request iteration и full-refit
 counters не меняют своего прежнего значения от warm-history count.
-
 
 ### Кэш истории transfer
 

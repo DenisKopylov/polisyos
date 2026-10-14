@@ -5,6 +5,12 @@
 Для общего понимания продукта и его границ используйте архитектурные документы,
 связанные на странице для contributors; здесь собраны шаги для уже выбранной задачи.
 
+Для первого прохода используйте маршрут [Contributor Start Here](../reference/contributor-start-here.md)
+→ [Getting Started](../tutorials/getting-started.md) → [Onboarding Tracks](onboarding/index.md)
+→ нужный recipe ниже → ближайший reference/package README. Tutorials демонстрируют отдельные
+surfaces; они не являются доказательством функционального E2E policy flow или готовой к
+публикации рекомендации.
+
 ## Подготовить окружение и выбрать путь
 
 | Задача | Guide | Что покрывает |

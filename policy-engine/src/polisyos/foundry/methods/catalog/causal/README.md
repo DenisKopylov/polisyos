@@ -40,6 +40,7 @@ broader `polisyos.foundry.methods` facade.
   extension-set coverage or probability. Privacy post-processing cannot upgrade a limitation, and
   refusal does not prove non-identification. A compiler-injected effective PAG policy value records
   `origin:not_established`; direct pure-step omission and a present null remain distinct.
+
 ### Locked Y0 ID and TRSO adapter
 
 `SymbolicIdentify`, `SymbolicIdentifyV2`, the shared transport solver, and the registered `CheckTransportability` route call the locked Y0 0.2.11 algorithm APIs when Y0 is selected. Direct queries consume the expression returned by `identify_outcomes`; transport queries with selection nodes call `identify_target_outcomes` only when the caller supplies `surrogate_data_profile`. The registered `RunTransportabilityNode` carries that same caller input through its resolution loop. Local front-door, do-calculus, and c-component heuristics no longer emit results carrying Y0 or R backend identities.
@@ -49,9 +50,7 @@ The optional profile is a strict request input, not an evidence artifact. Its sh
 ```json
 {
   "schema_version": "policyos.y0.surrogate-data-profile.v1",
-  "populations": [
-    {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
-  ]
+  "populations": [{ "population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"] }]
 }
 ```
 
@@ -71,21 +70,21 @@ Capability output reports only executable Y0 `direct` and `trso` families when t
 
 ## Public API
 
-| Type/Function                        | Description                                             |
-| ------------------------------------ | ------------------------------------------------------- |
-| `ensure_causal_methods_registered()` | Registers the causal family into a registry.            |
-| `register_causal_methods()`          | Returns the canonical list used by the bootstrap.       |
-| `CausalEngine`                       | Core engine for causal graph/effect orchestration.      |
-| `CausalEstimator`                    | Base protocol for causal estimators.                    |
-| `DoWhyIdentifyEstimate`              | Identification-plus-estimation path.                    |
-| `DoWhyRefute`                        | Refutation / placebo diagnostics.                       |
-| `StrategicSolveResult`               | Result model for strategic response solving.            |
-| `solve_strategic_response()`         | Solves the strategic response bundle.                   |
-| `build_strategic_response_bundle()`  | Builds the strategic response input bundle.             |
-| `OptimalPolicyLearner`               | Learner for policy-selection oriented causal workflows. |
-| `CheckTransportability`              | Transportability gate for cross-context use.            |
-| `transport_bounds()`                 | Computes transportability bounds.                       |
-| `SpaceTimeSPDEGComputation`          | FEM SPDE g-computation for ST-DSCM policy spillovers.   |
+| Type/Function                            | Description                                                 |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `ensure_causal_methods_registered()`     | Registers the causal family into a registry.                |
+| `register_causal_methods()`              | Returns the canonical list used by the bootstrap.           |
+| `CausalEngine`                           | Core engine for causal graph/effect orchestration.          |
+| `CausalEstimator`                        | Base protocol for causal estimators.                        |
+| `DoWhyIdentifyEstimate`                  | Identification-plus-estimation path.                        |
+| `DoWhyRefute`                            | Refutation / placebo diagnostics.                           |
+| `StrategicSolveResult`                   | Result model for strategic response solving.                |
+| `solve_strategic_response()`             | Solves the strategic response bundle.                       |
+| `build_strategic_response_bundle()`      | Builds the strategic response input bundle.                 |
+| `OptimalPolicyLearner`                   | Learner for policy-selection oriented causal workflows.     |
+| `CheckTransportability`                  | Transportability gate for cross-context use.                |
+| `transport_bounds()`                     | Computes transportability bounds.                           |
+| `SpaceTimeSPDEGComputation`              | FEM SPDE g-computation for ST-DSCM policy spillovers.       |
 | `simulate_reaction_diffusion_response()` | Validation helper for nonlinear reaction-diffusion systems. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../../docs/reference/foundry/index.md)
@@ -244,11 +243,15 @@ contracts; a computed import AST candidate is not evidence that such a client
 actually invoked this facade. Wheel/sdist tests must run outside the checkout
 and bind archive, installed resource and canonical-object identities.
 
-The native `test_api_01.py` checks imports, explicit exports, incidental names,
-and reload cleanup. `test_facade_consumers.py` exercises a real Scientist
-identification consumer, engine/result serialization, supported patch execution
-and restoration, leaf FQNs, and runtime documentation generation. These are
-bounded ABI witnesses, not DoWhy/EconML backend or real-data validity receipts.
+The native
+`tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py`
+checks public and retained exports, canonical object identity, import behavior,
+incidental-name rejection, reload cleanup, and rendered documentation.
+`tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py` exercises a
+real Scientist identification consumer, engine/result serialization, supported
+patch execution and restoration, leaf FQNs, and runtime documentation
+generation. These are bounded ABI witnesses, not DoWhy/EconML backend or
+real-data validity receipts.
 
 ### Method registration
 
@@ -315,9 +318,11 @@ runtime default provides RBC or finite-sample coverage.
 
 ## Current State
 
-- Last updated: 2026-05-06
-- Files: 98 Python files
-- Exports: 164
+- Last updated: 2026-10-14
+- The source inventory is the Python module tree below this directory,
+  including subpackages; the public export surface is `__all__` in
+  `__init__.py`. Fixed totals are omitted because these use different
+  denominators and change independently.
 
 ### Native causal value output slots
 
@@ -335,8 +340,6 @@ method result and remains blocked when that owner input is absent. Neither real
 DiD/SCM execution nor the new slot declaration establishes identification,
 external owner authority, calibration, or production currentness.
 
-
-
 The fresh N8 run-basis v2 reader compares exact selected-profile input multisets
 and requires a post-run execution receipt. The receipt records the submitted request parameter object as intent and the
 NumpyRunner result's seed, backend, and fingerprint, then binds the exact
@@ -346,7 +349,6 @@ every resolved/used parameter, so full parameter-use reconciliation remains
 `not_established`; request intent is not treated as method evidence.
 The whole source-to-result relation stays candidate-only and fails closed when
 any selected manifest profile or receipt link is unresolved.
-
 
 ## Y0 proof pairing and review grade
 

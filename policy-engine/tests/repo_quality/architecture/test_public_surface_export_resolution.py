@@ -254,13 +254,104 @@ def test_unsupported_module_effect_is_reported_without_executing_module(
         "A",
         "B",
     ]
+    resolution = serialized["entrypoints"][0]["export_resolution"]
+    markdown = guardrails.render_public_surface_markdown(inventory)
+    assert "Source-declared candidates (2; native exports unproved)" in markdown
+    assert f"- Export scope: `{resolution['exports_scope']}`" in markdown
+    assert f"- Candidate scope: `{resolution['candidate_scope']}`" in markdown
+    evidence_inputs = [row for row in resolution["inputs"] if row["operation"] == "read_bytes"]
+    assert evidence_inputs
     assert (
-        "Source-declared candidates (2; native exports unproved)"
-        in guardrails.render_public_surface_markdown(inventory)
-    )
+        f"- Source evidence: {len(evidence_inputs)} measured source reads; full path, byte-length, "
+        "and SHA-256 receipts are in the companion inventory JSON."
+    ) in markdown
+    for row in evidence_inputs:
+        raw = (guardrails.REPO_ROOT / row["path"]).read_bytes()
+        assert row["bytes"] == len(raw)
+        assert row["sha256"] == hashlib.sha256(raw).hexdigest()
     assert [item.detail for item in guardrails._check_public_surface_contracts(inventory)] == [
         "incomplete_exports"
     ]
+
+    mapping.write_text(
+        "foreign_callback()\n"
+        'BASE = {"MutationCandidate": unknown_runtime_owner}\n'
+        "PUBLIC_NAMES = {**BASE}\n",
+        encoding="utf-8",
+    )
+    mutated = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert mutated.exports == ()
+    assert mutated.export_count is None
+    assert mutated.known_export_count == 0
+    assert mutated.export_resolution["declared_export_candidates"] == ["MutationCandidate"]
+    mutated_inventory = guardrails.build_public_surface_inventory([policy])
+    mutated_json = json.loads(guardrails.render_public_surface_json(mutated_inventory))["packages"][
+        0
+    ]
+    assert mutated_json["exports"] == []
+    assert mutated_json["export_count"] is None
+    assert mutated_json["known_export_count"] == 0
+    mutated_markdown = guardrails.render_public_surface_markdown(mutated_inventory)
+    assert "MutationCandidate" in mutated_markdown
+    assert "Source-declared candidates (1; native exports unproved)" in mutated_markdown
+    mutated_resolution = mutated_json["entrypoints"][0]["export_resolution"]
+    mutated_reads = [
+        row for row in mutated_resolution["inputs"] if row["operation"] == "read_bytes"
+    ]
+    assert any(
+        row["path"] == str(mapping.relative_to(tmp_path))
+        and row["sha256"] == hashlib.sha256(mapping.read_bytes()).hexdigest()
+        for row in mutated_reads
+    )
+    assert (
+        f"- Source evidence: {len(mutated_reads)} measured source reads; full path, byte-length, "
+        "and SHA-256 receipts are in the companion inventory JSON."
+    ) in mutated_markdown
+
+
+def test_unresolved_reason_and_scopes_are_rendered_as_markdown_literals(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facade, mapping = _fixture(tmp_path, monkeypatch)
+    mapping.write_text(
+        "class EffectfulOwner:\n"
+        "    def __init__(self):\n"
+        '        raise RuntimeError("```source```")\n'
+        'PUBLIC_NAMES = {"Candidate": EffectfulOwner}\n',
+        encoding="utf-8",
+    )
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    reason = result.export_resolution["reason"]
+    assert "class EffectfulOwner:" in reason
+    assert "def __init__(self):" in reason
+    assert "```source```" in reason
+
+    policy = guardrails.PackagePolicy(
+        module="polisyos.fixture",
+        classification="public_experimental",
+        facade_mode="eager_exports",
+        owner="test-owner",
+        readme=facade,
+        reference_doc=facade,
+        supported_entrypoints=("polisyos.fixture",),
+        major_subsystem=False,
+        notes="fixture",
+    )
+    markdown = guardrails.render_public_surface_markdown(
+        guardrails.build_public_surface_inventory([policy])
+    )
+
+    assert (
+        f"- Export resolution incomplete; source reason follows:\n\n````text\n{reason}\n````"
+        in markdown
+    )
+    assert (f"- Export scope: `{result.export_resolution['exports_scope']}`") in markdown
+    assert (f"- Candidate scope: `{result.export_resolution['candidate_scope']}`") in markdown
+    assert "Source-declared candidates (1; native exports unproved)" in markdown
+    assert result.exports == ()
+    assert result.export_count is None
+    assert result.known_export_count == 0
 
 
 def test_local_names_and_sequence_concat_share_same_reader() -> None:

@@ -5,7 +5,7 @@ runtime boundary: [data plane](data-plane.md).
 
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source of truth: `policy-engine/src/polisyos/fabric/provenance/lineage.py`,
   `policy-engine/src/polisyos/fabric/ingestion/ingestion.py`,
   `policy-engine/src/polisyos/fabric/connectors/transform/`, and the tests
@@ -15,6 +15,10 @@ source pin. The tests establish graph operations and the specifically named
 instrumentation/ingestion paths; they do not establish automatic full-chain
 capture.
 Test status: tests were inspected but not run in this documentation pass.
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 `FabricLineageTracker` is a graph builder over `ProvenanceCoreGraph`. There is
 one bounded runtime capture path: with CAS configured, when connector ingestion
@@ -31,11 +35,10 @@ claim producer, or query helper. Graph capability therefore does not show that
 those producers and consumers automatically contribute to one shared lineage
 record.
 
-`policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md` keeps the
-broader target of lineage that answers origin and impact across
-ingestion, materialization, and query. The current implementation evidence
-below separates that target from the bounded graph capture and manually
-assembled examples that exist at this pin.
+`policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md` records the
+broader target of lineage that answers origin and impact across ingestion,
+materialization, and query. That target is separate from the bounded graph
+capture and manually assembled examples established at this source pin.
 
 ## Graph kinds the helper can represent
 

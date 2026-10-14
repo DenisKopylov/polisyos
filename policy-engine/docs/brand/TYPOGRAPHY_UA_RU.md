@@ -4,6 +4,14 @@
 > punctuation, hyphenation, pluralisation, dates, numbers, and currency.
 > Foundation for Phase 1.7 (i18n — UA/RU typography, G6).
 
+This page is a typography reference, not a claim of locale support. D4-A1
+ratified English (`en`) as authored primary and Ukrainian (`uk`) as its
+translation; the Russian UI catalog is `legacy_continuity_frozen` (not used,
+not deleted) and is excluded from active locale exposure and public support
+claims. Russian source-content rendering is a separate read-only capability.
+See D4 in `ATLAS_SOURCE_OF_TRUTH.md`; the typography rules below do not
+re-ratify the locale posture.
+
 - Status: Foundation (Phase 1.0)
 - Date: 2026-04-22
 - Owner: Denis Kopylov
@@ -11,11 +19,11 @@
 
 ## 1. Languages in scope
 
-- English (`en-US`) — primary and authored source of truth; defines fallback.
-- Ukrainian (`uk-UA`) — product translation of the English source.
-- Russian (`ru-RU`) — read-only target; no writing UI is produced in Russian
-  by default, but content ingested from Russian sources must render
-  correctly.
+- English (`en`) — authored primary and source of truth; defines fallback.
+- Ukrainian (`uk`) — product translation of the English source.
+- Russian (`ru`) — frozen UI-catalog continuity, not an active or publicly
+  supported UI locale. Russian source content remains a separate read-only
+  display concern; retained rules here do not imply Russian UI support.
 
 Polish, Belarusian, Kazakh, and other Cyrillic languages are **out of scope**
 for Wave 1. They may share typography rules but will not be tested until

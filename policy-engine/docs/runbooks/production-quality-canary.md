@@ -9,7 +9,9 @@ Related triage: [Production quality triage](production-quality-triage.md).
 
 Owner: `@platform-owners` with `@runtime-owners`, `@scientist-owners`,
 `@foundry-owners`, `@fabric-owners`, and security/compliance reviewers.
-Last tested: 2026-05-13 against Phase 6.2 docs-gate probes.
+Historical documentation-gate receipt (as recorded by this page): `2026-05-13`, Phase 6.2 docs-gate probes; no canary execution or runtime readiness was established by that receipt.
+Source of truth: `tools/ops_runners/runtime/canary_matrix.py`, `tools/ops_runners/runtime/run_canary_matrix.py`, `tools/ops_runners/runtime/local_production_canary.py`, and `tools/quality/testing/runtime_resilience_matrix.py`.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. No canary, provider, runtime, database, or network procedure was run in this update.
 Evidence path: `.polisyos/canary_evidence/`, `.polisyos/provider_quality/`,
 `_build/.tmp/production-quality/`, and CAS refs named in the scorecard.
 Rollback path: stop promotion, keep the evidence bundle immutable, and return
@@ -50,21 +52,34 @@ uv run python tools/ops_runners/runtime/canary_matrix.py \
   --json-output _build/.tmp/production-quality/canary_matrix.json
 ```
 
-Expected output starts with:
+The list command reports the source-declared matrix and writes its complete
+inventory to the requested JSON path. At source pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`, the output was:
 
 ```text
-Canary matrix: 128 lanes, 8 ready, 64 quarantined, 40 deferred, 16 skipped, 1 CI-safe
+Canary matrix: 128 lanes, 2 ready, 68 quarantined, 42 deferred, 16 skipped, 1 CI-safe
 profile-dev__provider-live_gonka_proxy__data-canonical_production__scenario-adversarial__ui-api_only [quarantined]
 ...
 profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only [ready ci]
 ```
 
+These counts are derived by `tools/ops_runners/runtime/canary_matrix.py` from
+its complete Cartesian product of declared dimensions (128 combinations; path
+denominator: that one Python source file; file-type denominator: 1 Python
+file). The list command above recomputes the source inventory. These are
+matrix classifications, not observed runtime readiness or proof that a lane
+will execute successfully.
+
 Interpretation:
 
-- `ready ci` is safe for ordinary deterministic CI.
-- `ready` is executable locally but not necessarily selected by the CI-safe
-  subset.
-- `quarantined` requires explicit live-provider approval and credentials.
+- `ready ci` is marked CI-safe by the source matrix; this does not report a
+  current CI execution.
+- `ready` means the matrix source assigned no known prerequisite gap; it does
+  not establish that the local data, database, or service prerequisites are
+  present.
+- `quarantined` means a source-declared prerequisite remains; live-provider
+  lanes require explicit approval and credentials, while governed/production
+  lanes require PostgreSQL-backed control-plane state.
 - `deferred` and `skipped` are declared gaps, not missing rows.
 
 ## Run The Deterministic Canary Subset
@@ -78,18 +93,27 @@ uv run python tools/ops_runners/runtime/run_canary_matrix.py \
   --timeout-s 1200
 ```
 
-Expected success output:
+The `--deterministic` selector in `tools/ops_runners/runtime/run_canary_matrix.py`
+chooses lanes marked both `ready` and `closeout_required` in
+`tools/ops_runners/runtime/canary_matrix.py`. At the pinned source it selects
+the research-profile, simulated-provider, canonical-production-data,
+public-golden, API-only lane (path denominator: those 2 Python files; file-type
+denominator: 2 Python files). This is a lane selection, not a pass expectation;
+executing it depends on current local data and runtime prerequisites, and this
+documentation review did not execute it.
+
+Example success output, if all runtime prerequisites are satisfied:
 
 ```text
 Canary matrix run: 1 selected, 1 executed, 1 passed, 0 failed, 0 blocked, 0 skipped
-profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only [passed] bundle=.polisyos/canary_evidence/... scorecard=pass
+profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only [passed] bundle=.polisyos/canary_evidence/... scorecard=pass
 ```
 
-Expected failure output:
+A failed lane can produce this summary shape; it is not a current result:
 
 ```text
 Canary matrix run: 1 selected, 1 executed, 0 passed, 1 failed, 0 blocked, 0 skipped
-profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only [failed] bundle=<path-or-none> scorecard=<status>
+profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only [failed] bundle=<path-or-none> scorecard=<status>
 ```
 
 If the command exits `2`, open
@@ -113,7 +137,7 @@ uv run python -m tools.ops_runners.runtime.local_production_canary \
   --timeout-s 900
 ```
 
-Expected output includes:
+Illustrative output includes:
 
 ```text
 Evidence bundle: .polisyos/canary_evidence/manual-dev/<timestamp>_<job_id>
@@ -138,9 +162,10 @@ for failure in scorecard.get("blocking_quality_failures") or []:
 PY
 ```
 
-Expected clean output has `execution_status= completed`,
+An example of a clean output shape is `execution_status= completed`,
 `quality_status= pass`, `approval_state= approval_ready`, and
-`blocking_failures= 0`.
+`blocking_failures= 0`. This is a source-defined success shape, not a result
+observed in this review or a guarantee for a future run.
 
 ## Run A Scenario Matrix Lane
 
@@ -155,7 +180,13 @@ uv run python tools/ops_runners/runtime/run_canary_matrix.py \
   --timeout-s 1200
 ```
 
-Expected output:
+The source matrix classifies this production-profile lane as quarantined until
+PostgreSQL-backed control-plane state is available. Explicit `--lane-id` picks
+the row; it does not remove the setup prerequisite or prove production
+readiness. The runner may block. Do not treat a local simulated-provider lane
+as evidence that a production deployment or external policy path is healthy.
+
+If prerequisites are satisfied, a successful run may emit this shape:
 
 ```text
 Canary matrix run: 1 selected, 1 executed, 1 passed, 0 failed, 0 blocked, 0 skipped
@@ -170,8 +201,9 @@ uv run python tools/ops_runners/runtime/run_canary_matrix.py \
   --json-output _build/.tmp/production-quality/public_golden_matrix_run.json
 ```
 
-Scenario mode selects CI-safe deterministic lanes unless
-`--allow-live-provider` is also supplied.
+Scenario mode selects source-declared `closeout_required` lanes; with
+`--allow-live-provider`, it can additionally select ready lanes for that
+scenario. This is a selection rule, not a current environment verdict.
 
 ## Run A Live-Provider Canary
 
@@ -182,7 +214,7 @@ secret:
 test -n "${POLISYOS_LLM_GATEWAY_API_KEY:-}" && echo "live provider credential present"
 ```
 
-Expected output:
+Example successful replay output:
 
 ```text
 live provider credential present
@@ -225,7 +257,7 @@ Expected output:
 ```text
 Replay manifest: <cas-ref>
 Drift explanation: <cas-ref>
-Production readiness: pass
+Bundle production-readiness result: pass
 ```
 
 Exit code `2` means the drift explanation has
@@ -242,12 +274,10 @@ uv run python tools/quality/testing/runtime_resilience_matrix.py \
   --json-output _build/.tmp/production-quality/resilience_matrix.json
 ```
 
-Expected output starts with:
-
-```text
-Runtime resilience matrix: 8 scenarios, 4 performance warnings, 2 operational failures, 1 quality failures, 1 quarantined
-load_overload [performance_warning]: control_plane control.job_heartbeat 1450.0ms/1000.0ms
-```
+The CLI derives its summary from the current source-defined scenario set and
+prints operator findings. Counts and findings are run output, not a stable
+promise or a live production-health result; no resilience matrix was run in
+this review.
 
 Performance warnings can still require approval override for serious profiles.
 Operational failures fail closed. Quality failures route back to the scorecard

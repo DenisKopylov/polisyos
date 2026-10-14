@@ -33,9 +33,9 @@ claims, provenance events, conflict sets, trust assessments и quality reports.
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-## Текущее состояние
+## Снимок README (2026-04-03)
 
-- Последнее обновление: 2026-04-03
-- Files: 11 Python files
-- Exports: 43 public names in `__init__.py`
-- Delta status: кодовая поверхность стабильна; README обновлен, чтобы точнее зафиксировать current world ABI and deterministic ID surface
+- Files: 11 Python files in the snapshot recorded by this README
+- Exports: 43 public names in `__init__.py` in that same snapshot
+- These are historical counts, not a current inventory. The current package surface lives under `src/polisyos/ir/world/`, and exported names are declared by `src/polisyos/ir/world/__init__.py`; recensus those sources before publishing a current count or stability claim.
+- At that refresh, this README was updated to describe the world ABI and deterministic ID surface.

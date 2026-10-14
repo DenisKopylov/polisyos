@@ -8,13 +8,23 @@ Source of truth: `policy-engine/architecture/packages/scientist.toml`, `policy-e
 Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
 Evidence level: package contract, selected import-surface test assertions, and linked workflow/Foundry handoffs were inspected at the source pin; tests were not executed. The contract and import-test discrepancy below is reported as observed, not reconciled.
 
+This source snapshot does **not** establish a functional end-to-end Scientist
+policy-proof system. The reference maps component contracts and selected
+consumers; the observed workflow still has a missing request-to-Trinity
+producer, a builtin path without a grounding-matrix consumer, and no appointed
+Claim Ledger owner for current-head authority. See [Current Scientist
+Workflows and Evidence Handoffs](current-workflows.md) for these boundaries
+and their capability labels. A node, artifact type, focused test, or accepted
+phase gate alone is not integration readiness.
+
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).
 
-`polisyos.scientist` is the orchestration layer that turns an `ExperimentState`
-into a routed workflow run, executes builtin nodes against a CAS-backed
-execution context, applies governance, and publishes replayable decision
-artifacts.
+`polisyos.scientist` provides APIs, workflow specifications, and executor
+components for routing an `ExperimentState`, building an execution context,
+running selected builtin nodes, applying configured governance, and projecting
+outputs. Those components do not establish end-to-end readiness; the current
+integration boundaries are mapped below.
 
 ## Package Topology
 

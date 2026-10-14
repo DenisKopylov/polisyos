@@ -23,6 +23,12 @@ retained_for: DS2 counterpart evidence and ADR-047 history
 
 **Dark theme ADR:** `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md`
 
+This is a dated adoption record, not a current browser or production
+verification receipt. Its production-alignment findings remain tied to the
+review date in the frontmatter; the later
+[frontend source map](../reference/frontend/current-surface-map.md) covers
+selected source paths at its pinned commit and does not rerate this record.
+
 This record explains what was accepted from the Atlas v4 archive, what already
 existed in production, and which differences are intentional. The rule is
 simple: production and the v4 reference must agree, or the difference must have

@@ -1,6 +1,10 @@
 # Compiled Treasury randomization
 
 Owner: `polisyos.foundry.compile.randomization` and the native graph executor.
+Source of truth: `src/polisyos/foundry/compile/randomization.py`, `src/polisyos/foundry/compile/trinity_compiler.py`, `src/polisyos/foundry/execute/_internal/graph/__init__.py`, and `src/polisyos/foundry/execute/executor.py`.
+Tests inspected (not run): `tests/unit/foundry/compile/test_randomization.py` and `tests/unit/foundry/compile/test_treasury_execution.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test sources inspected at this pin; tests were not run for this docs-only review.
 
 New Trinity compilations mark `ExecPlan.notes` with
 `randomization:treasury_salts_v1`. Their execution manifest contains exactly one

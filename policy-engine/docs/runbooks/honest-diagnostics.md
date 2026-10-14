@@ -11,9 +11,10 @@ and `docs/system-design-decisions/honest-diagnostics-substrate.md`.
 Owner: `@platform-owners` with `@runtime-owners`,
 `@scientist-owners`, `@fabric-owners`, `@foundry-owners`, `@lex-owners`,
 `@security-owners`, and compliance reviewers.
-Last tested: `2026-05-15` against the Phase 6.5 documentation lifecycle
-checks. Runtime commands below are diagnostic anchors for the owning failure
-mode, not a full rehearsal.
+Historical documentation-validation receipt (as recorded by this page):
+`2026-05-15`, Phase 6.5 documentation-lifecycle checks. Runtime commands below
+are diagnostic anchors for the owning failure mode, not a full rehearsal, and
+no runtime procedure was executed in this update.
 Evidence path: runtime diagnostic event log, runtime CAS authority refs,
 `quality_evidence/quality_scorecard.json`,
 `quality_evidence/evidence_provenance_manifest.json`,

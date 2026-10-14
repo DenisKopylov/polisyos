@@ -14,19 +14,30 @@
 Кодовый ABI registry находится в `src/polisyos/schemas/abi_models.py`; эта
 директория остается только для JSON/YAML/OpenAPI snapshot артефактов.
 
-## Актуальное состояние (2026-03-03)
+## Где проверять текущее состояние
 
-- ABI registry: `50` активных моделей (`ir=48`, `fabric=2`), все в `compat_mode=strict`.
-- Приоритеты ABI: `p0=18`, `p1=23`, `p2=9`.
-- `version_field=None` у `certification_result`, `data_view_request`, `outer_search_result`, `edge_kind`, `node_kind`.
-- ABI manifests:
-  - `snapshots/ir/_manifest.json`: `generated_at=2026-03-03T16:49:25+00:00`;
-  - `snapshots/fabric/_manifest.json`: `generated_at=2026-03-02T16:48:08+00:00`.
-- Connector snapshot: `version=1`, контрактов `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
-- Runtime OpenAPI: `openapi=3.1.0`, `PolicyOS Runtime API 1.0.0`, `37` операций (`27 GET`, `10 POST`).
-- `packages/runtime-api-client` owns the full generated client chain; its
-  low-level renderer writes only to a caller-provided private scratch path,
-  while `types.ts` and the canonical TS/JS client are the committed outputs.
+Эта страница описывает расположение контрактов, а не публикует единый
+инвентарь их текущих размеров и версий. Для владельцев, статусов и committed
+outputs используйте [каталог generated artifacts](../docs/reference/generated-artifacts.md)
+и его [исходный реестр](../architecture/generated_artifacts.toml). Для конкретного
+значения сверяйте соответствующий исходный контракт и snapshot или manifest.
+
+- Кодовый ABI registry: `src/polisyos/schemas/abi_models.py`; ABI snapshots и
+  manifests: `snapshots/ir/` и `snapshots/fabric/`.
+- Source connector contracts: `src/polisyos/fabric/connectors/sources/_contracts/`;
+  committed snapshot: `snapshots/connectors/contracts.json`.
+- Runtime API source: `src/polisyos/runtime/http/`; committed OpenAPI snapshot:
+  `runtime_api_v1.openapi.json`.
+
+Это разные наборы с разными знаменателями: число моделей в registry нельзя
+считать числом schema-файлов в snapshot, а число connector definitions — числом
+операций OpenAPI. При публикации любого количества или версии указывайте точный
+артефакт и его собственную версию или generation metadata; не объединяйте их в
+один «актуальный» счетчик.
+
+`packages/runtime-api-client` owns the full generated client chain; its
+low-level renderer writes only to a caller-provided private scratch path,
+while `types.ts` and the canonical TS/JS client are the committed outputs.
 
 ## Архитектурные потоки
 
@@ -63,11 +74,11 @@ src/polisyos/runtime/http/app.py
 | `src/polisyos/ir/world/abi.py`                      | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric`     |
 | `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector-контрактов для `snapshots/connectors/contracts.json` |
 | `src/polisyos/runtime/http`                         | Источник OpenAPI контракта для `runtime_api_v1.openapi.json`            |
-| `tools/quality/diagnostics`                                 | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
+| `tools/quality/diagnostics`                         | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
 | `tools/devx/connectors`                             | Drift/compatibility проверка и обновление connector snapshot            |
-| `tools/ops_runners/runtime`                                     | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
+| `tools/ops_runners/runtime`                         | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
 | `packages/runtime-api-client`                       | Коммитный runtime SDK (TS/JS)                                           |
-| `apps/runtime-dashboard`                        | Генерация OpenAPI типов для UI (`corepack pnpm run generate:api`)                 |
+| `apps/runtime-dashboard`                            | Генерация OpenAPI типов для UI (`corepack pnpm run generate:api`)       |
 
 ## Рабочие команды (из `policy-engine/`)
 

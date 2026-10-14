@@ -13,11 +13,22 @@ Related references: [auth and tenant model](../reference/api/auth-tenant-model.m
 
 Related decisions: [ADR-0097](../adr/0097-runtime-rate-limiting-and-idempotency.md), [ADR-0101](../adr/0101-runtime-audit-trail-model.md), and [ADR-0102](../adr/0102-key-rotation-lifecycle-and-trust-store-policy.md).
 
+Related authority boundary: [identity and custody decision](../system-design-decisions/policyos-identity-and-custody-boundary.md)
+and [Stage-0 custody ratification](../system-design-decisions/stage0-custody-kernel-ratification.md).
+
 ---
 
 ## Security roles are separate
 
-PolicyOS's security code separates four decisions: who the caller is, which API action that caller may perform, which resources that action is bound to, and which deployment-owned signer or publisher may custody a durable record. Authentication or route permission does not establish that a policy conclusion is admissible. A signature authenticates bytes under a configured identity and purpose; it does not grant broader policy or publication authority.
+PolicyOS's security code separates four decisions: who the caller is, which
+API action that caller may perform, which resources that action is bound to,
+and which deployment-owned signer or publisher may custody a durable record.
+Authentication or route permission does not establish that a policy conclusion
+is admissible. A signature authenticates bytes under a configured identity and
+purpose; it does not grant broader policy or publication authority. This
+follows the identity decision's §1 signature rule and Stage-0 **S0-K05**,
+**S0-K07**, and **S0-K12**: transport, projection, and content equality do not
+create authority.
 
 The diagram groups the current owners by responsibility. The mutation-control branch applies only to paths recognized by its middleware, while the custody branches are separate service compositions.
 

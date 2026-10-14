@@ -10,6 +10,14 @@
 - Authoritative ADR: [ADR-043](../adr/ADR-043-provenance-law.md)
 - Related: [GLYPH_SPECIFICATION](GLYPH_SPECIFICATION.md), [A11Y_CONTRAST](A11Y_CONTRAST.md), [MOTION](MOTION.md)
 
+This is a visual encoding specification, not a method verifier. A chart may
+show `identified`, `estimated`, `assumed`, or `disputed` only when its typed
+input and evidence owner support that classification; a fill or animation
+cannot establish causal identification, admissibility, policy authority, or
+publishability. The [current frontend surface map](../reference/frontend/current-surface-map.md)
+records inspected consumer paths and their limits. Tests referenced here were
+not run for this documentation pass.
+
 ## 1. Why a language
 
 PolicyOS already has primitives that _render_ uncertainty: `ConfidenceDial`,

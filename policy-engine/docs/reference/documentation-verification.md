@@ -45,15 +45,44 @@ Other paths can dispatch public-surface, schema, API, extension-example, or subs
 
 `uv run polisyos-tools validation check-docs-accuracy --repo-root .` is the direct accuracy check. The docs gate calls `uv run polisyos-tools validation check-docs-freshness-baseline`, which runs that same checker and applies the registered baseline rules from `architecture/exceptions/docs_freshness.toml`.
 
-The accuracy check's page denominator is the explicit MkDocs `nav` plus `not_in_nav` entries, after `exclude_docs` filtering. It checks that those entries resolve, that the fixed generated-reference allowlist is published, and then scans those published Markdown files for:
+The page denominator is MkDocs' actual included-file set from
+`load_config()` and `get_files()`, including unlisted pages. Navigation policy
+is checked separately: both `nav` and `not_in_nav` destinations must belong to
+that actual set, including MkDocs' default exclusions and negated patterns.
+Existing files in the fixed generated-reference allowlist must remain
+published; absent allowlisted files are currently skipped, so missing-file
+completeness is not established by this predicate. Every included
+Markdown page is scanned for:
 
-- the repository-URL placeholder and same-host absolute docs URLs inconsistent with `site_url`;
-- literal `.yml` workflow references against actual `.github/workflows/*.yml` names;
-- inline relative Markdown links, with a path-segment classifier followed by existence and publication checks for links that pass that classifier;
-- canonical regeneration-command wording on the generated-reference allowlist; and
-- `Owner:` plus `Source of truth:` metadata on published manual pages under `docs/reference/`.
+- repository placeholders and same-host docs URLs inconsistent with `site_url`;
+- literal `.yml` workflow references against actual workflow filenames;
+- supported inline and full/collapsed/shortcut reference Markdown page links;
+- canonical regeneration wording on the generated-reference allowlist; and
+- plain-line `Owner:` and `Source of truth:` on manual reference pages.
 
-The inline-link classifier has a P38 proxy boundary: before resolving a target, it treats a relative link containing any segment from a fixed list (`.github`, `benchmarks`, `frontend`, `release`, `schemas`, `src`, `tests`, `tools`) as a link outside the published docs tree. The property is whether the destination actually resolves within the published docs surface; for example, `../frontend/index.md` from another reference page can point to a published page while the `frontend` segment causes rejection. For that case the checker measures a segment name, not the destination property. Reference-style links are outside its parser, so their target validity must be checked by MkDocs and the complete link/anchor QA, not inferred from an accuracy-check pass. The checker prints its measured set and omissions. It does not establish prose truth, runtime behavior, external URL liveness, content accuracy for unpublished pages, reference-style link correctness, image or asset existence, unresolved extensionless links, `.yaml` workflow references, or deployed-site behavior. It reads the MkDocs inheritance chain and needs PyYAML to determine publication membership; without it, the checker returns `UNRUN` rather than a clean verdict. See `tools/quality/validation/check_docs_accuracy.py`.
+Relative Markdown destinations are resolved under the configured docs root
+and compared with actual inclusion. A `frontend` segment is no longer an
+outside-doc proxy. Python-Markdown owns link parsing and reference-label
+normalization; supported two-line inline labels are position-measured.
+Unsupported multiline destination/title syntax, unreadable Markdown, missing
+parser/config dependencies or unavailable selection produce `UNRUN` (exit 2)
+and partial findings, never a clean verdict. Violations after a complete
+admitted-input scan return exit 1; zero violations return exit 0.
+
+Each result emits the actual file manifest, navigation and exclusion selectors,
+workflow filename inventory, measured read outcomes and content hashes. The
+receipt names unobserved config/plugin/import/Git operations. Its completeness
+field refers to the admitted checker predicates, not repository-wide truth.
+Plain metadata is an authoring predicate, not owner verification or authority.
+
+The checker does not establish prose truth, runtime behavior, external URL
+liveness, unpublished content accuracy, raw HTML/image/asset reachability,
+root-relative URL or fragment-anchor validity, absent generated-allowlist
+files, unsupported multiline forms,
+extensionless targets without a Markdown/index destination, `.yaml` workflow
+references, deployed-site behavior or hosted CI. Complete source/asset and
+emitted-site link QA supplements it. See
+`tools/quality/validation/check_docs_accuracy.py`.
 
 The freshness wrapper is a baseline comparison, not a page-age scan. The current baseline expects zero violations, so it still requires the live accuracy check to exit successfully and report exactly zero. A positive-count exception must bind its owner, reason, command, issue, expiry, exact count, and output digest. The wrapper's input remains the published-page accuracy set; it does not assert that every Markdown file has a recent `Last updated` marker. See `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/lib/docs_freshness.py`, and `architecture/exceptions/docs_freshness.toml`.
 
@@ -65,8 +94,9 @@ The actual build input can exceed the explicit `nav`/`not_in_nav` page set:
 MkDocs also includes unlisted documents unless excluded. For a publication-scope
 change, enumerate `mkdocs.structure.files.get_files(load_config(...))` and its
 included files, then check links from that complete Markdown set and the
-included assets. Comparing only the accuracy check's declared set does not
-establish reachability for every built page. This is a P35 denominator boundary.
+included assets. The accuracy checker now uses that actual set for Markdown pages. Its asset
+and fragment omissions still require complete source and emitted-site QA;
+a Markdown-only checker does not establish every built asset's reachability.
 
 Strict mode fails on warnings, not every diagnostic. With the current default
 MkDocs link-validation configuration, a link to an excluded page can be logged
@@ -82,11 +112,49 @@ a warning-free build and complete local reachability.
 
 This is not a general document-accuracy, link, or freshness checker. Its generic repository walks use tracked paths from `git ls-files --cached`; other checks use declared manifests, fixed subtree lists, or ADR generator inputs. It does not mean every physical or untracked file was inspected. The lifecycle validator is dispatched by the path-aware gate for ADR, plan, archive, and MkDocs navigation/configuration paths.
 
+The removed-path reference subcheck records its complete tracked-path
+selection and explicit byte/readlink operations. Directory-presence checks use
+all tracked paths, independently of text selectors. Recognized opaque
+containers are byte-read but not decoded; selector exclusions are not read;
+unknown invalid UTF-8, malformed JSON and failed reads remain ambiguous.
+These classes retain unresolved findings and an `UNRUN` exit 2 when the
+reference scan is incomplete. Actual stale-reference findings remain visible.
+
+The receipt is explicitly reference-scan-only. ADR/generator, plan, redirect,
+archive, package/TOML and extension-example input families remain unmeasured
+by that receipt and are named boundaries. Historical-audit and archive-map
+suppression still rely on declared roles/shaped metadata rather than resolved
+archive bytes or verified provenance (P32); table roles use the canonical
+Markdown tokenizer. No full lifecycle truth or evidence authority follows
+from a bounded reference scan.
+
+### Documentation inventories and indexes
+
+The public-surface renderer exposes existing candidate and export-proof scope,
+with compact bindings to its canonical JSON read receipts. A source candidate
+is not a proved native export; unresolved native counts remain unknown.
+
+The Fabric inventory counts statically resolved public connector class
+declarations using canonical ancestry and declared interface slots. Unknown
+namespace binding/import forms yield partial coverage. Contract counts plus a
+validator path do not establish connector-ID identity: that join remains
+`not_established` and the family state stays partial. Explicit operations are
+retained in JSON and bound compactly from Markdown. Native imports, valid slot
+values, operational connectors and deployment remain outside this method.
+
+ADR indexes parse source-declared statuses and explicit relation fields,
+including their supported continuations. Missing/unrecognized status is
+`unknown`; narrative “replaces” cannot create a supersession edge. An accepted
+record, index link or generated count does not establish implementation.
+Unsupported relation vocabulary and primary-record/source mismatches remain
+named audit boundaries. Regenerate through the canonical generator rather
+than editing the derived indexes.
+
 ## Baseline failure attribution
 
 If a check is already red on entry, apply `P41` from the [Policy Design Case failure and repair register](policy-design-case-failure-patterns.md): replay the exact command from a base predating all work in the slice, then establish whether the changed paths intersect that check's complete input denominator. For a closure or handoff, use the slice's base, not a later cluster base. Only a reproduced failure with a proven zero intersection is inherited; record its owner and proceed. If it does not reproduce, identify the introducing work. If the exact base cannot be replayed, classify the result as `not_established`; do not select a nearer base to force attribution. If the changed paths overlap the gate inputs, do not report the failure as inherited without tracing that overlap.
 
-For docs checks, name the denominator explicitly: the published `nav`/`not_in_nav` page set for accuracy, the configured authored Markdown scope for Markdownlint, the generated source/output pairs for tool-config validation, or the tracked paths and manifest-declared sets used by lifecycle validation. A summary count from one of these checks must retain that scope; it is not a repository-wide count of current documentation.
+For docs checks, name the denominator explicitly: the actual MkDocs included Markdown set for accuracy (with nav policy separately), the configured authored Markdown scope for Markdownlint, the generated source/output pairs for tool-config validation, or the tracked paths and manifest-declared sets used by lifecycle validation. A summary count from one of these checks must retain that scope; it is not a repository-wide count of current documentation.
 
 ## Tool prerequisites
 

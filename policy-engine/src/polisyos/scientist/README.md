@@ -28,7 +28,11 @@ governance, and publishes replayable decision artifacts across the `ir`,
 - `ExperimentState` in [`orchestration/engine/state.py`](orchestration/engine/state.py): boundary model passed across nodes and checkpoints
 - Workflow launchers in [`orchestration/workflows/builder.py`](orchestration/workflows/builder.py): `run_default_workflow(...)`, `run_causal_full_workflow(...)`, `run_policy_verified_workflow(...)`, `run_policy_design_workflow(...)`, and `run_discovery_workflow(...)`
 - Workflow specs in [`orchestration/workflows/`](orchestration/workflows/): inspect builtin DAG layouts before changing routing or nodes
-- Search/discovery/research DAG canonical imports in [`methods/`](methods/): legacy `search`, `discovery`, and `research_dag` packages are compatibility shims
+- Search, discovery, and research-DAG implementations live under
+  `src/polisyos/scientist/methods/`. Use the `polisyos.scientist.methods.*`
+  namespace for new imports. Repository metadata and the checked-in
+  import-contract tests disagree about package-root compatibility imports, so
+  this guide does not treat first-level legacy roots as supported.
 - Governance helpers in [`governance/preflight.py`](governance/preflight.py) and [`governance/postflight.py`](governance/postflight.py): pre/post-flight validation surfaces
 - Governance pass discovery via `load_governance_passes()` and `build_governance_pipeline()` in [`api.py`](api.py): explicit `polisyos.scientist_governance_passes` extension path with builtin fallbacks
 - Bounded agent adapter support via the root facade: `ToolRegistry`,
@@ -109,10 +113,14 @@ Run node and workflow tests together when state aliases or DAG routing change.
 
 ## Known Shims/Deprecations
 
-- Active Scientist lane shims are registered in
-  [architecture/shims.toml](../../../architecture/shims.toml), including
-  legacy `search`, `discovery`, `research_dag`, validation, governance, replay,
-  and orchestration import paths.
+- The status of first-level Scientist method roots is inconsistent across
+  `architecture/packages/scientist.toml`, `architecture/shims.toml`, and the
+  checked-in `tests/unit/scientist/methods/test_import_shims.py`.
+  The import-contract test asserts that old `search`, `discovery`, and
+  `research_dag` roots are unavailable, while package metadata declares a
+  different compatibility-root set. Use `polisyos.scientist.methods.*` for new
+  imports; reconcile those registries before documenting the old roots as
+  supported.
 - High-complexity Scientist nodes and validation modules are tracked in
   [architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
   with owner `team-scientist` and sunset `2026-12-31`.
@@ -129,7 +137,7 @@ Run node and workflow tests together when state aliases or DAG routing change.
 
 ## Last Updated
 
-- Last updated: 2026-06-10
+- Last updated: 2026-10-14
 
 Canonical epoch issuance uses a neutral port in `validation/epoch_certificate_issuance.py`.
 The actual decision-packet builder owns invocation/completion emission; Runtime

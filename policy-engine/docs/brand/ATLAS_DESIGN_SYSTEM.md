@@ -21,6 +21,12 @@ retained_for: DS2 comparison and DS4 migration
 
 **Adoption record:** `docs/brand/ATLAS_V4_ADOPTION.md`
 
+The production-baseline statements below are retained from the review date in
+this document's frontmatter. The later
+[frontend source map](../reference/frontend/current-surface-map.md) inspects
+selected route, client, and status paths at its pinned commit; it does not
+recheck the full design baseline, visual rendering, or deployment.
+
 This document adapts the Atlas v4 archive into the current production reality.
 It is retained as dated v4 rationale and DS2/DS4 migration evidence. The live
 code remains the operational production baseline until strangled item by item;

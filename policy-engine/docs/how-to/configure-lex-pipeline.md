@@ -3,6 +3,14 @@
 Related explanation: [Lex Pipeline](../explanation/lex-pipeline.md). Related reference: [Lex](../reference/lex/index.md).
 Evidence: `tests/unit/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 
+Проверка исходников: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+(2026-10-14); прочитаны `src/polisyos/data_forge/domains/legal/corpus/`,
+`src/polisyos/data_forge/domains/legal/contracts.py`, `src/polisyos/lex/api.py`,
+`src/polisyos/lex/types.py`, `src/polisyos/runtime/http/routes/control.py` и
+`src/polisyos/runtime/http/services/control/lex_pipeline.py`. Команды, HTTP-запросы
+и тесты в рамках этой проверки не запускались; это не подтверждение готового
+runtime или внешней конфигурации.
+
 > Эта страница для инженеров и операторов, которым нужно собрать устойчивый Lex ingestion path, а не просто разово вызвать один helper.
 
 ## Вход
@@ -30,12 +38,14 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 
 В PolicyOS есть два нормальных способа работать с Lex:
 
-- stage-level Python API из `polisyos.lex.api`, если вы собираете corpus/versioning/normpack pipeline внутри кода;
+- stage-level Python API для корпуса и версий закона из
+  `polisyos.data_forge.domains.legal.corpus`; для policy-facing `NormPack` и legal
+  evaluation используйте `polisyos.lex.api`;
 - control-plane endpoint `POST /api/v1/control/lex/trigger`, если нужен job-based batch запуск с `pipeline_id` и `job_id`.
 
 ## Когда использовать какой путь
 
-- Используйте stage-level API, если вам нужны точные артефакты и контроль над `cas`, `fact_log_root`, version selection и `NormPackBuildRequest`.
+- Используйте stage-level API, если вам нужны точные артефакты и контроль над `cas`, `fact_log_root`, version selection и `NormPackBuildRequest`; ingest, structure и version index принадлежат Data Forge corpus facade, а сборка `NormPack` — Lex API.
 - Используйте control plane, если важны очереди, `resume`, polling job status и operational visibility через `/api/v1/control/jobs/{job_id}`.
 
 ## 1. Подготовьте artifact roots
@@ -62,8 +72,15 @@ fact_log_root = Path(".polisyos/world")
 Для корпусного stage path используйте `ingest_legal_doc_bytes()` и затем `build_legal_structure()`:
 
 ```python
-from polisyos.lex.api import build_legal_structure, ingest_legal_doc_bytes
-from polisyos.lex.types import LegalDocSource, LexIngestOptions, LexStructureOptions
+from polisyos.data_forge.domains.legal.contracts import (
+    LegalDocSource,
+    LexIngestOptions,
+    LexStructureOptions,
+)
+from polisyos.data_forge.domains.legal.corpus import (
+    build_legal_structure,
+    ingest_legal_doc_bytes,
+)
 
 source = LegalDocSource(
     canonical_url="https://zakon.rada.gov.ua/laws/show/example",
@@ -102,8 +119,14 @@ structure_result = build_legal_structure(
 Если у документа несколько редакций, следующий обязательный слой для reproducible legal evaluation:
 
 ```python
-from polisyos.lex.api import build_version_index, resolve_active_version
-from polisyos.lex.types import ActiveVersionStrategy, LexVersionIndexOptions
+from polisyos.data_forge.domains.legal.contracts import (
+    ActiveVersionStrategy,
+    LexVersionIndexOptions,
+)
+from polisyos.data_forge.domains.legal.corpus import (
+    build_version_index,
+    resolve_active_version,
+)
 
 index_result = build_version_index(
     cas=cas,

@@ -2,11 +2,17 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-26.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/connectors/contracts/**`, `src/polisyos/fabric/connectors/sources/_contracts/**`, `tools/quality/validation/fabric_schema_governance.py`, `schemas/snapshots/{fabric,connectors}/**`
+Source of truth: `src/polisyos/fabric/connectors/contracts/**`, `src/polisyos/fabric/connectors/sources/_contracts/**`, `tools/quality/validation/fabric_schema_governance.py`, `schemas/snapshots/connectors/contracts.json`, and `schemas/snapshots/fabric/connector_contract_registry.json`
+Evidence level: schema, registry, snapshot, and named test behavior inspected at the source pin. Tests were not run in this documentation pass; snapshot presence does not establish a connector-to-world consumer chain.
+Test status: cited tests were inspected but not run in this documentation pass.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 Fabric schema compatibility is currently enforced at three layers:
 
@@ -18,15 +24,15 @@ Fabric schema compatibility is currently enforced at three layers:
 
 ## Current Snapshot Surface
 
-The current workspace has 5 curated source contracts in both committed
-connector-contract snapshots:
+The `contracts` object in each of the two committed JSON snapshot files listed
+above has 5 curated source-contract entries:
 
 `eurostat.data.generic`, `sdmx.generic`, `ukons.datasets.generic`,
 `worldbank.wdi.generic`, and `wvs.wave7.generic`.
 
-| Artifact                                                    | Role                                                                   | Check command                                                                                                      | Refresh command                                                               |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `schemas/snapshots/connectors/contracts.json`               | Baseline connector contract snapshot built from `ALL_SOURCE_CONTRACTS` | `uv run polisyos-tools connectors check-contracts --check`                                                        | `uv run polisyos-tools connectors check-contracts --update`                  |
+| Artifact                                                    | Role                                                                   | Check command                                                                                                             | Refresh command                                                               |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `schemas/snapshots/connectors/contracts.json`               | Baseline connector contract snapshot built from `ALL_SOURCE_CONTRACTS` | `uv run polisyos-tools connectors check-contracts --check`                                                                | `uv run polisyos-tools connectors check-contracts --update`                   |
 | `schemas/snapshots/fabric/connector_contract_registry.json` | Fabric governance snapshot with impact and migration evidence          | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` | `uv run python tools/quality/validation/fabric_schema_governance.py --update` |
 
 ## Change Classification

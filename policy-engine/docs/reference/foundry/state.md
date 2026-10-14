@@ -6,10 +6,13 @@ Foundry runtime state is expressed as JAX-compatible dataclasses and persisted
 through CAS snapshots. This page documents the boundary between compile-time
 slot layout, execute-time state snapshots, and agent-simulation runtime state.
 
-Freshness: 2026-10-07
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/ir/kernel/slots.py`, `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, `src/polisyos/foundry/execute/executor.py`
+Historical freshness receipt: 2026-10-07 (an earlier documentation pass; not a
+current verification receipt).
+Owner: @foundry-owners
+Historical planning context: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md` and the D1-L3 section of `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`.
+Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/ir/kernel/slots.py`, `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, and `src/polisyos/foundry/execute/executor.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation sources inspected at this pin; linked tests were not run for this docs-only review.
 
 This page documents `polisyos.foundry.contracts.state.GlobalState`, the
 compile/execute and release-acceptance state contract. The standalone
@@ -17,15 +20,19 @@ ABM/RL package `polisyos.foundry.agent_sim.state` defines a different
 `GlobalState`; use [Agent Sim](agent-sim.md) when working on that runtime
 directly.
 
-## Phase Coverage
+## Historical Plan Coverage (Not Status)
 
-| Source phase | State meaning                                                                                                          |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Phase 1      | Missing, malformed, or non-finite state is rejected through fail-closed guards where the runtime contract requires it. |
-| Phase 2      | ProgramGraph nodes patch state through explicit slot paths, merge rules, state deltas, and snapshots.                  |
-| Phase 3      | State objects must remain JAX-compatible for hot paths; JAX claims link to JIT and cross-backend tests.                |
-| Phase 4      | Snapshots, state deltas, and environment fingerprints form the replay boundary.                                        |
-| Phase 6      | Multiscale and agent-sim state fields support population, graph, and distribution-aware policy simulation.             |
+These phase names are retained from the Foundry plan. This table describes
+intended scope; it is not evidence that a phase is complete or that the
+separate agent-simulation runtime is wired into every compile/execute flow.
+
+| Historical plan label | State meaning                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Phase 1               | Missing, malformed, or non-finite state is rejected through fail-closed guards where the runtime contract requires it. |
+| Phase 2               | ProgramGraph nodes patch state through explicit slot paths, merge rules, state deltas, and snapshots.                  |
+| Phase 3               | State objects must remain JAX-compatible for hot paths; JAX claims link to JIT and cross-backend tests.                |
+| Phase 4               | Snapshots, state deltas, and environment fingerprints form the replay boundary.                                        |
+| Phase 6               | Multiscale and agent-sim state fields support population, graph, and distribution-aware policy simulation.             |
 
 ## How to Read This Page
 

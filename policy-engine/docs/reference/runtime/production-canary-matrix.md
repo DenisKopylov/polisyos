@@ -1,7 +1,9 @@
 # Production Canary Matrix
 
 Owner: `@runtime-owners`
-Source of truth: `tools/ops_runners/runtime/canary_matrix.py`, `tools/ops_runners/runtime/run_canary_matrix.py`, and `tests/unit/runtime/quality/**`
+Source of truth: `tools/ops_runners/runtime/canary_matrix.py`, `tools/ops_runners/runtime/run_canary_matrix.py`, and `tests/repo_quality/tools/test_canary_matrix.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the matrix generator and tests were not run.
 
 The Phase 0.4 baseline defines the `policyos.canary_matrix.v1` payload emitted by:
 
@@ -22,8 +24,8 @@ safe to diff in CI.
 | `scenario` | `public_golden`, `negative`, `adversarial`, `hidden_quarantined` |
 | `ui` | `api_only`, `dashboard_smoke` |
 
-The full cartesian product contains 128 lanes. Lane ids are stable strings with
-the form:
+The declared dimensions form a Cartesian product. Lane ids are stable strings
+with the form:
 
 ```text
 profile-{profile}__provider-{provider}__data-{data}__scenario-{scenario}__ui-{ui}
@@ -116,3 +118,7 @@ The current baseline records:
   not checked into the public repository.
 - Dashboard smoke lanes as deferred until Playwright/dashboard evidence is wired
   into the production canary runner.
+
+These source-defined lane states describe repository runner coverage. They are
+not evidence that a hosted or production deployment ran, passed, or issued an
+admissible policy recommendation.

@@ -60,7 +60,7 @@ running or visually inspected application renders.
 | --- | --- |
 | Current route, transport, status, and audience behavior | [Current Surface Map](current-surface-map.md) |
 | Role-based onboarding | [Frontend Engineer](../../how-to/onboarding/frontend-engineer.md) |
-| Update the generated contract chain | [REST API](../api/index.md) and `packages/runtime-api-client/README.md` |
+| Update the generated contract chain | [API client update procedure](../../how-to/update-runtime-dashboard-api-client.md), [REST API](../api/index.md), and `packages/runtime-api-client/README.md` |
 | Check workspace ownership and generated-output policy | [Workspace Contract](workspace-contract.md) |
 | Understand runtime base-URL expectations | [Deploy Runtime](../../how-to/deploy-runtime.md) |
 | Debug control-plane-driven UI states | [Use Control Plane](../../how-to/use-control-plane.md) |
@@ -69,6 +69,7 @@ running or visually inspected application renders.
 
 | Area | Command |
 | --- | --- |
+| Registered generated-output freshness | `uv run polisyos-tools architecture guardrails check` |
 | Runtime/OpenAPI/client drift | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py` |
 | Dashboard generated API types | `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api` |
 | Dashboard contract fixtures | `corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify` |

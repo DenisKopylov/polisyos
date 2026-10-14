@@ -5,14 +5,17 @@ Related references: [Scientist](index.md), [Claims](claims.md), [Governance acco
 Owner: `@scientist-owners`
 Backup owner: `@governance-owners`
 Source of truth: `src/polisyos/scientist/governance/human_review/**`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py`, and `tests/unit/scientist/governance/human_review/**`
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The cited release check is conditional on selected packet fields/parameters, not a universal workflow approval gate.
 
 `decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
 producer; `build_decision_packet.py` remains a compatibility facade.
 
-Phase 1.6 makes human oversight an operational control plane. Review packets,
-assignments, decisions and release-status summaries are typed runtime objects
-that can be persisted in CAS and referenced from governance and decision
-artifacts.
+Phase 1.6 defines typed review packets, assignments, decisions and
+release-status summaries that can be persisted in CAS and referenced from
+governance and decision artifacts. The packet checks described here are
+consumer-specific; they do not establish a universal or currently active human
+approval control plane for every Scientist workflow.
 
 ## Artifacts
 

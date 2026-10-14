@@ -1,15 +1,17 @@
 # CAS and Storage Reference
 
-Freshness: 2026-04-17
+Historical freshness marker: `2026-04-17`; this is not a current verification date.
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/core/artifacts/{protocol.py,store.py,backends/config.py}`, `src/polisyos/runtime/http/{dependencies.py,resilience.py}`, `src/polisyos/fabric/storage/tenant_cas.py`, and ADRs `0098`/`0103`
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. The validation commands below were not run, and no CAS backend or environment was inspected.
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_api_maturity.py`
 - `uv run pytest -q tests/unit/core/artifacts/backends/test_config.py tests/unit/fabric/test_storage_port.py tests/unit/fabric/test_duckdb_storage_access_control.py`
 
-This page is manually maintained from the current Core CAS contracts and the
-runtime binding code that turns them into guarded HTTP-facing services.
+This page is manually maintained from the Core CAS contracts and runtime
+binding code at the reviewed source snapshot. It describes repository behavior,
+not the state or health of a live storage backend.
 
 ## Contract Boundary
 
@@ -76,7 +78,7 @@ is:
 - `<root>/artifacts/sha256/ab/cd/<hex>.manifest.json`
 - `<root>/artifacts/sha256/ab/cd/<hex>.sig` for optional detached signatures
 
-Current semantics:
+Semantics at the reviewed source revision:
 
 - `put_bytes()` and `put_json()` derive the artifact ID from payload bytes.
 - Every write persists a manifest sidecar.

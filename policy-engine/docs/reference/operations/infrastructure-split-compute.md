@@ -3,13 +3,25 @@
 > Практическое руководство по развёртыванию PolicyOS с разделением LLM-фазы
 > и вычислительной фазы на разные серверы для оптимизации стоимости и throughput.
 >
-> Дата: 2026-04-04 | Статус: живой документ
+> Дата заметки: 2026-04-04 | Статус: historical target-design snapshot; deployment not verified
+
+Owner: `@platform-owners`
+Source of truth: this 2026-04-04 target-design note describes proposed topology; live host, quota, capacity, object-store, and billing state must come from the currently authorized provider sources and was not checked here.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; document/source inspection only. No host, container, data copy, quota, cost, provider, network, or deployment command was run.
+
+> **Historical planning snapshot.** Machine types, memory/disk sizes, GPU
+> availability, quotas, file/data sizes, throughput estimates, prices, free
+> credits, and monthly/run-cost calculations below are the assumptions recorded
+> in the 2026-04-04 note. They were not refreshed against provider pricing,
+> project quota, or a deployed environment. Treat the architecture and commands
+> as proposals requiring source and environment revalidation, not as a live
+> deployment runbook.
 
 ---
 
 ## Содержание
 
-0. [Реалистичность текущей версии и must-fix](#0-реалистичность-текущей-версии-и-must-fix)
+0. [Реалистичность текущей версии и must-fix](#0-историческая-оценка-разрывов-2026-04-04)
 1. [Мотивация и экономика](#1-мотивация-и-экономика)
 2. [Compute Profile по стадиям pipeline](#2-compute-profile-по-стадиям-pipeline)
 3. [Целевая архитектура](#3-целевая-архитектура)
@@ -27,32 +39,36 @@
 
 ---
 
-## 0. Реалистичность текущей версии и must-fix
+## 0. Историческая оценка разрывов (2026-04-04)
+
+Таблицы ниже сохраняют замечания исходной заметки от 2026-04-04. Их формулировки
+о «текущем коде» и P0/P1 не перепроверялись на снимке исходников, указанном
+выше; считайте их историческими гипотезами, а не актуальным аудитом реализации.
 
 ### Короткий вывод
 
-**Архитектурно split LLM/Compute реалистичен**, но в текущем коде это пока не
-plug-and-play. Документ ниже описывает целевую схему, а перед production rollout
-нужно закрыть несколько P0/P1 разрывов между гайдом и реализацией.
+**Архитектурно split LLM/Compute описан как целевая схема**; заметка утверждала,
+что он не был plug-and-play на дату записи. Перед любым использованием нужно
+сначала проверить эти замечания по выбранному source pin и deployment state.
 
-### P0 — без этого split будет нестабильным или не заработает
+### P0 — блокеры по оценке заметки
 
-| Gap                                                                                             | Почему это блокер                                                          | Что сделать                                                                                                                                   |
-| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `runtime.http` и `scientist.workflows` местами создают `FileSystemCAS(...)` напрямую            | `POLISYOS_CAS_BACKEND=cached_gcs` из env не подхватывается end-to-end      | Перевести runtime/scientist wiring на `build_artifact_store(ArtifactStoreConfig.from_env())`, а `FileSystemCAS` оставить как default fallback |
-| Нет явного phase boundary "LLM-only → compute-only → LLM-only" внутри `scientist_policy_design` | Нельзя надёжно запустить только GPU-сегмент без повторного прогона LLM-нод | Добавить compute-only workflow/profile или executor-level node partitioning + явные split markers                                             |
-| Checkpoint head и run lock сейчас локальные файлы в `run_dir`                                   | Resume на другой машине из одного только GCS CAS не гарантирован           | Либо хранить checkpoint head/lease в shared durable store, либо добавить resume API с явным `checkpoint_ref` и внешним run lease              |
-| `POST /api/v1/control/runs` сейчас создаёт новый `run_id` и не принимает `resume_run_id`        | Recovery flow из секции 10 пока не соответствует текущему API              | Добавить отдельный resume endpoint/job kind или расширить `WorkflowRunRequest` контракт                                                       |
-| `skip_llm_nodes`, `candidates_ref`, `POLISYOS_*_DB_PATH` из примеров не читаются текущим кодом  | Примеры конфигурации выглядят рабочими, но реально будут no-op или ошибкой | Либо реализовать этот env/API контракт, либо пометить его как target-state и не выдавать как текущий runbook                                  |
+| Reported gap in the 2026-04-04 note                                                                | Why the note treated it as a blocker                                               | Proposed follow-up in that note                                                                                                               |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `runtime.http` и `scientist.workflows` местами создают `FileSystemCAS(...)` напрямую               | `POLISYOS_CAS_BACKEND=cached_gcs` из env не подхватывается end-to-end              | Перевести runtime/scientist wiring на `build_artifact_store(ArtifactStoreConfig.from_env())`, а `FileSystemCAS` оставить как default fallback |
+| Нет явного phase boundary "LLM-only → compute-only → LLM-only" внутри `scientist_policy_design`    | Нельзя надёжно запустить только GPU-сегмент без повторного прогона LLM-нод         | Добавить compute-only workflow/profile или executor-level node partitioning + явные split markers                                             |
+| Заметка называла checkpoint head и run lock локальными файлами в `run_dir`                         | Resume на другой машине из одного только GCS CAS не гарантирован по оценке заметки | Либо хранить checkpoint head/lease в shared durable store, либо добавить resume API с явным `checkpoint_ref` и внешним run lease              |
+| Заметка утверждала, что `POST /api/v1/control/runs` создавал новый `run_id` без `resume_run_id`    | Recovery flow из секции 10 не соответствовал API на дату заметки                   | Добавить отдельный resume endpoint/job kind или расширить `WorkflowRunRequest` контракт                                                       |
+| Заметка утверждала, что `skip_llm_nodes`, `candidates_ref`, `POLISYOS_*_DB_PATH` не читались кодом | Примеры конфигурации выглядели как no-op или ошибка на дату заметки                | Либо реализовать этот env/API контракт, либо пометить его как target-state и не выдавать как текущий runbook                                  |
 
-### P1 — желательно закрыть до реальной эксплуатации
+### P1 — follow-up по оценке заметки
 
-| Gap                                                                                            | Риск                                                                                         | Что сделать                                                                                                                       |
-| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `RunHierarchicalPolicySearchNode` уже включает inner compile/readiness/sim loop                | Граница "LLM phase" vs "GPU phase" по DAG сейчас проходит не там, где нарисовано в диаграмме | Пересобрать split-план вокруг фактического node call graph и вынести search eval на GPU сторону                                   |
-| Compute budget и список nodes в секции 2 частично не совпадают с `scientist_policy_design` DAG | Sizing/стоимость будут оптимистичны или неверно атрибутированы                               | Перегенерировать таблицы по `workflows/policy_design.py` + inner evaluator path                                                   |
-| Secrets через скачанный JSON key в checklist                                                   | Long-lived service account key на диске — плохая практика и лишний blast radius              | Для GCE использовать attached service account, для Hetzner — Workload Identity Federation; JSON key только как временный fallback |
-| Нет явного fallback при нехватке Spot GPU capacity                                             | MIG/Spot может не поднять нужный размер группы, run будет ждать                              | Добавить policy: retry с backoff, multi-zone fallback, и controlled fallback на on-demand                                         |
+| Reported gap in the 2026-04-04 note                                                                | Риск, указанный в заметке                                                       | Предложенный follow-up                                                                                                            |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Заметка указывала, что `RunHierarchicalPolicySearchNode` включает inner compile/readiness/sim loop | Граница "LLM phase" vs "GPU phase" по DAG в заметке не совпадала с диаграммой   | Пересобрать split-план вокруг фактического node call graph и вынести search eval на GPU сторону                                   |
+| Compute budget и список nodes в секции 2 частично не совпадают с `scientist_policy_design` DAG     | Sizing/стоимость будут оптимистичны или неверно атрибутированы                  | Перегенерировать таблицы по `workflows/policy_design.py` + inner evaluator path                                                   |
+| Secrets через скачанный JSON key в checklist                                                       | Long-lived service account key на диске — плохая практика и лишний blast radius | Для GCE использовать attached service account, для Hetzner — Workload Identity Federation; JSON key только как временный fallback |
+| Нет явного fallback при нехватке Spot GPU capacity                                                 | MIG/Spot может не поднять нужный размер группы, run будет ждать                 | Добавить policy: retry с backoff, multi-zone fallback, и controlled fallback на on-demand                                         |
 
 ### Рекомендованный rollout-порядок
 
@@ -995,7 +1011,7 @@ GCP Spot instances могут быть прерваны с 30-секундным
 PolicyOS Scientist записывает checkpoint после **каждого** успешного node:
 
 ```python
-# src/polisyos/scientist/engine/checkpoint.py
+# src/polisyos/scientist/orchestration/engine/checkpoint.py
 class CASCheckpointHook:
     def on_node_complete(self, alias, state, cache_refs):
         artifact = CheckpointArtifact(

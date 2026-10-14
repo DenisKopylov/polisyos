@@ -1,8 +1,9 @@
 # Distributional Proof Artifacts
 
-Freshness: 2026-04-19
+Freshness: 2026-10-14
 Owner: `@ir-owners`, `@causal-owners`
 Source of truth: `src/polisyos/ir/analytics/distributional.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 Research rationale: Stage 5.1 in `docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md`
 
 ## Purpose
@@ -17,7 +18,13 @@ They exist to enforce one conservative rule:
 - `DistributionalEffectBundle.justification` stays weakest-link for backward compatibility, while
   `marginal_justification` and `coupling_justification` preserve the finer split.
 
-## Safety Theorem
+This page describes typed contracts and the named Scientist producer path. DTO
+validation checks declared structure, field constraints, reference kinds, and
+required reference presence; it does not resolve referenced bytes or prove that
+a theorem's assumptions hold. A parsed `identified` label or proof reference is
+therefore not, by itself, an authority decision.
+
+## Safety Contract
 
 PolicyOS treats distributional causal claims as safe only under the following contract:
 

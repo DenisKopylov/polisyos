@@ -8,7 +8,7 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 > optional extra.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against current dependency-platform and acceptance-audit references.
+Historical validation receipt (as recorded by this page): `2026-04-17` — dependency-platform and acceptance-audit references available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/dependency-platform.md`; `docs/archive/reports/platform-acceptance.md`; `ops/ci/templates/workflows/arch.yml`
 Rollback path: revert the offending dependency or lockfile delta, restore the previous supported toolchain baseline, and freeze further bumps in that family until triage is complete.
 

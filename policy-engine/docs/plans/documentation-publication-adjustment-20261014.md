@@ -1,6 +1,6 @@
 ---
 title: Curated handbook adjustment after complete input inspection
-status: proposed
+status: accepted
 owner: team-docs
 created: 2026-10-14
 last_verified: 2026-10-14
@@ -10,6 +10,12 @@ stability: draft
 # Curated handbook adjustment
 
 ## Decision requested
+
+The user approved this exact local handbook adjustment on 2026-10-14.
+Implementation and final publication checks will be recorded in this phase's
+maintenance closeout. The earlier documentation-refresh closeout covers a
+different boundary and is not evidence for this adjustment. Approval does not
+supply deployment evidence or a URL-retirement plan.
 
 Preserve the ten source records below byte for byte in Git, and exclude their
 exact paths from the MkDocs handbook. Re-admit the revised

@@ -17,6 +17,14 @@ the snapshot is not a census of every FastAPI route. The predictive-calibration
 GET and POST operations are present in the snapshot and described in
 [Runs API](runs.md).
 
+An OpenAPI operation or reachable HTTP route establishes a surface contract,
+not a complete capability. It does not by itself prove that a causal policy
+chain produced and persisted evidence, that orchestration consumed and verified
+it, or that a resulting claim is admissible or publishable. Keep candidate
+outputs candidate-only; where a candidate path carries unknown scope, preserve
+that unknown as a typed limitation. Protected actions, custody facts, and
+published claims remain in the fail-closed authority band.
+
 Companion L1 reference pages:
 
 - [Runs API](runs.md)
@@ -34,10 +42,9 @@ Companion L1 reference pages:
 - The committed OpenAPI snapshot defines schema-described operations and is
   the input for generated operation types. This reference makes no operation
   count or whole-runtime parity claim.
-- The run router also exposes two schema-hidden server-sent event routes for
-  live run snapshots. They are intentionally excluded from the generated
+- The run router also exposes schema-hidden server-sent event routes for live
+  run snapshots. They are intentionally excluded from the generated
   OpenAPI snapshot and clients:
-
   - `GET /api/v1/runs/live`
   - `GET /api/v1/runs/{run_id}/live`
 
@@ -56,7 +63,7 @@ listed below.
 | Source phase                                                                                                  | Source of truth                                                                                                                                                                   | Primary docs                                                                                                                                                                                                                       | Validation anchor                                                                                                                                                                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phase 0: fail-closed auth, runtime write path, crypto/integrity/redaction, race/cache/lifecycle hotfixes      | `src/polisyos/core/security/**`, `src/polisyos/core/artifacts/**`, `src/polisyos/runtime/http/{fail_closed_middleware.py,security.py,dependencies.py,mutation_policy.py}`         | This page, [Control](control.md), [Artifacts](artifacts.md), [Security Model](../../explanation/security-model.md), [Security and Compliance](../security-compliance.md)                                                           | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py` |
-| Phase 1: error semantics, static analysis, property/mutation/fuzz/integration, observability and auditability | `src/polisyos/runtime/http/{errors.py,services/**}`, `src/polisyos/core/observability/**`, `release/core-runtime-closeout.ledger.toml`                                            | [Runs](runs.md), [Control](control.md), [Artifacts](artifacts.md), [Error Semantics](error-semantics.md), [SLO Error Budget](../operations/slo-error-budget.md), [Observability Topology](../operations/observability-topology.md) | `uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_runtime_api_observability.py tests/unit/runtime/http/test_access_invariants_properties.py`                                                                        |
+| Phase 1: error semantics, static analysis, property/mutation/fuzz/integration, observability and auditability | `src/polisyos/runtime/http/{errors.py,services/**}`, `src/polisyos/core/observability/**`, `release/core-runtime-closeout.ledger.toml`                                            | [Runs](runs.md), [Control](control.md), [Artifacts](artifacts.md), [Error Semantics](error-semantics.md), [SLO Error Budget](../operations/slo-error-budget.md), [Observability Topology](../operations/observability-topology.md) | `uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_runtime_api_observability.py tests/property/runtime/http/test_access_invariants_properties.py`                                                                    |
 | Phase 2: storage/serialization/immutability, runtime scalability, DI/config, API maturity                     | `schemas/runtime_api_v1.openapi.json`, `src/polisyos/common/{serialization.py,timestamps.py}`, `src/polisyos/runtime/http/openapi_contract.py`, generated client surfaces         | [Versioning Policy](versioning.md), [Migration Guide](migration-guide.md), package READMEs listed below                                                                                                                            | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                                                                                                                                             |
 | Phase 3: ADRs, diagrams, runbooks, security/compliance, CI ratchets                                           | `docs/reference/operations/**`, `docs/runbooks/**`, `docs/explanation/security-model.md`, `release/core-runtime-closeout.ledger.toml`, `tools/devx/workspace/acceptance_audit.py` | ops/security references, runtime runbooks, package READMEs                                                                                                                                                                         | `uv run polisyos-tools workspace acceptance-audit --summary docs/archive/reports/platform-acceptance.md --json-output docs/archive/reports/platform-acceptance.json`                                                                                                            |
 
@@ -85,7 +92,7 @@ listed below.
 The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does not currently declare a `securitySchemes` section.
 
 - Governed and production execution profiles require the runtime security middleware chain. Configure the attested deployment security settings and identity provider; `JWTAuthMiddleware` validates the bearer token through that provider and projects verified claims into `request.state`. Manually injecting claims into request state is not the deployment authentication mechanism.
-- Runtime routes read the resolved identity and access scope from request state, then enforce tenant access on run and artifact resources. The `GET /api/v1/public-decisions/verification` path is explicitly allowed by the JWT and fail-closed middleware; that public verification response does not itself grant policy-decision or publication authority.
+- Runtime routes read the resolved identity and access scope from request state, then enforce tenant access on run and artifact resources. The `GET /api/v1/public-decisions/verification` route is covered by the exact public-path exceptions in JWT authentication, cell routing, and fail-closed access-scope middleware; the authorization middleware also skips its policy check for methods outside its explicit unsafe set (`POST`, `PUT`, `PATCH`, `DELETE`) on matching public paths. The verification response does not itself grant policy-decision or publication authority.
 - `GET /api/v1/auth/me` reflects the resolved identity and fails closed when claims are absent or invalid. Fixture identity is allowed only behind an explicit development flag.
 - Service-to-service authorization uses SPIFFE peer identity plus JWT-derived user scope when available.
 - When OPA authorization is enabled in enforce mode and the sidecar is unreachable or returns an invalid shape, the authz client fails closed and returns deny-by-default.
@@ -96,7 +103,7 @@ Validation anchors:
 - `tests/unit/core/security/test_router.py`
 - `tests/unit/core/security/test_tenant_context.py`
 - `tests/unit/runtime/http/test_runtime_api_authz.py`
-- `tests/unit/runtime/http/test_access_invariants_properties.py`
+- `tests/property/runtime/http/test_access_invariants_properties.py`
 
 ## Common Headers
 
@@ -178,7 +185,11 @@ Common status codes across the committed contract:
 | `next_cursor` | Cursor for the next page, when available    |
 | `total`       | Best-effort total run count, when available |
 
-## Endpoint Inventory
+## Selected Endpoint Examples
+
+The tables below are a navigation aid, not a complete route catalog. The
+committed OpenAPI snapshot is canonical for schema-described operations;
+inspect the route owners for route-only or newly wired behavior.
 
 ### Health And Auth
 

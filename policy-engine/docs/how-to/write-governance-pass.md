@@ -2,7 +2,21 @@
 
 > Реализуйте, зарегистрируйте, протестируйте и подключите новый Scientist governance pass, используя текущий pass API.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14.
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspection of
+`src/polisyos/core/governance/passes/base.py`,
+`src/polisyos/scientist/governance/pass_entrypoints.py`,
+`src/polisyos/scientist/governance/pass_registry.py`,
+`src/polisyos/scientist/governance/passes/strategic_response_pass.py`,
+`tools/devx/architecture/templates/governance_pass.py.tmpl`, and the referenced
+tests. Tests and scaffold were not run. This supersedes the previous 2026-04-17
+freshness marker and is not a runtime receipt.
+
+Это процедура регистрации и подключения pass. Tutorial [Создание governance
+pass](../tutorials/creating-governance-pass.md) — отдельный blocker-only
+worked example: он описывает warning/info guidance, но показанный тест их не
+покрывает.
 
 ## Вход
 
@@ -78,6 +92,12 @@ class MyPass(ValidatorPass):
             ]
         return []
 ```
+
+Scaffold is a placeholder, not a severity contract: the pinned template returns
+`IssueSeverity.WARNING` for its TODO artifact lookup. The hand-written blocker
+example above intentionally demonstrates a stronger gate. Replace the TODO,
+choose severity from the actual workflow consequence, and test both the refused
+and accepted paths before treating a new pass as a governance gate.
 
 Если нужен простой реальный пример для копирования, начните с:
 
@@ -173,7 +193,8 @@ Target entry point должен разрешаться в:
 
 ## 5. Протестируйте pass
 
-В текущем дереве тесты чаще всего создают `PassContext` напрямую, а не через специальную fixture helper-функцию.
+В приведённом ниже примере тест создаёт `PassContext` напрямую; используйте
+актуальные helper-функции проекта, если они подходят для нового pass.
 
 Паттерн из `tests/unit/scientist/governance/test_strategic_response_pass.py`:
 

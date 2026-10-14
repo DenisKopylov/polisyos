@@ -24,11 +24,11 @@ budget models и typed human-gate protocol, который связывает ru
 - `advance_phase(...)`
 - `gate_protocol.py` and `budgets.py` provide the supporting human-gate and budget models
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
-- Python modules: 5
+- Последнее обновление: 2026-10-14
+- Python modules: 5 direct `.py` modules in this package.
 - Public surface: imported symbols in `__init__.py` plus `gate_protocol.py`/`budgets.py`
 - README расширен: раньше пакет был описан слишком минимально относительно его runtime роли

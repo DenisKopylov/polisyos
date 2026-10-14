@@ -3,6 +3,12 @@
 > Добавьте новый IR contract так, чтобы он появился в schema catalog, при
 > необходимости попал в ABI snapshots, и не разошелся с published reference docs.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked by
+reading `src/polisyos/schemas/abi_models.py`,
+`tools/quality/diagnostics/gen_schema.py`, and
+`tools/quality/diagnostics/generate_ir_reference_catalog.py`. Generators and
+tests were not run; a specific type still needs its own visibility and ABI decision.
+
 ## Inputs
 
 - fully qualified name нового model/enum;

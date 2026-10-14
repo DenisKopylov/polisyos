@@ -30,11 +30,11 @@ strategic-response, counterfactual и bounds artifacts.
 - `TransportabilityChecker`
 - `build_interference_readiness_entries(...)`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
-- Python modules: 3
+- Последнее обновление: 2026-10-14
+- Python modules: 4 (excluding `__init__.py`, tree inventory)
 - Exports: 6
 - README создан для нового пакета, которого раньше не было в модульной документации

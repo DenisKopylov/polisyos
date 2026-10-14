@@ -5,6 +5,8 @@ Related references: [Wave 2 acceptance](best-in-class-wave2-acceptance.md), [Wav
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
 Source of truth: `tools/ci/check_scientist_best_in_class_wave2.py`, `docs/reference/scientist/best-in-class-wave2-acceptance.md`, and the source-of-truth pages for each primitive.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: maturity model and Wave 2 acceptance receipt inspected; no gate was executed for this docs update.
 
 This page defines the best-in-class maturity model used after Wave 2 closeout.
 It is not a leaderboard. It describes whether Scientist can produce,
@@ -23,6 +25,11 @@ explain, review, reissue and safely export decision-grade research artifacts.
 Wave 2 closeout accepts level 2 for the implemented primitives and establishes
 the evidence needed to move selected workflows toward level 3. Production
 promotion remains per-feature.
+
+Level 2 is the maturity model's Wave 2 acceptance scope, not a claim that the
+Scientist product is functional end to end. The current workflow map records
+missing producer/consumer links and unestablished Claim-owner currentness; see
+[Current Scientist Workflows and Evidence Handoffs](current-workflows.md).
 
 ## Capability Axes
 

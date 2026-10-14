@@ -8,14 +8,17 @@ Related references: [Runtime quality scorecard](quality-scorecard.md),
 [Privacy compliance evidence](privacy-compliance-evidence.md).
 
 Owner: `@runtime-owners` and `@platform-owners`
-Source of truth: `src/polisyos/runtime/quality/approval.py`,
-`src/polisyos/core/contracts/control.py`,
-`src/polisyos/runtime/http/routes/runs.py`, and
-`src/polisyos/runtime/http/services/control/run_lifecycle.py`.
+Source of truth: `src/polisyos/runtime/quality/approval.py`, `src/polisyos/core/contracts/control.py`, `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/control/run_lifecycle.py`, `tests/unit/runtime/quality/test_approval.py`, and `tests/unit/runtime/http/test_production_approval_binding.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the API, custody path, and tests were not run.
 
 Production quality approval converts one persisted runtime quality scorecard
 into an immutable approval packet. The packet records whether the run can be
 approved, blocked, or approved with an explicit reviewer override.
+
+This packet is a runtime quality-eligibility decision. It does not itself
+provide the separate signed human decision, external institutional act, or
+public-record custody needed to make a policy recommendation publishable.
 
 ## Public Contract
 

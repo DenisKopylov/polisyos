@@ -13,7 +13,7 @@ files.
 
 ## Where To Start
 
-- [`../../../../src/polisyos/data_forge/README.md`](../../../../src/polisyos/data_forge/README.md)
+- [`../../../../../src/polisyos/data_forge/README.md`](../../../../../src/polisyos/data_forge/README.md)
 - `batch/` for harvest, extraction, graph-build, and publication issues.
 - `knowledge/` for canonical resolution and runtime lookup issues.
 
@@ -29,7 +29,7 @@ files.
 
 ### Depends On
 
-- [`../../../../src/polisyos/data_forge/README.md`](../../../../src/polisyos/data_forge/README.md)
+- [`../../../../../src/polisyos/data_forge/README.md`](../../../../../src/polisyos/data_forge/README.md)
 - `src/polisyos/data_forge/domains/academic/batch`
 - `src/polisyos/data_forge/domains/academic/knowledge`
 
@@ -65,9 +65,9 @@ uv run pytest --collect-only tests/unit/data_forge/domains/academic -q
 
 ## Reference Docs
 
-- [`../../../../src/polisyos/data_forge/README.md`](../../../../src/polisyos/data_forge/README.md)
-- [`../../../../docs/adr/0054-skg-on-academic-module.md`](../../../../docs/adr/0054-skg-on-academic-module.md)
-- [`../../../TESTING_POLICY.md`](../../../TESTING_POLICY.md)
+- [`../../../../../src/polisyos/data_forge/README.md`](../../../../../src/polisyos/data_forge/README.md)
+- [`../../../../../docs/adr/0054-skg-on-academic-module.md`](../../../../../docs/adr/0054-skg-on-academic-module.md)
+- [`../../../../TESTING_POLICY.md`](../../../../TESTING_POLICY.md)
 
 ## Last Updated
 

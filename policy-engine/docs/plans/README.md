@@ -6,8 +6,10 @@ stable behavior, procedures, or machine-checkable contracts. Those belong in
 ADRs, `docs/reference/`, `docs/how-to/` or `docs/runbooks/`, and
 `architecture/` or `schemas/` respectively.
 
-Start with the [active-plan index](active/README.md) for owner entrypoints and
-the [2026-10-14 disposition](documentation-refresh-disposition-20261014.md)
+Start with the [active-plan index](active/README.md) for owner entrypoints, the
+[accepted-plan index](accepted/README.md) for approved program routing, and the
+[production backlog index](../backlog/README.md) for current diagnostic queues.
+Use the [2026-10-14 disposition](documentation-refresh-disposition-20261014.md)
 for the dated inventory and its move proposals. The disposition is a snapshot;
 the tracked tree and each owner's current evidence remain authoritative.
 
@@ -30,6 +32,12 @@ When a historical plan still has useful inbound links, an active-path pointer
 can retain the canonical archive link and name the current owner or successor.
 Keep the original bytes in the archive when source history or a pinned receipt
 depends on them. Do not rewrite an immutable receipt merely to update a path.
+An old-path pointer preserves navigation and path-existence checks; it does not
+replace a consumer that parses the original plan bytes or assigns those bytes
+runtime meaning. Keep the compatibility window and removal rationale in the
+existing redirect metadata, and distinguish those consumer types in any
+move-specific disposition. The review method for one move does not become a
+repository-wide archive admission rule.
 The repository's [redirect-stub lifecycle contract](../../architecture/policies/directory_contracts.toml)
 defines metadata and sunset expectations for redirect README files.
 

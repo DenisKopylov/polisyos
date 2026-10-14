@@ -1,39 +1,41 @@
 # Ownership
 
 Owner: `@platform-owners`
-Source of truth: `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`,
-`architecture/control_plane_supply_chain.toml`, `architecture/*.toml`,
-`src/polisyos/**`, `apps/**`, `packages/**`, `tools/**`, `ops/**`, `docs/**`, and the
-logical owner-group policy documented on this page
+Source of truth: `architecture/control_plane_supply_chain.toml` and its
+`owner_source_order`, the package and public-surface architecture manifests,
+repository-root `.github/CODEOWNERS`, and the logical owner-group policy on
+this page
 
 This page defines human ownership for the PolicyOS canonical product root under
 `policy-engine/`.
 
 Per [ADR-0096](../adr/0096-canonical-product-root-and-workspace-boundary.md),
 `policy-engine/` is the product root and the repository root is repo control
-plane. The active GitHub enforcement file is the repository-root
-`.github/CODEOWNERS`; the active control-plane projection lives in
-`architecture/control_plane_supply_chain.toml`; this page remains the logical
-owner-group reference for reviews and escalation.
+plane. The checked-in `.github/CODEOWNERS` records reviewer routing, while
+`architecture/control_plane_supply_chain.toml` records the owner projection.
+These files do not establish that GitHub has applied the routing. This page
+remains the logical owner-group reference for reviews and escalation.
 
 ## Ownership Model
 
 - Logical owner groups are the stable architecture vocabulary for review,
   escalation, and future GitHub team provisioning.
 
-- The current GitHub-enforced reviewer is `@DenisKopylov` for every owned path,
-  because the repository is currently hosted as a personal repository rather
-  than an organization with provisioned team slugs.
+- The checked-in `.github/CODEOWNERS` routes the owned product paths to
+  `@DenisKopylov`; the control-plane contract records a personal-repository
+  exception for missing organization team slugs. This is tracked configuration,
+  not verification of live GitHub behavior.
 
 - `@platform-owners` is the fallback owner and escalation path for unowned,
-  ambiguous, or time-sensitive changes. Today that fallback resolves to
-  `@DenisKopylov`.
+  ambiguous, or time-sensitive changes. The control-plane owner mapping records
+  `@DenisKopylov` as the current reviewer under its personal-repository
+  exception.
 
 ## Subsystem Owners
 
 <!-- markdownlint-disable MD060 -->
 
-| Area                           | Canonical paths                                                              | Logical owner group    | Current GitHub reviewer | Fallback owner     |
+| Area                           | Canonical paths                                                              | Logical owner group    | Reviewer in tracked CODEOWNERS | Fallback owner     |
 | ------------------------------ | ---------------------------------------------------------------------------- | ---------------------- | ----------------------- | ------------------ |
 | Core                           | `src/polisyos/core/**`                                                       | `@core-owners`         | `@DenisKopylov`         | `@platform-owners` |
 | IR                             | `src/polisyos/ir/**`                                                         | `@ir-owners`           | `@DenisKopylov`         | `@platform-owners` |
@@ -58,12 +60,15 @@ owner-group reference for reviews and escalation.
 
 <!-- markdownlint-enable MD060 -->
 
-## Documentation SOTA Lane Owners
+## Historical Documentation SOTA Lane Owners
 
-This matrix is the Phase D0 owner map for the documentation refresh described
-by `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`. The logical owner is responsible for
-technical correctness; the backup owner is responsible for unblocking review,
-conflict resolution, and escalation when the primary owner is unavailable.
+This matrix preserves the Phase D0 assignment from the superseded
+`docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`; it is historical and does not
+assign current documentation work. The task-specific lane commission is
+recorded in `docs/plans/active/DOCUMENTATION_MAINTENANCE_20261014.md`.
+Within the historical matrix, the logical owner was responsible for technical
+correctness and the backup owner for unblocking review, conflict resolution,
+and escalation when the primary owner was unavailable.
 
 | Lane                       | Documentation surfaces                                                                                                                                                                   | Primary owner        | Backup owner       |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------ |

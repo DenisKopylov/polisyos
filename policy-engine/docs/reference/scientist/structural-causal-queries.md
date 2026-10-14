@@ -1,5 +1,8 @@
 # Structural causal query execution and result custody
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py`, `src/polisyos/foundry/methods/catalog/causal/gcm_query.py`, `src/polisyos/ir/analytics/causal_queries.py`, `src/polisyos/ir/analytics/structural_causal_model.py`, `tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py`, `tests/unit/scientist/methods/causal/test_run_causal_queries_node.py`, `tests/unit/foundry/methods/catalog/causal/test_gcm_query.py`, `tests/unit/ir/test_causal_queries_contract.py`, and `tests/unit/ir/test_structural_causal_model_contract.py`
+
 `RunCausalQueriesNode` resolves `params.structural_causal_model_ref` or the
 structural model artifact in the experiment state, validates the requested
 `params.causal_query`, and runs the existing

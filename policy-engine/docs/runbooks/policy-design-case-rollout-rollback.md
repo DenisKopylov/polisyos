@@ -16,7 +16,7 @@ and [Quality Gates](../reference/quality-gates.md).
 Owner: `@platform-owners` with `team-policyos-runtime`,
 `team-runtime-quality`, `team-quality-closeout`, producer owners, and
 governance reviewers.
-Last tested: `2026-05-23` against W5.E docs/runbook regression coverage.
+Historical documentation-regression receipt (as recorded by this page): `2026-05-23`, W5.E docs/runbook coverage; this is not a fresh rollout validation.
 Evidence path: runtime bundle `quality_evidence/*.json`, accepted wave
 summaries under `docs/archive/reports/`, and active command output under
 `_build/.tmp/policy-design-case/<phase-or-wave>/` until promoted.

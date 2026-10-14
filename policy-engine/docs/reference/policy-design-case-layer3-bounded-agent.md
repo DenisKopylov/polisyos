@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`, `tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py`, and `architecture/policy_design_case/layer3_g6_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 G6 is the bounded arbitrary-request adapter for Policy Design Case Layer 3. It
 accepts a natural-language request, projects it into policy-grammar routing
 facets, runs an allowlisted agent/tool loop, and either routes a same-class
@@ -32,6 +37,10 @@ authority, runtime closeout authority, public recommendation,
 policy_recommendation, legal advice, `legal_authority`, `claim_authority`,
 obligation authority, causal-effect authority, proof authority, G5 conversion
 authority without G5, or `g7_region_widening`.
+
+A readiness `pass` is limited to G6's declared wiring, replay, projection,
+artifact, and bounded bridge checks. It does not by itself establish a
+functional end-to-end policy design or recommendation/design authority.
 
 ## Audience Surface
 
@@ -141,9 +150,15 @@ text.
 ## Readiness Signal
 
 G6 readiness separates engineering readiness from grounded value closure.
-`g6_engineering_readiness_status = "pass"` means the adapter, artifacts,
-validator, G5 bridge, replay refs, public projection boundary, and docs
-registration are wired. `g6_grounded_value_closure_status` can still be
+`g6_engineering_readiness_status = "pass"` means the G5 invocation plan,
+search ledger, orchestration-choice audit, and tool-contract summary satisfy
+the engineering predicate. The implementation in
+`src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
+computes that status independently of artifact, inventory, or reference-doc
+registration. The readiness validator reports those separately as
+`g6_generated_artifacts_registration_status`, `g6_inventory_surface_status`,
+and `g6_reference_docs_status`; an engineering pass therefore does not mean
+documentation registration passed. `g6_grounded_value_closure_status` can still be
 `blocked_by_current_g5_unchanged_blocker` when the current same-class G5 result
 is an unchanged blocker rather than useful grounded design value.
 
@@ -152,3 +167,15 @@ persisted readiness manifest has no runtime drift, generated artifacts and
 Policy Design Case inventory are registered, reference docs/index/public-surface
 markers are present, and the readiness validator reports all registration
 statuses as `pass`.
+
+The pinned readiness manifest at
+`architecture/policy_design_case/layer3_g6_readiness_manifest.json` records
+`g6_engineering_readiness_status=pass` alongside
+`g6_grounded_value_closure_status=blocked_by_current_g5_unchanged_blocker` and
+`g6_reference_docs_status=fail`. The readiness validator and its tests treat
+documentation registration as a separate predicate; see
+`tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py` and
+`tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py`.
+Those tests were inspected, not run. This documentation update did not rerun
+the validator or refresh the historical artifact, so its stored docs failure
+is not a current docs-gate result.

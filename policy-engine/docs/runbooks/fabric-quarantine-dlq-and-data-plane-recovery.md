@@ -12,11 +12,9 @@ Related runbooks: [Cache Rebuild Storm](cache-rebuild-storm.md),
 > recovery path risks losing source evidence.
 
 Owner: `@fabric-owners`
-Last tested: `2026-04-17` against current quarantine, streaming, record/replay, and lineage regression coverage.
+Historical validation receipt (as recorded by this page): `2026-04-17` — quarantine, streaming, record/replay, and lineage regression coverage available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/fabric/data-plane.md`; `tests/unit/fabric/data_plane/test_quarantine.py`; `tests/unit/fabric/data_plane/test_streaming_runtime.py`; `tests/unit/fabric/data_plane/test_record_replay.py`
 Rollback path: stop destructive reprocessing, preserve quarantine/checkpoint artifacts, roll back the connector/profile/schema change if it caused the incident, and replay only from retained CAS-backed inputs.
-
-Freshness: 2026-04-17.
 
 ## Symptom
 

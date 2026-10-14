@@ -18,6 +18,11 @@ rollout_runbook: ../runbooks/policy-design-case-rollout-rollback.md
 Owner: `team-policyos-runtime`
 Source of truth: `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_RESEARCH_PLAN.md`, `docs/backlog/universal-policy-design-case-research-results-consolidation.md`, `docs/research/universal-policy-design/deep-research-reports-105-146-combined.md`, and `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 This page is the W0.G source-ownership surface for the universal Policy Design
 Case program. It records the repo-owned chain from raw research to normalized
 synthesis, research tasks, implementation gates, ADRs, and public docs

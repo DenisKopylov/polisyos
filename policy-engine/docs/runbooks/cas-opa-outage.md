@@ -7,20 +7,20 @@ Related reference: [Platform Architecture Diagrams](../reference/operations/plat
 > fail-closed authorization errors caused by degraded CAS or OPA dependencies.
 
 Owner: `@runtime-owners`
-Last tested: `2026-04-17` against runtime authz and resilience checks referenced below.
+Historical documentation-validation receipt (as recorded by this page): `2026-04-17`, D1-L1 pass; this does not establish current runtime behavior.
 Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/runtime/http/test_runtime_api_authz.py`; `tests/unit/runtime/http/test_resilience_guards.py`
 Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, and restore the last known-good CAS or OPA dependency state without bypassing integrity checks.
 
 ## Operational Metadata
 
-| Field              | Value                                                                                                                                          |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Primary owner      | `@runtime-owners`                                                                                                                              |
-| Coordination owner | `@platform-owners`                                                                                                                             |
-| Security owner     | security/compliance owner when OPA, trust stores, or identity are involved                                                                     |
-| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                |
+| Field              | Value                                                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner      | `@runtime-owners`                                                                                                                                             |
+| Coordination owner | `@platform-owners`                                                                                                                                            |
+| Security owner     | security/compliance owner when OPA, trust stores, or identity are involved                                                                                    |
+| Historical receipt | 2026-04-17, D1-L1 documentation validation pass; no current runtime verdict                                                                                   |
 | Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_authz.py`, `tests/unit/runtime/http/test_control_hardening.py`, `tests/unit/runtime/http/test_resilience_guards.py` |
-| Rollback posture   | keep authz fail-closed, move to read-only or reduced-write mode, never bypass integrity verification to restore traffic                        |
+| Rollback posture   | keep authz fail-closed, move to read-only or reduced-write mode, never bypass integrity verification to restore traffic                                       |
 
 ## Symptom
 
@@ -59,10 +59,10 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 
 2. Check one known-good read and one authz-protected path with the same token.
 3. Determine whether the failing branch is:
-
    - CAS availability;
    - integrity mismatch;
    - OPA reachability/policy decision shape.
+
 4. Inspect runtime logs and traces by `request_id` rather than by time range
    only.
 5. If artifact corruption is suspected, preserve the artifact ID and stop any

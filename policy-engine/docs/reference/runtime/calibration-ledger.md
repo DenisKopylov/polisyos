@@ -2,7 +2,7 @@
 title: Calibration Ledger
 status: active
 owner: team-policyos-runtime
-last_verified: 2026-05-22
+last_verified: 2026-10-14
 stability: experimental
 related:
   - ../../plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md
@@ -12,6 +12,11 @@ related:
 ---
 
 # Calibration Ledger
+
+Owner: `team-policyos-runtime`
+Source of truth: `src/polisyos/runtime/quality/calibration_ledger.py`, `tests/unit/runtime/quality/test_calibration_ledger.py`, and `tests/unit/runtime/quality/test_scorecard.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; `test_calibration_ledger.py` and `test_scorecard.py` were not run.
 
 The W2.E calibration ledger is the runtime-owned schema for longitudinal
 calibration history. It records realized-outcome calibration entries keyed by
@@ -83,3 +88,6 @@ uv run pytest tests/unit/runtime/quality/test_calibration_ledger.py -q
 
 This test pack covers sparse-history transparency, mature governed scoped
 blocks, persistence surfaces, and the anti-laundering claim-registry firewall.
+Historical calibration is a future routing/readiness influence only; its
+presence does not certify current evidence, causal effects, or publication
+authority.

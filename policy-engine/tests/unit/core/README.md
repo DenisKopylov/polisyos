@@ -2,7 +2,8 @@
 
 `tests/unit/core` covers the shared `polisyos.core` substrate: artifacts, security,
 components, contracts, trace/audit helpers, and the phase0 execution
-primitives. The slice currently contains `69` `test_*.py` files.
+primitives. The live `test_*.py` set is the source of truth. From
+`policy-engine/`, list it with `rg --files tests/unit/core -g 'test_*.py'`.
 
 ## Purpose
 
@@ -17,7 +18,7 @@ primitives. The slice currently contains `69` `test_*.py` files.
 
 ## Where To Start
 
-- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md) for
+- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md) for
   the code-side subsystem boundary.
 
 - [`phase0/README.md`](phase0/README.md) for the deepest artifact/run/canon
@@ -26,28 +27,31 @@ primitives. The slice currently contains `69` `test_*.py` files.
 - `security/`, `components/`, and `contracts/` when the change touches auth,
   package facades, or typed execution contracts.
 
-## Public Entrypoints
+## Representative Entrypoints
 
-- `tests/unit/core/` root: `10` direct tests for cache, pipeline, registry, hashing,
-  scoring, and discovery primitives.
+These are selected examples, not an exhaustive file inventory; use the
+source-tree command above for the complete set.
 
-- `tests/unit/core/phase0/`: `23` tests for artifacts, canon, signing,
+- `tests/unit/core/` root: cache, pipeline, registry, hashing, scoring, and
+  discovery primitives.
+
+- `tests/unit/core/phase0/`: artifacts, canon, signing,
   observability, and run lifecycle.
 
-- `tests/unit/core/security/`: `20` tests for identity, authz, tenant, router, and
+- `tests/unit/core/security/`: identity, authz, tenant, router, and
   related runtime guards.
 
-- `tests/unit/core/components/`: `4` tests for component discovery and legacy entry
+- `tests/unit/core/components/`: component discovery and legacy entry
   point compatibility.
 
-- `tests/unit/core/contracts/`: `2` tests for execution-plan and facade-level
+- `tests/unit/core/contracts/`: execution-plan and facade-level
   contract checks.
 
 ## Depends On / Depended On By
 
 ### Depends On
 
-- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
+- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
 - `src/polisyos/core/security`, `src/polisyos/core/components`,
   `src/polisyos/core/contracts`
 
@@ -55,12 +59,12 @@ primitives. The slice currently contains `69` `test_*.py` files.
 
 ### Depended On By
 
-- [`../contract/README.md`](../contract/README.md),
+- [`../../contract/README.md`](../../contract/README.md),
   [`../runtime/README.md`](../runtime/README.md),
   [`../foundry/README.md`](../foundry/README.md), and
   [`../scientist/README.md`](../scientist/README.md)
 
-- The fast local loop described in [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- The fast local loop described in [`../../TESTING_POLICY.md`](../../TESTING_POLICY.md)
 
 ## Common Commands
 
@@ -90,8 +94,8 @@ uv run pytest --collect-only tests/unit/core/phase0 -q
 ## Reference Docs
 
 - [`phase0/README.md`](phase0/README.md)
-- [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
+- [`../../TESTING_POLICY.md`](../../TESTING_POLICY.md)
 - [`../README.md`](../README.md)
 
 ## Last Updated

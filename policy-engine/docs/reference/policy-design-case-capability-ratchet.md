@@ -2,7 +2,12 @@
 
 Owner: `team-runtime-quality`
 Backup owner: `team-quality-closeout`
-Source of truth: `architecture/policy_design_case/capability_reality_report.json`
+Source of truth: `architecture/policy_design_case/capability_reality_report.json`, `src/polisyos/runtime/quality/capability_ratchet.py`, and `tools/quality/validation/check_policy_design_case_capability_ratchet.py`
+
+Evidence basis: the report, implementation, validator, and selected unit-test sources were inspected
+at code pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. The command examples below are procedures, not verification receipts.
 
 The Policy Design Case capability ratchet is the release/readiness vocabulary
 for incomplete Policy Design Case work across waves. It makes missing states
@@ -52,6 +57,12 @@ claims. `ratchet_integrity_status: pass` means the report is internally honest
 and recomputable. The committed report is expected to be green only after the
 closed wave capabilities each carry a complete capability evidence chain.
 
+Report integrity and capability readiness are separate results: the unit-test
+source demonstrates an internally valid report with readiness decision
+`not_ready`, and an `implemented` claim is downgraded when its chain references
+are incomplete. An integrity pass does not establish functional end-to-end
+policy design, useful-design credit, or recommendation/design authority.
+
 Every `implemented` claim must also carry the plan-level traceability row
 required by the implementation plan: `research_refs`, ADR refs or
 `no_adr_required`, `reuse_classification`, and `rollout_refs`. The checker
@@ -81,12 +92,21 @@ inspection path. If that governance is missing, the checker reclassifies it as
 authority paths it is a release blocker until a content-level adequacy test or
 authority-semantics negative test exists.
 
+The ratchet's runtime state vocabulary at this pin has eleven values, including
+`implemented` and the ten missing-state labels listed above; it has no
+`absent/unallocated` value. That label remains a capability-chain diagnosis for
+the case where no admitted chain and no appointed owner exist. Do not collapse
+it into `contract_only`: the current ratchet cannot encode that distinction
+(`P04`).
+
 ## Ratchet Templates
 
 Every missing-state label has a burn-down template in
 `ratchet_templates`. The template names the evidence field that moves the
 capability forward, such as `producer_ref`, `bridge_ref`, `surface_ref`, or
-`semantic_test_ref`.
+`semantic_test_ref`. A template or populated reference identifies expected
+evidence; it does not itself prove that the producer, bridge, consumer, or
+semantic property is present.
 
 The ratchet is directional: future plans and PRs should reduce open labels
 toward `implemented` or a governed `surface_out_of_scope`. New

@@ -3,7 +3,9 @@
 Related reference: [Agent Search And Reasoning](agent-search-reasoning.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, compatibility shim `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/methods/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/unit/scientist/search/{test_frontier_runtime.py,test_benchmark_registry.py}`
+Source of truth: `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, `src/polisyos/scientist/methods/search/benchmark_registry.py`, `src/polisyos/scientist/methods/search/registry_contracts.py`, `tests/unit/scientist/search/test_frontier_runtime.py`, `tests/unit/scientist/search/test_benchmark_registry.py`, and `tests/unit/scientist/methods/test_import_shims.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The formerly listed first-level `frontier_runtime.py` path is not treated as an active shim.
 
 > Phase 4 runtime contract for frontier capabilities. The default path stays
 > conservative: frontier methods remain feature-flagged until offline validation

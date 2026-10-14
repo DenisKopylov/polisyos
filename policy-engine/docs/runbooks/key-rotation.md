@@ -7,19 +7,19 @@ Related reference: [Security and Compliance Operations](../reference/security-co
 > any trust-store transition affecting CAS artifact verification.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against current rotation and signing evidence.
+Historical validation receipt (as recorded by this page): `2026-04-17` — rotation and signing evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/core/phase0/test_store_signing.py`
 Rollback path: keep the previous trusted key through the grace window when possible, or revoke and replace compromised keys with an explicit incident record.
 
 ## Operational Metadata
 
-| Field            | Value                                                                                                                                                          |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Primary owner    | `@platform-owners`                                                                                                                                             |
-| Security owner   | security/compliance owner for emergency rotations                                                                                                              |
-| Last tested      | 2026-04-17, D1-L1 documentation validation pass                                                                                                                |
-| Evidence anchors | `tests/unit/core/security/test_identity.py`, `tests/unit/core/security/test_sbom.py`, `tests/unit/core/phase0/test_store_signing.py`, `docs/reference/security-compliance.md` |
-| Rollback posture | keep previous trusted keys through the grace window; emergency revocation records the affected key/window explicitly                                           |
+| Field              | Value                                                                                                                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner      | `@platform-owners`                                                                                                                                                            |
+| Security owner     | security/compliance owner for emergency rotations                                                                                                                             |
+| Historical receipt | 2026-04-17, D1-L1 documentation validation pass; no current key or runtime verdict                                                                                            |
+| Evidence anchors   | `tests/unit/core/security/test_identity.py`, `tests/unit/core/security/test_sbom.py`, `tests/unit/core/phase0/test_store_signing.py`, `docs/reference/security-compliance.md` |
+| Rollback posture   | keep previous trusted keys through the grace window; emergency revocation records the affected key/window explicitly                                                          |
 
 ## Symptom
 
@@ -49,16 +49,16 @@ Rollback path: keep the previous trusted key through the grace window when possi
 ## First Triage Steps
 
 1. Confirm current trust-store state:
-
    - `trusted/`
    - `revoked/`
    - `identities.json`
-2. Confirm current JWT rotation state:
 
+2. Confirm current JWT rotation state:
    - identity-provider active signing `kid`;
    - `POLISYOS_JWT_ALLOWED_KIDS`;
    - `POLISYOS_JWT_REVOKED_KIDS`;
    - `.polisyos/security/jwt-trust-anchors.json` if used.
+
 3. For planned Ed25519 rotation, verify the new public key is already trusted before
    switching the private key in CI/runtime.
 4. For planned JWT rotation, allow the next `kid` before the identity provider

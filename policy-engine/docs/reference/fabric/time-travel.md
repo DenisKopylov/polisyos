@@ -2,11 +2,16 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-26.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/world/store/snapshots.py`, `src/polisyos/fabric/world/materialize/duckdb.py`, `src/polisyos/fabric/world/query.py`, `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`
+Evidence level: world snapshot/query implementation and named tests inspected at the source pin. Tests were not run in this documentation pass.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 Fabric time travel combines bitemporal query predicates with retained world
 snapshots, governed branches, and append-only correction/revocation metadata.
@@ -138,6 +143,12 @@ transactional and idempotent:
 
 - Snapshot retention is layered on top of those materialized DuckDB tables,
   not on raw connector payloads.
+
+These retained world snapshots are distinct from connector-ingestion
+`DataSnapshot` artifacts, which wrap a connector evidence bundle and its first
+source artifact. Creating a connector `DataSnapshot` does not materialize world
+facts or make them visible to world queries; see the
+[data-plane reference](data-plane.md).
 
 ## Validation Anchors
 

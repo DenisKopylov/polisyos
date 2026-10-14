@@ -34,9 +34,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
-Backend-only bootstrap skips the Node workspace and automatic `doctor`. If you run a separate
-preflight, `doctor` still requires Node `22.x` even with Playwright, lockfile, and contract checks
-skipped; see [Installation](../install.md#backend-only-onboarding) for the narrower invocation.
+Backend-only bootstrap skips the Node workspace and automatic `doctor`, but still installs the
+pre-commit hook unless you add `--skip-hooks`. If you run a separate preflight, `doctor` still
+requires Node `22.x` even with Playwright, lockfile, and contract checks skipped; see
+[Installation](../install.md#backend-only-onboarding) for the narrower invocation.
 
 ## Start Here By Task
 
@@ -45,7 +46,7 @@ skipped; see [Installation](../install.md#backend-only-onboarding) for the narro
 | Новый HTTP endpoint                          | [REST API](../../reference/api/index.md) and `src/polisyos/runtime/http/`                                                        | Route module, app wiring, OpenAPI drift, contract checks |
 | Новый package export / supported import path | [Public Surface](../../reference/public-surface.md)                                                                              | `__all__`, public-surface manifest, guardrails           |
 | Новый IR model/enum с schema/catalog impact  | [Manage Schemas](../manage-schemas.md) and [IR Schema Catalog](../../reference/ir/schema-catalog.md)                             | ABI snapshots, schema catalog, IR docs                   |
-| Runtime deploy/debug context                 | [Deploy Runtime](../deploy-runtime.md), [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md) | End-to-end operational reality                           |
+| Runtime deploy/debug context                 | [Deploy Runtime](../deploy-runtime.md), [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md) | Deployment and control-plane operating instructions      |
 
 ## First Productive Slice
 

@@ -4,7 +4,15 @@ Related reference: [Schemas](../reference/schemas.md). Related explanation: [IR 
 
 > Эта страница для инженеров, которые меняют публичные IR/runtime контракты и должны сохранить ABI discipline, а не просто "перегенерировать JSON".
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14.
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspection of
+`tools/quality/diagnostics/gen_schema.py`,
+`tools/quality/diagnostics/generate_ir_reference_catalog.py`,
+`tools/ops_runners/runtime/export_runtime_openapi.py`,
+`src/polisyos/ir/migrations/base.py`, and
+`docs/adr/0104-ir-canonical-cas-policy.md`; generators and checks were not run.
+This supersedes the previous 2026-04-17 freshness marker and is not a generation receipt.
 
 ## Вход
 

@@ -7,7 +7,7 @@ surfaces: [lineage](lineage.md), [quality](quality.md),
 
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source of truth: `policy-engine/src/polisyos/fabric/data_plane/`,
   `policy-engine/src/polisyos/fabric/ingestion/ingestion.py`,
   `policy-engine/src/polisyos/fabric/docs/`,
@@ -17,6 +17,10 @@ Evidence level: implementation and focused test behavior inspected at the
 source pin. Tests use local fixtures, test connectors, and injected
 dependencies; they do not establish live-provider readiness or source truth.
 Test status: tests were inspected but not run in this documentation pass.
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 The data plane provides connector-ingestion modes, cursor and streaming state,
 quarantine, and optional snapshot assembly. It does not make every Fabric input
@@ -26,14 +30,19 @@ facts/events and fact-log segments; world-store materialization and query are
 separate consumers. A connector `EvidenceBundleRef` or `DataSnapshotRef` does
 not by itself represent a world fact.
 
+The connector path's `DataSnapshot` is a CAS wrapper around its evidence bundle
+and first source artifact. A retained world snapshot is created separately from
+materialized world state and supplies context for world-query time travel; the
+shared word “snapshot” does not make these artifacts interchangeable.
+
 ## Intended composition
 
-The broader target in `policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`
-is a reusable path from ingestion through materialization and query, with
-operational traces and lineage that answer origin and impact questions. That is
-the intended composition, not a claim that the generic bridge is currently
-wired; the implementation evidence and gap state below describe what this pin
-demonstrates.
+The broader target in
+`policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md` is a reusable
+path from ingestion through materialization and query, with operational traces
+and lineage that answer origin and impact questions. That is a target, not an
+implemented chain: the path table and gap states below describe the producer,
+persisted artifact, consumer, and test behavior established at this source pin.
 
 ## Bounded paths and evidence
 

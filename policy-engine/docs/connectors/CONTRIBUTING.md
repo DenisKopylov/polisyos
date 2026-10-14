@@ -1,11 +1,17 @@
 # Contributing A Fabric Connector
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14
 
-This guide covers the current Fabric connector workflow. A connector is not
-ready when it can fetch rows once; it is ready when it is protocol-compliant,
-bounded, schema-governed, replayable, and covered by the shared registry and
-contract tests.
+This guide covers the current Fabric connector contribution workflow. Its
+protocol, bounds, schema, fixture, registry, and test checks establish
+connector-level conformance. They do not establish live-provider readiness,
+scientific source truth, or a complete fetch-to-world/query/policy chain.
+
+When a contribution claims a downstream capability, name its production
+caller, persisted artifact, consumer, verification, and surfaced result. If a
+link is absent, report the applicable missing state (for example,
+`bridge_missing`, `consumer_missing`, or `semantic_test_missing`) rather than
+calling the broader capability implemented.
 
 Related reference: [Fabric Connectors](../reference/fabric/connectors.md).
 
@@ -162,7 +168,10 @@ uv run pytest tests/unit/fabric/connectors/sources/test_connector_family_expansi
 
 Add source-specific tests under `tests/unit/fabric/connectors/sources/`. Live
 upstream tests must be marked as integration and should have recorded fixtures
-or replay coverage so CI does not depend on external availability.
+or replay coverage so CI does not depend on external availability. Passing
+fixture-backed tests remains evidence about the named connector behavior; it
+does not establish that the live provider is reachable or that its content is
+true.
 
 For streaming or poison-row behavior, also cover:
 

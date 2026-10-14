@@ -42,13 +42,13 @@ The plan estimated Spot pricing in the same rough band as its earlier estimate a
 
 ### 0.2 Why `t2d-standard-2` (not larger)
 
-| Option               | vCPU  | RAM      | Spot $/hr                           | Verdict                                                                  |
+| Option               |  vCPU |      RAM |                           Spot $/hr | Verdict                                                                  |
 | -------------------- | ----: | -------: | ----------------------------------: | ------------------------------------------------------------------------ |
-| `e2-small`           | 2     | 2 GB     | $0.007                              | **Too tight** — 2 GB marginal for async LLM dispatch + DuckDB            |
-| `e2-standard-2`      | 2     | 8 GB     | $0.014 (plan estimate)              | Plan's historical concern: its then-recorded `E2_CPUS=8` quota           |
+| `e2-small`           |     2 |     2 GB |                              $0.007 | **Too tight** — 2 GB marginal for async LLM dispatch + DuckDB            |
+| `e2-standard-2`      |     2 |     8 GB |              $0.014 (plan estimate) | Plan's historical concern: its then-recorded `E2_CPUS=8` quota           |
 | **`t2d-standard-2`** | **2** | **8 GB** | **roughly similar (plan estimate)** | Plan's historical recommendation; regional quota and capacity unverified |
-| `n2-standard-2`      | 2     | 8 GB     | $0.020                              | Safe fallback if T2D capacity is unavailable in the chosen zone          |
-| `e2-standard-4`      | 4     | 16 GB    | $0.027                              | Overkill — extra CPU/RAM unused; doubles cost for no gain                |
+| `n2-standard-2`      |     2 |     8 GB |                              $0.020 | Safe fallback if T2D capacity is unavailable in the chosen zone          |
+| `e2-standard-4`      |     4 |    16 GB |                              $0.027 | Overkill — extra CPU/RAM unused; doubles cost for no gain                |
 
 ### 0.3 IP-Isolation Assumption In The Historical Plan
 
@@ -104,12 +104,12 @@ Local smoke results (March 28) are useful as a **floor estimate**, not a ceiling
 
 | VM             | Hypothesis                  | RPS | parallel-llm | global cap | verify | batch-chars | Rationale                                                                      |
 | -------------- | --------------------------- | --: | -----------: | ---------: | ------ | ----------: | ------------------------------------------------------------------------------ |
-| `lex-worker-0` | **Baseline A** (local-like) | 5.0 | 16           | 64         | `llm`  | 3600        | Reference point — reproduce the conservative local shape on GCE                |
-| `lex-worker-1` | **Baseline B** (replica)    | 5.0 | 16           | 64         | `llm`  | 3600        | Same config on another shard — measures shard/time-window variance             |
-| `lex-worker-2` | **Higher RPS**              | 8.0 | 20           | 80         | `llm`  | 3600        | Test if GCE lower latency allows a moderate RPS lift per key                   |
-| `lex-worker-3` | **Higher concurrency**      | 5.0 | 30           | 80         | `llm`  | 3600        | Same RPS but more parallel flights — tests if concurrency is the bottleneck    |
-| `lex-worker-4` | **Code verify**             | 5.0 | 16           | 64         | `code` | 3600        | Is second-pass LLM verification the main cost/latency driver?                  |
-| `lex-worker-5` | **Aggressive capped combo** | 9.0 | 25           | 80         | `code` | 4800        | Optimistic production candidate, but still capped below a full “blast” profile |
+| `lex-worker-0` | **Baseline A** (local-like) | 5.0 |           16 |         64 | `llm`  |        3600 | Reference point — reproduce the conservative local shape on GCE                |
+| `lex-worker-1` | **Baseline B** (replica)    | 5.0 |           16 |         64 | `llm`  |        3600 | Same config on another shard — measures shard/time-window variance             |
+| `lex-worker-2` | **Higher RPS**              | 8.0 |           20 |         80 | `llm`  |        3600 | Test if GCE lower latency allows a moderate RPS lift per key                   |
+| `lex-worker-3` | **Higher concurrency**      | 5.0 |           30 |         80 | `llm`  |        3600 | Same RPS but more parallel flights — tests if concurrency is the bottleneck    |
+| `lex-worker-4` | **Code verify**             | 5.0 |           16 |         64 | `code` |        3600 | Is second-pass LLM verification the main cost/latency driver?                  |
+| `lex-worker-5` | **Aggressive capped combo** | 9.0 |           25 |         80 | `code` |        4800 | Optimistic production candidate, but still capped below a full “blast” profile |
 
 All other parameters are shared (`structure-workers=2`, `xml-parse-chunk=2000`, warmup, adaptive rate, retries, etc.).
 
@@ -164,14 +164,14 @@ Based on Phase 1 results, keep all 6 VMs active but rebalance them into 4 roles:
 
 **Example** (assuming Phase 1 winner was `aggressive_capped` at `rps=9`, `parallel=25`, `global=80`, `verify=code`, `batch=4800`):
 
-| VM             | Config               | RPS  | parallel-llm | global cap | verify | batch-chars | Purpose                                             |
+| VM             | Config               |  RPS | parallel-llm | global cap | verify | batch-chars | Purpose                                             |
 | -------------- | -------------------- | ---: | -----------: | ---------: | ------ | ----------: | --------------------------------------------------- |
-| `lex-worker-0` | Winner               | 9.0  | 25           | 80         | `code` | 4800        | Stability check                                     |
-| `lex-worker-1` | Winner               | 9.0  | 25           | 80         | `code` | 4800        | Stability check                                     |
-| `lex-worker-2` | RPS +20%             | 11.0 | 25           | 80         | `code` | 4800        | Can we push RPS further?                            |
-| `lex-worker-3` | Concurrency +40%     | 9.0  | 35           | 96         | `code` | 4800        | Concurrency headroom?                               |
-| `lex-worker-4` | Conservative control | 6.0  | 16           | 64         | `code` | 3600        | Same time window, lower pressure baseline           |
-| `lex-worker-5` | Lower global cap     | 9.0  | 25           | 64         | `code` | 4800        | Does a tighter in-flight cap improve docs/hr / 429? |
+| `lex-worker-0` | Winner               |  9.0 |           25 |         80 | `code` |        4800 | Stability check                                     |
+| `lex-worker-1` | Winner               |  9.0 |           25 |         80 | `code` |        4800 | Stability check                                     |
+| `lex-worker-2` | RPS +20%             | 11.0 |           25 |         80 | `code` |        4800 | Can we push RPS further?                            |
+| `lex-worker-3` | Concurrency +40%     |  9.0 |           35 |         96 | `code` |        4800 | Concurrency headroom?                               |
+| `lex-worker-4` | Conservative control |  6.0 |           16 |         64 | `code` |        3600 | Same time window, lower pressure baseline           |
+| `lex-worker-5` | Lower global cap     |  9.0 |           25 |         64 | `code` |        4800 | Does a tighter in-flight cap improve docs/hr / 429? |
 
 200 new docs per VM. Same `--resume` — builds on Phase 1's 50 docs per shard.
 
@@ -209,13 +209,13 @@ Process the full `~140K`-document corpus with a mixed policy:
 
 ### Corpus split
 
-| Status                      | Est. Docs     | Mode              |
+| Status                      |     Est. Docs | Mode              |
 | --------------------------- | ------------: | ----------------- |
-| `Чинний`                    | ~99,000       | Current wide-like |
-| `Не набрав чинності`        | ~330          | Current wide-like |
-| `Втратив чинність`          | ~40,500       | Primary only      |
-| `Втратив чинність частково` | ~490          | Primary only      |
-| `Дію призупинено`           | ~35           | Primary only      |
+| `Чинний`                    |       ~99,000 | Current wide-like |
+| `Не набрав чинності`        |          ~330 | Current wide-like |
+| `Втратив чинність`          |       ~40,500 | Primary only      |
+| `Втратив чинність частково` |          ~490 | Primary only      |
+| `Дію призупинено`           |           ~35 | Primary only      |
 | **Total**                   | **~140,000+** | mixed             |
 
 ### Corpus Snapshot Named By The Plan — ЄДРНПА dump dated 2026-03-24 (Not Rechecked)
@@ -233,9 +233,9 @@ The archived proposal described this possible acceleration:
 2. Build `NPADocument` rows using the same `doc_id` logic as `polisyos.data_forge.domains.legal.batch.xml_parser._stable_doc_id(...)`.
 3. Assign shard using the same hash rule as `BatchConfig.is_doc_in_shard(...)`.
 4. Write separate per-pass shard manifests such as:
-
    - `gs://polisyos-lex-data/input/shards/current/shard_00.jsonl.zst`
    - `gs://polisyos-lex-data/input/shards/historical/shard_00.jsonl.zst`
+
 5. Run each worker only against its own pre-materialized manifest.
 
 Important:
@@ -271,14 +271,20 @@ Important:
 
 | VM             | Shard | Gonka Account | Keys                 | External IP |
 | -------------- | ----: | ------------- | -------------------- | ----------- |
-| `lex-worker-0` | `0`   | Account 1     | `GONKA_API_KEY_1..5` | unique      |
-| `lex-worker-1` | `1`   | Account 2     | `GONKA_API_KEY_1..5` | unique      |
-| `lex-worker-2` | `2`   | Account 3     | `GONKA_API_KEY_1..5` | unique      |
-| `lex-worker-3` | `3`   | Account 4     | `GONKA_API_KEY_1..5` | unique      |
-| `lex-worker-4` | `4`   | Account 5     | `GONKA_API_KEY_1..5` | unique      |
-| `lex-worker-5` | `5`   | Account 6     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-0` |   `0` | Account 1     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-1` |   `1` | Account 2     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-2` |   `2` | Account 3     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-3` |   `3` | Account 4     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-4` |   `4` | Account 5     | `GONKA_API_KEY_1..5` | unique      |
+| `lex-worker-5` |   `5` | Account 6     | `GONKA_API_KEY_1..5` | unique      |
 
-Operational rules:
+Operational rules recorded in the 2026-04-08 plan (not a validated current procedure):
+
+The stage list, shard layout, merge steps, and resume assumptions below belong to that
+archived plan. The source review above confirms specific startup, worker-creation, and
+dependency differences; it did not validate this whole procedure against current
+runtime behavior. Reconcile every command and artifact path with the re-pinned CLI and
+scripts before any operational reuse.
 
 - In sharded mode run only `parse,structure,spo,ground_quotes,resolve_refs`.
 - `graph`, `export_claims`, `benchmark`, `qc`, `publish_bundle` — single-process finalize pass after all shards complete.
@@ -878,13 +884,13 @@ done
 
 ### 6.2 Phase 1 hypothesis grid (what each VM tests differently)
 
-| Parameter             | VM-0  | VM-1  | VM-2  | VM-3  | VM-4   | VM-5   |
+| Parameter             |  VM-0 |  VM-1 |  VM-2 |  VM-3 |   VM-4 |   VM-5 |
 | --------------------- | ----: | ----: | ----: | ----: | -----: | -----: |
-| `rps`                 | 5.0   | 5.0   | 8.0   | 5.0   | 5.0    | 9.0    |
-| `parallel-llm`        | 16    | 16    | 20    | 30    | 16     | 25     |
-| `parallel-llm-global` | 64    | 64    | 80    | 80    | 64     | 80     |
+| `rps`                 |   5.0 |   5.0 |   8.0 |   5.0 |    5.0 |    9.0 |
+| `parallel-llm`        |    16 |    16 |    20 |    30 |     16 |     25 |
+| `parallel-llm-global` |    64 |    64 |    80 |    80 |     64 |     80 |
 | `spo-verify-mode`     | `llm` | `llm` | `llm` | `llm` | `code` | `code` |
-| `batch-chars`         | 3600  | 3600  | 3600  | 3600  | 3600   | 4800   |
+| `batch-chars`         |  3600 |  3600 |  3600 |  3600 |   3600 |   4800 |
 
 All other parameters remain at baseline defaults.
 
@@ -899,9 +905,9 @@ All other parameters remain at baseline defaults.
 
 | Scenario                 | Docs/shard | Aggregate RPS (6 VMs) | Est. time per shard |
 | ------------------------ | ---------: | --------------------: | ------------------- |
-| Conservative (5 rps/key) | ~23,300    | ~150 effective        | ~5-8 days           |
-| Tuned (7-9 rps/key)      | ~23,300    | ~210-270 effective    | ~3-6 days           |
-| Aggressive (12 rps/key)  | ~23,300    | ~360 effective        | ~2-3 days           |
+| Conservative (5 rps/key) |    ~23,300 |        ~150 effective | ~5-8 days           |
+| Tuned (7-9 rps/key)      |    ~23,300 |    ~210-270 effective | ~3-6 days           |
+| Aggressive (12 rps/key)  |    ~23,300 |        ~360 effective | ~2-3 days           |
 
 > Pass 2 (historical, gap-fill off) runs ~2-3× faster per doc than pass 1.
 
@@ -965,20 +971,25 @@ print(f'Last 60s: {ok} successful requests = {ok/60:.1f} RPS')
 
 ### 7.3 Common issues
 
-| Symptom                                    | Cause                                                                                | Fix                                                                                                          |                  |
-| ------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ---------------- |
-| VM in `TERMINATED` state                   | Spot preemption                                                                      | `gcloud compute instances start lex-worker-N` — resume picks up from checkpoint                              |                  |
-| Mass 429 (>20%)                            | Aggregate load too high                                                              | Reduce `--gonka-rate-limit-rps`; or stop 1-2 VMs to reduce pressure                                          |                  |
-| `transfer_agent_capacity_reached`          | Gonka node saturation (138 nodes)                                                    | Cannot fix with more keys; reduce aggregate RPS or wait for off-peak                                         |                  |
-| OOM kill                                   | 8 GB RAM exhausted                                                                   | Reduce `--parallel-llm` to 12; `dmesg                                                                        | tail` to confirm |
-| Disk full                                  | Output > 80 GB                                                                       | Sync to GCS and clear: `gcloud storage rsync -r ... && rm -rf /mnt/work/output/manifests/llm_requests.jsonl` |                  |
-| Startup script failed                      | Package install error / network                                                      | Check `cat /var/log/lex-startup.log`; re-run startup or recreate VM                                          |                  |
-| SSH timeout                                | VM has no external IP                                                                | Verify: `gcloud compute instances describe lex-worker-N --zone=europe-west1-b`                               |                  |
-| Finalize sees only one pass / missing docs | Current and historical shard outputs were merged by overwrite instead of aggregation | Re-sync into `_imports/`, rebuild aggregated `doc_metadata.json` / `llm_gate.json`, then re-run finalize     |                  |
+| Symptom                                    | Cause                                                                                | Fix                                                                                                          |     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | --- |
+| VM in `TERMINATED` state                   | Spot preemption                                                                      | `gcloud compute instances start lex-worker-N` — resume picks up from checkpoint                              |     |
+| Mass 429 (>20%)                            | Aggregate load too high                                                              | Reduce `--gonka-rate-limit-rps`; or stop 1-2 VMs to reduce pressure                                          |     |
+| `transfer_agent_capacity_reached`          | Gonka node saturation (138 nodes)                                                    | Cannot fix with more keys; reduce aggregate RPS or wait for off-peak                                         |     |
+| OOM kill                                   | 8 GB RAM exhausted                                                                   | Reduce `--parallel-llm` to 12; inspect the end of `dmesg` output                                             |     |
+| Disk full                                  | Output > 80 GB                                                                       | Sync to GCS and clear: `gcloud storage rsync -r ... && rm -rf /mnt/work/output/manifests/llm_requests.jsonl` |     |
+| Startup script failed                      | Package install error / network                                                      | Check `cat /var/log/lex-startup.log`; re-run startup or recreate VM                                          |     |
+| SSH timeout                                | VM has no external IP                                                                | Verify: `gcloud compute instances describe lex-worker-N --zone=europe-west1-b`                               |     |
+| Finalize sees only one pass / missing docs | Current and historical shard outputs were merged by overwrite instead of aggregation | Re-sync into `_imports/`, rebuild aggregated `doc_metadata.json` / `llm_gate.json`, then re-run finalize     |     |
 
 ---
 
-## 8. Historical Result Collection And Finalize Procedure
+## 8. Historical Result Collection And Finalize Procedure (Not Validated Against Current CLI)
+
+The sync, merge, and finalize commands below preserve the April 8 plan. They were not
+replayed during this documentation review. In particular, reconcile their input
+manifests, output layout, merge behavior, and stage arguments with the re-pinned CLI
+and worker scripts before adapting them.
 
 ### 8.1 Sync results from GCS after all shards complete
 
@@ -1301,7 +1312,8 @@ After finalize pass completes:
 # Delete all VMs
 ./gcp/delete_workers.sh
 
-# Keep GCS output bucket (it's cheap: ~$1/month for 50 GB)
+# The 2026-04-08 plan estimated ~$1/month for 50 GB; this was not re-quoted.
+# Recheck current billing, retention ownership, and backup state before deciding to keep or delete.
 # Or delete if backed up locally:
 # gcloud storage rm -r gs://polisyos-lex-data/
 
@@ -1317,7 +1329,8 @@ done
 
 ## 12. Historical Calibration Log
 
-> Fill in after each phase. This section is the running record of actual measurements.
+> This blank table is a historical plan template, not a record of completed phases or actual measurements.
+> No current calibration or production measurements were gathered for this documentation review.
 
 ### Phase 1 — Parallel hypothesis sweep
 

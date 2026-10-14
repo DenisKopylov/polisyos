@@ -1,7 +1,9 @@
 # Run-Cost Proportionality Ledger
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/quality/cost_gate.py`, `src/polisyos/runtime/quality/scorecard.py`, `schemas/runtime_quality/policy_design_run_cost_proportionality_ledger_v1.schema.json`, and `tests/unit/runtime/quality/**`
+Source of truth: `src/polisyos/runtime/quality/cost_gate.py`, `src/polisyos/runtime/quality/scorecard.py`, `schemas/runtime_quality/policy_design_run_cost_proportionality_ledger_v1.schema.json`, and `tests/unit/runtime/quality/test_run_cost_proportionality.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the ledger producer and tests were not run.
 
 Wave 30 closes the Policy Design Case evidence-production cost loop. Serious
 runtime closeout must either emit a run-cost proportionality ledger inside
@@ -57,3 +59,7 @@ compare evidence quality and evidence-production cost together.
 Typed run-cost blocker records use `status: blocked`, `code`, `message`,
 `evidence_ref`, and `runtime_event_ref`. They are the only acceptable substitute
 for a missing ledger at the Wave 30 exit fence.
+
+The ledger makes evidence-production cost reviewable. It does not establish that
+the cited evidence is admissible, that an intervention has a causal effect, or
+that an output is authorized for publication.

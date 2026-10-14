@@ -2,15 +2,20 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-28.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration/**`, `src/polisyos/fabric/_internal/compatibility.py`, `apps/runtime-dashboard/src/test/contracts/**`, `tools/quality/validation/fabric_product_integration.py`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
+Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration/**`, `src/polisyos/fabric/_internal/compatibility.py`, `apps/runtime-dashboard/src/test/contracts/**`, `apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts`, `apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts`, `tools/quality/validation/fabric_product_integration.py`
+Evidence level: routes, adapters, contract fixtures, and named tests inspected at the source pin. Tests were not run in this documentation pass; live-provider readiness and a universal source-to-policy path are not established.
 
-Fabric Phase 10 closes the loop between governed data and downstream product
-surfaces. Runtime exposes additive endpoints for scorecards, quality/trust
-batch lookup, replay, and impact analysis; frontend fixtures prove Design Wave
-2 can render the payloads; Scientist, Scholar, Lex, and Foundry consume the
-same Fabric trust metadata instead of building separate provenance shortcuts.
+Runtime exposes endpoints for scorecards, quality/trust batch lookup, replay,
+and impact analysis. Product adapters and frontend contract fixtures also
+exist. This page inventories those bounded surfaces; their coexistence does
+not show that a persisted connector result flows through every route and
+consumer, nor that any adapter independently verifies source truth or issues
+PolicyOS authority. The generic connector-to-world-fact bridge and automatic
+source-to-query lineage remain missing as described in the
+[data-plane](data-plane.md) and [lineage](lineage.md) references.
 
 ## Runtime Endpoints
 
@@ -34,8 +39,9 @@ surfaces remain intact:
 
 ## Frontend Fixtures
 
-The Runtime dashboard contract suite now carries product fixtures for the
-Design Wave 2 affordances that depend on Fabric:
+The Runtime dashboard contract suite carries fixtures for the listed Fabric
+payload shapes. These fixtures establish the tested front-end contract, not a
+live route-to-provider run or a persisted source-to-policy chain.
 
 | Fixture | Product affordance |
 | ------- | ------------------ |
@@ -50,7 +56,7 @@ Design Wave 2 affordances that depend on Fabric:
 | `fabric-replay.json` | Replay status |
 | `fabric-impact.json` | Impact analysis |
 
-`fabricDecisionDataToQuantityValue()` converts `FabricDecisionData` envelopes
+`fabricDecisionDataToQuantityValue()` converts supplied `FabricDecisionData` envelopes
 into the shared `QuantityValue` shape, preserving lineage status, temporal
 scope, source contract, quality, access, replay, and `fabric_trust_envelope`
 metadata for Trust View. `useRunFabricDecisionData()` fetches
@@ -61,11 +67,15 @@ and renderable quantities.
 
 | Consumer | Integration |
 | -------- | ----------- |
-| Scientist | `FabricTrustGatePass` caps decision readiness when Fabric quality fails, lineage is missing, evidence is stale, access is restricted, or source trust is low |
-| Scholar | `scholar_citation_from_fabric_decision_data()` converts Fabric trust envelopes into citation-ready provenance records |
-| Lex | `lex_evidence_from_fabric_decision_data()` carries raw evidence refs, replay status, and access classification into legal evidence paths |
-| Foundry calibration | `fabric_calibration_context_from_decision_data()` derives conservative calibration weights from Fabric quality, freshness, and source trust |
-| Foundry uncertainty | `fabric_uncertainty_context_from_decision_data()` inflates uncertainty for failed, stale, or non-replayable Fabric evidence |
+| Scientist | `FabricTrustGatePass` consumes Fabric quality, lineage, freshness, access, and source-trust metadata as readiness-cap inputs; it does not independently establish the upstream facts behind those fields |
+| Scholar | `scholar_citation_from_fabric_decision_data()` maps supplied Fabric trust envelopes into citation-ready provenance records |
+| Lex | `lex_evidence_from_fabric_decision_data()` carries supplied evidence refs, replay status, and access classification into legal evidence paths |
+| Foundry calibration | `fabric_calibration_context_from_decision_data()` derives calibration weights from supplied Fabric quality, freshness, and source-trust fields |
+| Foundry uncertainty | `fabric_uncertainty_context_from_decision_data()` adjusts uncertainty from supplied failed, stale, or non-replayable Fabric evidence fields |
+
+These adapters preserve or transform their input metadata. Their existence and
+contract tests do not make the metadata independent evidence, prove it came
+from a live provider, or close a generic source-to-decision chain.
 
 ## Compatibility Bridges
 

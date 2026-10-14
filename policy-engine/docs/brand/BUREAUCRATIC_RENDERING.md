@@ -4,6 +4,13 @@ PolicyOS bureaucratic rendering must look legitimate because it is explicit
 about provenance, authorship and draft status, not because it imitates state
 authority.
 
+This rendering law does not make a document official or establish a public
+publication capability. DS0 D6 records an authenticated renderer, but all four
+Ukrainian templates remain `pending_external_review`; a public projection
+requires the recorded specialist review and a separate DS12 decision. The
+current frontend map is source/test inspection only, not browser or deployment
+evidence.
+
 ## Product Law
 
 Every official-looking artifact is a draft until signed outside PolicyOS.

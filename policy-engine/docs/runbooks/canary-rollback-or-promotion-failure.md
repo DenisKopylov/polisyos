@@ -4,13 +4,15 @@ Related policy: [SLO and Error Budget Policy](../reference/operations/slo-error-
 Related how-to: [Deploy Runtime](../how-to/deploy-runtime.md).
 
 > Используйте этот runbook для staged rollout, canary evaluation или любого
-> production promotion gate. PolicyOS now performs a live runtime canary from
-> the installed release artifact before production promotion, а этот документ
-> также покрывает manual environment approval / rollback after the automated
-> checkpoint.
+> production promotion gate. The repository release workflow runs a local
+> health-probe canary against an installed release wheel before publishing a
+> release; this is not a production deployment or environment canary. This
+> runbook also covers manual environment approval and rollback procedures.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against current canary and acceptance-rehearsal evidence.
+Source of truth: `.github/workflows/release.yml` and `policy-engine/tools/ops_runners/release/run_release_canary.py`.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only, no release workflow or runtime was executed.
+Historical validation receipt (as recorded by this page): `2026-04-17` — canary and acceptance-rehearsal evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/archive/reports/platform-release-canary.md`; `docs/archive/reports/platform-acceptance-manual.md`; `docs/reference/operations/platform-acceptance-audit.md`
 Rollback path: return traffic and config to the last known-good candidate before further investigation, then freeze further promotion until the root cause is understood.
 

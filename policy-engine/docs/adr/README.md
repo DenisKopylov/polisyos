@@ -23,6 +23,27 @@ System-level design proposals and ratification records are indexed separately in
   it does not normalize them to `Accepted`. No status crosswalk is declared
   here, so keep the record's exact status and inspect its decision and
   relations. A status alone is not evidence that the decision is implemented.
+- Missing or unrecognized status fields are indexed as `unknown`, not
+  `accepted`. [ADR-0001](0001-remove-legacy-foundry-engine.md) through
+  [ADR-0004](0004-architecture-boundaries-import-gate.md) declare no status;
+  their generated `unknown` labels do not supply a lifecycle decision. No
+  status label proves current implementation. This is the `P36`
+  authority-by-adjacency hazard; see the
+  [failure-pattern register](../reference/policy-design-case-failure-patterns.md).
+- A supersession link does not promote its target. Read the successor's own
+  status: for example, [ADR-0045](0045-causal-edge-combined-confidence-formula-superseded.md)
+  calls [ADR-0064](0064-compute-combined-confidence-noisy-or.md) "current", but
+  ADR-0064 is `Proposed`. That link records the historical handoff; it does not
+  establish an accepted or implemented replacement. This is the `P36`
+  authority-by-adjacency hazard; see the
+  [failure-pattern register](../reference/policy-design-case-failure-patterns.md).
+- The generated relation fields come only from explicit relation labels or a
+  `Superseded by ADR-…` status value. Narrative words such as “replaces” do not
+  declare a direction. The ADR-0045 → ADR-0064 handoff therefore records only
+  that ADR-0045 is superseded by ADR-0064; it does not also make ADR-0045 a
+  successor of ADR-0064. This is the `P36`
+  authority-by-adjacency hazard; see the
+  [failure-pattern register](../reference/policy-design-case-failure-patterns.md).
 - For the system identity and custody boundary, read the
   [system design decision index](../system-design-decisions/README.md) and its
   ratification records; a ratification is authoritative only for the scope
@@ -30,7 +51,7 @@ System-level design proposals and ratification records are indexed separately in
 
 ## Required Shape
 
-Use `template.md` for new ADRs. Every ADR must include:
+Use `template.md` for new ADRs. New ADRs must include:
 
 - status;
 - date;

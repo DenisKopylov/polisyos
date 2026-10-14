@@ -1,5 +1,11 @@
 # Static graph consumer fixtures
 
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/admg_ops.py`, `src/polisyos/foundry/methods/catalog/causal/do_calculus.py`, and the test files listed below.
+Historical fixture revision: `9824e04d630d42765ed44b9ff88702fcff885e08`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: source and test files inspected at this pin; tests were not run for this docs-only review.
+
 These tests exercise finite supported static graphs through the maintained
 SID, conditional-ID, AMN and estimand compiler consumers. They do not change
 the graph algorithms, IR versions or public exports.
@@ -47,9 +53,23 @@ proof transferred into the ExecutorGraph, including the ordering before an
 existing manual proof. Constructor errors fail the test rather than turning
 into backend-unavailable skips.
 
-The pre-pass removal control keeps the callable and graph/AST markers but
-returns the unchanged AST and no steps. The consumer test must fail. The
-historical three failed fixtures and two constructor-induced skips remain in
-the receipt as original observations, not passing results or an inherited-red
-claim. These checks do not establish general ID completeness, arbitrary
-PAG/CPDAG support or causal authority on admitted real data.
+The earlier fixture review records a pre-pass removal control that kept the
+callable and graph/AST markers but returned the unchanged AST and no steps.
+That control is not present in the checked-in
+`tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py`;
+the current source inspection therefore treats it as historical review
+evidence, not as an automated regression test. That test does exercise the real
+rewriter and proof transfer. The historical three failed fixtures and two
+constructor-induced skips remain original observations, not passing results
+or an inherited-red claim. These checks do not establish general ID
+completeness, arbitrary PAG/CPDAG support or causal authority on admitted real
+data.
+
+## Verification anchors
+
+- Static profile, consumer behavior, and graph admission:
+  `tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py`
+- Bounded latent-DAG separation oracle:
+  `tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py`
+- Estimand compiler pre-pass and proof transfer:
+  `tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py`

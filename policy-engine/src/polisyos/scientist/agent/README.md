@@ -27,7 +27,7 @@ before they enter the main workflow runtime.
 ## Depends On / Depended On By
 
 - Depends on: [`../../ir/README.md`](../../ir/README.md), [`../../lex/README.md`](../../lex/README.md), [`../../core/llm/README.md`](../../core/llm/README.md), [`../../core/artifacts/README.md`](../../core/artifacts/README.md), and adjacent Scientist LLM/runtime helpers
-- Depended on by: policy-design authoring paths, optional critique/reflexion loops, and workflow/search integrations documented in [`../workflows/README.md`](../workflows/README.md) and [`../search/README.md`](../search/README.md)
+- Depended on by: policy-design authoring paths, optional critique/reflexion loops, and workflow/search integrations documented in [`../orchestration/workflows/README.md`](../orchestration/workflows/README.md) and [`../methods/search/README.md`](../methods/search/README.md)
 
 ## Common Commands
 
@@ -53,4 +53,4 @@ uv run pytest tests/unit/scientist/agent/test_drafter_factory.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-14

@@ -1,11 +1,15 @@
-# PolicyOS Causal Engine — Architecture, Capabilities & Benchmark Results
+# Historical Causal-Engine Architecture and Benchmark Record (v26)
 
-Owner: `@foundry-owners`
-Source of truth: `src/polisyos/foundry/methods/catalog/causal/**`, `benchmarks/_reports/server_pull_focused_v26_20260320/`, and `tests/unit/foundry/methods/catalog/causal/**`
+Owner: @foundry-owners
+Source of truth: The historical v26 record preserved in this page. Its referenced benchmark corpus, `benchmarks/_reports/server_pull_focused_v26_20260320/`, is absent from the current checkout. For current source ownership and runtime boundaries, use the [Foundry reference map](index.md) and [Causal Engine explanation](../../explanation/causal-engine.md).
+Historical source pin: Not established from the retained report; the dated source location below is not a commit-level binding.
+Evidence level: Historical figures and findings are retained as reported; the source corpus is unavailable here, and this documentation update did not replay the benchmarks, rerun tests, or revalidate comparative claims.
 
-> **Version**: v26 (March 20, 2026)
-> **Location**: `policy-engine/src/polisyos/foundry/methods/catalog/causal/`
-> **Benchmark data**: `policy-engine/benchmarks/_reports/server_pull_focused_v26_20260320/`
+> **Historical version**: v26 (March 20, 2026)
+> **Reported source location**: `policy-engine/src/polisyos/foundry/methods/catalog/causal/` (some paths below reflect the pre-split layout)
+> **Reported benchmark data**: `policy-engine/benchmarks/_reports/server_pull_focused_v26_20260320/` (not present in the current checkout)
+>
+> **Historical record:** This page preserves the architecture descriptions, counts, benchmark outputs, readiness labels, and comparisons reported for v26. They are dated claims, not a current source inventory, current test receipt, or current readiness decision. The underlying report corpus and run inputs are unavailable in this checkout, so the results cannot be independently replayed from this page. The figures and findings below remain for traceability. For current source claims, follow the [Foundry reference map](index.md) and [Causal Engine explanation](../../explanation/causal-engine.md).
 
 ---
 
@@ -29,9 +33,16 @@ Source of truth: `src/polisyos/foundry/methods/catalog/causal/**`, `benchmarks/_
 
 ## 1. Overview
 
-The Causal Engine is the central analytical core of PolicyOS. It implements the **Pearl-Bareinboim causal inference framework** end-to-end: from symbolic identification of causal queries on DAGs/ADMGs, through compilation to statistical estimands, to numerical estimation with full audit trails.
+The v26 report presented the Causal Engine as PolicyOS's central analytical core
+and described an end-to-end **Pearl-Bareinboim causal inference framework**:
+symbolic identification on DAGs/ADMGs, compilation to statistical estimands,
+and numerical estimation with audit trails. This is the report's historical
+architecture claim, not a current completeness finding. Neither the diagram
+nor its benchmark outcomes establish an admitted real-world evidence source,
+an observed policy effect, an end-to-end grounded policy design, or publication
+authority.
 
-**Key numbers:**
+**Numbers recorded by the v26 report (not reverified here):**
 
 - **91 Python modules** in the causal catalog
 - **70+ registered methods** across 9 development phases
@@ -50,7 +61,7 @@ Query → Identify → Compile → Estimate → Audit
 
 ## 2. Architecture
 
-### High-Level Pipeline
+### High-Level Pipeline as Reported for v26
 
 ```text
 User Query (treatment, outcome, graph, data)
@@ -97,15 +108,19 @@ User Query (treatment, outcome, graph, data)
 
 ### Module Map
 
-The three split libraries resolve to packages: use the qualified imports
+The v26 module map includes paths from a pre-split layout. The E02-base note
+records these package imports:
 `polisyos.foundry.methods.catalog.causal.causal_engine`, `.id_engine`, and
-`.interference`. Their former sibling `.py` files were already absent at the
-E02 base `198076863e143dea9f89f02734b13d50dae3eed5`. Import resolution and
-filename loading are separate contracts; a client opening an old filename must
-migrate to the package or its canonical leaf. These libraries are not `runpy`
-command entrypoints. Method execution uses the existing Foundry registry/FQN
-contract. The benchmark and method-count numbers elsewhere on this page retain
-their dated v26 scope.
+`.interference`. At E02 base `198076863e143dea9f89f02734b13d50dae3eed5`,
+their former sibling `.py` files were absent. That snapshot treated package
+imports and filename loading as separate contracts and required old filename
+clients to migrate to the package or canonical leaf. The v26 report described
+these libraries as non-`runpy` entrypoints and method execution as using the
+Foundry registry/FQN contract. This historical note preserves the path finding;
+the diagram and later module tables are not a current navigation inventory.
+For current imports, method execution, and other Foundry behavior, use the
+[current Foundry reference map](index.md) and
+[Causal Engine explanation](../../explanation/causal-engine.md).
 
 ```text
 causal/
@@ -312,19 +327,19 @@ EstimandAST → classify_estimand() → EstimandShape → recommend_estimator() 
 
 ### Special Topics
 
-| Capability                       | Module                                          |
-| -------------------------------- | ----------------------------------------------- |
+| Capability                       | Module                                            |
+| -------------------------------- | ------------------------------------------------- |
 | Network/spatial interference     | `interference.api`, `interference.identification` |
-| M-graph recovery (missing data)  | `missing_data.py`                               |
-| Multi-source data fusion         | `data_fusion.py`                                |
-| Path-specific effects (NDE/NIE)  | `path_specific.py`                              |
-| Actual causality (Halpern-Pearl) | `actual_causality.py`                           |
-| NCM abduction-action-prediction  | `ncm_engine.py`                                 |
-| Causal fairness                  | `causal_fairness.py`                            |
-| Optimal experimental design      | `optimal_design.py`                             |
-| Transportability solver          | `transport_engine.py`                           |
-| Continuous/multi-treatment       | `continuous_treatment.py`, `multi_treatment.py` |
-| Counterfactual transport (CTF)   | `ctf_calculus.py`, `ctf_transport.py`           |
+| M-graph recovery (missing data)  | `missing_data.py`                                 |
+| Multi-source data fusion         | `data_fusion.py`                                  |
+| Path-specific effects (NDE/NIE)  | `path_specific.py`                                |
+| Actual causality (Halpern-Pearl) | `actual_causality.py`                             |
+| NCM abduction-action-prediction  | `ncm_engine.py`                                   |
+| Causal fairness                  | `causal_fairness.py`                              |
+| Optimal experimental design      | `optimal_design.py`                               |
+| Transportability solver          | `transport_engine.py`                             |
+| Continuous/multi-treatment       | `continuous_treatment.py`, `multi_treatment.py`   |
+| Counterfactual transport (CTF)   | `ctf_calculus.py`, `ctf_transport.py`             |
 
 ---
 
@@ -506,6 +521,9 @@ Scorecards → Mean rank, max rank, deviation, top-quartile failure
 
 ## 11. Benchmark Results (v26)
 
+These historical results have not been replayed; the source corpus cited above
+is absent from the current checkout.
+
 ### Run Environment
 
 - **Date**: March 20, 2026
@@ -513,7 +531,10 @@ Scorecards → Mean rank, max rank, deviation, top-quartile failure
 - **Profile**: `flagship_plus_production` (air-m2 tier)
 - **Total suites**: 31
 
-### Claim Readiness
+### Claim Readiness Recorded in the v26 Report
+
+The labels below are retained from that report. They are not current release,
+publication, or capability statuses.
 
 | Claim                                      | Status        | Detail                                    |
 | ------------------------------------------ | ------------- | ----------------------------------------- |
@@ -607,6 +628,10 @@ Multi-source mZ-ID, fusion + missingness, symbolic non-ID certificate, CTF trans
 
 ## 12. Competitive Positioning
 
+The comparison labels below are historical claims from the v26 record. The
+comparison corpus and comparator configurations are unavailable here, so this
+refresh does not validate their completeness or accuracy.
+
 ### Capabilities vs. Y0, DoWhy, EconML
 
 | Capability                    | PolicyOS | Y0      | DoWhy   | EconML |
@@ -639,6 +664,11 @@ Multi-source mZ-ID, fusion + missingness, symbolic non-ID certificate, CTF trans
 ---
 
 ## 13. Design Principles
+
+These principles are preserved as the original report's design statements;
+this section does not establish that every listed behavior is implemented or
+wired in the current runtime. Use the current source map linked above for
+implementation claims.
 
 1. **Symbolic-then-numeric**: Always identify symbolically before estimating numerically. If identification fails, produce constructive certificates rather than silent failure.
 

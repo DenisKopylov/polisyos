@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py`, and `architecture/policy_design_case/layer3_g3_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 Layer 3 G3 is the proof-carrying analytics search readiness surface for Policy
 Design Case. It turns the canonical G2 L2/SKG proof-candidate route, indexed IR
 analytics catalog search, selected-ref artifact-store indexing, typed
@@ -50,6 +55,11 @@ The G3 surface carries these denied uses through runtime artifacts and docs:
 
 `ProofCarryingAnalyticsRecord` remains the waist artifact. G3 wraps and audits
 that existing S11 artifact; it does not create a parallel proof waist.
+
+A readiness result is scoped to G3's declared runtime, persisted-artifact,
+consumer, and projection checks. A passing registration or generated artifact
+does not establish a functional end-to-end policy design or recommendation/design
+authority; read the downstream consumer verdict and missing capability state.
 
 ## Persisted Artifacts
 
@@ -133,5 +143,21 @@ Replay fields carried across artifacts include:
 - `limitation_refs`
 - `may_not_use_for`
 
-The W12D route keeps one full first-case G3 proof consumer and lightweight S11
-posture refs for the remaining corpus cases.
+The pinned W12D consumer-gate artifact records one full consumer case and no
+lightweight posture references: `full_consumer_case_count=1`,
+`lightweight_posture_ref_count=0`, `lightweight_case_refs=[]`, and
+`lightweight_posture_ref=null`. It therefore does not establish lightweight
+S11 posture refs for the remaining corpus cases. The record also has
+`predictive_knowledge_ref=null` and
+`search_ledger_predictive_knowledge_ref_consumed=false`; this missing
+predictive-knowledge consumer input is part of the reported full-route failure.
+
+At the pinned artifact snapshot, `g3_w12d_consumer_gate_status` is `fail`,
+`g3_s11_prerequisite_binding_status` is `blocked`, and `g3_conformance_status`
+is `fail`. The exact persisted record is
+`architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json`; it carries
+`layer3_g3_w12d_consumer_gate_missing` and records the missing predictive-
+knowledge reference as not consumed. The readiness-test source identifies
+the missing W12D consumer gate as the reported failure. Tests and validators
+were inspected, not run. This docs update did not regenerate the artifacts;
+the persisted status remains historical evidence.

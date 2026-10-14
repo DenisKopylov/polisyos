@@ -41,7 +41,7 @@ Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 8 Python files
+- Last updated: 2026-10-14
+- Files: 9 Python files under this package tree
 - Exports: 9 symbols in `__init__.py`
 - Notable delta: transport-constraint bridge remains a first-class part of the package surface, not just an internal helper

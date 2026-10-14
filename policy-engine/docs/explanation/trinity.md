@@ -16,6 +16,7 @@ Related architecture:
 - [Causal operating-system north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
 - [Universal policy-design target](../system-design-decisions/universal-policy-design-target-architecture-and-gap.md)
 - [Identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md)
+- [Stage-0 custody ratification](../system-design-decisions/stage0-custody-kernel-ratification.md)
 
 - Owner: `@ir-owners`
 - Source of truth: `src/polisyos/ir/trinity/`, `src/polisyos/ir/governance/`,
@@ -92,6 +93,10 @@ justification signature. An artifact ID, typed reference, schema version,
 canonical digest, or linker result establishes only the identity or checks
 represented by that contract. Authority must come from the evidence and custody
 path responsible for the claim, under the [identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md).
+Stage-0 **S0-K05**, **S0-K07**, and **S0-K12** make the same boundary explicit:
+transport, projection, and content equality do not create authority. This
+ratification states the rule; it does not prove each runtime consumer applies
+it.
 
 Statuses and flags in these models are local. `ConstraintType` distinguishes
 hard constraints from soft penalties, `FidelityLevel` selects a requested

@@ -4,7 +4,9 @@ Related reference: [Control Plane API](../reference/api/control.md). Related how
 
 > Эта страница для операторов и интеграторов, которым нужно запускать runs, ingestion и Lex jobs через runtime HTTP surface и понимать, как читать control-plane state.
 
-Freshness: 2026-04-17.
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/control.py`, the control-plane service bindings, and `docs/reference/api/control.md`.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; route-source inspection only. No control-plane request or runtime service was exercised in this update.
 
 ## Вход
 
@@ -55,6 +57,10 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 ## 1. Запустите workflow run
 
 Базовый launch:
+
+The hash below is an illustrative placeholder, not an available input artifact.
+A successful launch requires a persisted, authorized artifact whose content
+matches the supplied `data_snapshot_ref`.
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/runs" \

@@ -83,11 +83,11 @@ statistical sufficiency or absence of failure-selection bias.
 - `resolve_sensitivity_uncertainty_method(...)`, `apply_calibrated_multiplier(...)`
 - `StressTestReport`, `Vulnerability`, `VulnerabilityType`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-10-05
+- Последнее обновление: 2026-10-14
 - Python modules: 11
 - Exports: 82
 - README синхронизирован с тем, что `doe` остается upstream для search/stress flows

@@ -13,15 +13,27 @@ data preparation and governed artifact publication.
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
 quality checks, provenance manifests, and golden/differential migration tests.
-Runtime consumers use `polisyos.data_forge.read_api` only. `read_api` keeps its
-domain surfaces lazy, so importing `polisyos.data_forge.read_api` does not load
-`domains/` or `kernel/` internals. Domain internals under `domains/` remain
-non-public.
+`polisyos.data_forge.read_api` is the intended runtime import boundary and
+keeps domain surfaces lazy: importing the facade does not load `domains/` or
+`kernel/` internals. Laziness does not make every exported operation a read;
+the facade currently also exposes producer/execution operations, including
+legal `run_batch_pipeline` and academic `run_edge_synthesize`.
+
+The narrow boundary is not fully enforced. `architecture/packages/boundaries.toml`
+allows Fabric to depend on `polisyos.data_forge.read_api` and forbids
+`polisyos.data_forge.domains`, while `architecture/imports/policy.toml` allows
+the broad `polisyos.data_forge` root. Fabric retrieval currently imports the
+private catalog helper `_profile_input_coverage_currentness` from
+`polisyos.data_forge.domains.catalog.batch.config` in
+`src/polisyos/fabric/retrieval/service.py`. Treat the read API as the declared
+intent and this import as an observed boundary exception; the current policy
+does not establish a uniformly enforced narrow matrix.
 
 ## Role
 
-Data Forge owns offline acquisition, normalization, publishing, and stable
-runtime-safe read APIs for prepared assets.
+Data Forge owns offline acquisition, normalization, and publishing of prepared
+assets, and exposes runtime read APIs. The current `read_api` also exports
+some execution-oriented producers, so it is not uniformly read-only.
 
 Phase 1 shared-kernel cutover has moved reusable batch primitives into
 `polisyos.data_forge.kernel`. The legacy `batch_common` and `batch_snapshot`

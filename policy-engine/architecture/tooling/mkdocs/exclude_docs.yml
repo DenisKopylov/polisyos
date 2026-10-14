@@ -30,8 +30,17 @@ exclude_docs: |
   superpowers/**
   backlog/**
   brand/ATLAS_SOURCE_OF_TRUTH.md
-  explanation/berl-method-identity.md
   reference/frontend/atlas-live-application-audit.md
   reference/frontend/atlas-phase-a-synthesis.md
   reference/frontend/atlas-v15-adjudication.md
   system-design-decisions/README.md
+  reference/foundry/causal-installed-source-reconciliation.md
+  reference/foundry/causal-source-quality.md
+  reference/frontend/atlas-evidence-artifact.md
+  reference/frontend/atlas-frontend-disposition-register.md
+  reference/frontend/atlas-health-metrics.md
+  reference/frontend/atlas-honesty-comprehension-protocol.md
+  reference/frontend/atlas-manual-at-maturity.md
+  reference/frontend/atlas-surface-readiness-reconciliation.md
+  reference/policy-design-causal-grounding-firewall-CGF-spec.md
+  reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md

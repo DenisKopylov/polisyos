@@ -7,6 +7,9 @@ Related ADR: [ADR-0006](../../adr/0006-slo-definitions.md). Related reference:
 
 Owner: `@platform-owners`
 Source of truth: `docs/reference/operations/observability-topology.md`, linked runbooks, `tools/devx/workspace/acceptance_audit.py`, and the repo-tracked workflows that exercise runtime/performance gates
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. Targets are policy definitions, not measured current service levels; no telemetry or dashboard was read.
+The command rows below describe intended repository gate coverage; those
+commands and workflows were not executed for this update.
 
 > Эта страница даёт общий язык для того, когда reliability “достаточно хороша”,
 > когда feature work идёт дальше, а когда платформа обязана приостановиться и
@@ -14,7 +17,7 @@ Source of truth: `docs/reference/operations/observability-topology.md`, linked r
 
 ## Service-Level View
 
-Phase 6 фиксирует три operational service surfaces вокруг runtime/control plane:
+Эта policy рассматривает три operational service surfaces вокруг runtime/control plane:
 
 | Service surface                 | User promise                                                                       | Primary signals                                                                               | Primary owner                                                 |
 | ------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -24,41 +27,44 @@ Phase 6 фиксирует три operational service surfaces вокруг runt
 
 ## Acceptance and Runtime Gates
 
-Runtime SLO review is tied to current executable gates, not only to dashboards.
+Repository-defined SLO review is tied to the executable gates listed below,
+not only to dashboards. This source map does not report measured availability.
 The acceptance audit and release gate should be read together when runtime
 availability, auth, tenant isolation, OpenAPI, or control-plane write semantics
 change.
 
-| Gate                         | Command or workflow                                                                                                                                                                        | What it proves                                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Runtime OpenAPI contract     | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                                                                    | committed OpenAPI, generated client, examples, problem payloads, and contract invariants stay fresh              |
-| Auth and tenant middleware   | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py` | JWT, tenant/cell routing, OPA denial, timeout, and fail-closed access behavior match docs                        |
-| Runtime write path           | `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`                                                                | idempotency, rate limiting, mutation audit, dependency timeouts, and lifecycle cleanup remain enforced           |
-| Core-runtime closeout ledger | `uv run polisyos-tools workspace core-runtime-closeout` and `uv run polisyos-tools workspace core-runtime-long-soak`                                                                       | release-review evidence, reopen gaps, and long-soak runtime signals stay tied to the current repo-tracked ledger |
-| Platform acceptance audit    | `uv run polisyos-tools workspace acceptance-audit`                                                                                                                                         | cross-surface platform checks still reference the current runtime contract and contributor gates                 |
+| Gate                         | Command or workflow                                                                                                                                                                                            | Documented purpose                                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Runtime OpenAPI contract     | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                                                                            | checks committed OpenAPI, generated client, examples, problem payloads, and contract invariants           |
+| Auth and tenant middleware   | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py` | exercises documented JWT, tenant/cell routing, OPA denial, timeout, and fail-closed access paths          |
+| Runtime write path           | `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`                                                                          | exercises documented idempotency, rate limiting, mutation audit, dependency timeouts, and lifecycle paths |
+| Core-runtime closeout ledger | `uv run polisyos-tools workspace core-runtime-closeout` and `uv run polisyos-tools workspace core-runtime-long-soak`                                                                                           | emits the repo-tracked ledger's closeout and long-soak evidence when run with its prerequisites           |
+| Platform acceptance audit    | `uv run polisyos-tools workspace acceptance-audit`                                                                                                                                                             | checks repository acceptance references and emits an audit result when run                                |
 
 ## Initial SLO Set
 
-Эти SLO intentionally practical: только те, которые можно измерить текущими
-signals или простыми synthetic checks.
+These SLO targets are intended to use repository-defined signals or simple
+synthetic checks; no current measurement is asserted here.
 
-Operationalized recording/alerting for runtime API, control-plane admission и
-existing DAG/simulation/connector SLOs lives in `ops/observability/prometheus/slo_*`.
+Repository-defined recording/alerting rules for runtime API, control-plane
+admission, and DAG/simulation/connector SLOs live in
+`ops/observability/prometheus/slo_*`; this does not show that they are deployed
+or receiving telemetry.
 
-| SLO                         | Target                                           | Measurement                                                                     | Notes                                                                                  |
-| --------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Runtime API availability    | `>= 99.5%` over 30d                              | synthetic `/health` + `/ready` + request success rate for user-facing read APIs | user-facing read surface                                                               |
-| Runtime API latency         | `p95 <= 750ms`, `p99 <= 1500ms` for read APIs    | ingress/runtime request metrics + traces                                        | measure excluding locally induced test traffic                                         |
-| Control-plane job admission | `>= 99.0%` over 30d                              | successful `POST /api/v1/control/*` admissions and durable job creation         | errors caused by invalid user payloads excluded                                        |
-| Scientist DAG success       | `>= 95%` over rolling 30m and release review     | `polisyos_slo_dag_success_rate:rate30m`                                         | current repo already records and alerts on it                                          |
-| Scientist DAG latency       | `p99 <= 300s`                                    | `polisyos:slo_dag_p99_latency_seconds:5m`                                       | from ADR-0006                                                                          |
-| Simulation numerical health | NaN rate `< 0.1%`                                | `polisyos:slo_simulation_nan_rate:rate5m`                                       | from ADR-0006                                                                          |
-| Connector reliability       | error rate `< 1%` per connector/env              | `polisyos:slo_connector_error_rate:rate5m`                                      | from ADR-0006                                                                          |
-| Docs publication freshness  | successful strict build on the current docs tree | `.github/workflows/docs-pages.yml`, `.github/workflows/abi.yml`, or local `mkdocs build --strict` evidence | silent docs drift is operational debt even when site publication is handled separately |
+| SLO                         | Target                                            | Measurement                                                                                                | Notes                                                                 |
+| --------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Runtime API availability    | `>= 99.5%` over 30d                               | synthetic `/health` + `/ready` + request success rate for user-facing read APIs                            | user-facing read surface                                              |
+| Runtime API latency         | `p95 <= 750ms`, `p99 <= 1500ms` for read APIs     | ingress/runtime request metrics + traces                                                                   | measure excluding locally induced test traffic                        |
+| Control-plane job admission | `>= 99.0%` over 30d                               | successful `POST /api/v1/control/*` admissions and durable job creation                                    | errors caused by invalid user payloads excluded                       |
+| Scientist DAG success       | `>= 95%` over rolling 30m and release review      | `polisyos_slo_dag_success_rate:rate30m`                                                                    | repository rule/metric definition; no current observed value asserted |
+| Scientist DAG latency       | `p99 <= 300s`                                     | `polisyos:slo_dag_p99_latency_seconds:5m`                                                                  | from ADR-0006                                                         |
+| Simulation numerical health | NaN rate `< 0.1%`                                 | `polisyos:slo_simulation_nan_rate:rate5m`                                                                  | from ADR-0006                                                         |
+| Connector reliability       | error rate `< 1%` per connector/env               | `polisyos:slo_connector_error_rate:rate5m`                                                                 | from ADR-0006                                                         |
+| Docs publication freshness  | successful strict build on the reviewed docs tree | `.github/workflows/docs-pages.yml`, `.github/workflows/abi.yml`, or local `mkdocs build --strict` evidence | source presence is not a build or publication result                  |
 
 ## Error Budget Model
 
-Phase 6 adopts a rolling 30-day error budget per SLO-bearing surface.
+This policy uses a rolling 30-day error budget per SLO-bearing surface.
 
 - Budget size = `1 - SLO target`.
 - Burn is measured against user-visible failure, not internal discomfort.

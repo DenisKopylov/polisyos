@@ -33,13 +33,15 @@ routing, identity/authz, delegation, chained audit, TEE, SBOM, SLSA, and quota e
 - identity/authz: `AccessScope`, `OPAClient`
 - delegation: delegation token helpers in `delegation.py`
 - audit: audit sink/verifier helpers in `audit_sink.py` and `audit_verifier.py`
-- chronology: `FullPrefixVerifier` and `build_full_prefix_bundle`, re-exported only through the
-  admitted `polisyos.core` root public facade; anchor codecs and exact receipt verifiers are
+- chronology: `FullPrefixVerifier` and `build_full_prefix_bundle` are exposed by both
+  `polisyos.core` and `polisyos.core.security` facades. The public-surface contract lists both
+  as supported entrypoints; its generated inventory still reports unresolved exports, so it
+  does not establish per-symbol stability. Anchor codecs and exact receipt verifiers are
   available through `polisyos.core.security`, while the internal custody service is not public
 - attestation: TEE and SBOM/SLSA helpers in `tee.py`, `sbom.py`, and `slsa/`
 
 ## Current State
 
-- Last updated: 2026-08-24
+- Last updated: 2026-10-14
 - The package tree now includes `namespace.py`, `quota_enforcer.py`, and `quota_registry.py` alongside the existing zero-trust primitives.
 - `runtime/http` remains the main consumer of the security middleware chain.

@@ -7,6 +7,11 @@ Status: `active_pre_adapter_audit_surface`
 Schema version: `policyos.policy_design_case.layer3_g0_discovery_search.v2`
 Rule version: `policyos.layer3.g0.discovery_search_free_growth.v2`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 This page is the public audit surface for the Layer 3 G0 grounding inventory.
 The producer is `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`;
 the runtime check is `validate_layer3_g0_bundle(repo_root, persisted)`.
@@ -27,6 +32,11 @@ LLM-derived authority.
 | Capability reality | `implemented` for the G0 readiness gate: runtime producer, persisted artifacts, validator, audit surface, and negative semantic tests exist. G1+ still must consume the discipline before any adapter can claim authority. |
 | Adapter admission | `admitted_adapter_count == 0` is load-bearing. Any admitted adapter before G1+ is a failure. |
 | First vertical posture | `not_attempted_g0_pre_adapter`; no grounded conversion is attempted for `ua-msme-affordable-loans-2022`. |
+
+The pinned manifest records zero admitted adapters and zero grounded
+conversions while the listed discovery-search and freshness checks are `pass`.
+Those passes close only the pre-adapter readiness checks; they are not a
+grounded design result or recommendation/design authority.
 
 ## Closure Artifacts
 

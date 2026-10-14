@@ -18,6 +18,8 @@ The implementation maps were inspected at source commit
 `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14. The
 [E02 snapshot](reference/e02-documentation-snapshot.md) explains why ongoing
 integration and a historical receipt cannot be treated as current closure.
+The system is not functional end to end; tutorial smoke examples and blueprints
+retain that limit even when an individual component or documentation check passes.
 
 ## Find the right document
 
@@ -31,8 +33,8 @@ integration and a historical receipt cannot be treated as current closure.
 | Read accepted decisions and proposals | [ADRs](adr/README.md), [system-design decisions](system-design-decisions/README.md) |
 | Locate current execution or a historical plan | [Plans lifecycle](plans/README.md), [active index](plans/active/README.md), [archive disposition](plans/documentation-refresh-disposition-20261014.md) |
 | Find research and E02 evidence owners | [Research map](research/README.md) |
-| Read frozen evidence | `archive/` |
-| Work on visual identity or compliance records | [Brand](brand/README.md), `compliance/` |
+| Read frozen evidence | [Archive lifecycle and entrypoints](archive/README.md) |
+| Work on visual identity or compliance records | [Brand](brand/README.md), [accessibility records](compliance/README.md) |
 
 ## Maintain the documentation
 
@@ -42,9 +44,12 @@ Follow the [style guide](style-guide.md) and
 the [failure/repair register](reference/policy-design-case-failure-patterns.md)
 defines the capability and authority vocabulary.
 
-The [2026-10-14 refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
-records fresh documentation checks, the approved publication boundary and the
-unresolved lifecycle gate. Runtime and E02 closure remain outside that report.
+The [comprehensive maintenance audit](archive/reports/2026-10-14-documentation-maintenance-audit.md)
+records the second slice's source audits and verification-tool repairs; its
+status identifies whether final verification is complete. The earlier
+[refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
+records a separate publication boundary and verification wave. Runtime and
+E02 closure remain outside both reports.
 
 Stable behavior belongs in authored explanation/reference/procedure pages;
 plans and receipts retain their historical authority and explicit scope.

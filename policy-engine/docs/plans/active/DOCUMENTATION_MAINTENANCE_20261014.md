@@ -153,8 +153,23 @@ runtime capability is recorded honestly, not forced green for closeout.
 
 ## Progress and closeout
 
-Initial census and lane audits are in progress. Root will consolidate findings,
-track held or rejected changes, freeze source before final independent review,
-and run the proportionate verification wave once per justified repair batch.
-The final report will distinguish documentation improvements, tool behavior
-changes, remaining product gaps and publication decisions.
+The complete census, twenty lane audits and fourteen supplemental per-path
+reviews are recorded under ignored raw receipts. Root subsequently authorized
+ordinary README corrections after binding/source review; the read partition
+does not imply exclusive authorship. Primary E02/verbatim/source-committed
+evidence stays immutable. Source and document reviews found and corrected
+namespace mutation, count-to-identity promotion, ADR relation/status parsing,
+table serialization and explicit-input receipt defects.
+
+The user approved the exact ten-source-record exclusion and BERL readmission
+in `documentation-publication-adjustment-20261014.md`. Canonical configuration
+and inventories have been regenerated. Authored formatting uses the existing
+pinned tools; generated references retain canonical ownership. The scoped
+MD051 TOC exception follows verified MkDocs `attr_list` IDs, which the linter
+does not understand; actual rendered fragment QA remains required.
+
+The source is being frozen for the final targeted test, lint, canonical drift,
+architecture, accuracy, lifecycle, source/emitted-link and strict-build wave.
+The closeout is `docs/archive/reports/2026-10-14-documentation-maintenance-audit.md`;
+its verification section remains pending until those outputs are captured.
+Whole lifecycle coverage remains bounded/UNRUN rather than being forced green.

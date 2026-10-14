@@ -5,13 +5,18 @@ Related runbooks: [Key Rotation](../runbooks/key-rotation.md),
 Related reference: [Operations reference](operations/index.md), [platform acceptance audit](operations/platform-acceptance-audit.md), [security model](../explanation/security-model.md).
 
 Owner: `@platform-owners`
+Source pin: `8dd933600dd7a5a8a5b48432c6089d63b81ca641`
 Source of truth: `architecture/control_plane_supply_chain.toml`,
 `ops/security/**`, `src/polisyos/core/security/**`,
 `src/polisyos/runtime/http/{csrf.py,jwt_auth_middleware.py,authz_middleware.py,fail_closed_middleware.py}`,
 and the linked runbooks
+Evidence status: source code and configuration were inspected at the source
+pin; referenced test paths were checked and selected test bodies inspected, but
+tests were not run and no deployment state was observed.
 
-> This page defines the production operating contract for runtime key rotation,
-> CSRF posture, and audit-trail compliance review.
+> This page records the repository's production-oriented operating requirements
+> and procedures for runtime key rotation, CSRF posture, and audit-trail review.
+> It does not attest that a production deployment has these controls configured.
 
 ## Evidence Map And Open Gaps
 
@@ -66,8 +71,9 @@ uv run python tools/quality/validation/control_plane_supply_chain_contracts.py \
 
 ### JWT signing keys
 
-JWT signing keys are normally owned by the identity provider, but runtime must
-still know which `kid` values are active, staged, retired, or revoked.
+JWT signing keys are normally owned by the identity provider. The operator
+trust-anchor manifest records active, next, retired, and revoked `kid` values;
+the runtime verifier enforces the configured allowed and revoked sets.
 
 Use the operator manifest command during rollout:
 
@@ -93,9 +99,12 @@ Runtime enforcement is controlled by:
 
 - `POLISYOS_JWKS_CACHE_TTL_SECONDS`: JWKS client/cache lifetime.
 
-Runtime bootstrap should construct the identity provider from
-`SecuritySettings` via `SPIFFEIdentityProvider.from_settings(...)` so these
-rotation controls are applied consistently in tests and production.
+Runtime bootstrap must construct the identity provider from `SecuritySettings`
+via `SPIFFEIdentityProvider.from_settings(...)` and pass it to
+`create_runtime_api_app(...)` so these rotation controls reach `JWTAuthMiddleware`.
+The app requires that injected provider when security middleware is enabled; it
+does not create one from settings automatically. This repository-level contract
+does not establish that a deployment uses this wiring.
 
 Operational sequence:
 
@@ -137,6 +146,13 @@ The runtime supports double-submit token enforcement for unsafe methods:
 - enablement: `POLISYOS_CSRF_ENABLED=true` or
   `POLISYOS_COOKIE_AUTH_ENABLED=true`.
 
+The app's explicit `enable_csrf_protection` argument takes precedence. If it is
+unset, `POLISYOS_CSRF_ENABLED` takes precedence over
+`POLISYOS_COOKIE_AUTH_ENABLED`. Passing `enable_csrf_protection=False` or
+setting `POLISYOS_CSRF_ENABLED=false` disables the middleware even when cookie
+authentication is enabled. Treat that combination as a production configuration
+error.
+
 Unsafe cookie-authenticated requests without a matching header fail with
 `403 csrf_token_required`.
 
@@ -153,7 +169,7 @@ middleware tests rather than only to architecture prose.
 | Tenant/header binding      | authenticated tenant and `X-Tenant-ID` mismatch fails closed                      | `tests/unit/core/security/test_auth_middlewares.py`, `tests/unit/core/security/test_router.py` |
 | Tenant context discipline  | code requiring tenant scope raises when context is absent                         | `tests/unit/core/security/test_tenant_context.py`                                         |
 | Runtime read authorization | cross-tenant run/artifact access returns typed `403` problems                     | `tests/unit/runtime/http/test_runtime_api_authz.py`                                       |
-| Property coverage          | run/artifact tenant guards fail closed across generated tenant combinations       | `tests/unit/runtime/http/test_access_invariants_properties.py`                            |
+| Property coverage          | run/artifact tenant guards fail closed across generated tenant combinations       | `tests/property/runtime/http/test_access_invariants_properties.py`                       |
 | OPA dependency posture     | timeout or denial returns typed deny/timeout responses                            | `tests/unit/runtime/http/test_runtime_api_authz.py`                                       |
 
 <!-- markdownlint-enable MD060 -->
@@ -166,7 +182,7 @@ uv run pytest -q \
   tests/unit/core/security/test_router.py \
   tests/unit/core/security/test_tenant_context.py \
   tests/unit/runtime/http/test_runtime_api_authz.py \
-  tests/unit/runtime/http/test_access_invariants_properties.py
+  tests/property/runtime/http/test_access_invariants_properties.py
 ```
 
 ## Audit Retention and Export

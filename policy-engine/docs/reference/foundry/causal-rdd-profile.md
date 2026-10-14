@@ -2,6 +2,15 @@
 
 Owner: `polisyos.foundry.methods.catalog.causal.rdd.RegressionDiscontinuity`.
 Registered method: `causal.inference.regression_discontinuity@1.0.0`.
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/rdd.py`, `src/polisyos/foundry/methods/catalog/causal/protocols.py`, and the RDD tests listed below.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and test sources inspected at this pin; tests were not run for this docs-only review.
+
+The existing `materialize_method_input()` bridge merges graph-bound outcome
+and running-variable vectors into the typed `RDDObservationalData` context.
+That context must supply its cutoff; the materializer does not infer or default
+it. This is method-input materialization, not a design-level or grounding
+bridge.
 
 The default `bias_correction=False` remains the separate conventional local
 polynomial profile. It preserves its weighted-residual homoskedastic covariance
@@ -51,6 +60,16 @@ The scientific claim is a sharp, iid, asymptotic local-polynomial procedure unde
 continuity, valid bandwidth and no-manipulation assumptions. Known synthetic DGP
 coverage validates the declared implementation under that DGP. It does not
 establish these assumptions, causal authority or interval coverage on admitted
-real data. Registered dispatcher, report/CAS fresh-reader and actual Scientist
-consumer checks retain their own source SHA and outcomes; a field/flag or a
-successful registration is not their substitute.
+real data. The method, dispatcher, input-materialization, and report/CAS
+reader checks are bounded to the linked tests; this reference does not claim an
+end-to-end Scientist policy-grounding consumer for the RDD method. A field,
+flag, or successful registration is not a substitute for that consumer path.
+
+## Verification anchors
+
+- Sharp-RD profiles and report/CAS fresh-reader behavior:
+  `tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py`
+- Conventional method behavior:
+  `tests/unit/foundry/methods/catalog/causal/test_rdd.py`
+- Bound-vector materialization and required cutoff:
+  `tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py`

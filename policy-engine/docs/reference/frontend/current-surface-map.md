@@ -170,6 +170,37 @@ dashboard displays the artifact's effective state, blocker codes,
 limitations, and source dates; it is a consumer of the generated posture
 artifact, not the producer of that posture.
 
+### Quantity, lineage, and Trust View
+
+`Quantity` renders the supplied value together with its lineage status and
+freshness, uncertainty-dispute cue, and optional provenance popover. The
+popover loads lineage on open. `QuantityRuntimeProvider` uses the dashboard's
+local typed client for GET `/api/v1/lineage/{lineage_id}`, POST
+`/api/v1/lineage/batch`, and the two lineage export GET routes; it validates
+responses and carries the active temporal cursor into those requests
+(`apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx#L78-L297`,
+`apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx#L39-L72`,
+`apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx#L22-L116`).
+The provider connects the presentation component to API transport; it does not
+produce or admit a policy claim.
+
+The shell's Trust View toggle changes `off`, `compact`, and `expanded`
+presentation modes through URL/local preference state. Its metadata component
+consumes the trust metadata carried by a quantity or other subject; the toggle
+does not select a new server answer or change a permission
+(`apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx#L21-L121`,
+`apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.tsx#L12-L35`,
+`apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx#L107-L145`).
+The display's trust-glyph boundary is deliberately limited: absent or
+projection-only metadata is rendered as unknown, and the current presentation
+records `content_bound_verification_receipt_missing` rather than promoting a
+bare `verification_status: verified`. Source tests exercise missing,
+projection-only, and forged presentation inputs, but were not run for this
+documentation pass (`apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts#L15-L135`,
+`apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewAuthority.test.tsx#L15-L128`).
+Neither a glyph, detail toggle, lineage status, nor readable provenance is
+proof of policy correctness, current authority, or publishability.
+
 ### Run-bound predictive-calibration diagnostic
 
 The Overview surface loads and submits the run-bound predictive-calibration
@@ -238,11 +269,38 @@ withheld, and a route change cannot display a late response for the old ID
 The server source also contains an authenticated issuance route for
 report-only, governed-record, and governed-record-candidate variants; the
 caller selects a run and publication class, not a document or authority
-verdict (`src/polisyos/runtime/http/routes/public_decisions.py#L130-L237`). A
-backend test issues and reads back a synthetic governed record and asserts its
-limited use/dimension semantics (`tests/unit/runtime/http/test_public_export.py#L363-L402`).
-Those source and test paths do not establish that a record exists or can be
-issued in a particular deployment.
+verdict. Its POST declares `require_action_permission(RuntimePermission.PLATFORM_ADMIN, ...)`
+bound to the owned existing `run_id` path, and then enforces tenant access
+before issuance (`src/polisyos/runtime/http/routes/public_decisions.py#L48-L56`,
+`src/polisyos/runtime/http/routes/public_decisions.py#L130-L237`). This
+corrects the July audit's source-snapshot claim that no server verification
+route or POST action-permission gate existed; it establishes the declarations
+in this source, not deployment configuration or successful access enforcement.
+A backend test issues and reads back a synthetic governed record and asserts
+its limited use/dimension semantics
+(`tests/unit/runtime/http/test_public_export.py#L363-L402`). Those source and
+test paths do not establish that a record exists or can be issued in a
+particular deployment.
+
+### Social-card and email summary code
+
+The dashboard repository contains a typed `PublicShareSummary`, a sanitizer,
+email/OG rendering helpers, and tests that render the fixtures and generate
+HTML, SVG, and PNG previews. A repository-wide tracked `.ts`, `.tsx`, `.js`,
+and `.jsx` source search at the pin finds the `generateOg*` and `EmailSummary`
+callsites only in `OGCard.test.tsx`; no production route or service imports
+these names. Treat the preview renderer as
+`implemented_but_not_orchestrated`, and its `verified` fixture text as input
+data rather than verification evidence. The DS0 decision separately keeps
+email delivery `surface_out_of_scope` until a notification producer, privacy
+and redaction contract, delivery owner, and negative disclosure tests exist
+(`apps/runtime-dashboard/src/features/export/social/email-fixtures.ts#L1-L89`,
+`apps/runtime-dashboard/src/features/export/social/OGCard.tsx#L1-L140`,
+`apps/runtime-dashboard/src/features/export/social/generate-og.ts#L24-L77`,
+`apps/runtime-dashboard/src/features/export/social/OGCard.test.tsx#L1-L92`,
+`docs/brand/ATLAS_SOURCE_OF_TRUTH.md#L431-L449`). These test fixtures and
+renderers do not establish a public publication route, a delivered email, or
+a publishable policy system.
 
 ## Tests And Evidence Limits
 

@@ -14,6 +14,12 @@ New archive entries should preserve the original filename when moving a legacy
 plan. New closeout archives should use `YYYY-MM-DD-<slug>.md`, include status
 and owner, and link the ADR/reference/runbook surface that supersedes the plan.
 
+For a bounded closeout, preserve the plan's historical status and name the
+scope and remaining owner obligations. A compatibility pointer keeps old-path
+navigation working, but it cannot stand in for a reader that depends on the
+original bytes. Keep source-bound receipts unchanged and use the existing
+redirect metadata and sunset contract for any temporary pointer.
+
 ## 2026-10-14 disposition
 
 - [Documentation refresh against E02](2026-10-14-documentation-refresh-e02.md):

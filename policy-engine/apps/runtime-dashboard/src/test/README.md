@@ -1,7 +1,7 @@
 # Runtime Dashboard Test Helpers And Fixtures
 
 Owner: `team-frontend`
-Last updated: 2026-05-05
+Last updated: 2026-10-14
 
 ## Purpose
 
@@ -30,7 +30,7 @@ New mock handlers should mirror generated API types.
 
 ## Tests
 
-Consumed by colocated Vitest tests, `pnpm --filter @polisyos/runtime-dashboard run test:contracts`, and frontend smoke checks.
+Consumed by colocated Vitest tests, `corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts`, and frontend smoke checks.
 
 ## Operability Links
 

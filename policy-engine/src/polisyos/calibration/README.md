@@ -1,6 +1,6 @@
 # polisyos.calibration
 
-- Last updated: 2026-05-03
+- Last updated: 2026-10-14
 
 Calibration diagnostics package for binary, multiclass, and continuous
 calibration checks plus fit/apply helpers for recalibration workflows.

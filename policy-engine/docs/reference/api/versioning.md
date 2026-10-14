@@ -2,9 +2,11 @@
 
 Related reference: [REST API Reference](index.md), [Runtime API Migration Guide](migration-guide.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/runtime/http/routes/{runs.py,artifacts.py}`, and [ADR-0100](../../adr/0100-runtime-api-versioning-and-deprecation-policy.md)
+Source of truth: `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/routes/artifacts.py`, and `docs/adr/0100-runtime-api-versioning-and-deprecation-policy.md`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the test anchors and contract check were not run.
 Validation: `uv run pytest -q tests/unit/runtime/http/test_api_maturity.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
 
 `/api/v1/*` is the current stable runtime HTTP surface.

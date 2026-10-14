@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py`, and `architecture/policy_design_case/layer3_g1_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 Layer 3 G1 is the substrate grounding and acquisition-gap audit slice for the
 Policy Design Case. It turns existing Layer 3 G0 discovery/search discipline
 into a runtime bundle that can say whether a pinned construct has a validated
@@ -69,6 +74,11 @@ Out of scope until later promotion slices:
 - `PUBLIC`: waits for G4/G5 public projection.
 - `REVIEWER`: waits for G4/G5 reviewer projection.
 
+PUBLIC and REVIEWER are `surface_out_of_scope` for this G1 slice. A readiness
+`pass` is limited to G1's declared grounding, lineage, search, persisted-artifact,
+and EXPERT/MACHINE surface checks; it does not establish a functional end-to-end
+policy design or recommendation/design authority.
+
 ## G0 Dependency Gate
 
 G1 must load and validate these G0 v2 artifacts before a pass result:
@@ -127,3 +137,8 @@ The validator and runtime contract block:
 - capability-index-as-L1 overclaim
 - unjustified L1 surrogate when production DCAT exists
 - search-engineering full-scan/unindexed behavior
+
+The pinned readiness manifest records `grounding_closure_outcome=typed_blocker`,
+`g1_search_recall_status=fail`, zero grounded source-contract bindings, zero
+useful-design credit, and zero production-claim authority. The gates above are
+closure requirements, not evidence that those conditions are satisfied.

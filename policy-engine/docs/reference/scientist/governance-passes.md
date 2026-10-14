@@ -4,7 +4,8 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `src/polisyos/scientist/nodes/builtins/governance/run_governance.py`, `src/polisyos/scientist/nodes/builtins/decide/run_policy_funnel_level5.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`, `src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/unit/scientist/governance/**`
-Evidence pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; source and test paths below were inspected, not run for this documentation update.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: source and test paths below were inspected, not run for this documentation update.
 
 All registry-loaded governance validators implement
 `validate(ctx: PassContext) -> list[ComplianceIssue]`. The registry loads installed entry points

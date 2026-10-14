@@ -102,7 +102,9 @@ owners are `causal_sections`, `strategic_sections`, `outcome_sections`,
 `basis_sections`, and `uncertainty_sections`; `validation` owns validation and
 validity preparation. `enrichment` retains compatibility re-exports and
 `_build_policy_summary`. `build_decision_packet.py` remains the compatibility
-facade. The existing 296-name API is retained.
+facade. Its re-export surface is assembled dynamically in
+`src/polisyos/scientist/nodes/builtins/decide/decision_packet/api.py`, so this
+guide does not pin an exported-name count.
 
 ## Extension Points
 
@@ -128,10 +130,11 @@ Run from the repository root (`policy-engine/`).
 
 ## Tests
 
-Smoke-tested:
+Previously recorded smoke-test command; it was not rerun for this
+documentation correction:
 
 ```bash
-uv run pytest tests/unit/scientist/nodes/builtins/test_state_builtins.py tests/unit/scientist/nodes/test_build_policy_output_bundle.py tests/unit/scientist/causal/test_causal_evaluation_node.py -q
+uv run pytest tests/unit/scientist/nodes/builtins/test_state_builtins.py tests/unit/scientist/nodes/test_build_policy_output_bundle.py tests/unit/scientist/methods/causal/test_causal_evaluation_node.py -q
 ```
 
 Full node coverage is organized under
@@ -171,4 +174,4 @@ routing, or decision artifact shape.
 
 ## Last Updated
 
-- Last updated: 2026-10-10
+- Last updated: 2026-10-14

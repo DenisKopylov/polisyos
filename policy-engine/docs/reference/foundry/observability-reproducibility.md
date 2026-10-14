@@ -1,25 +1,28 @@
 # Foundry Observability and Reproducibility
 
-Foundry observability answers four operator questions without requiring source
-inspection:
+Foundry's observability artifacts can help operators answer four questions when
+the relevant producer and consumer paths are used:
 
 1. What method/backend actually ran?
 2. What runtime/device posture was observed?
 3. Was the result degraded or replayable only within tolerances?
 4. Which methods were applicable on this runtime?
 
-This page covers Phase 4 performance/concurrency/reproducibility and the
-cross-cutting WS-10 documentation/observability surface from the Foundry plan.
+This page describes method-result runtime evidence, catalog snapshots,
+determinism metadata, and the bounded technical release-acceptance path.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/runtime/**`, `src/polisyos/foundry/methods/backends/**`, `src/polisyos/foundry/release_acceptance.py`, benchmark registry/help surfaces, and generated method snapshot inputs from `src/polisyos/foundry/methods/catalog_snapshot.py`
+Historical freshness receipt: 2026-04-17 (an earlier documentation pass; not a
+current verification receipt).
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/methods/backends/**`, `src/polisyos/foundry/methods/catalog/snapshot.py`, `src/polisyos/foundry/methods/lifecycle/observability.py`, `src/polisyos/foundry/validation/release_acceptance.py`, and `tools/research/benchmarks/run_all.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation source inspected at this pin; linked tests were not run for this docs-only review.
 
 ## Runtime Artifacts
 
-Every backend `MethodResult` can carry `backend_runtime_fingerprint` in
-`artifacts`. Dispatch and catalog evidence may include:
+Backend runners can attach `backend_runtime_fingerprint` to `MethodResult`;
+`MethodDispatcher` adds dispatch and cost evidence on its applicable path. The
+exact fields depend on the selected backend and execution path:
 
 - `dispatch_trace`: requested backend, selected backend, attempts, selection
   reason, predicted latency, and degradation status.
@@ -30,8 +33,9 @@ Every backend `MethodResult` can carry `backend_runtime_fingerprint` in
 - `runtime_posture`: observed backend, available packages, runtime stack, device
   family, replay semantics, and tolerance budget.
 
-These artifacts are intended for CAS storage, audit surfaces, OpenTelemetry
-export, and release reviews.
+Callers can persist method results for later inspection. OpenTelemetry
+instrumentation is a separate opt-in path; the presence of result artifacts
+does not mean every CAS, audit, or telemetry consumer is wired to them.
 
 ## Determinism Contract
 
@@ -64,7 +68,9 @@ machine-readable inventory surfaces for planners and operators. Rows can include
 - `tolerance_budget`
 - `truthfulness_tier`
 
-This keeps backend availability claims aligned with installed runtime stacks.
+This keeps backend availability claims aligned with the registry and observed
+runtime stack represented by that snapshot. It does not validate a study's
+causal assumptions or ground a policy effect.
 
 Regenerate the underlying machine-readable inputs with:
 
@@ -103,8 +109,11 @@ uv run polisyos-foundry release-acceptance \
   --json
 ```
 
-The release-gate workflow is asserted by
-`tests/unit/foundry/validation/test_release_gate.py`.
+The release-acceptance runner is a technical compile/execute/replay check over
+already admitted CAS inputs. Its typed receipt explicitly excludes release
+admissibility, governance admissibility, and publication authorization. The
+workflow is covered by `tests/unit/foundry/validation/test_release_gate.py`;
+this page does not claim that the command was run for any current bundle.
 
 For machine-readable automation, prefer the Python regeneration path above.
 Current CLI `--json` runs may include registry-bootstrap logs before the JSON
@@ -120,11 +129,16 @@ uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --
 uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
 ```
 
-`polisyos-tools benchmarks run-all --help` is the verified command entrypoint,
-while the `test_ws5_jax_perf.py` benchmark file is the Foundry/JAX hot-path
-anchor linked from this page and from [Run Benchmarks](../../how-to/run-benchmarks.md).
+The [Run Benchmarks](../../how-to/run-benchmarks.md) page documents
+`polisyos-tools benchmarks run-all --help` as the CLI entrypoint, and
+`tools/research/benchmarks/run_all.py` contains its help handler. This refresh
+inspected those references but did not execute the help command or either
+benchmark command. The `test_ws5_jax_perf.py` file is the Foundry/JAX hot-path
+anchor linked from this page and the command guide.
 
-## Recommended Acceptance Loop
+## Suggested Operator Checks
+
+These are manual checks, not one automatically orchestrated acceptance loop.
 
 1. Persist a catalog snapshot artifact.
 2. Persist operator-evidence JSON beside the capability matrix.

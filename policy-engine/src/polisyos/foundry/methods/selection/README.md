@@ -16,12 +16,16 @@ selection advice, registry persistence, and execution-history feedback.
 
 Builtin catalog families register through `catalog/*/_registry_boot.py` and
 call `selection.registry.MethodRegistry.register()` or `register_lazy()`.
-Component-backed methods enter through `components/bridge.py`, which also calls
-`selection.registry.MethodRegistry.register_lazy()`.
+`foundry/extensions/registry.py` exposes
+`bootstrap_foundry_method_registry()`; when invoked, it discovers external
+entry points through `foundry/extensions/discovery.py` under
+`polisyos.foundry_methods`. The registry passes the component index through
+`methods/components/bridge.py`, which registers valid method classes with
+`selection.registry.MethodRegistry`. Selection remains the owner of method
+registration and version resolution; extension discovery and component
+validation stay at the extension boundary.
 
-Phase 5 extension work should attach external entry-point discovery to this
-same registry path without moving registry ownership out of `selection/`.
-# Observation route constraints
+## Observation route constraints
 
 `MethodRouteConstraint` is a candidate search constraint. It does not certify a
 manifest, observed data, or method validity. The selector rechecks every allowed

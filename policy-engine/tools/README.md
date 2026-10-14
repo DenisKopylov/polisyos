@@ -3,8 +3,8 @@
 ## Purpose
 
 `tools/` — каноническая исполняемая поверхность `policy-engine`: единый CLI
-`polisyos-tools`, зональная раскладка implementation-кода и совместимые
-wrapper-пути для migration window.
+`polisyos-tools`, зональная раскладка implementation-кода и исторические
+сведения о выведенных из употребления compatibility paths.
 
 ## Where to Start
 
@@ -25,7 +25,6 @@ wrapper-пути для migration window.
 | -------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `uv run polisyos-tools <category> <command>` | Основной human/CI entrypoint для всех инструментов.                                   |
 | `python -m tools.cli`                        | Низкоуровневый CLI boundary для debugging и embedding.                                |
-| `tools/<category>/...`                       | Compatibility packages; новые implementation-модули сюда не добавляются.              |
 | `tools/design/*`                             | Node/TypeScript design and accessibility helpers invoked from the frontend workspace. |
 | `docs/reference/tools.md`                    | Generated reference для публичного command catalog.                                   |
 
@@ -40,12 +39,12 @@ wrapper-пути для migration window.
 
 ## Zones
 
-| Zone       | Categories                                                                         | Purpose                                                             |
-| ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                               | contributor setup, scaffolding, repo structure, codegen             |
-| `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                               | quality gates, diagnostics, validation, mutation/integration checks |
+| Zone       | Categories                                                                                                      | Purpose                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                                                            | contributor setup, scaffolding, repo structure, codegen                                    |
+| `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                                                            | quality gates, diagnostics, validation, mutation/integration checks                        |
 | `ops`      | `calibration`, `cloud`, `data`, `deploy`, `ops-experiments`, `migrations`, `release`, `runtime`, `ukraine_data` | CLI zone backed by `tools/ops_runners/**` for runtime/release/data/cloud operational flows |
-| `research` | `benchmarks`, `demos`, `research-experiments`                                      | benchmark orchestration и manual research/demo surfaces             |
+| `research` | `benchmarks`, `demos`, `research-experiments`                                                                   | benchmark orchestration и manual research/demo surfaces                                    |
 
 Canonical implementation layout:
 
@@ -60,14 +59,14 @@ The physical `experiments/` directory appears under both `ops` and `research`.
 The public CLI categories are intentionally `ops-experiments` and
 `research-experiments` so the command catalog has no duplicate category names.
 
-Compatibility layout retained for one deprecation window:
+Historical compatibility-window note (not a current retirement receipt):
 
 ```text
 tools/{architecture,connectors,foundry,migrations,demos}/...
 ```
 
-Each compatibility script prints a deprecation warning and sunsets on
-2026-09-01.
+The prior migration note recorded a planned sunset of 2026-09-01; see Current
+State below for the inspected disposition and its owner-sign-off limit.
 
 Additional non-CLI helper surface:
 
@@ -90,9 +89,9 @@ tools/design/
 
 ## Test And Verification
 
-| Command                                                                                                                   | What it verifies                                                       | Status         |
-| ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------- |
-| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                      | Документация и generated references не расходятся с repo reality.      | `smoke-tested` |
+| Command                                                                                                                                                          | What it verifies                                                       | Status         |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------- |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                                                             | Документация и generated references не расходятся с repo reality.      | `smoke-tested` |
 | `uv run pytest -q tests/repo_quality/tools/test_unified_cli.py tests/repo_quality/tools/test_phase5_tooling.py tests/repo_quality/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior. | `conceptual`   |
 
 ## Reference Docs
@@ -111,9 +110,14 @@ tools/design/
 
 ## Current State
 
-- `tools/{architecture,connectors,foundry,migrations,demos}` остаются
-  compatibility anchors до 2026-09-01; новый код должен жить только под zoned
-  paths.
+- `tools/registry.py` still emits generic generated wording that the legacy
+  wrappers sunset on 2026-09-01. At the inspected tree,
+  `tools/registry.py::LEGACY_ENTRYPOINTS` is empty, and
+  `tests/repo_quality/tools/test_phase4_consolidation.py::test_phase1d_legacy_tool_paths_are_retired`
+  asserts that the five paths listed above are absent; inspection found them
+  absent. This supports a code-inspected retired disposition for those paths,
+  not an owner sign-off or closeout receipt. That generic sentence needs owner
+  reconciliation. New implementation belongs under the zoned paths.
 
 - `tools/design/` intentionally stays a small manual/CI helper surface for
   Node-based brand and accessibility checks rather than part of the Python
@@ -125,6 +129,6 @@ tools/design/
 - `workspace ci-parity` остаётся основным локальным umbrella-check для tools
   и docs surfaces.
 
-- Last updated: 2026-05-03
+- Last updated: 2026-10-14
 
 Measurement authors: follow the [input disclosure and register-reader contract](../docs/how-to/author-measurement-instruments.md) before adding an absence verdict.

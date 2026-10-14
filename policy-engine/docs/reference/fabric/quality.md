@@ -2,11 +2,16 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-27.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/quality/quality.py`, `src/polisyos/fabric/quality/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_{system,statistics}.py`
+Source of truth: `src/polisyos/fabric/quality/quality.py`, `src/polisyos/fabric/quality/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`, and `tests/unit/fabric/connectors/test_quality_statistics.py`
+Evidence level: implementation and named unit-test behavior inspected at the source pin. Tests were not run in this documentation pass.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 Fabric currently exposes two quality layers that are both active in code.
 
@@ -65,13 +70,13 @@ Its default tier mapping is:
 
 ## Evidence And Downstream Use
 
-| Surface                           | Current evidence                                                                                                                                                               |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DataQualityReport.to_evidence()` | Builds a content-hashed evidence payload with score, tier, freshness, completeness, consistency, anomaly, drift, and contract-failure counts                                   |
-| `build_fabric_quality_governance_evidence()` | Normalizes a quality report into `fabric.quality.evidence.v1` for Scientist governance state, including quality indicators and contract status                                  |
-| `DataFitnessReport`               | Generates ASCII or Markdown summaries for governance/logging/UI paths                                                                                                          |
-| Orchestrated ingestion            | `tests/unit/fabric/data_plane/test_orchestrator.py` shows `run_orchestrated_ingestion(..., produce_snapshot=True)` persisting `fabric.quality_report` before `fabric.data_snapshot` |
-| Scientist quality gate            | `tests/unit/fabric/test_observability_governance_quality_phase4.py` checks that strict validation profiles receive `fabric_quality_evidence` and dataset-indexed quality evidence    |
+| Surface                                      | Current evidence                                                                                                                                                                                                                                                                       |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DataQualityReport.to_evidence()`            | Builds a content-hashed evidence payload with score, tier, freshness, completeness, consistency, anomaly, drift, and contract-failure counts                                                                                                                                           |
+| `build_fabric_quality_governance_evidence()` | Normalizes a quality report into `fabric.quality.evidence.v1` for Scientist governance state, including quality indicators and contract status                                                                                                                                         |
+| `DataFitnessReport`                          | Generates ASCII or Markdown summaries for governance/logging/UI paths                                                                                                                                                                                                                  |
+| Orchestrated ingestion                       | `tests/unit/fabric/data_plane/test_orchestrator.py` shows snapshot assembly persisting a metadata-only `fabric.quality_report` (`source`, dataset count, evidence notes) before `fabric.data_snapshot`; it stubs connector ingestion and does not compute a content-quality assessment |
+| Scientist quality gate                       | `tests/unit/fabric/test_observability_governance_quality_phase4.py` checks that strict validation profiles receive `fabric_quality_evidence` and dataset-indexed quality evidence                                                                                                      |
 
 ## Safety And Boundary Rules
 

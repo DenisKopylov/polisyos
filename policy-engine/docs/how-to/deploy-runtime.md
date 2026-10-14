@@ -2,13 +2,19 @@
 
 > Разберитесь в текущем Runtime HTTP app factory, поверхности конфигурации, dashboard и production-аспектах.
 
-!!! info "Bootstrap проверен"
-На 2026-04-17 на текущем дереве реально проверены импорт
-`from polisyos.runtime.http.app import create_runtime_api_app`,
-вызов `create_runtime_api_app()`,
-а также наличие runtime paths
-`/api/v1/control/jobs/{job_id}`
-и `/api/v1/runs/{run_id}/live`.
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/routes/`, `src/polisyos/runtime/http/deployment_security.py`, and `pyproject.toml`.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. No runtime service or deployment was started in this update.
+
+!!! info "Historical local bootstrap receipt — 2026-04-17"
+    At that time, the recorded checks covered the import
+    `from polisyos.runtime.http.app import create_runtime_api_app`,
+    calling `create_runtime_api_app()`,
+    and route-path presence for
+    `/api/v1/control/jobs/{job_id}`
+    and `/api/v1/runs/{run_id}/live`. This is a dated local bootstrap receipt,
+    not a current service check, production deployment, or end-to-end capability
+    verification.
 
 ## Вход
 
@@ -18,7 +24,7 @@
 
 ## Выход
 
-- локально стартующий Runtime API на `:8000`
+- локальный development Runtime API at `:8000` if the documented command and its environment prerequisites succeed
 - список ключевых env vars для execution, security и telemetry
 - понятный путь к dashboard, control-plane и runtime runs surface
 
@@ -56,7 +62,7 @@ pip install -e ".[all]"
 polisyos.runtime.http.app:create_runtime_api_app
 ```
 
-Проверенный локальный bootstrap:
+Локальный development-server example:
 
 ```bash
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
@@ -150,7 +156,9 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 ## 3. Обзор endpoints
 
-Проверенное приложение сейчас поднимает 57 routes из:
+At the reviewed source pin, the app factory composes its HTTP surface from
+these route modules (this is a source map, not a route-count or live-runtime
+receipt):
 
 - `routes/health.py`
 - `routes/auth.py`

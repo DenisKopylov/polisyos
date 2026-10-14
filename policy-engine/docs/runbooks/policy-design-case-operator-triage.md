@@ -18,7 +18,7 @@ Related reference:
 Owner: `@platform-owners` with `@runtime-owners`, `@scientist-owners`,
 `@foundry-owners`, `@fabric-owners`, `@lex-owners`, `@core-audit-owners`,
 `@ddm-owners`, and governance reviewers.
-Last tested: `2026-05-19` against Wave 40 closeout evidence.
+Historical evidence-review receipt (as recorded by this page): `2026-05-19`, Wave 40 closeout evidence; this is not a fresh runtime validation.
 Evidence path: `quality_evidence/policy_design_case.json`,
 `quality_evidence/quality_scorecard.json`,
 `quality_evidence/assurance_case.json`,

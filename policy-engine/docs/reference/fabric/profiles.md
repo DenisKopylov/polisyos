@@ -2,11 +2,17 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-26.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/connectors/profiles/**`, `tests/unit/fabric/connectors/profiles/test_source_profiles.py`, `tests/unit/fabric/test_retrieval_service_catalog.py`
+Source of truth: `src/polisyos/fabric/connectors/profiles/**`, `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`, `tests/unit/fabric/connectors/profiles/test_source_profiles.py`, `tests/unit/fabric/test_retrieval_service_catalog.py`
+Evidence level: profile models, registry/resolver behavior, and named test behavior inspected at the source pin. Tests were not run in this documentation pass; profile declarations do not prove source reachability.
+Test status: cited tests were inspected but not run in this documentation pass.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 `SourceProfile` describes a source endpoint in planner-friendly terms, while
 `SourceExecutionPolicy` is the normalized runtime subset used by schedulers,
@@ -46,7 +52,10 @@ response caching unless a connector cache layer is configured separately.
 
 ## Built-in Profiles
 
-The current `builtin_profiles.py` defines 38 built-in profiles.
+The complete `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`
+module contains 38 `SourceProfile(...)` declarations with unique profile ids.
+This is a declaration census of one Python module, not a count of reachable or
+ready providers.
 
 | Family                             | Count | Example profile ids                                                                                                |
 | ---------------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------ |

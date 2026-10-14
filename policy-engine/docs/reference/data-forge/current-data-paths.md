@@ -14,15 +14,32 @@ The general requirement path starts with `polisyos.data_requirement.compiler.Dat
 Runtime acquisition is bounded and owner-mediated:
 
 1. `policy-engine/src/polisyos/runtime/quality/acquisition_planner.py` plans eligible work from requirement gaps. `plan_evidence_acquisition` accepts an optional VOI report. The planner records VOI ranks even for ineligible entries, then filters by eligibility before recommendation; among eligible strategies with VOI records, the higher-ranked option can be recommended.
-2. `run_acquisition_closed_loop` calls `plan_requirement_gap_acquisition` without a VOI report, then asks an explicit acquisition-owner gateway for artifacts. The default `RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})` is offline and returns no acquired domain evidence.
-3. Returned artifacts are journaled, admitted, projected into the selected world, and used to compute affected-region and grounding revalidation. The loop's authority boundary is recorded in the same module.
+2. `run_acquisition_closed_loop` in `policy-engine/src/polisyos/runtime/quality/acquisition_planner.py` calls `plan_requirement_gap_acquisition` without a VOI report, then asks its configured owner gateway for artifacts. A direct call defaults to `RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})`, which is offline and returns no acquired domain evidence.
+3. `GenerationCycle._run_n7_acquisition_if_requested` supplies `_n7_owner_gateway`: a request-hinted or injected gateway, or `RealAcquisitionOwnerGateway` when runtime scope permits. Production scope without the promotion runtime has no default gateway and fails with `n7_runtime_store_not_supplied`. The default real gateway also leaves OpenAlex network use disabled; if explicitly enabled, `_capture_openalex` currently makes a fixed `title.search:"policy"` request for at most one work. This narrow capture is not requirement-specific retrieval and does not itself establish gap coverage or claim support.
+4. The separate `producer_pipeline._requirement_gap_acquisition_report` path accepts and passes a VOI report to planning, but only returns a serialized plan; it does not invoke an acquisition gateway.
+5. Returned artifacts are journaled and admitted; only accepted outputs can be projected into the selected world. The loop records rejections/no-results as well and computes affected-region and grounding revalidation. Its authority boundary is recorded in the same module.
 
-The closed-loop gap is **`implemented_but_not_orchestrated` for VOI-ranked acquisition**: the planner accepts an optional VOI report, but the general closed-loop call omits it. The default gateway is recorded-only and does not itself acquire domain data. The legacy `AcquisitionPlanner` adapter handles named missing distributions with its own costed plan; that is not evidence of universal source selection.
+This N7 receipt's `same_cycle_reentry` authority is scoped to that execution's local, same-cycle
+projection. It is not production-native semantic-epoch admission or durable production re-entry.
+The production-native path is separately owned by
+`policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py`: it requires an explicitly
+selected tenant/cell/run/route, replayable owner evidence, native epoch admission, and a positive
+measured admitted-observation delta. The route loop in
+`policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py` then verifies the persisted
+growth receipt, its durable event and the bound overlay re-entry receipt before appending the next
+generation cycle. A locally accepted artifact or changed local `grown_world_after_ref` alone does
+not establish production admission, production world growth, or production re-entry. The inspected
+negative boundary test is
+`policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth`; it was not run for this documentation update.
+
+The closed-loop gap is **`implemented_but_not_orchestrated` for VOI-ranked acquisition**: the planner accepts an optional VOI report, but the N7 closed-loop call omits it. Its direct-call default is recorded-only; the generation-cycle caller can supply a real owner gateway under the stated scope and custody conditions. The legacy `AcquisitionPlanner` adapter handles named missing distributions with its own costed plan; that is not evidence of universal source selection.
 
 Two domain-owned examples have narrower acquisition behavior:
 
 - Academic `policy-engine/src/polisyos/data_forge/domains/academic/batch/demand_harvest.py` reads a runtime backlog, retains supported priority classes, queries OpenAlex, writes JSONL, and records a stage manifest. This is a targeted literature harvest route, not a general acquisition scheduler.
 - Catalog selection in `policy-engine/src/polisyos/data_forge/domains/catalog/selection.py` applies a source-run profile and wave, then resolves required seed dependencies. `policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py` resolves catalog authority against the baseline catalog and L5 measurement registry; it does not self-mint source, license, or L5 authority.
+
+Academic retrieval and grounding are separate steps. `polisyos.ir.analytics.literature.validate_openalex_source_bound_candidate` rederives a candidate from selected OpenAlex bytes and its query, but its typed result keeps both `semantic_support` and `source_snapshot_authenticity` at `not_established`. The publication path `polisyos.ir.analytics.literature.validate_causal_claim_span_grounding` resolves the span to those bytes and calls `polisyos.scientist.validation.citation_faithfulness.evaluate_span_claim_entailment`; an unavailable configured judge abstains. Source-bound custody therefore does not by itself prove entailment or scientific correctness.
 
 ## Domain materialization owners
 
@@ -35,7 +52,7 @@ Two domain-owned examples have narrower acquisition behavior:
 
 These are domain compositions, not a universal list of policy-domain templates. External domains are registered through the domain entrypoint mechanism described in `policy-engine/src/polisyos/data_forge/domains/README.md`; their existence does not imply that all domain lifecycle capabilities are equivalent.
 
-The shared asset kernel in `policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py` and `policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py` defines asset specs and materialization callables. `plan_asset_specs` orders dependencies and rejects missing dependencies and cycles. It does not provide a generic executor/persisted-output bridge. A universal materialization runner is therefore **`implemented_but_not_orchestrated`** at this kernel level; domain pipelines perform their own orchestration.
+The shared asset kernel in `policy-engine/src/polisyos/data_forge/kernel/pipeline/assets.py` and `policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py` defines asset specs and materialization callables. `plan_asset_specs` orders dependencies and rejects missing dependencies and cycles. It does not provide a generic executor/persisted-output bridge. The shared execution bridge is therefore **`bridge_missing`** at this kernel level; domain pipelines perform their own orchestration.
 
 ## Artifact, provenance, schema, and time
 
@@ -75,14 +92,27 @@ The legal surface is registered and consumed, but its public-surface declaration
 
 The academic runtime surface `polisyos.data_forge.read_api.academic` exports `run_edge_synthesize` through the lazy facade; it resolves to `policy-engine/src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py` and runs a batch stage against academic artifacts. This selected callable does not amount to a generic runtime batch executor; the inspection found no shared runtime orchestration contract covering every domain pipeline.
 
-Import consolidation and boundary behavior are covered by `policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py`, `policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py`, and `policy-engine/tests/unit/data_forge/read_api/test_surfaces.py`. Snapshot provenance and acquisition paths have focused coverage in `policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py`, `policy-engine/tests/unit/data_forge/test_w9c_provenance_manifest.py`, `policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py`, and `policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py`; domain-specific behavior has tests under `policy-engine/tests/unit/data_forge/domains/`.
+Some internal cross-package consumers also import narrowly selected domain modules directly:
+`policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py` uses
+`polisyos.data_forge.domains.academic.batch.claim_adjudicator` and
+`polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier`; Foundry's
+`policy-engine/src/polisyos/foundry/methods/catalog/simulation/demography.py` imports
+`polisyos.data_forge.domains.ukraine.demography.source_inventory`; Scientist's
+`policy-engine/src/polisyos/scientist/governance/blueprint_release.py` imports selected
+`polisyos.data_forge.domains.ukraine.builders.demography` and
+`polisyos.data_forge.domains.ukraine.manifests` functions, while
+`policy-engine/src/polisyos/scientist/governance/calibration_validation.py` imports Ukraine
+manifests. These are specific internal dependencies, not additional supported general runtime
+surfaces or a shared batch contract.
+
+Import consolidation and boundary behavior are covered by `policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py`, `policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py`, and `policy-engine/tests/unit/data_forge/read_api/test_surfaces.py`. Snapshot provenance and acquisition paths have focused coverage in `policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py`, `policy-engine/tests/unit/data_forge/test_w9c_provenance_manifest.py`, `policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py::test_voi_ranking_is_filtered_by_eligibility_before_recommendation`, and `policy-engine/tests/unit/runtime/quality/test_acquisition_source_replay.py`. Academic grounding is covered by `policy-engine/tests/unit/ir/test_literature_openalex_grounding.py` and `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py`; evidence-axis normalization and the legacy absence adapter by `policy-engine/tests/unit/data_forge/domains/academic/batch/test_article_extractor.py`, `policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py`, and `policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py`. Domain-specific behavior also has tests under `policy-engine/tests/unit/data_forge/domains/`. These test sources were inspected but not executed.
 
 ## Capability gaps found in this inspection
 
 | Capability claim | State | Evidence-based limit |
 | --- | --- | --- |
-| VOI-ranked acquisition in the general closed loop | `implemented_but_not_orchestrated` | The planner accepts a VOI report, but the closed-loop omits it and defaults to a recorded-only gateway; targeted academic and catalog acquisition paths are narrower. |
-| Generic shared-kernel materialization execution and persisted outputs | `implemented_but_not_orchestrated` | The kernel plans dependency order and binds callables; domain pipelines provide their own execution. |
+| VOI-ranked acquisition in the general closed loop | `implemented_but_not_orchestrated` | The N7 loop omits VOI; its direct-call default is recorded-only, while the generation-cycle path supplies a real gateway only under its scope/custody conditions. OpenAlex network use is disabled by default, and its enabled capture is a fixed one-work query. |
+| Generic shared-kernel materialization execution and persisted outputs | `bridge_missing` | The kernel plans dependency order and binds callables; it supplies no generic execution/persistence bridge, so domain pipelines provide their own execution. |
 | Universal persisted schema/version lifecycle across domains | `artifact_missing` | The shared registry and migration registry are in-memory; no shared persisted schema-version artifact/lifecycle was found in this inspection. |
 | Legal read API public-surface declaration | `surface_missing` | Runtime registry/consumers exist; contract and generated public-surface inventory omit the entrypoint. |
 | Data Forge-wide continuous streaming surface | `surface_out_of_scope` | Fabric owns runtime streaming; the inspected Data Forge paths are domain builds/read surfaces, not a shared streaming surface. |

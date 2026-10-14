@@ -4,7 +4,9 @@ Related references: [Scientist](index.md), [Claims](claims.md), [Workflows](work
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/methods/research_dag/**`, compatibility shim `src/polisyos/scientist/methods/research_dag/**`, `src/polisyos/scientist/orchestration/engine/executor.py`, `src/polisyos/scientist/evidence/provenance/run_dag.py`, `src/polisyos/scientist/agent/tools/tool_loop.py`, `tests/unit/scientist/methods/research_dag/**`, and `tools/ci/check_scientist_best_in_class_phase1_2.py`
+Source of truth: `src/polisyos/scientist/methods/research_dag/**`, `src/polisyos/scientist/orchestration/engine/executor.py`, `src/polisyos/scientist/evidence/provenance/run_dag.py`, `src/polisyos/scientist/agent/tools/tool_loop.py`, `tests/unit/scientist/methods/research_dag/**`, and `tools/ci/check_scientist_best_in_class_phase1_2.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The selected workflow sidecar is optional and off by default, not a universal publication prerequisite.
 
 The Research DAG is the Phase 1.2 sidecar that turns a Scientist research run
 into a typed, replayable graph. It is not a raw LLM transcript. It records the

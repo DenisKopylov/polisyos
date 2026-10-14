@@ -2,8 +2,8 @@
 
 `tests/unit/scientist` covers the orchestration layer: workflow engine, nodes,
 governance, methods/search, DOE, agent/LLM helpers, replay, provenance, and decision
-artifacts. The slice currently contains `427` `test_*.py` files across many
-specialized subdirectories.
+artifacts. The live test tree is the inventory for this slice; this page
+describes its scope without duplicating a file or collected-test count.
 
 ## Purpose
 
@@ -14,22 +14,21 @@ specialized subdirectories.
 
 ## Where To Start
 
-- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
-- [`../../src/polisyos/scientist/orchestration/engine/README.md`](../../src/polisyos/scientist/orchestration/engine/README.md)
-- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
+- `src/polisyos/scientist/README.md`
+- `src/polisyos/scientist/orchestration/engine/README.md`
+- `src/polisyos/scientist/governance/README.md`
 - `engine/`, `nodes/`, `methods/`, `search/` compatibility shims, `workflows/`, and
-  [`../../integration/scientist`](../../integration/scientist) depending on the
-  change.
+  `tests/integration/scientist/` depending on the change.
 
 ## Public Entrypoints
 
-- `tests/unit/scientist/facade/`: `4` tests for public API, import boundaries,
+- `tests/unit/scientist/facade/`: tests for public API, import boundaries,
   public-surface cutover, and remediation status.
 
-- `tests/unit/scientist/orchestration/engine/`: `55` tests for runner, checkpoint, lock, and
+- `tests/unit/scientist/orchestration/engine/`: tests for runner, checkpoint, lock, and
   executor details.
 
-- `tests/unit/scientist/nodes/`: `60` tests for builtin planning, compile, causal,
+- `tests/unit/scientist/nodes/`: tests for builtin planning, compile, causal,
   simulate, data, and decision nodes.
 
 - `tests/unit/scientist/methods/`: canonical method lane import and shim
@@ -38,24 +37,23 @@ specialized subdirectories.
 - `tests/unit/scientist/search/`: compatibility-era tests for search loops,
   funnels, and strategies.
 
-- `tests/unit/scientist/governance/`: `38` tests for passes and validation pipeline.
-- `tests/unit/scientist/agent/`: `43` tests for agent and tool-facing helpers.
+- `tests/unit/scientist/governance/`: tests for passes and validation pipeline.
+- `tests/unit/scientist/agent/`: tests for agent and tool-facing helpers.
 
 ## Depends On / Depended On By
 
 ### Depends On
 
-- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
-- [`../../src/polisyos/scientist/orchestration/engine/README.md`](../../src/polisyos/scientist/orchestration/engine/README.md)
-- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
+- `src/polisyos/scientist/README.md`
+- `src/polisyos/scientist/orchestration/engine/README.md`
+- `src/polisyos/scientist/governance/README.md`
 - `src/polisyos/foundry`, `src/polisyos/fabric`, `src/polisyos/core`,
   `src/polisyos/runtime`
 
 ### Depended On By
 
-- [`../runtime/README.md`](../runtime/README.md),
-  [`../integration/README.md`](../integration/README.md), and
-  [`../performance/README.md`](../performance/README.md)
+- `tests/unit/runtime/README.md`, `tests/integration/scientist/`, and
+  `tests/performance/`
 
 - Runtime control/debug flows and local stack smoke scenarios
 
@@ -78,7 +76,8 @@ POLISYOS_RUN_INTEGRATION=1 uv run pytest tests/integration/scientist -q
 
 ## Test And Verification Commands
 
-The collect-only commands below were smoke-checked on `2026-04-17`.
+The collect-only commands below were smoke-checked on `2026-04-17`; this is a
+historical receipt, not a verification result from this refresh.
 
 ```bash
 cd policy-engine
@@ -88,11 +87,11 @@ uv run pytest --collect-only tests/integration/scientist -q
 
 ## Reference Docs
 
-- [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
-- [`../../src/polisyos/scientist/orchestration/engine/README.md`](../../src/polisyos/scientist/orchestration/engine/README.md)
-- [`../../src/polisyos/scientist/governance/README.md`](../../src/polisyos/scientist/governance/README.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- `src/polisyos/scientist/README.md`
+- `src/polisyos/scientist/orchestration/engine/README.md`
+- `src/polisyos/scientist/governance/README.md`
+- `tests/TESTING_POLICY.md`
 
 ## Last Updated
 
-2026-05-03
+2026-10-14

@@ -3,6 +3,7 @@
 Owner: `@runtime-owners`
 Source of truth: `policy-engine/src/polisyos/runtime/http/app.py`, `policy-engine/src/polisyos/runtime/http/dependencies.py`, `policy-engine/src/polisyos/runtime/http/authorization.py`, `policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`, `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `policy-engine/src/polisyos/runtime/http/services/control_worker.py`, `policy-engine/src/polisyos/runtime/quality/candidate_firewall.py`, and the linked tests
 Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the linked tests and HTTP runtime were not run.
 
 This page traces the current HTTP path from app composition to response or
 durable effect. It describes source-owned behavior; it is not an endpoint
@@ -184,6 +185,14 @@ runtime lane; producer evidence and governance owners determine what a result
 can support; custody controls whether a particular signed record can be
 issued and maintained. A successful HTTP status or persisted artifact is not a
 substitute for those later checks.
+
+Fail-closed behavior binds the authority band: protected actions, published
+claims, and custody facts cannot proceed on missing authority. Candidate-band
+work can carry an unknown scope only where the owning path explicitly permits
+it and preserves the unknown as a typed limitation; a missing value must not be
+silently replaced with a concrete scope. This lifecycle map follows runtime
+code paths, but it does not demonstrate a complete causal-policy capability or
+show that any HTTP result is publishable.
 
 ## Audit and failure boundaries
 

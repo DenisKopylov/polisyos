@@ -10,8 +10,11 @@ Backup owner: `@platform-owners`
 Source of truth:
 `src/polisyos/scientist/artifacts/decision_compiler.py`,
 `src/polisyos/scientist/validation/decision_artifact_quality.py`,
+`src/polisyos/runtime/http/services/control/nl_pipeline.py`,
 `tests/unit/scientist/artifacts/test_decision_compiler.py`, and
 `tests/unit/scientist/validation/test_decision_artifact_quality.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The runtime consumer cited here is the HTTP NL path, not the builtin Scientist DAG as a whole.
 
 Phase 5.9 adds the final public decision-artifact compiler and its independent
 quality report. The compiler turns final claims and existing quality refs into a
@@ -49,7 +52,8 @@ reviewer-private notes, raw sensitive data, prompts, and raw transcripts.
 `policyos.scientist.decision_artifact_quality.v1` with a deterministic
 `decision_artifact_quality_report_ref`.
 
-The report is offline and deterministic. It uses the compiled artifact plus
+The report is offline and deterministic. The inspected consumer path in
+`src/polisyos/runtime/http/services/control/nl_pipeline.py` uses the compiled artifact plus
 available refs from earlier waves; it does not call live LLM judges, external
 fetchers, or benchmark services. Wave 6 can join this report ref with other Wave
 5 report refs in the final aggregate gate.

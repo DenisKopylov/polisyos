@@ -99,7 +99,7 @@
         "analyze_fabric_impact"
       ],
       "scientist_trust_gate": true,
-      "status": "implemented",
+      "status": "missing",
       "tests": [
         "tests/unit/runtime/http/test_fabric_integration_routes.py",
         "tests/repo_quality/tools/test_fabric_product_integration.py",
@@ -114,25 +114,33 @@
       "validator": "tools/quality/validation/fabric_product_integration.py"
     },
     "public_facade_exports": {
-      "export_count": 31,
+      "export_count": 41,
       "exports": [
         "AccessRef",
         "AuthoredText",
         "ConnectorRegistryLike",
+        "ConnectorSchemaContract",
+        "DataSchema",
         "FabricDecisionData",
         "FabricDecisionDataCoverage",
         "FabricDecisionDataResponse",
+        "FabricFetchReceipt",
+        "FieldSpec",
         "LineageRef",
         "ProcessingGuarantee",
         "ProcessingGuaranteeContract",
         "QualityRef",
         "ReplayRef",
+        "SchemaType",
+        "SimulationDB",
+        "SourceContract",
         "SourceContractRef",
         "TemporalRef",
         "TypedGap",
         "UnitRef",
         "WorldQueryError",
         "WorldQueryRequest",
+        "atomic_write_json",
         "batch_processing_contract",
         "build_source_contract_requirement_bindings",
         "execute_world_query",
@@ -140,10 +148,12 @@
         "fabric_event_to_authored_text",
         "fabric_fact_to_quantity_value",
         "fabric_get_data",
+        "file_lock",
         "query_claims",
         "query_events",
         "query_world_table",
         "resolve_connector_registry",
+        "resolve_world_snapshot",
         "run_connectors_ingestion",
         "stream_processing_contract",
         "world"
@@ -360,6 +370,5185 @@
     }
   },
   "generated_at": "2026-04-26T00:00:00Z",
+  "input_receipt": {
+    "complete_verdict": false,
+    "finding_coverage": "explicit file-reader operations only",
+    "inputs": [
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 39853,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "status": "read",
+        "text_sha256": "a78c5d26f0e879af70ee37b06f5a0ef0583e1793bb6a8ecaaf6f48be6eeb24b7"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 39853,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "status": "read",
+        "text_sha256": "a78c5d26f0e879af70ee37b06f5a0ef0583e1793bb6a8ecaaf6f48be6eeb24b7"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/connectors/contracts.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 39645,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/snapshots/connectors/contracts.json",
+        "status": "read",
+        "text_sha256": "4a8eeea209f77fc981e1a0294cfecb8368299540b703a33af5bfad464709518c"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/source_contracts_v2.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 134903,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/snapshots/fabric/source_contracts_v2.json",
+        "status": "read",
+        "text_sha256": "84338fdedad5ca0ad2209037b8e77a3fab5cb6cc21cd844df920ebba70c4f332"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/source_scorecards.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 53264,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/snapshots/fabric/source_scorecards.json",
+        "status": "read",
+        "text_sha256": "b3f65819e9f6c1487b517e589865d8dfbf76382cc2916ba3e3b19a35e5f276fd"
+      },
+      {
+        "operation": "is_file",
+        "path": "pyproject.toml",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11040,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "pyproject.toml",
+        "status": "read",
+        "text_sha256": "92850014b496849fb6d20851f52af31fd986e289bae45edcff0c15fb0489c65d"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2745,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/__init__.py",
+        "status": "read",
+        "text_sha256": "3d839a1dbcdc78afdf87e16d5fd8899bc9fb68c1ba3db3b08b58b29b93f07aeb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/base/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/base/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 19819,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/base.py",
+        "status": "read",
+        "text_sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2745,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/__init__.py",
+        "status": "read",
+        "text_sha256": "3d839a1dbcdc78afdf87e16d5fd8899bc9fb68c1ba3db3b08b58b29b93f07aeb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_catalog/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_catalog/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 10007,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "status": "read",
+        "text_sha256": "cfac059e7490ddf1879a7044899cab05cf030ce78e32a47e87409ae1840577b1"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/http_base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/http_base/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/http_base/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/http_base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 23706,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/http_base.py",
+        "status": "read",
+        "text_sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_resource/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_resource/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 18539,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "status": "read",
+        "text_sha256": "eebd115e85a54cbdea5ff915d21765305895aeb91df0d2a6f409dc39041b40af"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29541,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat.py",
+        "status": "read",
+        "text_sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/event_stream.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/event_stream/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/event_stream/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/event_stream.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 9344,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/event_stream.py",
+        "status": "read",
+        "text_sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/file_tabular/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/file_tabular/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 10521,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "status": "read",
+        "text_sha256": "914cf5487a32cc9d8676aa0c913ad64ed5bc7c3ff02909a23abd8afac167edb1"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/geojson.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/geojson/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/geojson/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/geojson.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8909,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/geojson.py",
+        "status": "read",
+        "text_sha256": "67df52c49a707f754ca3894707872db6e16f6772819786535194ccd25ee3d98f"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/graphql_api/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/graphql_api/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 13888,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "status": "read",
+        "text_sha256": "cc09fb10f54189d3aa906f285cd96c0d70fd6d8d808cc0a645c94861c2da9254"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/object_storage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/object_storage/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/object_storage/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/object_storage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4704,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/object_storage.py",
+        "status": "read",
+        "text_sha256": "05ca3e400b8eeb416c288c472fe8cb49e2d2b2659c1a4a5f28ccd26ece35c1a8"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/opendatasoft/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/opendatasoft/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 13626,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "status": "read",
+        "text_sha256": "8ea650ab1d5192a75ad6879cd4437c0d1a67c7eccb1c0bb35960df52f4c7f672"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/rest_json.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/rest_json/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/rest_json/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/rest_json.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/rest_json.py",
+        "status": "read",
+        "text_sha256": "95adc947c8bd66cd90237581e541cb99b2a73a4a494fe0ce79a2f5afd8c8ad28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/reference/rest_json.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/reference/rest_json/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/reference/rest_json/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/reference/rest_json.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 25953,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/reference/rest_json.py",
+        "status": "read",
+        "text_sha256": "b256152d8f36ffd09dcc0062fc47c8e0209b496f672cc451da59a09302b58816"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32564,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "status": "read",
+        "text_sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sparql.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sparql/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/sparql/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sparql.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15598,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/sparql.py",
+        "status": "read",
+        "text_sha256": "02b630812765b90a37ae9a97bac846751142968803364ea8bf81518c2f214a25"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sql_query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sql_query/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/sql_query/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sql_query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 12150,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/sql_query.py",
+        "status": "read",
+        "text_sha256": "b177510d09f6e1b9cee56f3b1a1e30227a5b43c104c832042bc2d64bf953703c"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/socrata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/socrata/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/socrata/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/socrata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15151,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/socrata.py",
+        "status": "read",
+        "text_sha256": "bd1818075479639f0f99266c1bed241999089dd5c16a596370ca18b407052624"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ukons.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ukons/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/ukons/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ukons.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 9221,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/ukons.py",
+        "status": "read",
+        "text_sha256": "6e9a0146172c82c34ee163bad3e334780499861037df5c4f9b77741a169e4dd7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unesco_uis/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/unesco_uis/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 10572,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "status": "read",
+        "text_sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unpd.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unpd/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/unpd/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/unpd.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 12767,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/unpd.py",
+        "status": "read",
+        "text_sha256": "d659ee8bae3c1df9ef3c232da627d6642919a0e0776084566ee1bb82331aace1"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/who.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/who/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/who/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/who.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 12990,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/who.py",
+        "status": "read",
+        "text_sha256": "37a0c5a01992980ac766a69c90351ca32a2d03eb57ebfd4a8ea8f70afee22506"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/wvs.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/wvs/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/wvs/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/wvs.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 18202,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/wvs.py",
+        "status": "read",
+        "text_sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 14994,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank.py",
+        "status": "read",
+        "text_sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sources",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "excluded_paths": [],
+        "matched_paths": [
+          "src/polisyos/fabric/connectors/sources/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_file_common.py",
+          "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+          "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+          "src/polisyos/fabric/connectors/sources/eurostat.py",
+          "src/polisyos/fabric/connectors/sources/event_stream.py",
+          "src/polisyos/fabric/connectors/sources/file_tabular.py",
+          "src/polisyos/fabric/connectors/sources/geojson.py",
+          "src/polisyos/fabric/connectors/sources/graphql_api.py",
+          "src/polisyos/fabric/connectors/sources/http_base.py",
+          "src/polisyos/fabric/connectors/sources/http_common.py",
+          "src/polisyos/fabric/connectors/sources/object_storage.py",
+          "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+          "src/polisyos/fabric/connectors/sources/rest_json.py",
+          "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+          "src/polisyos/fabric/connectors/sources/socrata.py",
+          "src/polisyos/fabric/connectors/sources/sparql.py",
+          "src/polisyos/fabric/connectors/sources/sql_query.py",
+          "src/polisyos/fabric/connectors/sources/ukons.py",
+          "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+          "src/polisyos/fabric/connectors/sources/unpd.py",
+          "src/polisyos/fabric/connectors/sources/who.py",
+          "src/polisyos/fabric/connectors/sources/world_bank.py",
+          "src/polisyos/fabric/connectors/sources/wvs.py"
+        ],
+        "operation": "rglob",
+        "path": "src/polisyos/fabric/connectors/sources",
+        "pattern": "**/*.py",
+        "selected_paths": [
+          "src/polisyos/fabric/connectors/sources/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_file_common.py",
+          "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+          "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+          "src/polisyos/fabric/connectors/sources/eurostat.py",
+          "src/polisyos/fabric/connectors/sources/event_stream.py",
+          "src/polisyos/fabric/connectors/sources/file_tabular.py",
+          "src/polisyos/fabric/connectors/sources/geojson.py",
+          "src/polisyos/fabric/connectors/sources/graphql_api.py",
+          "src/polisyos/fabric/connectors/sources/http_base.py",
+          "src/polisyos/fabric/connectors/sources/http_common.py",
+          "src/polisyos/fabric/connectors/sources/object_storage.py",
+          "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+          "src/polisyos/fabric/connectors/sources/rest_json.py",
+          "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+          "src/polisyos/fabric/connectors/sources/socrata.py",
+          "src/polisyos/fabric/connectors/sources/sparql.py",
+          "src/polisyos/fabric/connectors/sources/sql_query.py",
+          "src/polisyos/fabric/connectors/sources/ukons.py",
+          "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+          "src/polisyos/fabric/connectors/sources/unpd.py",
+          "src/polisyos/fabric/connectors/sources/who.py",
+          "src/polisyos/fabric/connectors/sources/world_bank.py",
+          "src/polisyos/fabric/connectors/sources/wvs.py"
+        ],
+        "status": "read"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/profiles/builtin_profiles.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 25181,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/profiles/builtin_profiles.py",
+        "status": "read",
+        "text_sha256": "c4df26aeed69547cf7289d2c3839919174a729384ce02c86e5e3ffe4479b7156"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/quality",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "excluded_paths": [
+          "src/polisyos/fabric/connectors/quality/__init__.py"
+        ],
+        "matched_paths": [
+          "src/polisyos/fabric/connectors/quality/__init__.py",
+          "src/polisyos/fabric/connectors/quality/completeness.py",
+          "src/polisyos/fabric/connectors/quality/consistency.py",
+          "src/polisyos/fabric/connectors/quality/evidence.py",
+          "src/polisyos/fabric/connectors/quality/freshness.py",
+          "src/polisyos/fabric/connectors/quality/report.py",
+          "src/polisyos/fabric/connectors/quality/statistics.py",
+          "src/polisyos/fabric/connectors/quality/validator.py"
+        ],
+        "operation": "glob",
+        "path": "src/polisyos/fabric/connectors/quality",
+        "pattern": "*.py",
+        "selected_paths": [
+          "src/polisyos/fabric/connectors/quality/completeness.py",
+          "src/polisyos/fabric/connectors/quality/consistency.py",
+          "src/polisyos/fabric/connectors/quality/evidence.py",
+          "src/polisyos/fabric/connectors/quality/freshness.py",
+          "src/polisyos/fabric/connectors/quality/report.py",
+          "src/polisyos/fabric/connectors/quality/statistics.py",
+          "src/polisyos/fabric/connectors/quality/validator.py"
+        ],
+        "status": "read"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 12109,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/__init__.py",
+        "status": "read",
+        "text_sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_contract_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_registry.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_schema_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_record_replay.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_ingestion_quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_quality_indicators.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_quality_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_schema_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_entity_resolution.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_schema_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_time_travel.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_materialization.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_branch_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_entity_resolution.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_query_multibackend.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_decision_data_envelope.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_fabric_observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_observability_governance_quality_phase4.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_entity_resolution.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_duckdb_storage_access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_query_column_masking.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_lineage_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_lineage_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_decision_data_coverage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_product_integration.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_product_integration.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/scholar/test_fabric_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/lex/test_fabric_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_contract_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_schema_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_schema_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_entity_resolution.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_quality_indicators.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_quality_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_observability_governance_quality_phase4.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_fabric_observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_time_travel.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_materialization.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_branch_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_record_replay.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_ingestion_quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_duckdb_storage_access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_query_column_masking.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_connector_bridge.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_query_multibackend.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_e2e_ingestion.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_decision_data_envelope.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_lineage_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_decision_data_coverage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_product_integration.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_product_integration.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/scholar/test_fabric_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/lex/test_fabric_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/run-quantities.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/run-fabric-decision-data.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/lineage.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/lineage-batch.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/temporal-capabilities.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/compare-run.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/counterfactual-metrics.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/fabric-source-scorecards.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/fabric-quality-batch.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/fabric-trust-batch.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/fabric-replay.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/fixtures/fabric-impact.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11966,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "status": "read",
+        "text_sha256": "7a981aa25b6bd8056e4dbcdee4a2fce302a353d9a798b207c4252952c81060a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11966,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "status": "read",
+        "text_sha256": "7a981aa25b6bd8056e4dbcdee4a2fce302a353d9a798b207c4252952c81060a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11966,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "status": "read",
+        "text_sha256": "7a981aa25b6bd8056e4dbcdee4a2fce302a353d9a798b207c4252952c81060a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11966,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "status": "read",
+        "text_sha256": "7a981aa25b6bd8056e4dbcdee4a2fce302a353d9a798b207c4252952c81060a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11966,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "status": "read",
+        "text_sha256": "7a981aa25b6bd8056e4dbcdee4a2fce302a353d9a798b207c4252952c81060a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3063552,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3063552,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3063552,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3063552,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3063552,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 115383,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "status": "read",
+        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 115383,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "status": "read",
+        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 115383,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "status": "read",
+        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 115383,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "status": "read",
+        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 115383,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "status": "read",
+        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 11818,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+        "status": "read",
+        "text_sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/api/validators.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 179146,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/api/validators.ts",
+        "status": "read",
+        "text_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3621,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "status": "read",
+        "text_sha256": "44baa5b40ab1d209fc8731817be7cb5707ad93fecc238494746d7e886e246a36"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3621,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "status": "read",
+        "text_sha256": "44baa5b40ab1d209fc8731817be7cb5707ad93fecc238494746d7e886e246a36"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8550,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "status": "read",
+        "text_sha256": "640a1d7b6484b26228b2221b4e8a79ed4ecbfd9ff9cc5d43ac834c7aaa9b0a47"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/methods/search/readiness.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 44813,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scientist/methods/search/readiness.py",
+        "status": "read",
+        "text_sha256": "72d04a89b19896fbe4f69a1727d211a1bd9a319f6c5d0df6d509b2ec56318feb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scholar/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/lex/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/calibration/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 5326,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
+        "status": "read",
+        "text_sha256": "af8e91aa08967d9f04704c64a18edc8b3a2f84f5d298e8d3748f9f0591d0e7c2"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scholar/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 1929,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scholar/provenance.py",
+        "status": "read",
+        "text_sha256": "ded997402f3a3a237008551b445d21bed317d6c9b059bf7f2afaa933c48642c9"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/lex/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2035,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/lex/provenance.py",
+        "status": "read",
+        "text_sha256": "364fd695f727a2bb42e71616c5e017b0ff4486314096e68a461eff469d22f948"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/calibration/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2854,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/foundry/calibration/fabric_quality.py",
+        "status": "read",
+        "text_sha256": "b097be5352aceecdb3ac507fe36028a93e5bec66df723c130c1bb76eaa6a721b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 1618,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "status": "read",
+        "text_sha256": "465901010aff1ecdaa03c0eafa4988c4a2b7ce7fa97882b3a38ece102c3ac13a"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_product_integration.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "docs/reference/fabric/product-api-integration.md",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_decision_data_coverage.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3781,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "tools/quality/validation/fabric_decision_data_coverage.json",
+        "status": "read",
+        "text_sha256": "612444907d53ec2875b51eaf98a3023bbd2421cb0af32280f517e74b9eb9f96b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/evidence/decision_data.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/trust_envelope.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_decision_data_coverage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/_data/fabric/discovery_eval.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 1130,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "tests/_data/fabric/discovery_eval.json",
+        "status": "read",
+        "text_sha256": "e20462919d9e9549bf87102ed30ee68d65d401534f7fe1046caa5e52859299bf"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/source_contract.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/quality/processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/processing_guarantee.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sdk",
+        "result": false,
+        "status": "present"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sdk",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/connectors/sdk",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "excluded_paths": [],
+        "matched_paths": [
+          "src/polisyos/fabric/connectors/sdk/__init__.py",
+          "src/polisyos/fabric/connectors/sdk/scaffold.py"
+        ],
+        "operation": "rglob",
+        "path": "src/polisyos/fabric/connectors/sdk",
+        "pattern": "**/*.py",
+        "selected_paths": [
+          "src/polisyos/fabric/connectors/sdk/__init__.py",
+          "src/polisyos/fabric/connectors/sdk/scaffold.py"
+        ],
+        "status": "read"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/testing/conformance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/testing/conformance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15235,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/testing/conformance.py",
+        "status": "read",
+        "text_sha256": "313634edcd1b11a706fe8b1464e60078b698fc015208579d7f7e8645ae73e969"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_registry.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_registry.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_registry.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_contract_system.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_connector_family_expansion.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "tests/unit/fabric/connectors/test_connector_family_expansion.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_registry.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/replay_store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/replay_store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 119041,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "status": "read",
+        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29919,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "status": "read",
+        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29919,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "status": "read",
+        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29919,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "status": "read",
+        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29919,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "status": "read",
+        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/evidence/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/evidence/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/quality/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/quality/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/fitness_report/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_dir",
+        "path": "src/polisyos/fabric/fitness_report/__init__.py",
+        "result": false,
+        "status": "absent"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/scorecard.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/source_scorecard.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "docs/reference/fabric/discovery-intelligence.md",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/_data/fabric/discovery_eval.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_schema_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/quality/evidence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/quality_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/quality/evidence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4523,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/quality/evidence.py",
+        "status": "read",
+        "text_sha256": "c6393608ecb16f7142da675620aab6e30096432ea68407c75fce230fe112e7b5"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/quality_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 16662,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scientist/governance/passes/quality_gate_pass.py",
+        "status": "read",
+        "text_sha256": "a674b3d85468ba56504c6f42e6fc0b51a4b7864382242d0a0cfa8596ddd60d4f"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29825,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/query.py",
+        "status": "read",
+        "text_sha256": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29825,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/query.py",
+        "status": "read",
+        "text_sha256": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29825,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/query.py",
+        "status": "read",
+        "text_sha256": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29825,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/query.py",
+        "status": "read",
+        "text_sha256": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/world_branch.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/scenario_branch.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/retention.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8498,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/security/retention.py",
+        "status": "read",
+        "text_sha256": "d54abca66a755eabc0b02d1c0bc628ccf3ecac1b88daa51983a886519b4110e2"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/world_branch.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/scenario_branch.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/retention.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8498,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/security/retention.py",
+        "status": "read",
+        "text_sha256": "d54abca66a755eabc0b02d1c0bc628ccf3ecac1b88daa51983a886519b4110e2"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 20869,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "status": "read",
+        "text_sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 20869,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "status": "read",
+        "text_sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/emit.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 18982,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/emit.py",
+        "status": "read",
+        "text_sha256": "2f1c0a8702e0dde5900eaaa14edc1f59474399b9e33289ee2d2aae6e423c7306"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_branch_governance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 20869,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "status": "read",
+        "text_sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 20869,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "status": "read",
+        "text_sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 20869,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/segments.py",
+        "status": "read",
+        "text_sha256": "77682ddb713a79188133fa464a6aef4c81f8fc58ec46fb8e48c48e415f107f88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/emit.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 18982,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/emit.py",
+        "status": "read",
+        "text_sha256": "2f1c0a8702e0dde5900eaaa14edc1f59474399b9e33289ee2d2aae6e423c7306"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33365,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "status": "read",
+        "text_sha256": "afebdbbd200094fd11e69c4c2c29ddb4c2eb18c1f30a6aaaf1f116aacc13eef4"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_temporal_routes.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33365,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "status": "read",
+        "text_sha256": "afebdbbd200094fd11e69c4c2c29ddb4c2eb18c1f30a6aaaf1f116aacc13eef4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33365,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "status": "read",
+        "text_sha256": "afebdbbd200094fd11e69c4c2c29ddb4c2eb18c1f30a6aaaf1f116aacc13eef4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33365,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "status": "read",
+        "text_sha256": "afebdbbd200094fd11e69c4c2c29ddb4c2eb18c1f30a6aaaf1f116aacc13eef4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 59456,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "status": "read",
+        "text_sha256": "4a9c3aa93473d9ac0f7e8ea046fecb16ee802749488d6a091130954eeb95f6b4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/core/observability/_metrics_registry_base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/core/observability/metrics_parts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_fabric_observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 26615,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "status": "read",
+        "text_sha256": "85744adcedbe5bb1a1d6cb026096598f1f49678219146d40982fafa1b294c457"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 26615,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "status": "read",
+        "text_sha256": "85744adcedbe5bb1a1d6cb026096598f1f49678219146d40982fafa1b294c457"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 26615,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "status": "read",
+        "text_sha256": "85744adcedbe5bb1a1d6cb026096598f1f49678219146d40982fafa1b294c457"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/core/observability/_metrics_registry_base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 49657,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/core/observability/_metrics_registry_base.py",
+        "status": "read",
+        "text_sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/core/observability/_metrics_registry_base.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 49657,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/core/observability/_metrics_registry_base.py",
+        "status": "read",
+        "text_sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/governance_metadata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/governance_metadata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3196,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/governance_metadata.py",
+        "status": "read",
+        "text_sha256": "e5e43ffbd2d68b76435b89e1b991ef427370cf7dfdc4c140d09d72c5b3bd27c4"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33518,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "status": "read",
+        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33518,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "status": "read",
+        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 33518,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/ir/connectors/__init__.py",
+        "status": "read",
+        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 27364,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "status": "read",
+        "text_sha256": "9266e0345ddd81b64e16d150aa33ea12e9a1a707941900871ea3ed9b2d7727df"
+      },
+      {
+        "operation": "is_file",
+        "path": "docs/reference/fabric/source-platform.md",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 14267,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "docs/reference/fabric/source-platform.md",
+        "status": "read",
+        "text_sha256": "a230636e9fe537728d813222100e061dd256d48109e384c1be809318b222be51"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 27364,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "status": "read",
+        "text_sha256": "9266e0345ddd81b64e16d150aa33ea12e9a1a707941900871ea3ed9b2d7727df"
+      },
+      {
+        "operation": "is_file",
+        "path": "docs/reference/fabric/source-platform.md",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 14267,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "docs/reference/fabric/source-platform.md",
+        "status": "read",
+        "text_sha256": "a230636e9fe537728d813222100e061dd256d48109e384c1be809318b222be51"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8784,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "status": "read",
+        "text_sha256": "d693b6b587aed1c803873aab9b06e963efbbd0e543850a65546441b8043986bf"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 8784,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "status": "read",
+        "text_sha256": "d693b6b587aed1c803873aab9b06e963efbbd0e543850a65546441b8043986bf"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/runtime/http/test_lineage_api.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3731,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "status": "read",
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3731,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "status": "read",
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 6284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 6284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3731,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "status": "read",
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3731,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "status": "read",
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 6284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 6284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/column_mask.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/pii/stage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/column_mask.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/pii/stage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/fabric.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/test/contracts/contractFixtures.test.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3621,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "status": "read",
+        "text_sha256": "44baa5b40ab1d209fc8731817be7cb5707ad93fecc238494746d7e886e246a36"
+      },
+      {
+        "operation": "is_file",
+        "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2178,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+        "status": "read",
+        "text_sha256": "061ffd49d60719e5ce10f4de368b66c30f47e3e9ddca68dd4de852d618ff79a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/methods/search/readiness.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 44813,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scientist/methods/search/readiness.py",
+        "status": "read",
+        "text_sha256": "72d04a89b19896fbe4f69a1727d211a1bd9a319f6c5d0df6d509b2ec56318feb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 5326,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
+        "status": "read",
+        "text_sha256": "af8e91aa08967d9f04704c64a18edc8b3a2f84f5d298e8d3748f9f0591d0e7c2"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scholar/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 1929,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/scholar/provenance.py",
+        "status": "read",
+        "text_sha256": "ded997402f3a3a237008551b445d21bed317d6c9b059bf7f2afaa933c48642c9"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/lex/provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2035,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/lex/provenance.py",
+        "status": "read",
+        "text_sha256": "364fd695f727a2bb42e71616c5e017b0ff4486314096e68a461eff469d22f948"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/calibration/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 2854,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/foundry/calibration/fabric_quality.py",
+        "status": "read",
+        "text_sha256": "b097be5352aceecdb3ac507fe36028a93e5bec66df723c130c1bb76eaa6a721b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 1618,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "status": "read",
+        "text_sha256": "465901010aff1ecdaa03c0eafa4988c4a2b7ce7fa97882b3a38ece102c3ac13a"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 4734,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/_internal/compatibility.py",
+        "status": "read",
+        "text_sha256": "bcff8e1ebd87538f93b12f38305d271675a0f1ea486735201f31117db55c4f28"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 12109,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/__init__.py",
+        "status": "read",
+        "text_sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/eurostat.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/ukons.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/world_bank.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/wvs.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_source_contracts.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_processing_guarantees.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/streaming.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 29919,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "status": "read",
+        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 15053,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/data_plane/benchmarks.py",
+        "status": "read",
+        "text_sha256": "b4f812c6b4d5c1c3743af9f41238073ce92c60d30f9cd030902cb89f22f28c88"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/replay_store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/quarantine.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/quality/__init__.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 32494,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/provenance/lineage.py",
+        "status": "read",
+        "text_sha256": "54d59e4249b8938a8c0bdc16ea91455ed9189f4df6b4fffea522ebf0aa0bd04b"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/provenance/export_provo.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/unit/fabric/test_provenance.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/query.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/store/snapshots.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/routes/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/runtime/http/services/temporal.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/column_mask.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/pii/stage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/access_control.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/security/column_mask.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/pii/stage.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/governance_metadata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/quality/evidence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/governance_metadata.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/connectors/quality/evidence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/evidence/decision_data.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/fabric/trust_envelope.schema.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_decision_data_coverage.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tools/quality/validation/fabric_discovery_intelligence.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "tests/_data/fabric/discovery_eval.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "docs/reference/fabric/discovery-intelligence.md",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30679,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/catalog/discovery.py",
+        "status": "read",
+        "text_sha256": "bdf4717c8730ad59b3650fb11127fff1c62dd4e994032d4883a9658c63efd422"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3731,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
+        "status": "read",
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 6284,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 31639,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/world/materialize/kuzu.py",
+        "status": "read",
+        "text_sha256": "3b0d9e2d0226aeb719d3ead2f2ac514b6f23fb5ef1f54767c55e780ea99668c6"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "result": true,
+        "status": "present"
+      }
+    ],
+    "scope": "Manifest derivation records explicit filesystem reads, file/directory probes, and selected Python glob results.",
+    "selector": "Connector export inventory is bounded to literal names in src/polisyos/fabric/connectors/sources/__init__.py::__all__.",
+    "unresolved_by_construction": [
+      "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+      "Runtime imports, plugin entry-point execution, Git/subprocess reads, and external services are not observed; the connector count is a static source declaration, not proof of installed or operational connectors.",
+      "JSON, TOML, and Python AST readers consume only the structures and fields named by this inventory; unselected document semantics are not validated here."
+    ]
+  },
   "phase": 0,
   "phase_owner": "@fabric-owners",
   "ratchet_mode": {
@@ -415,10 +5604,10 @@
     "status_counts": {
       "accepted_risk": 0,
       "blocked_by_research": 1,
-      "implemented": 55,
-      "missing": 0,
+      "implemented": 53,
+      "missing": 1,
       "not_applicable": 2,
-      "partial": 1
+      "partial": 2
     },
     "surface_count": 59
   },
@@ -1063,7 +6252,54 @@
           "WVSConnector",
           "WorldBankConnector"
         ],
-        "export_count": 22
+        "declared_exports": [
+          "CKANCatalogConnector",
+          "CKANResourceConnector",
+          "EurostatConnector",
+          "EventStreamConnector",
+          "FileTabularConnector",
+          "GeoJSONConnector",
+          "GraphQLConnector",
+          "HTTPConnectorBase",
+          "HTTPResilienceProfile",
+          "ObjectStorageConnector",
+          "OpendatasoftConnector",
+          "RawHTTPResponseObserver",
+          "RestJsonConnector",
+          "SDMXSourceConnector",
+          "SPARQLConnector",
+          "SQLQueryConnector",
+          "SocrataConnector",
+          "UKONSConnector",
+          "UNESCOUISConnector",
+          "UNPDConnector",
+          "WHOConnector",
+          "WVSConnector",
+          "WorldBankConnector",
+          "normalize_worldbank_records"
+        ],
+        "excluded_exports": [
+          {
+            "export": "HTTPConnectorBase",
+            "reason": "missing_declared_SourceConnector_slots:capabilities,connector_id,metadata"
+          },
+          {
+            "export": "HTTPResilienceProfile",
+            "reason": "class_not_descendant_of_canonical_BaseConnector"
+          },
+          {
+            "export": "RawHTTPResponseObserver",
+            "reason": "class_not_descendant_of_canonical_BaseConnector"
+          },
+          {
+            "export": "normalize_worldbank_records",
+            "reason": "resolved_symbol_is_function"
+          }
+        ],
+        "export_count": 24,
+        "inventory_complete": true,
+        "selection": "literal sources.__all__ entries resolving to classes that inherit the canonical BaseConnector and declare SourceConnector identity slots",
+        "unresolved_exports": []
       },
       "id": "source.connector_public_exports",
       "owner": "@fabric-owners",
@@ -1198,17 +6434,20 @@
       "title": "Connector source module tree"
     },
     {
-      "description": "Production-visible connector families are admitted through governed components and SourceContract v2 evidence. Families without a public plugin entry point are explicit internal-support surfaces, not ungated production paths.",
+      "description": "Connector and SourceContract v2 counts plus validator presence are observed, but a semantic contract-ID-to-connector-ID mapping is not established; connector-family identity remains partial.",
       "docs": [
         "docs/reference/fabric/connectors.md"
       ],
       "evidence": {
         "concrete_connector_count": 20,
         "entrypoint_count": 11,
-        "governed_component_count": 20,
-        "internal_support_only_count": 9,
-        "production_visibility_source": "__polisyos_components__ plus SourceContract v2 snapshot"
+        "identity_binding_gap": "contract-ID-to-connector-ID semantic binding and a positive test are not established",
+        "mapped_identity_status": "not_established",
+        "source_contract_v2_count": 20,
+        "source_contracts_validator_present": true,
+        "source_family_state": "partial"
       },
+      "follow_up": "Follow-up placeholder: create a tracked issue before ratchet mode.",
       "id": "source.entrypoint_coverage.direct_import_families",
       "owner": "@fabric-owners",
       "phase": 0,
@@ -1217,13 +6456,16 @@
       "severity": "P2",
       "source_files": [
         "pyproject.toml",
-        "src/polisyos/fabric/connectors/sources/__init__.py"
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/sources/__init__.py",
+        "tools/quality/validation/fabric_source_contracts.py"
       ],
-      "status": "implemented",
+      "status": "partial",
       "tests": [
+        "tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
         "tests/unit/fabric/connectors/test_registry.py"
       ],
-      "title": "Governed production visibility for connector families"
+      "title": "Connector-family contract identity mapping"
     },
     {
       "description": "HTTPConnectorBase and HTTPResilienceProfile are exported runtime primitives, not standalone production source connectors.",
@@ -1877,6 +7119,7 @@
         ],
         "required_fixture_count": 12
       },
+      "follow_up": "Follow-up placeholder: create a tracked issue before ratchet mode.",
       "id": "trust.frontend_fabric_contract_fixtures",
       "owner": "@fabric-owners",
       "phase": 0,
@@ -1889,7 +7132,7 @@
         "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
         "apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts"
       ],
-      "status": "implemented",
+      "status": "missing",
       "tests": [
         "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
         "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
@@ -2015,25 +7258,33 @@
         "docs/reference/fabric/index.md"
       ],
       "evidence": {
-        "export_count": 31,
+        "export_count": 41,
         "exports": [
           "AccessRef",
           "AuthoredText",
           "ConnectorRegistryLike",
+          "ConnectorSchemaContract",
+          "DataSchema",
           "FabricDecisionData",
           "FabricDecisionDataCoverage",
           "FabricDecisionDataResponse",
+          "FabricFetchReceipt",
+          "FieldSpec",
           "LineageRef",
           "ProcessingGuarantee",
           "ProcessingGuaranteeContract",
           "QualityRef",
           "ReplayRef",
+          "SchemaType",
+          "SimulationDB",
+          "SourceContract",
           "SourceContractRef",
           "TemporalRef",
           "TypedGap",
           "UnitRef",
           "WorldQueryError",
           "WorldQueryRequest",
+          "atomic_write_json",
           "batch_processing_contract",
           "build_source_contract_requirement_bindings",
           "execute_world_query",
@@ -2041,10 +7292,12 @@
           "fabric_event_to_authored_text",
           "fabric_fact_to_quantity_value",
           "fabric_get_data",
+          "file_lock",
           "query_claims",
           "query_events",
           "query_world_table",
           "resolve_connector_registry",
+          "resolve_world_snapshot",
           "run_connectors_ingestion",
           "stream_processing_contract",
           "world"

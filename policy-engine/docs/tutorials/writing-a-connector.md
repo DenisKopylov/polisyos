@@ -4,12 +4,12 @@ Related how-to: [Add Data Source](../how-to/add-data-source.md). Related referen
 
 > Этот tutorial рассчитан на инженера, который впервые добавляет источник данных в Fabric и хочет пройти весь путь от нового файла до локальной валидации.
 
-!!! info "Verified with"
-Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-Python 3.14 и `uv`.
-Реально проверены
-`uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run`
-и импорты `WorldBankConnector` / `HTTPConnectorBase`.
+!!! info "Историческая проверка (2026-04-17)"
+    Предыдущая редакция зафиксировала dry-run connector scaffold и imports
+    `WorldBankConnector` / `HTTPConnectorBase` в тогдашней среде. Это не receipt выполнения
+    полного tutorial или тестов. Source paths прочитаны на pin
+    `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; production implementation under `src/polisyos/`
+    после него не менялась. Примеры и tests в этом docs refresh не запускались.
 
 В walkthrough ниже мы не покрываем все edge cases connector platform. Цель другая: собрать минимальный production-shaped connector, зарегистрировать его в публичной поверхности Fabric и убедиться, что он проходит локальные проверки.
 
@@ -207,7 +207,8 @@ SourceProfile(
 
 ### Family-first scaffold для новых connector families
 
-Если вы добавляете коннектор не в существующую HTTP family, а в одну из новых WS-5B families, ориентируйтесь на такой порядок:
+Если вы добавляете connector не в существующую HTTP family, а в одну из поддержанных non-HTTP
+families, ориентируйтесь на такой порядок:
 
 1. Определите family contract в `family_contracts.py` или переиспользуйте существующий.
 2. Проверьте, что connector metadata и hard capabilities реально покрывают `required_capabilities`.

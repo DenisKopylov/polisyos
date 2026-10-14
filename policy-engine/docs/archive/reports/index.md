@@ -1,10 +1,23 @@
-# Generated Index: Archived Reports
+# Archived report entrypoints
 
 Owner: `team-docs`
-Last updated: 2026-05-19
+Routing revised: 2026-10-14
 
-This local index gives Phase 4.10 closure for the high-volume reports archive.
-Phase 6.4 may replace it with docs navigation generation.
+This is a curated routing page, not a complete report census. Its former
+"Generated Index" label did not name a generator or regeneration command;
+the 2026-05-19 Phase 4.10 closure wording is historical and was not revalidated
+by this routing update. Retained reports keep their own dates, sources and
+verification boundaries. Follow the [retention rules](README.md) and
+[authoring contract](AUTHORING.md) when promoting a new summary.
+
+## Documentation maintenance
+
+- [2026-10-14 comprehensive maintenance audit](2026-10-14-documentation-maintenance-audit.md):
+  the second slice's source audits, documentation-tool repairs and explicit
+  verification limits; consult its status before treating it as a closeout.
+- [2026-10-14 documentation refresh](2026-10-14-documentation-refresh-e02.md):
+  bounded documentation verification, approved handbook scope and the remaining
+  lifecycle-gate failure. It establishes no E02 or runtime closure.
 
 ## Report Families
 

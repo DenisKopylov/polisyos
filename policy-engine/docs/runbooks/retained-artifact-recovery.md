@@ -9,11 +9,9 @@ Related Fabric reference: [Fabric Data Plane](../reference/fabric/data-plane.md)
 > audit packages, local snapshots или cold-tier archives.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against the current retention policy and restore drill evidence.
+Historical validation receipt (as recorded by this page): `2026-04-17` — retention policy and restore-drill evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/platform-acceptance-manual.md`; `docs/archive/reports/platform-acceptance.md`
 Rollback path: freeze cleanup on the affected artifact family, preserve surviving copies, and restore only from a retained bundle that still has its required sidecars and hashes.
-
-Freshness: 2026-04-17.
 
 ## Symptom
 
@@ -62,6 +60,9 @@ Freshness: 2026-04-17.
    законно пересобрать его из source commit и lockfiles.
 2. Проверьте retention class и owning team в
    [Retention and Recovery Policy](../reference/operations/retention-and-recovery.md).
+   The R0–R4 windows there are manual guidance, not a global TTL. For local
+   `.polisyos` slots, use the per-slot contract; for remote artifacts, use the
+   owning system's retention record.
 3. Восстанавливайте family вместе с обязательными sidecars:
    audit package с provenance/signature, archive с report/hash, snapshot с
    manifest, replay bundle с connector context.
@@ -70,15 +71,15 @@ Freshness: 2026-04-17.
 
 ### Fabric retained families
 
-| Family                       | Lookup key                                                                       | Validation                                                                                           |
-| ---------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Connector recorded fixtures  | fixture path under `tests/_data/fabric/connectors/sources/` plus connector id | source-specific connector tests and record/replay tests                                              |
-| Connector contract snapshots | contract id and schema id/version                                                | `polisyos-tools connectors check-contracts --check` and `tools/ci/check_fabric_schema_registry.py --check` |
-| Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                      | `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
-| Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                    | `tests/unit/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                         |
-| CDC schema-change events     | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id               | `tests/unit/fabric/data_plane/test_streaming_runtime.py`                                                  |
-| Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                          | `tests/unit/fabric/test_quality_indicators.py`                                                            |
-| Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                     | `tests/unit/fabric/test_lineage.py` and OpenLineage export validation                                     |
+| Family                       | Lookup key                                                                    | Validation                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Connector recorded fixtures  | fixture path under `tests/_data/fabric/connectors/sources/` plus connector id | source-specific connector tests and record/replay tests                                                    |
+| Connector contract snapshots | contract id and schema id/version                                             | `polisyos-tools connectors check-contracts --check` and `tools/ci/check_fabric_schema_registry.py --check` |
+| Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                   | `tests/unit/fabric/data_plane/test_record_replay.py`                                                       |
+| Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                 | `tests/unit/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                          |
+| CDC schema-change events     | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id            | `tests/unit/fabric/data_plane/test_streaming_runtime.py`                                                   |
+| Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                       | `tests/unit/fabric/test_quality_indicators.py`                                                             |
+| Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                  | `tests/unit/fabric/test_lineage.py` and OpenLineage export validation                                      |
 
 ### Useful commands
 
@@ -108,7 +109,7 @@ Replay/checkpoint recovery regression coverage:
 ```bash
 cd policy-engine
 uv run pytest tests/unit/fabric/data_plane/test_record_replay.py
-uv run pytest tests/unit/scientist/engine/test_checkpoint.py tests/unit/scientist/engine/test_checkpoint_gc.py
+uv run pytest tests/unit/scientist/orchestration/engine/test_checkpoint.py tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py
 ```
 
 Fabric schema and retained-artifact checks:

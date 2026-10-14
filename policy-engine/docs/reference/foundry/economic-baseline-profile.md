@@ -1,5 +1,10 @@
 # Historical normalized-income/budget baseline
 
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/plugins/economics/baselines.py`, `tests/unit/foundry/plugins/test_historical_income_baseline.py`, and `tests/unit/foundry/plugins/test_economic_profile_consumers.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and test sources inspected at this pin; tests were not run for this docs-only review. The earlier closure and hold receipts below remain historical evidence.
+
 `polisyos.foundry.plugins.economics.baselines.normalized_income_budget_loss`
 owns the historical native `GlobalState` profile. Both
 `polisyos.foundry.methods.loss.policy_loss_fn` and the corresponding internal

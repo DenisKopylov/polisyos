@@ -3,9 +3,11 @@
 Related reference: [REST API Reference](index.md), [Runtime API Versioning and
 Deprecation Policy](versioning.md).
 
-Freshness: 2026-10-12
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/{app.py,mutation_policy.py,response_policies.py}`, and the route handlers under `src/polisyos/runtime/http/routes/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source inspection only for this documentation update; the contract check and listed test anchors were not run.
 Validation:
 
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
@@ -26,26 +28,30 @@ Validation:
 | Deprecation visibility     | Docs or release notes only                        | Watch `Deprecation`, `Sunset`, and `Link` headers                               |
 | Live streams               | Polling/backpressure policy was implicit          | Respect `X-SSE-Flow-Control` and bounded server budgets                         |
 
-The current committed OpenAPI snapshot contains 53 public `GET`/`POST`
-operations. The two run live-stream routes are schema-hidden and should not be
-treated as generated-client contract surface.
+The committed OpenAPI snapshot is canonical for schema-described generated
+client operations. Run live-stream routes are schema-hidden and should
+not be treated as generated-client contract surface. This page does not freeze
+an operation count; inspect the snapshot for its complete current set and route
+owners for route-only operations.
 
 ## Optional deployment catalog input
 
 The app factory accepts an optional typed catalog selector for deployments
 that need candidate L1 reads from a snapshot root:
 
-    from pathlib import Path
+```python
+from pathlib import Path
 
-    from polisyos.runtime.http import create_runtime_api_app
-    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+from polisyos.runtime.http import create_runtime_api_app
+from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 
-    app = create_runtime_api_app(
-        catalog_source_selection=CatalogServingSourceSelection(
-            snapshot_root=Path("/srv/policyos/catalog-snapshot"),
-            catalog_run_profile="prod_full",
-        ),
-    )
+app = create_runtime_api_app(
+    catalog_source_selection=CatalogServingSourceSelection(
+        snapshot_root=Path("/srv/policyos/catalog-snapshot"),
+        catalog_run_profile="prod_full",
+    ),
+)
+```
 
 The selected database must exist at
 snapshot_root/datasets/graph/dataset_catalog.duckdb. Its profile must agree
@@ -149,7 +155,6 @@ Client-facing behavior is also covered by:
 - `tests/unit/runtime/http/test_artifact_inspector_api.py`
 - `tests/unit/runtime/http/test_runs_api.py`
 - `tests/unit/runtime/http/test_api_maturity.py`
-
 
 ### Shared operation identity migration
 

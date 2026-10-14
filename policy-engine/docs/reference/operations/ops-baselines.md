@@ -1,8 +1,9 @@
 # Ops Baselines
 
-Freshness: 2026-05-03
+Historical freshness marker: `2026-05-03`; this is not a current verification date.
 Owner: `team-platform`
 Source of truth: `architecture/baselines/ops.toml`
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; TOML/source inspection only. External scanner, cloud billing, and service states were not checked.
 
 Phase 5 promotes the non-Python operational baselines to fail-closed repository
 contracts. Remaining exceptions must be owner-approved, time-bounded, and

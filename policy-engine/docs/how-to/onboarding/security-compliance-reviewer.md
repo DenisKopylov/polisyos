@@ -37,8 +37,13 @@ uv run pytest -q \
   tests/unit/core/security/test_sbom.py \
   tests/unit/core/security/test_tenant_context.py \
   tests/unit/runtime/http/test_runtime_api_authz.py \
-  tests/unit/runtime/http/test_access_invariants_properties.py
+  tests/property/runtime/http/test_access_invariants_properties.py
 ```
+
+Флаги `doctor` здесь пропускают Playwright, lockfile и generated-contract checks, но не базовые
+проверки Python `3.14.x`, Node `22.x` и `uv 0.9.21`. `runtime-signing` и `runtime-oidc` в этой
+команде проверяют только наличие непустых env values; это не проверка подписания, ключей или
+реальной OIDC-аутентификации. См. [Installation](../install.md) для точных границ `doctor`.
 
 ## Start Here By Task
 

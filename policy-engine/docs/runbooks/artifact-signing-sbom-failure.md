@@ -8,7 +8,7 @@ reference: [Ownership](../reference/ownership.md). Related how-to:
 > verification, SBOM generation/verification либо SLSA payload validation.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against current signing/SBOM regressions and release-evidence docs.
+Historical validation receipt (as recorded by this page): `2026-04-17` — signing/SBOM regression and release-evidence material available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/platform-acceptance.md`; `tests/unit/core/security/test_sbom.py`
 Rollback path: return to the last trusted signer and trust-store state, block promotion, and only time-box any temporary allowlist or grace-window exception.
 

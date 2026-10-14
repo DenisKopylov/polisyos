@@ -39,6 +39,7 @@ environment evidence.
 | [Docs Publication Failure](docs-publication-failure.md) | A docs build, repository-tracked documentation gate, or Pages publication fails. | `@docs-owners` |
 | [Benchmark Regression Triage](benchmark-regression-triage.md) | A benchmark comparison shows a quality, latency, or stability regression. | `@foundry-owners` |
 | [Production Quality Canary](production-quality-canary.md) | A production-quality canary, scenario matrix, approval, override, replay, or provider review is involved. | `@platform-owners` and runtime |
+| [Local Production Debugging](local-production-debugging.md) | Historical `2026-05-19` local setup and validation record; current containers, database, data, and credentials are unverified, and reuse depends on the page's source-backed prerequisites. | `@platform-owners` and runtime |
 | [Cloud Production Debugging](cloud-production-debugging.md) | Historical `2026-05-20` cloud setup and validation record; current resources are unverified and the commands require the page's revalidation prerequisites. | `@platform-owners` and runtime |
 | [Production Quality Triage](production-quality-triage.md) | A PQL-001 through PQL-024 result needs triage by layer and next action. | `@platform-owners` |
 | [Honest Diagnostics Operator Triage](honest-diagnostics.md) | Serious closeout fails on runtime references, diagnostics, source truth, phase barriers, semantic evidence, tenant scope, attestation, staleness, or partial state. | `@platform-owners` and runtime |

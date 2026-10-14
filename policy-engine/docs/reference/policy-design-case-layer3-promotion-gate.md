@@ -6,6 +6,11 @@ Source of truth: `src/polisyos/runtime/quality/proving_ground/governed_promotion
 `tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py`,
 and `architecture/policy_design_case/layer3_g4_readiness_manifest.json`.
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 G4 is the shadow-to-governed promotion gate for Layer 3 Policy Design Case
 outputs. It reads persisted upstream G1/G2/G3/GL contract artifacts, checks
 A-completeness for the declared promotion scope, applies weakest-boundary
@@ -18,6 +23,11 @@ closeout, claim, policy recommendation, or useful-design authority. Its
 authority is limited to promotion decision replay, governed promotion state for
 the declared scope, and reference-only downstream input refs for closeout, the
 PDC compiler, and G5.
+
+A readiness `pass` validates G4's declared artifact, manifest, conformance,
+consumer, and projection checks. It does not mean a governed promotion occurred,
+that a useful policy design was produced, or that recommendation/design
+authority was granted.
 
 ## Artifacts
 
@@ -87,3 +97,8 @@ artifacts are persisted at the registered paths, the write set is exact, the
 manifest drift keys match runtime output, docs/TOML/inventory registrations are
 present, and public projection checks find no raw-payload leak or authority
 overclaim.
+
+At the pinned snapshot, the persisted manifest records a `fixture_scoped`
+grounded-contract binding scope, zero `governed_promoted` records, and two
+`promotion_blocked` records. The readiness-test source expects a bounded
+validator pass for this persisted bundle; that pass is not promotion success.

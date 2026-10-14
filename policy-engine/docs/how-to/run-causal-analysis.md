@@ -4,6 +4,16 @@ This how-to shows the current programmatic causal-analysis entry points. The
 examples are intentionally small and local. Use the full Scientist workflow when
 you need decision governance and policy report assembly.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+the documented imports, model fields, and call signatures in
+`src/polisyos/foundry/methods/catalog/causal/`,
+`src/polisyos/foundry/methods/catalog/network/`,
+`src/polisyos/ir/observation/`, `src/polisyos/ir/analytics/sensitivity.py`,
+`src/polisyos/ir/governance/policy_spec.py`, and
+`src/polisyos/scientist/methods/causal/execution.py`. The snippets and named
+tests were not executed; they demonstrate local entry points and do not establish
+full governance, reproducibility, or policy evidence.
+
 ## Input
 
 - a local environment with the causal or test extras installed;
@@ -146,33 +156,42 @@ Sensitivity results should be persisted when they are used in downstream
 governance.
 
 ```python
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.sensitivity import (
     SensitivityResult,
     load_sensitivity_result,
     persist_sensitivity_result,
 )
 
-sensitivity_ref = persist_sensitivity_result(
-    store,
-    SensitivityResult(
-        e_value=2.4,
-        e_value_ci_lower=1.8,
-        robustness_value=0.22,
-        rosenbaum_gamma=1.6,
-        interpretation="Moderately robust to unobserved confounding.",
-        is_robust=True,
-    ),
-)
+with TemporaryDirectory(prefix="polisyos-sensitivity-") as tmp:
+    store = FileSystemCAS(Path(tmp))
+    sensitivity_ref = persist_sensitivity_result(
+        store,
+        SensitivityResult(
+            e_value=2.4,
+            e_value_ci_lower=1.8,
+            robustness_value=0.22,
+            rosenbaum_gamma=1.6,
+            interpretation="Moderately robust to unobserved confounding.",
+            is_robust=True,
+        ),
+    )
 
-sensitivity = load_sensitivity_result(store, sensitivity_ref)
-print(sensitivity.is_robust)
-print(sensitivity.e_value)
+    sensitivity = load_sensitivity_result(store, sensitivity_ref)
+    print(sensitivity.is_robust)
+    print(sensitivity.e_value)
 ```
 
 ## 5. Dynamic Treatment Regimes
 
 Scheduling contracts live in the IR. Estimators live in the Foundry causal
 catalog.
+
+This snippet constructs the intervention schedule only; it does not submit a
+causal task or run a DTR estimator.
 
 ```python
 from polisyos.ir.governance.policy_spec import (
@@ -200,10 +219,12 @@ sequence = TemporalInterventionSequence(
 )
 ```
 
-## 6. ERGM Structural Null for Diffusion
+## 6. ERGM-Inspired Null-Lite Structural Null for Diffusion
 
-Use the Phase 2 network-generative surface when you need a pre-treatment
-structural null for diffusion or spillover diagnostics.
+Use the Phase 2 network-generative surface when you need a pre-treatment,
+ERGM-inspired null-lite structural model for diffusion or spillover diagnostics.
+This is not a full MCMLE bridge-sampling ERGM fit; the estimator uses an
+approximate penalized dyad model and simulated graph checks.
 
 ```python
 import numpy as np

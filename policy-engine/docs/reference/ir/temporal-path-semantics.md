@@ -4,13 +4,14 @@ Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-cata
 
 Owner: `@ir-owners`, `@causal-owners`
 Source of truth: `src/polisyos/ir/analytics/dynamic_regime.py`, `src/polisyos/ir/analytics/rough_path_semantics.py`, `tests/unit/ir/analytics/test_phase_c_contracts.py`, `tests/unit/ir/analytics/test_rough_path_semantics.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 
 > Stage 4.1 contract lift for rough-path and irregular-sampling semantics.
 > PolicyOS now distinguishes solver-family names from the causal path object
 > actually being claimed, and requires theorem-carrying metadata before a
 > rough/signature trajectory can be treated as semantically supported.
 
-Freshness: 2026-04-20
+Freshness: 2026-10-14
 
 ## Why This Exists
 
@@ -67,6 +68,12 @@ top-level fields, rough/signature bundles may carry validated
 silently reference an arbitrary JSON blob.
 
 ## Safety Rules
+
+The attachment and certificate are typed contract artifacts. Their booleans
+are declared fields and their refs are typed handles: parsing them does not
+independently verify the referenced operators, filtration, proof trace, or
+scientific assumptions. The checks below control the named runtime-support
+posture; they are not a general theorem-verification or publication decision.
 
 PolicyOS treats rough/signature bundles conservatively.
 

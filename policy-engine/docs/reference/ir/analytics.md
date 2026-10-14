@@ -2,7 +2,7 @@
 
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-> Causal, heterogeneity, backtest, uncertainty, and strategic-response artifacts emitted by Foundry and Scientist.
+> Causal, heterogeneity, backtest, uncertainty, and strategic-response contracts and artifacts used across Foundry and Scientist.
 
 This page follows the analytics surface that is already exposed from
 `polisyos.ir`, and also documents the new `polisyos.ir.analytics.strategic`
@@ -13,9 +13,10 @@ most common analytics contracts, but it is no longer a wildcard mirror of
 every analytics implementation module. For advanced/report-specific APIs use
 the defining submodule import path.
 
-Freshness: 2026-04-20
+Freshness: 2026-10-14
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/analytics/**`, `src/polisyos/ir/references/`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/analytics/**`, `tests/unit/ir/test_uncertainty.py`, `tests/unit/ir/test_frontier_causal_contracts.py`
+Source of truth: `src/polisyos/ir/analytics/**`, `src/polisyos/ir/registry/refs.py`, `src/polisyos/ir/loading/citations.py`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/analytics/**`, `tests/unit/ir/test_uncertainty.py`, `tests/unit/ir/test_frontier_causal_contracts.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 Source plan phases: D1-L4 Phase 2 estimand/uncertainty normalization, Phase 3 verification, and Phase 5 causal frontier contracts.
 
 ## Source Modules
@@ -29,7 +30,7 @@ Source plan phases: D1-L4 Phase 2 estimand/uncertainty normalization, Phase 3 ve
 | `polisyos.ir.analytics.causal_ensemble`         | Structural uncertainty bundles across graph candidates                                                            | `EnsembleMember`, `CausalModelEnsemble`                                                                                                                      |
 | `polisyos.ir.analytics.ecosystem_bridges`       | Exchange contracts for DoWhy, EconML, CausalNex, pgmpy, and Tigramite                                             | `DoWhyGraphBridge`, `EconMLDesignBridge`, `PgmpyGraphBridge`, `TigramitePCMCIBridge`                                                                         |
 | `polisyos.ir.analytics.hte`                     | Heterogeneous treatment effects and targeting outputs                                                             | `HTEResult`, `SubgroupEffect`, `FeatureImportance`, `PolicyRecommendation`                                                                                   |
-| `polisyos.ir.analytics.backtest`                | Historical validation and trust diagnostics                                                                       | `BacktestReport`, `MetricBiasDiagnostic`, `BacktestScenario`, `SystematicBias`                                                                                                       |
+| `polisyos.ir.analytics.backtest`                | Historical validation and trust diagnostics                                                                       | `BacktestReport`, `MetricBiasDiagnostic`, `BacktestScenario`, `SystematicBias`                                                                               |
 | `polisyos.ir.analytics.uncertainty`             | Unified interval semantics and propagation metadata                                                               | `UncertaintyEnvelope`, `DistributionFamily`, `PropagationMethod`                                                                                             |
 | `polisyos.ir.analytics.structural_causal_model` | Structural mechanism declarations                                                                                 | `MechanismFamily`, `MechanismSource`, `NodeMechanism`, `StructuralCausalModelSpec`                                                                           |
 | `polisyos.ir.analytics.abstraction`             | Micro-to-macro abstraction certificates, exact finite-state verification, and continuous approximate error bounds | `AbstractionCertificate`, `ContinuousApproximateAbstractionConfig`, `verify_finite_state_exact_abstraction`, `verify_continuous_approximate_abstraction`     |
@@ -264,11 +265,11 @@ to exist on the facade root.
 
 ## Validation Hooks
 
-| Claim                                                                                             | Source of truth                            | Evidence                                                                                                     |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Claim                                                                                             | Source of truth                            | Evidence                                                                                                          |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Estimand normalization produces semantic content hashes                                           | `src/polisyos/ir/analytics/estimand.py`    | `tests/unit/ir/analytics/test_estimand_normalization.py`                                                          |
 | Uncertainty algebra is explicit and trust-policy aware                                            | `src/polisyos/ir/analytics/uncertainty.py` | `tests/unit/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md`                          |
-| Causal, HTE, distributional, backtest, and transportability contracts are ABI-backed where public | `src/polisyos/schemas/abi_models.py`                    | [JSON Schema Catalog](../schemas.md), `tests/unit/ir/analytics/test_shared_invariants.py`                         |
+| Causal, HTE, distributional, backtest, and transportability contracts are ABI-backed where public | `src/polisyos/schemas/abi_models.py`       | [JSON Schema Catalog](../schemas.md), `tests/unit/ir/analytics/test_shared_invariants.py`                         |
 | Frontier causal reports are typed research contracts, not runtime support promises                | frontier analytics modules                 | `tests/unit/ir/test_frontier_causal_contracts.py`, `docs/adr/0110-ir-frontier-governance-and-causal-contracts.md` |
 | Package facade counts and lazy import behavior stay ratcheted                                     | `src/polisyos/ir/api.py`                   | `tests/unit/ir/test_public_surface.py`                                                                            |
 
@@ -335,7 +336,6 @@ unknown, so this signal is limited to candidate ranking and is not accepted by
 the separate protected-promotion gate. PAG/CPDAG and other non-identity profiles
 retain a typed skipped-family limitation. Partial-graph CI completion semantics
 remain held for the G decision.
-
 
 ## Welfare nominal and Monte Carlo outputs with selected weights
 

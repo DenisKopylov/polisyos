@@ -1,12 +1,17 @@
 # Quantity Values
 
-Freshness: 2026-04-24.
+Freshness: 2026-10-14
 Owner: `@runtime-api-owners`
-Source of truth: `src/polisyos/core/contracts/runtime.py`
+Source of truth: `src/polisyos/core/contracts/runtime.py`, `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/routes/lineage.py`, and `apps/runtime-dashboard/src/shared/ui/quantity/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; no coverage report or dashboard checks were run.
 
 `QuantityValue` is the runtime contract for every number that can influence a
 PolicyOS decision. It prevents naked decision numbers by carrying the value,
 unit, lineage, uncertainty, temporal scope, and classification as one envelope.
+This contract does not assert that every numeric field in every legacy payload
+or surface has already been migrated; use the coverage tooling to inspect the
+current converted set.
 
 ## Shape
 
@@ -47,12 +52,12 @@ unit, lineage, uncertainty, temporal scope, and classification as one envelope.
 
 ## Classes
 
-| Class       | Rule                                                                 |
-| ----------- | -------------------------------------------------------------------- |
-| `decision`  | Must be `QuantityValue`; UI renders through `<Quantity />`.          |
-| `telemetry` | May remain primitive only when explicitly classified as telemetry.   |
-| `layout`    | Excluded from provenance law.                                        |
-| `debug`     | Allowed only in tests, stories, mocks, or explicit fixture modules.  |
+| Class       | Rule                                                                |
+| ----------- | ------------------------------------------------------------------- |
+| `decision`  | Must be `QuantityValue`; UI renders through `<Quantity />`.         |
+| `telemetry` | May remain primitive only when explicitly classified as telemetry.  |
+| `layout`    | Excluded from provenance law.                                       |
+| `debug`     | Allowed only in tests, stories, mocks, or explicit fixture modules. |
 
 ## Untraced Values
 
@@ -66,12 +71,13 @@ missing lineage visible in API payloads and coverage reports.
 
 ## Runtime Endpoints
 
-| Endpoint                                      | Purpose                                  |
-| --------------------------------------------- | ---------------------------------------- |
-| `GET /api/v1/lineage/{lineage_id}`            | Single compact plus full lineage graph   |
-| `POST /api/v1/lineage/batch`                  | Batch lookup for tables and dashboards   |
-| `GET /api/v1/lineage/{lineage_id}/export/*`   | OpenLineage or PROV export payload       |
-| `GET /api/v1/runs/{run_id}/quantities`        | Run-level quantity coverage inventory    |
+| Endpoint                                              | Purpose                                |
+| ----------------------------------------------------- | -------------------------------------- |
+| `GET /api/v1/lineage/{lineage_id}`                    | Single compact plus full lineage graph |
+| `POST /api/v1/lineage/batch`                          | Batch lookup for tables and dashboards |
+| `GET /api/v1/lineage/{lineage_id}/export/openlineage` | OpenLineage export payload             |
+| `GET /api/v1/lineage/{lineage_id}/export/prov`        | PROV export payload                    |
+| `GET /api/v1/runs/{run_id}/quantities`                | Run-level quantity coverage inventory  |
 
 ## Migration
 
@@ -82,3 +88,7 @@ missing lineage visible in API payloads and coverage reports.
 4. Convert backend payloads to `QuantityValue` before tightening the frontend
    rule to error.
 5. Keep telemetry/layout/debug explicit so the warning stream stays actionable.
+
+`QuantityValue` preserves declared units, lineage, uncertainty, and time; it
+does not independently verify the source or make a quantity causally identified
+or admissible for publication.

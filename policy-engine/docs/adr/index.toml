@@ -9,7 +9,7 @@ source = "docs/adr"
 [[adr]]
 id = "0001"
 title = "Удаляем legacy Foundry engine"
-status = "accepted"
+status = "unknown"
 topic = "product-domain"
 package = "polisyos.foundry"
 path = "docs/adr/0001-remove-legacy-foundry-engine.md"
@@ -20,7 +20,7 @@ related = []
 [[adr]]
 id = "0002"
 title = "Сводим Scientist на flow_nodes-only"
-status = "accepted"
+status = "unknown"
 topic = "observation"
 package = "polisyos.scientist"
 path = "docs/adr/0002-scientist-flow-nodes-only.md"
@@ -31,7 +31,7 @@ related = []
 [[adr]]
 id = "0003"
 title = "IR v1.0 → deprecate → remove"
-status = "accepted"
+status = "unknown"
 topic = "schemas"
 package = "polisyos.ir"
 path = "docs/adr/0003-ir-v1-deprecate-remove.md"
@@ -42,7 +42,7 @@ related = []
 [[adr]]
 id = "0004"
 title = "Architecture Boundaries Import Gate"
-status = "accepted"
+status = "unknown"
 topic = "repository-structure"
 package = "repository"
 path = "docs/adr/0004-architecture-boundaries-import-gate.md"
@@ -114,7 +114,7 @@ package = "repository"
 path = "docs/adr/0010-cas-artifact-signing-ed25519.md"
 supersedes = []
 superseded_by = []
-related = ["0118", "0122", "0123"]
+related = ["0118", "0122", "0123", "0128"]
 
 [[adr]]
 id = "0011"
@@ -453,7 +453,7 @@ status = "superseded"
 topic = "observation"
 package = "repository"
 path = "docs/adr/0045-causal-edge-combined-confidence-formula-superseded.md"
-supersedes = ["0064"]
+supersedes = []
 superseded_by = ["0064"]
 related = ["0064"]
 
@@ -1214,7 +1214,7 @@ package = "polisyos.ir"
 path = "docs/adr/0114-schema-registry-and-evolution.md"
 supersedes = []
 superseded_by = []
-related = ["0005", "0108", "0118", "0122", "0123"]
+related = ["0005", "0108", "0118", "0122", "0123", "0125"]
 
 [[adr]]
 id = "0115"
@@ -1225,7 +1225,7 @@ package = "repository"
 path = "docs/adr/0115-layered-architecture-enforcement.md"
 supersedes = []
 superseded_by = []
-related = ["0004", "0061", "0111", "0121"]
+related = ["0004", "0061", "0096", "0111", "0121", "0127"]
 
 [[adr]]
 id = "0116"
@@ -1258,7 +1258,7 @@ package = "repository"
 path = "docs/adr/0118-release-train-and-semver-contracts.md"
 supersedes = []
 superseded_by = []
-related = ["0010", "0114", "0123"]
+related = ["0010", "0100", "0114", "0123", "0128"]
 
 [[adr]]
 id = "0119"
@@ -1302,7 +1302,7 @@ package = "polisyos.data_forge"
 path = "docs/adr/0122-lakehouse-snapshot-semantics.md"
 supersedes = []
 superseded_by = []
-related = ["0010", "0015", "0113"]
+related = ["0010", "0015", "0098", "0113"]
 
 [[adr]]
 id = "0123"
@@ -1313,7 +1313,7 @@ package = "repository"
 path = "docs/adr/0123-artifact-ref-governance.md"
 supersedes = []
 superseded_by = []
-related = ["0010", "0021", "0062", "0105"]
+related = ["0010", "0021", "0062", "0104", "0105", "0108"]
 
 [[adr]]
 id = "0124"

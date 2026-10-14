@@ -1,8 +1,10 @@
 # Runtime API Error Semantics
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/errors.py`, `src/polisyos/runtime/http/{authz_middleware.py,jwt_auth_middleware.py,cell_router_middleware.py,mutation_policy.py}`, `src/polisyos/core/errors.py`, and `src/polisyos/core/security/exceptions.py`
+Source of truth: `src/polisyos/runtime/http/errors.py`, `src/polisyos/runtime/http/{authz_middleware.py,jwt_auth_middleware.py,cell_router_middleware.py,mutation_policy.py}`, `src/polisyos/core/contracts/runtime.py`, `src/polisyos/core/errors/`, and `src/polisyos/core/security/exceptions.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the listed tests were not run.
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_error_semantics.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py`

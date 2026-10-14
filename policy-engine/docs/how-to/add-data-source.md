@@ -1,9 +1,9 @@
 # Добавление источника данных
 
-> Создайте Fabric source connector, reusable profile, schema contract и тесты,
-> которые делают источник production-safe.
+> Добавьте Fabric source connector, reusable profile, schema contract и
+> fixture-backed tests для проверяемого connector-level поведения.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14
 
 ## Вход
 
@@ -30,13 +30,22 @@ uv run polisyos-tools validation fabric-schema-governance --check --evidence-out
 
 Прочитайте [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md),
 [Fabric Connectors](../reference/fabric/connectors.md) и
-[Fabric Data Plane](../reference/fabric/data-plane.md). Текущая Fabric
-платформа содержит 20 exported connector classes и 38 built-in source profiles.
+[Fabric Data Plane](../reference/fabric/data-plane.md). Актуальные exports,
+profiles и способы регистрации перечислены в [справочнике
+connectors](../reference/fabric/connectors.md#registration-status); это учет
+объявлений в исходниках, а не подтверждение доступности upstream provider.
 
 Новый источник должен закрывать D1-L2 obligations: safe query construction,
 bounded input, deterministic lifecycle, schema/quality validation,
 observability/lineage, quarantine for poison records, and catalog
 discoverability.
+
+Эти проверки характеризуют connector contract и перечисленные артефакты; они
+не доказывают live provider readiness, истинность source content или полный
+source-to-world/query/policy workflow. Для более широкой capability отдельно
+назовите production caller, persisted artifact, consumer, verification и
+surface. Если звено не реализовано, зафиксируйте его missing-state label
+(например, `bridge_missing`, `consumer_missing` или `semantic_test_missing`).
 
 ## 1. Выберите ближайшую family
 
@@ -208,7 +217,8 @@ uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/
 - Registry, protocol, contract, source-specific, and schema-governance tests
   pass.
 
-- Quality/lineage examples point to current artifacts or executable tests.
+- Quality/lineage examples point to current artifacts or executable tests;
+  fixture-backed examples are not live-provider or whole-system evidence.
 
 ## Связанные документы
 

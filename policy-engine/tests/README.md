@@ -1,9 +1,9 @@
 # Tests (`policy-engine/tests`)
 
-`policy-engine/tests` is the local navigation hub for the Python test suite. It
-currently contains `1389` `test_*.py` files across top-level and domain slices
-plus `5` root guard tests that protect import boundaries, public facades, and
-component discovery.
+`policy-engine/tests` is the local navigation hub for the Python test suite.
+File counts previously recorded here are historical summaries, not a current
+inventory. Use the collect-only commands below to inspect the current pytest
+collection; the table is a path and focus map, not a count manifest.
 
 ## Purpose
 
@@ -31,24 +31,24 @@ component discovery.
 
 ## Public Entrypoints
 
-| Path                  | `test_*.py` | Focus                                                       | Local README                           |
-| --------------------- | ----------: | ----------------------------------------------------------- | -------------------------------------- |
-| `tests/` root         | 0           | shared pytest config and navigation                         | this file                              |
-| `tests/unit/common/`       | 6           | low-level bootstrap, logging, serialization, timestamps     | [common](unit/common/README.md)        |
-| `tests/contract/`     | 19          | ABI, schema, and cross-layer compatibility                  | [contract](contract/README.md)         |
-| `tests/unit/core/`         | 70          | artifacts, security, components, phase0 primitives          | [core](unit/core/README.md)            |
-| `tests/unit/data_forge/`   | 110         | Data Forge foundation, legal batch, academic/catalog/Ukraine domains | [academic](unit/data_forge/domains/academic/README.md), [catalog](unit/data_forge/domains/catalog/README.md), [Ukraine](unit/data_forge/domains/ukraine/README.md) |
-| `tests/e2e/demos/`        | 1           | maintained demo smoke coverage                              | [demos](demos/README.md)               |
-| `tests/unit/fabric/`       | 98          | connectors, data plane, provenance, world, claims/docs      | [fabric](unit/fabric/README.md)        |
-| `tests/unit/foundry/`      | 374         | compile/execute, methods, calibration, runtime, uncertainty | [foundry](unit/foundry/README.md)      |
-| `tests/integration/`  | 6           | cross-subsystem end-to-end scenarios                        | [integration](integration/README.md)   |
-| `tests/unit/ir/`           | 97          | IR contracts, analytics, observation, governance            | [ir](unit/ir/README.md)                |
-| `tests/unit/lex/`          | 9           | legal corpus batch, interventions, simulator                | [lex](unit/lex/README.md)              |
-| `tests/performance/`  | 10          | benchmark and hot-path regressions                          | [performance](performance/README.md)   |
-| `tests/repo_quality/` | 88          | repository architecture, lint, tools, and topology gates     | [repo_quality](repo_quality/README.md) |
-| `tests/unit/runtime/`      | 41          | replay, manifests, runtime HTTP API                         | [runtime](unit/runtime/README.md)      |
-| `tests/unit/scholar/`      | 7           | scholar freshness and search orchestration                  | [scholar](unit/scholar/README.md)      |
-| `tests/unit/scientist/`    | 427         | workflows, governance, search, nodes, engine, agent         | [scientist](unit/scientist/README.md)  |
+| Path                     | Focus                                                                | Local README                                                                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/` root            | shared pytest config and navigation                                  | this file                                                                                                                                                          |
+| `tests/unit/common/`     | low-level bootstrap, logging, serialization, timestamps              | [common](unit/common/README.md)                                                                                                                                    |
+| `tests/contract/`        | ABI, schema, and cross-layer compatibility                           | [contract](contract/README.md)                                                                                                                                     |
+| `tests/unit/core/`       | artifacts, security, components, phase0 primitives                   | [core](unit/core/README.md)                                                                                                                                        |
+| `tests/unit/data_forge/` | Data Forge foundation, legal batch, academic/catalog/Ukraine domains | [academic](unit/data_forge/domains/academic/README.md), [catalog](unit/data_forge/domains/catalog/README.md), [Ukraine](unit/data_forge/domains/ukraine/README.md) |
+| `tests/e2e/demos/`       | maintained demo smoke coverage                                       | [demos](e2e/demos/README.md)                                                                                                                                       |
+| `tests/unit/fabric/`     | connectors, data plane, provenance, world, claims/docs               | [fabric](unit/fabric/README.md)                                                                                                                                    |
+| `tests/unit/foundry/`    | compile/execute, methods, calibration, runtime, uncertainty          | [foundry](unit/foundry/README.md)                                                                                                                                  |
+| `tests/integration/`     | cross-subsystem scenarios                                            | [integration](integration/README.md)                                                                                                                               |
+| `tests/unit/ir/`         | IR contracts, analytics, observation, governance                     | [ir](unit/ir/README.md)                                                                                                                                            |
+| `tests/unit/lex/`        | legal corpus batch, interventions, simulator                         | [lex](unit/lex/README.md)                                                                                                                                          |
+| `tests/performance/`     | benchmark and hot-path regressions                                   | [performance](performance/README.md)                                                                                                                               |
+| `tests/repo_quality/`    | repository architecture, lint, tools, and topology gates             | [repo_quality](repo_quality/README.md)                                                                                                                             |
+| `tests/unit/runtime/`    | replay, manifests, runtime HTTP API                                  | [runtime](unit/runtime/README.md)                                                                                                                                  |
+| `tests/unit/scholar/`    | scholar freshness and search orchestration                           | [scholar](unit/scholar/README.md)                                                                                                                                  |
+| `tests/unit/scientist/`  | workflows, governance, search, nodes, engine, agent                  | [scientist](unit/scientist/README.md)                                                                                                                              |
 
 The old architecture-test root has been removed. Legacy `tests/lint` and
 `tests/tools` roots are redirects only. Add new repository-quality tests under
@@ -125,4 +125,4 @@ uv run pytest --collect-only tests/unit/scientist -q
 
 ## Last Updated
 
-2026-05-02
+2026-10-14

@@ -4,15 +4,15 @@ Related how-to: [Write Governance Pass](../how-to/write-governance-pass.md). Rel
 
 > Этот tutorial рассчитан на инженера, который добавляет новый governance check в Scientist и хочет дойти до состояния "pass существует, зарегистрирован, запускается и тестируется".
 
-!!! info "Verified with"
-Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-Python 3.14 и `uv`.
-Реально проверены импорт базовых типов
-`PassContext` / `ValidatorPass`
-и dry-run scaffold:
-`uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`.
+!!! info "Историческая проверка (2026-04-17)"
+    Предыдущая редакция зафиксировала imports `PassContext` / `ValidatorPass` и dry-run scaffold
+    в тогдашней среде. Это не receipt выполнения полного tutorial или тестов. Source paths
+    прочитаны на pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; production implementation under
+    `src/polisyos/` после него не менялась. Примеры и tests в этом docs refresh не запускались.
 
-Мы пройдём минимальный, но реальный путь: создадим pass, зарегистрируем factory, подключим его к canonical governance surface и проверим blocker/warning semantics тестом.
+Мы пройдём путь добавления pass и регистрации factory, затем покажем unit test
+для blocker-case. Warning и info описаны отдельно как guidance по выбору severity;
+приведённый тест их не покрывает.
 
 Перед ручным редактированием можно взять canonical dry-run scaffold:
 
@@ -162,7 +162,11 @@ claim связан с артефактом или тестом:
 pass_id -> emitted issue/artifact -> regression test -> phase gate or benchmark
 ```
 
-## Как читать blocker и warning semantics
+## Как выбирать severity
+
+Следующие определения — guidance для проектирования, а не результат тестов этого
+tutorial. Показанный тест проверяет только blocker-case; добавьте отдельные случаи
+для warning и info, если новый pass должен их выдавать.
 
 - `BLOCKER`: workflow нельзя продвигать без исправления или явного human override.
 - `WARNING`: результат usable, но риск должен быть показан оператору или downstream review surface.

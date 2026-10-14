@@ -4,25 +4,35 @@
 ![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey.svg)
 
-AI-driven Policy Simulation System using JAX and Unified Data Fabric
+PolicyOS builds a causal operating system for policy and the custody of policy
+justification. Recommendations and effects remain candidates until grounded
+and validated within their declared scope.
 
 > Canonical product root: эта директория. Phase 2A collapses product tooling,
 > local state, caches, and topology scopes onto this root.
 
 Owner: `@docs-owners`  
 Source of truth: `docs/reference/contributor-start-here.md`, `docs/reference/public-surface.md`, `docs/reference/generated-artifacts.md`, and the command registry behind `polisyos-tools`  
-Last updated: 2026-04-17
+Documentation revised: 2026-10-14
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+The system is not functional end to end at this snapshot; E02 integration is
+still underway. Component presence, schema compatibility and a local smoke
+result do not establish a completed policy-analysis or publication chain.
+See the [local documentation map](docs/README.md) and
+[E02 snapshot](docs/reference/e02-documentation-snapshot.md) for current paths,
+missing bridges and verification limits.
 
 ## Motivation
 
 Policy evaluation rarely fits into a single simulator: it needs causal inference, heterogeneous data
 integration, and governance checks before a recommendation is safe to ship. PolicyOS Policy Engine
 addresses that by treating policy design, modeling, data acquisition, and runtime control as one
-reproducible system. Its IR layer is the stabilizing boundary between those concerns, so the same
-problem definition can move from ingestion to compilation, execution, and review without ad hoc
-translation steps.
+reproducible design. Its IR layer carries typed boundaries between those
+concerns; the inspected implementation maps distinguish existing producers
+and consumers from missing orchestration and verification.
 
-## Key Capabilities
+## Component scope
 
 - **IR**: lazy public facade, ABI-oriented contracts, and committed schema snapshots used as
   compatibility checkpoints.
@@ -33,10 +43,10 @@ translation steps.
 - **Scientist**: workflow orchestration, governance pass registry, policy search, and
   causal/transportability surfaces.
 
-- **Lex**: legal corpus -> NormPack pipeline, SPO extraction, amendment handling, temporal
-  resolution, and policy-facing intervention compilation.
+- **Lex**: policy-facing NormPack and intervention assembly, consuming the
+  Data Forge legal corpus and versioning artifacts.
 
-- **Fabric**: production connector families, built-in source profiles, `SourceExecutionPolicy`
+- **Fabric**: source-declared connector families, built-in source profiles, `SourceExecutionPolicy`
   normalization, and async-ingestion-aware data-plane paths.
 
 - **Observation**: observation contracts, causal-readiness bundles, and measurement-trust tiers
@@ -46,6 +56,9 @@ translation steps.
   operators.
 
 ## Architecture Diagram
+
+Arrows show responsibilities and dependency directions. They do not certify
+a joined end-to-end runtime or a complete capability chain.
 
 ```mermaid
 graph LR
@@ -76,8 +89,11 @@ Contributor baseline зафиксирован как Python `3.14.x`, Node `22.x
 близкой к CI, используйте
 `python3 -m tools.cli workspace ci-parity --skip-browser`.
 
-The snippet below builds a trivial fiscal `ProblemFrame(problem_id="demo", domain=FISCAL)` plus one
-tax intervention, then calls Foundry `compile()` and `execute()` end to end:
+The recipe below is a bounded Foundry smoke using a trivial fiscal frame,
+synthetic input bindings and one tax intervention. Its source paths were
+inspected; this documentation refresh did not execute the recipe. A successful
+local compile/execute result would not establish policy validity, production
+data admission, Scientist governance or publication authority.
 
 ```python
 from pathlib import Path
@@ -119,7 +135,7 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 | Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
 | Runtime API            | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json`                                       | Governed by the Runtime API contract check                                                    |
 | CLI                    | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities`                                                | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/)      |
-| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
+| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                         | Governed by runtime contract and frontend contract fixtures                                   |
 
 ## Dependency Boundaries
 
@@ -157,7 +173,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 | Change                                    | Start here                                                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
+| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                 |
 | Generated contract artifact               | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator                                                   |
 | New connector                             | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md`                              |
 | New governance pass                       | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |

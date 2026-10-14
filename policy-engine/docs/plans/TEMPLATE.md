@@ -13,6 +13,19 @@ stability: draft
 
 State the bounded workstream and what is explicitly out of scope.
 
+## Pattern Pass
+
+For governance, evidence, runtime-quality, Policy Design Case, producer, API,
+dashboard, export, LLM-authority, or research-plan work, record:
+
+- Relevant failure/repair pattern IDs.
+- Existing anti-patterns found.
+- Target correct pattern.
+- Missing capability labels, if any.
+- Acceptance signal.
+
+For other work, mark the pass `not_applicable` and state the scope reason.
+
 ## Source of Truth
 
 | Concern           | Source                                 |

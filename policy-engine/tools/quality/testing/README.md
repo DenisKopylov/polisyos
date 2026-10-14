@@ -239,4 +239,4 @@ uv run python tools/quality/testing/mutation.py --suite foundry --target results
 - `vitest`: `vitest --shard=<index>/<count>`;
 - `playwright`: `playwright test --shard=<index>/<count>`.
 
-Политика и рекомендуемые границы описаны в [`tests/TESTING_POLICY.md`](/Users/deniskopylov/polisyos/policy-engine/tests/TESTING_POLICY.md).
+Политика и рекомендуемые границы описаны в [`tests/TESTING_POLICY.md`](../../../tests/TESTING_POLICY.md).

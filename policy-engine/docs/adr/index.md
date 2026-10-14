@@ -8,11 +8,12 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | Status | Count |
 | --- | --- |
-| `accepted` | 91 |
+| `accepted` | 87 |
 | `approved` | 7 |
 | `completed` | 1 |
 | `proposed` | 91 |
 | `superseded` | 1 |
+| `unknown` | 4 |
 
 ## ADRs By Status
 
@@ -20,15 +21,11 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | ADR | Status | Topic | Package | Title | Related |
 | --- | --- | --- | --- | --- | --- |
-| [0001](0001-remove-legacy-foundry-engine.md) | `accepted` | `product-domain` | `polisyos.foundry` | Удаляем legacy Foundry engine | - |
-| [0002](0002-scientist-flow-nodes-only.md) | `accepted` | `observation` | `polisyos.scientist` | Сводим Scientist на flow_nodes-only | - |
-| [0003](0003-ir-v1-deprecate-remove.md) | `accepted` | `schemas` | `polisyos.ir` | IR v1.0 → deprecate → remove | - |
-| [0004](0004-architecture-boundaries-import-gate.md) | `accepted` | `repository-structure` | `repository` | Architecture Boundaries Import Gate | 0115, 0127 |
 | [0005](0005-abi-schema-gate-versioning.md) | `accepted` | `release` | `polisyos.ir` | ABI Versioning Gate via JSON Schema Snapshots | 0114, 0123 |
 | [0006](0006-slo-definitions.md) | `accepted` | `observation` | `polisyos.scientist` | SLO Definitions for Scientist DAG | 0116, 0127 |
 | [0007](0007-human-gate-protocol.md) | `accepted` | `schemas` | `polisyos.ir` | Human Gate Protocol in IR | - |
 | [0008](0008-scientist-node-idempotency-contract.md) | `accepted` | `runtime-state` | `polisyos.scientist` | Scientist Node Idempotency Contract | - |
-| [0010](0010-cas-artifact-signing-ed25519.md) | `accepted` | `security` | `repository` | CAS Artifact Signing (Ed25519) | 0118, 0122, 0123 |
+| [0010](0010-cas-artifact-signing-ed25519.md) | `accepted` | `security` | `repository` | CAS Artifact Signing (Ed25519) | 0118, 0122, 0123, 0128 |
 | [0011](0011-scientist-checkpoint-resume.md) | `accepted` | `observation` | `polisyos.scientist` | Scientist DAG Checkpoint/Resume | - |
 | [0012](0012-uncertainty-envelope-ir-contract.md) | `accepted` | `schemas` | `polisyos.ir` | UncertaintyEnvelope IR Contract | - |
 | [0013](0013-uncertainty-propagation-pipeline.md) | `accepted` | `observation` | `repository` | Uncertainty Propagation Pipeline | 0012 |
@@ -169,7 +166,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0060](0060-migration-budget-one-controlled-switch.md) | `proposed` | `release` | `repository` | Migration Budget = 1: single controlled switch, no feature flags | - |
 | [0061](0061-import-gate-ci-contract.md) | `proposed` | `product-domain` | `polisyos.foundry` | Import gate as CI contract (lint_foundry.py --strict on every PR) | - |
 | [0062](0062-knowledge-snapshot-id-mandatory-input-ref.md) | `proposed` | `product-domain` | `polisyos.data_forge` | knowledge_snapshot_id + mandatory InputRef for lineage sync | - |
-| [0063](0063-mediator-conditional-covariate-marginal.md) | `proposed` | `product-domain` | `repository` | Mediator P*(z|x) conditional; covariate P*(z) marginal (Pearl & Bareinboim 2011) | - |
+| [0063](0063-mediator-conditional-covariate-marginal.md) | `proposed` | `product-domain` | `repository` | Mediator P*(z\|x) conditional; covariate P*(z) marginal (Pearl & Bareinboim 2011) | - |
 | [0064](0064-compute-combined-confidence-noisy-or.md) | `proposed` | `observation` | `repository` | compute_combined_confidence() = 1 - Prod(1-conf_i)^w_i (Noisy-OR) | - |
 | [0065](0065-cycle-breaking-time-lag-conversion.md) | `proposed` | `repository-structure` | `repository` | Cycle breaking via time-lag conversion (not edge deletion) | - |
 | [0066](0066-pag-dag-projection-u-dummy-nodes.md) | `proposed` | `observation` | `repository` | PAG to DAG projection: bidirectional edges to U-dummy nodes for dowhy.gcm | - |
@@ -205,16 +202,16 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0111](0111-workspace-root-boundary-sota-contract.md) | `proposed` | `repository-structure` | `repository` | Workspace Root Boundary as a SOTA Contract | - |
 | [0112](0112-data-forge-consolidation.md) | `proposed` | `product-domain` | `polisyos.data_forge` | Data Forge Consolidation | - |
 | [0113](0113-asset-centric-pipeline-model.md) | `proposed` | `product-domain` | `repository` | Asset-Centric Pipeline Model | - |
-| [0114](0114-schema-registry-and-evolution.md) | `proposed` | `schemas` | `polisyos.ir` | Schema Registry and Evolution Rules | 0005, 0108, 0118, 0122, 0123 |
-| [0115](0115-layered-architecture-enforcement.md) | `proposed` | `repository-structure` | `repository` | Layered Architecture Enforcement | 0004, 0061, 0111, 0121 |
+| [0114](0114-schema-registry-and-evolution.md) | `proposed` | `schemas` | `polisyos.ir` | Schema Registry and Evolution Rules | 0005, 0108, 0118, 0122, 0123, 0125 |
+| [0115](0115-layered-architecture-enforcement.md) | `proposed` | `repository-structure` | `repository` | Layered Architecture Enforcement | 0004, 0061, 0096, 0111, 0121, 0127 |
 | [0116](0116-observability-otel-first.md) | `proposed` | `observation` | `repository` | OTel-First Observability | 0006, 0101, 0122, 0123 |
 | [0117](0117-secret-backend-protocol.md) | `proposed` | `security` | `repository` | Secret Backend Protocol | - |
-| [0118](0118-release-train-and-semver-contracts.md) | `proposed` | `release` | `repository` | Release Train and SemVer Contracts | 0010, 0114, 0123 |
+| [0118](0118-release-train-and-semver-contracts.md) | `proposed` | `release` | `repository` | Release Train and SemVer Contracts | 0010, 0100, 0114, 0123, 0128 |
 | [0119](0119-frontend-monorepo-workspace.md) | `proposed` | `repository-structure` | `frontend` | JavaScript Monorepo Workspace | - |
 | [0120](0120-test-topology-mirror.md) | `proposed` | `repository-structure` | `repository` | Test Topology Mirror | - |
 | [0121](0121-python-monorepo-uv-workspaces.md) | `proposed` | `product-domain` | `repository` | Python Monorepo via uv Workspaces | 0004, 0096, 0115 |
-| [0122](0122-lakehouse-snapshot-semantics.md) | `proposed` | `product-domain` | `polisyos.data_forge` | Lakehouse Snapshot Semantics | 0010, 0015, 0113 |
-| [0123](0123-artifact-ref-governance.md) | `proposed` | `product-domain` | `repository` | ArtifactRef Governance Metadata | 0010, 0021, 0062, 0105 |
+| [0122](0122-lakehouse-snapshot-semantics.md) | `proposed` | `product-domain` | `polisyos.data_forge` | Lakehouse Snapshot Semantics | 0010, 0015, 0098, 0113 |
+| [0123](0123-artifact-ref-governance.md) | `proposed` | `product-domain` | `repository` | ArtifactRef Governance Metadata | 0010, 0021, 0062, 0104, 0105, 0108 |
 | [0124](0124-llm-idempotency-and-prompt-versioning.md) | `proposed` | `release` | `polisyos.runtime` | LLM Idempotency and Prompt Versioning | 0032, 0035, 0097 |
 | [0125](0125-quality-regime-golden-differential-drift-consumer-contracts.md) | `proposed` | `product-domain` | `polisyos.data_forge` | Quality Regime for Data Forge Assets | 0062, 0095, 0113, 0114 |
 | [0126](0126-docs-lifecycle-diataxis-plans-archive.md) | `proposed` | `repository-structure` | `repository` | Docs Lifecycle via Diataxis and Plan Buckets | 0096, 0111, 0115 |
@@ -231,3 +228,12 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | ADR | Status | Topic | Package | Title | Related |
 | --- | --- | --- | --- | --- | --- |
 | [0045](0045-causal-edge-combined-confidence-formula-superseded.md) | `superseded` | `observation` | `repository` | Causal Edge Combined Confidence Formula (Superseded) | 0064 |
+
+### unknown
+
+| ADR | Status | Topic | Package | Title | Related |
+| --- | --- | --- | --- | --- | --- |
+| [0001](0001-remove-legacy-foundry-engine.md) | `unknown` | `product-domain` | `polisyos.foundry` | Удаляем legacy Foundry engine | - |
+| [0002](0002-scientist-flow-nodes-only.md) | `unknown` | `observation` | `polisyos.scientist` | Сводим Scientist на flow_nodes-only | - |
+| [0003](0003-ir-v1-deprecate-remove.md) | `unknown` | `schemas` | `polisyos.ir` | IR v1.0 → deprecate → remove | - |
+| [0004](0004-architecture-boundaries-import-gate.md) | `unknown` | `repository-structure` | `repository` | Architecture Boundaries Import Gate | 0115, 0127 |

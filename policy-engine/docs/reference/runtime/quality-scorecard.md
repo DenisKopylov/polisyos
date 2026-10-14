@@ -1,15 +1,20 @@
 # Runtime Quality Scorecard
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/quality/scorecard.py`,
-`tools/ops_runners/runtime/canary_evidence.py`, and
-`tests/unit/runtime/quality/test_scorecard.py`.
+Source of truth: `src/polisyos/runtime/quality/scorecard.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/test_scorecard.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the scorecard producer and tests were not run.
 
 The runtime quality scorecard is the additive approval-readiness contract for
 production, governed, research, staging, and dev canaries. It keeps
 `schema_version: policyos.quality_scorecard.v1` stable while adding fields that
 help operators distinguish execution failure, quality failure, warning-only
 quality, performance override needs, and approval-ready runs.
+
+The scorecard reports evidence and approval readiness. A passing status does
+not manufacture missing evidence, convert candidate output into authority, or
+sign/authorize a public policy claim; approval and custody remain separate
+consumers.
 
 ## Compatibility
 

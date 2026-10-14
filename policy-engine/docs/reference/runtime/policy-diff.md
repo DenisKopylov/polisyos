@@ -1,11 +1,16 @@
 # Policy Diff Runtime Contract
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/**`, `packages/runtime-api-client/**`, and `apps/runtime-dashboard/**`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/compare.py`, `tests/unit/runtime/http/test_run_compare_api.py`, `tests/unit/runtime/http/test_temporal_routes.py`, `packages/runtime-api-client/`, and `apps/runtime-dashboard/src/features/runs/compare/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the API/client behavior and referenced tests were not run.
 
 Policy Diff compares two runs through a `ComparisonFrame`, not through raw JSON
 or word-level document changes. The endpoint only renders deltas after the
 runtime has checked that the runs are comparable enough for the requested frame.
+Comparability is a read-side contract, not a causal-identification result: a
+compatible numeric delta does not by itself establish intervention effects,
+admissibility, or publication authority.
 
 ## Endpoint
 

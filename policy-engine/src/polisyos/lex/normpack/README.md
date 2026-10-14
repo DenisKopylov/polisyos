@@ -26,19 +26,23 @@
 
 ## Public API
 
-| Type/Function                                 | Description                                        |
-| --------------------------------------------- | -------------------------------------------------- |
-| `assemble_norm_pack()`                        | Main provider-or-pipeline builder for `NormPack`   |
-| `NormPackBuildRequest`, `NormPackBuildResult` | Input/output contracts for pack assembly           |
-| `NormPackBudgets`                             | Resource budgets for doc/provision/claim selection |
-| `select_sources.py`                           | Source and active-version selection logic          |
+| Type/Function                                 | Description                                                    |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `assemble_norm_pack()`                        | Main provider-or-pipeline builder for `NormPack`               |
+| `NormPackBuildRequest`, `NormPackBuildResult` | Input/output contracts for pack assembly                       |
+| `NormPackBudgets`                             | Resource budgets for doc/provision/claim selection             |
+| `select_sources.py`                           | Source and active-version selection logic                      |
 | `legal_authority.py`                          | Claim-level authority adapter over compiled legal requirements |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-05-02
-- Files: 7 Python files
-- Exports: 4 symbols in `__init__.py`
-- Notable delta: active-version selection now goes through `polisyos.data_forge.read_api.legal` plus fact-log fallback.
+- Package files: follow the source tree at `src/polisyos/lex/normpack/`.
+- Public exports: `src/polisyos/lex/normpack/__init__.py` is the canonical export list.
+- The package-layout and export pointers were checked at source revision
+  `36ac90f829b95e9874c5340fc2f1d0e595adf6d7` on 2026-10-14. The provider and
+  runtime behavior described above was not executed or revalidated here; no
+  deployment was observed.
+- Historical note (2026-05-02): active-version selection was documented as
+  going through `polisyos.data_forge.read_api.legal` plus fact-log fallback.

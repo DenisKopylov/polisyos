@@ -1,8 +1,9 @@
 # Data Capability Requirements
 
-Freshness: 2026-09-07
-Owner: `architect`
-Source of truth: this file; every row's evidence lives in the journal or register entry it cites
+Last updated: 2026-10-14
+Owner: @data-forge-owners
+Source of truth: dated measurement closeouts/journals/registers named below; current implementation was inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Verification: source and named test files were inspected at this pin; tests were not run. No production data, providers, or services were accessed. Measurement dates and production statuses remain historical and were not remeasured in this review.
 
 ## Why this file exists
 
@@ -14,6 +15,8 @@ the remaining growth is in **how much data we have and what shape it is in**.
 This file is the standing answer to one question: *what data does the system need, in what form, to
 use a capability we have already built?* It is filled progressively, from measurement. When a code
 capability is examined, this file should already say what data that capability is waiting for.
+Runtime requirement compilation, acquisition planning, domain pipelines, and the supported read API
+boundary are mapped in [Current Data Forge paths](data-forge/current-data-paths.md).
 
 It is deliberately **not** a wishlist, a collection backlog, or a data-source catalogue. It records
 requirements that a real consumer in this repository already imposes, discovered by a real
@@ -24,9 +27,10 @@ encounter.
 1. **Every row carries a measured basis** — a count, a date, and where it was measured. A row with
    no measurement is not a requirement; it is a guess, and guesses belong in the research backlog.
 2. **Every row names its consumer** with a code anchor. "The system needs better data" is not a row.
-   "`CausalClaim` at `ir/analytics/literature.py:437` rejects the stored vocabulary" is.
-3. **Absent data and wrong-shaped data are different problems.** Most of what we have hit is the
-   second. Collecting more of the same data does not fix a vocabulary collision.
+   "Direct `polisyos.ir.analytics.literature.CausalClaim` validation rejects unmapped legacy
+   `strength` and `mechanism` fields" is.
+3. **Absent data and wrong-shaped data are different problems.** Collecting more of the same data
+   does not fix a vocabulary collision.
 4. **Preprocessing is part of the requirement, not an implementation detail.** A judgment that is
    recomputed at read time instead of persisted is a different artifact from one that is stored, and
    only one of them can be replayed.
@@ -59,6 +63,7 @@ encounter.
 | `present_insufficient` | correct and current, but below a threshold the consumer requires |
 | `satisfied` | production data meets the consumer's requirement, measured |
 | `unmeasured` | nobody has looked yet |
+| `ambiguous` | the tracked evidence does not establish current production status; a prior measurement may be unrecoverable |
 
 ## Summary
 
@@ -69,7 +74,7 @@ encounter.
 | `extraction-strength-mixes-confidence-and-design` | any consumer of `extraction_json` | `present_wrong_vocabulary` |
 | `cg2-calibration-observations-per-stratum` | CG2 grounding calibration | `absent` |
 | `snapshot-schema-generation-discriminator` | Academic shadow consumer of a pinned snapshot | `present_stale` |
-| `lex-amendment-effective-from` | Lex chronology valid-effect carrier | `present_insufficient` |
+| `lex-amendment-effective-from` | Lex chronology valid-effect carrier | `ambiguous` |
 | `claim-level-evidence-axis` | the whole academic confidence layer | `absent` |
 | `lever-legal-subject-key-in-the-norm-namespace` | `GY-S3` law-to-lever recognition rule | `absent` |
 
@@ -97,18 +102,26 @@ produced, and producing it without storing the verdict leaves the requirement un
 
 ## `causal-claim-current-contract-vocabulary`
 
-**Consumer.** `CausalClaim` at `src/polisyos/ir/analytics/literature.py:437`
-(`ConfigDict(extra="forbid")`), and `ingest_openalex_span_grounded_claims` at
-`src/polisyos/data_forge/domains/academic/knowledge/skg_store.py:640`, which takes claims as input.
+**Consumer.** `polisyos.ir.analytics.literature.CausalClaim` in
+`src/polisyos/ir/analytics/literature.py` normalizes the legacy `cause` and `effect` aliases, then
+forbids unmapped extra fields. `src/polisyos/data_forge/domains/academic/knowledge/skg_store.py`'s
+`ingest_openalex_span_grounded_claims` accepts validated claims as input.
 
 **What is required.** Stored claims in the vocabulary the contract accepts.
 
-**Status `present_wrong_vocabulary`.** Measured 2026-09-02 by complete census: all 310,829
+**Historical status `present_wrong_vocabulary`.** Measured 2026-09-02 by complete census: all 310,829
 `ac_article_extractions` payloads parse, yielding **137,714** claims, and every one uses the legacy
 shape `{cause, direction, effect, mechanism, strength}`. `_normalize_causal_claim_payload` already
 maps `cause` -> `cause_variable` and `effect` -> `effect_variable`, so the contract *almost* accepts
 the stored form; `strength` and `mechanism` are unmapped and `extra="forbid"` rejects them.
 `mechanism` is empty on 130,101 of 137,714.
+
+At the current source pin, direct `CausalClaim` validation remains strict, while
+`src/polisyos/data_forge/domains/academic/knowledge/store.py`'s `_project_claim_row` routes legacy-v1
+rows through `polisyos.ir.analytics.literature.adapt_legacy_claim_occurrence_as_v2_absence`. That
+compatibility projection preserves the legacy label separately and leaves typed
+evidence/design/confidence/source axes not established; it keeps a legacy row readable without
+claiming the old `strength` value is current vocabulary.
 
 **What would satisfy it.** Re-extraction into the current contract, or an explicit migration that
 maps each legacy key to a field it genuinely means. **A two-line alias is not that migration** — see
@@ -139,7 +152,7 @@ reads `ac_article_extractions.extraction_json`.
 
 **What is required.** One field, one measure.
 
-**Status `present_wrong_vocabulary`.** Measured 2026-09-02 over the complete population of 137,714
+**Historical status `present_wrong_vocabulary`.** Measured 2026-09-02 over the complete population of 137,714
 claims. The stored `strength` key mixes a **confidence scale** and a **study-design vocabulary**
 under one name:
 
@@ -155,10 +168,12 @@ under one name:
 | `panel_fe` | 255 | yes |
 | `cross_sectional` | 7 | yes |
 
-`EvidenceStrength` is a study-design vocabulary: `rct`, `quasi_natural`, `quasi_natural_event`,
-`meta_analysis`, `panel_fe`, `structural`, `observational`, `cross_sectional`. Aliasing `strength`
-onto it would **outright reject** the 69,923 `moderate` claims and **silently misclassify** the
-17,688 `theoretical` ones — 87,611 affected, 63.6% of the population.
+`EvidenceStrength` contains the eight empirical/design labels `rct`, `quasi_natural`,
+`quasi_natural_event`, `meta_analysis`, `panel_fe`, `structural`, `observational`, and
+`cross_sectional`, plus `theoretical` and `unknown`. Aliasing `strength` onto it would **outright
+reject** the 69,923 `moderate` claims; the 17,688 `theoretical` values are enum-valid but are not
+among those eight empirical/design labels. The measured 87,611 affected values (63.6% of that
+historical population) therefore cannot be repaired by a name-only alias.
 
 **The general lesson, which is the reason this row is here:** a field name does not identify a
 vocabulary. The only safe reading of this column is to treat the name as meaningless and the values
@@ -250,8 +265,15 @@ boundary.
 **What is required.** A non-empty `effective_from` — when an amendment takes effect, as distinct
 from when the row was written.
 
-**Status `present_insufficient`.** Complete production census: **156,196** `lex_amendments` rows, of
-which **152,636** carry no non-empty `effective_from`. All 156,196 have `created_at`.
+**Status `ambiguous`; historical measurement `present_insufficient`.** A prior production census
+reported **156,196** `lex_amendments` rows, of which **152,636** carried no non-empty
+`effective_from`; all 156,196 were reported to have `created_at`. The tracked repository supports
+the historical 156,196 owner denominator but contains neither the production Lex row set nor
+evidence to rederive 152,636. The 2026-08-30 Decision-Validity review therefore leaves the row
+ambiguous pending a current owner receipt (`docs/superpowers/journals/2026-08-30-debt-b-epoch-decision-validity.md`,
+“Lex ambiguity” and “Lex predicates and measures”). Current production status and the historical
+missing-row count are not established by this review; it did not inspect or remeasure production
+data.
 
 **What would satisfy it.** Collection or derivation of the valid-time window at ingest. The
 consumer's current behaviour is correct and should not change to accommodate the gap: chronology
@@ -306,10 +328,10 @@ the new basis under the row rather than editing the old one away.
 
 ## `claim-level-evidence-axis`
 
-**Consumer.** `_infer_edge_strength` at
-`src/polisyos/data_forge/domains/academic/batch/graph_builder.py:659`, which reads only an explicit
-`evidence_strength` / `evidence_strength_status`, and `aggregate_edge_confidence` at
-`src/polisyos/data_forge/domains/academic/knowledge/skg_store.py:519`, which filters any claim whose
+**Consumer.** `_infer_edge_strength` in
+`src/polisyos/data_forge/domains/academic/batch/graph_builder.py`, which reads only an explicit
+`evidence_strength` / `evidence_strength_status`, and `aggregate_edge_confidence` in
+`src/polisyos/data_forge/domains/academic/knowledge/skg_store.py`, which filters any claim whose
 class carries no positive base weight **before** noisy-OR and before the replication bonus. Every
 academic edge confidence in the substrate flows through those two.
 
@@ -327,14 +349,16 @@ failing emission entirely. The pinned snapshot's academic confidence layer is th
 in full: no value in it is reproducible under the rule the system now holds.
 
 **What would satisfy it.** Re-extraction with the current rich route, which **does** ask for the
-axis — `CAUSAL_CLAIMS_SCHEMA_HINT` interpolated at `article_extractor.py:1558` requests one of six
-evidence classes with worked examples — and whose transport was measured end-to-end to a confidence
-of 0.55 on a controlled response.
+axis — `polisyos.data_forge.domains.academic.batch.prompts.causal_claims.CAUSAL_CLAIMS_SCHEMA_HINT`,
+interpolated by `PolicyArticleExtractor._extract`, requests six evidence classes with worked
+examples — and whose transport was measured end-to-end to a confidence of 0.55 on a controlled
+response.
 
 **The input is already held, and this is the actionable part.** **310,710** of 310,829 works retain
 a non-blank abstract, and the rich route accepts an abstract: `_fetch_full_text` returns it as
-`abstract_fallback` at `:1529`, the `if not full_text.strip(): return None` gate at `:1786`
-therefore passes, and `:1803` **downgrades rather than rejects** — `source_basis` ->
+`abstract_fallback` through `PolicyArticleExtractor._fetch_full_text`; the empty-text gate in
+`PolicyArticleExtractor._process_one` therefore passes, and that method **downgrades rather than
+rejects** — `source_basis` ->
 `ABSTRACT_ONLY`, warning `abstract_only_fallback`, extraction confidence x0.8 (x1.0 with a strong
 design), citation tagged `[fallback:abstract_only]`. So re-extraction is runnable **today, on bytes
 we already hold**, for essentially the whole corpus, at a quality the code marks honestly.
@@ -349,13 +373,17 @@ an extraction call per work plus a self-verification pass, and the lane was expl
 estimate it so that whoever plans the pass is not anchored by a number produced here. The 69,798
 unrecorded `source_basis` cells are also unexplained.
 
-**Known defect on the satisfying route, measured 2026-09-06.** Before any re-extraction runs,
-`evidence-class-normalizer-zeroes-two-canonical-classes` must be repaired. The live ask requests all
-ten evidence classes, but `_normalize_evidence_strength` at `article_extractor.py:396` has no alias
-for the canonical `quasi_natural_event` or `structural` and maps both to `unknown` — weight 0.60 and
-0.45 respectively, both to 0.0. A pass run today would therefore zero every study the model correctly
-places in those two classes, across the whole corpus, and the result would be indistinguishable from
-an absent axis. This is cheap now and becomes another historical layer afterwards.
+**Historical normalizer finding, superseded at the source pin.** The 2026-09-06 finding
+`evidence-class-normalizer-zeroes-two-canonical-classes` reported that `quasi_natural_event` and
+`structural` normalized to `unknown`. At pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`,
+`_EVIDENCE_STRENGTH_ALIASES` in `polisyos.data_forge.domains.academic.batch.article_extractor`
+includes canonical self-mappings for every `EvidenceStrength` enum value, and
+`_normalize_evidence_strength` returns both values unchanged. The current enum has ten values;
+`CAUSAL_CLAIMS_SCHEMA_HINT` requests six (`rct`, `quasi_natural`, `meta_analysis`, `observational`,
+`theoretical`, `unknown`), not all ten. The old claim that the live ask requests ten and the two
+canonical values still map to `unknown` is stale. This source-code recheck does not remeasure stored
+claims or run the extractor, so the historical production measurement and requirement status remain
+as dated.
 
 **Register cross-reference.** `historical-confidence-carries-a-withdrawn-contribution` in
 `docs/plans/active/DEBT-REGISTER.md`, whose two original closes — re-derivation from retained bytes,
@@ -384,8 +412,8 @@ contested non-emission remains distinct from a zero final confidence. Preserve t
 **342 adjudication-contradicting rows / 7,868 published evidence rows** (HC-F06/HC-F07) as a
 distinct subset, not merely instances of general unreproducibility.
 
-**Limits and pattern pass.** Re-extraction cost remains `unmeasured`. The normalizer defect named
-above remains a separate prerequisite repair, outside this registration. P01/P15 require persisted
+**Limits and pattern pass.** Re-extraction cost remains `unmeasured`. The historical normalizer
+finding above is superseded at the current source pin and is no longer a prerequisite. P01/P15 require persisted
 candidate artifacts and demonstrated downstream consumption; P04 preserves absence, candidate
 status, and non-emission; P35/P36 preserve the cited denominators; P29/P38 require behavioral
 validation of the vocabulary and consumer outcome, rather than field-name presence. The data
@@ -467,6 +495,6 @@ historical vintage.
 read or executed by that lane (`unresolved_by_construction.current_production_data`), so nothing
 above is re-measured: status stays **`absent`** (`artifact_missing`), throughput stays the deciding
 constraint, and a new dated operating declaration is still what must precede any full pass. The
-normalizer defect remains a separate prerequisite. The execution owner remains unallocated. This is
-a correction of standing and a routing, not a data measurement, and rule 1 forbids reading it as one.
-
+historical normalizer finding is superseded at the current source pin and is no longer a separate
+prerequisite. The execution owner remains unallocated. This is a correction of standing and a
+routing, not a data measurement, and rule 1 forbids reading it as one.

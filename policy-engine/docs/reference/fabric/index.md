@@ -4,7 +4,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source of truth: `src/polisyos/fabric/**`, `src/polisyos/data_forge/read_api/**`,
   `architecture/imports/policy.toml`, `architecture/packages/boundaries.toml`,
   and the named tests below.
@@ -44,10 +44,16 @@ for the conceptual build/runtime distinction.
 
 | Path | Inputs and producer | Persisted output and consumer | Evidence and boundary |
 | --- | --- | --- | --- |
-| Connector ingestion | `ConnectorManifestSpec` and `DatasetFetchSpec` drive a registered connector. It receives a `FetchRequest` and returns a `FetchResult`. | With CAS configured, `run_connectors_ingestion` stores fetched payload refs, a `ProvenanceCoreGraph`, and an `EvidenceBundleRef`. `run_orchestrated_ingestion` may wrap the bundle in a `DataSnapshotRef`. | `tests/unit/fabric/connectors/test_integration.py` exercises connector ingestion with test connectors and CAS. `tests/unit/fabric/data_plane/test_orchestrator.py` stubs the ingestion producer and checks snapshot construction from a persisted evidence bundle. The snapshot builder selects the first bundle source as `data_ref`; it does not merge all sources into a dataset. |
-| Document and claim processing | `ingest_doc_bytes` accepts raw bytes plus `DocSourceSpec`; later stages normalize, structure, and chunk through explicit artifact refs. Claim extraction consumes document or source artifacts. | Document and claim stages persist artifacts, emit world facts/events, append fact-log segments, and can be materialized into world tables. | `tests/unit/fabric/test_docs_pipeline.py` covers bytes through document stages and DuckDB materialization. `tests/unit/fabric/test_claims_pipeline.py` covers claim persistence and materialization. These are specific pipelines, not a generic sink for every connector result. |
-| Catalog-bound fetch custody | Fabric retrieval takes a `FetchPlan` bound against the Data Forge catalog read API and executes its selected connector request. | CAS stores the complete payload, catalog binding, and `FabricFetchReceipt`. `src/polisyos/runtime/quality/data_forge_binding.py` resolves the receipt and current fetch before emitting a measurement-root payload. | `tests/unit/fabric/test_retrieval_fetch_custody.py` and `tests/unit/runtime/quality/test_data_forge_binding.py` cover this bounded chain. The receipt authority is catalog selection and returned-result custody. |
+| Connector ingestion | `ConnectorManifestSpec` and `DatasetFetchSpec` drive a registered connector. It receives a `FetchRequest` and returns a `FetchResult`. | With CAS configured, `run_connectors_ingestion` stores fetched payload refs, a `ProvenanceCoreGraph`, and an `EvidenceBundleRef`. `run_orchestrated_ingestion` may wrap the bundle in a CAS `DataSnapshotRef`. | `tests/unit/fabric/connectors/test_integration.py` exercises connector ingestion with test connectors and CAS. `tests/unit/fabric/data_plane/test_orchestrator.py` stubs the ingestion producer and checks snapshot construction from a persisted evidence bundle. The snapshot builder selects the first bundle source as `data_ref`; it does not merge all sources into a dataset or emit a world fact. |
+| Document and claim processing | `ingest_doc_bytes` accepts raw bytes plus `DocSourceSpec`; later stages normalize, structure, and chunk through explicit artifact refs. Claim extraction consumes an explicit normalized/chunked `DocMeta` artifact. | Document and claim stages persist artifacts, emit world facts/events, append fact-log segments, and can be materialized into world tables. | `tests/unit/fabric/test_docs_pipeline.py` covers bytes through document stages and DuckDB materialization. `tests/unit/fabric/test_claims_pipeline.py` covers claim persistence and materialization. These are specific pipelines, not a generic sink for every connector result. |
+| Catalog-bound fetch custody | Fabric retrieval takes a `FetchPlan` bound against the Data Forge catalog read API and executes its selected connector request. | CAS stores the complete payload, catalog binding, and `FabricFetchReceipt`. `src/polisyos/runtime/quality/data_forge_binding.py` resolves the receipt and current fetch before emitting a measurement-root payload. | `tests/unit/fabric/test_retrieval_fetch_custody.py` covers receipt and payload custody. `tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9` covers the bounded fixture-backed measurement-root consumer; `tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission` covers the admission recheck. The receipt authority is catalog selection and returned-result custody. |
 | Prepared Data Forge assets | Offline domain builders publish typed assets through Data Forge's build and publication surfaces. | `ArtifactRef` carries the content hash, producer/version, config hash, owner, license, regeneration command, PII and retention classifications, freshness SLA, and schema identity. Runtime readers enter through `polisyos.data_forge.read_api`. | See `src/polisyos/data_forge/README.md`, `src/polisyos/data_forge/kernel/artifacts.py`, and `src/polisyos/data_forge/read_api/`. This is a separate asset lifecycle from a Fabric connector fetch. |
+
+The world-store's retained `WorldSnapshot`/branch context is created from
+materialized world state for world-query time travel. It is distinct from the
+connector pipeline's CAS `DataSnapshot`, which points at an evidence bundle and
+one primary source artifact. Neither snapshot type creates the missing generic
+connector-result-to-world-fact bridge.
 
 The runtime control service routes `run_data_ingestion` requests to full,
 incremental, record/replay, or streaming modes and returns artifact references
@@ -55,6 +61,13 @@ when produced (`src/polisyos/runtime/http/services/control/run_lifecycle.py`).
 The control API tests in `tests/unit/runtime/http/test_e2e_ingestion.py` patch
 the ingestion producer; they establish request dispatch, not a live provider to
 persisted result demonstration.
+
+The SourceContract v2 fixture label also has a bounded meaning. The current
+fixture builder in `tools/quality/validation/fabric_source_contracts.py`
+generates schema-shaped sample rows and a `fabric://` request; these fixtures
+are not captured responses from the named providers. A source-platform
+`production_visible` label and fixture count therefore describe declared
+contract artifacts, not live provider availability or source truth.
 
 ## Time, provenance, and trust
 
@@ -90,6 +103,11 @@ paths.
   does not establish the historical transport occurrence or scientific truth.
   Caller-provided source and license labels, schema validity, checksums, and
   quality fields do not change that authority boundary.
+- **Inventory status is not an end-to-end proof.** The generated
+  `best-in-class-inventory.md` is report-only and records declared surfaces and
+  presence checks. Its `implemented` label does not establish automatic
+  source-to-query lineage, live provider readiness, or a generic source-to-world
+  consumer chain.
 
 ## Reference pages
 
@@ -129,7 +147,7 @@ fetch helper.
   `tests/unit/fabric/test_claims_pipeline.py` — document/claim artifacts and
   world materialization.
 - `tests/unit/fabric/test_retrieval_fetch_custody.py` and
-  `tests/unit/runtime/quality/test_data_forge_binding.py` — catalog-bound fetch
-  custody and its measurement-root consumer.
+  `tests/unit/runtime/quality/test_promotion_sequence.py` — catalog-bound fetch
+  custody, fixture-backed measurement-root consumption, and admission recheck.
 - `tests/unit/fabric/test_lineage.py` — explicit lineage graph trace and impact
   semantics.

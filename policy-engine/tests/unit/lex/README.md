@@ -13,8 +13,8 @@ batch normalization, sharding, and corpus preprocessing tests live under
 
 ## Where To Start
 
-- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
-- [`../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../src/polisyos/data_forge/domains/legal/batch/README.md)
+- [`../../../src/polisyos/lex/README.md`](../../../src/polisyos/lex/README.md)
+- [`../../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../../src/polisyos/data_forge/domains/legal/batch/README.md)
 - `../data_forge/legal_batch/` for extraction, sharding, and normalization issues.
 
 ## Public Entrypoints
@@ -33,9 +33,9 @@ batch normalization, sharding, and corpus preprocessing tests live under
 
 ### Depends On
 
-- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
-- [`../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../src/polisyos/data_forge/domains/legal/batch/README.md)
-- [`../../src/polisyos/lex/simulator/README.md`](../../src/polisyos/lex/simulator/README.md)
+- [`../../../src/polisyos/lex/README.md`](../../../src/polisyos/lex/README.md)
+- [`../../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../../src/polisyos/data_forge/domains/legal/batch/README.md)
+- [`../../../src/polisyos/lex/simulator/README.md`](../../../src/polisyos/lex/simulator/README.md)
 - `src/polisyos/ir/norm_pack`
 
 ### Depended On By
@@ -70,10 +70,10 @@ uv run pytest --collect-only tests/unit/lex -q
 
 ## Reference Docs
 
-- [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
-- [`../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../src/polisyos/data_forge/domains/legal/batch/README.md)
-- [`../../src/polisyos/lex/simulator/README.md`](../../src/polisyos/lex/simulator/README.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../../src/polisyos/lex/README.md`](../../../src/polisyos/lex/README.md)
+- [`../../../src/polisyos/data_forge/domains/legal/batch/README.md`](../../../src/polisyos/data_forge/domains/legal/batch/README.md)
+- [`../../../src/polisyos/lex/simulator/README.md`](../../../src/polisyos/lex/simulator/README.md)
+- [`../../TESTING_POLICY.md`](../../TESTING_POLICY.md)
 
 ## Last Updated
 

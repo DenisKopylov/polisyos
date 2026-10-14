@@ -33,11 +33,11 @@ extraction, graph assembly, quality reporting, and publish flow.
 | `qc.py`, `quality_report.py`          | Batch-level quality checks and report assembly                    |
 | `publish.py`                          | Publish manifests and bundle metadata for completed runs          |
 
-Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
+Full reference: [docs/reference/lex/](../../../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-14
 - Phase 4/8 cutover moved this runtime into Data Forge and retired the old Lex batch package.
 - Canonical CLI: `python -m polisyos.data_forge.domains.legal.batch`.
 - Cloud Lex manifest runner imports this Data Forge runtime directly.

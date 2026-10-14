@@ -97,7 +97,7 @@ date and environment where they were produced.
 | --- | --- | --- |
 | Repository structure, imports, or supported APIs | [Repository Hygiene](repository-hygiene.md), [Public Surface](public-surface.md), [Quality Gates](quality-gates.md) | `architecture/imports/policy.toml`, `architecture/public_surface/contract.toml`; `uv run polisyos-tools architecture guardrails check` |
 | Bootstrap, workstation preflight, or workspace CLI | [Installation](../how-to/install.md), [Tools reference](tools.md) | `tools/devx/workspace/{bootstrap,doctor,verify,ci_parity}.py`, `tools/devx/workspace/README.md`, `tools/registry.py`; tests in `tests/unit/core/phase0/test_workspace_commands.py`, `tests/unit/remediation/test_hyg_04.py`, `tests/repo_quality/tools/test_unified_cli.py`, and `tests/repo_quality/tools/test_workspace_ci_parity.py` |
-| Documentation-only change | [Documentation Style Guide](../style-guide.md) | Use the docs-only workflow below; `docs/style-guide.md` is the authored-doc standard |
+| Documentation-only change | [Documentation Style Guide](../style-guide.md) | Use [Update documentation and choose checks](#update-documentation-and-choose-checks); `docs/style-guide.md` is the authored-doc standard |
 | Cross-surface migration or post-refactor cleanup | [Post-Refactor Migration](../how-to/post-refactor-migration.md) | `uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main` plus the matching subsystem gate |
 | Runtime endpoint or API contract | [REST API](api/index.md), [Add Runtime Route](../how-to/add-runtime-route.md) | Runtime contract check from the guide plus the tests for the touched route |
 | Public Python facade or ABI-visible IR type | [Public Surface](public-surface.md), [Add Public Facade](../how-to/add-public-facade.md), [Manage Schemas](../how-to/manage-schemas.md), [IR Schema Catalog](ir/schema-catalog.md) | `uv run polisyos-tools architecture guardrails check`; schema check from the guide |
@@ -113,7 +113,7 @@ date and environment where they were produced.
 Use [Onboarding Tracks](../how-to/onboarding/index.md) for role-specific pages and their scoped
 commands. This page owns the shared path from task selection to a narrow check.
 
-## Docs-only workflow
+## Update documentation and choose checks
 
 The `docs` profile selects Python extras `lint + docs`; the profile alone does not skip other
 bootstrap steps. The browserless command in [Installation](../how-to/install.md) adds
@@ -136,23 +136,8 @@ uv run polisyos-tools workspace docs-style docs/reference/contributor-start-here
 navigation, rendered links, or source accuracy. If the Markdown hook environment has not been
 prepared, its first run may prepare that isolated hook environment; it is separate from installing
 the frontend workspace. See [Installation](../how-to/install.md#documentation-only-setup) for bootstrap
-side effects. For a published docs change, run the broader closeout checks from `policy-engine/`:
-
-```bash
-uv run polisyos-tools workspace docs-style docs/
-uv run --extra docs python -m mkdocs build --strict
-uv run polisyos-tools validation check-docs-accuracy --repo-root .
-```
-
-For a documentation-sensitive PR, the path-aware gate dispatches checks selected by the changed
-paths. A docs or README change dispatches the docs-freshness baseline and strict MkDocs build; the
-baseline owns the docs-accuracy invocation. Path-aware selection adds relevant checks for other
-changed surfaces, but does not turn those publication checks into per-file checks:
-
-```bash
-uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
-```
-
-`workspace ci-parity --skip-browser` is the wider local umbrella and is not the routine docs-only
-path. The documented commands are defined by the current CLI and workspace source; commands listed
-here are not execution receipts.
+side effects. After committing a documentation change, use the [Quick author path in
+Documentation Verification](documentation-verification.md#quick-author-path) for one Git-diff-based
+review and its recorded check results. `workspace ci-parity --skip-browser` is a broader workspace
+umbrella, not the routine docs-only path; use it when the change scope calls for workspace parity.
+The commands above are recipes, not execution receipts.

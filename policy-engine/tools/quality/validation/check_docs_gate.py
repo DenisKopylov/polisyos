@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import re
 import shlex
 import subprocess
 from dataclasses import dataclass
@@ -116,6 +117,9 @@ SECURITY_RUNBOOK_PATTERNS = (
     "docs/reference/operations/platform-acceptance-audit.md",
     "docs/archive/reports/platform-acceptance.manual.toml",
     IMPACT_NOTE,
+)
+SECURITY_PATH_TOKEN_PATTERN = re.compile(
+    r"(?<![a-z0-9])(?:auth|tenant|audit|sign|csrf|jwt|compliance)"
 )
 
 
@@ -445,15 +449,14 @@ def _is_foundry_docs_sensitive(path: str) -> bool:
 
 
 def _is_security_sensitive(path: str) -> bool:
-    if path.startswith("src/polisyos/core/security/"):
+    normalized = path.casefold()
+    if normalized.startswith("src/polisyos/core/security/"):
         return True
-    if path.startswith("src/polisyos/runtime/http/"):
-        return any(
-            keyword in path for keyword in ("auth", "tenant", "audit", "sign", "csrf", "jwt")
-        )
-    if not path.startswith(("src/polisyos/", "tools/")):
+    if normalized.startswith("src/polisyos/runtime/http/"):
+        return SECURITY_PATH_TOKEN_PATTERN.search(normalized) is not None
+    if not normalized.startswith(("src/polisyos/", "tools/")):
         return False
-    return any(keyword in path for keyword in ("auth", "tenant", "audit", "sign", "compliance"))
+    return SECURITY_PATH_TOKEN_PATTERN.search(normalized) is not None
 
 
 def build_gate_plan(changed_paths: Sequence[str]) -> GatePlan:

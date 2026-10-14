@@ -164,6 +164,39 @@ def test_security_sensitive_changes_require_docs_and_runbook_evidence() -> None:
     assert "security_runbooks" not in _finding_ids(with_evidence)
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "tools/research/demos/run_mechanism_design.py",
+        "tools/devx/workspace/assign_candidate.py",
+        "tools/design/check-composition-rules.ts",
+    ],
+)
+def test_security_gate_does_not_match_security_terms_inside_unrelated_words(path: str) -> None:
+    plan = build_gate_plan((path,))
+
+    assert "security_docs" not in _finding_ids(plan)
+    assert "security_runbooks" not in _finding_ids(plan)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "src/polisyos/runtime/http/routes/auth.py",
+        "src/polisyos/fabric/storage/tenant_cas.py",
+        "src/polisyos/core/audit/verifier.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "tools/devx/foundry/update_signature_baseline.py",
+        "src/polisyos/data_forge/read_api/compliance.py",
+    ],
+)
+def test_security_gate_keeps_lexical_security_path_tokens(path: str) -> None:
+    plan = build_gate_plan((path,))
+
+    assert "security_docs" in _finding_ids(plan)
+    assert "security_runbooks" in _finding_ids(plan)
+
+
 def test_frontend_api_client_changes_run_contract_check_and_require_docs() -> None:
     missing_docs = build_gate_plan(("packages/runtime-api-client/canonicalRuntimeApiClient.ts",))
     with_docs = build_gate_plan(

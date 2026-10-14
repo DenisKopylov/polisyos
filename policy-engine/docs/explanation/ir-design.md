@@ -35,6 +35,16 @@ update. Start with the [IR index](../reference/ir/index.md) and
 [schema catalog](../reference/ir/schema-catalog.md) for contract details, then
 use the package READMEs for owners and source entrypoints.
 
+## What IR validation proves
+
+At the inspected Trinity path, parsing and model validation prove that the
+payload matches the requested version, declared structure, and implemented
+local checks; linking proves only that the supplied registries produced no
+error-severity issue. These checks do not prove substantive adequacy, evidence
+grounding, legal validity, calibrated performance, or publishability. See
+[the detailed Trinity path](#from-payload-to-linked-contract) for the exact
+boundaries.
+
 ## Present package boundaries
 
 | Package | Current responsibility | Boundary |

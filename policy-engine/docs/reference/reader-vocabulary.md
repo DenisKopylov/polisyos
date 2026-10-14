@@ -18,7 +18,9 @@ Source of truth: `docs/index.md`, `docs/reference/index.md`,
   `docs/reference/canonical-vocabulary-crosswalk.md`,
   `docs/reference/contributor-start-here.md`,
   `docs/reference/operations/cas-storage.md`, and
-  `docs/reference/documentation-verification.md`.
+  `docs/reference/documentation-verification.md`,
+  `architecture/tooling/mkdocs/base.yml`, and
+  `architecture/tooling/mkdocs/nav/30-reference.yml`.
 Related pages: [Documentation index](../index.md), [Reference index](index.md),
 [Contributor Start Here](contributor-start-here.md), and
 [Documentation Verification](documentation-verification.md).
@@ -54,24 +56,26 @@ only machine-backed crosswalk for the specific source vocabularies it names.
 Use its scope and limitations rather than treating this reading aid as an
 additional glossary or a general-purpose term registry.
 
-## Ten search questions and expected destinations
+## Search guidance and expected destinations
 
-These are English query prompts with the expected canonical destination. They
-are a source-routing set for future search and reader reviews; they do not record
-measured search ranking, human usability results, or a browser test.
+The configured site search is full-text keyword search. Start with a few
+distinctive terms, such as a subsystem plus a behavior or contract, before
+trying a long question. The short queries below are reader prompts, not ranking
+receipts or human-usability results. The longer questions preserve useful
+natural-language routes for future search and reader reviews.
 
-| Search question | Expected destination | Why this is the first stop |
+| Short query | Search question | Expected destination | Why this is the first stop |
 | --- | --- | --- |
-| “Is PolicyOS end to end yet?” | [Documentation index](../index.md) | States the current end-to-end limitation and routes readers to the inspected component paths. |
-| “What is the current E02 documentation status, and which source maps drifted?” | [E02 documentation snapshot](e02-documentation-snapshot.md) | Separates the evidence cuts and records the bounded source-drift comparison and re-review needs. |
-| “Why is an LLM result or typed proposal still only a candidate?” | [Identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md) | Owns the ratified authority and signature boundary. |
-| “What does IR validation prove, and what does it not prove?” | [IR design](../explanation/ir-design.md) | Distinguishes representation, structural validation, linking, admission, authority, and time semantics. |
-| “Where are the runtime JWT, tenant, and cell-routing rules?” | [Runtime auth and tenant model](api/auth-tenant-model.md) | Describes the inspected middleware order, identity modes, routing, and authorization behavior. |
-| “Does lineage automatically connect ingestion, claims, world facts, and queries?” | [Fabric lineage](fabric/lineage.md) | Describes the bounded captured path and explicitly names missing producer bridges. |
-| “Which Scientist workflow currently hands off evidence, and where are its gaps?” | [Current Scientist workflows](scientist/current-workflows.md) | Maps the observed workflow paths and their unresolved evidence handoffs. |
-| “What do Foundry compilation and simulation establish?” | [Foundry reference](foundry/index.md) | Routes to compile, execution, binding, and simulation boundaries without treating prediction as observed effect authority. |
-| “Where are canonical source terms and candidate mappings maintained?” | [Canonical vocabulary crosswalk](canonical-vocabulary-crosswalk.md) | Points to the bounded machine reference and its source-specific limitations. |
-| “How do I update a documentation page and choose checks?” | [Contributor Start Here](contributor-start-here.md), then [Documentation Verification](documentation-verification.md) | The contributor page routes the task; the verification contract explains command scope and what results establish. |
+| `PolicyOS implementation status` | “Is PolicyOS end to end yet?” | [Documentation index](../index.md) | States the current end-to-end limitation and routes readers to the inspected component paths. |
+| `E02 source-map drift` | “What is the current E02 documentation status, and which source maps drifted?” | [E02 documentation snapshot](e02-documentation-snapshot.md) | Separates the evidence cuts and records the bounded source-drift comparison and re-review needs. |
+| `PolicyOS identity custody authority` | “Why is an LLM result or typed proposal still only a candidate?” | [Identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md) | Owns the ratified authority and signature boundary. |
+| `IR design validation limits` | “What does IR validation prove, and what does it not prove?” | [IR design](../explanation/ir-design.md) | Distinguishes representation, structural validation, linking, admission, authority, and time semantics. |
+| `runtime tenant JWT routing` | “Where are the runtime JWT, tenant, and cell-routing rules?” | [Runtime auth and tenant model](api/auth-tenant-model.md) | Describes the inspected middleware order, identity modes, routing, and authorization behavior. |
+| `lineage missing bridges` | “Does lineage automatically connect ingestion, claims, world facts, and queries?” | [Fabric lineage](fabric/lineage.md) | Describes the bounded captured path and explicitly names missing producer bridges. |
+| `Scientist workflow evidence gaps` | “Which Scientist workflow currently hands off evidence, and where are its gaps?” | [Current Scientist workflows](scientist/current-workflows.md) | Maps the observed workflow paths and their unresolved evidence handoffs. |
+| `Foundry simulation prediction limits` | “What do Foundry compilation and simulation establish?” | [Foundry reference](foundry/index.md) | Routes to compile, execution, binding, and simulation boundaries without treating prediction as observed effect authority. |
+| `canonical vocabulary mappings` | “Where are canonical source terms and candidate mappings maintained?” | [Canonical vocabulary crosswalk](canonical-vocabulary-crosswalk.md) | Points to the bounded machine reference and its source-specific limitations. |
+| `contributor documentation checks` | “How do I update a documentation page and choose checks?” | [Contributor Start Here](contributor-start-here.md), then [Documentation Verification](documentation-verification.md) | The contributor page routes the task; the verification contract explains command scope and what results establish. |
 
 ## Reading order when pages disagree
 

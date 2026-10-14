@@ -2,27 +2,28 @@
 
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-Foundry compiles Trinity bundles, binds snapshot data into runtime state,
-executes plans, exposes reusable methods, and hosts a standalone
-agent-simulation runtime. This map follows implementation and linked test
-sources inspected at the source pin below; tests were not rerun for this docs
-pass. Simulation outputs remain model-conditioned predictions: the inspected
-contracts do not establish an observed policy effect or end-to-end
-publishability. Start with [Compile and Execute](compile-execute.md) for the
-plan and data path, then read [Causal Engine](../../explanation/causal-engine.md)
-for the boundary between model predictions and grounded effects.
-
 Freshness: 2026-10-14
 Owner: @foundry-owners
 Source of truth: `src/polisyos/foundry/**`, `src/polisyos/ir/analytics/causal_graph.py`,
-`src/polisyos/core/contracts/fabric.py`, `src/polisyos/pdc/_impl/world_model_record.py`,
-`src/polisyos/runtime/quality/world_model_record.py`,
-`src/polisyos/runtime/quality/joint_simulation_horizon.py`,
-`src/polisyos/runtime/quality/promotion_sequence.py`,
-`src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py`,
-`src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`, and their linked tests.
+  `src/polisyos/core/contracts/fabric.py`, `src/polisyos/pdc/_impl/world_model_record.py`,
+  `src/polisyos/runtime/quality/world_model_record.py`,
+  `src/polisyos/runtime/quality/joint_simulation_horizon.py`,
+  `src/polisyos/runtime/quality/promotion_sequence.py`,
+  `src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py`,
+  `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`, and their linked tests.
 Evidence level: implementation and linked test sources were inspected at the pinned revision above;
 tests were not rerun for this docs-only refresh.
+
+Foundry compiles Trinity bundles into plans, binds snapshots as inputs, and
+runs simulations; it also exposes reusable methods and a standalone
+agent-simulation runtime. The linked implementation and test sources below
+were inspected; tests were not rerun for this docs pass. Simulation outputs are
+model-conditioned predictions, not observed policy effects. The reviewed
+Scientist bridge test covers `SCENARIO`; `IDENTIFIED` requires an admitted
+producer/verifier, so compilation and simulation alone do not establish that
+bridge or end-to-end publishability. Start with [Compile and Execute](compile-execute.md)
+for the plan and data path, then read [Causal Engine](../../explanation/causal-engine.md)
+for the boundary between model predictions and grounded effects.
 
 ## Where to Start
 

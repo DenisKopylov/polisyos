@@ -20,6 +20,19 @@ Inventory scope: code counts reflect statically resolved source declarations;
 they do not prove runtime or deployment readiness. Dynamic or unresolved
 declarations remain partial/unknown rather than being silently treated as absent.
 
+## Reader guide
+
+This page separates lineage the runtime currently records from lineage the
+tracker can represent. With CAS configured and an applicable transform pipeline,
+connector ingestion connects recorded source fields to transform stages; the
+inspected runtime does not connect that graph automatically to materialized
+columns, claims, world facts, or query results, so those producer bridges remain
+`bridge_missing`. Lineage queries can follow only edges already present in the
+graph, and a test-built graph does not prove automatic end-to-end capture. Use
+the [graph-kind table](#graph-kinds-the-helper-can-represent) to compare
+representable nodes with runtime call sites, then [Graph operations](#graph-operations)
+for the available queries.
+
 `FabricLineageTracker` is a graph builder over `ProvenanceCoreGraph`. There is
 one bounded runtime capture path: with CAS configured, when connector ingestion
 applies a transform pipeline, it registers the source dataset and fields, the

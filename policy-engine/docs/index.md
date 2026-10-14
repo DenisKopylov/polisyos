@@ -11,6 +11,8 @@ boundary](system-design-decisions/policyos-identity-and-custody-boundary.md)
 defines what it owns and signs; the [north star](system-design-decisions/policy-design-causal-operating-system-north-star.md)
 describes the wider design direction.
 
+## Current end-to-end status
+
 This handbook is a source-inspected map, not an end-to-end acceptance record.
 The implementation maps were inspected at source commit
 `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14, while E02 integration

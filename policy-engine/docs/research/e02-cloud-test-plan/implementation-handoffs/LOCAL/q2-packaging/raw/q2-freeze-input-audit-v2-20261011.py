@@ -2476,8 +2476,7 @@ def reconcile_generated_module_rows(
                 or type(evidence.get("spec_is_standard")) is not bool
                 or type(evidence.get("startup_present")) is not bool
                 or type(evidence.get("startup_identity")) is not bool
-                or not evidence["startup_present"]
-                or not evidence["startup_identity"]
+                or evidence["startup_present"] != evidence["startup_identity"]
             ):
                 raise AuditFailure("intrinsic module source differs from selected runtime")
             intrinsic_claims.append({"name": module_name, "origin": origin})

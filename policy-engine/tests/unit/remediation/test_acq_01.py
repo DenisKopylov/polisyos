@@ -13,6 +13,7 @@ from typing import Any, cast
 import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+import polisyos.runtime.quality.joint_simulation_horizon as n5_horizon
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import ArtifactStore, FileSystemCAS
 from polisyos.core.artifacts import InputRef as CASInputRef
@@ -1571,11 +1572,15 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         )
         persisted_blockers = tuple(persisted_n5.promotion_ready_value_packet["authority_blockers"])
         assert cycle.simulation.authority_blockers == persisted_blockers
-        point_sampling_statuses = {
-            point.replication_sampling.status
+        point_sampling_records = tuple(
+            point.replication_sampling
             for trajectory in persisted_n5.trajectories
             for point in trajectory.points
-            if point.replication_sampling is not None
+        )
+        assert point_sampling_records
+        assert all(record is not None for record in point_sampling_records)
+        point_sampling_statuses = {
+            record.status for record in point_sampling_records if record is not None
         }
         assert point_sampling_statuses == {"standard_error_not_estimated"}
         assert "standard_error_not_estimated" in persisted_blockers
@@ -1583,9 +1588,43 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             "simulation_only_k_sim_not_world_evidence",
             "simulation_effect_basis_not_established",
         }.issubset(persisted_blockers)
+
+        current_n5_schema = (
+            n5_horizon.JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+        )
+        assert persisted_n5.schema_version == current_n5_schema
+        feedback = persisted_n5.feedback_classification
+        foundry_limitations: set[str] = set()
+        if "standard_error_not_estimated" in point_sampling_statuses:
+            foundry_limitations.add("standard_error_not_estimated")
+        if feedback.interaction_sampling_status == "not_established":
+            foundry_limitations.add("interaction_sampling_not_established")
+        elif feedback.interaction_sampling_status == "standard_error_not_estimated":
+            foundry_limitations.update(
+                {"interaction_sampling_not_established", "standard_error_not_estimated"}
+            )
+        if feedback.numeric_interaction == "unsupported":
+            foundry_limitations.add("interaction_numeric_classification_unsupported")
+        if "interaction_sampling_variation_observed" in feedback.limitations:
+            foundry_limitations.add("interaction_sampling_variation_observed")
+        expected_value_blockers = (
+            set(cycle.simulation.authority_blockers) | set(persisted_blockers) | foundry_limitations
+        )
+
         assert cycle.value_port.status == "value_conditional"
+        assert cycle.value_port.candidate_id == cycle.selected_candidate_ref
+        assert cycle.value_port.evaluation_mode == "simulate_only"
+        assert cycle.value_port.decision_grade == "low"
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
-        assert cycle.value_port.authority_blockers == cycle.simulation.authority_blockers
+        assert cycle.value_port.n5_interaction_schema_version == persisted_n5.schema_version
+        assert cycle.value_port.numeric_interaction == feedback.numeric_interaction
+        assert cycle.value_port.numeric_interaction_basis == feedback.numeric_interaction_basis
+        assert cycle.value_port.interaction_sampling_status == feedback.interaction_sampling_status
+        actual_value_blockers = tuple(cycle.value_port.authority_blockers)
+        assert len(actual_value_blockers) == len(set(actual_value_blockers))
+        assert set(actual_value_blockers) == expected_value_blockers
+        assert cycle.value_port.value_receipt is None
+        assert cycle.value_port.method_selection_receipt is None
         assert (
             cycle.value_port.world_model_record_content_hash
             == route.world_build.record.content_hash

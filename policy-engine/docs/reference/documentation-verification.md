@@ -1,12 +1,13 @@
 # Documentation Verification Contract
 
 Owner: team-docs
+Source pin: `6fd47dc693b8f79993876bc28a55421cc0196027`
 
 Source of truth: `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, and their mirrored tests under `tests/repo_quality/tools/`.
 
 This contract is for authored Markdown changes in `policy-engine/`. A passing check proves only the property and input set named below. In particular, a green “freshness” result does not establish that every repository document is current or that every factual claim is true.
 
-Review note: the original style, path-aware gate, accuracy, freshness and lifecycle sources were read at snapshot `47e1e59b569a5b922611f71a7f53fb6320abea4c`. The review traced dispatch decisions, input selectors, parsers/read receipts, and verdict/exit mapping against the implementations and mirrored tests. This third pass also read the rendered-link and source-binding implementations, their mirrored tests, and the publication-config gate plan. The test files were reviewed as source; this note is not evidence that they ran. Those tool descriptions postdate the original snapshot; the closeout owner will bind them to the implementation commit once it exists and before the final build freeze. This note records review scope, not a universal source-pin requirement.
+Review note: the original style, path-aware gate, accuracy, freshness and lifecycle sources were read at snapshot `47e1e59b569a5b922611f71a7f53fb6320abea4c`. The review traced dispatch decisions, input selectors, parsers/read receipts, and verdict/exit mapping against the implementations and mirrored tests. This third pass also read the rendered-link and source-binding implementations, their mirrored tests, and the publication-config gate plan. The test files were reviewed as source; this note is not evidence that they ran. The new tools and publication-config dispatch are source-bound to implementation commit `6fd47dc693b8f79993876bc28a55421cc0196027`; their source and mirrored tests were inspected there before the final build freeze. The closeout report records actual command execution separately. This note records review scope, not a universal source-pin requirement.
 
 ## Local verification path
 

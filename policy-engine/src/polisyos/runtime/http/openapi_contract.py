@@ -1750,6 +1750,7 @@ def _pre_admission_attempt_response_examples() -> dict[str, dict[str, Any]]:
     import hashlib
     import sqlite3
     import threading
+    import uuid
     from collections.abc import Iterator  # noqa: TC003 - contextmanager generator signature
     from contextlib import contextmanager
     from contextvars import ContextVar
@@ -1821,6 +1822,17 @@ def _pre_admission_attempt_response_examples() -> dict[str, dict[str, Any]]:
     }
     fixed_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
     store = _OpenAPIInMemoryControlPlaneStore()
+    event_sequence = 0
+
+    def stable_openapi_event_id() -> str:
+        nonlocal event_sequence
+        event_sequence += 1
+        return uuid.uuid5(
+            uuid.NAMESPACE_URL,
+            f"policyos-openapi-pre-admission:{attempt_id}:{event_sequence}",
+        ).hex
+
+    store._pre_admission_event_id_factory = stable_openapi_event_id
     try:
         store.start_pre_admission_attempt(
             attempt_id=attempt_id,
@@ -1920,9 +1932,9 @@ def _pre_admission_by_idempotency_success_examples() -> dict[str, Any]:
             "description": (
                 "Projected from the durable pre-admission owner after its actual start and "
                 "refused/no-call transitions in an in-memory controlled fixture. The actor, "
-                "tenant, cell, run, request, and timestamps are documentation fixtures; no "
-                "provider call, production attempt, authorization grant, or reusable evidence "
-                "is asserted."
+                "tenant, cell, run, request, timestamps, and deterministic event IDs are "
+                "documentation fixtures; no provider call, production attempt, authorization "
+                "grant, or reusable evidence is asserted."
             ),
             "value": _pre_admission_attempt_response_examples()["by_idempotency_key"],
         }
@@ -1937,9 +1949,9 @@ def _pre_admission_by_attempt_id_success_examples() -> dict[str, Any]:
             "description": (
                 "Projected from the durable pre-admission owner after its actual start and "
                 "refused/no-call transitions in an in-memory controlled fixture. The actor, "
-                "tenant, cell, run, request, and timestamps are documentation fixtures; no "
-                "provider call, production attempt, authorization grant, or reusable evidence "
-                "is asserted."
+                "tenant, cell, run, request, timestamps, and deterministic event IDs are "
+                "documentation fixtures; no provider call, production attempt, authorization "
+                "grant, or reusable evidence is asserted."
             ),
             "value": _pre_admission_attempt_response_examples()["by_attempt_id"],
         }

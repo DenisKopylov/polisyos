@@ -1567,6 +1567,9 @@ class ControlPlaneStore:
         self._job_execution_fence: ContextVar[tuple[str, str, int] | None] = ContextVar(
             "control_job_execution_fence", default=None
         )
+        # Controlled documentation fixtures may provide stable event IDs. The
+        # production path keeps UUIDv4 IDs unless this private seam is set.
+        self._pre_admission_event_id_factory: Callable[[], str] | None = None
         self._sqlite_timeout_seconds = max(
             float(os.getenv("POLISYOS_CONTROL_SQLITE_TIMEOUT_SECONDS", "0.5")),
             0.05,
@@ -2858,8 +2861,10 @@ class ControlPlaneStore:
             value and value == value.strip() for value in (request_id, run_id, candidate_job_id)
         ):
             raise ValueError("control_pre_admission_identity_not_established")
-        if idempotency_key_sha256 is None or len(idempotency_key_sha256) != 64 or any(
-            c not in "0123456789abcdef" for c in idempotency_key_sha256
+        if (
+            idempotency_key_sha256 is None
+            or len(idempotency_key_sha256) != 64
+            or any(c not in "0123456789abcdef" for c in idempotency_key_sha256)
         ):
             raise ValueError("control_pre_admission_idempotency_key_required")
         normalized_intent = json.loads(
@@ -2902,7 +2907,9 @@ class ControlPlaneStore:
         actor_subject = normalized_intent.get("actor_subject")
         scope_sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
+            not isinstance(value, str)
+            or not value
+            or value != value.strip()
             or value.casefold() in scope_sentinels
             for value in (tenant_id, cell_id, actor_subject)
         ):
@@ -2913,8 +2920,16 @@ class ControlPlaneStore:
         if attempt_id != expected_attempt:
             raise ValueError("control_pre_admission_attempt_id_not_bound_to_scoped_key")
         normalized_binding = (
-            json.loads(json.dumps(dict(producer_run_binding), sort_keys=True, separators=(",", ":"), allow_nan=False))
-            if producer_run_binding is not None else None
+            json.loads(
+                json.dumps(
+                    dict(producer_run_binding),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+            )
+            if producer_run_binding is not None
+            else None
         )
         if normalized_binding is not None and (
             set(normalized_binding)
@@ -2951,7 +2966,9 @@ class ControlPlaneStore:
             if claim.disposition != "owner":
                 record = self.get_pre_admission_attempt(claim.record.intent_id)
                 if record is None:
-                    raise RuntimeError("shared runtime intent has no typed pre-admission projection")
+                    raise RuntimeError(
+                        "shared runtime intent has no typed pre-admission projection"
+                    )
                 if record.intent_sha256 != intent_sha256:
                     raise ControlPreAdmissionIdempotencyConflictError(record.attempt_id)
                 return record, False
@@ -2970,18 +2987,36 @@ class ControlPlaneStore:
                     'not_applicable', NULL, ?, ?)
                 """,
                 (
-                    attempt_id, intent_sha256, canonical_intent,
+                    attempt_id,
+                    intent_sha256,
+                    canonical_intent,
                     json.dumps(normalized_binding, sort_keys=True, separators=(",", ":"))
-                    if normalized_binding is not None else None,
-                    idempotency_key_sha256, claim.owner_token, request_id, run_id,
-                    candidate_job_id, tenant_id, cell_id, actor_subject,
-                    effective_execution_profile, _iso(now), _iso(now),
+                    if normalized_binding is not None
+                    else None,
+                    idempotency_key_sha256,
+                    claim.owner_token,
+                    request_id,
+                    run_id,
+                    candidate_job_id,
+                    tenant_id,
+                    cell_id,
+                    actor_subject,
+                    effective_execution_profile,
+                    _iso(now),
+                    _iso(now),
                 ),
             )
             self._append_pre_admission_attempt_event(
-                attempt_id=attempt_id, sequence=1, event_type="started",
-                producer_event_ids=(), producer_event_observation="not_applicable",
-                producer_no_call_reason=None, failure_code=None, job_id=None, observed_at=now, run_id=run_id,
+                attempt_id=attempt_id,
+                sequence=1,
+                event_type="started",
+                producer_event_ids=(),
+                producer_event_observation="not_applicable",
+                producer_no_call_reason=None,
+                failure_code=None,
+                job_id=None,
+                observed_at=now,
+                run_id=run_id,
             )
             record = self.get_pre_admission_attempt(attempt_id)
             if record is None:
@@ -3003,16 +3038,13 @@ class ControlPlaneStore:
         if event_type not in {"settled", "admitted", "refused", "cancelled", "failed"}:
             raise ValueError("control_pre_admission_event_type_invalid")
         if not isinstance(producer_event_ids, tuple) or any(
-            not isinstance(ref, str) or not ref or ref != ref.strip()
-            for ref in producer_event_ids
+            not isinstance(ref, str) or not ref or ref != ref.strip() for ref in producer_event_ids
         ):
             raise ValueError("control_pre_admission_producer_event_ref_invalid")
         if len(set(producer_event_ids)) != len(producer_event_ids):
             raise ValueError("control_pre_admission_producer_event_ref_duplicate")
         normalized_refs = tuple(sorted(producer_event_ids))
-        validate_producer_call_observation(
-            producer_event_observation, producer_no_call_reason
-        )
+        validate_producer_call_observation(producer_event_observation, producer_no_call_reason)
         if producer_no_call_reason is not None and failure_code != producer_no_call_reason:
             raise ValueError("control_pre_admission_no_call_reason_failure_code_mismatch")
         if failure_code is not None and (
@@ -3089,13 +3121,17 @@ class ControlPlaneStore:
             ):
                 raise ValueError("control_pre_admission_settlement_evidence_incomplete")
             if current == "started" and event_type in {"refused", "cancelled", "failed"}:
-                safe_no_call_refusal = event_type == "refused" and producer_event_observation == "no_call"
+                safe_no_call_refusal = (
+                    event_type == "refused" and producer_event_observation == "no_call"
+                )
                 unresolved_provider_call = (
                     event_type in {"cancelled", "failed"}
                     and producer_event_observation == "unavailable"
                 )
                 if not safe_no_call_refusal and not unresolved_provider_call:
-                    raise ValueError("control_pre_admission_terminal_requires_settlement_or_no_call")
+                    raise ValueError(
+                        "control_pre_admission_terminal_requires_settlement_or_no_call"
+                    )
             if event_type == "admitted":
                 if current == "started" and (
                     profile != "dev"
@@ -3119,7 +3155,9 @@ class ControlPlaneStore:
             sequence = int(sequence_row["next_sequence"])
             event_job_id = job_id or row["job_id"]
             if event_type == "admitted" and (
-                not isinstance(event_job_id, str) or not event_job_id or event_job_id != event_job_id.strip()
+                not isinstance(event_job_id, str)
+                or not event_job_id
+                or event_job_id != event_job_id.strip()
             ):
                 raise ValueError("control_pre_admission_admission_job_not_established")
             if producer_event_observation == "complete" and not all_refs:
@@ -3165,11 +3203,18 @@ class ControlPlaneStore:
                 raise RuntimeError("pre-admission projection lost its shared owner credential")
             if event_type == "admitted":
                 self.complete_runtime_operation_intent_with_observation(
-                    key=operation_key, owner_token=owner_token,
+                    key=operation_key,
+                    owner_token=owner_token,
                     result_ref_json=json.dumps(
-                        {"attempt_id": attempt_id, "run_id": str(row["run_id"]), "job_id": event_job_id},
-                        sort_keys=True, separators=(",", ":"),
-                    ), event_id=event_id,
+                        {
+                            "attempt_id": attempt_id,
+                            "run_id": str(row["run_id"]),
+                            "job_id": event_job_id,
+                        },
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    event_id=event_id,
                 )
                 self._execute(
                     "UPDATE control_pre_admission_attempts SET owner_token = NULL WHERE attempt_id = ?",
@@ -3192,7 +3237,8 @@ class ControlPlaneStore:
                 )
             elif event_type in {"cancelled", "failed"}:
                 self.require_runtime_operation_recovery(
-                    key=operation_key, owner_token=owner_token,
+                    key=operation_key,
+                    owner_token=owner_token,
                     reason_code=failure_code or f"control_pre_admission_{event_type}",
                 )
                 self._execute(
@@ -3214,7 +3260,9 @@ class ControlPlaneStore:
     ) -> ControlPreAdmissionAttemptRecord | None:
         """Resolve a route-scoped intent only within the complete authenticated scope."""
         scope = (tenant_id, cell_id, actor_subject)
-        if any(not isinstance(value, str) or not value or value != value.strip() for value in scope):
+        if any(
+            not isinstance(value, str) or not value or value != value.strip() for value in scope
+        ):
             raise ValueError("control_pre_admission_scope_not_established")
         if len(idempotency_key_sha256) != 64 or any(
             character not in "0123456789abcdef" for character in idempotency_key_sha256
@@ -3226,9 +3274,12 @@ class ControlPlaneStore:
         record = self.get_pre_admission_attempt(attempt_id)
         if record is None:
             return None
-        if (record.tenant_id, record.cell_id, record.actor_subject, record.idempotency_key_sha256) != (
-            tenant_id, cell_id, actor_subject, idempotency_key_sha256
-        ):
+        if (
+            record.tenant_id,
+            record.cell_id,
+            record.actor_subject,
+            record.idempotency_key_sha256,
+        ) != (tenant_id, cell_id, actor_subject, idempotency_key_sha256):
             return None
         return record
 
@@ -3264,9 +3315,7 @@ class ControlPlaneStore:
             "settled": "pending",
             "admitted": "completed",
             "refused": (
-                "recovery_required"
-                if persisted_observation == "unavailable"
-                else "refused"
+                "recovery_required" if persisted_observation == "unavailable" else "refused"
             ),
             "cancelled": "recovery_required",
             "failed": "recovery_required",
@@ -3293,7 +3342,9 @@ class ControlPlaneStore:
             raise RuntimeError("typed pre-admission projection owner binding mismatch")
         try:
             key_digest = str(row["idempotency_key_sha256"])
-            if len(key_digest) != 64 or any(character not in "0123456789abcdef" for character in key_digest):
+            if len(key_digest) != 64 or any(
+                character not in "0123456789abcdef" for character in key_digest
+            ):
                 raise ValueError("pre-admission idempotency digest is malformed")
             raw_intent_binding = row["intent_binding_json"]
             if not isinstance(raw_intent_binding, str) or not raw_intent_binding:
@@ -3369,14 +3420,23 @@ class ControlPlaneStore:
         saw_unavailable = False
         saw_no_call = False
         for index, event in enumerate(history):
-            if event.event_type not in {"started", "settled", "admitted", "refused", "cancelled", "failed"}:
+            if event.event_type not in {
+                "started",
+                "settled",
+                "admitted",
+                "refused",
+                "cancelled",
+                "failed",
+            }:
                 raise RuntimeError("pre-admission event history has an unknown status")
             try:
                 validate_producer_call_observation(
                     event.producer_event_observation, event.producer_no_call_reason
                 )
             except (TypeError, ValueError) as exc:
-                raise RuntimeError("pre-admission event history has an unknown observation") from exc
+                raise RuntimeError(
+                    "pre-admission event history has an unknown observation"
+                ) from exc
             event_refs = tuple(event.producer_event_ids)
             if event_refs != tuple(sorted(set(event_refs))) or any(
                 not isinstance(ref, str) or not ref or ref != ref.strip() for ref in event_refs
@@ -3395,7 +3455,9 @@ class ControlPlaneStore:
                 or saw_no_call
                 or event.failure_code not in CONTROL_PRE_ADMISSION_NO_CALL_FAILURE_CODES
             ):
-                raise RuntimeError("pre-admission no-call event lacks a trusted pre-call refusal basis")
+                raise RuntimeError(
+                    "pre-admission no-call event lacks a trusted pre-call refusal basis"
+                )
             if event.job_id is not None and event.job_id != record.candidate_job_id:
                 raise RuntimeError("pre-admission event job does not match the immutable candidate")
             if not refs.issubset(set(event_refs)):
@@ -3430,12 +3492,17 @@ class ControlPlaneStore:
                     "started": {"settled", "refused", "cancelled", "failed"},
                     "settled": {"admitted", "refused", "cancelled", "failed"},
                 }
-                if event.event_type == "admitted" and status == "started" and record.effective_execution_profile == "dev":
+                if (
+                    event.event_type == "admitted"
+                    and status == "started"
+                    and record.effective_execution_profile == "dev"
+                ):
                     allowed["started"].add("admitted")
                 if event.event_type not in allowed.get(status, set()):
                     raise RuntimeError("pre-admission event history transition is invalid")
                 if event.event_type == "settled" and (
-                    record.effective_execution_profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                    record.effective_execution_profile
+                    not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
                     or event.producer_event_observation != "complete"
                     or not event_refs
                 ):
@@ -3461,13 +3528,23 @@ class ControlPlaneStore:
                         or event.producer_event_observation != "not_applicable"
                         or event_refs
                     ):
-                        raise RuntimeError("pre-admission direct admission lacks a dev no-preflight basis")
+                        raise RuntimeError(
+                            "pre-admission direct admission lacks a dev no-preflight basis"
+                        )
                     if status == "settled" and (
-                        record.effective_execution_profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
-                        or not saw_complete or not refs
+                        record.effective_execution_profile
+                        not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                        or not saw_complete
+                        or not refs
                     ):
-                        raise RuntimeError("pre-admission admission lacks settled producer evidence")
-            if event.event_type in {"refused", "cancelled", "failed"} and event.producer_event_observation == "complete" and not event_refs:
+                        raise RuntimeError(
+                            "pre-admission admission lacks settled producer evidence"
+                        )
+            if (
+                event.event_type in {"refused", "cancelled", "failed"}
+                and event.producer_event_observation == "complete"
+                and not event_refs
+            ):
                 raise RuntimeError("pre-admission terminal event lacks its complete producer refs")
             status = event.event_type
         aggregate_observation = (
@@ -3484,7 +3561,10 @@ class ControlPlaneStore:
             or tuple(sorted(refs)) != record.producer_event_ids
             or aggregate_observation != record.producer_event_observation
             or history[-1].producer_no_call_reason != record.producer_no_call_reason
-            or (record.producer_event_observation == "no_call" and record.failure_code != record.producer_no_call_reason)
+            or (
+                record.producer_event_observation == "no_call"
+                and record.failure_code != record.producer_no_call_reason
+            )
             or history[-1].job_id != record.job_id
             or (record.job_id is not None and record.job_id != record.candidate_job_id)
         ):
@@ -3508,7 +3588,9 @@ class ControlPlaneStore:
                 "run_id": record.run_id,
                 "job_id": record.job_id,
             }:
-                raise RuntimeError("completed shared owner result does not bind the admitted attempt")
+                raise RuntimeError(
+                    "completed shared owner result does not bind the admitted attempt"
+                )
 
     @staticmethod
     def _pre_admission_operation_key(row: Any) -> RuntimeOperationIntentKey:
@@ -3517,7 +3599,9 @@ class ControlPlaneStore:
             purpose="control.nl_pre_admission.v1",
             tenant_id=str(row["tenant_id"]),
             cell_id=str(row["cell_id"]),
-            actor_subject_sha256=hashlib.sha256(str(row["actor_subject"]).encode("utf-8")).hexdigest(),
+            actor_subject_sha256=hashlib.sha256(
+                str(row["actor_subject"]).encode("utf-8")
+            ).hexdigest(),
             run_id=str(row["run_id"]),
             intent_id=str(row["attempt_id"]),
             body_sha256=str(row["intent_sha256"]),
@@ -3539,7 +3623,15 @@ class ControlPlaneStore:
         observed_at: datetime,
         run_id: str,
     ) -> str:
-        event_id = uuid.uuid4().hex
+        event_id = (
+            self._pre_admission_event_id_factory()
+            if self._pre_admission_event_id_factory is not None
+            else uuid.uuid4().hex
+        )
+        if len(event_id) != 32 or any(
+            character not in "0123456789abcdef" for character in event_id
+        ):
+            raise ValueError("control_pre_admission_event_id_invalid")
         event_payload = {
             "attempt_id": attempt_id,
             "event_id": event_id,
@@ -5230,10 +5322,21 @@ class ControlPlaneStore:
                     purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id, intent_id
                 ) DO NOTHING
                 """,
-                (*key.scope_identity[:4], key.scope_kind, key.scope_id, key.run_id, key.intent_id, key.body_sha256, owner_token, now, now),
+                (
+                    *key.scope_identity[:4],
+                    key.scope_kind,
+                    key.scope_id,
+                    key.run_id,
+                    key.intent_id,
+                    key.body_sha256,
+                    owner_token,
+                    now,
+                    now,
+                ),
             )
             row = self._fetchone(
-                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                self._runtime_operation_intent_select()
+                + self._runtime_operation_intent_where()
                 + self._runtime_operation_intent_lock_suffix(),
                 key.scope_identity,
             )
@@ -5288,7 +5391,8 @@ class ControlPlaneStore:
             raise ValueError("event_id is required")
         with self._job_transaction():
             row = self._fetchone(
-                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                self._runtime_operation_intent_select()
+                + self._runtime_operation_intent_where()
                 + self._runtime_operation_intent_lock_suffix(),
                 key.scope_identity,
             )
@@ -5298,10 +5402,7 @@ class ControlPlaneStore:
             if record.body_sha256 != key.body_sha256:
                 raise RuntimeError("runtime operation request body changed during completion")
             if record.status == "completed":
-                if (
-                    record.result_ref_json != result_ref_json
-                    or record.event_id != event_id
-                ):
+                if record.result_ref_json != result_ref_json or record.event_id != event_id:
                     raise RuntimeError("completed runtime operation intent changed its result")
                 return record
             if record.status != "pending" or str(row["owner_token"]) != owner_token:
@@ -5355,12 +5456,15 @@ class ControlPlaneStore:
             raise ValueError("owner, result reference, and durable event are required")
         with self._job_transaction():
             row = self._fetchone(
-                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                self._runtime_operation_intent_select()
+                + self._runtime_operation_intent_where()
                 + self._runtime_operation_intent_lock_suffix(),
                 key.scope_identity,
             )
             if row is None:
-                raise RuntimeError("runtime operation intent is absent during observation completion")
+                raise RuntimeError(
+                    "runtime operation intent is absent during observation completion"
+                )
             record = self._runtime_operation_intent_record(row)
             if record.body_sha256 != key.body_sha256:
                 raise RuntimeError("runtime operation request body changed during completion")
@@ -5379,7 +5483,14 @@ class ControlPlaneStore:
                     AND actor_subject_sha256 = ? AND scope_kind = ? AND scope_id = ? AND intent_id = ?
                     AND body_sha256 = ? AND owner_token = ? AND state = 'pending'
                 """,
-                (result_ref_json, event_id, _iso(_utc_now()), *key.scope_identity, key.body_sha256, owner_token),
+                (
+                    result_ref_json,
+                    event_id,
+                    _iso(_utc_now()),
+                    *key.scope_identity,
+                    key.body_sha256,
+                    owner_token,
+                ),
             )
             if count != 1:
                 raise RuntimeError("runtime operation intent completion lost its owner row")
@@ -5444,7 +5555,8 @@ class ControlPlaneStore:
             raise ValueError("reason_code must be a bounded typed code")
         with self._job_transaction():
             row = self._fetchone(
-                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                self._runtime_operation_intent_select()
+                + self._runtime_operation_intent_where()
                 + self._runtime_operation_intent_lock_suffix(),
                 key.scope_identity,
             )
@@ -5517,14 +5629,10 @@ class ControlPlaneStore:
             body_sha256=str(row["body_sha256"]),
             status=cast(RuntimeOperationIntentStatus, state),
             result_ref_json=(
-                str(row["result_ref_json"])
-                if row["result_ref_json"] is not None
-                else None
+                str(row["result_ref_json"]) if row["result_ref_json"] is not None else None
             ),
             event_id=str(row["event_id"]) if row["event_id"] is not None else None,
-            reason_code=(
-                str(row["reason_code"]) if row["reason_code"] is not None else None
-            ),
+            reason_code=(str(row["reason_code"]) if row["reason_code"] is not None else None),
             created_at=str(row["created_at"]),
             updated_at=str(row["updated_at"]),
             scope_kind=cast(Literal["run", "route"], str(row["scope_kind"])),
@@ -5774,7 +5882,8 @@ class ControlPlaneStore:
             }
             canonical_payload_keys = legacy_payload_keys | {"producer_no_call_reason"}
             if not isinstance(payload, dict) or frozenset(payload) not in {
-                frozenset(legacy_payload_keys), frozenset(canonical_payload_keys)
+                frozenset(legacy_payload_keys),
+                frozenset(canonical_payload_keys),
             }:
                 raise RuntimeError("pre-admission event payload shape is malformed")
             event_id = event_row["event_id"]
@@ -5815,7 +5924,8 @@ class ControlPlaneStore:
                         or not failure_code
                         or len(failure_code) > 96
                         or any(
-                            character not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+                            character
+                            not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
                             for character in failure_code
                         )
                     )
@@ -5854,7 +5964,14 @@ class ControlPlaneStore:
             if (
                 not isinstance(producer_binding, dict)
                 or set(producer_binding)
-                != {"schema_version", "run_id", "tenant_id", "cell_id", "profile_id", "control_job_id"}
+                != {
+                    "schema_version",
+                    "run_id",
+                    "tenant_id",
+                    "cell_id",
+                    "profile_id",
+                    "control_job_id",
+                }
                 or producer_binding.get("schema_version")
                 != "polisyos.scientist.budget_ledger.producer_run_binding.v1"
                 or producer_binding.get("run_id") != row["run_id"]
@@ -5872,7 +5989,9 @@ class ControlPlaneStore:
         aggregate_refs = json.loads(raw_refs)
         if (
             not isinstance(aggregate_refs, list)
-            or any(not isinstance(ref, str) or not ref or ref != ref.strip() for ref in aggregate_refs)
+            or any(
+                not isinstance(ref, str) or not ref or ref != ref.strip() for ref in aggregate_refs
+            )
             or aggregate_refs != sorted(set(aggregate_refs))
         ):
             raise RuntimeError("pre-admission aggregate producer refs are malformed")
@@ -5897,7 +6016,9 @@ class ControlPlaneStore:
             raise RuntimeError("pre-admission owner identity or status is missing")
         if (
             len(required_text["intent_sha256"]) != 64
-            or any(character not in "0123456789abcdef" for character in required_text["intent_sha256"])
+            or any(
+                character not in "0123456789abcdef" for character in required_text["intent_sha256"]
+            )
             or required_text["effective_execution_profile"] not in _EXECUTION_PROFILES
         ):
             raise RuntimeError("pre-admission owner identity is malformed")
@@ -6394,7 +6515,8 @@ class ControlPlaneStore:
                 conn.execute("BEGIN IMMEDIATE")
                 try:
                     operation_columns = {
-                        str(row[1]) for row in conn.execute("PRAGMA table_info(runtime_operation_intents)")
+                        str(row[1])
+                        for row in conn.execute("PRAGMA table_info(runtime_operation_intents)")
                     }
                     if "scope_kind" not in operation_columns:
                         conn.execute(
@@ -6424,24 +6546,42 @@ class ControlPlaneStore:
                         "(scope_kind <> 'route' OR scope_id <> 'control.runs.nl'))"
                     ).fetchone()[0]
                     if int(invalid_scope):
-                        raise RuntimeError("runtime_operation_scope_migration_has_unclassified_rows")
+                        raise RuntimeError(
+                            "runtime_operation_scope_migration_has_unclassified_rows"
+                        )
                     attempt_columns = {
-                        str(row[1]) for row in conn.execute("PRAGMA table_info(control_pre_admission_attempts)")
+                        str(row[1])
+                        for row in conn.execute("PRAGMA table_info(control_pre_admission_attempts)")
                     }
                     if "owner_token" not in attempt_columns:
-                        conn.execute("ALTER TABLE control_pre_admission_attempts ADD COLUMN owner_token TEXT")
+                        conn.execute(
+                            "ALTER TABLE control_pre_admission_attempts ADD COLUMN owner_token TEXT"
+                        )
                     conn.execute("DROP INDEX IF EXISTS idx_control_pre_admission_idempotency_scope")
-                    conn.execute("DROP INDEX IF EXISTS idx_runtime_operation_intents_scope_identity")
+                    conn.execute(
+                        "DROP INDEX IF EXISTS idx_runtime_operation_intents_scope_identity"
+                    )
                     operation_pk = tuple(
                         str(row[1])
                         for row in sorted(
-                            (row for row in conn.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                            (
+                                row
+                                for row in conn.execute(
+                                    "PRAGMA table_info(runtime_operation_intents)"
+                                )
+                                if int(row[5])
+                            ),
                             key=lambda row: int(row[5]),
                         )
                     )
                     expected_operation_pk = (
-                        "purpose", "tenant_id", "cell_id", "actor_subject_sha256",
-                        "scope_kind", "scope_id", "intent_id",
+                        "purpose",
+                        "tenant_id",
+                        "cell_id",
+                        "actor_subject_sha256",
+                        "scope_kind",
+                        "scope_id",
+                        "intent_id",
                     )
                     if operation_pk != expected_operation_pk:
                         conn.execute(
@@ -6765,8 +6905,12 @@ class ControlPlaneStore:
                 ON control_outbox_events(state, created_at)
                 """
             )
-            cur.execute("ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_kind TEXT")
-            cur.execute("ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_id TEXT")
+            cur.execute(
+                "ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_kind TEXT"
+            )
+            cur.execute(
+                "ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_id TEXT"
+            )
             cur.execute(
                 "UPDATE runtime_operation_intents SET scope_kind = 'run', scope_id = run_id "
                 "WHERE purpose = 'run.predictive_calibration.v1' "
@@ -6789,7 +6933,9 @@ class ControlPlaneStore:
             invalid_scope = cur.fetchone()[0]
             if int(invalid_scope):
                 raise RuntimeError("runtime_operation_scope_migration_has_unclassified_rows")
-            cur.execute("ALTER TABLE runtime_operation_intents ALTER COLUMN scope_kind SET NOT NULL")
+            cur.execute(
+                "ALTER TABLE runtime_operation_intents ALTER COLUMN scope_kind SET NOT NULL"
+            )
             cur.execute("ALTER TABLE runtime_operation_intents ALTER COLUMN scope_id SET NOT NULL")
             cur.execute(
                 """DO $runtime_operation_intent_scope_pkey$
@@ -6831,7 +6977,9 @@ class ControlPlaneStore:
                 $runtime_operation_intent_scope_pkey$"""
             )
             cur.execute("DROP INDEX IF EXISTS idx_runtime_operation_intents_scope_identity")
-            cur.execute("ALTER TABLE control_pre_admission_attempts ADD COLUMN IF NOT EXISTS owner_token TEXT")
+            cur.execute(
+                "ALTER TABLE control_pre_admission_attempts ADD COLUMN IF NOT EXISTS owner_token TEXT"
+            )
             cur.execute("DROP INDEX IF EXISTS idx_control_pre_admission_idempotency_scope")
             cur.execute(
                 """

@@ -167,6 +167,7 @@ def test_pre_admission_openapi_examples_use_current_owner_readback() -> None:
         ControlPreAdmissionAttemptResponse,
     )
     from polisyos.runtime.http.openapi_contract import (
+        _pre_admission_attempt_response_examples,
         _pre_admission_by_attempt_id_success_examples,
         _pre_admission_by_idempotency_success_examples,
     )
@@ -191,6 +192,40 @@ def test_pre_admission_openapi_examples_use_current_owner_readback() -> None:
     assert key_response.owner_binding.purpose == "control.nl_pre_admission.v1"
     assert "no provider call" in by_key["description"]
     assert "production attempt" in by_key["description"]
+    assert "deterministic event IDs" in by_key["description"]
+
+    _pre_admission_attempt_response_examples.cache_clear()
+    repeated = _pre_admission_by_idempotency_success_examples()["controlled_no_call_refusal"][
+        "value"
+    ]
+    assert repeated == json.loads(key_wire)
+
+
+def test_openapi_renderer_uses_the_assigned_runtime_store_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The check and exporter must build equivalent apps without default CAS writes."""
+    from tools.ops_runners.runtime import export_runtime_openapi as exporter
+
+    observed: dict[str, object] = {}
+
+    class _FakeApp:
+        def openapi(self) -> dict[str, object]:
+            return {"paths": {}}
+
+    def build_app(**kwargs: object) -> _FakeApp:
+        observed.update(kwargs)
+        return _FakeApp()
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.app.create_runtime_api_app",
+        build_app,
+    )
+    assert exporter.render_runtime_openapi(tmp_path) == {"paths": {}}
+    assert observed == {
+        "enable_security_middlewares": False,
+        "cas_root": tmp_path / "cas",
+    }
 
 
 def test_predictive_calibration_openapi_example_is_limited_and_unresolved() -> None:

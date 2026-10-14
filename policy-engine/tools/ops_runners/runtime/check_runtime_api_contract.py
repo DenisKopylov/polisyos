@@ -10,6 +10,7 @@ import tempfile
 from pathlib import Path
 
 from tools.lib.imports import repo_root_from
+from tools.ops_runners.runtime.export_runtime_openapi import render_runtime_openapi
 
 
 def _parse_args() -> argparse.Namespace:
@@ -52,11 +53,10 @@ def _canonical_json(payload: dict) -> str:
 def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines: int) -> list[str]:
     if not openapi_path.is_file():
         raise FileNotFoundError(f"OpenAPI comparison input is unavailable: {openapi_path}")
-    from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 
-    app = create_runtime_api_app(enable_security_middlewares=False)
-    rendered = app.openapi()
+    with tempfile.TemporaryDirectory(prefix="runtime_api_contract_openapi_") as scratch:
+        rendered = render_runtime_openapi(Path(scratch))
     generated = _canonical_json(rendered)
 
     violations: list[str] = []
@@ -92,9 +92,7 @@ class _RuntimeClientInspectionUnavailableError(RuntimeError):
     """The package-owned runtime client generator did not produce an inspectable family."""
 
 
-def _check_runtime_client_family_drift(
-    *, repo_root: Path, openapi_path: Path
-) -> list[str]:
+def _check_runtime_client_family_drift(*, repo_root: Path, openapi_path: Path) -> list[str]:
     """Verify the package-owned generated family without a committed raw twin."""
 
     package_root = repo_root / "packages" / "runtime-api-client"
@@ -199,7 +197,9 @@ def main() -> int:
             print(f"- {violation}")
         return 1
 
-    qualifier = "client freshness explicitly omitted" if args.skip_client_drift else "declared scope only"
+    qualifier = (
+        "client freshness explicitly omitted" if args.skip_client_drift else "declared scope only"
+    )
     print(f"Runtime API contract check passed ({qualifier}).")
     return 0
 

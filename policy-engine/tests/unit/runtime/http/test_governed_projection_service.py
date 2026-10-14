@@ -144,8 +144,7 @@ def _copy_governed_source(root: Path, relative_path: str) -> Path:
 
 def _committed_dependency_profile() -> Any:
     companion_path = (
-        REPO_ROOT
-        / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+        REPO_ROOT / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
     )
     companion = json.loads(companion_path.read_text(encoding="utf-8"))
     return MODULE.DependencyProfileDiscriminantProjection.model_validate_json(
@@ -345,9 +344,7 @@ def test_value_gate_owner_bridge_quarantines_unusable_diagnostic_receipts(
         "validator_id": definition.owner_validator_id,
         "validator_version": definition.owner_validator_version,
         "status": "passed",
-        "bound_aggregate_identity": hash_export_projection(
-            dict(loaded.component_bindings)
-        ),
+        "bound_aggregate_identity": hash_export_projection(dict(loaded.component_bindings)),
         "bound_source_identities": dict(loaded.component_bindings),
         "bound_projection_payload_hash": hash_export_projection(payload_data),
         "semantic_projection_hash": hash_export_projection(payload_data),
@@ -426,18 +423,14 @@ def test_owner_validation_timeout_budget_is_derived_from_measured_catalog() -> N
         (REPO_ROOT / "tools/quality/timing_budgets.json").read_text(encoding="utf-8")
     )
     lane = next(
-        item
-        for item in catalog["lanes"]
-        if item["timing_key"] == "owner-validator:default"
+        item for item in catalog["lanes"] if item["timing_key"] == "owner-validator:default"
     )
 
     assert lane["regime"] == "serialized"
     assert lane["samples_ms"]
     assert lane["measured_p95_ms"] == max(lane["samples_ms"])
     assert lane["recommended_timeout_ms"] == 2 * lane["measured_p95_ms"]
-    assert lane["recommended_timeout_ms"] / 1000 == (
-        MODULE._OWNER_VALIDATION_TIMEOUT_SECONDS
-    )
+    assert lane["recommended_timeout_ms"] / 1000 == (MODULE._OWNER_VALIDATION_TIMEOUT_SECONDS)
 
 
 def test_projection_packets_require_identity_as_of_and_freshness(
@@ -532,19 +525,13 @@ def test_value_gate_projects_foundry_dependency_discriminant_as_related_owner_bi
     diagnostic = binding.dependency_environment
     assert diagnostic.decision_role == "ambient_non_decisive"
     assert diagnostic.predicate_class == "recomputed"
-    assert diagnostic.authority_boundary.authoritative_for == (
-        "dependency_environment_diagnosis",
-    )
+    assert diagnostic.authority_boundary.authoritative_for == ("dependency_environment_diagnosis",)
     assert "n8_admission" in diagnostic.authority_boundary.may_not_use_for
     assert diagnostic.profile is not None
-    assert diagnostic.profile.profile_id == (
-        "n8-method-catalog-reconstruction-py314-uv0921-v1"
-    )
+    assert diagnostic.profile.profile_id == ("n8-method-catalog-reconstruction-py314-uv0921-v1")
     assert diagnostic.profile.root_distribution == "policy-engine"
     assert diagnostic.profile.resolved_distributions
-    assert diagnostic.profile.discriminant_ref.domain == (
-        "dependency-discriminant"
-    )
+    assert diagnostic.profile.discriminant_ref.domain == ("dependency-discriminant")
     assert diagnostic.profile.distribution_set.domain == "distribution-set"
     assert diagnostic.artifact_content_ref.startswith("sha256:")
     assert "/Users/" not in json.dumps(diagnostic.model_dump(mode="json"))
@@ -672,9 +659,7 @@ def test_value_gate_keeps_a_valid_research_mismatch_available_and_nondecisive(
     assert binding.dependency_environment.decision_role == "ambient_non_decisive"
     assert binding.dependency_environment.status == "fail"
     assert binding.dependency_environment.first_case is not None
-    assert binding.dependency_environment.first_case.coordinate == (
-        "distribution:torch:version"
-    )
+    assert binding.dependency_environment.first_case.coordinate == ("distribution:torch:version")
 
 
 def test_dependency_diagnostic_surface_rejects_an_incomplete_authority_boundary() -> None:
@@ -943,9 +928,7 @@ def test_value_gate_owner_validation_does_not_cache_an_unbound_ambient_diagnosti
             returncode=0,
             stdout=json.dumps(
                 {
-                    "schema_version": (
-                        "policyos.runtime.governed_projection.owner_validation.v2"
-                    ),
+                    "schema_version": ("policyos.runtime.governed_projection.owner_validation.v2"),
                     "projection_id": ProjectionId.VALUE_GATE.value,
                     "validator_id": definition.owner_validator_id,
                     "validator_version": definition.owner_validator_version,
@@ -956,12 +939,8 @@ def test_value_gate_owner_validation_does_not_cache_an_unbound_ambient_diagnosti
                     "bound_source_identities": dict(loaded.component_bindings),
                     "bound_projection_payload_hash": hash_export_projection(payload_data),
                     "semantic_projection_hash": hash_export_projection(payload_data),
-                    "semantic_projection_hash_rule_version": (
-                        "polisyos.pdc.gy_content_hash.v1"
-                    ),
-                    "dependency_aggregate_identity": hash_export_projection(
-                        dependency_bindings
-                    ),
+                    "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
+                    "dependency_aggregate_identity": hash_export_projection(dependency_bindings),
                     "dependency_bindings": dependency_bindings,
                     "issue_codes": [],
                     "related_dependency_diagnostic": diagnostic,
@@ -1836,3 +1815,49 @@ def test_channel_registry_covers_declared_active_hidden_runtime_channels() -> No
     assert set(review.channels) == {"review.cursor", "review.lock", "review.presence"}
     assert all(entry.auth_class for entry in CHANNEL_REGISTRY)
     assert all(entry.consumers for entry in CHANNEL_REGISTRY)
+
+
+def test_owner_validation_environment_resolves_temp_symlinks_and_keeps_source_binding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Classify physical temp roots without weakening source dependency binding."""
+    from polisyos.runtime.http.services.governed_projection_dependencies import (
+        DependencyTracker,
+    )
+
+    repository_root = tmp_path / "repository"
+    repository_tmp = repository_root / "src" / "tmp"
+    repository_tmp.mkdir(parents=True)
+    external_tmp = tmp_path / "external-tmp"
+    external_tmp.mkdir()
+
+    external_alias_to_repository = tmp_path / "external-alias"
+    external_alias_to_repository.symlink_to(repository_tmp, target_is_directory=True)
+    repository_alias_to_external = repository_root / "tmp-alias"
+    repository_alias_to_external.symlink_to(external_tmp, target_is_directory=True)
+
+    monkeypatch.setenv("TMPDIR", str(external_alias_to_repository))
+    monkeypatch.setenv("TEMP", str(repository_alias_to_external))
+    monkeypatch.setenv("TMP", "src/tmp")
+    environment = MODULE._owner_validation_environment(repository_root)
+
+    assert "TMPDIR" not in environment
+    assert environment["TEMP"] == str(repository_alias_to_external)
+    assert "TMP" not in environment
+
+    monkeypatch.setenv("TEMP", str(external_tmp))
+    external_environment = MODULE._owner_validation_environment(repository_root)
+    assert external_environment["TEMP"] == str(external_tmp)
+
+    source_path = repository_tmp / "governed-input.json"
+    source_path.write_text('{"status":"pass"}', encoding="utf-8")
+    tracker = DependencyTracker(repository_root)
+    tracker.record(source_path)
+    bindings, issues = tracker.receipt()
+    relative_path = "src/tmp/governed-input.json"
+    assert issues == ()
+    assert relative_path in bindings
+
+    source_path.write_text('{"status":"changed"}', encoding="utf-8")
+    _, issues = tracker.receipt()
+    assert issues == ("dependency_changed_during_validation",)

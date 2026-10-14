@@ -1254,6 +1254,32 @@ def _owner_bridge_failure(
     )
 
 
+def _owner_validation_environment(repository_root: Path) -> dict[str, str]:
+    """Keep repository-local temporary scratch out of governed input receipts."""
+
+    environment = os.environ.copy()
+    root = Path(repository_root).resolve()
+    for name in ("TMPDIR", "TEMP", "TMP"):
+        raw = environment.get(name)
+        if not raw:
+            continue
+        candidate = Path(raw)
+        if not candidate.is_absolute():
+            candidate = root / candidate
+        try:
+            physical = candidate.resolve(strict=False)
+        except (OSError, RuntimeError):
+            # An unresolvable path must not be inherited as an unclassified root.
+            environment.pop(name, None)
+            continue
+        try:
+            physical.relative_to(root)
+        except ValueError:
+            continue
+        environment.pop(name, None)
+    return environment
+
+
 def _run_owner_validation(
     *,
     repository_root: Path,
@@ -1318,7 +1344,7 @@ def _run_owner_validation(
             "projection_payload": payload_data,
         }
         worker_path = Path(__file__).with_name("governed_projection_validation_worker.py")
-        environment = os.environ.copy()
+        environment = _owner_validation_environment(resolved_root)
         source_root = Path(__file__).resolve().parents[4]
         python_paths = [str(source_root), str(source_root.parent)]
         existing_pythonpath = environment.get("PYTHONPATH")

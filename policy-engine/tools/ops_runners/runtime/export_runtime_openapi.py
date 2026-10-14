@@ -28,6 +28,17 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def render_runtime_openapi(scratch_root: Path) -> dict[str, object]:
+    """Render the schema with all runtime stores confined to the supplied scratch root."""
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    app = create_runtime_api_app(
+        enable_security_middlewares=False,
+        cas_root=scratch_root / "cas",
+    )
+    return app.openapi()
+
+
 def main() -> int:
     args = _parse_args()
     repo_root = repo_root_from(__file__)
@@ -35,23 +46,17 @@ def main() -> int:
     if str(src_root) not in sys.path:
         sys.path.insert(0, str(src_root))
 
-    from polisyos.runtime.http.app import create_runtime_api_app
-
     args.output.parent.mkdir(parents=True, exist_ok=True)
-
-    def render(scratch: Path) -> dict:
-        app = create_runtime_api_app(enable_security_middlewares=False, cas_root=scratch / "cas")
-        return app.openapi()
 
     if args.scratch_root is None:
         with tempfile.TemporaryDirectory(
             prefix="runtime_openapi_", dir=args.output.parent
         ) as scratch:
-            schema = render(Path(scratch))
+            schema = render_runtime_openapi(Path(scratch))
     else:
         scratch = args.scratch_root.resolve()
         scratch.mkdir(parents=True, exist_ok=False)
-        schema = render(scratch)
+        schema = render_runtime_openapi(scratch)
 
     args.output.write_text(
         json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",

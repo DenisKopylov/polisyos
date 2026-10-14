@@ -34,6 +34,11 @@ Source package READMEs outside `docs/` receive read-only audit first; root
 allocates any subsequent documentation correction after checking its bindings.
 Large taxonomy changes and contentious removals require concrete owner review.
 
+After source and binding review, root explicitly assigned documentation-only
+corrections to the Fabric, Data Forge and IR package READMEs. Repairs also extend
+the existing ADR index and Fabric documentation-inventory generators and their
+mirrored tests; canonical outputs are regenerated through their owners.
+
 ## Design and execution
 
 Reuse existing Diataxis, decision, research and archive structures. Census the
@@ -65,6 +70,17 @@ assigned read set, unread boundaries and concrete findings in ignored
 `_build/docs-maintenance/raw/`. Root resolves the census's unallocated paths
 before claiming comprehensive coverage. Generated pages and primary signed or
 source-bound records retain their canonical owner.
+
+The 8dd9336 census exposed 93 further docs Markdown paths and 502 outside-doc
+Markdown paths beyond the three explicitly assigned package READMEs. Root
+allocated 92 docs paths to their existing lanes and retained the measurement
+authoring contract; all 502 outside-doc paths receive read-only review in 14
+deterministic batches. The exact allocation is ignored
+`_build/docs-maintenance/raw/supplemental-audit-allocation.json`, SHA-256
+`10ac3420e81af3249deebe26d2f977b358b5dfaa3f36aafad8fc3fb97ef46dda`.
+It assigns work, not semantic coverage; per-path reader receipts establish
+the actual methods and unread boundaries. Newly authored routing pages are
+included in the final census rather than inferred from this snapshot.
 
 - `docs_census`: complete docs/sibling-Markdown census, coverage reconciliation;
   ignored receipts only.

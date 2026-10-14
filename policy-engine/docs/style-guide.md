@@ -51,6 +51,13 @@ accuracy checker распознаёт именно эту форму. Счётч
 
 Google-style docstrings. Все публичные классы, функции и модули обязаны иметь docstring.
 
+Примеры ниже показывают формат docstring, а не исполняемый API PolicyOS.
+Имена, поля и сценарии иллюстративны: актуальную сигнатуру и схему берите из
+канонического исходника или generated reference на указанном source pin.
+Для tutorial с реальными импортами отдельно обозначайте проверенный smoke,
+непроверенную заготовку и отсутствующие мосты; не добавляйте вымышленные
+ожидаемые результаты или fallback, скрывающий неработающий путь.
+
 ```python
 def compile(spec: PolicySpec, *, backend: str = "jax") -> CompiledGraph:
     """Compile a policy specification into an executable mechanism graph.

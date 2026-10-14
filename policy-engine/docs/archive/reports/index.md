@@ -12,6 +12,11 @@ verification boundaries. Follow the [retention rules](README.md) and
 
 ## Documentation maintenance
 
+- [2026-10-14 documentation sustainability](2026-10-14-documentation-sustainability-audit.md):
+  the third slice's clearer reader routes, bounded source/link instruments,
+  fresh checks, E02 source drift and unresolved lifecycle scope. It preserves
+  the existing publication boundary and establishes no functional policy E2E.
+
 - [2026-10-14 comprehensive maintenance audit](2026-10-14-documentation-maintenance-audit.md):
   the second slice's source audits, documentation-tool repairs and explicit
   verification limits. This bounded closeout retains failed and UNRUN global

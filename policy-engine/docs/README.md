@@ -45,13 +45,16 @@ Follow the [style guide](style-guide.md) and
 the [failure/repair register](reference/policy-design-case-failure-patterns.md)
 defines the capability and authority vocabulary.
 
+The [third-pass closeout](archive/reports/2026-10-14-documentation-sustainability-audit.md)
+records source/reader clarification and repeatable source/link checks; it names
+E02 drift, incomplete lifecycle verification and unmeasured reader usability.
 The [comprehensive maintenance audit](archive/reports/2026-10-14-documentation-maintenance-audit.md)
 records the second slice's source audits and verification-tool repairs; its
 verdict table distinguishes passing checks, incomplete global gates and the
 narrowly reproduced snapshot failure. The earlier
 [refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
 records a separate publication boundary and verification wave. Runtime and
-E02 closure remain outside both reports.
+E02 closure remain outside these reports.
 
 Stable behavior belongs in authored explanation/reference/procedure pages;
 plans and receipts retain their historical authority and explicit scope.

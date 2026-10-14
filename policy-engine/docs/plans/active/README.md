@@ -30,6 +30,12 @@ Other subsystem owners continue to use their active plans, including the
 
 ## Bounded closeouts and unresolved signals
 
+The [documentation sustainability pass](DOCUMENTATION_SUSTAINABILITY_20261014.md)
+has a completed archive and [third-pass closeout](../../archive/reports/2026-10-14-documentation-sustainability-audit.md).
+It records clearer source/reader routes, repeatable bounded checks and the five
+selected maps requiring E02 re-review. Lifecycle remains UNRUN; the old plan
+path is a compatibility pointer, not an active implementation lane.
+
 The [comprehensive documentation maintenance](DOCUMENTATION_MAINTENANCE_20261014.md)
 has a completed archive and [bounded closeout](../../archive/reports/2026-10-14-documentation-maintenance-audit.md).
 Its documentation tools, source maps and link checks do not close E02 or waive

@@ -22,6 +22,11 @@ redirect metadata and sunset contract for any temporary pointer.
 
 ## 2026-10-14 disposition
 
+- [Documentation sustainability](2026-10-14-documentation-sustainability.md):
+  the third pass's completed source/reader and repeatable-verification work;
+  its [closeout](../../archive/reports/2026-10-14-documentation-sustainability-audit.md)
+  preserves the failed lifecycle gate and source drift without closing E02.
+
 - [Comprehensive documentation maintenance](2026-10-14-documentation-maintenance.md):
   the second documentation slice's completed plan and
   [bounded closeout](../../archive/reports/2026-10-14-documentation-maintenance-audit.md).

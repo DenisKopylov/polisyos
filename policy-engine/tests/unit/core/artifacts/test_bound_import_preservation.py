@@ -83,6 +83,7 @@ def test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner(
     owner = FileSystemCAS(tmp_path / "target", tenant_id="tenant-a", cell_id=cell)
     owned = owner.put_bytes(PAYLOAD, _options("tenant-a", cell))
     old_manifest = owner.get_manifest_bytes(owned)
+    tenant_a_expected_before = _fresh_readback(owner, owned)
     source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-b", cell_id=cell)
     incoming = source.put_bytes(PAYLOAD, _options("tenant-b", cell))
     incoming_manifest = source.get_manifest(incoming)
@@ -141,6 +142,8 @@ def test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner(
     selected_readback = _fresh_readback(reopened_b, selected_incoming)
     returned_readbacks = [_fresh_readback(reopened_b, ref) for ref in returned_refs]
     observation = {
+        "observation_schema": "e02.prepared_b.removal_observation.v1",
+        "case_id": f"b148-{consumer}-cell-{cell or 'none'}",
         "consumer": consumer,
         "cell": cell,
         "removal": os.environ.get("E02_B_PROPERTY_REMOVAL"),
@@ -150,6 +153,9 @@ def test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner(
         ),
         "returned_refs": [ref.model_dump(mode="json") for ref in returned_refs],
         "private_stages": [str(path) for path in stages],
+        "selected_incoming_ref": selected_incoming.model_dump(mode="json"),
+        "tenant_a_owned_ref": owned.model_dump(mode="json"),
+        "tenant_a_expected_before": tenant_a_expected_before,
         "persisted_before": _byte_inventory(before),
         "persisted_after": _byte_inventory(after),
         "changed_paths": sorted(
@@ -162,6 +168,14 @@ def test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner(
     }
     encoded = json.dumps(observation, sort_keys=True)
     (tmp_path / "foreign-owner-observation.json").write_text(encoded + "\n", encoding="utf-8")
+    observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+    if observation_root:
+        observation_dir = Path(observation_root)
+        observation_dir.mkdir(parents=True, exist_ok=True)
+        cell_name = cell if cell is not None else "none"
+        (observation_dir / f"b148-{consumer}-cell-{cell_name}.json").write_text(
+            encoded + "\n", encoding="utf-8"
+        )
     print(encoded)
 
     assert isinstance(error, ArtifactOwnershipError), observation

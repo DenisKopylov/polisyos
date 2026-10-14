@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import os
 import time
+from pathlib import Path
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 
@@ -487,3 +489,25 @@ def test_execution_identity_removal_control_reproduces_stale_resume(tmp_path, mo
     assert stale_resume.final_state == {"value": 18}
     assert cold.final_state == {"value": 21}
     assert stale_resume.final_state != cold.final_state
+
+    observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+    if observation_root:
+        observation_dir = Path(observation_root)
+        observation_dir.mkdir(parents=True, exist_ok=True)
+        observation = {
+            "observation_schema": "e02.prepared_b.removal_observation.v1",
+            "case_id": "b74-effective-checkpoint-input-binding",
+            "checkpoint_execution_digest": checkpoint.execution_digest,
+            "checkpoint_structural_chain_digest": checkpoint.chain_digest,
+            "stale_resume_final_state": stale_resume.final_state,
+            "cold_execution_final_state": cold.final_state,
+            "changed_chain_factor": changed_chain.get_node(changed_chain.execution_order[0]).params[
+                "factor"
+            ],
+            "original_chain_factor": original_chain.get_node(
+                original_chain.execution_order[0]
+            ).params["factor"],
+        }
+        (observation_dir / "b74-effective-checkpoint-input-binding.json").write_text(
+            json.dumps(observation, sort_keys=True) + "\n", encoding="utf-8"
+        )

@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.scientist.orchestration.engine import idempotency as idempotency_module
 from polisyos.scientist.orchestration.engine.idempotency import (
     REPLAY_EPOCH,
     NodeCacheEntry,
@@ -25,6 +28,11 @@ class ReadCountingCAS(FileSystemCAS):
     def __init__(self, root):
         super().__init__(root)
         self.entry_reads: list[ArtifactRef | str] = []
+        self.manifest_profiles: list[str | None] = []
+
+    def get_manifest(self, ref):
+        self.manifest_profiles.append(getattr(ref, "manifest_profile_sha256", None))
+        return super().get_manifest(ref)
 
     def get_bytes(self, ref):
         if self.get_manifest(ref).kind == "scientist.node_cache_entry":
@@ -174,3 +182,78 @@ def test_legacy_outcome_ref_keeps_its_selected_manifest_view(tmp_path):
     with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
         cache.load_entry(entry_ref)
     assert cache.get("c" * 64) is None
+
+
+def test_selected_view_identity_removal_probe_rejects_verified_default_reuse(tmp_path, monkeypatch):
+    """Same content id with another profile must resolve and refuse that view."""
+    if os.environ.get("E02_B_PROPERTY_REMOVAL") == "artifact-ref-selected-view-identity":
+        # Keep the selected-profile field on ArtifactRef, but remove its
+        # coordinate from the actual NodeResultCache verified-entry identity.
+        monkeypatch.setattr(
+            idempotency_module,
+            "_cache_ref_identity",
+            lambda ref: (str(ref.artifact_id), ref.kind, ref.media_type, None),
+        )
+
+    store = ReadCountingCAS(tmp_path / "cas")
+    ref = publish(store)
+    alternate = alternate_view(store, ref)
+    assert alternate.artifact_id == ref.artifact_id
+    assert alternate.kind == ref.kind
+    assert alternate.media_type == ref.media_type
+    assert alternate.manifest_profile_sha256 is not None
+    assert alternate.manifest_profile_sha256 != ref.manifest_profile_sha256
+
+    cache = NodeResultCache(store, "R_view")
+    assert cache.load_entry(ref)
+    store.entry_reads.clear()
+    store.manifest_profiles.clear()
+    load_error = None
+    loaded_alternate = None
+    try:
+        loaded_alternate = cache.load_entry(alternate)
+    except Exception as exc:
+        load_error = {"type": type(exc).__name__, "message": str(exc)}
+
+    cached = cache.get("a" * 64)
+    observation = {
+        "observation_schema": "e02.prepared_b.removal_observation.v1",
+        "case_id": "selected-view-identity",
+        "control": os.environ.get("E02_B_PROPERTY_REMOVAL"),
+        "selected_profile_marker_retained": alternate.manifest_profile_sha256 is not None,
+        "artifact_id_equal": alternate.artifact_id == ref.artifact_id,
+        "kind_and_media_retained": (
+            alternate.kind == ref.kind and alternate.media_type == ref.media_type
+        ),
+        "default_profile": ref.manifest_profile_sha256,
+        "offered_profile": alternate.manifest_profile_sha256,
+        "manifest_profiles_seen_during_second_offer": list(store.manifest_profiles),
+        "offered_profile_read": alternate.manifest_profile_sha256 in store.manifest_profiles,
+        "entry_reads_during_second_offer": len(store.entry_reads),
+        "load_returned": loaded_alternate,
+        "load_error": load_error,
+        "verified_default_outcome_still_available": cached is not None,
+        "reused_default_outcome_value": (
+            cached.state.params["same"] if cached is not None else None
+        ),
+    }
+    encoded = json.dumps(observation, sort_keys=True)
+    observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+    if observation_root:
+        target_dir = Path(observation_root)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target = target_dir / "selected-view-identity.json"
+    else:
+        target = tmp_path / "selected-view-identity-removal-observation.json"
+    target.write_text(encoded + "\n", encoding="utf-8")
+    print(encoded)
+
+    # With the identity coordinate removed, the verified-entry fast path skips
+    # resolution of the second ArtifactRef manifest profile.
+    assert load_error is not None, observation
+    assert load_error["type"] == "ValueError", observation
+    assert "immutable_epoch_mismatch" in load_error["message"], observation
+    assert loaded_alternate is None, observation
+    assert observation["offered_profile_read"], observation
+    assert store.entry_reads, observation
+    assert cached is not None

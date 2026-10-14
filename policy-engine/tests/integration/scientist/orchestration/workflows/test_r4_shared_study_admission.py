@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 import uuid
 from collections import Counter
 from collections.abc import Mapping
@@ -85,6 +86,113 @@ _METHOD_PARAMS: dict[str, Any] = {
     "parallel_folds": False,
     "max_parallel_folds": 1,
 }
+
+
+class _ObservedWorkQueue:
+    """Measure actual queue residence for explicitly tagged executor jobs."""
+
+    def __init__(
+        self,
+        delegate: Any,
+        *,
+        executor: Any,
+        submission_context: threading.local,
+        observations: list[dict[str, Any]],
+        lock: Any,
+    ) -> None:
+        self._delegate = delegate
+        self._executor = executor
+        self._submission_context = submission_context
+        self._observations = observations
+        self._lock = lock
+        self._queued_at_ns: dict[int, tuple[int, dict[str, Any]]] = {}
+
+    def put(self, item: Any, block: bool = True, timeout: float | None = None) -> None:
+        context = getattr(self._submission_context, "current", None)
+        identity = id(item)
+        queued_at_ns: int | None = None
+        if item is None or context is None:
+            if timeout is None:
+                self._delegate.put(item, block=block)
+            else:
+                self._delegate.put(item, block=block, timeout=timeout)
+            return
+
+        # Hold the existing admission lock across the real unbounded put, so
+        # the active-worker snapshot cannot go stale before queue insertion.
+        with self._executor._admission_lock:
+            physical_workers = int(self._executor._physical_workers)
+            queue_depth = int(self._delegate.qsize())
+            observed_context = {
+                **context,
+                "physical_workers_active_at_put": physical_workers,
+                "queue_depth_before_put": queue_depth,
+            }
+            queued_at_ns = time.perf_counter_ns()
+            with self._lock:
+                self._queued_at_ns[identity] = (queued_at_ns, observed_context)
+            try:
+                if timeout is None:
+                    self._delegate.put(item, block=block)
+                else:
+                    self._delegate.put(item, block=block, timeout=timeout)
+            except BaseException:
+                with self._lock:
+                    self._queued_at_ns.pop(identity, None)
+                raise
+
+    def get(self, block: bool = True, timeout: float | None = None) -> Any:
+        if timeout is None:
+            item = self._delegate.get(block=block)
+        else:
+            item = self._delegate.get(block=block, timeout=timeout)
+        self._record_dequeue(item)
+        return item
+
+    def get_nowait(self) -> Any:
+        item = self._delegate.get_nowait()
+        self._record_dequeue(item)
+        return item
+
+    def _record_dequeue(self, item: Any) -> None:
+        dequeued_at_ns = time.perf_counter_ns()
+        with self._lock:
+            queued = self._queued_at_ns.pop(id(item), None)
+            if queued is None:
+                return
+            queued_at_ns, context = queued
+            self._observations.append(
+                {
+                    **context,
+                    "queue_wait_ns": dequeued_at_ns - queued_at_ns,
+                }
+            )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._delegate, name)
+
+
+def _process_peak_rss_observation() -> dict[str, Any]:
+    """Read the isolated pytest child's kernel-reported process high-water mark."""
+    import platform
+
+    try:
+        import resource
+    except ImportError:
+        return {"available": False, "reason": "resource_module_unavailable"}
+
+    units = {"Linux": "KiB", "Darwin": "bytes"}.get(platform.system())
+    if units is None:
+        return {"available": False, "reason": "ru_maxrss_units_not_qualified"}
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return {
+        "available": True,
+        "value": int(peak),
+        "units": units,
+        "normalized_bytes": int(peak) * 1024 if units == "KiB" else int(peak),
+        "source": "resource.getrusage(RUSAGE_SELF).ru_maxrss",
+        "window": "RUSAGE_SELF high-water from fresh pytest child process start through profile result preparation; includes interpreter/plugins, fixture setup, both local Runtime environments and CAS; excludes parent and sibling children",
+    }
 
 
 def _owner_scope_observation(
@@ -156,6 +264,19 @@ def _run_child(
 
             physical_executor = async_tools.get_shared_executor()
             assert physical_executor._max_workers == capacity
+            queue_wait_rows: list[dict[str, Any]] = []
+            queue_observation_lock = threading.Lock()
+            queue_observation_context = threading.local()
+            assert not physical_executor._threads, (
+                "actual queue residence must be instrumented before executor workers start"
+            )
+            physical_executor._work_queue = _ObservedWorkQueue(
+                physical_executor._work_queue,
+                executor=physical_executor,
+                submission_context=queue_observation_context,
+                observations=queue_wait_rows,
+                lock=queue_observation_lock,
+            )
             worker_ids: set[int] = set()
             worker_ids_lock = threading.Lock()
             ready = threading.Barrier(capacity)
@@ -388,21 +509,42 @@ def _run_child(
             active_lock = threading.Lock()
             dispatch_active = 0
             dispatch_peak = 0
-            dispatch_rows: list[dict[str, int]] = []
+            physical_active_thread_depths: Counter[int] = Counter()
+            physical_active_workers_peak = 0
+            dispatch_rows: list[dict[str, int | bool]] = []
             fold_rows: list[tuple[int, int, int]] = []
             submit_active = 0
             submit_peak = 0
 
             def observed_dispatch(**kwargs: Any) -> Any:
-                nonlocal dispatch_active, dispatch_peak
+                nonlocal dispatch_active, dispatch_peak, physical_active_workers_peak
                 if not target_method(kwargs):
                     return original_dispatch(**kwargs)
                 study_index = active_study.get()
                 assert study_index is not None, "TMLE dispatch lost its submitted context"
+                thread_id = threading.get_ident()
+                on_shared_worker = async_tools.is_current_shared_executor_worker()
+                if not bypass:
+                    assert on_shared_worker, "admitted TMLE dispatch did not run on a shared worker"
+                else:
+                    assert not on_shared_worker, (
+                        "bridge-removal body unexpectedly used a shared worker"
+                    )
                 with active_lock:
                     dispatch_active += 1
                     dispatch_peak = max(dispatch_peak, dispatch_active)
-                    dispatch_rows.append({"study": study_index, "thread_id": threading.get_ident()})
+                    if on_shared_worker:
+                        physical_active_thread_depths[thread_id] += 1
+                        physical_active_workers_peak = max(
+                            physical_active_workers_peak, len(physical_active_thread_depths)
+                        )
+                    dispatch_rows.append(
+                        {
+                            "study": study_index,
+                            "thread_id": thread_id,
+                            "shared_executor_worker": on_shared_worker,
+                        }
+                    )
                     if dispatch_active == 2:
                         both_dispatches_waiting.set()
                 try:
@@ -419,6 +561,10 @@ def _run_child(
                 finally:
                     with active_lock:
                         dispatch_active -= 1
+                        if on_shared_worker:
+                            physical_active_thread_depths[thread_id] -= 1
+                            if physical_active_thread_depths[thread_id] == 0:
+                                del physical_active_thread_depths[thread_id]
 
             dispatcher.dispatch = observed_dispatch
 
@@ -443,9 +589,19 @@ def _run_child(
                         finally:
                             with submission_lock:
                                 submit_active -= 1
+                previous_queue_context = getattr(queue_observation_context, "current", None)
+                queue_observation_context.current = (
+                    {
+                        "study_index": int(active_study.get()),
+                        "method_fqn": TMLEEstimator.signature.fqn.split("@", 1)[0],
+                    }
+                    if is_tmle
+                    else None
+                )
                 try:
                     return original_submit(func, *args, **kwargs)
                 finally:
+                    queue_observation_context.current = previous_queue_context
                     if is_tmle:
                         with submission_lock:
                             submit_active -= 1
@@ -725,11 +881,51 @@ def _run_child(
                     assert dispatch_peak == capacity
                     assert owner_dispatch_count == 2
 
+                queue_wait_observations = sorted(
+                    queue_wait_rows,
+                    key=lambda row: int(row["study_index"]),
+                )
+                if bypass:
+                    assert queue_wait_observations == []
+                    assert physical_active_workers_peak == 0
+                else:
+                    assert len(queue_wait_observations) == 2
+                    assert {row["study_index"] for row in queue_wait_observations} == {0, 1}
+                    assert all(row["queue_wait_ns"] >= 0 for row in queue_wait_observations)
+                    assert all(
+                        row["method_fqn"] == TMLEEstimator.signature.fqn.split("@", 1)[0]
+                        for row in queue_wait_observations
+                    )
+                    if capacity == 1:
+                        actual_cap_waits = [
+                            row
+                            for row in queue_wait_observations
+                            if row["queue_wait_ns"] > 0
+                            and (
+                                row["physical_workers_active_at_put"] >= capacity
+                                or row["queue_depth_before_put"] > 0
+                            )
+                        ]
+                        assert actual_cap_waits, (
+                            "cap one recorded no positive queue residence while the shared "
+                            "executor had an active worker or an earlier queued item; "
+                            f"observations={queue_wait_observations}"
+                        )
+                    assert physical_active_workers_peak == capacity
+
                 results = {
                     "capacity": capacity,
                     "profile_revision": revision,
                     "source": "candidate_configured_runtime_profile",
                     "dispatch_peak": dispatch_peak,
+                    "physical_active_workers_peak": physical_active_workers_peak,
+                    "physical_active_workers_basis": (
+                        "maximum distinct SharedExecutor worker threads simultaneously inside the real TMLE MethodDispatcher body; excludes ControlWorker threads and idle executor capacity"
+                    ),
+                    "executor_queue_wait_observations": queue_wait_observations,
+                    "executor_queue_wait_basis": (
+                        "perf_counter_ns from immediately before actual work-queue delegate.put() to immediately after get()/get_nowait(); rows also retain the admission-lock-stable active-worker count and pre-insertion queue depth; state qualifies but never replaces measured residence"
+                    ),
                     "dispatches_on_shared_workers": owner_dispatch_count,
                     "dispatch_count": len(dispatch_rows),
                     "run_experiment_entries": producer_entries,
@@ -768,7 +964,14 @@ def test_r4_native_child(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     bypass = os.environ.get("POLISYOS_R4_BYPASS") == "1"
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    profile_started_ns = time.perf_counter_ns()
     result = _run_child(capacity, temp_root=tmp_path, bypass=bypass)
+    result["profile_elapsed_ns"] = time.perf_counter_ns() - profile_started_ns
+    result["profile_elapsed_basis"] = (
+        "monotonic_ns from _run_child entry through its return after CAS readback and Runtime environment teardown; excludes interpreter/pytest startup"
+    )
+    result["process_peak_rss"] = _process_peak_rss_observation()
+    assert result["process_peak_rss"]["available"], result["process_peak_rss"]
     print("R4_NATIVE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
 
 
@@ -788,6 +991,7 @@ def _invoke_child(*, capacity: int, bypass: bool = False) -> dict[str, Any]:
             "LOG_LEVEL": "WARNING",
         }
     )
+    child_started_ns = time.perf_counter_ns()
     try:
         completed = subprocess.run(
             [
@@ -806,6 +1010,7 @@ def _invoke_child(*, capacity: int, bypass: bool = False) -> dict[str, Any]:
             timeout=180,
             check=False,
         )
+        child_process_elapsed_ns = time.perf_counter_ns() - child_started_ns
     except subprocess.TimeoutExpired as exc:
         _retain_child_output(
             capacity=capacity,
@@ -831,6 +1036,10 @@ def _invoke_child(*, capacity: int, bypass: bool = False) -> dict[str, Any]:
     )
     result = json.loads(payloads[0])
     assert isinstance(result, dict)
+    result["child_process_elapsed_ns"] = child_process_elapsed_ns
+    result["child_process_elapsed_basis"] = (
+        "parent monotonic_ns around subprocess.run; includes isolated Python/pytest startup, the full controlled profile, CAS readback, shutdown, and child exit"
+    )
     return result
 
 
@@ -933,6 +1142,12 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         return
     cap_two = _invoke_child(capacity=2)
     no_bridge = _invoke_child(capacity=1, bypass=True)
+    for profile in (cap_one, cap_two, no_bridge):
+        assert profile["profile_elapsed_ns"] >= 0
+        assert profile["child_process_elapsed_ns"] > 0
+        rss = profile["process_peak_rss"]
+        assert rss["available"] and type(rss["value"]) is int
+        assert rss["units"] in {"KiB", "bytes"}
     print(
         "R4_NATIVE_PROFILES="
         + json.dumps(
@@ -950,6 +1165,9 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         assert profile["method_backend_entries"] == profile["submit_count"] == 2
     assert cap_one["expected_fold_count"] == cap_one["observed_fold_count"] == 12
     assert cap_two["expected_fold_count"] == cap_two["observed_fold_count"] == 12
+    for profile in (cap_one, cap_two):
+        assert profile["physical_active_workers_peak"] == profile["capacity"]
+        assert len(profile["executor_queue_wait_observations"]) == 2
     assert cap_one["completed_jobs"] == cap_two["completed_jobs"] == 2
     for profile in (cap_one, cap_two):
         for study_index, output in profile["study_outputs"].items():
@@ -975,5 +1193,7 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
     assert no_bridge["capacity"] == 1
     assert no_bridge["dispatch_peak"] == 2
     assert no_bridge["dispatches_on_shared_workers"] == 0
+    assert no_bridge["physical_active_workers_peak"] == 0
+    assert no_bridge["executor_queue_wait_observations"] == []
     assert no_bridge["expected_fold_count"] == no_bridge["observed_fold_count"] == 12
     assert no_bridge["completed_jobs"] == 2

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
@@ -17,15 +18,18 @@ import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.registry.refs import ContextAdaptiveParameterBundleRef
+from polisyos.scientist.orchestration.engine import async_executor as async_executor_module
+from polisyos.scientist.orchestration.engine import executor as executor_module
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
+from polisyos.scientist.orchestration.engine.idempotency import NodeCacheEntry, NodeResultCache
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.runner._activity_worker import run_node_in_worker
@@ -673,3 +677,157 @@ async def test_canonical_budget_model_preserves_guard_and_neutral_completion(
     assert merged.applied
     assert merged.state.params["accounting"].reserved == {"neighbor": Decimal("0.13")}
     assert current.params["accounting"].reserved == {"neighbor": Decimal("0.13")}
+
+
+class _AdmissionCopyHook:
+    """Expose missing admission by executing a custom leaf during snapshot copying."""
+
+    def __init__(self) -> None:
+        self.deepcopy_calls = 0
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> str:
+        del memo
+        self.deepcopy_calls += 1
+        return "copy-hook-output"
+
+
+class _AdmissionCopyHookProducer:
+    """Consume the admitted value, persist its effect, and return a cacheable outcome."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+        self.spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.admission_copy_hook@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="Producer admission copy hook",
+                description="Minimal actual producer for property-removal verification",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=["params.untrusted"],
+            state_writes=["params.output"],
+        )
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        self.calls += 1
+        observed = state.params["untrusted"]
+        state.params["output"] = observed
+        effect = ctx.store.put_json(
+            {"admitted_value": observed},
+            PutOptions(
+                kind="ir.context_adaptive_parameter_bundle",
+                media_type="application/json",
+            ),
+        )
+        return NodeOutcome(status="ok", state=state, artifacts=[effect])
+
+    async def execute_async(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        return self.execute(ctx, state)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("contour", ["sequential", "async"])
+async def test_producer_admission_removal_probe_keeps_real_reopened_consumer_red(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str
+) -> None:
+    """Removing admission must reach a real producer and a fresh persisted reader."""
+    probe = _AdmissionCopyHook()
+    initial = _initial_state()
+    initial.params["untrusted"] = probe
+    if os.environ.get("E02_B_PROPERTY_REMOVAL") == "producer-state-admission":
+        owner_module = executor_module if contour == "sequential" else async_executor_module
+        # Remove only executor pre-snapshot admission; branch admission and
+        # mutation tracking markers remain live.
+        monkeypatch.setattr(owner_module, "_validate_producer_state", lambda _state: None)
+
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root)
+    bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store, bundle, run_id=initial.run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("admission-removal"))
+    producer = _AdmissionCopyHookProducer()
+    registry = NodeRegistry()
+    registry.register(producer)
+    workflow = WorkflowSpec(
+        workflow_id="producer_admission_removal_probe",
+        nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+    )
+    result = None
+    execution_error: Exception | None = None
+    try:
+        if contour == "sequential":
+            result = WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+            result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+    except Exception as exc:
+        execution_error = exc
+
+    events = [json.loads(line) for line in run.trace_path.read_text().splitlines()]
+    cache_events = [event for event in events if event.get("event") == "NODE_CACHE_STORE"]
+    cache_loaded = False
+    cache_ref: ArtifactRef | None = None
+    reopened_state_value = None
+    reopened_effect_value = None
+    if cache_events:
+        cache_ref = ArtifactRef.model_validate(cache_events[-1]["refs"]["outputs"][0])
+        reopened = FileSystemCAS(root)
+        reader = NodeResultCache(reopened, initial.run_id)
+        cache_loaded = reader.load_entry(cache_ref)
+        entry = NodeCacheEntry.model_validate(from_canonical_bytes(reopened.get_bytes(cache_ref)))
+        cached = reader.get(entry.idempotency_key)
+        if cached is not None:
+            reopened_state_value = cached.state.params.get("output")
+            effect_ref = cached.artifacts[0]
+            reopened_effect_value = json.loads(reopened.get_bytes(effect_ref))["admitted_value"]
+
+    observation = {
+        "observation_schema": "e02.prepared_b.removal_observation.v1",
+        "case_id": f"producer-admission-{contour}",
+        "control": os.environ.get("E02_B_PROPERTY_REMOVAL"),
+        "contour": contour,
+        "typed_workflow_marker": workflow.workflow_id,
+        "typed_producer_marker": str(producer.spec.metadata.component_id),
+        "execution_error": (
+            {"type": type(execution_error).__name__, "message": str(execution_error)}
+            if execution_error is not None
+            else None
+        ),
+        "workflow_status": result.report.status if result is not None else None,
+        "workflow_node_error": (
+            result.report.nodes[0].error.code
+            if result is not None and result.report.nodes and result.report.nodes[0].error
+            else None
+        ),
+        "copy_hook_calls": probe.deepcopy_calls,
+        "producer_calls": producer.calls,
+        "node_cache_store_events": len(cache_events),
+        "cache_entry_loaded": cache_loaded,
+        "cache_entry_ref": cache_ref.model_dump(mode="json") if cache_ref is not None else None,
+        "reopened_consumer_output": reopened_state_value,
+        "reopened_effect_admitted_value": reopened_effect_value,
+    }
+    encoded = json.dumps(observation, sort_keys=True)
+    observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+    if observation_root:
+        target_dir = Path(observation_root)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target = target_dir / f"producer-admission-{contour}.json"
+    else:
+        target = tmp_path / "producer-admission-removal-observation.json"
+    target.write_text(encoded + "\n", encoding="utf-8")
+    print(encoded)
+
+    # Mutant fails after persisting its observation of the actual effects.
+    assert probe.deepcopy_calls == 0, observation
+    assert producer.calls == 0, observation
+    assert not cache_events, observation
+    assert execution_error is not None or (result is not None and result.report.status == "fail"), (
+        observation
+    )
+    if contour == "sequential":
+        assert isinstance(execution_error, TypeError), observation
+        assert "finite JSON container graph" in str(execution_error), observation
+    else:
+        assert result is not None
+        assert result.report.nodes[0].error.code == "node.state_admission_failed"

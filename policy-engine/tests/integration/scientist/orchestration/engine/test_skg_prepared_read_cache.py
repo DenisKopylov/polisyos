@@ -1752,9 +1752,27 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
     second = WorkflowExecutor(ctx_second, registry_second).execute(workflow, initial_state)
 
     assert second.report.status == "ok"
-    assert _resolved_value(store, second.state) == 3.1
-    assert not any(
-        event.get("event") == "NODE_CACHE_HIT"
-        for event in _trace_events(ctx_second, start_line=second_trace_start)
-    )
+    second_value = _resolved_value(store, second.state)
+    assert second_value == 3.1
+    second_events = _trace_events(ctx_second, start_line=second_trace_start)
+    second_cache_hits = [event for event in second_events if event.get("event") == "NODE_CACHE_HIT"]
+    assert not second_cache_hits
     assert_one_resumed_terminal_lifecycle(ctx_second.run)
+
+    observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+    if observation_root:
+        observation_dir = Path(observation_root)
+        observation_dir.mkdir(parents=True, exist_ok=True)
+        observation = {
+            "observation_schema": "e02.prepared_b.removal_observation.v1",
+            "case_id": "b61-same-path-source-replacement",
+            "first_persisted_cache_value": _resolved_value(store, first_outcome.state),
+            "value_after_same_path_source_replacement": second_value,
+            "cache_hits_after_replacement": len(second_cache_hits),
+            "resumed_workflow_status": second.report.status,
+            "replacement_readset_guard_completed": True,
+            "terminal_lifecycle_completed": True,
+        }
+        (observation_dir / "b61-same-path-source-replacement.json").write_text(
+            json.dumps(observation, sort_keys=True) + "\n", encoding="utf-8"
+        )

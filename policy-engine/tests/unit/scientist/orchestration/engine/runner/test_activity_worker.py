@@ -6,8 +6,9 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import sys
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import duckdb
 import numpy as np
@@ -81,9 +82,6 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     mutation_journal_for_state,
 )
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_build_worker_context_reconstructs_run_and_registry_bundle(tmp_path: Path) -> None:
@@ -852,6 +850,7 @@ def test_canonical_timeout_worker_replays_operations_into_changed_receiver(
             outcome_snapshot = json.dumps(
                 operation_envelope["outcome"], sort_keys=True, separators=(",", ":")
             )
+            original_operation_count = len(operation_envelope["state_mutations"])
             assert operation_schema == "polisyos.scientist.node_outcome.mutations.v1"
             assert operation_envelope["state_mutations"]
             operation_envelope["state_mutations"] = []
@@ -880,6 +879,44 @@ def test_canonical_timeout_worker_replays_operations_into_changed_receiver(
                 removed_state.artifacts_index
             )
             assert removed_state.params["receiver_only"] == "changed-after-dispatch"
+
+            observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
+            if observation_root:
+                observation_dir = Path(observation_root)
+                observation_dir.mkdir(parents=True, exist_ok=True)
+                observation = {
+                    "observation_schema": "e02.prepared_b.removal_observation.v1",
+                    "case_id": "worker-operation-replay",
+                    "outer_wire_schema": outer_schema,
+                    "operation_wire_schema": operation_schema,
+                    "operation_count_before_removal": original_operation_count,
+                    "operation_count_after_removal": len(operation_envelope["state_mutations"]),
+                    "outcome_snapshot_preserved": (
+                        json.dumps(
+                            operation_envelope["outcome"],
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        )
+                        == outcome_snapshot
+                    ),
+                    "receiver_value_before": receiver_state.params["phase15_runtime_backend_used"],
+                    "produced_value": outcome.state.params["phase15_runtime_backend_used"],
+                    "merged_value": merged_state.params["phase15_runtime_backend_used"],
+                    "stripped_value": removed_state.params["phase15_runtime_backend_used"],
+                    "receiver_only_after_merge": merged_state.params["receiver_only"],
+                    "receiver_only_after_removal": removed_state.params["receiver_only"],
+                    "bundle_ref_after_merge": (
+                        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+                        in merged_state.artifacts_index
+                    ),
+                    "bundle_ref_after_removal": (
+                        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+                        in removed_state.artifacts_index
+                    ),
+                }
+                (observation_dir / "worker-operation-replay.json").write_text(
+                    json.dumps(observation, sort_keys=True) + "\n", encoding="utf-8"
+                )
     finally:
         if run is not None:
             with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):

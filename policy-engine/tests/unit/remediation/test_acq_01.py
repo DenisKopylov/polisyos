@@ -1179,6 +1179,8 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
             simulation=_WorldBoundSimulation(),
             repo_root=tmp_path,
         )
+        producer_prior_context = contract_controller._cycle_substrate_context
+        assert producer_prior_context is case.before_context
         run = await contract_controller.run(
             case.problem,
             budget_state=BudgetState(
@@ -1194,7 +1196,31 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
             artifact.payload.get("acq01_route") == route_payload
             for artifact in receipt.owner_artifacts
         )
-        contract_context = contract_controller._rebuild_n7_acq01_route_context(
+        assert (
+            receipt.grown_world_before_ref == producer_prior_context.world_model_record_content_hash
+        )
+        assert contract_controller._cycle_substrate_context is not producer_prior_context
+        with pytest.raises(generation_cycle_module.GenerationCycleError) as stale_replay:
+            contract_controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=receipt,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+        assert stale_replay.value.code == "n7_acq01_registry_binding_invalid"
+
+        # Replay the persisted receipt against the exact immutable context from
+        # which the real N7 producer created its before-ref. The controller
+        # above has already advanced through re-entry and is now a stale reader.
+        replay_controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+        )
+        assert replay_controller._cycle_substrate_context is producer_prior_context
+        contract_context = replay_controller._rebuild_n7_acq01_route_context(
             case.problem,
             acquisition_receipt=receipt,
             candidate_id=case.candidate.candidate_id,
@@ -1231,7 +1257,7 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
 
         profileless_receipt = _receipt_with_route_measurement_profile(receipt, profile_sha256=None)
         with pytest.raises(generation_cycle_module.GenerationCycleError) as missing_profile:
-            contract_controller._rebuild_n7_acq01_route_context(
+            replay_controller._rebuild_n7_acq01_route_context(
                 case.problem,
                 acquisition_receipt=profileless_receipt,
                 candidate_id=case.candidate.candidate_id,
@@ -1535,21 +1561,28 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         cycle = run.cycles[0]
         assert cycle.simulation.status == "joint_simulated"
         assert cycle.simulation.simulation_result_ref is not None
-        assert frozenset(cycle.simulation.authority_blockers) in {
-            frozenset(
-                {
-                    "simulation_only_k_sim_not_world_evidence",
-                    "simulation_effect_basis_not_established",
-                }
+        persisted_n5 = generation_cycle_module.load_joint_simulation_result(
+            cycle.simulation.simulation_result_ref,
+            store=runtime_store,
+            expected_world_model_record_content_hash=route.world_build.record.content_hash,
+            expected_atom_ids=tuple(
+                item.intervention_id for item in after_request.intervention_atoms
             ),
-            frozenset(
-                {
-                    "simulation_only_k_sim_not_world_evidence",
-                    "simulation_effect_basis_not_established",
-                    "horizon_time_alignment_not_established",
-                }
-            ),
+        )
+        persisted_blockers = tuple(persisted_n5.promotion_ready_value_packet["authority_blockers"])
+        assert cycle.simulation.authority_blockers == persisted_blockers
+        point_sampling_statuses = {
+            point.replication_sampling.status
+            for trajectory in persisted_n5.trajectories
+            for point in trajectory.points
+            if point.replication_sampling is not None
         }
+        assert point_sampling_statuses == {"standard_error_not_estimated"}
+        assert "standard_error_not_estimated" in persisted_blockers
+        assert {
+            "simulation_only_k_sim_not_world_evidence",
+            "simulation_effect_basis_not_established",
+        }.issubset(persisted_blockers)
         assert cycle.value_port.status == "value_conditional"
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
         assert cycle.value_port.authority_blockers == cycle.simulation.authority_blockers

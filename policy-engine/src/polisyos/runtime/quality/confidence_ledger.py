@@ -12,10 +12,12 @@ verifier fail closed.
 from __future__ import annotations
 
 import ast
+import builtins as _builtins
 import functools
 import hashlib
 import importlib
 import importlib.util
+import inspect as _inspect
 import json
 import os
 import sys
@@ -771,11 +773,14 @@ class LoadedDeploymentIdentityObservation(_StrictModel):
         default=None,
         pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
     )
-    reason_code: Literal[
-        "canonical_loaded_runtime_mismatch",
-        "canonical_deployment_identity_invalid",
-        "packaged_deployment_identity_issuer_unavailable",
-    ] | None = None
+    reason_code: (
+        Literal[
+            "canonical_loaded_runtime_mismatch",
+            "canonical_deployment_identity_invalid",
+            "packaged_deployment_identity_issuer_unavailable",
+        ]
+        | None
+    ) = None
 
     @model_validator(mode="after")
     def _bind_status_to_identity(self) -> Self:
@@ -797,9 +802,9 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
     identity issuers.
     """
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.runtime.confidence_ledger.n6_currentness_observation.v2"] = (
         "policyos.runtime.confidence_ledger.n6_currentness_observation.v2"
-    ] = "policyos.runtime.confidence_ledger.n6_currentness_observation.v2"
+    )
     status: Literal["current", "stale", "not_established"]
     census_verdict: Literal["PASS", "FAIL", "UNRUN"]
     recorded_identity_status: Literal["established", "not_established"] | None = None
@@ -812,11 +817,14 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
         default=None,
         pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
     )
-    loaded_identity_reason_code: Literal[
-        "canonical_loaded_runtime_mismatch",
-        "canonical_deployment_identity_invalid",
-        "packaged_deployment_identity_issuer_unavailable",
-    ] | None = None
+    loaded_identity_reason_code: (
+        Literal[
+            "canonical_loaded_runtime_mismatch",
+            "canonical_deployment_identity_invalid",
+            "packaged_deployment_identity_issuer_unavailable",
+        ]
+        | None
+    ) = None
     reason_code: Literal[
         "historical_deployment_identity_not_recorded",
         "loaded_deployment_identity_not_established",
@@ -836,8 +844,7 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
             ):
                 raise ValueError("n6_currentness_loaded_identity_missing")
         elif (
-            self.loaded_deployment_identity is not None
-            or self.loaded_identity_reason_code is None
+            self.loaded_deployment_identity is not None or self.loaded_identity_reason_code is None
         ):
             raise ValueError("n6_currentness_loaded_identity_unexpected")
         if self.status == "current" and (
@@ -866,9 +873,9 @@ class PackagedDeploymentIdentityReadiness(_StrictModel):
     strangle census separate from historical replay.
     """
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.runtime.confidence_ledger.packaged_identity_readiness.v1"] = (
         "policyos.runtime.confidence_ledger.packaged_identity_readiness.v1"
-    ] = "policyos.runtime.confidence_ledger.packaged_identity_readiness.v1"
+    )
     verdict: Literal["PASS", "FAIL", "UNRUN"]
     inputs: dict[str, str | bool]
     unresolved_by_construction: tuple[
@@ -1054,9 +1061,7 @@ class N9PromotionSemanticLedgerProjection(_StrictModel):
     within_budget: bool
     good_event_clause: Literal[GOOD_EVENT_CLAUSE]
     conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
-    maintained_assumptions: tuple[
-        Literal["obligation_completeness", "validator_soundness"], ...
-    ]
+    maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
@@ -1113,9 +1118,7 @@ class N9PromotionSemanticLedgerProjection(_StrictModel):
             raise ValueError("n9_semantic_projection_total_spend_drift")
         if self.total_spend_decimal != _fraction_display(self.total_spend.fraction):
             raise ValueError("n9_semantic_projection_total_spend_decimal_drift")
-        if self.within_budget is not (
-            self.total_spend.fraction <= self.budget_delta.fraction
-        ):
+        if self.within_budget is not (self.total_spend.fraction <= self.budget_delta.fraction):
             raise ValueError("n9_semantic_projection_budget_outcome_drift")
         expected_projection_hash = _content_hash(
             self.model_dump(mode="json", exclude={"projection_hash"})
@@ -3151,6 +3154,7 @@ class ConfidenceLedgerSession:
 
     def _read_cas_json(self, artifact_ref: str, schema: artifacts.SchemaInfo) -> object:
         from polisyos.core.artifacts import load_core_json_artifact
+
         report = self._artifact_store.verify(artifact_ref)
         if not report.ok:
             raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
@@ -4553,12 +4557,7 @@ def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadines
 
     root = _loaded_policy_engine_root()
     package_root = root / "polisyos"
-    manifest_path = (
-        package_root
-        / "runtime"
-        / "quality"
-        / "_packaged_deployment_identity.json"
-    )
+    manifest_path = package_root / "runtime" / "quality" / "_packaged_deployment_identity.json"
     source_checkout = bool(
         (root / "pyproject.toml").is_file()
         and (root / "uv.lock").is_file()
@@ -4656,6 +4655,8 @@ def observe_n6_deployment_currentness(
         reason_code="n6_currentness_established",
         unresolved_by_construction=(),
     )
+
+
 def _policy_engine_deployment_identity(repo_root: Path) -> str:
     """Bind authority to disk bytes, runtime ABI, and actually loaded code."""
 
@@ -4750,9 +4751,7 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
     """Return a cheap path/inode/size/time fence for authority deployment files."""
 
     entries: list[_DeploymentFileFence] = []
-    for relative in _deployment_relative_paths_from_closure(
-        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
-    ):
+    for relative in _deployment_relative_paths_from_closure(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE):
         path = repo_root / relative
         try:
             stat = path.stat()
@@ -4776,9 +4775,7 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
 def _deployment_relative_paths(repo_root: Path) -> tuple[Path, ...]:
     """Return the deployment files derived from the authority import closure."""
 
-    return _deployment_relative_paths_from_closure(
-        _derived_authority_import_closure(repo_root)
-    )
+    return _deployment_relative_paths_from_closure(_derived_authority_import_closure(repo_root))
 
 
 def _deployment_relative_paths_from_closure(
@@ -4903,10 +4900,7 @@ def _resolve_authority_import_closure(
                         directory_entries=directory_entries,
                         source_index=source_index,
                     )
-                    if (
-                        provider is not None
-                        and _repository_module_root(provider) in allowed_roots
-                    ):
+                    if provider is not None and _repository_module_root(provider) in allowed_roots:
                         if resolve_source(provider) is None:
                             raise ConfidenceLedgerError(
                                 "canonical_loaded_runtime_mismatch",
@@ -5050,7 +5044,8 @@ def _literal_builtin_name_unshadowed(
     """Prove a name still denotes its builtin in both module and function scope."""
 
     parameters = {
-        arg.arg for arg in (
+        arg.arg
+        for arg in (
             *function.args.posonlyargs,
             *function.args.args,
             *function.args.kwonlyargs,
@@ -5095,8 +5090,7 @@ def _literal_getattr_dispatch_names(test: ast.expr, parameter_name: str) -> froz
         and left.id == parameter_name
         and isinstance(right, (ast.List, ast.Set, ast.Tuple))
         and all(
-            isinstance(item, ast.Constant) and isinstance(item.value, str)
-            for item in right.elts
+            isinstance(item, ast.Constant) and isinstance(item.value, str) for item in right.elts
         )
     ):
         return frozenset(item.value for item in right.elts)
@@ -5125,21 +5119,21 @@ def _literal_import_helper_bindings(
     for node in tree.body:
         if isinstance(node, ast.ImportFrom) and node.module == "importlib":
             functions.update(
-                alias.asname or alias.name for alias in node.names
-                if alias.name == "import_module"
+                alias.asname or alias.name for alias in node.names if alias.name == "import_module"
             )
         elif isinstance(node, ast.Import):
             modules.update(
-                alias.asname or "importlib" for alias in node.names
-                if alias.name == "importlib"
+                alias.asname or "importlib" for alias in node.names if alias.name == "importlib"
             )
 
     module_stores = {
-        node.id for node in _source_scope_nodes(tree.body)
+        node.id
+        for node in _source_scope_nodes(tree.body)
         if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
     }
     local_stores = {
-        node.id for node in _source_scope_nodes(function.body)
+        node.id
+        for node in _source_scope_nodes(function.body)
         if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
     }
     local_imports: set[str] = set()
@@ -5153,7 +5147,8 @@ def _literal_import_helper_bindings(
                 alias.asname or alias.name for alias in node.names if alias.name != "*"
             )
     parameters = {
-        arg.arg for arg in (
+        arg.arg
+        for arg in (
             *function.args.posonlyargs,
             *function.args.args,
             *function.args.kwonlyargs,
@@ -5189,9 +5184,7 @@ def _literal_source_module_target(
         and function.value.id in imported_modules
     )
     builtin_import = (
-        builtin_import_unshadowed
-        and isinstance(function, ast.Name)
-        and function.id == "__import__"
+        builtin_import_unshadowed and isinstance(function, ast.Name) and function.id == "__import__"
     )
     if not (imported_function or imported_module_function or builtin_import):
         return False, None
@@ -5253,7 +5246,8 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
             functions.append(statement)
             parameter = statement.args.args[0].arg
             mapping_names.update(
-                node.value.id for node in ast.walk(statement)
+                node.value.id
+                for node in ast.walk(statement)
                 if isinstance(node, ast.Subscript)
                 and isinstance(node.value, ast.Name)
                 and isinstance(node.slice, ast.Name)
@@ -5313,9 +5307,8 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
             or (calls_import and not builtin_import_unshadowed)
         ):
             invalid.add("*")
-        if (
-            (calls_getattr and not builtin_getattr_unshadowed)
-            or (calls_import and not builtin_import_unshadowed)
+        if (calls_getattr and not builtin_getattr_unshadowed) or (
+            calls_import and not builtin_import_unshadowed
         ):
             invalid.add("*")
         if lookups and not builtin_getattr_unshadowed:
@@ -5326,7 +5319,8 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
             if not isinstance(branch, ast.If):
                 continue
             branch_lookups = tuple(
-                node for node in _source_scope_nodes(branch.body, descend_into_ifs=False)
+                node
+                for node in _source_scope_nodes(branch.body, descend_into_ifs=False)
                 if _dynamic_getattr_name(node, parameter)
             )
             if not branch_lookups:
@@ -5389,6 +5383,7 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
         invalid_exports=frozenset(invalid),
     )
 
+
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
     """Walk declarations that can execute, excluding typing-only import arms."""
 
@@ -5435,11 +5430,7 @@ def _literal_dynamic_import_ref(node: ast.Call) -> str | None:
     if not (is_import_module or is_dunder_import) or not node.args:
         return None
     value = node.args[0]
-    return (
-        value.value
-        if isinstance(value, ast.Constant) and isinstance(value.value, str)
-        else None
-    )
+    return value.value if isinstance(value, ast.Constant) and isinstance(value.value, str) else None
 
 
 def _import_authority_closure_modules(
@@ -5490,11 +5481,7 @@ def _repository_module_source(
         return None
     module_parts = module_name.split(".")
     if module_root == "polisyos":
-        base = (
-            Path("src")
-            if (repo_root / "src" / "polisyos").is_dir()
-            else Path()
-        )
+        base = Path("src") if (repo_root / "src" / "polisyos").is_dir() else Path()
     else:
         base = Path()
     package_path = base.joinpath(*module_parts, "__init__.py")
@@ -5814,11 +5801,7 @@ def _returned_local_wrapper_path(
         if not nested:
             return tuple(path) if path else None
         returned = _source_scope_returned_function_names(current)
-        if (
-            len(nested) != 1
-            or not returned
-            or any(name != nested[0].name for name in returned)
-        ):
+        if len(nested) != 1 or not returned or any(name != nested[0].name for name in returned):
             return None
         path.append(nested[0].name)
         current = nested[0]
@@ -5869,18 +5852,14 @@ def _source_function_defaults_match(
     actual_positional_defaults = function.__defaults__ or ()
     if len(actual_positional_defaults) != len(positional_defaults) or any(
         not _exact_literal_equal(actual, expected)
-        for actual, expected in zip(
-            actual_positional_defaults, positional_defaults, strict=True
-        )
+        for actual, expected in zip(actual_positional_defaults, positional_defaults, strict=True)
     ):
         return False
 
     expected_keyword_defaults: dict[str, object] = {}
     if len(node.args.kwonlyargs) != len(node.args.kw_defaults):
         return False
-    for argument, default in zip(
-        node.args.kwonlyargs, node.args.kw_defaults, strict=True
-    ):
+    for argument, default in zip(node.args.kwonlyargs, node.args.kw_defaults, strict=True):
         if default is None:
             continue
         value = _source_literal(default)
@@ -5953,9 +5932,9 @@ def _source_decorator_factory_captures(
             explicit_bindings.add(name)
 
         positional_only_names = {argument.arg for argument in factory_node.args.posonlyargs}
-        keywordable_names = {
-            argument.arg for argument in factory_node.args.args
-        } | {argument.arg for argument in keyword_only_parameters}
+        keywordable_names = {argument.arg for argument in factory_node.args.args} | {
+            argument.arg for argument in keyword_only_parameters
+        }
         for keyword in decorator_node.keywords:
             if (
                 keyword.arg is None
@@ -6010,6 +5989,1017 @@ def _source_slot_function_node(
     return declaration
 
 
+@dataclass(frozen=True)
+class _SourceDecoratorParameter:
+    """One parameter reconstructed only from a loader-matched source function."""
+
+    name: str
+    kind_name: str
+    has_default: bool
+    default: object
+    has_annotation: bool
+    annotation: str | None
+
+
+@dataclass(frozen=True)
+class _SourceDecoratorParameterMap:
+    """Ordered source-derived parameters exposed by ``Signature.parameters``."""
+
+    parameters: tuple[_SourceDecoratorParameter, ...]
+
+
+@dataclass(frozen=True)
+class _SourceDecoratorSignature:
+    """A signature projection derived from one source AST declaration."""
+
+    parameters: tuple[_SourceDecoratorParameter, ...]
+    has_return_annotation: bool
+    return_annotation: str | None
+
+
+@dataclass(frozen=True)
+class _SourceResolvedAnnotation:
+    """Supported union members resolved through source-declared imports."""
+
+    members: tuple[object, ...]
+
+
+@dataclass(frozen=True)
+class _SourceResolvedAnnotationMap:
+    """The selector annotation exposed by source-derived ``get_type_hints``."""
+
+    selector_name: str
+    selector_annotation: _SourceResolvedAnnotation | None
+
+
+@dataclass(frozen=True)
+class _SourceBoundOperation:
+    """A method operation accepted by the bounded source expression evaluator."""
+
+    name: str
+    receiver: object
+
+
+_SOURCE_DERIVATION_FAILED = object()
+
+
+def _source_decorator_truth(value: object) -> object:
+    """Resolve truthiness only for exact immutable scalar values in the source subset."""
+
+    if value is _SOURCE_DERIVATION_FAILED:
+        return _SOURCE_DERIVATION_FAILED
+    if value is None:
+        return False
+    if type(value) in {bool, int, float, str, bytes, tuple}:
+        return bool(value)
+    return _SOURCE_DERIVATION_FAILED
+
+
+def _source_import_binding(
+    name: str,
+    *,
+    tree: ast.Module,
+    module: object,
+    module_name: str,
+) -> object:
+    """Resolve one source import and require the live module binding to retain it."""
+
+    namespace = getattr(module, "__dict__", None)
+    if type(namespace) is not dict:
+        return _SOURCE_DERIVATION_FAILED
+    imported: list[tuple[str, str]] = []
+    for statement in tree.body:
+        if isinstance(statement, ast.ImportFrom):
+            for alias in statement.names:
+                if alias.name == "*":
+                    continue
+                local_name = alias.asname or alias.name
+                if local_name == name:
+                    if statement.level:
+                        package = module_name.rpartition(".")[0]
+                        try:
+                            imported_module = importlib.util.resolve_name(
+                                "." * statement.level + (statement.module or ""),
+                                package,
+                            )
+                        except (ImportError, ValueError):
+                            return _SOURCE_DERIVATION_FAILED
+                    else:
+                        imported_module = statement.module
+                    if not imported_module:
+                        return _SOURCE_DERIVATION_FAILED
+                    imported.append((imported_module, alias.name))
+        elif isinstance(statement, ast.Import):
+            for alias in statement.names:
+                local_name = alias.asname or alias.name.split(".", 1)[0]
+                if local_name == name:
+                    imported.append((alias.name if alias.asname else local_name, ""))
+    if len(imported) > 1:
+        return _SOURCE_DERIVATION_FAILED
+    if not imported:
+        if name in namespace:
+            return _SOURCE_DERIVATION_FAILED
+        builtin_namespace = namespace.get("__builtins__", _builtins)
+        if builtin_namespace is _builtins:
+            builtin_namespace = vars(_builtins)
+        if type(builtin_namespace) is not dict:
+            return _SOURCE_DERIVATION_FAILED
+        expected_builtin = vars(_builtins).get(name, _SOURCE_DERIVATION_FAILED)
+        if (
+            expected_builtin is _SOURCE_DERIVATION_FAILED
+            or builtin_namespace.get(name) is not expected_builtin
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        return expected_builtin
+
+    target_module_name, imported_name = imported[0]
+    target_module = sys.modules.get(target_module_name)
+    target_namespace = getattr(target_module, "__dict__", None)
+    if type(target_namespace) is not dict:
+        return _SOURCE_DERIVATION_FAILED
+    expected = (
+        target_module
+        if not imported_name
+        else target_namespace.get(imported_name, _SOURCE_DERIVATION_FAILED)
+    )
+    if expected is _SOURCE_DERIVATION_FAILED or namespace.get(name) is not expected:
+        return _SOURCE_DERIVATION_FAILED
+    return expected
+
+
+def _source_future_annotations_enabled(tree: ast.Module) -> bool:
+    """Return whether this module's signatures use postponed annotations."""
+
+    return any(
+        isinstance(statement, ast.ImportFrom)
+        and statement.module == "__future__"
+        and any(alias.name == "annotations" for alias in statement.names)
+        for statement in tree.body
+    )
+
+
+def _source_parameter_nodes(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> tuple[tuple[ast.arg, str, ast.expr | None], ...] | None:
+    """Enumerate Python parameters and defaults in canonical signature order."""
+
+    arguments = node.args
+    positional = [*arguments.posonlyargs, *arguments.args]
+    if len(arguments.defaults) > len(positional):
+        return None
+    default_start = len(positional) - len(arguments.defaults)
+    defaults: dict[str, ast.expr] = {
+        argument.arg: default
+        for argument, default in zip(positional[default_start:], arguments.defaults, strict=True)
+    }
+    rows: list[tuple[ast.arg, str, ast.expr | None]] = []
+    for argument in arguments.posonlyargs:
+        rows.append((argument, "POSITIONAL_ONLY", defaults.get(argument.arg)))
+    for argument in arguments.args:
+        rows.append((argument, "POSITIONAL_OR_KEYWORD", defaults.get(argument.arg)))
+    if arguments.vararg is not None:
+        rows.append((arguments.vararg, "VAR_POSITIONAL", None))
+    if len(arguments.kwonlyargs) != len(arguments.kw_defaults):
+        return None
+    for argument, default in zip(arguments.kwonlyargs, arguments.kw_defaults, strict=True):
+        rows.append((argument, "KEYWORD_ONLY", default))
+    if arguments.kwarg is not None:
+        rows.append((arguments.kwarg, "VAR_KEYWORD", None))
+    if len({argument.arg for argument, _kind, _default in rows}) != len(rows):
+        return None
+    return tuple(rows)
+
+
+def _source_function_annotation_strings(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> dict[str, str] | None:
+    """Stringify every postponed annotation in one source function declaration."""
+
+    expected: dict[str, str] = {}
+    parameter_nodes = _source_parameter_nodes(node)
+    if parameter_nodes is None:
+        return None
+    for argument, _kind, _default in parameter_nodes:
+        if argument.annotation is not None:
+            expected[argument.arg] = ast.unparse(argument.annotation)
+    if node.returns is not None:
+        expected["return"] = ast.unparse(node.returns)
+    return expected
+
+
+def _source_function_annotations_match(
+    function: types.FunctionType,
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Require runtime annotation strings to match the exact source declaration."""
+
+    expected = _source_function_annotation_strings(node)
+    actual = function.__annotations__
+    return bool(
+        expected is not None
+        and type(actual) is dict
+        and set(actual) == set(expected)
+        and all(
+            type(actual[name]) is str and actual[name] == value for name, value in expected.items()
+        )
+    )
+
+
+def _source_function_signature(
+    function: types.FunctionType,
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    tree: ast.Module,
+) -> _SourceDecoratorSignature | None:
+    """Build a bounded signature from AST, defaults, and annotation source."""
+
+    if not _source_future_annotations_enabled(tree):
+        return None
+    if not _source_function_defaults_match(function, node):
+        return None
+    if not _source_function_annotations_match(function, node):
+        return None
+    function_namespace = function.__dict__
+    if type(function_namespace) is not dict or any(
+        name in function_namespace
+        for name in ("__signature__", "__wrapped__", "__text_signature__")
+    ):
+        return None
+    parameter_nodes = _source_parameter_nodes(node)
+    if parameter_nodes is None:
+        return None
+    parameters: list[_SourceDecoratorParameter] = []
+    for argument, kind_name, default_node in parameter_nodes:
+        if default_node is None:
+            has_default = False
+            default: object = None
+        else:
+            default = _source_literal(default_node)
+            if default is _UNSUPPORTED_SOURCE_LITERAL:
+                return None
+            has_default = True
+        annotation = ast.unparse(argument.annotation) if argument.annotation is not None else None
+        parameters.append(
+            _SourceDecoratorParameter(
+                name=argument.arg,
+                kind_name=kind_name,
+                has_default=has_default,
+                default=default,
+                has_annotation=argument.annotation is not None,
+                annotation=annotation,
+            )
+        )
+    return_annotation = ast.unparse(node.returns) if node.returns is not None else None
+    return _SourceDecoratorSignature(
+        parameters=tuple(parameters),
+        has_return_annotation=node.returns is not None,
+        return_annotation=return_annotation,
+    )
+
+
+def _source_annotation_members(
+    node: ast.expr,
+    *,
+    tree: ast.Module,
+    module: object,
+    module_name: str,
+) -> tuple[object, ...] | None:
+    """Resolve only names and ``|`` unions whose bindings are source imports."""
+
+    if isinstance(node, ast.Name):
+        value = _source_import_binding(
+            node.id,
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
+        return (value,) if isinstance(value, type) else None
+    if isinstance(node, ast.Constant) and node.value is None:
+        return (type(None),)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        left = _source_annotation_members(
+            node.left, tree=tree, module=module, module_name=module_name
+        )
+        right = _source_annotation_members(
+            node.right, tree=tree, module=module, module_name=module_name
+        )
+        if left is None or right is None:
+            return None
+        result = list(left)
+        for value in right:
+            if not any(value is existing for existing in result):
+                result.append(value)
+        return tuple(result)
+    return None
+
+
+def _source_imported_names(tree: ast.Module) -> frozenset[str]:
+    """Return direct module import bindings without inferring runtime names."""
+
+    names: set[str] = set()
+    for statement in tree.body:
+        if isinstance(statement, ast.ImportFrom):
+            names.update(
+                alias.asname or alias.name for alias in statement.names if alias.name != "*"
+            )
+        elif isinstance(statement, ast.Import):
+            names.update(alias.asname or alias.name.split(".", 1)[0] for alias in statement.names)
+    return frozenset(names)
+
+
+def _source_reference_annotation_identity(
+    *,
+    tree: ast.Module,
+    module: object,
+    module_name: str,
+    source_path: Path,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
+) -> object:
+    """Find the source helper's direct reference type guard and validate its function."""
+
+    helper_node = next(
+        (
+            statement
+            for statement in tree.body
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == "_selector_annotation_accepts_full_reference"
+        ),
+        None,
+    )
+    namespace = getattr(module, "__dict__", None)
+    helper = (
+        namespace.get("_selector_annotation_accepts_full_reference")
+        if type(namespace) is dict
+        else None
+    )
+    if not isinstance(helper_node, ast.FunctionDef) or not isinstance(helper, types.FunctionType):
+        return _SOURCE_DERIVATION_FAILED
+    imported_names = _source_imported_names(tree)
+    for expression in ast.walk(helper_node):
+        if (
+            isinstance(expression, ast.Name)
+            and isinstance(expression.ctx, ast.Load)
+            and expression.id in imported_names
+            and _source_import_binding(
+                expression.id, tree=tree, module=module, module_name=module_name
+            )
+            is _SOURCE_DERIVATION_FAILED
+        ):
+            return _SOURCE_DERIVATION_FAILED
+    if not (
+        helper.__globals__ is namespace
+        and helper.__qualname__ == helper_node.name
+        and Path(helper.__code__.co_filename).resolve() == source_path
+        and _content_hash(_normalize_code_object(helper.__code__))
+        in loader_code_hashes.get(helper.__qualname__, ())
+        and _source_function_defaults_match(helper, helper_node)
+    ):
+        return _SOURCE_DERIVATION_FAILED
+
+    guarded_names: list[str] = []
+    for statement in helper_node.body:
+        if not isinstance(statement, ast.If) or not isinstance(statement.test, ast.Compare):
+            continue
+        test = statement.test
+        if not (
+            isinstance(test.left, ast.Name)
+            and test.left.id == "annotation"
+            and len(test.ops) == 1
+            and isinstance(test.ops[0], ast.Is)
+            and len(test.comparators) == 1
+            and isinstance(test.comparators[0], ast.Name)
+            and any(
+                isinstance(child, ast.Return)
+                and isinstance(child.value, ast.Constant)
+                and child.value.value is True
+                for child in statement.body
+            )
+        ):
+            continue
+        guarded_names.append(test.comparators[0].id)
+    if len(guarded_names) != 1:
+        return _SOURCE_DERIVATION_FAILED
+    value = _source_import_binding(
+        guarded_names[0], tree=tree, module=module, module_name=module_name
+    )
+    return value if isinstance(value, type) else _SOURCE_DERIVATION_FAILED
+
+
+def _source_signature_value_matches(
+    actual: object,
+    expected: _SourceDecoratorSignature,
+) -> bool:
+    """Compare inspect values structurally to the independently derived signature."""
+
+    if type(actual) is not _inspect.Signature:
+        return False
+    actual_parameters = actual.parameters
+    if not isinstance(actual_parameters, Mapping):
+        return False
+    if tuple(actual_parameters) != tuple(parameter.name for parameter in expected.parameters):
+        return False
+    for parameter in expected.parameters:
+        if not _source_parameter_value_matches(actual_parameters.get(parameter.name), parameter):
+            return False
+    if expected.has_return_annotation:
+        return (
+            type(actual.return_annotation) is str
+            and actual.return_annotation == expected.return_annotation
+        )
+    return actual.return_annotation is _inspect.Signature.empty
+
+
+def _source_parameter_value_matches(
+    actual: object,
+    expected: _SourceDecoratorParameter,
+) -> bool:
+    """Compare one inspect parameter's kind, default, and annotation to source."""
+
+    if type(actual) is not _inspect.Parameter:
+        return False
+    expected_kind = getattr(_inspect.Parameter, expected.kind_name, None)
+    if actual.kind is not expected_kind:
+        return False
+    if expected.has_default:
+        if not _exact_literal_equal(actual.default, expected.default):
+            return False
+    elif actual.default is not _inspect.Parameter.empty:
+        return False
+    if expected.has_annotation:
+        if type(actual.annotation) is not str or actual.annotation != expected.annotation:
+            return False
+    elif actual.annotation is not _inspect.Parameter.empty:
+        return False
+    return actual.name == expected.name
+
+
+def _source_parameter_default_value(
+    parameter: _SourceDecoratorParameter,
+) -> object:
+    """Expose the default in the same shape as ``inspect.Parameter.default``."""
+
+    return parameter.default if parameter.has_default else _inspect.Parameter.empty
+
+
+def _source_eval_decorator_expression(
+    node: ast.expr,
+    environment: Mapping[str, object],
+    *,
+    terminal: types.FunctionType,
+    terminal_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    source_tree: ast.Module,
+    module: object,
+    module_name: str,
+    source_path: Path,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
+) -> object:
+    """Evaluate the small, side-effect-free expression subset used by the factory."""
+
+    if isinstance(node, ast.Constant) and type(node.value) in {
+        str,
+        int,
+        bool,
+        float,
+        bytes,
+        type(None),
+    }:
+        return node.value
+    if isinstance(node, ast.Name):
+        return environment.get(node.id, _SOURCE_DERIVATION_FAILED)
+    if isinstance(node, ast.Attribute):
+        receiver = _source_eval_decorator_expression(
+            node.value,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if isinstance(receiver, _SourceDecoratorSignature) and node.attr == "parameters":
+            return _SourceDecoratorParameterMap(receiver.parameters)
+        if isinstance(receiver, _SourceDecoratorParameterMap) and node.attr == "values":
+            return _SourceBoundOperation("values", receiver)
+        if isinstance(receiver, _SourceDecoratorParameter):
+            if node.attr == "name":
+                return receiver.name
+            if node.attr == "default":
+                return _source_parameter_default_value(receiver)
+        if isinstance(receiver, _SourceResolvedAnnotationMap) and node.attr == "get":
+            return _SourceBoundOperation("get", receiver)
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.Call):
+        if node.keywords:
+            return _SOURCE_DERIVATION_FAILED
+        if isinstance(node.func, ast.Name):
+            name = node.func.id
+            if name == "signature" and len(node.args) == 1:
+                if (
+                    _source_import_binding(
+                        name, tree=source_tree, module=module, module_name=module_name
+                    )
+                    is _SOURCE_DERIVATION_FAILED
+                ):
+                    return _SOURCE_DERIVATION_FAILED
+                argument = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if argument is not terminal:
+                    return _SOURCE_DERIVATION_FAILED
+                return (
+                    _source_function_signature(terminal, terminal_node, tree=source_tree)
+                    or _SOURCE_DERIVATION_FAILED
+                )
+            if name == "get_type_hints" and len(node.args) == 1:
+                if (
+                    _source_import_binding(
+                        name, tree=source_tree, module=module, module_name=module_name
+                    )
+                    is _SOURCE_DERIVATION_FAILED
+                ):
+                    return _SOURCE_DERIVATION_FAILED
+                argument = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if argument is not terminal:
+                    return _SOURCE_DERIVATION_FAILED
+                parameter_nodes = _source_parameter_nodes(terminal_node)
+                if parameter_nodes is None or len(parameter_nodes) < 2:
+                    return _SOURCE_DERIVATION_FAILED
+                selector_node = parameter_nodes[1][0]
+                selector_name = selector_node.arg
+                if selector_node.annotation is None:
+                    return _SourceResolvedAnnotationMap(selector_name, None)
+                members = _source_annotation_members(
+                    selector_node.annotation,
+                    tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                )
+                if members is None:
+                    return _SOURCE_DERIVATION_FAILED
+                return _SourceResolvedAnnotationMap(
+                    selector_name, _SourceResolvedAnnotation(members)
+                )
+            if name == "_selector_annotation_accepts_full_reference" and len(node.args) == 1:
+                helper_identity = _source_reference_annotation_identity(
+                    tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if helper_identity is _SOURCE_DERIVATION_FAILED:
+                    return _SOURCE_DERIVATION_FAILED
+                argument = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if argument is None:
+                    return False
+                if not isinstance(argument, _SourceResolvedAnnotation):
+                    return _SOURCE_DERIVATION_FAILED
+                return any(member is helper_identity for member in argument.members)
+            if name == "tuple" and len(node.args) == 1:
+                argument = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if isinstance(argument, tuple):
+                    return argument
+                return _SOURCE_DERIVATION_FAILED
+            if name == "len" and len(node.args) == 1:
+                argument = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if isinstance(argument, (tuple, _SourceDecoratorParameterMap)):
+                    return len(argument if isinstance(argument, tuple) else argument.parameters)
+                return _SOURCE_DERIVATION_FAILED
+            return _SOURCE_DERIVATION_FAILED
+        if isinstance(node.func, ast.Attribute):
+            operation = _source_eval_decorator_expression(
+                node.func,
+                environment,
+                terminal=terminal,
+                terminal_node=terminal_node,
+                source_tree=source_tree,
+                module=module,
+                module_name=module_name,
+                source_path=source_path,
+                loader_code_hashes=loader_code_hashes,
+            )
+            if not isinstance(operation, _SourceBoundOperation):
+                return _SOURCE_DERIVATION_FAILED
+            if (
+                operation.name == "values"
+                and not node.args
+                and isinstance(operation.receiver, _SourceDecoratorParameterMap)
+            ):
+                return operation.receiver.parameters
+            if operation.name == "get" and len(node.args) == 1:
+                key = _source_eval_decorator_expression(
+                    node.args[0],
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                if (
+                    isinstance(operation.receiver, _SourceResolvedAnnotationMap)
+                    and key == operation.receiver.selector_name
+                ):
+                    return operation.receiver.selector_annotation
+            return _SOURCE_DERIVATION_FAILED
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.Subscript):
+        receiver = _source_eval_decorator_expression(
+            node.value,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        index = _source_eval_decorator_expression(
+            node.slice,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if (
+            isinstance(receiver, tuple)
+            and type(index) is int
+            and -len(receiver) <= index < len(receiver)
+        ):
+            return receiver[index]
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.IfExp):
+        condition = _source_eval_decorator_expression(
+            node.test,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if type(condition) is not bool:
+            return _SOURCE_DERIVATION_FAILED
+        return _source_eval_decorator_expression(
+            node.body if condition else node.orelse,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left = _source_eval_decorator_expression(
+            node.left,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        right = _source_eval_decorator_expression(
+            node.right,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if type(left) is int and type(right) is int:
+            return left + right
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.BoolOp) and node.values:
+        if isinstance(node.op, ast.And):
+            for child in node.values:
+                value = _source_eval_decorator_expression(
+                    child,
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                truth = _source_decorator_truth(value)
+                if truth is _SOURCE_DERIVATION_FAILED:
+                    return _SOURCE_DERIVATION_FAILED
+                if not truth:
+                    return value
+            return value
+        if isinstance(node.op, ast.Or):
+            for child in node.values:
+                value = _source_eval_decorator_expression(
+                    child,
+                    environment,
+                    terminal=terminal,
+                    terminal_node=terminal_node,
+                    source_tree=source_tree,
+                    module=module,
+                    module_name=module_name,
+                    source_path=source_path,
+                    loader_code_hashes=loader_code_hashes,
+                )
+                truth = _source_decorator_truth(value)
+                if truth is _SOURCE_DERIVATION_FAILED:
+                    return _SOURCE_DERIVATION_FAILED
+                if truth:
+                    return value
+            return value
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.Compare) and len(node.ops) == 1 and len(node.comparators) == 1:
+        left = _source_eval_decorator_expression(
+            node.left,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        right = _source_eval_decorator_expression(
+            node.comparators[0],
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        operator = node.ops[0]
+        if isinstance(operator, ast.Is):
+            return left is right
+        if isinstance(operator, ast.IsNot):
+            return left is not right
+        if isinstance(operator, ast.GtE) and type(left) is int and type(right) is int:
+            return left >= right
+        if isinstance(operator, ast.Lt) and type(left) is int and type(right) is int:
+            return left < right
+        return _SOURCE_DERIVATION_FAILED
+    return _SOURCE_DERIVATION_FAILED
+
+
+def _source_execute_decorator_statement(
+    statement: ast.stmt,
+    environment: dict[str, object],
+    *,
+    terminal: types.FunctionType,
+    terminal_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    source_tree: ast.Module,
+    module: object,
+    module_name: str,
+    source_path: Path,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
+) -> bool:
+    """Execute one assignment/control node in the bounded decorator evaluator."""
+
+    if isinstance(statement, ast.Assign):
+        if len(statement.targets) != 1 or not isinstance(statement.targets[0], ast.Name):
+            return False
+        value = _source_eval_decorator_expression(
+            statement.value,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if value is _SOURCE_DERIVATION_FAILED:
+            return False
+        environment[statement.targets[0].id] = value
+        return True
+    if isinstance(statement, ast.AnnAssign):
+        if statement.value is None or not isinstance(statement.target, ast.Name):
+            return False
+        value = _source_eval_decorator_expression(
+            statement.value,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if value is _SOURCE_DERIVATION_FAILED:
+            return False
+        environment[statement.target.id] = value
+        return True
+    if isinstance(statement, ast.If):
+        condition = _source_eval_decorator_expression(
+            statement.test,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        )
+        if type(condition) is not bool:
+            return False
+        selected = statement.body if condition else statement.orelse
+        for child in selected:
+            if isinstance(child, ast.Raise) or not _source_execute_decorator_statement(
+                child,
+                environment,
+                terminal=terminal,
+                terminal_node=terminal_node,
+                source_tree=source_tree,
+                module=module,
+                module_name=module_name,
+                source_path=source_path,
+                loader_code_hashes=loader_code_hashes,
+            ):
+                return False
+        return True
+    if isinstance(statement, ast.Try):
+        if statement.orelse or statement.finalbody:
+            return False
+        for child in statement.body:
+            if not _source_execute_decorator_statement(
+                child,
+                environment,
+                terminal=terminal,
+                terminal_node=terminal_node,
+                source_tree=source_tree,
+                module=module,
+                module_name=module_name,
+                source_path=source_path,
+                loader_code_hashes=loader_code_hashes,
+            ):
+                return False
+        return True
+    return False
+
+
+def _source_derived_decorator_environment(
+    factory_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    decorator_node: ast.expr,
+    wrapper_path: tuple[str, ...],
+    terminal: types.FunctionType,
+    terminal_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    source_tree: ast.Module,
+    module: object,
+    module_name: str,
+    source_path: Path,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
+) -> dict[str, object] | None:
+    """Derive each closure cell by interpreting supported source AST only."""
+
+    if len(wrapper_path) < 2:
+        return None
+    captures = _source_decorator_factory_captures(factory_node, decorator_node, terminal=terminal)
+    if captures is None:
+        return None
+    parent: ast.FunctionDef | ast.AsyncFunctionDef = factory_node
+    for nested_name in wrapper_path[:-1]:
+        nested = [
+            child
+            for child in parent.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and child.name == nested_name
+        ]
+        if len(nested) != 1:
+            return None
+        parent = nested[0]
+    wrapper = [
+        child
+        for child in parent.body
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and child.name == wrapper_path[-1]
+    ]
+    positional_parameters = [*parent.args.posonlyargs, *parent.args.args]
+    if (
+        len(wrapper) != 1
+        or len(positional_parameters) != 1
+        or parent.args.vararg is not None
+        or parent.args.kwarg is not None
+        or parent.args.kwonlyargs
+        or parent.args.defaults
+        or positional_parameters[0].arg in captures
+    ):
+        return None
+    environment = dict(captures)
+    environment[positional_parameters[0].arg] = terminal
+    reached_wrapper = False
+    for statement in parent.body:
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if statement is wrapper[0]:
+                reached_wrapper = True
+                break
+            return None
+        if not _source_execute_decorator_statement(
+            statement,
+            environment,
+            terminal=terminal,
+            terminal_node=terminal_node,
+            source_tree=source_tree,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
+        ):
+            return None
+    return environment if reached_wrapper else None
+
+
+def _source_capture_value_matches(
+    actual: object,
+    expected: object,
+    *,
+    terminal: types.FunctionType,
+) -> bool:
+    """Compare a runtime cell against its source-derived value without replay."""
+
+    if expected is terminal:
+        return actual is terminal
+    if isinstance(expected, _SourceDecoratorSignature):
+        return _source_signature_value_matches(actual, expected)
+    if isinstance(expected, _SourceDecoratorParameter):
+        return _source_parameter_value_matches(actual, expected)
+    return _exact_literal_equal(actual, expected)
+
+
 def _source_local_decorator_names(
     slot: _LoaderOwnedCallableSlot,
     module: object,
@@ -6024,10 +7014,7 @@ def _source_local_decorator_names(
     for decorator in slot.decorators:
         name = decorator[:-2] if decorator.endswith("()") else decorator
         factory = namespace.get(name)
-        if (
-            isinstance(factory, types.FunctionType)
-            and factory.__module__ == module_name
-        ):
+        if isinstance(factory, types.FunctionType) and factory.__module__ == module_name:
             names.append(name)
     return tuple(names)
 
@@ -6089,9 +7076,7 @@ def _local_decorator_wrapper_matches(
     wrapper_path = _returned_local_wrapper_path(factory_node)
     if wrapper_path is None:
         return False
-    expected_wrapper_qualname = (
-        factory_name + ".<locals>." + ".<locals>.".join(wrapper_path)
-    )
+    expected_wrapper_qualname = factory_name + ".<locals>." + ".<locals>.".join(wrapper_path)
     if not (
         function.__module__ == module_name
         and function.__globals__ is namespace
@@ -6120,12 +7105,23 @@ def _local_decorator_wrapper_matches(
         return False
     if not _source_function_defaults_match(factory, factory_node):
         return False
-    expected_captures = _source_decorator_factory_captures(
+    if not _source_function_defaults_match(terminal, slot_node):
+        return False
+    if not _source_function_annotations_match(terminal, slot_node):
+        return False
+    expected_environment = _source_derived_decorator_environment(
         factory_node,
         decorator_node,
-        terminal=terminal,
+        wrapper_path,
+        terminal,
+        slot_node,
+        source_tree=tree,
+        module=module,
+        module_name=module_name,
+        source_path=source_path,
+        loader_code_hashes=loader_code_hashes,
     )
-    if expected_captures is None:
+    if expected_environment is None:
         return False
 
     closure = function.__closure__ or ()
@@ -6137,12 +7133,12 @@ def _local_decorator_wrapper_matches(
             value = cell.cell_contents
         except ValueError:
             return False
+        expected = expected_environment.get(name, _SOURCE_DERIVATION_FAILED)
+        if expected is _SOURCE_DERIVATION_FAILED:
+            return False
         if value is terminal:
             target_bindings += 1
-            continue
-        if name not in expected_captures or not _exact_literal_equal(
-            value, expected_captures[name]
-        ):
+        if not _source_capture_value_matches(value, expected, terminal=terminal):
             return False
     return target_bindings == 1
 
@@ -6176,11 +7172,7 @@ def _loader_owned_slot_function_matches(
         for decorator in slot.decorators
     )
     local_decorator_names = _source_local_decorator_names(slot, module, module_name)
-    wrapper_matches = (
-        len(chain) == 1
-        and not expects_contextmanager
-        and not local_decorator_names
-    )
+    wrapper_matches = len(chain) == 1 and not expects_contextmanager and not local_decorator_names
     if len(chain) > 1 and expects_contextmanager:
         expected_wrapper = contextmanager(terminal)
         wrapper_matches = _content_hash(_normalize_function_binding(function)) == _content_hash(
@@ -6396,9 +7388,7 @@ def _loaded_code_manifest(
             code_qualname = str(live_code["code_qualname"])
             live_hash = str(live_code["normalized_code_hash"])
             defined_locally = bool(live_code["defined_locally"])
-            loader_hashes = (
-                loader_code_hashes.get(code_qualname, ()) if defined_locally else ()
-            )
+            loader_hashes = loader_code_hashes.get(code_qualname, ()) if defined_locally else ()
             matches_loader = (
                 live_hash in loader_hashes and bool(live_code["globals_match_module"])
                 if defined_locally
@@ -6905,10 +7895,7 @@ if (
         _IMPORT_TIME_OWNER_ROOT,
         _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
     )
-    if (
-        _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT)
-        != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE
-    ):
+    if _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
 else:
     # An installed package lacks the source checkout's canonical lock/build
@@ -6920,6 +7907,4 @@ else:
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = ()
     _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
     _IMPORT_TIME_LOADED_CODE_CONSISTENT = False
-    _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = (
-        "packaged_deployment_identity_issuer_unavailable"
-    )
+    _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "packaged_deployment_identity_issuer_unavailable"

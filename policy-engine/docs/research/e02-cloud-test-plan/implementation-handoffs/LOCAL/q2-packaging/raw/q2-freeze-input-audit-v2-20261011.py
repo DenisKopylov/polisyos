@@ -3071,18 +3071,19 @@ def validate_module_class_provenance(
                 ),
                 None,
             )
-            encoded_qualname = next(
-                (
-                    attribute.get("value")
-                    for attribute in attributes
-                    if attribute.get("name") == "__qualname__" and attribute.get("kind") == "data"
-                ),
+            qualname_namespace_row = next(
+                (attribute for attribute in attributes if attribute.get("name") == "__qualname__"),
                 None,
             )
-            if encoded_module_name != ["str", defining_module] or encoded_qualname != [
-                "str",
-                class_qualname,
-            ]:
+            qualname_namespace_matches = qualname_namespace_row is None or (
+                qualname_namespace_row.get("kind") == "data"
+                and qualname_namespace_row.get("value") == ["str", class_qualname]
+            )
+            # The producer's identity row comes from type.__getattribute__; attributes is
+            # the separate type.__dict__ snapshot. The namespace may omit special metadata.
+            # If it contains __qualname__, reconcile it; MRO and method-code checks above
+            # already bind the type-level qualname to the source-associated class identity.
+            if encoded_module_name != ["str", defining_module] or not qualname_namespace_matches:
                 raise AuditFailure(
                     f"module subclass class labels differ from its source row: "
                     f"{defining_module}.{class_qualname}"

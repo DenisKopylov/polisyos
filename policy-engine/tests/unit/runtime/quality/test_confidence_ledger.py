@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactID, FileSystemCAS
+from polisyos.core.artifacts import ArtifactID, FileSystemCAS, PutOptions
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality import confidence_ledger as ledger_module
@@ -587,9 +587,7 @@ def test_persisted_receipt_witness_prevents_deleted_events_from_resetting_spend(
     session.persist_receipt(witnessed)
     assert witnessed.total_spend.fraction > 0
     for event in witnessed.events:
-        blob, manifest = session._artifact_store._paths(
-            ArtifactID.model_validate(event.event_ref)
-        )
+        blob, manifest = session._artifact_store._paths(ArtifactID.model_validate(event.event_ref))
         blob.unlink()
         manifest.unlink()
     session._head_path.unlink()
@@ -744,10 +742,7 @@ def test_deployment_identity_changes_for_closure_member_but_ignores_unrelated_mo
         )
     }
     source_paths = sorted(
-        (
-            path.relative_to(repo_root)
-            for path in (repo_root / "src/polisyos").rglob("*.py")
-        ),
+        (path.relative_to(repo_root) for path in (repo_root / "src/polisyos").rglob("*.py")),
         key=Path.as_posix,
     )
     inside = repo_root / next(
@@ -1050,11 +1045,14 @@ def test_source_decorator_factory_argument_binding_is_typed_and_exact() -> None:
     duplicate_factory, duplicate_target = duplicate_source.body
     assert isinstance(duplicate_factory, ast.FunctionDef)
     assert isinstance(duplicate_target, ast.FunctionDef)
-    assert ledger_module._source_decorator_factory_captures(
-        duplicate_factory,
-        duplicate_target.decorator_list[0],
-        terminal=lambda: None,
-    ) is None
+    assert (
+        ledger_module._source_decorator_factory_captures(
+            duplicate_factory,
+            duplicate_target.decorator_list[0],
+            terminal=lambda: None,
+        )
+        is None
+    )
 
 
 def test_rebound_closure_owned_callable_fails_closed_for_every_session_mode(
@@ -1333,8 +1331,7 @@ print(json.dumps(results))
         probe_path.write_text(mutation_probe_source, encoding="utf-8")
         entry_path = checkout / "src/polisyos/runtime/quality/confidence_ledger.py"
         entry_path.write_bytes(
-            entry_path.read_bytes()
-            + b"\nimport polisyos._gy_di1_closure_probe\n"
+            entry_path.read_bytes() + b"\nimport polisyos._gy_di1_closure_probe\n"
         )
         env = os.environ.copy()
         env["PYTHONPATH"] = str(checkout / "src")
@@ -1468,14 +1465,11 @@ def test_authority_import_closure_includes_every_live_repository_import_binding(
         for node in tree.body:
             if isinstance(node, ast.Import):
                 bound_names.update(
-                    alias.asname or alias.name.partition(".")[0]
-                    for alias in node.names
+                    alias.asname or alias.name.partition(".")[0] for alias in node.names
                 )
             elif isinstance(node, ast.ImportFrom):
                 bound_names.update(
-                    alias.asname or alias.name
-                    for alias in node.names
-                    if alias.name != "*"
+                    alias.asname or alias.name for alias in node.names if alias.name != "*"
                 )
         for bound_name in bound_names:
             value = vars(owner).get(bound_name)
@@ -1494,9 +1488,7 @@ def test_authority_import_closure_includes_every_live_repository_import_binding(
                 provider_relative = Path(origin).resolve().relative_to(source_root)
             except ValueError:
                 continue
-            providers[provider_name] = (
-                Path("src/polisyos") / provider_relative
-            ).as_posix()
+            providers[provider_name] = (Path("src/polisyos") / provider_relative).as_posix()
 
     assert providers.items() <= closure.items()
 
@@ -1532,10 +1524,7 @@ def test_authority_import_closure_tracks_nested_runtime_but_not_type_only_import
     entry_path = repo_root / baseline[ledger_module.__name__]
     entry_path.write_bytes(
         entry_path.read_bytes()
-        + (
-            "\ndef _nested_runtime_import_probe() -> None:\n"
-            f"    import {runtime_target}\n"
-        ).encode()
+        + (f"\ndef _nested_runtime_import_probe() -> None:\n    import {runtime_target}\n").encode()
     )
     with_runtime = dict(
         ledger_module._resolve_authority_import_closure(
@@ -1549,11 +1538,7 @@ def test_authority_import_closure_tracks_nested_runtime_but_not_type_only_import
         module_name for module_name in sorted(modules) if module_name not in with_runtime
     )
     entry_path.write_bytes(
-        entry_path.read_bytes()
-        + (
-            "\nif TYPE_CHECKING:\n"
-            f"    import {type_only_target}\n"
-        ).encode()
+        entry_path.read_bytes() + (f"\nif TYPE_CHECKING:\n    import {type_only_target}\n").encode()
     )
     with_type_only = dict(
         ledger_module._resolve_authority_import_closure(
@@ -1614,9 +1599,7 @@ def test_authority_import_closure_indexes_all_literal_pep562_aliases_once(
 ) -> None:
     """The real closure resolves every alias from one exact-byte facade index."""
 
-    repo_root, facade_path = _write_literal_pep562_closure_repo(
-        tmp_path / "literal-pep562-repo"
-    )
+    repo_root, facade_path = _write_literal_pep562_closure_repo(tmp_path / "literal-pep562-repo")
     facade_bytes = facade_path.read_bytes()
     original_parse = ledger_module.ast.parse
     facade_parse_inputs: list[bytes] = []
@@ -1818,7 +1801,6 @@ def test_authority_import_closure_fails_closed_on_dynamic_pep562_provider(
         )
 
 
-
 def _write_import_module_pep562_closure_repo(repo_root: Path) -> tuple[Path, Path]:
     """Write a source-only package with literal lazy provider branches."""
 
@@ -1859,7 +1841,9 @@ def _write_import_module_pep562_closure_repo(repo_root: Path) -> tuple[Path, Pat
 def test_authority_import_closure_includes_core_lazy_profile_providers() -> None:
     """The real Core facade providers enter loaded-deployment identity closure."""
 
-    closure = dict(ledger_module._resolve_authority_import_closure(REPO_ROOT, ledger_module.__name__))
+    closure = dict(
+        ledger_module._resolve_authority_import_closure(REPO_ROOT, ledger_module.__name__)
+    )
     assert closure["polisyos.core.artifacts.canonical_profile"] == (
         "src/polisyos/core/artifacts/canonical_profile.py"
     )
@@ -1891,8 +1875,12 @@ def test_authority_import_closure_provider_removal_keeps_markers_but_loses_edges
     assert "polisyos.facade.provider_two" in initial
     source = facade.read_text(encoding="utf-8")
     markers = (
-        "__getattr__", "_load", ".provider_one", "_importlib.import_module",
-        ".provider_two", '"One", "AliasOne"',
+        "__getattr__",
+        "_load",
+        ".provider_one",
+        "_importlib.import_module",
+        ".provider_two",
+        '"One", "AliasOne"',
     )
     assert all(marker in source for marker in markers)
     removed = source.replace("return getattr(module, name)", "raise AttributeError(name)", 2)
@@ -1947,8 +1935,6 @@ def test_authority_import_closure_fails_closed_on_dynamic_import_module_provider
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
 
 
-
-
 def _core_profile_dispatch_source() -> str:
     """Read the actual Core profile-export branch for source-only closure fixtures."""
 
@@ -1956,13 +1942,14 @@ def _core_profile_dispatch_source() -> str:
     source = facade_path.read_text(encoding="utf-8")
     tree = ast.parse(source, filename=str(facade_path))
     getattr_function = next(
-        node for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name == "__getattr__"
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
     )
     parameter_name = getattr_function.args.args[0].arg
     dispatch = next(
-        node for node in getattr_function.body
+        node
+        for node in getattr_function.body
         if isinstance(node, ast.If)
         and ledger_module._literal_getattr_dispatch_names(node.test, parameter_name)
     )
@@ -1984,7 +1971,9 @@ def _write_core_profile_provider_closure_repo(
     (package / "__init__.py").write_text("", encoding="utf-8")
     (package / "core/__init__.py").write_text("", encoding="utf-8")
     (common / "__init__.py").write_text("", encoding="utf-8")
-    (repo_root / "pyproject.toml").write_text('[project]\nname = "closure-fixture"\n', encoding="utf-8")
+    (repo_root / "pyproject.toml").write_text(
+        '[project]\nname = "closure-fixture"\n', encoding="utf-8"
+    )
     (repo_root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
     (package / "entry.py").write_text(
         "from polisyos.core.artifacts import load_core_json_artifact\n",
@@ -2010,10 +1999,14 @@ def _write_core_profile_provider_closure_repo(
     )
     common_profile = common / "canonical_profile.py"
     common_profile.write_text('COMMON_PROFILE_REVISION = "alpha"\n', encoding="utf-8")
-    return repo_root, facade_path, {
-        "polisyos.core.artifacts.canonical_profile": core_profile,
-        "polisyos.common.canonical_profile": common_profile,
-    }
+    return (
+        repo_root,
+        facade_path,
+        {
+            "polisyos.core.artifacts.canonical_profile": core_profile,
+            "polisyos.common.canonical_profile": common_profile,
+        },
+    )
 
 
 def test_authority_import_closure_actual_core_dispatch_removal_keeps_markers(
@@ -2091,7 +2084,6 @@ def test_authority_import_closure_hashes_core_and_common_profile_bytes_after_equ
         previous_baseline = current_baseline
 
 
-
 def test_authority_import_closure_fails_closed_on_conditional_importlib_alias(
     tmp_path: Path,
 ) -> None:
@@ -2123,15 +2115,13 @@ def test_authority_import_closure_fails_closed_on_conditional_provider_assignmen
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
         '        module = _load(".provider_one", __name__)\n',
-        '        if provider_enabled:\n'
-        '            module = _load(".provider_one", __name__)\n',
+        '        if provider_enabled:\n            module = _load(".provider_one", __name__)\n',
         1,
     )
     assert changed != source
     facade.write_text(changed, encoding="utf-8")
     with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
-
 
 
 def test_authority_import_closure_fails_closed_on_shadowed_getattr(
@@ -2180,9 +2170,7 @@ def test_authority_import_closure_fails_closed_when_literal_map_dispatcher_is_sh
 ) -> None:
     """Literal map values do not prove a provider when builtin dispatch is shadowed."""
 
-    repo, facade = _write_literal_pep562_closure_repo(
-        tmp_path / "shadowed-map-dispatcher-repo"
-    )
+    repo, facade = _write_literal_pep562_closure_repo(tmp_path / "shadowed-map-dispatcher-repo")
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
         "    module = __import__(module_name, fromlist=[attribute_name])\n",
@@ -2194,6 +2182,7 @@ def test_authority_import_closure_fails_closed_when_literal_map_dispatcher_is_sh
     facade.write_text(changed, encoding="utf-8")
     with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
 
 def test_owner_closure_adds_literal_dynamic_but_not_type_only_imports(
     tmp_path: Path,
@@ -2244,8 +2233,7 @@ def load_dynamic() -> object:
     assert "polisyos.type_dep" not in owner_closure
 
 
-def test_authority_session_paths_do_not_invoke_unadmitted_literal_dynamic_imports(
-) -> None:
+def test_authority_session_paths_do_not_invoke_unadmitted_literal_dynamic_imports() -> None:
     """A derived dynamic target may stay outside only while the real path is dormant."""
 
     script = """
@@ -2353,6 +2341,129 @@ def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
         )
 
 
+def test_source_derived_transactional_closures_cover_live_cas_and_every_declared_method(
+    tmp_path: Path,
+) -> None:
+    """A real CAS read and every source-declared wrapper reconcile to loader code."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_bytes(
+        b"source-derived transactional closure",
+        PutOptions(kind="test.source-derived", media_type="application/octet-stream"),
+    )
+    assert store.has(ref)
+    assert store.get_bytes(ref) == b"source-derived transactional closure"
+    assert store.verify(ref).ok
+
+    relative_path = "src/polisyos/core/artifacts/store.py"
+    source_tree = ast.parse((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
+    owner = next(
+        node
+        for node in source_tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "FileSystemCAS"
+    )
+    declared = {
+        node.name
+        for node in owner.body
+        if isinstance(node, ast.FunctionDef)
+        and any(
+            (isinstance(decorator, ast.Name) and decorator.id == "_transactional_read")
+            or (
+                isinstance(decorator, ast.Call)
+                and isinstance(decorator.func, ast.Name)
+                and decorator.func.id == "_transactional_read"
+            )
+            for decorator in node.decorator_list
+        )
+    }
+    assert declared
+
+    raw_manifest, consistent = ledger_module._loaded_code_manifest(
+        REPO_ROOT,
+        ((store_module.__name__, relative_path),),
+    )
+    assert consistent
+    module_row = json.loads(raw_manifest)[store_module.__name__]
+    slots = module_row["loader_owned_callable_slots"]
+    assert {f"FileSystemCAS.{name}" for name in declared} <= set(slots)
+    assert all(slots[f"FileSystemCAS.{name}"]["matches_loader_slot"] for name in declared)
+
+
+def test_every_transactional_wrapper_capture_and_imported_reference_poison_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Every wrapper cell and a poisoned imported selector type reject admission."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    relative_path = "src/polisyos/core/artifacts/store.py"
+    original = store_module.FileSystemCAS._load_verified_snapshot
+    freevars = original.__code__.co_freevars
+    closure = original.__closure__ or ()
+    assert len(freevars) == len(closure)
+    assert freevars
+
+    def make_cell(value: object) -> object:
+        return (lambda: value).__closure__[0]
+
+    def poisoned_value(value: object) -> object:
+        if value is original.__wrapped__:
+            return None
+        if type(value) is bool:
+            return not value
+        if type(value) is int:
+            return value + 1
+        if type(value) is str:
+            return value + "__tampered__"
+        if isinstance(value, inspect.Signature):
+            return inspect.Signature()
+        if isinstance(value, inspect.Parameter):
+            return inspect.Parameter(
+                name=value.name + "__tampered__",
+                kind=value.kind,
+            )
+        return object()
+
+    for index, name in enumerate(freevars):
+        cells = list(closure)
+        cells[index] = make_cell(poisoned_value(closure[index].cell_contents))
+        replacement = types.FunctionType(
+            original.__code__,
+            original.__globals__,
+            original.__name__,
+            original.__defaults__,
+            tuple(cells),
+        )
+        replacement.__module__ = original.__module__
+        replacement.__qualname__ = original.__qualname__
+        replacement.__doc__ = original.__doc__
+        replacement.__kwdefaults__ = original.__kwdefaults__
+        replacement.__annotations__ = dict(original.__annotations__)
+        replacement.__dict__.update(original.__dict__)
+        with monkeypatch.context() as mutation:
+            mutation.setattr(
+                store_module.FileSystemCAS,
+                "_load_verified_snapshot",
+                replacement,
+            )
+            _manifest, consistent = ledger_module._loaded_code_manifest(
+                REPO_ROOT,
+                ((store_module.__name__, relative_path),),
+            )
+            assert not consistent, f"tampered closure cell admitted: {name}"
+
+    with monkeypatch.context() as mutation:
+        mutation.setattr(store_module, "ArtifactRef", str)
+        _manifest, consistent = ledger_module._loaded_code_manifest(
+            REPO_ROOT,
+            ((store_module.__name__, relative_path),),
+        )
+        assert not consistent
+
+
 def test_rehashed_closure_manifest_cannot_narrow_authority_admission(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2370,9 +2481,7 @@ def test_rehashed_closure_manifest_cannot_narrow_authority_admission(
         for module_name, _relative_path in reversed(resolved_closure)
         if module_name != ledger_module.__name__
     )
-    forged_closure = tuple(
-        row for row in resolved_closure if row[0] != removed_module
-    )
+    forged_closure = tuple(row for row in resolved_closure if row[0] != removed_module)
     forged_manifest = json.loads(ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST)
     del forged_manifest[removed_module]
     monkeypatch.setattr(

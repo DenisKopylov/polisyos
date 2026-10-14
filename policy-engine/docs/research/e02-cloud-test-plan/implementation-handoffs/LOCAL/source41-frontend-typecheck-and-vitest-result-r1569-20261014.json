@@ -1,0 +1,60 @@
+{
+  "kind": "author current source41 TypeScript and actual Vitest receipt; not G acceptance",
+  "head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "source_uncommitted": true,
+  "steps": [
+    {
+      "receipt_path": "raw/source41-can-v3-frontend-native-actual-r1561-20261014/typecheck.json",
+      "sha256": "4a77be6d786c45bea4cf8a6e82da38f97b4df0a690f977a32e33b09b02dbe5ae",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 18.652090208022855,
+      "source_count": 1265,
+      "source_stable": true,
+      "stdout_sha256": "c4740b76023a08cf9c2bdda4a123f9e92ae58b4bcc3204da23c1afb1bf8fd0ac",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt_path": "raw/source41-can-v3-frontend-native-actual-r1561-20261014/tests.json",
+      "sha256": "7ff2f0be11a82d9e2a0f9172669debddf8a76a144950e666bae104482e5b74d0",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "test:components",
+        "src/api/validators.test.ts",
+        "src/features/artifacts/routes/ArtifactInspectorPage.test.tsx",
+        "src/features/runs/routes/tabs/OverviewTab.test.tsx",
+        "src/test/contracts/contractFixtures.test.ts",
+        "--maxWorkers=1",
+        "--no-file-parallelism"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 6.110792458057404,
+      "source_count": 1265,
+      "source_stable": true,
+      "stdout_sha256": "adcb71d20e3f8f6a453af8b17159c57348c1c9a8fdb1b02f6c1e4531595fc6b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "vitest_counts": {
+    "files": 4,
+    "PASS": 192,
+    "FAIL": 0
+  },
+  "limits": [
+    "real browser and production serving instance not exercised",
+    "109 selected backend cases separately produced five unresolved CAN failures",
+    "not canonical native or global E02 closeout"
+  ],
+  "closure_ids": []
+}

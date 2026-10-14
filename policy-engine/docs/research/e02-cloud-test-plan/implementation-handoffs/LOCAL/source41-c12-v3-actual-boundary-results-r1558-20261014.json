@@ -1,0 +1,59 @@
+{
+  "head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "source_freeze": "not established; per-command exact dirty source snapshots",
+  "records": [
+    {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-c12-native-actual-r1534a-20261014",
+      "command_sha256": "585147a0cf4499d262207836d2bddfd7698aa53f27d6d08e4400796b39fc09bb",
+      "exit_code": 1,
+      "wall_seconds": 26.799085375037976,
+      "source_count": 7716,
+      "source_stable": true,
+      "stdout_sha256": "6c21d8a0c8b90ebe4e7371023274471021023547bd946f064f469ae53649d950",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests": 62,
+      "outcomes": {
+        "FAIL": 6,
+        "ERROR": 0,
+        "SKIP": 0,
+        "PASS": 56
+      }
+    },
+    {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-v3-acquisition-native-actual-r1534b-20261014",
+      "command_sha256": "809d5ee4499a335e760c97f28e538417a5bce48aee8945772817a37d5dba76da",
+      "exit_code": 124,
+      "wall_seconds": 300.34977108298335,
+      "source_count": 7712,
+      "source_stable": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6e3877d1cc9b4b3ead061a9ac77f1ff74d53ce00f30967b80855a2770916f294",
+      "test_results": "UNRUN/incomplete body; setup only is not PASS",
+      "junit": "absent",
+      "timeout_reason": "operator wall budget; no OOM conclusion"
+    },
+    {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-v3-served-first-stack-diagnostic-actual-r1551-20261014",
+      "command_sha256": "250eb5f09d264aeb3bc3c44e80ecea004addcb3f5b98fb95684c8add930ffc0f",
+      "exit_code": 124,
+      "wall_seconds": 95.21957595797721,
+      "source_count": 6959,
+      "source_stable": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c1f0036e9316d67e45c55a47d3bf043a2de8c4ee7682d9f8d84adf047a362446",
+      "test_results": "UNRUN/incomplete body; setup only is not PASS",
+      "junit": "absent",
+      "timeout_reason": "operator wall budget; no OOM conclusion"
+    }
+  ],
+  "diagnosis": [
+    "Six C12 facade test-double constructors did not accept current query_encoder_refusal; Root R1546 repair applied after independent review, rerun pending",
+    "V3 first served path stalled in seed NL worker before acquisition POST/latest-continuation; 40s stack shows credal_reference._capture_reference_payload with incomplete invalid frame; exact hotspot/cause still not established"
+  ],
+  "next_checks": [
+    "C12 exact repaired full importer suite",
+    "bounded R1555 runtime capture instrumentation on real seed path",
+    "Source41 canonical/frontend/Foundry/benchmark native checks"
+  ],
+  "closure_ids": []
+}

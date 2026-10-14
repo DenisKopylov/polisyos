@@ -1,0 +1,710 @@
+{
+  "kind": "E02 LOCAL Source41 author implementation checkpoint handoff; not G adjudication",
+  "slice_base": {
+    "sha": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+    "tree": "1bcb987de32a0e76bde44d52604a6cf8a5335991"
+  },
+  "candidate": {
+    "sha": "4e37301ee205bfc3a913993a5da81bbf292be3ef",
+    "tree": "bc56dde4f4ac5611d65266bbc9cb09bc80bc5348",
+    "parents": [
+      "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "tracked_worktree_clean_at_readback": true
+  },
+  "footprint": {
+    "owned_path_denominator": 78,
+    "changed_path_denominator": 77,
+    "paths": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+        "expected_sha256": "d2a68beab160698b090d97e7eaf6b4631c428168dbc833ffe463db0a5dfbde1f",
+        "committed_sha256": "d2a68beab160698b090d97e7eaf6b4631c428168dbc833ffe463db0a5dfbde1f",
+        "worktree_sha256": "d2a68beab160698b090d97e7eaf6b4631c428168dbc833ffe463db0a5dfbde1f"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+        "expected_sha256": "3a903ad48e2de2c32ef9c9fe2c69d8204007b8ac4e648ecb7a34f8404520e353",
+        "committed_sha256": "3a903ad48e2de2c32ef9c9fe2c69d8204007b8ac4e648ecb7a34f8404520e353",
+        "worktree_sha256": "3a903ad48e2de2c32ef9c9fe2c69d8204007b8ac4e648ecb7a34f8404520e353"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py",
+        "expected_sha256": "cf6ca4b5c444cca3c37e2b682ac1144829676048ac862e8725a47e4775782661",
+        "committed_sha256": "cf6ca4b5c444cca3c37e2b682ac1144829676048ac862e8725a47e4775782661",
+        "worktree_sha256": "cf6ca4b5c444cca3c37e2b682ac1144829676048ac862e8725a47e4775782661"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "expected_sha256": "53d4fe99cdcfdde42d6386ed894d94d88d944da277ae6c761bc60b2fecba807d",
+        "committed_sha256": "53d4fe99cdcfdde42d6386ed894d94d88d944da277ae6c761bc60b2fecba807d",
+        "worktree_sha256": "53d4fe99cdcfdde42d6386ed894d94d88d944da277ae6c761bc60b2fecba807d"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+        "expected_sha256": "cd21171faf3f6dda1cbb6dceef40a9e06e18aa971a3ad8130144641c7ecb0aae",
+        "committed_sha256": "cd21171faf3f6dda1cbb6dceef40a9e06e18aa971a3ad8130144641c7ecb0aae",
+        "worktree_sha256": "cd21171faf3f6dda1cbb6dceef40a9e06e18aa971a3ad8130144641c7ecb0aae"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+        "expected_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba",
+        "committed_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba",
+        "worktree_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.test.tsx",
+        "expected_sha256": "120b4943e3efd93250b5b8358c604529e5e5026e16bffa9d3f8bf59d2b72d1a8",
+        "committed_sha256": "120b4943e3efd93250b5b8358c604529e5e5026e16bffa9d3f8bf59d2b72d1a8",
+        "worktree_sha256": "120b4943e3efd93250b5b8358c604529e5e5026e16bffa9d3f8bf59d2b72d1a8"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx",
+        "expected_sha256": "e447493da3b2674f7b38f1c8c7e2fdb4dd919df3020cd1967a79d02837f6f7f4",
+        "committed_sha256": "e447493da3b2674f7b38f1c8c7e2fdb4dd919df3020cd1967a79d02837f6f7f4",
+        "worktree_sha256": "e447493da3b2674f7b38f1c8c7e2fdb4dd919df3020cd1967a79d02837f6f7f4"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+        "expected_sha256": "50eb7a9f9259deb6df5ee90566d27648b1c821528e30d71bd5fe0267fa46e068",
+        "committed_sha256": "50eb7a9f9259deb6df5ee90566d27648b1c821528e30d71bd5fe0267fa46e068",
+        "worktree_sha256": "50eb7a9f9259deb6df5ee90566d27648b1c821528e30d71bd5fe0267fa46e068"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+        "expected_sha256": "efb731d2a974d16d4e540f27af90c4d59eaaf515abed9c230ce04e08925c4a94",
+        "committed_sha256": "efb731d2a974d16d4e540f27af90c4d59eaaf515abed9c230ce04e08925c4a94",
+        "worktree_sha256": "efb731d2a974d16d4e540f27af90c4d59eaaf515abed9c230ce04e08925c4a94"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "expected_sha256": "cf9b3751b22472c19528288274cf09991df1a71f2433745ef669d61e3a37d465",
+        "committed_sha256": "cf9b3751b22472c19528288274cf09991df1a71f2433745ef669d61e3a37d465",
+        "worktree_sha256": "cf9b3751b22472c19528288274cf09991df1a71f2433745ef669d61e3a37d465"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+        "expected_sha256": "a60e2d0ff4b841b49590be1b78ef5ff5b787bfe215e62aed2cbfed89efbf789c",
+        "committed_sha256": "a60e2d0ff4b841b49590be1b78ef5ff5b787bfe215e62aed2cbfed89efbf789c",
+        "worktree_sha256": "a60e2d0ff4b841b49590be1b78ef5ff5b787bfe215e62aed2cbfed89efbf789c"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "expected_sha256": "f1cf4db09edba2fbb433bc1c608b293ed10bc873bf5d213bd6247eb0af3e7262",
+        "committed_sha256": "f1cf4db09edba2fbb433bc1c608b293ed10bc873bf5d213bd6247eb0af3e7262",
+        "worktree_sha256": "f1cf4db09edba2fbb433bc1c608b293ed10bc873bf5d213bd6247eb0af3e7262"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "expected_sha256": "06de0d54cc857b1aee826256f72a560cc2ca851b247b0a982801344043a0cb5a",
+        "committed_sha256": "06de0d54cc857b1aee826256f72a560cc2ca851b247b0a982801344043a0cb5a",
+        "worktree_sha256": "06de0d54cc857b1aee826256f72a560cc2ca851b247b0a982801344043a0cb5a"
+      },
+      {
+        "path": "policy-engine/docs/reference/api/control.md",
+        "expected_sha256": "1f825c364e0de3c621fa8615acfd8fe17d06a3cdae704bfc293174a28cd8980f",
+        "committed_sha256": "1f825c364e0de3c621fa8615acfd8fe17d06a3cdae704bfc293174a28cd8980f",
+        "worktree_sha256": "1f825c364e0de3c621fa8615acfd8fe17d06a3cdae704bfc293174a28cd8980f"
+      },
+      {
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "expected_sha256": "e5172c43ed6f04f2ea11a72c75590cbd0f870f7067245e0bcfb73845720cd1b2",
+        "committed_sha256": "e5172c43ed6f04f2ea11a72c75590cbd0f870f7067245e0bcfb73845720cd1b2",
+        "worktree_sha256": "e5172c43ed6f04f2ea11a72c75590cbd0f870f7067245e0bcfb73845720cd1b2"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "expected_sha256": "4f809df927876d60694444e863542165e207b4ab5a3838dbad3ba6dc4bb5599b",
+        "committed_sha256": "4f809df927876d60694444e863542165e207b4ab5a3838dbad3ba6dc4bb5599b",
+        "worktree_sha256": "4f809df927876d60694444e863542165e207b4ab5a3838dbad3ba6dc4bb5599b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "expected_sha256": "a844cf3492cedaaefa773a684917655886d45e35654538bd257645f1c8159b11",
+        "committed_sha256": "a844cf3492cedaaefa773a684917655886d45e35654538bd257645f1c8159b11",
+        "worktree_sha256": "a844cf3492cedaaefa773a684917655886d45e35654538bd257645f1c8159b11"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "expected_sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841",
+        "committed_sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841",
+        "worktree_sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "expected_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27",
+        "committed_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27",
+        "worktree_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/types.ts",
+        "expected_sha256": "d13a17513905d9305760f9b1c5f47bf5d7e8289b8bddfa786ad40b1a28700ca2",
+        "committed_sha256": "d13a17513905d9305760f9b1c5f47bf5d7e8289b8bddfa786ad40b1a28700ca2",
+        "worktree_sha256": "d13a17513905d9305760f9b1c5f47bf5d7e8289b8bddfa786ad40b1a28700ca2"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-can-selected-canon-read.toml",
+        "expected_sha256": "0feafa2a01f2fea7363f2f256748aea5695769144e305236df81d652a9c61d85",
+        "committed_sha256": "0feafa2a01f2fea7363f2f256748aea5695769144e305236df81d652a9c61d85",
+        "worktree_sha256": "0feafa2a01f2fea7363f2f256748aea5695769144e305236df81d652a9c61d85"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-b33-transport-basis.toml",
+        "expected_sha256": "ff7d554e962f773eb4fb369411b1cae79761c237e479583aaeee778cf22b4019",
+        "committed_sha256": "ff7d554e962f773eb4fb369411b1cae79761c237e479583aaeee778cf22b4019",
+        "worktree_sha256": "ff7d554e962f773eb4fb369411b1cae79761c237e479583aaeee778cf22b4019"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-e02-acquisition-history-lineage-join.toml",
+        "expected_sha256": "c8f7285b27d97a2e8a2382a7a266a66f138d1a678eeb10d0d819aaf8629b660d",
+        "committed_sha256": "c8f7285b27d97a2e8a2382a7a266a66f138d1a678eeb10d0d819aaf8629b660d",
+        "worktree_sha256": "c8f7285b27d97a2e8a2382a7a266a66f138d1a678eeb10d0d819aaf8629b660d"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+        "expected_sha256": "7ca0026c63a4e07531bf183b0e0a94fb58904b70228a54f6dfdc11c94ffd3527",
+        "committed_sha256": "7ca0026c63a4e07531bf183b0e0a94fb58904b70228a54f6dfdc11c94ffd3527",
+        "worktree_sha256": "7ca0026c63a4e07531bf183b0e0a94fb58904b70228a54f6dfdc11c94ffd3527"
+      },
+      {
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "expected_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a",
+        "committed_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a",
+        "worktree_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/control.py",
+        "expected_sha256": "3d5bedfecdcb826688e1e1af12084ea5b22d917fc263c19dc1326ac7886d420c",
+        "committed_sha256": "3d5bedfecdcb826688e1e1af12084ea5b22d917fc263c19dc1326ac7886d420c",
+        "worktree_sha256": "3d5bedfecdcb826688e1e1af12084ea5b22d917fc263c19dc1326ac7886d420c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "expected_sha256": "1534c6a68c64de73bb3b30801887a2f748258e921faf4e8f1bfc970275ee3924",
+        "committed_sha256": "1534c6a68c64de73bb3b30801887a2f748258e921faf4e8f1bfc970275ee3924",
+        "worktree_sha256": "1534c6a68c64de73bb3b30801887a2f748258e921faf4e8f1bfc970275ee3924"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "expected_sha256": "68e84c2dce81e57f1b57df2998fe9a91373277bc6de47571b9be907957938aa4",
+        "committed_sha256": "68e84c2dce81e57f1b57df2998fe9a91373277bc6de47571b9be907957938aa4",
+        "worktree_sha256": "68e84c2dce81e57f1b57df2998fe9a91373277bc6de47571b9be907957938aa4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "expected_sha256": "d60155d1475c0bae956c666a1855b21c42e0696af27ad755edea6980bf453d95",
+        "committed_sha256": "d60155d1475c0bae956c666a1855b21c42e0696af27ad755edea6980bf453d95",
+        "worktree_sha256": "d60155d1475c0bae956c666a1855b21c42e0696af27ad755edea6980bf453d95"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+        "expected_sha256": "c2c9d34e9c91fb0d61c553bba1330a9a7c0fe2aaae66c04768280ce75a115bdd",
+        "committed_sha256": "c2c9d34e9c91fb0d61c553bba1330a9a7c0fe2aaae66c04768280ce75a115bdd",
+        "worktree_sha256": "c2c9d34e9c91fb0d61c553bba1330a9a7c0fe2aaae66c04768280ce75a115bdd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+        "expected_sha256": "5f9f8ad9191fba21c7efd03d4219f3d4d94ee5684114e9eb86b567f85b24fa5e",
+        "committed_sha256": "5f9f8ad9191fba21c7efd03d4219f3d4d94ee5684114e9eb86b567f85b24fa5e",
+        "worktree_sha256": "5f9f8ad9191fba21c7efd03d4219f3d4d94ee5684114e9eb86b567f85b24fa5e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "expected_sha256": "dfea8f15c9851a5eb6cc5bcf8dc8e2418fc017d9296df077868d787b8c60c94c",
+        "committed_sha256": "dfea8f15c9851a5eb6cc5bcf8dc8e2418fc017d9296df077868d787b8c60c94c",
+        "worktree_sha256": "dfea8f15c9851a5eb6cc5bcf8dc8e2418fc017d9296df077868d787b8c60c94c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "expected_sha256": "589211c0701f3f6823e4194c8169ab5ddd19b69cc2beaa170767a41210304de3",
+        "committed_sha256": "589211c0701f3f6823e4194c8169ab5ddd19b69cc2beaa170767a41210304de3",
+        "worktree_sha256": "589211c0701f3f6823e4194c8169ab5ddd19b69cc2beaa170767a41210304de3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/app.py",
+        "expected_sha256": "7e911d87cd8b328b49501161fbc528c97667645286a4eb60baa0b05fb39e318e",
+        "committed_sha256": "7e911d87cd8b328b49501161fbc528c97667645286a4eb60baa0b05fb39e318e",
+        "worktree_sha256": "7e911d87cd8b328b49501161fbc528c97667645286a4eb60baa0b05fb39e318e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/container.py",
+        "expected_sha256": "51a127b20b4bc691c10915e4a5a2c3e911dac674e4d508f3f2587c17eadac53b",
+        "committed_sha256": "51a127b20b4bc691c10915e4a5a2c3e911dac674e4d508f3f2587c17eadac53b",
+        "worktree_sha256": "51a127b20b4bc691c10915e4a5a2c3e911dac674e4d508f3f2587c17eadac53b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "expected_sha256": "f6aacdd715304909d1338231edf32765a3db0d38a94c62cad3f457fb859977e7",
+        "committed_sha256": "f6aacdd715304909d1338231edf32765a3db0d38a94c62cad3f457fb859977e7",
+        "worktree_sha256": "f6aacdd715304909d1338231edf32765a3db0d38a94c62cad3f457fb859977e7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+        "expected_sha256": "a6dabe3e039cf1e60ad62a7ac4e7c4065b3a96e71ef22d03d2951c771b2509af",
+        "committed_sha256": "a6dabe3e039cf1e60ad62a7ac4e7c4065b3a96e71ef22d03d2951c771b2509af",
+        "worktree_sha256": "a6dabe3e039cf1e60ad62a7ac4e7c4065b3a96e71ef22d03d2951c771b2509af"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "expected_sha256": "53c8e2160f2d933807dc1581240e2e78762bae58486b8a40538be2e68d569df9",
+        "committed_sha256": "53c8e2160f2d933807dc1581240e2e78762bae58486b8a40538be2e68d569df9",
+        "worktree_sha256": "53c8e2160f2d933807dc1581240e2e78762bae58486b8a40538be2e68d569df9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py",
+        "expected_sha256": "98cad389cec27edacd3f7aa35e722c9b92f7fd8217e96be9015eca3b0545650c",
+        "committed_sha256": "98cad389cec27edacd3f7aa35e722c9b92f7fd8217e96be9015eca3b0545650c",
+        "worktree_sha256": "98cad389cec27edacd3f7aa35e722c9b92f7fd8217e96be9015eca3b0545650c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "expected_sha256": "49e5bf9834a1a7afb23102261d8dade5b3635761f028c3067af4847298dc232c",
+        "committed_sha256": "49e5bf9834a1a7afb23102261d8dade5b3635761f028c3067af4847298dc232c",
+        "worktree_sha256": "49e5bf9834a1a7afb23102261d8dade5b3635761f028c3067af4847298dc232c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "expected_sha256": "4b2b1b335bf3d5b218d988ccb68bdbe4861d8d87d6017a64fbc149610755fd94",
+        "committed_sha256": "4b2b1b335bf3d5b218d988ccb68bdbe4861d8d87d6017a64fbc149610755fd94",
+        "worktree_sha256": "4b2b1b335bf3d5b218d988ccb68bdbe4861d8d87d6017a64fbc149610755fd94"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "expected_sha256": "921948ff656250d2428f23d9022123ec1abcd7ac4483c0cd995d5f1435226c0d",
+        "committed_sha256": "921948ff656250d2428f23d9022123ec1abcd7ac4483c0cd995d5f1435226c0d",
+        "worktree_sha256": "921948ff656250d2428f23d9022123ec1abcd7ac4483c0cd995d5f1435226c0d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/__init__.py",
+        "expected_sha256": "a94e991e125e26a7e5a730e138b5cfd52885470f7e1ebac38a4f3f3d853de390",
+        "committed_sha256": "a94e991e125e26a7e5a730e138b5cfd52885470f7e1ebac38a4f3f3d853de390",
+        "worktree_sha256": "a94e991e125e26a7e5a730e138b5cfd52885470f7e1ebac38a4f3f3d853de390"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_movement.py",
+        "expected_sha256": "2a161fa1eacb1d098ae5aa788c8958f8a5a52da5a1fc9ff2bbd4022adea3b2cd",
+        "committed_sha256": "2a161fa1eacb1d098ae5aa788c8958f8a5a52da5a1fc9ff2bbd4022adea3b2cd",
+        "worktree_sha256": "2a161fa1eacb1d098ae5aa788c8958f8a5a52da5a1fc9ff2bbd4022adea3b2cd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py",
+        "expected_sha256": "a45850ea6bc18dd0872bfad40691308faa4b74120d5c3f184097989f7d1bdef4",
+        "committed_sha256": "a45850ea6bc18dd0872bfad40691308faa4b74120d5c3f184097989f7d1bdef4",
+        "worktree_sha256": "a45850ea6bc18dd0872bfad40691308faa4b74120d5c3f184097989f7d1bdef4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "expected_sha256": "d6c105760fc58201de602736c0071919c331e3b531f3c2ed8622f273ec52feee",
+        "committed_sha256": "d6c105760fc58201de602736c0071919c331e3b531f3c2ed8622f273ec52feee",
+        "worktree_sha256": "d6c105760fc58201de602736c0071919c331e3b531f3c2ed8622f273ec52feee"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+        "expected_sha256": "9cc125a098f2bce046add02ae041071ce271561592eeb7e27affd00ab80bf346",
+        "committed_sha256": "9cc125a098f2bce046add02ae041071ce271561592eeb7e27affd00ab80bf346",
+        "worktree_sha256": "9cc125a098f2bce046add02ae041071ce271561592eeb7e27affd00ab80bf346"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+        "expected_sha256": "357043991db6daf074b1bbd833a69e455d8e3cd755874f0983e6ae3eb85b180d",
+        "committed_sha256": "357043991db6daf074b1bbd833a69e455d8e3cd755874f0983e6ae3eb85b180d",
+        "worktree_sha256": "357043991db6daf074b1bbd833a69e455d8e3cd755874f0983e6ae3eb85b180d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
+        "expected_sha256": "86b786f33bc6f69f914da1cd8bf81a13c13110208654488664a0100090008538",
+        "committed_sha256": "86b786f33bc6f69f914da1cd8bf81a13c13110208654488664a0100090008538",
+        "worktree_sha256": "86b786f33bc6f69f914da1cd8bf81a13c13110208654488664a0100090008538"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "expected_sha256": "48e43836ef3d73ef20f6736bf894a55d8762c6677c58bde9c556bf5331e375eb",
+        "committed_sha256": "48e43836ef3d73ef20f6736bf894a55d8762c6677c58bde9c556bf5331e375eb",
+        "worktree_sha256": "48e43836ef3d73ef20f6736bf894a55d8762c6677c58bde9c556bf5331e375eb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "expected_sha256": "d9f0653e8963dbd61ceb86a7267ba27b243c7049803cb79a8e7923186ae2771e",
+        "committed_sha256": "d9f0653e8963dbd61ceb86a7267ba27b243c7049803cb79a8e7923186ae2771e",
+        "worktree_sha256": "d9f0653e8963dbd61ceb86a7267ba27b243c7049803cb79a8e7923186ae2771e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "expected_sha256": "59cd359d0bed9ba40113a1844e7f13d0e70c578c16cf9a164181a8247db7b721",
+        "committed_sha256": "59cd359d0bed9ba40113a1844e7f13d0e70c578c16cf9a164181a8247db7b721",
+        "worktree_sha256": "59cd359d0bed9ba40113a1844e7f13d0e70c578c16cf9a164181a8247db7b721"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "expected_sha256": "1e58f72652ff6c3e320521cb4abb10f3e476ff109421d7f72c9dc6bf6833979a",
+        "committed_sha256": "1e58f72652ff6c3e320521cb4abb10f3e476ff109421d7f72c9dc6bf6833979a",
+        "worktree_sha256": "1e58f72652ff6c3e320521cb4abb10f3e476ff109421d7f72c9dc6bf6833979a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "expected_sha256": "c31b1d543d95a61356f2c1702c372d7e8eb8806e65e6a21818f71cea783c6576",
+        "committed_sha256": "c31b1d543d95a61356f2c1702c372d7e8eb8806e65e6a21818f71cea783c6576",
+        "worktree_sha256": "c31b1d543d95a61356f2c1702c372d7e8eb8806e65e6a21818f71cea783c6576"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "expected_sha256": "c0cdcff7a733cc48bbeedd89ad29f37e81e6ab1c32deca4735ad6dcfe5f88c4c",
+        "committed_sha256": "c0cdcff7a733cc48bbeedd89ad29f37e81e6ab1c32deca4735ad6dcfe5f88c4c",
+        "worktree_sha256": "c0cdcff7a733cc48bbeedd89ad29f37e81e6ab1c32deca4735ad6dcfe5f88c4c"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "expected_sha256": "ae32120d7b4bcf07fe3a7d4c1206631f8910f65f36d08d0df87da1fac3acee2d",
+        "committed_sha256": "ae32120d7b4bcf07fe3a7d4c1206631f8910f65f36d08d0df87da1fac3acee2d",
+        "worktree_sha256": "ae32120d7b4bcf07fe3a7d4c1206631f8910f65f36d08d0df87da1fac3acee2d"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/same_candidate_history_fixture.py",
+        "expected_sha256": "e601126966d7de589d791ea338c93418eb06ecf906e472c62973f3b9127b0078",
+        "committed_sha256": "e601126966d7de589d791ea338c93418eb06ecf906e472c62973f3b9127b0078",
+        "worktree_sha256": "e601126966d7de589d791ea338c93418eb06ecf906e472c62973f3b9127b0078"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+        "expected_sha256": "1b82863839391df9897a3d0a2977ae35996367be91c956221e7011febd0f60b2",
+        "committed_sha256": "1b82863839391df9897a3d0a2977ae35996367be91c956221e7011febd0f60b2",
+        "worktree_sha256": "1b82863839391df9897a3d0a2977ae35996367be91c956221e7011febd0f60b2"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_export_runtime_openapi.py",
+        "expected_sha256": "b9944d647f7089f2255a61c209aab06fc712aedef1fe167e8a45cae083d53dff",
+        "committed_sha256": "b9944d647f7089f2255a61c209aab06fc712aedef1fe167e8a45cae083d53dff",
+        "worktree_sha256": "b9944d647f7089f2255a61c209aab06fc712aedef1fe167e8a45cae083d53dff"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/contracts/test_artifact_preview_compatibility.py",
+        "expected_sha256": "3ad515c5bc5a0d63b6208f2a67d8362c4596deb1b5026b72a79f7ecd9c0b4fcd",
+        "committed_sha256": "3ad515c5bc5a0d63b6208f2a67d8362c4596deb1b5026b72a79f7ecd9c0b4fcd",
+        "worktree_sha256": "3ad515c5bc5a0d63b6208f2a67d8362c4596deb1b5026b72a79f7ecd9c0b4fcd"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/contracts/test_foundry_execution_input_basis_ref.py",
+        "expected_sha256": "7774d01e5ee49f66948f9600dc98ce60a6d668378826938da70d5c98e3b35b2b",
+        "committed_sha256": "7774d01e5ee49f66948f9600dc98ce60a6d668378826938da70d5c98e3b35b2b",
+        "worktree_sha256": "7774d01e5ee49f66948f9600dc98ce60a6d668378826938da70d5c98e3b35b2b"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py",
+        "expected_sha256": "871bc3a9d6eaea89b23317ef6cc491d62508ad28aecf5bd0e260a9dcd417631d",
+        "committed_sha256": "871bc3a9d6eaea89b23317ef6cc491d62508ad28aecf5bd0e260a9dcd417631d",
+        "worktree_sha256": "871bc3a9d6eaea89b23317ef6cc491d62508ad28aecf5bd0e260a9dcd417631d"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "expected_sha256": "25a0d4aeb4ddd7537ee05b17c092cacbcd4e2274481816a83e9336ec905fed57",
+        "committed_sha256": "25a0d4aeb4ddd7537ee05b17c092cacbcd4e2274481816a83e9336ec905fed57",
+        "worktree_sha256": "25a0d4aeb4ddd7537ee05b17c092cacbcd4e2274481816a83e9336ec905fed57"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/test_acquisition_action_service.py",
+        "expected_sha256": "7cb98e7971dd82183e9141e7f989a70f06514a6c887e17d6ae8700842a5640c9",
+        "committed_sha256": "7cb98e7971dd82183e9141e7f989a70f06514a6c887e17d6ae8700842a5640c9",
+        "worktree_sha256": "7cb98e7971dd82183e9141e7f989a70f06514a6c887e17d6ae8700842a5640c9"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "expected_sha256": "ed1942a1345fe7e59feac80dab05a8af68fde9ff39f159610fbf4da402adf2e1",
+        "committed_sha256": "ed1942a1345fe7e59feac80dab05a8af68fde9ff39f159610fbf4da402adf2e1",
+        "worktree_sha256": "ed1942a1345fe7e59feac80dab05a8af68fde9ff39f159610fbf4da402adf2e1"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+        "expected_sha256": "b69cb9ddf891a4780512cb13c0d8df1f3b0717bce460ec915be2fd52a087f0a5",
+        "committed_sha256": "b69cb9ddf891a4780512cb13c0d8df1f3b0717bce460ec915be2fd52a087f0a5",
+        "worktree_sha256": "b69cb9ddf891a4780512cb13c0d8df1f3b0717bce460ec915be2fd52a087f0a5"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+        "expected_sha256": "6ac9b63c93516a4c178c05ba356d1c4e1066bdff2655093eaf16b36791e9c67c",
+        "committed_sha256": "6ac9b63c93516a4c178c05ba356d1c4e1066bdff2655093eaf16b36791e9c67c",
+        "worktree_sha256": "6ac9b63c93516a4c178c05ba356d1c4e1066bdff2655093eaf16b36791e9c67c"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "expected_sha256": "6f9870fdc3d9baea63b1f6a3a0a54e25a00189d2503bee041f458b85703ee8c8",
+        "committed_sha256": "6f9870fdc3d9baea63b1f6a3a0a54e25a00189d2503bee041f458b85703ee8c8",
+        "worktree_sha256": "6f9870fdc3d9baea63b1f6a3a0a54e25a00189d2503bee041f458b85703ee8c8"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+        "expected_sha256": "a29a3c65b558ece4a8c545bd19d8e1dcafa08f62bba0cce43f35eafa83640fbb",
+        "committed_sha256": "a29a3c65b558ece4a8c545bd19d8e1dcafa08f62bba0cce43f35eafa83640fbb",
+        "worktree_sha256": "a29a3c65b558ece4a8c545bd19d8e1dcafa08f62bba0cce43f35eafa83640fbb"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+        "expected_sha256": "a83ce2a40db14550092b0fa6c8fb1a08f37e394c99d74c446309a85b256c3caa",
+        "committed_sha256": "a83ce2a40db14550092b0fa6c8fb1a08f37e394c99d74c446309a85b256c3caa",
+        "worktree_sha256": "a83ce2a40db14550092b0fa6c8fb1a08f37e394c99d74c446309a85b256c3caa"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "expected_sha256": "7393529432acf489a566c4ed1e77e2e74b8d091df5d932dfe17ddf8543574a76",
+        "committed_sha256": "7393529432acf489a566c4ed1e77e2e74b8d091df5d932dfe17ddf8543574a76",
+        "worktree_sha256": "7393529432acf489a566c4ed1e77e2e74b8d091df5d932dfe17ddf8543574a76"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+        "expected_sha256": "eaba297ac6fd529bed0196532265fef69f80299a3146e00eba37de9591f91943",
+        "committed_sha256": "eaba297ac6fd529bed0196532265fef69f80299a3146e00eba37de9591f91943",
+        "worktree_sha256": "eaba297ac6fd529bed0196532265fef69f80299a3146e00eba37de9591f91943"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+        "expected_sha256": "c4e4ba615566bfa4ad21399e056c4f8058c1a37f8334fc86ad9639a6afd3d455",
+        "committed_sha256": "c4e4ba615566bfa4ad21399e056c4f8058c1a37f8334fc86ad9639a6afd3d455",
+        "worktree_sha256": "c4e4ba615566bfa4ad21399e056c4f8058c1a37f8334fc86ad9639a6afd3d455"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py",
+        "expected_sha256": "417eaf5c75ea722f01483c88037b238f6df547cac4721968a7897540c73bb829",
+        "committed_sha256": "417eaf5c75ea722f01483c88037b238f6df547cac4721968a7897540c73bb829",
+        "worktree_sha256": "417eaf5c75ea722f01483c88037b238f6df547cac4721968a7897540c73bb829"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_state.py",
+        "expected_sha256": "ea50866ba8ae3c6ba46ea4c3e86a92214fcda62376dafca67c78047cf0f1906e",
+        "committed_sha256": "ea50866ba8ae3c6ba46ea4c3e86a92214fcda62376dafca67c78047cf0f1906e",
+        "worktree_sha256": "ea50866ba8ae3c6ba46ea4c3e86a92214fcda62376dafca67c78047cf0f1906e"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "expected_sha256": "62e2a404863e52a291337d663f7d491d155fb048bb83371cc091045901b28383",
+        "committed_sha256": "62e2a404863e52a291337d663f7d491d155fb048bb83371cc091045901b28383",
+        "worktree_sha256": "62e2a404863e52a291337d663f7d491d155fb048bb83371cc091045901b28383"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "expected_sha256": "41c37df6421c496ce0e26acb14606f59061214ee0c23afbc77c88e9acbc59c57",
+        "committed_sha256": "41c37df6421c496ce0e26acb14606f59061214ee0c23afbc77c88e9acbc59c57",
+        "worktree_sha256": "41c37df6421c496ce0e26acb14606f59061214ee0c23afbc77c88e9acbc59c57"
+      }
+    ]
+  },
+  "selected_backend": {
+    "runtime": "existing isolated own .venv Python 3.14.3",
+    "numerics": "Darwin CPU; one numerical thread; PyTorch 2.10.0 actual receipts",
+    "frontend": "locked corepack pnpm; Vitest 4.1.5; one worker",
+    "inputs": "controlled local synthetic producer/CAS/HTTP/SQL fixtures and preserved named catalog sources; not production currentness"
+  },
+  "source_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1602-source41-implementation-preservation-20261014/committed-readback.json",
+    "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1602-source41-implementation-preservation-20261014/committed-readback.json",
+    "sha256": "8797d84bb6153cc3ebafba8a1bcf37147c4fc636b2648faa436cb03aa5315921",
+    "bytes": 30022,
+    "availability": "retained local file on G host; raw remains gitignored when applicable"
+  },
+  "receipt_packets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-access-scope-foundry-native-result-r1533-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-access-scope-foundry-native-result-r1533-20261014.json",
+      "sha256": "e5de590f3c8e79ef341bbdca58c61ec9cc6daf2e8edff7fea0a85ea36760e07f",
+      "bytes": 21884,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-openapi-strict-wire-native-result-r1529-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-openapi-strict-wire-native-result-r1529-20261014.json",
+      "sha256": "a0a75000bbb53d425c4ad1d49fb54e68539d6dab2e7da1fa0731f7bafffd969d",
+      "bytes": 1319,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-frontend-typecheck-and-vitest-result-r1569-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-frontend-typecheck-and-vitest-result-r1569-20261014.json",
+      "sha256": "464b77367ccfa19f765169bdd061c5fb4257cc76fc8ef34b10e1d41f1a610e32",
+      "bytes": 2099,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-reviewed-companion-native-result-r1567-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-reviewed-companion-native-result-r1567-20261014.json",
+      "sha256": "0efa3e13d16e140039250ad1023bb1b2ff1eb4d8175076dc5aad1b373964f936",
+      "bytes": 26724,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-v3-selected-catalog-discriminator-r1595-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-v3-selected-catalog-discriminator-r1595-20261014.json",
+      "sha256": "f0dd446e7db186933d32386bdd212c6704ee02fc3513499ee454f370d00cf87a",
+      "bytes": 1833,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-can-media-aware-native-result-r1599-20261014.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-can-media-aware-native-result-r1599-20261014.json",
+      "sha256": "c033e4a1b61c6262aaaa6799182dfbca0ec677974ffc2d0ab43f577c72d56767",
+      "bytes": 23468,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    }
+  ],
+  "complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/command.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/command.json",
+      "sha256": "5e4240db6b667bde8dacc239553c767b5ef39f0da15d5d88674d3054e8d0f684",
+      "bytes": 3247421,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/stdout.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/stdout.txt",
+      "sha256": "148be3f1254e28ec880af19b9235c268a0f030b3e1a0c7a3b3bf29e13e0d0a0f",
+      "bytes": 32675,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/stderr.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/junit.xml",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-reviewed-companion-native-actual-r1562-20261014/junit.xml",
+      "sha256": "88de83d65f49e96d2ae4371d0c8d08aa4481dc11e9393d4847e3b8f660a4b6af",
+      "bytes": 52045,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/command.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/command.json",
+      "sha256": "833bbf318dd996dd2ef87354f00e73824078b033ddb82b959023208eb7479885",
+      "bytes": 4007539,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/stdout.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/stdout.txt",
+      "sha256": "f8b1b70da78cc07c036a43cb8b79a36fd6133fb72786725f24e5e42867d37b8e",
+      "bytes": 24653,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/stderr.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/junit.xml",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-can-media-aware-native-actual-r1596-20261014/junit.xml",
+      "sha256": "7cbf4ced2d8724d6266fd67259154c53871c8f3a20d142b1dc634c68261d96d4",
+      "bytes": 47340,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.json",
+      "sha256": "76c790aa4f8b59b985fe58e70c13aa082a8ccd9e24c86bf90e84570804fdb30c",
+      "bytes": 361694,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.stdout.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.stderr.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/eslint.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.json",
+      "sha256": "42995d60519d3fbcac4fc119431efe4a0792edbf1b62a4471af10d19efcc6af4",
+      "bytes": 361604,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.stdout.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.stdout.txt",
+      "sha256": "c4740b76023a08cf9c2bdda4a123f9e92ae58b4bcc3204da23c1afb1bf8fd0ac",
+      "bytes": 271,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.stderr.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/typecheck.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.json",
+      "sha256": "7d8bffd3820e46e6ee7736fb4ac0f392f51a12fc6aa773937d3479a962c4d578",
+      "bytes": 361751,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.stdout.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.stdout.txt",
+      "sha256": "ebbd2bdf473b379e1cc8efc41026157668d6229244eafa5926e3398ed7b11795",
+      "bytes": 593,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.stderr.txt",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-native-hook-companion-frontend-actual-r1592-20261014/tests.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    }
+  ],
+  "real_chain": "Scoped spawn/transport and continuation paths; CAN raw-profile to API/client/shared intake/UI; C12 existing producer generation to fresh typed refusal; Foundry producer basis to persisted observation/fresh consumer; benchmark scope to cache partition and report. Native evidence is bounded to its exact selected consumers, not capability-wide.",
+  "controls": "Malformed/same-byte selected profiles, old omitted versus malformed CAN field, Foundry wrong kind/media/schema, C12 generation/member/encoder refusal, origin/reentry joins, declared-unknown scoped cache; negative results and unrun controls stay explicit.",
+  "known_failures": {
+    "r1562": "104 PASS / 5 FAIL, initial CAN subset",
+    "r1596": "103 PASS / 7 FAIL, extended CAN/debug and fixture boundaries",
+    "v3": "300s and95s operator timeouts; intentional call-bounded R1564 diagnostic, no product PASS; selected catalog bypass identified"
+  },
+  "next_source_mechanisms": {
+    "CAN": "R5 shared semantic intake and owner/profile/control fixtures after independent R1598",
+    "B31": "canonical active owner intake implemented virtually; exact owner projection-to-profile row set repair R4 required",
+    "C12": "owned runtime and same-query status implemented virtually; complete live model-state invariant R4 required",
+    "N4": "selected catalog source/profile into full K_ref and persisted replay; genuine v3 vs narrow projection separation",
+    "Q2": "independently derived complete runtime-role profile R3 controls, then clean source audit/three installed profiles"
+  },
+  "verification_remaining": [
+    "canonical ABI/public-surface/generator --check plus corrupt-field controls on final source",
+    "ordinary POST/N5/CAS/fresh GET and meaningful N4 children/current reissue chain",
+    "one composed replay including Prepared B defining baseline and13contours, full S1/refinement/law semantic criteria",
+    "native SOTA13rows/actualchildren; Linux LA-029 and exact three installed/rebuilt wheel consumers",
+    "authentic read-only named production pairing/currentness and full282-ID/291-occurrence report"
+  ],
+  "G_accepted_checkpoint": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "relation": "separate published G source, not this candidate acceptance"
+  },
+  "proposal_fields": {
+    "formal_closure_ids": [],
+    "author_bounded_evidence_only": true,
+    "full_occurrence_report_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1520-full-occurrence-closeout-reconciliation-20261014/report.json",
+      "absolute_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1520-full-occurrence-closeout-reconciliation-20261014/report.json",
+      "sha256": "c046080f4962a7177302840cbf561dfecd33529c6f32dba66c8bd599d05b42fa",
+      "bytes": 1757065,
+      "availability": "retained local file on G host; raw remains gitignored when applicable"
+    },
+    "full_occurrence_report_currentness": "historical/navigation source report; Source41 actual gate additions above require final successor report",
+    "historical_closures": "unchanged; nine historical closures and B198 remain in canonical report"
+  },
+  "closure_ids": [],
+  "global_source_input_backend_freeze": false,
+  "external_inputs": "No fabricated issuer/permission/law/custody/currentness/causal calibration/refinement. Exact original criteria and minimal next inputs remain in full occurrence report; this source checkpoint admits no external positives."
+}

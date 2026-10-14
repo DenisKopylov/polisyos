@@ -1,0 +1,680 @@
+{
+  "kind": "author actual current source41 companion replay; not G acceptance",
+  "base_head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "source_uncommitted": true,
+  "command": {
+    "path": "raw/source41-reviewed-companion-native-actual-r1562-20261014/command.json",
+    "sha256": "5e4240db6b667bde8dacc239553c767b5ef39f0da15d5d88674d3054e8d0f684"
+  },
+  "source_count": 7718,
+  "source_stable": true,
+  "wall_seconds": 66.52940212504473,
+  "counts": {
+    "PASS": 104,
+    "FAIL": 5,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_unchanged_append_reuses_only_unchanged_current_member",
+      "outcome": "PASS",
+      "wall_seconds": "0.113"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_changed_projected_text_same_id_is_reembedded",
+      "outcome": "PASS",
+      "wall_seconds": "0.077"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_withdrawal_removes_id_from_current_generation",
+      "outcome": "PASS",
+      "wall_seconds": "0.066"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+      "outcome": "PASS",
+      "wall_seconds": "0.061"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_projection_rule_change_invalidates_reuse",
+      "outcome": "PASS",
+      "wall_seconds": "0.070"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+      "outcome": "PASS",
+      "wall_seconds": "0.065"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_legacy_backend_argument_is_rejected_explicitly",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[entity_embedding_text-row0-ENTITY\\nen: Budget Office\\nuk: \\u0411\\u044e\\u0434\\u0436\\u0435\\u0442\\u043d\\u0435 \\u0443\\u043f\\u0440\\u0430\\u0432\\u043b\\u0456\\u043d\\u043d\\u044f\\ntype: agency\\naliases: Finance; Budget; \\u041c\\u0456\\u043d\\u0444\\u0456\\u043d]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[fact_embedding_text-row1-FACT\\nnorm_type: approval\\naction: approve\\nspo: Cabinet (\\u041a\\u0430\\u0431\\u043c\\u0456\\u043d) approves budget (\\u0431\\u044e\\u0434\\u0436\\u0435\\u0442)\\nfact_en: Cabinet approves the budget\\ncondition_uk: after review\\nexception_uk: emergency exception\\nprocedure_uk: submit a report\\nthresholds: {\"amount\": 3}\\nquote_uk: Article 7]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[provision_embedding_text-row2-Budget submissions shall be published.]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[entity_embedding_text-row0]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[fact_embedding_text-row1]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[provision_embedding_text-row2]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode",
+      "outcome": "PASS",
+      "wall_seconds": "0.115"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_fresh_intent_still_requires_runtime_material_before_vector_search",
+      "outcome": "PASS",
+      "wall_seconds": "0.096"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+      "outcome": "PASS",
+      "wall_seconds": "0.071"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal",
+      "outcome": "PASS",
+      "wall_seconds": "3.125"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_current_generation_refuses_changed_projected_members_before_encode",
+      "outcome": "PASS",
+      "wall_seconds": "0.065"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_query_encoder_assets_must_match_before_encoding",
+      "outcome": "PASS",
+      "wall_seconds": "0.055"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_runtime_and_graph_refuse_same_asset_query_callable_swap",
+      "outcome": "PASS",
+      "wall_seconds": "0.059"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.024"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.023"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.023"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.023"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.021"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.023"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "outcome": "PASS",
+      "wall_seconds": "0.022"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_catalog_type_checking_exports_match_lazy_mapping",
+      "outcome": "PASS",
+      "wall_seconds": "0.003"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_existing_facade_exports_preserve_canonical_object_identity",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_read_api_surface_registry_resolves_public_modules",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_read_api_surface_registry_rejects_unknown_surface",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_runtime_contract_exports_keep_canonical_object_identity",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_runtime_container_rejects_untyped_legal_query_encoder_provider",
+      "outcome": "PASS",
+      "wall_seconds": "0.105"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_uses_public_graph_and_preserves_owner_results",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot",
+      "outcome": "PASS",
+      "wall_seconds": "0.044"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_treats_empty_present_intent_as_malformed",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_reports_malformed_present_intent_without_database",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_degrades_known_error_and_closes_graph",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_control_api",
+      "name": "test_lex_search_preserves_truth_fields_through_api",
+      "outcome": "PASS",
+      "wall_seconds": "2.259"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_control_api",
+      "name": "test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong_generation",
+      "outcome": "PASS",
+      "wall_seconds": "2.071"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_resolves_absence_for_search_consumer",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params0-candidate_metadata0]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params1-candidate_metadata1]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params2-candidate_metadata2]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params3-candidate_metadata3]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params4-candidate_metadata4]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params5-candidate_metadata5]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_sibling_scope_from_another_run",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_uses_live_access_scope_and_rejects_candidate_mismatch",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_preserves_explicit_declared_unscoped_status",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_writes_selected_owner_schema_and_body",
+      "outcome": "PASS",
+      "wall_seconds": "0.075"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_preserves_legacy_candidate_only_ref",
+      "outcome": "PASS",
+      "wall_seconds": "0.073"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_binds_canonical_candidate_to_selected_trinity_source",
+      "outcome": "PASS",
+      "wall_seconds": "0.084"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_source_statuses_are_per_source_and_choose_the_configured_benchmark_report",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_benchmark_admission_requires_exact_loop_and_split_and_keeps_scope_filters",
+      "outcome": "PASS",
+      "wall_seconds": "0.101"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_finite_projection_roundtrips_nested_evidence_without_loss",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_voi_scope_preserves_unknown_and_declared_unscoped_status",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs",
+      "outcome": "PASS",
+      "wall_seconds": "0.150"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_candidate_cache_is_partitioned_by_status_and_runtime_run",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_candidate_declared_hash_never_selects_tenant_authority_cache",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_serialized_authenticated_label_without_live_scope_is_candidate_only",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_authenticated_runtime_scope_keeps_existing_tenant_cache_location",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_unknown_scope_never_reads_or_overwrites_legacy_global_snapshot",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_missing_runtime_run_uses_fresh_scheduler_without_persisting",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_cache_scope_rejects_malformed_supplied_hash",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_foundry_execution_input_basis_ref",
+      "name": "test_named_basis_ref_keeps_legacy_defaults_and_pins_its_schema_identity",
+      "outcome": "PASS",
+      "wall_seconds": "0.005"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_foundry_execution_input_basis_ref",
+      "name": "test_core_simulation_result_rejects_wrong_basis_ref_identity[kind-foundry.exec_plan]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_foundry_execution_input_basis_ref",
+      "name": "test_core_simulation_result_rejects_wrong_basis_ref_identity[media_type-application/jsonl]",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_foundry_execution_input_basis_ref",
+      "name": "test_core_simulation_result_preserves_legacy_status_and_profiled_api_roundtrip",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[ArtifactContentPreview-payload0]",
+      "outcome": "PASS",
+      "wall_seconds": "0.004"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[ArtifactSchemaView-payload1]",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[PredictiveCoverageDiagnosticPreview-payload2]",
+      "outcome": "PASS",
+      "wall_seconds": "0.001"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_current_content_producer_still_supplies_a_computed_status",
+      "outcome": "PASS",
+      "wall_seconds": "0.000"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_eval_safety_projection_is_informational_only",
+      "outcome": "PASS",
+      "wall_seconds": "2.621"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_manifest_endpoint_returns_canonical_metadata",
+      "outcome": "PASS",
+      "wall_seconds": "2.182"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_content_preview_enforces_max_bytes",
+      "outcome": "FAIL",
+      "wall_seconds": "2.178"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_current_inspector_emits_computed_status_for_content_and_schema",
+      "outcome": "FAIL",
+      "wall_seconds": "3.051"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_lineage_and_schema_endpoints",
+      "outcome": "PASS",
+      "wall_seconds": "4.497"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_inspector_resolves_exact_manifest_profile_for_all_views",
+      "outcome": "FAIL",
+      "wall_seconds": "4.551"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_selected_manifest_lineage_preserves_each_input_profile",
+      "outcome": "FAIL",
+      "wall_seconds": "4.140"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_unqualified_manifest_view_revalidates_cache_and_304_keeps_resolved_link",
+      "outcome": "PASS",
+      "wall_seconds": "2.277"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_selected_manifest_authority_controls_all_artifact_http_surfaces",
+      "outcome": "FAIL",
+      "wall_seconds": "2.921"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_actual_foundry_basis_ref_survives_abm_ir_cas_roundtrip",
+      "outcome": "PASS",
+      "wall_seconds": "1.396"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+      "outcome": "PASS",
+      "wall_seconds": "2.212"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_fresh_observation_consumer_rejects_mutated_execution_basis_ref[kind]",
+      "outcome": "PASS",
+      "wall_seconds": "2.049"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_fresh_observation_consumer_rejects_mutated_execution_basis_ref[media_type]",
+      "outcome": "PASS",
+      "wall_seconds": "1.890"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate",
+      "name": "test_fresh_observation_consumer_rejects_mutated_execution_basis_ref[schema_version]",
+      "outcome": "PASS",
+      "wall_seconds": "1.919"
+    }
+  ],
+  "limits": [
+    "109 selected actual cases; not entire E02 closure",
+    "Five ArtifactInspector CAN failures under independent product versus fixture diagnosis",
+    "C12 owned encoder positive, V3 served reentry, final native/global composition remain pending"
+  ],
+  "closure_ids": []
+}

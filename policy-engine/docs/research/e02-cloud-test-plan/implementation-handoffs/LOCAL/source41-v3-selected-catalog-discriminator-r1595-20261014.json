@@ -1,0 +1,34 @@
+{
+  "kind": "author source-bound discriminator for pre-acquisition producer delay; diagnostic stop is not product pass",
+  "head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "source_count": 7722,
+  "source_stable": true,
+  "wall_seconds": 59.3429630829487,
+  "exit_code": 1,
+  "command_ref": {
+    "path": "raw/source41-v3-served-first-stack-diagnostic-actual-r1564-20261014/command.json",
+    "sha256": "8b9069557cd75b546b1445c261f563fb3fb437945754a86e8155232f484dd1b4"
+  },
+  "logs": [
+    {
+      "path": "raw/r1564-v3-served-capture-diagnostic-packet-20261014/r1564_credal_capture.jsonl",
+      "sha256": "39412767870ed3dfa308e5d8b8fafb9cdf3cc16ef1cc2c4a5eca9dc4370af96b",
+      "bytes": 8722956
+    },
+    {
+      "path": "raw/r1564-v3-served-capture-diagnostic-packet-20261014/r1564_route_metadata.jsonl",
+      "sha256": "fab3c3b12b2d06a640507a1d0f225b16718a589d50a22d8536cdd4b5c1a1c990",
+      "bytes": 2025
+    }
+  ],
+  "stop_reason": "capture_call_count_bound",
+  "bounded_observation": "12492 Data Forge alignment constructions, nested L2 source and selected wrappers are one traversal; full row denominator not established by bounded stop",
+  "source_discontinuity": "Canonical serving context selects a fixture catalog; K_ref Data Forge iterator bypasses that selection and reads root/default catalog. New virtual general bridge repair R1577 underway. No source patch applied by this diagnosis.",
+  "falsified_hypothesis": "Large individual capture/deep recursion/string fallback were not observed in the bounded owner probe. No OOM claim.",
+  "limits": [
+    "ordinary acquisition POST and same-candidate reissue not reached by this discriminator",
+    "R554 older counts belong to distinct historical source, not same-run evidence",
+    "external law/currentness/custody not established"
+  ],
+  "closure_ids": []
+}

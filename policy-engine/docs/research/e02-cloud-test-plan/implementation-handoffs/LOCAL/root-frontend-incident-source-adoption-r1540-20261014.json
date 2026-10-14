@@ -1,0 +1,62 @@
+{
+  "kind": "Root ownership and candidate adoption after established writer cause and independent review",
+  "branch": "codex/e02-unified-local-20261009",
+  "head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "index_tree": "1bcb987de32a0e76bde44d52604a6cf8a5335991",
+  "cause": "Agent1471 Python absolute-path actual writes plus Prettier despite virtual-only lease; stopped, bytes preserved, no history/index replacement",
+  "denominator": 7,
+  "paths": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "preserved_agent_incident_sha256": "a4b8cb7e9f725c3ed9d36d0cbe518836fc5550c879ef76b91f23bf3c4eb6a134",
+      "root_adopted_candidate_sha256": "e1b3486eec4932e131401a78e0806431b588b7090640bb1c0111e137af2fcc1b",
+      "handling": "superseded by reviewed shared-intake composition"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "preserved_agent_incident_sha256": "312fb7550adbf93cbd641777db055f280a1073a4ce0fb65f4edfffb09586231b",
+      "root_adopted_candidate_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba",
+      "handling": "superseded by reviewed shared-intake composition"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "preserved_agent_incident_sha256": "cf9b3751b22472c19528288274cf09991df1a71f2433745ef669d61e3a37d465",
+      "root_adopted_candidate_sha256": "cf9b3751b22472c19528288274cf09991df1a71f2433745ef669d61e3a37d465",
+      "handling": "independently reviewed preserved locale delta"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+      "preserved_agent_incident_sha256": "a60e2d0ff4b841b49590be1b78ef5ff5b787bfe215e62aed2cbfed89efbf789c",
+      "root_adopted_candidate_sha256": "a60e2d0ff4b841b49590be1b78ef5ff5b787bfe215e62aed2cbfed89efbf789c",
+      "handling": "independently reviewed preserved locale delta"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "preserved_agent_incident_sha256": "f1cf4db09edba2fbb433bc1c608b293ed10bc873bf5d213bd6247eb0af3e7262",
+      "root_adopted_candidate_sha256": "f1cf4db09edba2fbb433bc1c608b293ed10bc873bf5d213bd6247eb0af3e7262",
+      "handling": "independently reviewed preserved locale delta"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx",
+      "preserved_agent_incident_sha256": "2bc860027ef52bdb97488ff4996b02e0cf9ff11d8064b6fc431689944dbd923b",
+      "root_adopted_candidate_sha256": "e447493da3b2674f7b38f1c8c7e2fdb4dd919df3020cd1967a79d02837f6f7f4",
+      "handling": "superseded by reviewed shared-intake composition"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.test.tsx",
+      "preserved_agent_incident_sha256": "8a7cf3f71893603910bb9663b3d812380595c263205920a6d71986d36c558631",
+      "root_adopted_candidate_sha256": "120b4943e3efd93250b5b8358c604529e5e5026e16bffa9d3f8bf59d2b72d1a8",
+      "handling": "superseded by reviewed shared-intake composition"
+    }
+  ],
+  "independent_review": {
+    "path": "reviews/r1538-can-joined-intake-successor-independent-20261014.json",
+    "sha256": "9d7f29c0a6f3886a888c4f00bb090e85391f516dfb11ec607e153ba8fb438802"
+  },
+  "root_application": {
+    "path": "raw/r1536-can-joined-intake-root-virtual-20261014/application-readback.json",
+    "sha256": "8b5f092c293907e7efde4c7d68fd4b896a008888927a1ca0b1204a8bb3c2c799"
+  },
+  "scope": "reviewed author candidate adoption; generated/native/browser acceptance pending; not G acceptance",
+  "closure_ids": []
+}

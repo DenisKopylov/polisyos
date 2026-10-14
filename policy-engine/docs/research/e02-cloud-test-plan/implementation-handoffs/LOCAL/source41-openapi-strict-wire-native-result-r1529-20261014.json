@@ -1,0 +1,28 @@
+{
+  "slice_base": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "implementation_state": "owned dirty Source41 R1524; no committed Source41 freeze",
+  "command_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-working-openapi-strict-wire-native-actual-r1527-20261014/command.json",
+    "sha256": "e8fbb2ce8478c2fd41b06d7673be0a6e904a8963c50a4413eb1bab964bb0cb6c"
+  },
+  "junit_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source41-working-openapi-strict-wire-native-actual-r1527-20261014/junit.xml",
+    "sha256": "4df6251f90d0afa21a63f476adeac225b1bb2022e5e4bcbc0c0875e56111ec0e"
+  },
+  "tests": 5,
+  "PASS": 5,
+  "FAIL": 0,
+  "ERROR": 0,
+  "SKIP": 0,
+  "source_input_count": 6959,
+  "source_stable": true,
+  "wall_seconds": 35.24745833303314,
+  "exit_code": 0,
+  "scope": "Complete test_export_runtime_openapi.py; actual runtime export confines side effects, genuine controlled ControlPlaneStore readback examples, strict JSON-wire roundtrip and limited calibration illustrations",
+  "limits": [
+    "not a CAN compatibility/generated/browser receipt",
+    "not production calibration or persisted calibration producer proof",
+    "not global capability closure"
+  ],
+  "closure_ids": []
+}

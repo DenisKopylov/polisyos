@@ -1,0 +1,576 @@
+{
+  "kind": "author actual source41 media-aware CAN replay; not acceptance",
+  "head": "28b73cb9c78f6f65f2baa1e1561b2f6b57039aa3",
+  "source_count": 7718,
+  "source_stable": true,
+  "wall_seconds": 117.49857612489723,
+  "command_ref": {
+    "path": "raw/source41-can-media-aware-native-actual-r1596-20261014/command.json",
+    "sha256": "833bbf318dd996dd2ef87354f00e73824078b033ddb82b959023208eb7479885"
+  },
+  "counts": {
+    "PASS": 103,
+    "FAIL": 7,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_eval_safety_projection_is_informational_only",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_manifest_endpoint_returns_canonical_metadata",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_content_preview_enforces_max_bytes",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_current_inspector_emits_computed_status_for_content_and_schema",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_lineage_and_schema_endpoints",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_artifact_inspector_resolves_exact_manifest_profile_for_all_views",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_selected_manifest_lineage_preserves_each_input_profile",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_unqualified_manifest_view_revalidates_cache_and_304_keeps_resolved_link",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_artifact_inspector_api",
+      "name": "test_selected_manifest_authority_controls_all_artifact_http_surfaces",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserves_bytes",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_quantity_and_fabric_routes_refuse_the_selected_packet_profile",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_debug_workflow_and_public_verification_refuse_profile_mismatch",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_inspector_refusal_family_preserves_raw_and_non_json_semantics",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_predictive_diagnostic_caps_actual_selected_bytes_before_codec",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_predictive_diagnostic_decodes_actual_bytes_below_source_cap",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_content_preview_caps_actual_selected_bytes_before_codec",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_declared_profile_api_refusal",
+      "name": "test_action_selection_receipt_guard_survives_python_optimized_mode",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_unchanged_append_reuses_only_unchanged_current_member",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_changed_projected_text_same_id_is_reembedded",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_withdrawal_removes_id_from_current_generation",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_projection_rule_change_invalidates_reuse",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_legacy_backend_argument_is_rejected_explicitly",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[entity_embedding_text-row0-ENTITY\\nen: Budget Office\\nuk: \\u0411\\u044e\\u0434\\u0436\\u0435\\u0442\\u043d\\u0435 \\u0443\\u043f\\u0440\\u0430\\u0432\\u043b\\u0456\\u043d\\u043d\\u044f\\ntype: agency\\naliases: Finance; Budget; \\u041c\\u0456\\u043d\\u0444\\u0456\\u043d]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[fact_embedding_text-row1-FACT\\nnorm_type: approval\\naction: approve\\nspo: Cabinet (\\u041a\\u0430\\u0431\\u043c\\u0456\\u043d) approves budget (\\u0431\\u044e\\u0434\\u0436\\u0435\\u0442)\\nfact_en: Cabinet approves the budget\\ncondition_uk: after review\\nexception_uk: emergency exception\\nprocedure_uk: submit a report\\nthresholds: {\"amount\": 3}\\nquote_uk: Article 7]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projections[provision_embedding_text-row2-Budget submissions shall be published.]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[entity_embedding_text-row0]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[fact_embedding_text-row1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows[provision_embedding_text-row2]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_fresh_intent_still_requires_runtime_material_before_vector_search",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_current_generation_refuses_changed_projected_members_before_encode",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_query_encoder_assets_must_match_before_encoding",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_runtime_and_graph_refuse_same_asset_query_callable_swap",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_emb_03",
+      "name": "test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_catalog_type_checking_exports_match_lazy_mapping",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_existing_facade_exports_preserve_canonical_object_identity",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_read_api_surface_registry_resolves_public_modules",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_read_api_surface_registry_rejects_unknown_surface",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.data_forge.read_api.test_surfaces",
+      "name": "test_runtime_contract_exports_keep_canonical_object_identity",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_runtime_container_rejects_untyped_legal_query_encoder_provider",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_uses_public_graph_and_preserves_owner_results",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_treats_empty_present_intent_as_malformed",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_reports_malformed_present_intent_without_database",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_degrades_known_error_and_closes_graph",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.services.test_lex_pipeline",
+      "name": "test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_control_api",
+      "name": "test_lex_search_preserves_truth_fields_through_api",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.runtime.http.test_control_api",
+      "name": "test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong_generation",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_resolves_absence_for_search_consumer",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params0-candidate_metadata0]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params1-candidate_metadata1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params2-candidate_metadata2]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params3-candidate_metadata3]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params4-candidate_metadata4]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope[params5-candidate_metadata5]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_refuses_sibling_scope_from_another_run",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_uses_live_access_scope_and_rejects_candidate_mismatch",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_transfer_context_preserves_explicit_declared_unscoped_status",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_writes_selected_owner_schema_and_body",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_preserves_legacy_candidate_only_ref",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_runtime_candidate_bridge_binds_canonical_candidate_to_selected_trinity_source",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_source_statuses_are_per_source_and_choose_the_configured_benchmark_report",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks",
+      "name": "test_benchmark_admission_requires_exact_loop_and_split_and_keeps_scope_filters",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_finite_projection_roundtrips_nested_evidence_without_loss",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_voi_scope_preserves_unknown_and_declared_unscoped_status",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_reporting",
+      "name": "test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_candidate_cache_is_partitioned_by_status_and_runtime_run",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_candidate_declared_hash_never_selects_tenant_authority_cache",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_serialized_authenticated_label_without_live_scope_is_candidate_only",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_authenticated_runtime_scope_keeps_existing_tenant_cache_location",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_unknown_scope_never_reads_or_overwrites_legacy_global_snapshot",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_missing_runtime_run_uses_fresh_scheduler_without_persisting",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.nodes.builtins.decide.test_policy_runtime_state",
+      "name": "test_cache_scope_rejects_malformed_supplied_hash",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[ArtifactContentPreview-payload0]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[ArtifactSchemaView-payload1]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_legacy_status_omission_maps_to_nonqualifying_status[PredictiveCoverageDiagnosticPreview-payload2]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.contracts.test_artifact_preview_compatibility",
+      "name": "test_current_content_producer_still_supplies_a_computed_status",
+      "outcome": "PASS"
+    }
+  ],
+  "next": "R1496 general CAN admission/fixture R5; independent R1598 product versus fixture boundary review",
+  "limits": [
+    "Five initial CAN blockers are repaired but full extended module found seven further failures",
+    "No P41 inherited classification; profile cap/selection predicates and fixture controls remain under investigation",
+    "Full browser, installed consumers, final native and entire E02 remain unrun"
+  ],
+  "closure_ids": []
+}

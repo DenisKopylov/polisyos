@@ -1,0 +1,221 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "source45",
+  "slice_base": "9b0159d6e1ca33f14fc6648957553dcadcea97b5",
+  "candidate": "de34af7b0084b6bac54b0bdd5e3518a42f799354",
+  "tree": "b6cea92d463d1166a8fa420816a12efd0fcb9483",
+  "parents": [
+    "9b0159d6e1ca33f14fc6648957553dcadcea97b5"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "full_footprint": [
+    {
+      "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "sha256": "925fa26b9687945d46c25fd6eacd74c4d36c7eabbc89e61f32a00d1819c7b1c8",
+      "bytes": 81649
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "sha256": "697a4bf6d75b1cd08335ce055690df2fa48eeb8972c841ac6cf80e480551d396",
+      "bytes": 316940
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "sha256": "756ba6d9849c75d63d8f3a8aa6fc3ab550de1a60b962e5530545cf9aa8fe3aca",
+      "bytes": 244278
+    }
+  ],
+  "status": "implementation_checkpoint_native_boundaries_recorded_not_global_acceptance",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1969-source45-companion-preservation-root-20261014/source-frame.json",
+    "sha256": "a5e6e863899e43eedca28dbf1cb124559d9aec6f86dfe1dd750dddd411ea450c",
+    "bytes": 1736,
+    "availability": "local_retained_ignored_raw"
+  },
+  "selected_inputs": "real controlled fenced SQLite measurement root; valid same-run CAS sibling profiles; native predictive ForecastOwner observed outcome pairs; explicit caller intent/default N8 preserved",
+  "backends": "existing locked Mac Python3.14.3 CPU, one numerical thread; no new environment or production writes",
+  "real_chain": "existing fenced ACQ producer→receipt/CAS/registry→GenerationCycleController→real two N5 calls/default N8; predictive POST→owner→evidence/event→reopened GET; selected profile/root membership before owner/intents",
+  "native_receipts": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/remediation/test_acq_01.py::test_n7_acq01_route_context_helper_refuses_production_scope_with_valid_route",
+        "tests/unit/remediation/test_acq_01.py::test_n7_acq01_reentry_rebinds_real_n5_and_default_n8",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_verification_time_cannot_claim_invalid_custody",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/junit.xml"
+      ],
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/command.json",
+        "sha256": "734eb366baeb913d38277ab942226f74488ce1f7d043f6efa45ac63aa9f1a436",
+        "bytes": 2192947,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/stdout.txt",
+        "sha256": "4a8c25561f9addcab9f57a6502b57acaa578e74b06b1cdf66ed145f1c2de93f6",
+        "bytes": 83968,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_retained_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-n9-caller-binding-native-actual-root-20261014/junit.xml",
+        "sha256": "04f7e78360ada93f097bf2712191315b9b47d36d1baf58bce811a7d48ebb8452",
+        "bytes": 30347,
+        "availability": "local_retained_ignored_raw"
+      },
+      "exit": 1,
+      "wall_seconds": 27.443097709096037,
+      "captured_source_files": 7723,
+      "capture_stable": true,
+      "outcome": {
+        "PASS": 3,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "boundary": "all three future-time adversaries reach intended validator and pass; two ACQ consumers reach deeper registry predicate/blocker expectation, still FAIL"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/junit.xml"
+      ],
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/command.json",
+        "sha256": "84340607ebde39bf3b3664fdd630157088ef7a8e9d41a2d6448d5f3ee936b069",
+        "bytes": 2175304,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/stdout.txt",
+        "sha256": "b9b9185dde799afc1ffdb7bedfa97808703d072aa68aab02a765a459bac0fe34",
+        "bytes": 273,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_retained_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1967-empirical-root-ref-native-actual-root-20261014/junit.xml",
+        "sha256": "61209cda0898089b543214971eef05d8ecd988f26bb53b2a6dc443da2a405c91",
+        "bytes": 426,
+        "availability": "local_retained_ignored_raw"
+      },
+      "exit": 0,
+      "wall_seconds": 64.47393904195633,
+      "captured_source_files": 7723,
+      "capture_stable": false,
+      "outcome": {
+        "PASS": 1,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "boundary": "actual POST/event/reopened GET/outcome-pair/full request-ref family; full capture unstable only exact ignored history append"
+    }
+  ],
+  "history_output_qualification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1968-empirical-history-output-qualification-root-20261014/qualification.json",
+    "sha256": "e8573d402b074c39f6aaf7cb6c0bc6f12011e12b4df5b21748a6e18021c01f57",
+    "bytes": 1128,
+    "availability": "local_retained_ignored_raw"
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1954-n9-real-route-constructor-binding-independent-20261014/review.md",
+      "sha256": "6431307aad827e8b005e97f25bcdc240a0fe5f8934e3f864fd4931e6f602fe5c",
+      "bytes": 6126,
+      "availability": "local_retained_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1806-observed-source-root-negative-independent-20261014/review.md",
+      "sha256": "590bbe455735cf3957c1d55e00d131446855e36f9784a427f6d2d310282ab13b",
+      "bytes": 6575,
+      "availability": "local_retained_ignored_raw"
+    }
+  ],
+  "adversarial_controls": "future/naive/nonUTC custody time; authority_scope production unbound; candidate prior negatives and observed/model/policy/rule valid same-ID different selected profile rejected before owner, intent, CAS/predictive events",
+  "consumer_surface": "real HTTP POST and reopened GET, persisted prediction/observed evidence, real N5/default N8; browser current composed wave remains UNRUN",
+  "limitations": [
+    "Registry predicate mismatch not yet adjudicated; full13relations diagnostic prepared",
+    "Default native N5 blocker expected-set omitted standard_error_not_estimated; no runtime blocker removed",
+    "Predictive outcomes and six time roles are controlled/request supplied; EMP01 population/currentness/causal credibility not established",
+    "History exact2rows append qualifies product byte stability but not full source/input freeze",
+    "Existing known G checkpoint is bounded101PASS7SKIP; these checkpoints are not G accepted"
+  ],
+  "proposals": [
+    {
+      "id": "B16",
+      "proposal_outcome": "limited",
+      "original_whole_property": "not_closed",
+      "evidence_boundary": "actual predictive consumer/refusal/outcome-pair current source45 only",
+      "next_check": "real EMP01 scoped population→observed-root join and truncation/mixed-unit controls",
+      "G_adjudication": "not_adjudicated"
+    },
+    {
+      "id": "B32",
+      "proposal_outcome": "limited",
+      "original_whole_property": "not_closed",
+      "evidence_boundary": "actual predictive consumer/refusal/outcome-pair current source45 only",
+      "next_check": "independent source clock/currentness for six roles; no fixed/default credibility",
+      "G_adjudication": "not_adjudicated"
+    },
+    {
+      "id": "LA-051",
+      "proposal_outcome": "limited",
+      "original_whole_property": "not_closed",
+      "evidence_boundary": "actual predictive consumer/refusal/outcome-pair current source45 only",
+      "next_check": "actual empirical evidence source and matching S10 GET plus remove-property-keep-markers/control frozen waveform",
+      "G_adjudication": "not_adjudicated"
+    }
+  ],
+  "closure_ids": [],
+  "final_source_input_backend_freeze": false
+}

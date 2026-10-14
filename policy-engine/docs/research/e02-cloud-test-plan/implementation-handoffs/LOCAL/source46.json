@@ -1,0 +1,182 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "source46",
+  "slice_base": "de34af7b0084b6bac54b0bdd5e3518a42f799354",
+  "candidate": "097f9208b198faff8ead40654ba97d4508277e08",
+  "tree": "2ac3bd6f53043c83875589c7538e2d2dc76b0f88",
+  "parents": [
+    "de34af7b0084b6bac54b0bdd5e3518a42f799354"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "full_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "sha256": "824f9c34405b5326bd8690e5d2792304146a6595ad30a81b7cf0178faf1fa43a",
+      "bytes": 325295
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "sha256": "97672337e1d5877467534e88f771039268c8e6bebfcfd92939e0b11ec4a36fab",
+      "bytes": 169766
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "84cc39105b51960e49e9f72ea341c102977e585d17336367f148bf8760c31df9",
+      "bytes": 262419
+    }
+  ],
+  "status": "source-derived CAS closure repair verified_focused; Q2 helper controls pending",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1978-source46-cas-closure-q2-preservation-root-20261014/source-frame.json",
+    "sha256": "ca0fcf7425cae72a21f47cf22dfa5064cb72c3a11f48cd66b6a4a1e21a0217e3",
+    "bytes": 1812,
+    "availability": "local_retained_ignored_raw"
+  },
+  "selected_inputs": "complete13transactional methods from real store AST; all actual representative wrapper freevars; exact imported/builtin source bindings; raw annotation/default/signature controls; Q2 full369row capture3genuine module subclasses",
+  "real_chain": "actual CAS write/get/verify→source-derived wrapper environment→store loaded-runtime admission→foreign candidate/verifier provenance negative and real measurement-root N9 positive; Q2 child module/class/MRO/source inventory→parent identity matcher",
+  "native_receipts": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_derived_transactional_closures_cover_live_cas_and_every_declared_method",
+        "tests/unit/runtime/quality/test_confidence_ledger.py::test_every_transactional_wrapper_capture_and_imported_reference_poison_fail_closed",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_foreign_candidate_and_wrong_verifier_provenance_fail_closed",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/junit.xml"
+      ],
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/command.json",
+        "sha256": "80a7f8a6f189feabf75104561760918f5fddd08fe6e8d369e5ee0d3809670950",
+        "bytes": 2071730,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/stdout.txt",
+        "sha256": "9c120e0ceaa1fec369b8434de8b2981b6e548e78a7a402ecdab40bcddff6138b",
+        "bytes": 273,
+        "availability": "local_retained_ignored_raw"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_retained_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-confidence-real-cas-native-actual-root-20261014/junit.xml",
+        "sha256": "1c18196f57e16a8233d13dacd10d6196fd85a9490cded286bcc19344904a0e8f",
+        "bytes": 926,
+        "availability": "local_retained_ignored_raw"
+      },
+      "exit": 0,
+      "wall_seconds": 48.92820850003045,
+      "captured_source_files": 7723,
+      "capture_stable": true,
+      "outcome": {
+        "PASS": 4,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "boundary": "all13source-declared wrapper reconciliation and actualCAS operations; mutate every actual8cell and imported ArtifactRef; original authority negative now reached and realN9 positive passes"
+    }
+  ],
+  "quality": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1972-confidence-final-root-materialization-20261014/root-quality-r1093.json",
+      "sha256": "7772652a1bf6414418cf1963e98b9591267bbbe72f2cf8dee319c8eb4b5e7fc7",
+      "bytes": 2509,
+      "availability": "local_retained_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1975-q2-namespace-helper-final-root-materialization-20261014/root-quality-r1093.json",
+      "sha256": "02e5502e7463b98c6780964ad39632f786374f8169edbf5cc33709b9f3950683",
+      "bytes": 1622,
+      "availability": "local_retained_ignored_raw"
+    }
+  ],
+  "source_format_lineage": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1971-confidence-format-only-root-20261014/readback.json",
+      "sha256": "e817005a6d85d8e071c234ce31058ad994614008fe51bbde1c152f63c1210c64",
+      "bytes": 544,
+      "availability": "local_retained_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1974-q2-namespace-helper-format-only-root-20261014/readback.json",
+      "sha256": "c21610adb7de8281d04ee6c371dfd858c1f982b2a781bcdfa8444d661ce9e579",
+      "bytes": 346,
+      "availability": "local_retained_ignored_raw"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1962-confidence-source-derived-closure-shortcircuit-independent-review-20261014/review.md",
+      "sha256": "7c59763a576901848099e8c53b41310d23116fb06aece4f7154cfb413bee46ad",
+      "bytes": 4925,
+      "availability": "local_retained_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1977-q2-formatted-helper-controller-independent-20261014/r1977-q2-formatted-helper-controller-independent-20261014.md",
+      "sha256": "5a041797a8961c38343cd2d5572c3293e0fb4844b66b719cfad900f45a277997",
+      "bytes": 8986,
+      "availability": "local_retained_ignored_raw"
+    }
+  ],
+  "adversarial_controls": "complete current closure cell mutation with code hash retained; ArtifactRef import poison; generic13family source grammar unknown semantics fails closed; true BoolOp short-circuit avoids None comparison; custom truthiness never invoked",
+  "consumer_surface": "real CAS/N9 admission; changed module has26literal direct importers over6213src/tests/tools Python files; full importer/validator replay remains UNRUN",
+  "Q2_status": {
+    "helper": "actual84cc canonical formatted source candidateff8bbe AST equal, matches3actual module class producer identity records",
+    "driver": "canonicalR1841 8dec readback promoted49controls; 48prior+1qualname drift digestbf94e1a35c6fa9ce7311fabf28c275ae7bd76f0ac3ee258751383424dc070073",
+    "latest_controller_preflight": "renderer refused before manifest/controls because R1943 predecessor manifest expected hash typo63hex; successor packet requested; source/driver unchanged",
+    "four_formal_gates": "UNRUN",
+    "live_intrinsic_execution_provenance": "not_established"
+  },
+  "canonical_API_status": {
+    "deciding_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1980-source46-canonical-api-generation-actual-root-20261014/report.json",
+      "sha256": "893959fd3dc8cf3b23748acd2d1b45fbd026224b04f4ee14b84f8c0a38ee9b3c",
+      "bytes": 2412957,
+      "availability": "local_retained_ignored_raw"
+    },
+    "owner_full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1980-source46-canonical-api-generation-actual-root-20261014/05-runtime-api-owner-openapi-check.stdout.txt",
+      "sha256": "5195bc5467c3e0e8d17ffe21c371e8fd93eac7aa5e351213149f63015227df60",
+      "bytes": 8608,
+      "availability": "local_retained_ignored_raw"
+    },
+    "generators": "three PASS with protected state unchanged; fivecandidateoutputs retained only",
+    "owner_check": "FAIL nondeterministic example event IDs and derived owner dependency/receipt projection hashes; source repair pending",
+    "corrupt_field_controls": "UNRUN; failed owner positive prevents running negatives/promotion"
+  },
+  "limitations": [
+    "No full criterion closure follows from four PASS. Full13receipt/profile/backend composition independent G accepted only later",
+    "No dedicated poisoned builtins negative; guard reviewed statically. Existing everycell/import negatives and actual CAS passed",
+    "Generic bounded factory grammar unsupported syntax fails closed; future methods source-derived, no method-name allowlist",
+    "P41 inherited attribution not_established; exact slice base/current input intersections have not been replayed for all gates",
+    "Complete nativeSOTA/generated/installed-wheel/rebuilt-sdist/Linux/authenticcloseout/fullID proposal report remains pending"
+  ],
+  "proposals": [],
+  "closure_ids": [],
+  "G_acceptance": "not_adjudicated",
+  "final_source_input_backend_freeze": false
+}

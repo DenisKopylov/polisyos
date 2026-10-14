@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.local_decision_transport.v1",
+  "source_checkpoint": {
+    "sha": "d494f5f09eb8879e5a9a39aac78d8ab05b17928e",
+    "tree": "d952135e62e33895ea64158390010adf38ed5391",
+    "parents": [
+      "da854754ea1f478d2ce1db5409a40b618481fc36"
+    ]
+  },
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1-t2-authentic-currentness-decision-20261014.json",
+      "sha256": "d5f4d04728b9a5f97f6959321694c6eb3a5ccdc294c9a60ec68934313c6b46eb",
+      "bytes": 48786,
+      "availability": "tracked_source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1-t2-authentic-currentness-decision-20261014.md",
+      "sha256": "b51f0a370c75568407c9311d7f77ae697ecab88c7a4cdb8cd8f083e441fe0123",
+      "bytes": 17033,
+      "availability": "tracked_source"
+    }
+  ],
+  "author_original_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1879-t1-t2-authentic-decision-packet-proposal-20261014/manifest.json",
+    "sha256": "a44eb01dd7dc855ac8fe80ca7aea9824cbf04b5fa97238e0cfc71288690d9206",
+    "bytes": 3028,
+    "availability": "retained_local_ignored_raw"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1893-t1-t2-authentic-decision-independent-20261014/review.md",
+    "sha256": "f81de64d3e1c5a13223a5a1d7793ae80f2f3920408217b1be0eadda8c73fdd0b",
+    "bytes": 8350,
+    "availability": "retained_local_ignored_raw"
+  },
+  "decision_status": "18 original criterion rows; G decision and native acceptance pending; no live currentness/issuer/permission inferred",
+  "source_change": "none; byte-for-byte reviewed packet transport",
+  "closure_ids": []
+}

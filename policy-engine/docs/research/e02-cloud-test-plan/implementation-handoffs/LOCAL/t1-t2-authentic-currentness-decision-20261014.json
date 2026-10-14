@@ -1,0 +1,825 @@
+{
+  "schema": "policyos.e02.t1_t2.authentic_decision_packet_proposal.v1",
+  "packet_id": "R1879",
+  "as_of": "2026-10-14",
+  "status": "author_proposal_for_G_independent_review",
+  "scope": {
+    "tasks": [
+      "T1",
+      "T2"
+    ],
+    "assigned_ids": [
+      "B30",
+      "B67",
+      "B148",
+      "LA-027",
+      "LA-050",
+      "B108",
+      "LA-053",
+      "B05",
+      "B08",
+      "B154",
+      "LA-018",
+      "LA-024",
+      "LA-025",
+      "B131",
+      "B137",
+      "B164",
+      "LA-054",
+      "LA-055"
+    ],
+    "assigned_occurrences": 18,
+    "whole_denominator": {
+      "bundles": 127,
+      "findings": 282,
+      "canonical_source_block_occurrences": 291,
+      "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "rule": "18 IDs are retained as 18 canonical occurrences. Task routes are traceability, not extra closures."
+  },
+  "source_context": {
+    "parent_provided_head": "da854754ea1f478d2ce1db5409a40b618481fc36",
+    "parent_provided_tree": "87ec38d57650307a08ab99fcb5958a64425b34de",
+    "independently_verified": false,
+    "context": "R1861 earlier reported HEAD 315a87/tree af764 and stated it was not Git-verified. This packet claims no replay against current source.",
+    "formal_closure_ids": [],
+    "actions": "Decision packet only; no source edits, production writes/reads, imports, tests, installs, server calls or Git."
+  },
+  "sources": {
+    "R1861": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1861-t1-t2-current-authentic-minimal-input-investigation-20261014/assessment.json",
+      "sha256": "8ac0862fcc232bb99f6bec6c973bd4e025eae3329b2e103ddbd8f997b0e522f5",
+      "bytes": 28883
+    },
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "bytes": 550854
+    },
+    "INPUTS": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da",
+      "bytes": 7242
+    },
+    "TASKS": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "bytes": 27989
+    },
+    "DECISIONS": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df",
+      "bytes": 5747
+    },
+    "B_original": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "bytes": 1336380
+    },
+    "LA_original": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "bytes": 648034
+    },
+    "historical_intake": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1-t2-intake/README.md",
+      "sha256": "6498b18d74a62a07dfb7b8398b5cfdc7963b41139a36f8f900ce684e76d4b7f1",
+      "bytes": 40959
+    }
+  },
+  "production_facts_from_R1861": {
+    "method": "Only exact named metadata/descriptors were stat’ed/hashed; payload reads=0; no key material; no production write or server/network call. This packet did not repeat production reads.",
+    "selected_release": {
+      "root_manifest": "/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105",
+      "root_bytes": 5434,
+      "declared_profile": "research",
+      "declared_readiness": "ready",
+      "version": "ukraine_agent_simulation_baseline_20260410",
+      "FINAL_ARTIFACTS_MANIFEST": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+      "release_manifest_v1": "f7362cae5f9861a38ecc8b5b2a22774827c3322c682b272237dab8a29f8c5a33",
+      "build_run_d5": {
+        "sha256": "0237ebbf75446581473b62fc856992df1519bed5687bcf2ba5f49c3e70d3c1bf",
+        "run_id": "d5_1775743004",
+        "status": "completed",
+        "input_count": 0,
+        "artifact_ids": null
+      },
+      "leaves": [
+        {
+          "member": "knob dictionary",
+          "expected_size": 268,
+          "expected_sha256": "4f52f0a743a46f5c53cf5608cc73b1b05f0e8d7f8ee360d866e6f127863a840f",
+          "current_size": 581,
+          "current_sha256": "005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+          "result": "mismatch"
+        },
+        {
+          "member": "Lex intervention map",
+          "expected_size": 178,
+          "expected_sha256": "49168c4779a0d1025c166f7eea04477efdd27fb3a3b7554ae7878da45af7fbaa",
+          "current_size": 972,
+          "current_sha256": "5c72461237a09605c39f180345de45cff55c59eed5d4d0e2ca80cc4aa446addf",
+          "result": "mismatch"
+        },
+        {
+          "member": "observation contract",
+          "expected_size": 3021,
+          "expected_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "current_size": 3021,
+          "current_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "result": "match"
+        }
+      ],
+      "pointer_scope": "Exact root→FINAL→release_manifest_v1→build_run_d5 references only; April v1/d5, no newer pointer there. No directory census. June mtimes do not prove cause, authority or live serving.",
+      "interpretation": "The currently named pair is not a match for pinned v1. This does not establish who changed leaves, source absence, authority to adopt, or a current serving process."
+    },
+    "L01_L02": {
+      "L01": "Existing L01 packets give bounded custody/source observations, not production admission. B says admission not established and digest withheld; L6 A bundle is not the served profile/selector; selected trio has two mismatches, one match. Local root is a directory, not dedicated read-only mount; descendant permissions unchecked. This does not prove source/owner absence. See historical intake ref.",
+      "L02_receipts": [
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/raw/deciding-l6-private-identity.json@e54d4fde0532fd521ec3894b4abdd9ee856e148e68f3ed73fcb1e06532a6940d",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/data-readiness.json@8ee798d2bb604ef843ed9830f6bb8b186f7f748dfae03be08dfa2091efc00fe6",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/served-readiness.json@9919dbda1bc9572f29002a6b7dbd5947b689c23bbdcd630aae0684bf6910e6fe",
+        "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/science-rights-readiness.json@878dd1835927b810f3614cefa612a22f5cb501b3a0a3dbe265f237c1ad08a288"
+      ],
+      "status": "prepared_read_only_unrun; exact pair, live root/profile/context, fresh GET, and current issuer/trust/revocation/permission tied to protected effect are not established.",
+      "minimum_protected_tuple": "issuer/delegation; independent verifier; exact subject/source/version/content; operation/purpose/audience; time validity/currentness/revocation; commit-time revalidation.",
+      "controlled_fixture": "Internal source behavior only; never production lineage, rights, issuer appointment, law, currentness or deployed consumer."
+    }
+  },
+  "G_decision_packet": {
+    "recommendation": "Reuse existing source-owner release/verifier paths. Exact April v1/d5 pair is falsified for two current leaves. Ask appointed owner for immutable versioned replacement, full lineage/current permissions and selected serving tuple; preserve v1. If unavailable, hold only affected authentic positives and continue unrelated source-only work.",
+    "alternatives": [
+      {
+        "option": "reuse",
+        "choice": "Use exact root-selected v1/d5 only when every required member and rights/currentness binding match.",
+        "result": "Current knob/Lex leaves mismatch; matching observation contract is insufficient."
+      },
+      {
+        "option": "extend",
+        "choice": "Preferred: existing authorized owner publishes immutable version with nonempty input lineage, member hashes, issuer/scope, effective/validity/currentness/revocation and normal registry update.",
+        "migration": "Keep prior v1 immutable and historical; no new schema if existing release path supports it."
+      },
+      {
+        "option": "consolidate",
+        "choice": "If owner supplies an existing later pointer, consolidate readers there and retain older aliases as historical.",
+        "result": "None among inspected pointers; no arbitrary directory search."
+      },
+      {
+        "option": "build",
+        "choice": "Only if owner confirms no reusable pipeline and G approves new owner/contract boundary.",
+        "result": "Not recommended now; largest authority/API/migration impact."
+      }
+    ],
+    "time_authority_migration": "Do not rewrite manifest/hash or backdate. New version must be owner-issued with explicit supersedes/effective/issued/valid-until/revocation times. ETA, issuer and time basis are not supplied; do not infer from mtime.",
+    "choices": [
+      "Keep production currentness/protected-effect claims held until exact source/version and serving tuple arrive; accept source-only mechanics only within tested boundary.",
+      "For LA-055 G chooses explicit baseline-eligibility versus upstream-veto precedence preserving R2 signoff; readiness fields do not grant deployment authority.",
+      "For LA-050/LA-027/LA-053/LA-018 adjudicate support only after exact historical artifact or full installed caller/export denominator; unavailable here is not proof of absence.",
+      "Adjudicate each original criterion separately; author proposal is not closure."
+    ],
+    "reentry": [
+      "Owner supplies exact immutable current registry pointer, source/build receipt with input lineage, manifest and only required named leaf hashes.",
+      "Appointed issuer supplies delegation, verifier basis, exact subject/source/version/content, allowed action/purpose/audience and effective/validity/currentness/revocation.",
+      "Deployment owner names already-running instance, root/profile/tenant/cell/run/context and read-only state endpoint; then one fresh actual-consumer readback.",
+      "B08/B131/B137/LA-025/LA-054 require criterion-specific observations/dataset/rights/report. Compatibility rows need exact installed/history caller or owner-corpus source. No broad payload dump."
+    ],
+    "queue_effect": "Only affected authentic/currentness positives and input-dependent rows are held; independent source work and internal checks continue."
+  },
+  "pattern_pass": {
+    "relevant": "P04/P05/P07/P08/P09/P10/P12/P14 and applicable P31-P41.",
+    "risk": "Owner ready/profile/hash/bool labels mistaken for current bytes, authority, serving context or real consumer; fixture promoted to external positive; canonical occurrences collapsed or routes counted as closures.",
+    "target": "Per occurrence resolve input, content-bind, verify provenance/time/rights, invoke ordinary consumer, recheck protected commit. Keep candidate result limited.",
+    "acceptance": "Every ID has exact criterion, separate outcome, evidence boundary, owner and next check; formal closure list empty."
+  },
+  "assigned_criteria_outcomes": [
+    {
+      "id": "B30",
+      "task": "T1",
+      "task_route": "A.md#task-a6",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B30",
+          "source_document": "B_r19",
+          "lines": [
+            579,
+            592
+          ],
+          "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+          "card": "CYC-05",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": "An absent/unavailable source denominator must not yield an empty successful result; distinguish parse errors from an actual forbidden caller, keep unrelated syntax errors out of the caller set, and verify the controlled source/deployment slice for actually executed code plus relevant loaded dependencies.",
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "authentic current caller/deployment denominator not established; this input review supplies no source/API execution.",
+      "evidence_boundary_or_missing": "Complete declared caller/deployment denominator and a named selected serving profile; test absent denominator versus syntax error versus actual legacy callers.",
+      "next_check": "Run source-bound complete caller/deployment denominator on frozen candidate; distinguish unavailable denominator, parse error and actual forbidden caller; bind executed code/dependencies.",
+      "R1861_next_check": "Source-bound full denominator and ordinary runtime compatibility replay. No external issuer fact required.",
+      "owner_or_decider": "Source/build-denominator and deployment consumer owners.",
+      "plane_boundary": "Internal source/deployment denominator and caller proof.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B67",
+      "task": "T1",
+      "task_route": "B.md#bundle-llm-02",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B67",
+          "source_document": "B_r19",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+          "card": "LLM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "selected L6 bytes are not a verified immutable cache positive; only existing d5 descriptor pair is named and two leaves mismatch.",
+      "evidence_boundary_or_missing": "Exact permitted content bytes/profile/model/parameters plus current read/use rights and selected cache consumer.",
+      "next_check": "Obtain owner-authorized immutable CAS bytes/profile/model/parameters/current read-use scope; test same-version reuse and changed-version/model/parameter/rights-denied misses.",
+      "R1861_next_check": "Use an owner-authorized frozen CAS artifact; positive same-version reuse and changed-version/model/parameter/access-denied misses. Do not use this stale-manifest pair.",
+      "owner_or_decider": "Exact source/cache owner and rights authority for frozen content/model/parameters.",
+      "plane_boundary": "Internal cache behavior plus external content rights/currentness.",
+      "canonical_P40_bucket": "llm-authorizer",
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B148",
+      "task": "T1",
+      "task_route": "B.md#bundle-cas-02",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B148",
+          "source_document": "B_r19",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+          "card": "CAS-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "current source has private-stage and verify-before-publish structure; positive/failure test bodies exist but were not run; production owner/profile not involved.",
+      "evidence_boundary_or_missing": "Composed native evidence for corrupt/partial/conflicting/concurrent transfer preserving prior readable CAS state; bind the target owner context.",
+      "next_check": "After freeze run current CAS/import suite: archive/directory/exact-view; verify false/true; foreign owner; profile/signature mismatch; interruption; competing publication. Compare readable state/claims. Do not reopen the declared same-class admission ladder.",
+      "R1861_next_check": "Run exact current suite after source freeze, covering archive/directory/exact API, verify false versus true, foreign owner, signature/profile mismatch, interruption and competing publication. G may then adjudicate source property separately from authority facts.",
+      "owner_or_decider": "CAS/import owner; G only if cross-owner admission semantics change.",
+      "plane_boundary": "Internal CAS behavior; cross-owner policy is separate.",
+      "canonical_P40_bucket": "artifact-context-admission",
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-027",
+      "task": "T1",
+      "task_route": "C.md#finding-la-027",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-027",
+          "source_document": "LA_r09",
+          "lines": [
+            1418,
+            1465
+          ],
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+          "card": "DFK-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "held",
+      "historical_appendix_c_status": "held",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "public compatibility/API status and installed consumer denominator not established by current local production inputs.",
+      "evidence_boundary_or_missing": "Exact installed caller/export view and current public support/release policy.",
+      "next_check": "Build/install candidate wheel and rebuilt sdist; compare canonical/legacy object/result identity across complete caller/export denominator; obtain API owner support/retirement decision.",
+      "R1861_next_check": "Prove canonical/legacy object and result equivalence in wheel/sdist consumers; reconcile full declared public caller set. G decides compatibility sunset if needed.",
+      "owner_or_decider": "Public API/package owner and complete supported caller/release-denominator owners.",
+      "plane_boundary": "Internal public API/package compatibility and installed surface.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-050",
+      "task": "T1",
+      "task_route": "C.md#finding-la-050",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-050",
+          "source_document": "LA_r09",
+          "lines": [
+            3397,
+            3431
+          ],
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05",
+          "card": "MIG-04",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no authentic historical 0.9 owner artifact/corpus was identified by these named input pointers.",
+      "evidence_boundary_or_missing": "One exact existing 0.9 manifest/artifact and provenance-preserving migration context.",
+      "next_check": "Owner supplies exact existing 0.9 artifact/manifest and migration provenance; test faithful conversion and malformed/missing refusal. If unavailable, G bounds compatibility; do not infer corpus absence.",
+      "R1861_next_check": "Use only an owner-named legacy object; prove conversion without fabricated provenance/defaults and malformed/missing refusal. If none exists, record corpus unavailability and ask G to limit the compatibility claim.",
+      "owner_or_decider": "Owner of real historical 0.9 artifact/corpus; G bounds compatibility if unavailable.",
+      "plane_boundary": "Historical source custody plus internal migration.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B108",
+      "task": "T1",
+      "task_route": "D.md#bundle-opt-01",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B108",
+          "source_document": "B_r19",
+          "lines": [
+            2897,
+            2910
+          ],
+          "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+          "card": "OPT-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "no_finding_level_record",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no actual gov_balance/budget_deficit input tuple was supplied; no budget fact is inferred.",
+      "evidence_boundary_or_missing": "Distinguish absent, explicit null, and zero on the actual owner/evaluator route, with a valid deficit source/time if fallback is intended.",
+      "next_check": "At actual objective consumer test absent, null, zero and valid alternative with units/time/source; no fabricated default. Supply genuine budget tuple for positive.",
+      "R1861_next_check": "Test the four exact input cases at the real consumer and verify no default/fabricated value. G adjudicates any semantic fallback rule.",
+      "owner_or_decider": "Budget objective input and actual consumer owners; fiscal data owner for a real tuple.",
+      "plane_boundary": "Internal numeric intake; empirical source provenance separate.",
+      "canonical_P40_bucket": {
+        "bucket": "new_or_distinct_class",
+        "relation": null
+      },
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-053",
+      "task": "T1",
+      "task_route": "E.md#bundle-pcl-01",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-053",
+          "source_document": "LA_r09",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+          "card": "PCL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "legacy alias public support and installed/external caller status remain not established.",
+      "evidence_boundary_or_missing": "Exact installed import/export identity and full consumer/API denominator.",
+      "next_check": "Check canonical/legacy export identity and behavior in installed wheel/sdist against full declared API/caller set and support policy.",
+      "R1861_next_check": "Check exact wheel/sdist object identity and behavior, all declared exports/callers, and explicit compatibility/retirement policy.",
+      "owner_or_decider": "PCL/public API owner and complete installed/external caller owners.",
+      "plane_boundary": "Internal exports and installed consumers.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B05",
+      "task": "T2",
+      "task_route": "A.md#task-a2",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B05",
+          "source_document": "B_r19",
+          "lines": [
+            253,
+            264
+          ],
+          "sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+          "card": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": "A real N5 K_sim result traverses the runtime adapter into conditional simulation analysis while remaining unable to assert K_world, empirical effect, or external action; manually clearing its limitation is invalid.",
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "limited",
+      "G_status": "not_adjudicated",
+      "proposal_state": "limited",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no N5 producer→artifact→ordinary conditional-analysis consumer was run; generic authority positive is unrelated.",
+      "evidence_boundary_or_missing": "Selected N5 artifact and consumer path; proof that simulation result cannot become K_world or external-action permission.",
+      "next_check": "Real N5 producer→persisted artifact→ordinary conditional-analysis consumer. K_sim stays conditional and cannot set K_world, empirical effect or external permission; remove property while keeping declarations and test must fail.",
+      "R1861_next_check": "Source-bound ordinary N5-to-conditional analysis positive and removal/cleared-blocker controls; no external law needed for candidate simulation.",
+      "owner_or_decider": "N5 producer and ordinary conditional-analysis consumer; no external law for candidate simulation.",
+      "plane_boundary": "Candidate simulation only; no world/empirical/external authority.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B08",
+      "task": "T2",
+      "task_route": "A.md#task-a2",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B08",
+          "source_document": "B_r19",
+          "lines": [
+            289,
+            300
+          ],
+          "sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+          "card": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": "manual blocker clearing or synthetic treatment can create false positive.",
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "limited",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no genuine empirical identification input/workload was supplied; source fixture is not causal authority.",
+      "evidence_boundary_or_missing": "Owner-provided observed treatment/outcome/split and identified method/applicability basis for the exact claim.",
+      "next_check": "Supply observed treatment/outcome/split and identified applicable method basis; run ordinary positive plus missing-identification refusal. Keep simulation distinct.",
+      "R1861_next_check": "Exercise genuine identified positive through ordinary consumer and paired absent-identification refusal; G keeps conditional and empirical claims separate.",
+      "owner_or_decider": "Treatment/outcome/split owner and method owner for identification/applicability.",
+      "plane_boundary": "Imported empirical identification plus internal consumer.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B154",
+      "task": "T2",
+      "task_route": "B.md#bundle-cas-03",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B154",
+          "source_document": "B_r19",
+          "lines": [
+            3989,
+            4000
+          ],
+          "sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+          "card": "CAS-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "closed_bounded",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no source-specific aggregate partial-result consumer evidence in this input review.",
+      "evidence_boundary_or_missing": "Per-element partial artifact plus its actual publication/promotion consumer.",
+      "next_check": "Persist per-element partial report, fail a sibling, invoke actual aggregate publisher; require typed partial and zero aggregate publication effect.",
+      "R1861_next_check": "Successful sibling + failed element must retain typed partial state and prove zero aggregate publication effect.",
+      "owner_or_decider": "Per-item producer and aggregate publisher/promotion consumer.",
+      "plane_boundary": "Internal persisted batch result and publication consumer.",
+      "canonical_P40_bucket": "batch-result-completeness",
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-018",
+      "task": "T2",
+      "task_route": "C.md#finding-la-018",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-018",
+          "source_document": "LA_r09",
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+          "card": "HYG-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no actual installed/public consumer or external API status is tied to current selected profile.",
+      "evidence_boundary_or_missing": "Full legacy path consumer set and owner support/release-status decision.",
+      "next_check": "Resolve complete legacy reader/caller set; exercise canonical/legacy behavior in installed consumers before alias removal. Do not add issuer requirement.",
+      "R1861_next_check": "Exact installed canonical/legacy reader behavior; resolve caller and support status before alias deletion or closure.",
+      "owner_or_decider": "Legacy reader/API and supported caller owner; no issuer requirement in criterion.",
+      "plane_boundary": "Internal alias compatibility; no issuer added.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-024",
+      "task": "T2",
+      "task_route": "C.md#finding-la-024",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-024",
+          "source_document": "LA_r09",
+          "lines": [
+            1084,
+            1113
+          ],
+          "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+          "card": "SCL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "open",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "historical source proposal remains; no new transport test or network call, and no production network is needed to test redirect behavior.",
+      "evidence_boundary_or_missing": "Current exact two-transport caller path and a local controlled redirect target harness.",
+      "next_check": "Test same-origin, cross-origin, private-address and downgrade redirects at both callers with controlled local harness; production network unnecessary.",
+      "R1861_next_check": "Run local same-origin/cross-origin/private-address/downgrade cases at both consumers; keep real network untouched. G adjudicates only if current source proof is incomplete.",
+      "owner_or_decider": "Both transport caller/API owners; local controlled harness suffices.",
+      "plane_boundary": "Internal transport; production network out of scope.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-025",
+      "task": "T2",
+      "task_route": "C.md#finding-la-025",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-025",
+          "source_document": "LA_r09",
+          "lines": [
+            1114,
+            1149
+          ],
+          "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+          "card": "SCL-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no version-bound Scholar raw CAS source or permission receipt; the mismatched L6 pair is unrelated and does not grant content-use rights.",
+      "evidence_boundary_or_missing": "Owner-authorized bytes/raw ref/hash/fetch lineage and exact license/usage-rights audience/scope.",
+      "next_check": "Owner supplies authorized source bytes/ref/hash/fetch lineage and exact license/usage scope; test v1 reuse, v2 refresh, missing blob, lost-rights refusal.",
+      "R1861_next_check": "Use an authorized source; prove v1 reuse, explicit v2 refresh, missing blob and lost-rights refusal through the actual consumer.",
+      "owner_or_decider": "Scholar source owner and rights holder for bytes, purpose, audience, retention, derived use.",
+      "plane_boundary": "External source rights/custody plus internal reuse.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B131",
+      "task": "T2",
+      "task_route": "D.md#bundle-trn-01",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B131",
+          "source_document": "B_r19",
+          "lines": [
+            3459,
+            3472
+          ],
+          "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+          "card": "TRN-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no actual owner split/holdout or GP training input was supplied.",
+      "evidence_boundary_or_missing": "Target/source space, units, metric, estimator, dataset version and permissioned training split bound by the owning data source.",
+      "next_check": "Bind source/target space, units, metric, estimand, data version, provenance and permissioned split; run real GP warm-start and incompatible/hidden-holdout refusal.",
+      "R1861_next_check": "Prove compatible numeric warm start through actual GP and that incompatible/hidden holdout remains non-consumed; analogy may remain candidate-only.",
+      "owner_or_decider": "Source data and target training/execution owners for units, metric, estimand, version, split.",
+      "plane_boundary": "Owner-supplied target data/split plus internal transfer/GP consumer.",
+      "canonical_P40_bucket": {
+        "bucket": "new_or_distinct_class",
+        "relation": null
+      },
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B137",
+      "task": "T2",
+      "task_route": "D.md#bundle-trn-03",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B137",
+          "source_document": "B_r19",
+          "lines": [
+            3543,
+            3556
+          ],
+          "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+          "card": "TRN-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no current-source cold/warm/restart consumer test run; L02 does not name a verified new revalidation event.",
+      "evidence_boundary_or_missing": "Separate access/retention clock from evidence verification time and bind fresh revalidation to a new current source/version.",
+      "next_check": "Cold/warm/restart/cross-process controls with actual current source/revalidation event; reads may affect retention, never verification time/trust.",
+      "R1861_next_check": "Cold, warm, restart and cross-process read controls plus real authorized revalidation; reads alone must never promote.",
+      "owner_or_decider": "Lesson/history and new evidence/revalidation owners; G for a new authority rule.",
+      "plane_boundary": "Evidence currentness separate from cache retention; revalidation source-supplied.",
+      "canonical_P40_bucket": {
+        "bucket": "new_or_distinct_class",
+        "relation": null
+      },
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "B164",
+      "task": "T2",
+      "task_route": "D.md#bundle-fun-03",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "B164",
+          "source_document": "B_r19",
+          "lines": [
+            4201,
+            4212
+          ],
+          "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+          "card": "FUN-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "held",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "protected acquisition gateway source tests are not the Level6 promotion runner/registry; no exact owner permission/currentness receipt is selected.",
+      "evidence_boundary_or_missing": "Exact promotion owner, active policy and commit-time verification source for the named action.",
+      "next_check": "Independently verify owner permit bound to candidate/run/ticket/purpose/policy and current revocation; real writer; absent/fake/wrong/expired/revoked-after-preflight all zero effects.",
+      "R1861_next_check": "Effectful runner must remain uncalled under no-promotion/reduced/auto-cap; actual owner rechecks at commit. Use an inert controlled positive and missing/foreign/stale/revoked zero-effect cases.",
+      "owner_or_decider": "Permit issuer, independent verifier/revocation source and actual commit-time writer.",
+      "plane_boundary": "Protected owner permission/currentness and commit-time effect.",
+      "canonical_P40_bucket": {
+        "bucket": "same_class_one_level_deeper",
+        "relation": "Deeper unresolved discriminator inside the same original B164 owner-permission invariant: boolean promotion_write_allowed remains self-attested. Stop local bool repair; retain typed owner-verifier/current-revocation residual.",
+        "linked_finding_ids": [
+          "B164"
+        ],
+        "required_treatment": "Keep fail-closed bridge_missing until existing permission issuer/verifier and write owner are named; do not add a second bool gate or treat fake permit as closure.",
+        "required_falsifier": "With promotion_write_allowed=True and candidate/evidence/run valid, absent/fake/wrong issuer/candidate/run/ticket/purpose/expired/revoked-after-preflight permits leave the real writer at zero effects; independently verified current permit may write once. Not in candidate receipt and not run here."
+      },
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-054",
+      "task": "T2",
+      "task_route": "E.md#bundle-ddm-02",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-054",
+          "source_document": "LA_r09",
+          "lines": [
+            4053,
+            4107
+          ],
+          "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+          "card": "DDM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no current owner report/model/detector/profile consumer pair identified; source proposal is not present-day calibration validity.",
+      "evidence_boundary_or_missing": "One current report bound to model/detector/calibration/regime/time/trigger/budget and the consuming gate.",
+      "next_check": "Supply current report bound to model/detector/calibration/regime/time/triggers/budget and real gate; current/stale/changed-basis through same consumer.",
+      "R1861_next_check": "Exercise current, stale, and changed-basis report through the same ordinary consumer; preserve historical report as historical.",
+      "owner_or_decider": "Current calibration/report producer and ordinary gate consumer owners.",
+      "plane_boundary": "Imported report validity and internal gate binding.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    },
+    {
+      "id": "LA-055",
+      "task": "T2",
+      "task_route": "E.md#bundle-ddm-02",
+      "occurrences": 1,
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-055",
+          "source_document": "LA_r09",
+          "lines": [
+            4108,
+            4140
+          ],
+          "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+          "card": "DDM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+        }
+      ],
+      "coverage_acceptance_signal": null,
+      "historical_coverage_status": "partial",
+      "historical_appendix_c_status": "partial",
+      "R1861_author_proposal": "closed",
+      "G_status": "not_adjudicated",
+      "proposal_state": "held",
+      "formal_closure_proposed": false,
+      "R1861_outcome": "no actual appointed current signoff owner or live promotion consumer; flags/provenance labels do not establish veto authority.",
+      "evidence_boundary_or_missing": "Owner identity/appointment and a ratified precedence/veto rule bound to current evidence.",
+      "next_check": "G selects baseline-eligibility vs upstream-veto precedence preserving R2 signoff exception; one consumer tests R4/R3,R2 ± signoff,R1/R0, failed cert, observed-empty/unavailable, stale/revoked.",
+      "R1861_next_check": "G decides any unresolved semantic precedence; actual owner-signed deny/allow, R2 override, failed certificate, feed/zero-event and stale/revoked commit controls must share one consumer.",
+      "owner_or_decider": "G for precedence; readiness consumer owner; deployment authority remains with appointed institution.",
+      "plane_boundary": "Internal precedence; readiness does not grant deployment permission.",
+      "canonical_P40_bucket": null,
+      "P40_treatment": "Run the named discriminator once; do not create per-test/per-alias code ladder. For rows without canonical P40 bucket, this packet proposes no second same-class repair."
+    }
+  ]
+}

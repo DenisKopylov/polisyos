@@ -1,0 +1,420 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "source44",
+  "status": "delivered_local_implementation_checkpoint; composed_acceptance_pending",
+  "slice_base": "da854754ea1f478d2ce1db5409a40b618481fc36",
+  "candidate": "d494f5f09eb8879e5a9a39aac78d8ab05b17928e",
+  "tree": "d952135e62e33895ea64158390010adf38ed5391",
+  "parents": [
+    "da854754ea1f478d2ce1db5409a40b618481fc36"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "full_footprint": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "sha256": "eb0b23ca057a4b0fcf13168f5548f2ae967953d6143342f1018cfdd324471b63",
+      "bytes": 134995
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "df374ee208aaa023355fcbaa4875967bdee7bdf2b788fc3219073b922802a2bb",
+      "bytes": 187234
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "sha256": "1afa6e1d78f5acd499673ccf8c6ad2ff20cfbd3b4bf417e13c1c1037bee56f34",
+      "bytes": 42983
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "sha256": "57111465018f26c471d429ffc71c14085c1bd2e6107b8d7248dcdf3edf508003",
+      "bytes": 73747
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "sha256": "f220f4d6a5e3466a0f0c9da6a6ee222602f8d287770294e7c0783f9e6f5b70d9",
+      "bytes": 164587
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+      "sha256": "f3079ad75caa5b0f9b1f2b33cd6b3ace07f93fa42620cb9e4f9973585cb08833",
+      "bytes": 150600
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "sha256": "23f0519b2d24e9a0c1aea1f0b7e6bebd0f8298bd9f4e5daebb28b566ecef9d07",
+      "bytes": 216252
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "b967ac5cb5b37f1feaabc19f19c9adf94b9d447e5c1f76de4d3865a8f7ab4552",
+      "bytes": 412301
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "sha256": "ce7cc0737e39b172aad3a02c791c3ae6cfdd64cb7c51b15d775c3d6f4742959e",
+      "bytes": 160132
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "a4e2964cd4ae983b3a2ddb3ea05ae7bb14deded4ff5c236e70cc51e8c33e0924",
+      "bytes": 262001
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "4c9cc32bca2902d421a6798948a30c0d7e5af6bbdd57e30083bd9d0e75164034",
+      "bytes": 64461
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+      "bytes": 202158
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_core.py",
+      "sha256": "74f0c02f5289eafb6c9e12c396e4dff3b35670856985c666a88c68c9c49fa7ea",
+      "bytes": 14617
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "sha256": "b56dde7461948a195a72361446f9b0337c410f63b83218031574c532e3d1a6c8",
+      "bytes": 217843
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "sha256": "08f928b23dcdf77d01248a5ac0c869cb0da48e19623d7014fe4202727a05470f",
+      "bytes": 160044
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "sha256": "7e5343955632f7b6cef6725acfab33c49fc04f1b65a24f01a6c569383e2f26c1",
+      "bytes": 187152
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "sha256": "0e7158b56ce528c6b740d801af01313dde5f11e95449805427ed3602baf43993",
+      "bytes": 18567
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "4e3c5ca14d11702ece500cedc38c8a73163d04b40ca7f6ff9399539c2852a9b2",
+      "bytes": 47461
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "4e11a1c01fd63429769ed2d8021769c9207e7af2abc7eb9a56891c75e545b96c",
+      "bytes": 40844
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "7f8195f91a999a44325e69366a4400d1638f4ff454547d085be800bee8381070",
+      "bytes": 123772
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "084643237bb92b8029e1b60a8b3b5cb679bc14b8ef77ce13f77e32d05857c696",
+      "bytes": 66123
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "sha256": "4a93020cca820ebae229f40c464fd50fc9aa93d829fd4da6a335a9059a562114",
+      "bytes": 96576
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_schema_system.py",
+      "sha256": "3353f739f3bfa6593e1d75da31b5f9b2905829f5b67f538fecc6ee48da978343",
+      "bytes": 51342
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "sha256": "f26b7921bb6ef166860dacbb1dada31ac0de86aeebdf7462351b46bb45a38fb1",
+      "bytes": 47187
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+      "sha256": "14e80d45797d1dc5b5c9690113c3e85e5bff6a32248ff253903191ab67959985",
+      "bytes": 46547
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "sha256": "51ad3d3737ea41daa909adc94dd1fb17f5b1dc63c8221cc088d885cdb331b018",
+      "bytes": 58960
+    }
+  ],
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1952-source44-preservation-boundary-root-20261014/source-frame.json",
+    "sha256": "12ba2b54189e97b9a8e558ba617b4ad9c5800b16e0c0e58f6d4926e1546fd33a",
+    "bytes": 6461,
+    "availability": "retained_local_ignored_raw"
+  },
+  "published_G_checkpoint": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "parents": [
+      "78be3aff64185e2de24abe710523e14491e36ba6"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1894-published-g-delta-readonly-root-20261014/readback.json",
+      "sha256": "64d5c4aebf52a863f80cc21802bb1988afa829806b17ecc21f3c06db03479434",
+      "bytes": 1323,
+      "availability": "retained_local_ignored_raw"
+    },
+    "G_acceptance_of_source44": "not_adjudicated"
+  },
+  "selected_backend_profile": {
+    "schema": "DataSchema projection→Core CanonSpec(forbid_floats=False); four finite float positions; default Core remains strict",
+    "gp": "actual native exact GP, CPU, one numerical thread, explicit heavy GP enable; persisted candidate-only uncertainty receipt",
+    "simulation": "generic N5 result body source/profile/context/request/atom binding, typed availability/refusal; cached legacy result refs fail closed pending fresh GET",
+    "n9": "local controlled SQLite-worker fenced measurement root; authority_scope=contract_testing; no live production authority",
+    "Q2": "selected Python3.14.3 five-package pytest-only isolated profile; live intrinsic execution provenance not_established; formal gates HOLD"
+  },
+  "real_chains": [
+    {
+      "property": "successful simulation survives later sibling failure and remains interpretable by served reader",
+      "chain": "N5 real observation→CAS body and successful checkpoint→runtime intake/GET DTO→strict Zod body/context/atom receiver→Overview audit surface",
+      "state": "verification_missing for current composed real backend/browser wave; bounded native frontend tests PASS",
+      "adversarial": "body-or-specific typed limitation; source/profile/request/context/atom mismatch refusal; pair basis completeness and missing-pair control retained"
+    },
+    {
+      "property": "uncertainty belongs to actual native Search/GP candidate",
+      "chain": "native GP mean/std/acquisition→typed immutable proposal fit/acquisition rows→CAS→fresh receiver refit/recompute exact candidate parameters→Search candidate receipt",
+      "state": "candidate-only implemented bounded15PASS; whole B108/B157 not closed",
+      "adversarial": "exact class/one-use/malformed present input/parameter+training row recomputation; removal controls retained in tests"
+    },
+    {
+      "property": "schema floats use existing canonical encoder across full four-slot quantity",
+      "chain": "DataSchema input→all numerical metadata projection→Core encode→content_hash→schema/retrieval consumers",
+      "state": "native98PASS; persisted legacy signed-zero migration not_established",
+      "adversarial": "each of four slots signed±0, ordinary existing hash, nonfinite refusal, strict default Core guards"
+    },
+    {
+      "property": "N9 genuine scoped measurement path and selected CAN profile",
+      "chain": "guarded ArtifactStore structural port→producer captured root→original selected-profile resolver→workspace/reader",
+      "state": "current38case wave33PASS5FAIL; future caller binding/Confidence/historical v1 remain separate blockers",
+      "adversarial": "no default view fallback; selected view missing yields typed refusal; noop protocol negative; actual WB current target comparison"
+    },
+    {
+      "property": "Q2 collected module subclass source provenance",
+      "chain": "isolated child collection→typed module/class/MRO source rows→generic parent provenance binder→control inventory",
+      "state": "selftests PASS/PASS; baseline controls FAIL before48control outcomes; four formal gates UNRUN",
+      "adversarial": "fixed48ID source denominator retained; no declaration-only authority"
+    }
+  ],
+  "native_receipts": [
+    {
+      "id": "R1929",
+      "outcome": {
+        "PASS": 98,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_stability": "7723 captured source files unchanged",
+      "deciding_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1929-schema-core-float-native-actual-20261014/command.json",
+        "sha256": "d433d983948c2876c3133fc913df8c96aecdf5a2b8175de758a5b9a0045b5ede",
+        "bytes": 2049930,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1929-schema-core-float-native-actual-20261014/stdout.txt",
+        "sha256": "0d14868c76ff44632504b5e67df424bb5754864320e41a272b97db083eaca1ef",
+        "bytes": 353,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1929-schema-core-float-native-actual-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained_local_ignored_raw"
+      }
+    },
+    {
+      "id": "R1933",
+      "outcome": {
+        "PASS": 176,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_stability": "1371 captured source files unchanged",
+      "deciding_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1933-v6-can-frontend-native-actual-20261014/command.json",
+        "sha256": "da8f9cceb80ce14d591cf1b6bee237a54167968cfb16e13f0afd47606405724f",
+        "bytes": 393867,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1933-v6-can-frontend-native-actual-20261014/stdout.txt",
+        "sha256": "158861665a1f7f2b1a8a336f51b3dad68072fc212b8fd7bcd5422cc41cd9a4c6",
+        "bytes": 301,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1933-v6-can-frontend-native-actual-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained_local_ignored_raw"
+      }
+    },
+    {
+      "id": "R1931",
+      "outcome": {
+        "PASS": 33,
+        "FAIL": 5,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_stability": "7723 captured source files unchanged; later loop.py Ruff formatting has AST-equal proof, not a new native receipt",
+      "deciding_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1931-n9-current-blocking-native-actual-20261014/command.json",
+        "sha256": "6701c444ee5a2099c1a0bebaed68deb9980bffab32e88ca6224145b0c9148f2b",
+        "bytes": 2449339,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1931-n9-current-blocking-native-actual-20261014/stdout.txt",
+        "sha256": "5c91d0a62b73622c9eaeb493cba8b18d1b7c67fef3db47e7974ed9badc7387ef",
+        "bytes": 27763,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1931-n9-current-blocking-native-actual-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained_local_ignored_raw"
+      }
+    },
+    {
+      "id": "R1891",
+      "outcome": {
+        "PASS": 15,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_stability": "capture unstable ONLY global ignored selection history output; qualified by R1897, not a composed freeze",
+      "deciding_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1891-v5-composed-native-actual-20261014/command.json",
+        "sha256": "8ea000d8845f90f9821a700d3634d982640c822f53eda059fceeb08f6cd4eb97",
+        "bytes": 2161226,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1891-v5-composed-native-actual-20261014/stdout.txt",
+        "sha256": "765ec058e2f109983d269647c94df4f3fddef497fb18b32f98ec08158751ec9e",
+        "bytes": 2342,
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1891-v5-composed-native-actual-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained_local_ignored_raw"
+      }
+    }
+  ],
+  "Q2_latest": {
+    "execution_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1943-q2-producer-schema-root-control-launcher-20261014/actual-root-execution/r1943-execution-report.json",
+      "sha256": "9cf1fb60934cd0c9c1a59939018facf66c79cf5387deeab70e7ab6ae40555eb5",
+      "bytes": 116391,
+      "availability": "retained_local_ignored_raw"
+    },
+    "deciding_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1943-q2-producer-schema-root-control-launcher-20261014/actual-root-execution/controls-normal.stderr.bin",
+      "sha256": "d231f52aa09f09e9a9d50af6b5c30748d9e33e82055ba4161cb28b5286153c10",
+      "bytes": 2925,
+      "availability": "retained_local_ignored_raw"
+    },
+    "outcomes": {
+      "selftest_normal": "PASS",
+      "selftest_optimized": "PASS",
+      "controls_normal": "FAIL baseline class labels differ source row",
+      "controls_optimized": "UNRUN"
+    },
+    "formal_gates": "all four UNRUN; no authority promotion"
+  },
+  "canonical_API_generation": {
+    "preflight": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1953-api-runtime-link-preflight-failure-root-20261014/readback.json",
+      "sha256": "e1fb0cd7ec5a231a951539298b694b6fa39848cb0334e0d4dfdb77a583794337",
+      "bytes": 1677,
+      "availability": "retained_local_ignored_raw"
+    },
+    "status": "UNRUN before any generator; actual locked workspace dependency link escapes declared input roots; generic dependency closure successor requested",
+    "corrupt_context_and_extensions": "UNRUN"
+  },
+  "known_current_failures": [
+    "N7 actual ACQ route context helper missing preserved fence; R1951 reviewed GO but unapplied at this slice",
+    "future verification time writer missing per-call fence; R1951 reviewed GO but unapplied",
+    "historical owner v1 profileless receipt: current source-attestation not established",
+    "two intended Confidence negatives blocked by canonical_loaded_runtime_mismatch store closure binder; concrete repair pending",
+    "Q2 baseline class namespace __qualname__ stand-in mismatches genuine producer identity; generic reconciliation pending"
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1913-schema-core-float-projection-widening-20261014/decision-packet.md",
+      "sha256": "dc3e6b8c5dcdbd11251e0c05ed4fe17e93965666bf27e328c7b041c8ec2a9082",
+      "bytes": 6972,
+      "availability": "retained_local_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1853-v6-n5-body-availability-identity-candidate-20261014/g-compatibility.md",
+      "sha256": "e9a2869a44772130f449db2a87a2f337f06fc89580a3e638ba99926a877696c1",
+      "bytes": 2292,
+      "availability": "retained_local_ignored_raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1897-v5-foundry-history-capture-forensic-20261014/forensic.md",
+      "sha256": "ad9150fd6f25ca72822fd8dfb8b223953911b2ea56994120becd0531c786a157",
+      "bytes": 7067,
+      "availability": "retained_local_ignored_raw"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "B13",
+      "task": "V6",
+      "proposal_outcome": "limited",
+      "boundary": "typed served body/current source companions and native frontend176PASS; actual complete CYC02→RES03 producer/sibling-failure→fresh GET/browser/removal wave pending",
+      "next_check": "current source/input freeze then real N5 surviving sibling-failure CAS/history/API/browser with corrupt-ref refusal",
+      "G_outcome": "not_adjudicated"
+    },
+    {
+      "id": "B108",
+      "task": "V5",
+      "proposal_outcome": "limited",
+      "boundary": "native GP uncertainty candidate-only joins; one canonical occurrence, eight upstream route rows are not closures; original whole-property and authority inputs pending",
+      "next_check": "joined actual Search/GP/full original criterion with consumers/removals under frozen inputs",
+      "G_outcome": "not_adjudicated"
+    },
+    {
+      "id": "B157",
+      "task": "V5",
+      "proposal_outcome": "limited",
+      "boundary": "native GP fit/acquisition/candidate rows recomputed; one canonical occurrence, ten upstream route rows are not closures; actual draw-funnel null counters not invented",
+      "next_check": "actual original draw/count consumer with genuine source funnel evidence or criterion-specific limited outcome",
+      "G_outcome": "not_adjudicated"
+    },
+    {
+      "id": "LA-021",
+      "task": "Q1",
+      "proposal_outcome": "held",
+      "boundary": "Core source/profile compatibility composed; history rollout and persisted signed-zero legacy identity need scoped G choice/input",
+      "next_check": "selected history/profile API positive+malformed/removal and genuine stored identity/custody check",
+      "G_outcome": "not_adjudicated"
+    }
+  ],
+  "closure_ids": [],
+  "historical_closures": "unchanged; source checkpoints and task successes are not formal closures",
+  "complete_denominator": {
+    "tasks": 26,
+    "bundles": 127,
+    "findings": 282,
+    "occurrences": 291,
+    "routes": 331
+  },
+  "global_closeout": "pending independent G code acceptance, integration publication and formal finding adjudication",
+  "final_source_input_backend_freeze": false
+}

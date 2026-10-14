@@ -11,9 +11,11 @@ records do not establish whether the owner renewed the exception or whether the
 external operational state changed. Ask `team-core` for the current disposition
 before relying on this page as evidence of an active exception.
 
-`polisyos.common` is a shared helper facade. It does not own standalone
-production traffic in Phase 4.9, so dependent component SLOs carry runtime
-accountability until Common becomes an operational surface.
+The repository records the Phase 4.9 rationale that `polisyos.common` is a
+shared helper facade without standalone production traffic, so dependent
+component SLOs carry runtime accountability until Common becomes an operational
+surface. This is source-recorded rationale only; current external traffic and
+accountability state are not established by this README review.
 
 Last updated: 2026-10-14
 

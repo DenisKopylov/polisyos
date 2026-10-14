@@ -148,9 +148,13 @@ Recommended process:
 3. Add only those live check names to branch protection.
 4. Recheck them whenever workflow job names change.
 
-The tracked ruleset currently names `Fast PR / Gate` and `Standard PR / Gate`
-as the fast PR tier. If job names change, update the ruleset file and this
-guide before changing the GitHub UI.
+The repo-tracked `required_status_checks.always` list requires `Fast PR / Gate`
+and `Standard PR / Gate`; those job names are declared in the repository-root
+`.github/workflows/abi.yml` and `.github/workflows/ci.yml`, respectively. This
+is intended local state only: no live GitHub check list or settings were
+inspected. If names change, update the ruleset and this guide, then verify the
+corresponding contexts from recent successful GitHub runs before applying the
+UI change.
 
 ## 5. Reviewer Routing
 
@@ -164,8 +168,14 @@ Reviewer routing should follow:
 5. the shared-surface guidance in `docs/reference/quality-gates.md`
 
 For shared control-plane changes such as `.github/workflows/**`, `mkdocs.yml`,
-release ledgers, or shared reference pages, request `@platform-owners`
-attention explicitly.
+release ledgers, or shared reference pages, request review from
+`@DenisKopylov`, the current enforceable reviewer recorded by
+`.github/CODEOWNERS` and the personal-repository exception in
+`architecture/control_plane_supply_chain.toml`. These files describe local
+intent; this guide has not verified whether GitHub has applied it. The contract
+maps `@platform-owners` as a logical target group, but GitHub team slugs are not
+provisioned in this personal repository; use that group only after provisioning
+and updating the tracked routing.
 
 ## 6. Merge Queue and Signatures
 

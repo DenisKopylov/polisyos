@@ -120,9 +120,10 @@ unknown invalid UTF-8, malformed JSON and failed reads remain ambiguous.
 These classes retain unresolved findings and an `UNRUN` exit 2 when the
 reference scan is incomplete. Actual stale-reference findings remain visible.
 
-The receipt is explicitly reference-scan-only. ADR/generator, plan, redirect,
-archive, package/TOML and extension-example input families remain unmeasured
-by that receipt and are named boundaries. Historical-audit and archive-map
+The receipt is explicitly reference-scan-only. ADR/TOML and generator inputs,
+MkDocs YAML, PDC/plan/redirect/archive/README documents, package contracts and
+extension-example manifests remain unmeasured by that receipt and are named
+boundaries. Historical-audit and archive-map
 suppression still rely on declared roles/shaped metadata rather than resolved
 archive bytes or verified provenance (P32); table roles use the canonical
 Markdown tokenizer. No full lifecycle truth or evidence authority follows

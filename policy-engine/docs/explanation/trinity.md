@@ -60,8 +60,10 @@ artifact; it is distinct from both bundle models.
 The current path has three separate boundaries:
 
 1. `polisyos.ir.trinity.loaders.load_trinity_bundle()` accepts a mapping,
-   JSON, YAML, or UTF-8 bytes and checks the requested schema version. The
-   default supported bundle version is `1.0`.
+   JSON, YAML, or UTF-8 bytes and requires exact equality with the requested
+   schema version, defaulting to `1.0`. A mismatch is rejected rather than
+   migrated. The separate `polisyos.ir.loading.loaders` API has different
+   return and version behavior; see the [TRINITY contract](../contracts/TRINITY.md).
 2. The nested IR models inherit `KernelModel`, which forbids unknown fields and
    freezes instantiated models. Their validators enforce declared field
    shapes, identifiers, bounds, uniqueness, and implemented local

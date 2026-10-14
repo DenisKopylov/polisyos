@@ -22,6 +22,9 @@ a file count, not a test-run result.
 
 ## Public Entrypoints
 
+The groups below name 21 representative files from the 25-file inventory; they
+are not an exhaustive list.
+
 - Artifact and provenance tests:
   `test_artifact_store.py`, `test_artifact_export_import.py`,
   `test_artifact_graph.py`, `test_provenance_contract_shims.py`

@@ -27,10 +27,12 @@ standards.
 ## Pinned baseline census (2026-10-14)
 
 The counts in this section describe the source baseline, not the later
-documentation branch. The [comprehensive maintenance audit](../archive/reports/2026-10-14-documentation-maintenance-audit.md)
-records the second slice's complete census, per-path review methods, preservation
-checks and final publication scope. Its verification status governs whether
-those later measurements are complete; they do not replace this historical set.
+documentation branch. The Git-retained report
+`docs/archive/reports/2026-10-14-documentation-maintenance-audit.md` records the
+second slice's complete census, per-path review methods, preservation checks
+and final publication scope. It is outside the published handbook. Its
+verification status governs whether those later measurements are complete;
+they do not replace this historical set.
 
 ### Reproduction and evidence
 

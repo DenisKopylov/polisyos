@@ -56,8 +56,11 @@ owned by `architecture/imports/policy.toml`.
 The current Trinity path has distinct checks at each boundary:
 
 1. `polisyos.ir.trinity.loaders.load_trinity_bundle()` parses a mapping, JSON,
-   YAML, or UTF-8 bytes and checks the requested bundle schema version. Its
-   default target is `1.0`.
+   YAML, or UTF-8 bytes and requires exact equality with the requested bundle
+   schema version, defaulting to `1.0`. It rejects mismatches; it does not
+   migrate or hand the payload to a version-transition path. The separate
+   `polisyos.ir.loading.loaders` API has different return and version behavior;
+   see the [TRINITY contract](../contracts/TRINITY.md).
 2. `TrinityBundle` and its nested models validate field types, allowed fields,
    identifiers, bounds, and local relationships. The common `KernelModel`
    base forbids extra fields and freezes instantiated models.

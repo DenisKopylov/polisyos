@@ -30,7 +30,8 @@ not include a run-specific manifest or establish that a named workflow passed;
   `_build/apps/runtime-dashboard/storybook-static/`
 
 - Archived story index: [`stories.index.json`](./stories.index.json)
-- Story count: `92`
+- Archived index entries: 92 total (`67` `story`, `25` `docs`), from a complete
+  index census; this is not a current Storybook build count.
 - Snapshot date: `2026-04-22`
 
 ## Files

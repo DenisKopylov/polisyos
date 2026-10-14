@@ -88,12 +88,13 @@ governance, and publishes replayable decision artifacts across the `ir`,
 
 Run from the repository root (`policy-engine/`).
 
-- Smoke-tested import check: `uv run python -c "from polisyos.scientist import ExperimentState, run_experiment; print(ExperimentState.__name__, callable(run_experiment))"`
+- Historical inherited import-check entry; the prior README labeled it smoke-tested, but no qualified receipt is retained and it was not rerun for this refresh: `uv run python -c "from polisyos.scientist import ExperimentState, run_experiment; print(ExperimentState.__name__, callable(run_experiment))"`
 - Conceptual full-slice test run: `uv run pytest tests/unit/scientist -q`
 
 ## Tests
 
-Smoke-tested:
+Historical inherited test command. The prior README labeled it smoke-tested,
+but no qualified receipt is retained and it was not rerun for this refresh.
 
 ```bash
 uv run pytest tests/unit/scientist/orchestration/workflows/test_workflow_selection.py tests/unit/scientist/governance/test_reliability_scorecard.py -q

@@ -1,8 +1,8 @@
 # Trinity Contracts (ProblemFrame, PolicySpec, ModelSpec)
 
 Owner: `@ir-owners`
-Source of truth: `policy-engine/src/polisyos/ir/trinity/__init__.py`, `policy-engine/src/polisyos/core/contracts/trinity.py`, `policy-engine/src/polisyos/ir/loading/loaders.py`, `policy-engine/src/polisyos/ir/migrations/`, `policy-engine/src/polisyos/ir/linker/`
-Snapshot and evidence level: inspected at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; implementation and listed tests were read, but not executed for this documentation update.
+Source of truth: `policy-engine/src/polisyos/ir/trinity/__init__.py`, `policy-engine/src/polisyos/ir/trinity/loaders.py`, `policy-engine/src/polisyos/core/contracts/trinity.py`, `policy-engine/src/polisyos/ir/loading/loaders.py`, `policy-engine/src/polisyos/ir/migrations/`, `policy-engine/src/polisyos/ir/linker/`
+Snapshot and evidence level: the DTO, loader, and migration sources were read at source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` and confirmed unchanged at frozen branch commit `378f08c50b61944667fb3de123dcd7f2415ce5f2`. Targeted loader and migration tests were read at the frozen commit but not executed for this documentation update.
 
 ## Rationale
 
@@ -46,7 +46,13 @@ Use the nested IR payload for authoring, loading, and linking. Use the Core refe
 
 These models validate their declared structure and field constraints. A successful DTO parse does not establish semantic adequacy, causal validity, admissibility, or publishability. `polisyos.ir.linker.link_trinity()` performs the separate registry-aware linking checks; downstream authority decisions require their own evidence and consumers.
 
-The current owners are `polisyos.ir.trinity` for the nested payload, `polisyos.core.contracts.trinity` for reference contracts, `polisyos.ir.loading` for payload loading, and `polisyos.ir.migrations` for versioned canonical-IR migration.
+The current owners are `polisyos.ir.trinity` for the nested payload and
+exact-version loaders, `polisyos.core.contracts.trinity` for reference
+contracts, `polisyos.ir.loading.loaders` for `load_policy()`, `load_trinity()`,
+and the tuple-returning `load_trinity_bundle()`, and `polisyos.ir.migrations`
+for explicit versioned canonical-IR migration. These sources expose distinct
+loading contracts; this page does not claim an end-to-end persisted-artifact,
+orchestrated-admission, or publication path.
 
 ## Usage Examples
 
@@ -139,11 +145,35 @@ bundle = TrinityBundle(
 
 ## Loading and migration
 
-The current loader entrypoints are `polisyos.ir.loading.loaders.load_trinity_bundle()`,
-`load_trinity()`, and `load_policy()`. They parse mapping, JSON, YAML, or UTF-8
-bytes input and validate it as the nested IR `TrinityBundle`. The retained
-`auto_migrate` loader argument does not currently run a migration: malformed or
-non-Trinity payloads are rejected.
+Both `polisyos.ir.trinity.loaders` and `polisyos.ir.loading.loaders` expose a
+function named `load_trinity_bundle`; their return and version-admission
+contracts differ:
+
+- `polisyos.ir.trinity.loaders.load_trinity_bundle()` returns the nested IR
+  `TrinityBundle`. It requires a `schema_version` and compares it exactly with
+  `target_schema_version`, which defaults to
+  `TRINITY_BUNDLE_SCHEMA_VERSION` (`"1.0"`). Mapping inputs reach model
+  validation only after this exact comparison; an already validated model
+  instance is compared before return. This exact-value guard is not a
+  schema-registry negotiation, migration, or handoff to a target version.
+- `polisyos.ir.loading.loaders.load_trinity_bundle()` accepts mapping, JSON,
+  YAML, or UTF-8 bytes and returns `(TrinityBundle, None)`. It calls
+  `TrinityBundle.model_validate()` without an exact version comparison or a
+  migration-registry lookup. `schema_version` defaults to `"1.0"` in the model
+  and its declared field constraint checks only the `MAJOR.MINOR` shape; a
+  structurally valid payload with another shape-matching value such as `"2.0"`
+  can therefore pass this loader. `load_policy()` and `load_trinity()` in this
+  module return the model only. The `auto_migrate` argument exposed by
+  `load_policy()` and this module's `load_trinity_bundle()` does not invoke a
+  migration; it only selects the validation-error message.
+
+This is a partial admission boundary: callers that need exact equality for
+the top-level `TrinityBundle.schema_version` must use the
+`polisyos.ir.trinity.loaders` check.
+Neither loader establishes semantic adequacy, evidence custody, or authority.
+`migrate_policy_ir()` is a separate explicit operation; the exact-version
+loader does not hand mismatched input to it, and the `auto_migrate` argument is
+not a target-version handoff.
 
 The versioned migration owner is `polisyos.ir.migrations.migrate_policy_ir()`.
 It handles canonical Trinity-era `policy_ir` payloads; the current registered

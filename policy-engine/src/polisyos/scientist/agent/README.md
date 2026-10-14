@@ -33,12 +33,16 @@ before they enter the main workflow runtime.
 
 Run from the repository root (`policy-engine/`).
 
-- Smoke-tested import check: `uv run python -c "from polisyos.scientist.agent import ProblemFrame, DraftResult; print(ProblemFrame.__name__, DraftResult.__name__)"`
+- Historical smoke-test claim for the import check; no qualified receipt
+  establishes its source revision or run date, and it was not rerun for this
+  review: `uv run python -c "from polisyos.scientist.agent import ProblemFrame, DraftResult; print(ProblemFrame.__name__, DraftResult.__name__)"`
 - Conceptual full-slice test run: `uv run pytest tests/unit/scientist/agent -q`
 
 ## Test / Verification Commands
 
-Smoke-tested:
+The test command below is retained as a historical smoke-test example. No
+qualified receipt establishing its source revision or run date was available
+for this review; it was not rerun and does not establish current verification.
 
 ```bash
 uv run pytest tests/unit/scientist/agent/test_drafter_factory.py tests/unit/scientist/agent/test_supervisor.py tests/unit/scientist/agent/test_reasoning.py -q
@@ -49,7 +53,7 @@ uv run pytest tests/unit/scientist/agent/test_drafter_factory.py tests/unit/scie
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
 - Agent/search reasoning reference: [`../../../../docs/reference/scientist/agent-search-reasoning.md`](../../../../docs/reference/scientist/agent-search-reasoning.md)
 - Phase 3 acceptance notes: [`../../../../docs/reference/scientist/phase3-acceptance.md`](../../../../docs/reference/scientist/phase3-acceptance.md)
-- Cross-package navigation: [`../README.md`](../README.md), [`../search/README.md`](../search/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
+- Cross-package navigation: [`../README.md`](../README.md), [`../methods/search/README.md`](../methods/search/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

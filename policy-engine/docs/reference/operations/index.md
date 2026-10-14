@@ -31,7 +31,7 @@ for runtime, storage, observability, retention, and handoff.
 | --- | --- |
 | [Platform Architecture Diagrams](platform-architecture-diagrams.md) | Request path, control-plane lifecycle, CAS/integrity flow, and observability map. |
 | [CAS and Storage](cas-storage.md) | Runtime artifact-store contract, backend selection, local layout, and guards. |
-| [Infrastructure Split-Compute Note (2026-04-04 source snapshot)](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/docs/reference/operations/infrastructure-split-compute.md) | Historical target-design and cost snapshot; source gaps and deployment assumptions require revalidation before reuse. |
+| [Infrastructure Split-Compute Note (2026-04-04 historical source snapshot)](https://github.com/DenisKopylov/polisyos/blob/378f08c50b61944667fb3de123dcd7f2415ce5f2/policy-engine/docs/reference/operations/infrastructure-split-compute.md) | Historical, source-only target-design and cost record; it is not deployment-readiness evidence, and assumptions require revalidation before reuse. |
 | [SLO and Error Budget Policy](slo-error-budget.md) | Reliability vocabulary, SLO policy, error-budget response, and freeze policy. |
 | [Ops Baselines](ops-baselines.md) | Repository baseline configuration map; external scanner, billing, and service states are not established by source presence. |
 | [Observability Topology](observability-topology.md) | Signal taxonomy, dashboards and alerts, ownership, and correlation boundaries. |

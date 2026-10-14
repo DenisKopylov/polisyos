@@ -26,6 +26,12 @@ practice research and independent link/source review. Review findings were
 reconciled before the final publication-content freeze. No production code,
 tests, schemas, dependencies or CI workflows changed.
 
+Those change and companion statements describe this first slice, ending at
+`c35222b3dcf103338175cf300c5fe9487e6416f3`; they are not assertions about all
+later commits on the branch. The separately authorized
+[maintenance audit](2026-10-14-documentation-maintenance-audit.md) records the
+subsequent documentation-validator and mirrored-test changes.
+
 Reader entrypoints:
 
 - [Handbook](../../index.md), [repository guide](../../README.md),

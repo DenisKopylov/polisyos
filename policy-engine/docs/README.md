@@ -42,6 +42,10 @@ Follow the [style guide](style-guide.md) and
 the [failure/repair register](reference/policy-design-case-failure-patterns.md)
 defines the capability and authority vocabulary.
 
+The [2026-10-14 refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
+records fresh documentation checks, the approved publication boundary and the
+unresolved lifecycle gate. Runtime and E02 closure remain outside that report.
+
 Stable behavior belongs in authored explanation/reference/procedure pages;
 plans and receipts retain their historical authority and explicit scope.
 Generated references link to their canonical owners and regeneration commands.

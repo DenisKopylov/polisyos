@@ -13,7 +13,6 @@ front matter and closeout evidence before relying on its status.
 
 | Area | Start here | Routing note |
 | --- | --- | --- |
-| Documentation refresh | [2026-10-14 documentation refresh](DOCUMENTATION_REFRESH_20261014.md) | Current bounded docs-refresh work and its owner routing. The older [Documentation SOTA plan](DOCUMENTATION_SOTA_PLAN.md) records historical D0–D6 work; its original bytes are archived behind a compatibility pointer. |
 | PolicyOS E02 | [Combined package start](agent-packages/PolicyOS_E02_Combined_Agent_Package/README_START_HERE.md) | E02 remains active. Use its [execution guide](agent-packages/PolicyOS_E02_Combined_Agent_Package/EXECUTION_GUIDE.md) and current task receipts; this index does not declare E02 complete. |
 | PolicyOS E02R2 | [Crosswalk](agent-packages/PolicyOS_E02R2/CROSSWALK.md) | Current residual and source-binding route for R2. Preserve its pinned source receipts. |
 | Data Forge | [Consolidation plan](DATA_FORGE_CONSOLIDATION_PLAN.md) | The Phase 0 cutover record is a bounded completed item; the consolidation plan retains active shim-sunset work. |
@@ -30,6 +29,13 @@ Other subsystem owners continue to use their active plans, including the
 [Scientist](SCIENTIST_AUDIT_REMEDIATION_PLAN.md) remediation plans.
 
 ## Bounded closeouts and unresolved signals
+
+The [2026-10-14 documentation refresh](DOCUMENTATION_REFRESH_20261014.md) is a
+completed bounded branch task. Its [closeout report](../../archive/reports/2026-10-14-documentation-refresh-e02.md)
+records the source-qualified maps, approved publication boundary, fresh docs
+checks and unresolved lifecycle/URL obligations. The older
+[Documentation SOTA plan](DOCUMENTATION_SOTA_PLAN.md) retains its historical
+D0–D6 record behind a compatibility pointer. Neither closes E02.
 
 The [2026-10-14 disposition](../documentation-refresh-disposition-20261014.md)
 records the completed first archive/pointer batch, records held for owner

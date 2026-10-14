@@ -25,7 +25,7 @@ pointer preserves navigation and carries no execution or runtime authority.
 
 The archived plan records the April/May documentation program. Its historical passing receipts are not current readiness evidence. Remaining current-source, runtime and E02 revalidation obligations stay with their named owners.
 
-Current work: [owner program or successor](DOCUMENTATION_REFRESH_20261014.md).
+Current source-snapshot closeout: [completed refresh](DOCUMENTATION_REFRESH_20261014.md).
 Read the [disposition record](../documentation-refresh-disposition-20261014.md) for the primary evidence and
 reference classifications. Historical E02 source receipts remain unchanged
 and refer to their original source commits and content hashes.

@@ -1,7 +1,7 @@
 # Documentation Verification Contract
 
 Owner: team-docs
-Source pin: `4b1204481fdeff627e360b2f66ae554899c8333a`
+Source pin: `9eaa2b7f3c88bceda9eb7e6cb587da353a8e516e`
 
 Source of truth: `tools/registry.py`, `tools/cli.py`, `tools/devx/workspace/docs_style.py`, `tools/devx/workspace/_repo_hygiene.py`, `tools/quality/validation/check_docs_gate.py`, `tools/quality/validation/check_docs_accuracy.py`, `tools/quality/validation/check_docs_freshness_baseline.py`, `tools/quality/validation/check_docs_lifecycle.py`, `tools/quality/validation/check_docs_review.py`, `tools/quality/validation/check_docs_impact.py`, `tools/quality/validation/check_docs_rendered_links.py`, `tools/quality/validation/check_docs_source_bindings.py`, `architecture/tooling/tool_config_split.toml`, `docs/how-to/author-measurement-instruments.md`, `tests/repo_quality/tools/test_docs_gate.py`, `tests/repo_quality/tools/test_docs_review.py`, `tests/repo_quality/tools/test_docs_impact.py`, `tests/repo_quality/tools/test_docs_source_bindings.py`, and `tests/repo_quality/tools/test_docs_rendered_links.py`.
 
@@ -17,10 +17,13 @@ At the pinned source snapshot above, review covered the docs-review runner and
 docs-impact scanner, including CLI arguments, Git path selection, workspace
 matching, child dispatch, status mapping, output retention, and the actual
 Source of truth field-counting grammar. It also covered their mirrored tests,
-the rendered-link and source-binding implementations and tests, and the
-publication-config gate plan. The impact parser counts actual leading metadata
-fields; supported continuation lines contribute path patterns without counting
-as additional fields.
+the rendered-link and source-binding implementations and tests, the
+publication-config gate plan, and the D6 security-path matcher change with its
+mirrored cases. That D6 rule remains a lexical path heuristic: token-start
+matching avoids some within-word false positives, but does not establish
+semantic security sensitivity. The impact parser counts actual leading
+metadata fields; supported continuation lines contribute path patterns without
+counting as additional fields.
 
 Mirrored tests were reviewed as source; this note does not claim they ran. The
 closeout record reports actual command execution separately. This note records

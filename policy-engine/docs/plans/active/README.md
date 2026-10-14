@@ -30,6 +30,13 @@ Other subsystem owners continue to use their active plans, including the
 
 ## Bounded closeouts and unresolved signals
 
+The [2026-10-14 English documentation and reader/author workflow pass](DOCUMENTATION_ENGLISH_USABILITY_20261014.md)
+has a completed bounded first-stage archive and
+[closeout report](../../archive/reports/2026-10-15-documentation-english-usability-audit.md).
+The report preserves mixed verification outcomes, `LIMITED` full-query search,
+the human study's `NOT RUN` status, and unfinished E02 work. The old plan path
+is a compatibility pointer and does not imply end-to-end completion.
+
 The [documentation sustainability pass](DOCUMENTATION_SUSTAINABILITY_20261014.md)
 has a completed archive and [third-pass closeout](../../archive/reports/2026-10-14-documentation-sustainability-audit.md).
 It records clearer source/reader routes, repeatable bounded checks and the five

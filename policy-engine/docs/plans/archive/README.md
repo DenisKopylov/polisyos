@@ -20,6 +20,16 @@ navigation working, but it cannot stand in for a reader that depends on the
 original bytes. Keep source-bound receipts unchanged and use the existing
 redirect metadata and sunset contract for any temporary pointer.
 
+## 2026-10-15 bounded closeout
+
+- [English documentation and simpler reader/author workflows](2026-10-14-documentation-english-usability.md):
+  completed first-stage documentation work with mixed check results. The
+  [closeout report](../../archive/reports/2026-10-15-documentation-english-usability-audit.md)
+  records the wrapper `FAIL`, lifecycle `UNRUN`, source impact `UNRUN` with
+  `PARTIAL` coverage, final
+  build/link `PASS`, limited full-query search, human study `NOT RUN`, and
+  unfinished E02 status.
+
 ## 2026-10-14 disposition
 
 - [Documentation sustainability](2026-10-14-documentation-sustainability.md):

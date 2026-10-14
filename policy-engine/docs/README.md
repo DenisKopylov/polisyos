@@ -46,7 +46,8 @@ defines the capability and authority vocabulary.
 
 The [comprehensive maintenance audit](archive/reports/2026-10-14-documentation-maintenance-audit.md)
 records the second slice's source audits and verification-tool repairs; its
-status identifies whether final verification is complete. The earlier
+verdict table distinguishes passing checks, incomplete global gates and the
+narrowly reproduced snapshot failure. The earlier
 [refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
 records a separate publication boundary and verification wave. Runtime and
 E02 closure remain outside both reports.

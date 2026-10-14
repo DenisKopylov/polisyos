@@ -9,11 +9,12 @@ stability: draft
 
 # Curated handbook adjustment
 
-## Decision requested
+## Accepted decision
 
 The user approved this exact local handbook adjustment on 2026-10-14.
-Implementation and final publication checks will be recorded in this phase's
-maintenance closeout. The earlier documentation-refresh closeout covers a
+The local change and bounded site checks are recorded in this phase's
+[maintenance closeout](../archive/reports/2026-10-14-documentation-maintenance-audit.md),
+which retains failed and UNRUN global gates. The earlier documentation-refresh closeout covers a
 different boundary and is not evidence for this adjustment. Approval does not
 supply deployment evidence or a URL-retirement plan.
 

@@ -14,7 +14,8 @@ verification boundaries. Follow the [retention rules](README.md) and
 
 - [2026-10-14 comprehensive maintenance audit](2026-10-14-documentation-maintenance-audit.md):
   the second slice's source audits, documentation-tool repairs and explicit
-  verification limits; consult its status before treating it as a closeout.
+  verification limits. This bounded closeout retains failed and UNRUN global
+  gates; it is not E02 or publication approval.
 - [2026-10-14 documentation refresh](2026-10-14-documentation-refresh-e02.md):
   bounded documentation verification, approved handbook scope and the remaining
   lifecycle-gate failure. It establishes no E02 or runtime closure.

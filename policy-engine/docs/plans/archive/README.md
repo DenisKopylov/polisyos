@@ -22,6 +22,10 @@ redirect metadata and sunset contract for any temporary pointer.
 
 ## 2026-10-14 disposition
 
+- [Comprehensive documentation maintenance](2026-10-14-documentation-maintenance.md):
+  the second documentation slice's completed plan and
+  [bounded closeout](../../archive/reports/2026-10-14-documentation-maintenance-audit.md).
+  Global failed/UNRUN checks and E02's unresolved execution remain explicit.
 - [Documentation refresh against E02](2026-10-14-documentation-refresh-e02.md):
   this session's completed execution plan, with a separate
   [verification closeout](../../archive/reports/2026-10-14-documentation-refresh-e02.md).

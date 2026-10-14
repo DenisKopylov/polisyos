@@ -30,6 +30,11 @@ Other subsystem owners continue to use their active plans, including the
 
 ## Bounded closeouts and unresolved signals
 
+The [comprehensive documentation maintenance](DOCUMENTATION_MAINTENANCE_20261014.md)
+has a completed archive and [bounded closeout](../../archive/reports/2026-10-14-documentation-maintenance-audit.md).
+Its documentation tools, source maps and link checks do not close E02 or waive
+the global lifecycle/architecture results. The old path is a compatibility pointer.
+
 The [2026-10-14 documentation refresh](DOCUMENTATION_REFRESH_20261014.md) is a
 completed bounded branch task. Its [closeout report](../../archive/reports/2026-10-14-documentation-refresh-e02.md)
 records the source-qualified maps, approved publication boundary, fresh docs

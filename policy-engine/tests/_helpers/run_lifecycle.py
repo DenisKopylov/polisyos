@@ -4,11 +4,23 @@ from __future__ import annotations
 
 import json
 from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 from pathlib import Path
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.run.context import RunContext
+from polisyos.core.security.access_scope import AccessScope
+
+
+@dataclass(frozen=True)
+class _ResumeOwnerInputs:
+    """Carry the current owner inputs into the core resume admission check."""
+
+    registry_bundle: ArtifactRef
+    producer: ProducerInfo | None
+    env: EnvInfo | None
+    access_scope: AccessScope | None
 
 
 class ExpectedRunInterruption(BaseException):
@@ -113,18 +125,29 @@ async def interrupt_and_suspend_before_finalize_async(
     return events
 
 
-def resume_same_run(store: FileSystemCAS, previous: RunContext) -> RunContext:
-    """Resume the exact owner-bound incomplete run with its persisted inputs."""
+def resume_same_run(
+    store: FileSystemCAS,
+    previous: RunContext,
+    *,
+    owner_inputs: _ResumeOwnerInputs | None = None,
+) -> RunContext:
+    """Resume one incomplete owner, optionally checking the caller's current inputs."""
     assert previous.trace_path is not None
     manifest = previous.run_manifest
-    return RunContext.resume(
-        store,
-        run_id=manifest.run_id,
-        run_dir=previous.trace_path.parent,
+    inputs = owner_inputs or _ResumeOwnerInputs(
         registry_bundle=manifest.registry_bundle,
         producer=manifest.producer,
         env=manifest.env,
         access_scope=previous.access_scope,
+    )
+    return RunContext.resume(
+        store,
+        run_id=manifest.run_id,
+        run_dir=previous.trace_path.parent,
+        registry_bundle=inputs.registry_bundle,
+        producer=inputs.producer,
+        env=inputs.env,
+        access_scope=inputs.access_scope,
     )
 
 
@@ -133,28 +156,43 @@ def start_or_resume_run(
     *,
     run_id: str,
     registry_bundle: ArtifactRef | None = None,
+    producer: ProducerInfo | None = None,
+    env: EnvInfo | None = None,
+    access_scope: AccessScope | None = None,
     run_dir: Path | None = None,
     resume_from: RunContext | None = None,
     tenant_id: str | None = None,
     cell_id: str | None = None,
 ) -> RunContext:
-    """Start a new owner or resume only its explicitly paused nonterminal lifecycle."""
+    """Start an owner or resume it only with its current, exactly matching inputs."""
     if resume_from is None:
         if registry_bundle is None:
             raise AssertionError("a new run requires its selected registry owner")
+        if access_scope is None and (tenant_id is not None or cell_id is not None):
+            raise ValueError("run_start_owner_scope_not_established")
+        if access_scope is not None and (
+            tenant_id != access_scope.tenant_id or cell_id != access_scope.cell_id
+        ):
+            raise ValueError("run_start_owner_inputs_mismatch")
         return RunContext.start(
             store,
             registry_bundle,
+            producer=producer,
+            env=env,
             run_id=run_id,
             run_dir=run_dir,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            access_scope=access_scope,
         )
 
     if registry_bundle is not None:
         raise AssertionError("resume must use the prior persisted registry owner")
-    if resume_from.run_manifest.run_id != run_id:
+    manifest = resume_from.run_manifest
+    if manifest.run_id != run_id:
         raise AssertionError("resume must keep the exact run identity")
+    if tenant_id != manifest.tenant_id or cell_id != manifest.cell_id:
+        raise ValueError("run_resume_owner_inputs_mismatch")
     if resume_from.trace_path is None:
         raise AssertionError("resume requires the prior trace owner")
     if run_dir is not None and run_dir.resolve() != resume_from.trace_path.parent.resolve():
@@ -166,7 +204,16 @@ def start_or_resume_run(
         events,
         expected_resumes=sum(event.get("event") == "RUN_RESUMED" for event in events),
     )
-    return resume_same_run(store, resume_from)
+    return resume_same_run(
+        store,
+        resume_from,
+        owner_inputs=_ResumeOwnerInputs(
+            registry_bundle=manifest.registry_bundle,
+            producer=producer,
+            env=env,
+            access_scope=access_scope,
+        ),
+    )
 
 
 def assert_one_resumed_terminal_lifecycle(

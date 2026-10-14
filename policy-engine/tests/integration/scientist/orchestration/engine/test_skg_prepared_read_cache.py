@@ -6,6 +6,8 @@ import logging
 import os
 import signal
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from threading import Event
@@ -28,7 +30,13 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.data_forge.domains.academic.knowledge.skg_query import (
     PreparedSKGRead,
     PreparedSKGReadReceipt,
@@ -178,6 +186,16 @@ def _set_unrelated_value(path: Path, value: int) -> None:
         connection.close()
 
 
+@contextmanager
+def _access_scope_context(access_scope: AccessScope) -> Iterator[None]:
+    """Install one exact typed caller scope for lifecycle admission."""
+    token = set_current_access_scope(access_scope)
+    try:
+        yield
+    finally:
+        reset_current_access_scope(token)
+
+
 def _build_run_context(
     store: FileSystemCAS,
     run_id: str,
@@ -187,7 +205,7 @@ def _build_run_context(
     resume_from: ExecutionContext | None = None,
     selected_registry_profile: bool = False,
 ) -> tuple[ExecutionContext, NodeRegistry]:
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+    with tenant_scope(None, tenant_id=tenant_id or "tenant-a", cell_id=cell_id):
         registry_bundle = (
             build_default_registry_bundle(
                 store, return_selected_profile=selected_registry_profile
@@ -202,6 +220,7 @@ def _build_run_context(
             resume_from=None if resume_from is None else resume_from.run,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            access_scope=get_current_access_scope_or_none(),
         )
     context = ExecutionContext(
         store=store,
@@ -933,6 +952,11 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
     db_path = tmp_path / "skg-spawn-source.duckdb"
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    owner_scope = AccessScope.for_service(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        spiffe_id="spiffe://polisyos.test/cell/cell-a/svc/skg-prepared-read-cache",
+    )
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
             _ensure_ir_artifact_store(store),
@@ -958,13 +982,14 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
             "skg_db_path": str(db_path),
         },
     )
-    context, registry = _build_run_context(
-        store,
-        state.run_id,
-        tenant_id="tenant-a",
-        cell_id="cell-a",
-        selected_registry_profile=True,
-    )
+    with _access_scope_context(owner_scope):
+        context, registry = _build_run_context(
+            store,
+            state.run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            selected_registry_profile=True,
+        )
     warmup_report, warmup_state, warmup_events = _execute_workflow_and_suspend(
         context, registry, _workflow(), state, expected_resumes=0
     )
@@ -997,7 +1022,48 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         stale_outcome = prior_cache.get(unbound_key)
         assert stale_outcome is not None
         assert _resolved_value(store, stale_outcome.state) == 1.4
-    context, registry = _build_run_context(store, state.run_id, resume_from=context)
+    assert context.run.trace_path is not None
+    owner_trace = context.run.trace_path
+    trace_before_rejected_resume = owner_trace.read_bytes()
+    with (
+        _access_scope_context(owner_scope),
+        pytest.raises(ValueError, match="run_resume_owner_inputs_mismatch"),
+    ):
+        _build_run_context(
+            store,
+            state.run_id,
+            tenant_id="tenant-b",
+            cell_id="cell-a",
+            resume_from=context,
+        )
+    assert owner_trace.read_bytes() == trace_before_rejected_resume
+
+    changed_scope = AccessScope.for_service(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        spiffe_id="spiffe://polisyos.test/cell/cell-a/svc/other-service",
+    )
+    with (
+        _access_scope_context(changed_scope),
+        pytest.raises(ValueError, match="run_resume_owner_inputs_mismatch"),
+    ):
+        _build_run_context(
+            store,
+            state.run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            resume_from=context,
+        )
+    assert owner_trace.read_bytes() == trace_before_rejected_resume
+
+    with _access_scope_context(owner_scope):
+        context, registry = _build_run_context(
+            store,
+            state.run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            resume_from=context,
+        )
     context.run.emit(
         "scientist.node.resolve",
         "NODE_CACHE_STORE",
@@ -1116,12 +1182,13 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         )
 
     race_run_id = "R_skg_spawn_snapshot_race"
-    race_context, race_registry = _build_run_context(
-        store,
-        race_run_id,
-        tenant_id="tenant-a",
-        cell_id="cell-a",
-    )
+    with _access_scope_context(owner_scope):
+        race_context, race_registry = _build_run_context(
+            store,
+            race_run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
     assert race_context.run.run_manifest.run_id == race_run_id
     race_state = replay_state.model_copy(update={"run_id": race_run_id})
     assert race_context.run.trace_path is not None

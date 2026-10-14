@@ -784,8 +784,8 @@ def validate_supplemental_node_ids(manifest: dict[str, Any], expected_ids: set[s
         raise AuditFailure("supplemental source collection contains undeclared selector IDs")
 
 
-def self_test_origin_gate_symlink() -> bool:
-    """Load same-byte modules through outside symlink paths and require refusal."""
+def self_test_origin_gate_symlink() -> dict[str, bool]:
+    """Exercise both trusted root spellings and reject cross-boundary aliases."""
     import importlib.machinery
     import importlib.util
     import runpy
@@ -797,11 +797,22 @@ def self_test_origin_gate_symlink() -> bool:
     verify = runpy.run_path(str(gate_path)).get("verify_loaded_module_origins")
     if not callable(verify):
         raise AuditFailure("installed-origin gate has no generic loaded-module verifier")
+
+    def load_module(name: str, path: Path) -> object:
+        loader = importlib.machinery.SourceFileLoader(name, str(path))
+        spec = importlib.machinery.ModuleSpec(name, loader, origin=str(path))
+        spec.has_location = True
+        module = importlib.util.module_from_spec(spec)
+        loader.exec_module(module)
+        return module
+
     with tempfile.TemporaryDirectory(prefix="q2-origin-") as scratch:
         root = Path(scratch)
-        purelib, outside = root / "site-packages", root / "outside"
-        purelib.mkdir()
+        purelib_storage, outside = root / "site-packages-storage", root / "outside"
+        purelib_storage.mkdir()
         outside.mkdir()
+        purelib = root / "site-packages"
+        purelib.symlink_to(purelib_storage, target_is_directory=True)
         nested = outside / "nested"
         nested.mkdir()
         source = purelib / "origin_probe.py"
@@ -813,44 +824,73 @@ def self_test_origin_gate_symlink() -> bool:
         direct_alias.symlink_to(source)
         escape = purelib / "escape"
         escape.symlink_to(nested, target_is_directory=True)
-        if direct_alias.read_bytes() != source.read_bytes() or outside_target.read_bytes() != source.read_bytes():
-            raise AuditFailure("outside origin controls do not preserve identical bytes")
+        inside_outside_alias = purelib / "outside_alias.py"
+        inside_outside_alias.symlink_to(outside_target)
+        if any(
+            path.read_bytes() != source.read_bytes()
+            for path in (outside_target, direct_alias, inside_outside_alias)
+        ):
+            raise AuditFailure("origin controls do not preserve identical bytes")
 
-        inside_spec = importlib.util.spec_from_file_location("polisyos.origin_probe_inside", source)
-        direct_spec = importlib.util.spec_from_file_location("polisyos.origin_probe_direct_escape", direct_alias)
-        if inside_spec is None or inside_spec.loader is None or direct_spec is None or direct_spec.loader is None:
-            raise AuditFailure("cannot construct real importlib module-origin controls")
-        inside_module = importlib.util.module_from_spec(inside_spec)
-        inside_spec.loader.exec_module(inside_module)
-        _, inside_errors = verify(purelib, {inside_spec.name: inside_module})
-        if inside_errors:
-            raise AuditFailure(f"inside installed module was rejected: {inside_errors}")
+        reported_module = load_module("polisyos.origin_probe_reported_root", source)
+        _, reported_errors = verify(purelib, {reported_module.__name__: reported_module})
+        reported_root_accepted = not reported_errors
 
-        direct_module = importlib.util.module_from_spec(direct_spec)
-        direct_spec.loader.exec_module(direct_module)
-        if Path(direct_module.__file__).resolve(strict=True).is_relative_to(purelib.resolve(strict=True)):
-            raise AuditFailure("direct symlink control did not resolve to the inside target")
-        _, direct_errors = verify(purelib, {direct_spec.name: direct_module})
-        direct_rejected = any(error.get("module") == direct_spec.name for error in direct_errors)
+        canonical_source = source.resolve(strict=True)
+        canonical_module = load_module("polisyos.origin_probe_canonical_root", canonical_source)
+        _, canonical_errors = verify(purelib, {canonical_module.__name__: canonical_module})
+        canonical_root_accepted = not canonical_errors
 
-        # SourceFileLoader is the real Python source loader; using its raw path
-        # preserves the link/.. traversal that abspath would erase before stat.
+        direct_module = load_module("polisyos.origin_probe_outside_to_inside", direct_alias)
+        if not Path(direct_module.__file__).resolve(strict=True).is_relative_to(
+            purelib.resolve(strict=True)
+        ):
+            raise AuditFailure("outside-to-inside alias did not resolve to the inside target")
+        _, direct_errors = verify(purelib, {direct_module.__name__: direct_module})
+        outside_to_inside_rejected = any(
+            error.get("module") == direct_module.__name__ for error in direct_errors
+        )
+
+        inside_outside_module = load_module(
+            "polisyos.origin_probe_inside_to_outside", inside_outside_alias
+        )
+        if Path(inside_outside_module.__file__).resolve(strict=True).is_relative_to(
+            purelib.resolve(strict=True)
+        ):
+            raise AuditFailure("inside-to-outside alias did not resolve outside the installed root")
+        _, inside_outside_errors = verify(
+            purelib, {inside_outside_module.__name__: inside_outside_module}
+        )
+        inside_to_outside_rejected = any(
+            error.get("module") == inside_outside_module.__name__
+            for error in inside_outside_errors
+        )
+
+        # SourceFileLoader preserves the link/.. traversal before stat.
         traversal_path = purelib / "escape" / ".." / "origin_probe.py"
         traversal_name = "polisyos.origin_probe_parent_escape"
-        traversal_loader = importlib.machinery.SourceFileLoader(traversal_name, str(traversal_path))
-        traversal_spec = importlib.machinery.ModuleSpec(traversal_name, traversal_loader, origin=str(traversal_path))
-        traversal_spec.has_location = True
-        traversal_module = importlib.util.module_from_spec(traversal_spec)
-        traversal_loader.exec_module(traversal_module)
+        traversal_module = load_module(traversal_name, traversal_path)
         reported = Path(traversal_module.__file__)
         if reported != traversal_path:
             raise AuditFailure("source loader did not preserve the reported parent-traversal origin")
         resolved = reported.resolve(strict=True)
-        if resolved.is_relative_to(purelib.resolve(strict=True)) or resolved.read_bytes() != source.read_bytes():
+        if (
+            resolved.is_relative_to(purelib.resolve(strict=True))
+            or resolved.read_bytes() != source.read_bytes()
+        ):
             raise AuditFailure("parent-traversal control did not load identical bytes from outside purelib")
         _, traversal_errors = verify(purelib, {traversal_name: traversal_module})
-        traversal_rejected = any(error.get("module") == traversal_name for error in traversal_errors)
-        return direct_rejected and traversal_rejected
+        parent_traversal_rejected = any(
+            error.get("module") == traversal_name for error in traversal_errors
+        )
+
+        return {
+            "reported-root-alias-positive": reported_root_accepted,
+            "canonical-root-positive": canonical_root_accepted,
+            "outside-to-inside-identical-byte-alias-rejected": outside_to_inside_rejected,
+            "inside-to-outside-identical-byte-alias-rejected": inside_to_outside_rejected,
+            "parent-traversal-identical-byte-origin-rejected": parent_traversal_rejected,
+        }
 
 def self_test() -> dict[str, Any]:
     """Exercise manifest drift controls without a repository, build, or test suite."""
@@ -990,9 +1030,17 @@ def self_test() -> dict[str, Any]:
         cases["malformed-runner-gate-digest-rejected"] = False
     if not cases["malformed-runner-gate-digest-rejected"]:
         raise AuditFailure("source audit accepted a non-full runner gate digest")
-    cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"] = self_test_origin_gate_symlink()
+    origin_controls = self_test_origin_gate_symlink()
+    cases.update(
+        {f"installed-origin-{name}": passed for name, passed in origin_controls.items()}
+    )
+    cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"] = all(
+        origin_controls.values()
+    )
     if not cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"]:
-        raise AuditFailure("installed-origin verifier accepted an outside symlink/path-normalization falsifier")
+        raise AuditFailure(
+            "installed-origin verifier failed a trusted-root alias or boundary control"
+        )
     class_actual = {
         "tests/unit/test_supplemental.py::TestSupplemental::test_parameterized[a]",
         "tests/unit/test_supplemental.py::TestSupplemental::test_parameterized[b]",

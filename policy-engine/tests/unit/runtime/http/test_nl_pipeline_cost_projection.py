@@ -360,11 +360,24 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
         ),
     )
     _FakeRetrievalService.instances.clear()
+    import hashlib
+
+    from polisyos.core.artifacts import read_core_json_artifact
     from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo, SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
     from polisyos.runtime.http.services.control.artifacts import (
+        AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+        DIAGNOSTIC_EVENT_ARTIFACT_KIND,
         verify_runtime_authority_artifact_identity,
+    )
+    from polisyos.runtime.quality.authority import (
+        AUTHORITY_ENVELOPE_CONTRACT_NAME,
+        AUTHORITY_ENVELOPE_CONTRACT_VERSION,
+    )
+    from polisyos.runtime.quality.diagnostic_events import (
+        DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     )
 
     artifact_store = service._artifact_store
@@ -654,22 +667,85 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
         for selected, sibling in authority_envelope_pairs
     )
     assert authority_envelope_default_views[0].manifest_profile_sha256 is None
-    for result, _options in authority_write_options:
-        selected_refs = (
-            result.cas_ref,
-            result.authority_envelope_ref,
-            result.diagnostic_event_ref,
+    # The original service-owned CAS is intentionally closed above. Reopen the
+    # same filesystem namespace with a real reader and bind every selected view
+    # back to the tenant/cell declared by this controlled producer input.
+    fresh_artifact_store = FileSystemCAS(cas_root)
+    expected_tenant_context = ArtifactTenantContextInfo(
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-a",
+    )
+    assert fresh_artifact_store.root == cas_root.resolve()
+    assert fresh_artifact_store is not artifact_store
+    for result, writer_options in authority_write_options:
+        payload_schema = writer_options.schema
+        assert payload_schema is not None
+        selected_specs = (
+            (
+                result.cas_ref,
+                writer_options.kind,
+                writer_options.media_type,
+                payload_schema,
+            ),
+            (
+                result.authority_envelope_ref,
+                AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+                "application/json",
+                SchemaInfo(
+                    name=AUTHORITY_ENVELOPE_CONTRACT_NAME,
+                    version=AUTHORITY_ENVELOPE_CONTRACT_VERSION,
+                ),
+            ),
+            (
+                result.diagnostic_event_ref,
+                DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+                "application/json",
+                SchemaInfo(
+                    name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+                    version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+                ),
+            ),
         )
-        assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
-        for ref in selected_refs:
-            assert ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
-                original_get_manifest(ref)
+        selected_manifests = []
+        for ref, expected_kind, expected_media_type, expected_schema in selected_specs:
+            assert isinstance(ref, ArtifactRef)
+            assert ref.manifest_profile_sha256 is not None
+            assert ref.kind == expected_kind
+            assert ref.media_type == expected_media_type
+            manifest = fresh_artifact_store.get_manifest(ref)
+            raw_payload = fresh_artifact_store.get_bytes(ref)
+            profile_sha256 = artifact_manifest_profile_sha256(manifest)
+            assert manifest.artifact_id == ref.artifact_id
+            assert manifest.kind == expected_kind
+            assert manifest.media_type == expected_media_type
+            assert manifest.artifact_schema == expected_schema
+            assert manifest.tenant_context == expected_tenant_context
+            assert ref.manifest_profile_sha256 == profile_sha256
+            assert manifest.byte_size == len(raw_payload)
+            assert hashlib.sha256(raw_payload).hexdigest() == ref.artifact_id.hex
+            core_read = read_core_json_artifact(
+                fresh_artifact_store,
+                ref,
+                raw_payload_bytes=raw_payload,
             )
-        payload_authority = original_get_manifest(result.cas_ref).authority
+            assert core_read.status == "declared_bytes_conformant"
+            assert core_read.selected_artifact_id == str(ref.artifact_id)
+            assert core_read.selected_manifest_profile_sha256 == profile_sha256
+            assert core_read.raw_payload_bytes == raw_payload
+            assert isinstance(core_read.value, dict)
+            selected_manifests.append(manifest)
+
+        payload_authority = selected_manifests[0].authority
         assert payload_authority is not None
+        assert payload_authority.authority_envelope_ref == str(
+            result.authority_envelope_ref.artifact_id
+        )
         assert (
             payload_authority.authority_envelope_manifest_profile_sha256
             == result.authority_envelope_ref.manifest_profile_sha256
+        )
+        assert payload_authority.diagnostic_event_ref == str(
+            result.diagnostic_event_ref.artifact_id
         )
         assert (
             payload_authority.diagnostic_event_manifest_profile_sha256

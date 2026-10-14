@@ -163,4 +163,4 @@ def test_lint_fast_ruff_scope_covers_authored_files_and_rejects_basename_escape(
     assert research_root_only.isdisjoint(native)
     assert research_root_only <= without_research_root
     assert without_research_root - expected_native == research_root_only
-    assert nested_benchmarks_outside_phase8.isdisjoint(native)
+    assert nested_benchmarks_outside_phase8 <= native

@@ -43,9 +43,14 @@ def _inside(root: Path, candidate: Path, label: str) -> Path:
 
 
 def _module_path(
-    root: Path, raw_path: object, label: str, *, directory: bool = False
+    reported_root: Path,
+    canonical_root: Path,
+    raw_path: object,
+    label: str,
+    *,
+    directory: bool = False,
 ) -> tuple[Path, Path]:
-    """Bind the reported import path and resolved object below installed purelib."""
+    """Bind a reported path to a trusted root spelling and canonical object."""
     if type(raw_path) is not str or not raw_path:
         raise InstalledOriginError(f"{label} has no absolute filesystem path")
     candidate = Path(raw_path)
@@ -53,11 +58,12 @@ def _module_path(
         raise InstalledOriginError(f"{label} is not absolute: {raw_path!r}")
     try:
         if ".." in candidate.parts:
-            raise InstalledOriginError(f"{label} contains a parent path segment")
+            raise ValueError("reported path contains a parent path segment")
         lexical = candidate
-        lexical.relative_to(root)
+        if not (lexical.is_relative_to(reported_root) or lexical.is_relative_to(canonical_root)):
+            raise ValueError("reported path is outside both trusted root spellings")
         resolved = lexical.resolve(strict=True)
-        resolved.relative_to(root)
+        resolved.relative_to(canonical_root)
         observed = resolved.stat()
     except (OSError, RuntimeError, ValueError) as error:
         raise InstalledOriginError(
@@ -84,15 +90,21 @@ def _is_q2_origin_subject(name: object) -> bool:
     )
 
 
-def _module_origin_row(root: Path, name: str, module: object) -> dict[str, Any]:
+def _module_origin_row(
+    reported_root: Path, canonical_root: Path, name: str, module: object
+) -> dict[str, Any]:
     spec = getattr(module, "__spec__", None)
     module_file = getattr(module, "__file__", None)
     if module_file is not None:
-        file_path, resolved_file = _module_path(root, module_file, f"module {name} __file__")
+        file_path, resolved_file = _module_path(
+            reported_root, canonical_root, module_file, f"module {name} __file__"
+        )
         spec_origin = getattr(spec, "origin", None)
         if type(spec_origin) is not str or spec_origin in {"built-in", "frozen"}:
             raise InstalledOriginError(f"module {name} has no file-backed import spec")
-        spec_path, resolved_spec = _module_path(root, spec_origin, f"module {name} spec.origin")
+        spec_path, resolved_spec = _module_path(
+            reported_root, canonical_root, spec_origin, f"module {name} spec.origin"
+        )
         try:
             same_loaded_file = os.path.samefile(file_path, spec_path)
         except OSError as error:
@@ -114,7 +126,8 @@ def _module_origin_row(root: Path, name: str, module: object) -> dict[str, Any]:
         bound = []
         for index, location in enumerate(locations):
             lexical, resolved = _module_path(
-                root,
+                reported_root,
+                canonical_root,
                 location,
                 f"namespace module {name} search location {index}",
                 directory=True,
@@ -128,11 +141,16 @@ def verify_loaded_module_origins(
     purelib: str | Path, modules: object
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, str]]]:
     """Check all Q2-managed loaded module origins by path and resolved file identity."""
+    reported_root = Path(purelib)
+    if not reported_root.is_absolute() or ".." in reported_root.parts:
+        raise InstalledOriginError(
+            "installed purelib reported path must be absolute and contain no parent segment"
+        )
     try:
-        root = Path(purelib).resolve(strict=True)
+        canonical_root = reported_root.resolve(strict=True)
     except (OSError, RuntimeError, ValueError) as error:
         raise InstalledOriginError("installed purelib is missing or cyclic") from error
-    if not root.is_dir():
+    if not canonical_root.is_dir():
         raise InstalledOriginError("installed purelib is not a directory")
     if type(modules) is not dict:
         return {}, [{"reason": "loaded module inventory is not a dict"}]
@@ -143,7 +161,7 @@ def verify_loaded_module_origins(
     errors: list[dict[str, str]] = []
     for name, module in sorted(subjects.items()):
         try:
-            origins[name] = _module_origin_row(root, name, module)
+            origins[name] = _module_origin_row(reported_root, canonical_root, name, module)
         except InstalledOriginError as error:
             errors.append({"module": name, "reason": str(error)})
     return origins, errors

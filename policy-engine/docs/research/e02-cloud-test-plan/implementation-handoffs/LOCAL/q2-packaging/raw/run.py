@@ -38,7 +38,7 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
     "policy-engine/workers/dowhy-014/",
 )
 INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"
-INSTALLED_ORIGIN_GATE_SHA256 = "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2"
+INSTALLED_ORIGIN_GATE_SHA256 = "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872"
 HATCHLING_INPUT_INVENTORY_PATH = HERE / "hatchling-1.27.0-input-inventory-r3.json"
 HATCHLING_INPUT_INVENTORY_SHA256 = "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
 
@@ -1000,6 +1000,9 @@ from pathlib import Path
 import pytest
 import q2_installed_origin_gate
 
+_REPORTED_PURELIB = Path(sysconfig.get_paths()["purelib"])
+_CANONICAL_PURELIB = _REPORTED_PURELIB.resolve(strict=True)
+
 def _under(path, root):
     try:
         Path(path).resolve().relative_to(Path(root).resolve())
@@ -1012,14 +1015,15 @@ def pytest_collection_finish(session):
     out.write_text(json.dumps(sorted(item.nodeid for item in session.items), indent=2) + "\\n")
 
 def pytest_sessionfinish(session, exitstatus):
-    purelib = Path(sysconfig.get_paths()["purelib"]).resolve()
+    purelib_reported = _REPORTED_PURELIB
+    purelib = _CANONICAL_PURELIB
     dependency_site = Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()
     source = Path(os.environ["E02_SOURCE_ROOT"]).resolve()
     live_product = Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()
     forbidden_roots = [source, live_product]
     forbidden_sys_path = [p for p in sys.path if p and any(_under(p, root) for root in forbidden_roots)]
     origins, errors = q2_installed_origin_gate.verify_loaded_module_origins(
-        purelib, sys.modules.copy()
+        purelib_reported, sys.modules.copy()
     )
     if "polisyos" not in origins:
         errors.append({"module": "polisyos", "reason": "installed package root was not imported"})
@@ -1033,7 +1037,7 @@ def pytest_sessionfinish(session, exitstatus):
             errors.append({"sys_path": normalized_sys_path, "reason": "installed site does not precede dependency site"})
     except ValueError:
         errors.append({"sys_path": normalized_sys_path, "reason": "installed/dependency site missing"})
-    report = {"verified": not errors, "purelib": str(purelib), "sys_path": sys.path, "origins": origins, "errors": errors}
+    report = {"verified": not errors, "purelib_reported": str(purelib_reported), "purelib": str(purelib), "sys_path": sys.path, "origins": origins, "errors": errors}
     Path(os.environ["E02_ORIGIN_REPORT"]).write_text(json.dumps(report, indent=2, sort_keys=True) + "\\n")
     if errors:
         print("Q2 installed-origin proof failed: " + json.dumps(errors, sort_keys=True), file=sys.stderr)
@@ -1074,7 +1078,8 @@ def installed_runtime_proof(
     code = origin_gate_source.decode("utf-8") + "\n" + """import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
 from pathlib import Path
 from typing import get_args
-purelib=Path(sysconfig.get_paths()["purelib"]).resolve()
+purelib_reported=Path(sysconfig.get_paths()["purelib"])
+purelib=purelib_reported.resolve()
 prefix=Path(sys.prefix).resolve()
 source=Path(os.environ["E02_SOURCE_ROOT"]).resolve()
 live_product=Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()
@@ -1092,7 +1097,7 @@ import polisyos, tools
 from polisyos.data_forge.domains.catalog import _resources
 from polisyos.foundry.methods.catalog import dependency_authority
 from polisyos.foundry.methods.catalog.causal import _dowhy_worker
-module_origins,module_origin_errors=verify_loaded_module_origins(purelib,sys.modules.copy())
+module_origins,module_origin_errors=verify_loaded_module_origins(purelib_reported,sys.modules.copy())
 assert module_origins
 assert not module_origin_errors,module_origin_errors
 assert {"polisyos","tools"} <= set(module_origins),module_origins
@@ -1155,7 +1160,7 @@ def verify_selected_installed_resources(
     return verify_installed_resources(purelib, assets, reader_paths)
 
 asset_rows,reader_rows=verify_selected_installed_resources(profile,purelib,assets,_resources,dependency_authority,_dowhy_worker)
-print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__)),"tools_origin":str(Path(tools.__file__)),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
+print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib_reported":str(purelib_reported),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__)),"tools_origin":str(Path(tools.__file__)),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
 """
     child_env = clean_child_env()
     child_env.update(

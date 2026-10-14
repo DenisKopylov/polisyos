@@ -8481,6 +8481,9 @@ class GenerationCycleController:
                 or measurement_root.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
                 or not isinstance(measurement_root.payload_ref, str)
                 or measurement_root.payload_ref != str(measurement_payload_ref.artifact_id)
+                or measurement_payload_ref.manifest_profile_sha256 is None
+                or measurement_root.payload_manifest_profile_sha256
+                != measurement_payload_ref.manifest_profile_sha256
             ):
                 raise ValueError("measurement root envelope identity mismatch")
 
@@ -8514,6 +8517,7 @@ class GenerationCycleController:
             expected_envelope = _fabric_measurement_envelope(
                 payload,
                 str(measurement_payload_ref.artifact_id),
+                payload_manifest_profile_sha256=measurement_payload_ref.manifest_profile_sha256,
                 execution_scope_binding=execution_scope_binding,
             )
             if expected_envelope.model_dump(mode="json") != measurement_root.model_dump(
@@ -8535,11 +8539,7 @@ class GenerationCycleController:
             )
             validated_payload_raw = _read_validated_measurement_snapshot_artifact(
                 store=store,
-                artifact_ref=artifacts.ArtifactRef(
-                    artifact_id=measurement_payload_ref.artifact_id,
-                    kind="policyos.gy.measurement_root_payload",
-                    media_type="application/json",
-                ),
+                artifact_ref=measurement_payload_ref,
                 expected_kind="policyos.gy.measurement_root_payload",
                 expected_media_type="application/json",
                 expected_schema=measurement_schema,
@@ -8611,7 +8611,7 @@ class GenerationCycleController:
             identity["input_refs"] = tuple(identity["input_refs"])
             verify_runtime_authority_artifact_identity(
                 store,
-                artifact_id=measurement_payload_ref.artifact_id,
+                artifact_id=measurement_payload_ref,
                 opts=opts,
                 expected_context=AuthorityArtifactIdentityContext(
                     **identity,
@@ -8702,6 +8702,7 @@ class GenerationCycleController:
                 artifacts.InputRef(
                     artifact_id=measurement_payload_ref.artifact_id,
                     role="measurement_root",
+                    manifest_profile_sha256=measurement_payload_ref.manifest_profile_sha256,
                 ),
                 artifacts.InputRef(
                     artifact_id=payload.fetch_receipt_ref.artifact_id,
@@ -8778,6 +8779,7 @@ class GenerationCycleController:
         payload: Mapping[str, Any],
         acquisition_receipt: AcquisitionReceipt,
         registry_ref: CASArtifactRef,
+        measurement_payload_ref: CASArtifactRef,
         registry: SubstrateRegistry,
         baseline_registry_ref: CASArtifactRef,
         baseline_registry: SubstrateRegistry,
@@ -8923,6 +8925,11 @@ class GenerationCycleController:
             root_payload_ref = measurement_root.get("payload_ref")
             if not isinstance(root_payload_ref, str) or not root_payload_ref:
                 raise ValueError("measurement root payload ref missing")
+            if (
+                str(measurement_payload_ref.artifact_id) != root_payload_ref
+                or measurement_payload_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("selected measurement root profile is missing or mismatched")
             # The registration snapshot is the fetched payload, while its
             # provenance names the content-addressed measurement-root payload.
             if (
@@ -8938,8 +8945,9 @@ class GenerationCycleController:
             registry_manifest = store.get_manifest(registry_ref)
             expected_registry_inputs = [
                 artifacts.InputRef(
-                    artifact_id=artifacts.ArtifactID(root_payload_ref),
+                    artifact_id=measurement_payload_ref.artifact_id,
                     role="measurement_root",
+                    manifest_profile_sha256=measurement_payload_ref.manifest_profile_sha256,
                 )
             ]
             # Fetch/catalog refs are taken from the canonical route payload;
@@ -8948,7 +8956,7 @@ class GenerationCycleController:
             from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
 
             root_payload_obj = FabricMeasurementRootPayload.model_validate(
-                load_core_json_artifact(store, artifacts.ArtifactID(root_payload_ref))
+                load_core_json_artifact(store, measurement_payload_ref)
             )
             expected_registry_inputs.extend(
                 [
@@ -9100,6 +9108,7 @@ class GenerationCycleController:
                 "artifact_id": measurement_root.payload_ref,
                 "kind": "policyos.gy.measurement_root_payload",
                 "media_type": "application/json",
+                "manifest_profile_sha256": measurement_root.payload_manifest_profile_sha256,
             },
             expected_kind="policyos.gy.measurement_root_payload",
         )
@@ -9166,6 +9175,7 @@ class GenerationCycleController:
             payload=owner_artifact.payload,
             acquisition_receipt=acquisition_receipt,
             registry_ref=registry_ref,
+            measurement_payload_ref=measurement_payload_ref,
             registry=registry,
             baseline_registry_ref=baseline_registry_ref,
             baseline_registry=baseline_registry,

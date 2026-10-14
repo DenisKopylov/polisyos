@@ -64,6 +64,7 @@ from polisyos.pdc import (
     SearchIncompletenessRecord,
     SearchLedger,
     SearchLedgerEvent,
+    SearchNextBestAction,
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
@@ -93,8 +94,6 @@ from polisyos.runtime.quality.data_forge_binding import (
     MeasurementRootProducer,
     _search_catalog_with_status,
     build_default_workspace_catalog_graph,
-    canonical_catalog_result_for_workspace_loop,
-    measurement_rows_for_catalog_payload,
     produce_phase2_recorded_panel_measurement_root,
     produce_recorded_panel_method_input,
     recorded_panel_method_input_target,
@@ -165,6 +164,10 @@ ACTIVE_WORKSPACE_OPERATIONS = frozenset(
 WORKSPACE_TRAJECTORY = (OperationClass.BIND, OperationClass.ESTIMATE, OperationClass.VERIFY)
 WORKSPACE_LOOP_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 WORKSPACE_ANYTIME_EXIT_RULE_VERSION = "policyos.gy.anytime_exit.v1"
+WORKSPACE_MEASUREMENT_STORE_MISSING_REASON = (
+    "Measurement-root admission is refused because no ArtifactStore is configured "
+    "for selected-profile persistence."
+)
 
 
 def _utc_now() -> datetime:
@@ -1544,6 +1547,8 @@ class WorkspaceLoop:
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
+        if artifact_store is not None and not isinstance(artifact_store, ArtifactStore):
+            raise TypeError("workspace_artifact_store_invalid")
         if (
             execution_scope_binding is not None
             and type(execution_scope_binding) is not MeasurementRootExecutionBinding
@@ -2744,6 +2749,17 @@ class WorkspaceLoop:
                 acquisition_plan=acquisition_plan,
             )
         )
+        measurement_store_refusal = (
+            decision.kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE
+            and bool(manifest.expected_catalog_binding_refs)
+            and self._artifact_store is None
+        )
+        if measurement_store_refusal:
+            decision = SearchTerminalDecision(
+                kind=SearchTerminalKind.TOOL_FAILURE,
+                reason=WORKSPACE_MEASUREMENT_STORE_MISSING_REASON,
+            )
+            incompleteness = self._with_measurement_store_missing(incompleteness)
         if (
             decision.kind == SearchTerminalKind.ACQUISITION_REQUIRED
             and acquisition_plan is not None
@@ -2753,7 +2769,11 @@ class WorkspaceLoop:
             terminal = decision.terminal_state()
         if terminal["kind"] in set(manifest.forbidden_terminals):
             raise WorkspaceInvariantError(f"forbidden Slice-0 terminal emitted: {terminal['kind']}")
-        artifact_envelopes_by_role = self._build_artifacts(manifest, terminal["kind"])
+        artifact_envelopes_by_role = self._build_artifacts(
+            manifest,
+            terminal["kind"],
+            artifact_store_refusal=measurement_store_refusal,
+        )
         self._assert_ring1_producer_artifacts(artifact_envelopes_by_role)
         artifacts = {role: envelope.ref for role, envelope in artifact_envelopes_by_role.items()}
         self._assert_workspace_artifact_cut_lines(
@@ -2835,6 +2855,7 @@ class WorkspaceLoop:
             workspace_id=workspace_id,
             terminal=terminal,
             acquisition_plan=acquisition_plan,
+            measurement_store_refusal=measurement_store_refusal,
         )
         if obligation_records:
             terminal = terminal.model_copy(
@@ -3082,6 +3103,42 @@ class WorkspaceLoop:
         )
         return certified
 
+    def _with_measurement_store_missing(
+        self,
+        incompleteness: SearchIncompletenessRecord,
+    ) -> SearchIncompletenessRecord:
+        """Record that missing CAS persistence prevents current measurement admission."""
+
+        unresolved = incompleteness.unresolved.model_copy(
+            update={
+                "missing_data": [
+                    *incompleteness.unresolved.missing_data,
+                    {
+                        "artifact_type": "MeasurementRoot",
+                        "reason": "artifact_missing",
+                        "source_admission": "not_established",
+                        "required_capability": "selected_profile_persistence",
+                    },
+                ]
+            }
+        )
+        return incompleteness.model_copy(
+            update={
+                "unresolved": unresolved,
+                "next_best_actions": [
+                    SearchNextBestAction(
+                        operation_proposal_ref="workspace.configure_artifact_store",
+                        estimated_voi=0.0,
+                        estimated_cost="runtime_configuration",
+                        reason_not_taken=(
+                            "Provide a supported ArtifactStore and rerun the producer before "
+                            "admitting the selected measurement source."
+                        ),
+                    )
+                ],
+            }
+        )
+
     def _obligation_records(
         self,
         *,
@@ -3089,7 +3146,46 @@ class WorkspaceLoop:
         workspace_id: str,
         terminal: SearchTerminalState,
         acquisition_plan: AcquisitionPlan | None,
+        measurement_store_refusal: bool = False,
     ) -> list[ObligationRecord]:
+        if measurement_store_refusal:
+            return [
+                ObligationRecord(
+                    obligation_id=(
+                        f"obligation-{manifest.fixture_id.replace('_', '-')}-artifact-store"
+                    ),
+                    obligation_type="artifact_missing",
+                    raised_by={
+                        "component": "polisyos.runtime.quality.WorkspaceLoop",
+                        "terminal": SearchTerminalKind.TOOL_FAILURE.value,
+                    },
+                    blocks=[
+                        {
+                            "authority": "grounded_partial_admissible",
+                            "reason": "artifact_missing",
+                            "artifact_type": "MeasurementRoot",
+                        }
+                    ],
+                    description=(
+                        "The catalog fixture was not admitted because no configured CAS "
+                        "ArtifactStore could persist and identify the producer-selected "
+                        "manifest profile."
+                    ),
+                    severity="blocks_decision",
+                    resolution_options=[
+                        {
+                            "operation_proposal_ref": "workspace.configure_artifact_store",
+                            "owner": "runtime",
+                            "required_action": (
+                                "provide a supported ArtifactStore and rerun measurement-root "
+                                "production"
+                            ),
+                            "slice0_execution": "fail_closed",
+                        }
+                    ],
+                    status="open",
+                )
+            ]
         if terminal["kind"] != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             return []
         missing_distribution = (
@@ -3132,8 +3228,20 @@ class WorkspaceLoop:
         self,
         manifest: WorkspaceFixtureManifest,
         terminal_kind: str,
+        *,
+        artifact_store_refusal: bool = False,
     ) -> dict[str, ArtifactEnvelope]:
-        measurement_admitted = terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
+        measurement_store_missing = bool(manifest.expected_catalog_binding_refs) and (
+            artifact_store_refusal
+            or (
+                terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
+                and self._artifact_store is None
+            )
+        )
+        measurement_admitted = (
+            terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
+            and self._artifact_store is not None
+        )
         if manifest.expected_catalog_binding_refs and measurement_admitted:
             producer = MeasurementRootProducer(
                 artifact_store=self._artifact_store,
@@ -3151,9 +3259,13 @@ class WorkspaceLoop:
                 "connector_profile": manifest.expected_connector_profile,
                 "producer_root_kind": manifest.expected_producer_root_kind,
                 "disposition": (
-                    "search_ceiling_grounding_withheld"
-                    if manifest.expected_catalog_binding_refs
-                    else "missing_acquisition"
+                    "artifact_missing"
+                    if measurement_store_missing
+                    else (
+                        "search_ceiling_grounding_withheld"
+                        if manifest.expected_catalog_binding_refs
+                        else "missing_acquisition"
+                    )
                 ),
             }
             dataset_ref = ArtifactRef.from_payload(
@@ -3168,7 +3280,11 @@ class WorkspaceLoop:
                 ref=dataset_ref,
                 payload_ref=self._persist_loop_payload(
                     dataset_payload,
-                    kind="policyos.gy.missing_acquisition_payload",
+                    kind=(
+                        "policyos.gy.artifact_missing_payload"
+                        if measurement_store_missing
+                        else "policyos.gy.missing_acquisition_payload"
+                    ),
                 ),
                 payload_schema_ref=WORKSPACE_LOOP_SCHEMA_VERSION,
                 lifecycle_state="shadow",
@@ -3183,11 +3299,15 @@ class WorkspaceLoop:
                 },
                 input_artifacts=[],
                 producer_roots=[],
-                obligations=[
-                    "search_repair_required"
-                    if manifest.expected_catalog_binding_refs
-                    else "acquisition_required"
-                ],
+                obligations=(
+                    ["artifact_missing"]
+                    if measurement_store_missing
+                    else [
+                        "search_repair_required"
+                        if manifest.expected_catalog_binding_refs
+                        else "acquisition_required"
+                    ]
+                ),
             )
         measurement_rows = [
             dict(row)
@@ -3245,47 +3365,37 @@ class WorkspaceLoop:
         dataset_envelope: ArtifactEnvelope,
     ) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
-        if self._artifact_store is not None:
-            try:
-                return load_core_json_artifact(self._artifact_store, dataset_envelope.payload_ref)
-            except Exception:
-                logging.getLogger(__name__).debug(
-                    "falling back to catalog graph after CAS dataset read failed",
-                    exc_info=True,
-                )
-        search_response = _search_catalog_with_status(
-            self._catalog_graph,
-            manifest.construct_scope_query,
-            top_k=20,
-            explain=True,
+
+        profile = dataset_envelope.payload_manifest_profile_sha256
+        if profile is None:
+            raise WorkspaceInvariantError("measurement_root_selected_profile_missing")
+        if self._artifact_store is None:
+            raise WorkspaceInvariantError("measurement_root_store_not_established")
+        selected_ref = CoreArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(dataset_envelope.payload_ref),
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            manifest_profile_sha256=profile,
         )
-        search_status = {
-            "query": manifest.construct_scope_query,
-            **search_response.model_dump(
-                mode="json",
-                exclude={"results"},
-                exclude_none=True,
-            ),
-        }
-        expected_refs = set(manifest.expected_catalog_binding_refs)
-        for hit in search_response.results:
-            if hit.id not in expected_refs:
-                continue
-            hit_payload = canonical_catalog_result_for_workspace_loop(hit.model_dump(mode="json"))
-            rows = measurement_rows_for_catalog_payload(hit_payload)
-            if rows:
-                return {
-                    "fixture_id": manifest.fixture_id,
-                    "catalog_binding_refs": [hit.id],
-                    "catalog_result": hit_payload,
-                    "measurement_rows": rows,
-                    "catalog_search_status": search_status,
-                }
-        return {
-            "fixture_id": manifest.fixture_id,
-            "measurement_rows": [],
-            "catalog_search_status": search_status,
-        }
+        payload = load_core_json_artifact(
+            self._artifact_store,
+            selected_ref,
+            manifest_profile_sha256=profile,
+        )
+        if not isinstance(payload, dict):
+            raise WorkspaceInvariantError("measurement_root_selected_payload_not_object")
+        if gy_content_hash(payload) != dataset_envelope.ref.content_hash:
+            raise WorkspaceInvariantError("measurement_root_envelope_payload_content_mismatch")
+        if payload.get("fixture_id") != manifest.fixture_id:
+            raise WorkspaceInvariantError("measurement_root_envelope_fixture_mismatch")
+        binding_refs = payload.get("catalog_binding_refs")
+        if manifest.expected_catalog_binding_refs and (
+            not isinstance(binding_refs, list)
+            or len(binding_refs) != 1
+            or binding_refs[0] not in set(manifest.expected_catalog_binding_refs)
+        ):
+            raise WorkspaceInvariantError("measurement_root_envelope_catalog_binding_mismatch")
+        return payload
 
     def _persist_loop_payload(self, payload: dict[str, Any], *, kind: str) -> str:
         if self._artifact_store is None:
@@ -3353,9 +3463,7 @@ class WorkspaceLoop:
             trace_id=f"trace-gy-loop-{kind}-attempt-{admission.attempt}",
             span_id=f"span-gy-loop-{kind}-attempt-{admission.attempt}",
             parent_span_id=None,
-            requested_execution_profile=(
-                job.requested_execution_profile
-            ),
+            requested_execution_profile=(job.requested_execution_profile),
             effective_execution_profile=job.effective_execution_profile,
             phase="GY-F2",
             generated_at=_utc_timestamp(),

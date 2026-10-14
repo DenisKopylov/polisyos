@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.contracts.runtime import RuntimeApiProblem
+from polisyos.core.contracts.runtime import RuntimeApiProblem, RuntimeApiProblemContext
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security import (
     AuthorizationDeniedError,
@@ -35,6 +36,7 @@ else:  # pragma: no cover - import wiring only
     _JSONResponse = _ImportedJSONResponse
 
 if TYPE_CHECKING:
+    from pydantic import JsonValue
     from starlette.responses import Response as _Response
 else:
     _Response = Any
@@ -198,9 +200,38 @@ def collect_error_context(request: Any, exc: BaseException | None = None) -> Err
     )
 
 
-def _context_extension(context: ErrorReportContext) -> dict[str, Any]:
+def _typed_context(context: ErrorReportContext | None) -> RuntimeApiProblemContext | None:
+    if context is None:
+        return None
     payload = context.to_public_dict()
-    return {"context": payload} if payload else {}
+    return RuntimeApiProblemContext.model_validate(payload, strict=True) if payload else None
+
+
+def _response_for_problem(payload: RuntimeApiProblem, *, status_code: int) -> _Response:
+    json_response = _JSONResponse
+    if json_response is None:
+        raise RuntimeError("problem_response requires fastapi/starlette dependencies")
+    content = payload.model_dump(mode="json")
+    # Preserve legacy nullable fields and omit only absent new additions.
+    if payload.context is None:
+        content.pop("context", None)
+    else:
+        context_content = payload.context.model_dump(mode="json", exclude_none=True)
+        if context_content:
+            content["context"] = context_content
+        else:
+            content.pop("context", None)
+    if not payload.extensions:
+        content.pop("extensions", None)
+    json.dumps(content, ensure_ascii=False, allow_nan=False)
+    return cast(
+        "_Response",
+        json_response(
+            status_code=status_code,
+            content=content,
+            media_type="application/problem+json",
+        ),
+    )
 
 
 def _title_for_code(code: str, *, fallback: str) -> str:
@@ -220,6 +251,8 @@ def build_problem(
     title: str | None = None,
     type_uri: str | None = None,
     error: str | None = None,
+    context: RuntimeApiProblemContext | None = None,
+    extensions: dict[str, JsonValue] | None = None,
 ) -> RuntimeApiProblem:
     """Build the canonical runtime error model used by FastAPI exception handlers."""
     resolved_title = title or _title_for_code(code, fallback="Runtime API error")
@@ -235,6 +268,8 @@ def build_problem(
         request_id=request_id,
         error=resolved_error,
         status_code=status_code,
+        context=context,
+        extensions=extensions,
     )
 
 
@@ -248,16 +283,15 @@ def problem_response(
     title: str | None = None,
     type_uri: str | None = None,
     error: str | None = None,
-    extensions: dict[str, Any] | None = None,
+    context: ErrorReportContext | RuntimeApiProblemContext | None = None,
+    extensions: dict[str, JsonValue] | None = None,
 ) -> _Response:
     """Render a `RuntimeApiProblem` as `application/problem+json`.
 
     Raises:
         RuntimeError: If FastAPI/Starlette dependencies are unavailable.
     """
-    json_response = _JSONResponse
-    if json_response is None:
-        raise RuntimeError("problem_response requires fastapi/starlette dependencies")
+    typed_context = _typed_context(context) if isinstance(context, ErrorReportContext) else context
     payload = build_problem(
         status_code=status_code,
         code=code,
@@ -267,18 +301,10 @@ def problem_response(
         title=title,
         type_uri=type_uri,
         error=error,
+        context=typed_context,
+        extensions=extensions,
     )
-    content = payload.model_dump(mode="json")
-    if extensions:
-        content.update(extensions)
-    return cast(
-        "_Response",
-        json_response(
-            status_code=status_code,
-            content=content,
-            media_type="application/problem+json",
-        ),
-    )
+    return _response_for_problem(payload, status_code=status_code)
 
 
 @dataclass(frozen=True)
@@ -289,13 +315,14 @@ class RuntimeHTTPError(Exception):
     error: str
     detail: str
     code: str
-    extensions: dict[str, Any] | None = None
+    extensions: dict[str, JsonValue] | None = None
 
     def to_model(
         self,
         *,
         request_id: str | None = None,
         instance: str | None = None,
+        context: RuntimeApiProblemContext | None = None,
     ) -> RuntimeApiProblem:
         return build_problem(
             status_code=self.status_code,
@@ -304,6 +331,8 @@ class RuntimeHTTPError(Exception):
             request_id=request_id,
             instance=instance,
             error=self.error,
+            context=context,
+            extensions=self.extensions,
         )
 
 
@@ -321,7 +350,7 @@ def conflict(
     detail: str,
     *,
     code: str = "conflict",
-    extensions: dict[str, Any] | None = None,
+    extensions: dict[str, JsonValue] | None = None,
 ) -> RuntimeHTTPError:
     """Create a 409 error for incompatible runtime surface state."""
     return RuntimeHTTPError(
@@ -577,17 +606,12 @@ def install_exception_handlers(app: Any) -> None:
 
     async def _handle_runtime_http_error(request: Any, exc: RuntimeHTTPError) -> Any:
         context = collect_error_context(request, exc)
-        request_id = context.request_id
-        payload = exc.to_model(request_id=request_id, instance=str(request.url.path))
-        content = payload.model_dump(mode="json")
-        if exc.extensions:
-            content.update(exc.extensions)
-        content.update(_context_extension(context))
-        return json_response(
-            status_code=exc.status_code,
-            content=content,
-            media_type="application/problem+json",
+        payload = exc.to_model(
+            request_id=context.request_id,
+            instance=str(request.url.path),
+            context=_typed_context(context),
         )
+        return _response_for_problem(payload, status_code=exc.status_code)
 
     async def _handle_runtime_dependency_error(
         request: Any,
@@ -602,7 +626,7 @@ def install_exception_handlers(app: Any) -> None:
             request_id=context.request_id,
             instance=str(request.url.path),
             error=error,
-            extensions=_context_extension(context),
+            context=context,
         )
 
     async def _handle_core_exception(request: Any, exc: BaseException) -> Any:
@@ -616,7 +640,7 @@ def install_exception_handlers(app: Any) -> None:
             instance=str(request.url.path),
             error=mapped.error,
             title=mapped.title,
-            extensions=_context_extension(context),
+            context=context,
         )
 
     async def _handle_canonical_profile_refusal(
@@ -632,43 +656,31 @@ def install_exception_handlers(app: Any) -> None:
             instance=str(request.url.path),
             error="conflict",
             title="Canonical profile refusal",
-            extensions=_context_extension(context),
+            context=context,
         )
 
     async def _handle_key_error(request: Any, exc: KeyError) -> Any:
         context = collect_error_context(request, exc)
-        payload = build_problem(
+        return problem_response(
             status_code=404,
             code="not_found",
             detail=str(exc.args[0]) if exc.args else "resource not found",
             request_id=context.request_id,
             instance=str(request.url.path),
             error="not_found",
-        )
-        content = payload.model_dump(mode="json")
-        content.update(_context_extension(context))
-        return json_response(
-            status_code=404,
-            content=content,
-            media_type="application/problem+json",
+            context=context,
         )
 
     async def _handle_value_error(request: Any, exc: ValueError) -> Any:
         context = collect_error_context(request, exc)
-        payload = build_problem(
+        return problem_response(
             status_code=400,
             code="bad_request",
             detail=str(exc),
             request_id=context.request_id,
             instance=str(request.url.path),
             error="bad_request",
-        )
-        content = payload.model_dump(mode="json")
-        content.update(_context_extension(context))
-        return json_response(
-            status_code=400,
-            content=content,
-            media_type="application/problem+json",
+            context=context,
         )
 
     async def _handle_validation_error(request: Any, exc: Any) -> Any:
@@ -681,7 +693,7 @@ def install_exception_handlers(app: Any) -> None:
             instance=str(request.url.path),
             error="request_validation_failed",
             title="Request validation failed",
-            extensions=_context_extension(context),
+            context=context,
         )
 
     async def _handle_http_exception(request: Any, exc: Any) -> Any:
@@ -704,7 +716,7 @@ def install_exception_handlers(app: Any) -> None:
             request_id=context.request_id,
             instance=str(request.url.path),
             error=code,
-            extensions=_context_extension(context),
+            context=context,
         )
 
     app.add_exception_handler(CanonicalProfileRefusalError, _handle_canonical_profile_refusal)

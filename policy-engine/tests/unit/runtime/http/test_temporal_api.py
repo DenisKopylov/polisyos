@@ -318,9 +318,9 @@ def test_temporal_scope_out_of_range_returns_typed_payload(runtime_api_env) -> N
     assert response.status_code == 422
     payload = response.json()
     assert payload["code"] == "temporal_scope_out_of_range"
-    assert payload["valid_range"]["earliest"]
-    assert payload["tx_range"]["latest"]
-    assert payload["nearest_event_points"]
+    assert payload["extensions"]["valid_range"]["earliest"]
+    assert payload["extensions"]["tx_range"]["latest"]
+    assert payload["extensions"]["nearest_event_points"]
 
 
 def test_unsupported_temporal_surface_fails_closed(runtime_api_env) -> None:

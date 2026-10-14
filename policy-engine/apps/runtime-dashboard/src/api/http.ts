@@ -10,7 +10,20 @@ const logger = createLogger({
   },
 });
 
-const runtimeApiProblemSchema = z.object({
+const runtimeApiProblemContextSchema = z
+  .object({
+    request_id: z.string().optional(),
+    tenant: z.string().optional(),
+    run_id: z.string().optional(),
+    artifact_id: z.string().optional(),
+    dependency: z.string().optional(),
+    retry_state: z.string().optional(),
+    stage: z.string().optional(),
+    category: z.string().optional(),
+  })
+  .strict();
+
+const runtimeApiProblemBaseShape = {
   type: z.string().default("about:blank"),
   title: z.string().default("Runtime API error"),
   status: z.number().default(500),
@@ -20,7 +33,84 @@ const runtimeApiProblemSchema = z.object({
   instance: z.string().nullable().optional().default(null),
   request_id: z.string().nullable().optional().default(null),
   error: z.string().nullable().optional().default(null),
-});
+  context: runtimeApiProblemContextSchema.nullable().optional(),
+};
+
+const runtimeApiProblemExtensionsSchema = z.record(z.string(), z.json());
+
+const legacyRuntimeApiProblemExtensionKeys = [
+  "actual",
+  "artifact_ref_or_route",
+  "authority_surface_decision",
+  "expected",
+  "field",
+  "lineage_id",
+  "manifest_temporal_scope",
+  "mismatches",
+  "nearest_event_points",
+  "phase4_gate_verdict",
+  "policy",
+  "pre_admission_attempt_id",
+  "pre_admission_attempt_status",
+  "read_receipt",
+  "reasons",
+  "requested_temporal_scope",
+  "retry_after_seconds",
+  "run_id",
+  "surface",
+  "temporal_scope",
+  "tx_range",
+  "valid_range",
+  "violations",
+] as const;
+
+function moveLegacyRuntimeApiProblemExtensions(value: unknown): unknown {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return value;
+  }
+  const normalized = { ...(value as Record<string, unknown>) };
+  const presentKeys = legacyRuntimeApiProblemExtensionKeys.filter((key) =>
+    Object.prototype.hasOwnProperty.call(normalized, key),
+  );
+  if (presentKeys.length === 0) {
+    return value;
+  }
+
+  const rawExtensions = normalized.extensions;
+  if (
+    Object.prototype.hasOwnProperty.call(normalized, "extensions") &&
+    (typeof rawExtensions !== "object" ||
+      rawExtensions === null ||
+      Array.isArray(rawExtensions))
+  ) {
+    return value;
+  }
+  const extensions =
+    rawExtensions === undefined
+      ? {}
+      : { ...(rawExtensions as Record<string, unknown>) };
+  for (const key of presentKeys) {
+    if (Object.prototype.hasOwnProperty.call(extensions, key)) {
+      return value;
+    }
+    extensions[key] = normalized[key];
+  }
+  const legacyKeys = new Set<string>(presentKeys);
+  const normalizedWithoutLegacy = Object.fromEntries(
+    Object.entries(normalized).filter(([key]) => !legacyKeys.has(key)),
+  );
+  return { ...normalizedWithoutLegacy, extensions };
+}
+
+const runtimeApiProblemSchema = z.preprocess(
+  moveLegacyRuntimeApiProblemExtensions,
+  z
+    .object({
+      ...runtimeApiProblemBaseShape,
+      extensions: runtimeApiProblemExtensionsSchema.nullable().optional(),
+    })
+    .strict(),
+);
 
 export type RuntimeApiProblem = components["schemas"]["RuntimeApiProblem"];
 

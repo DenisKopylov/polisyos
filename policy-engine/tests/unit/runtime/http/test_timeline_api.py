@@ -54,14 +54,13 @@ def test_run_lineage_endpoint_returns_dependency_graph(runtime_api_env) -> None:
     assert core_denied.status_code == 409
     denied_payload = core_denied.json()
     assert denied_payload["code"] == "authority_surface_admission_blocked"
-    denied_decision = denied_payload["authority_surface_decision"]
+    denied_decision = denied_payload["extensions"]["authority_surface_decision"]
     assert denied_decision["purpose"] == "runtime_closeout_authority"
     assert denied_decision["reason"] == "authority_purpose_forbidden"
     assert denied_decision["visible_downgrade"] is True
     assert any(
         contributor["basis"] == "selected_manifest"
-        and contributor["authority_boundary_ref"]
-        == "boundary-runtime-api-secret-lineage-refusal"
+        and contributor["authority_boundary_ref"] == "boundary-runtime-api-secret-lineage-refusal"
         and contributor["reason"] == "authority_purpose_forbidden"
         and contributor["visible_downgrade"]
         for contributor in denied_decision["authority_contributors"]
@@ -93,16 +92,10 @@ def test_run_lineage_endpoint_returns_dependency_graph(runtime_api_env) -> None:
         selected_key = artifact_ref_identity_key(selected_ref)
         if selected_key in expected_refs:
             continue
-        manifest = _runtime_api_request(
-            runtime_api_env, ctx.store.get_manifest, selected_ref
-        )
-        verification = _runtime_api_request(
-            runtime_api_env, ctx.store.verify, selected_ref
-        )
+        manifest = _runtime_api_request(runtime_api_env, ctx.store.get_manifest, selected_ref)
+        verification = _runtime_api_request(runtime_api_env, ctx.store.verify, selected_ref)
         assert verification.ok is True
-        assert selected_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
-            manifest
-        )
+        assert selected_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(manifest)
         assert selected_ref.kind == manifest.kind
         assert selected_ref.media_type == manifest.media_type
         expected_refs[selected_key] = selected_ref
@@ -125,9 +118,7 @@ def test_run_lineage_endpoint_returns_dependency_graph(runtime_api_env) -> None:
                 )
             )
 
-    actual_roots = [
-        ArtifactRef.model_validate(ref) for ref in lineage["root_artifact_refs"]
-    ]
+    actual_roots = [ArtifactRef.model_validate(ref) for ref in lineage["root_artifact_refs"]]
     assert [artifact_ref_identity_key(ref) for ref in actual_roots] == [
         artifact_ref_identity_key(ref) for ref in expected_roots
     ]
@@ -219,12 +210,8 @@ def test_lineage_service_passes_budget_limits_to_dependency_graph(
     assert len(root_artifact_refs) == 1
     selected_root = root_artifact_refs[0]
     assert selected_root.manifest_profile_sha256 is not None
-    selected_manifest = _runtime_api_request(
-        runtime_api_env, ctx.store.get_manifest, selected_root
-    )
-    selected_verification = _runtime_api_request(
-        runtime_api_env, ctx.store.verify, selected_root
-    )
+    selected_manifest = _runtime_api_request(runtime_api_env, ctx.store.get_manifest, selected_root)
+    selected_verification = _runtime_api_request(runtime_api_env, ctx.store.verify, selected_root)
     assert selected_verification.ok is True
     assert selected_root.manifest_profile_sha256 == artifact_manifest_profile_sha256(
         selected_manifest

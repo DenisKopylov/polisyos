@@ -548,7 +548,8 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
     assert response.approval_projection.eligible is False
 
     measurement_writes = [
-        item for item in writer_diagnostics
+        item
+        for item in writer_diagnostics
         if (
             item["component"]
             == "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
@@ -570,6 +571,7 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
     assert measurement_write["closure_job_id"] == launch.job_id
 
     proof = WorkspaceLoopRunProof.model_validate(response.progress["production_loop_run_proof"])
+    assert proof.schema_version == "policyos.policy_design_case.layer3_gy_loop.v2"
     assert proof.job_id == launch.job_id
     assert proof.run_id == launch.run_id
     assert proof.endpoint == "/api/v1/control/runs"
@@ -1717,38 +1719,143 @@ def test_workflow_transition_uses_injected_catalog_and_persists_measurement_payl
     monkeypatch,
     tmp_path,
 ) -> None:
-    service: ControlPlaneService = runtime_api_env["app"].state._control_service
-    catalog = _build_slice0_catalog(tmp_path)
-    service._registry_providers = replace(
-        service._registry_providers,
-        gy_catalog_graph=catalog,
+    from polisyos.core.artifacts import ArtifactID, artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
     )
 
-    launch = _launch_owner_bound_workflow(
+    api_service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    tenant_id = runtime_api_env["tenant_a"]
+    bearer = _fixture_bearer("workspace-selected-measurement-profile")
+    client, cell, provider = _build_secure_client(
         runtime_api_env,
-        WorkflowRunRequest(
-            data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
-            params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=api_service,
+            decision_validity_service=api_service._decision_validity_service,  # noqa: SLF001
+            claim_ledger_owner=api_service._epoch_claim_lifecycle_bridge.claim_owner,  # noqa: SLF001
+            epoch_claim_lifecycle_bridge=api_service._epoch_claim_lifecycle_bridge,  # noqa: SLF001
         ),
     )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=tenant_id,
+            cell_id=cell.cell_id,
+            jti="workspace-selected-measurement-profile",
+        ),
+    )
+
+    catalog = _build_slice0_catalog(tmp_path)
+    api_service._registry_providers = replace(
+        api_service._registry_providers,
+        gy_catalog_graph=catalog,
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
+        snapshot_ref = _owner_bound_data_snapshot_ref(
+            api_service,
+            tenant_id=tenant_id,
+            cell_id=cell.cell_id,
+            params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+        )
+
+    post = client.post(
+        "/api/v1/control/runs",
+        headers={"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id},
+        json={
+            "data_source": {"data_snapshot_ref": str(snapshot_ref.artifact_id)},
+            "params": {"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+        },
+    )
+    assert post.status_code == 200, post.text
+    launch = post.json()
+    service: ControlPlaneService = client.app.state._control_service
+    stop_embedded_control_worker(service)
     assert service._worker is not None
     service._worker.dispatch_once()
 
-    response = _await_terminal_job(service, launch.job_id)
+    response = _await_terminal_job(service, launch["job_id"])
     proof = WorkspaceLoopRunProof.model_validate(response.progress["production_loop_run_proof"])
-    envelopes = response.progress["search_exit_contract"]["artifact_envelopes"]
-    measurement_payload_ref = envelopes[0]["payload_ref"]
+    contract = response.progress["search_exit_contract"]
+    envelopes = contract["artifact_envelopes"]
+    measurement_envelope = next(
+        envelope
+        for envelope in envelopes
+        if envelope["payload_schema_ref"] == "policyos.policy_design_case.layer3_gy_loop.v1"
+        and envelope["ref"]["artifact_type"] == "BaseDataset"
+    )
+    measurement_payload_ref = measurement_envelope["payload_ref"]
+    selected_profile = measurement_envelope["payload_manifest_profile_sha256"]
 
     assert response.state == "completed"
+    assert post.json()["job_id"] == launch["job_id"]
     assert measurement_payload_ref in proof.output_cas_refs
-    with tenant_scope(
-        None,
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id=runtime_api_env["cell_a"],
-    ):
-        assert service._artifact_store.get_bytes(measurement_payload_ref)
+    assert selected_profile.startswith("sha256:")
+    selected_view = [item.model_dump(mode="json") for item in proof.output_cas_manifest_profiles]
+    assert selected_view == [
+        {
+            "envelope_artifact_id": measurement_envelope["ref"]["artifact_id"],
+            "envelope_artifact_type": measurement_envelope["ref"]["artifact_type"],
+            "payload_artifact_id": measurement_payload_ref,
+            "payload_schema_ref": measurement_envelope["payload_schema_ref"],
+            "manifest_profile_sha256": selected_profile,
+        }
+    ]
+    replay = response.progress["outcome_replay_proof"]
+    assert replay["schema_version"] == "policyos.runtime.outcome_replay_proof.v2"
+    assert replay["output_cas_manifest_profiles"] == selected_view
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
+        selected_ref = CoreArtifactRef(
+            artifact_id=ArtifactID(measurement_payload_ref),
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            manifest_profile_sha256=selected_profile,
+        )
+        manifest = service._artifact_store.get_manifest(selected_ref)
+        assert artifact_manifest_profile_sha256(manifest) == selected_profile
+        assert service._artifact_store.get_bytes(selected_ref)
+
+    served = client.get(
+        f"/api/v1/control/jobs/{launch['job_id']}",
+        headers={"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id},
+    )
+    assert served.status_code == 200, served.text
+    served_progress = served.json()["progress"]
+    assert served.json()["state"] == "completed"
+    assert served_progress["search_exit_contract"] == contract
+    assert served_progress["search_exit_contract_ref"] == proof.output_search_exit_contract_ref
+    assert served_progress["search_exit_contract"]["artifact_envelopes"] == envelopes
+    assert (
+        served_progress["production_loop_run_proof"]
+        == response.progress["production_loop_run_proof"]
+    )
+    assert served_progress["production_loop_run_proof"]["output_cas_manifest_profiles"] == (
+        selected_view
+    )
+    assert served_progress["outcome_replay_proof"]["output_cas_manifest_profiles"] == selected_view
+    assert served_progress["artifacts_index"]["output_cas_manifest_profiles"] == selected_view
+    served_envelope = next(
+        envelope
+        for envelope in served_progress["search_exit_contract"]["artifact_envelopes"]
+        if envelope["payload_ref"] == measurement_payload_ref
+    )
+    assert served_envelope["payload_manifest_profile_sha256"] == selected_profile
     assert proof.artifacts_index_refs[0] == "search_exit_contract_ref"
-    assert "authority_derivation_trace_refs" in proof.artifacts_index_refs
+    assert "output_cas_manifest_profiles" in proof.artifacts_index_refs
+    assert "served_control_job_status_not_established" in proof.surface_reads_checked
+    assert not any(
+        item.get("surface") == "/api/v1/control/jobs/{job_id}" for item in proof.surface_readbacks
+    )
+    client.close()
 
 
 def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(
@@ -2228,9 +2335,8 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert candidate_kwargs.get("proposal_ref") is not None
         assert candidate_kwargs.get("compiled_run_ref") is None
         assert candidate_kwargs.get("normative_disposition_ref") is None
-        assert (
-            completed.progress.get("manifest_ref")
-            == str(candidate_core_manifest_ref.artifact_id)
+        assert completed.progress.get("manifest_ref") == str(
+            candidate_core_manifest_ref.artifact_id
         )
         assert protected_publication_calls == []
         with tenant_scope(None, tenant_id=admitted_tenant, cell_id=cell_id):

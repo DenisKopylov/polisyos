@@ -153,9 +153,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     assert fresh_read.provenance.source_materialization == "reader_materialized"
     assert fresh_read.provenance.producer_attestation_status == "not_established"
     assert fresh_read.provenance.selected_artifact_id == str(ref.artifact_id)
-    actual_selected_profile = artifact_manifest_profile_sha256(
-        repository.store.get_manifest(ref)
-    )
+    actual_selected_profile = artifact_manifest_profile_sha256(repository.store.get_manifest(ref))
     assert ref.manifest_profile_sha256 is None
     assert fresh_read.provenance.selected_manifest_profile_sha256 == actual_selected_profile
     assert "_generation_source_read_provenance" not in fresh.model_dump(mode="python")
@@ -1198,14 +1196,14 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
         )
         assert str(observed_ref.artifact_id) == ref
         assert other.get_bytes(ref) == body
-        assert other.verify(observed_ref).ok  # Byte integrity alone is insufficient owner provenance.
+        assert other.verify(
+            observed_ref
+        ).ok  # Byte integrity alone is insufficient owner provenance.
         assert observed_ref.manifest_profile_sha256 == (
             artifacts.artifact_manifest_profile_sha256(other.get_manifest(observed_ref))
         )
         with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
-            GenerationSourceRepository(other).load(
-                observed_ref, run_id="synthetic-owner-profile"
-            )
+            GenerationSourceRepository(other).load(observed_ref, run_id="synthetic-owner-profile")
 
 
 def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(tmp_path):
@@ -1282,16 +1280,12 @@ def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(
         assert source_options.producer is not None
         wrong_options = replace(
             source_options,
-            producer=source_options.producer.model_copy(
-                update={"component": "synthetic.other"}
-            ),
+            producer=source_options.producer.model_copy(update={"component": "synthetic.other"}),
         )
         wrong_store = FileSystemCAS(
             tmp_path / "typed-source-wrong-owner"
         ).with_ambient_ownership_enforcement()
-        wrong_owner_ref = wrong_store.put_bytes(
-            body, wrong_options, return_selected_profile=True
-        )
+        wrong_owner_ref = wrong_store.put_bytes(body, wrong_options, return_selected_profile=True)
         assert wrong_owner_ref.manifest_profile_sha256 == (
             artifact_manifest_profile_sha256(wrong_store.get_manifest(wrong_owner_ref))
         )
@@ -1859,6 +1853,7 @@ def test_actual_retained_source_drives_effect_writer_and_marks_bridge(actual_n4_
     from pathlib import Path
 
     from polisyos.core import artifacts
+    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.promotion_sequence import (
         CanonicalPromotionInput,
@@ -1896,6 +1891,27 @@ def test_actual_retained_source_drives_effect_writer_and_marks_bridge(actual_n4_
     raw = store.get_bytes(bridge_ref.artifact_id)
     bridge = json.loads(raw)
     source = json.loads(store.get_bytes(bridge["source_artifact_id"]))
+    assert bridge_ref.manifest_profile_sha256 is not None
+    bridge_selector = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID(bridge_ref.artifact_id),
+        kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
+    )
+    bridge_manifest = store.get_manifest(bridge_selector)
+    assert len(bridge_manifest.inputs) == 1
+    source_input = bridge_manifest.inputs[0]
+    assert source_input.role == promotion_sequence_module._N9_EVIDENCE_SOURCE_INPUT_ROLE
+    assert str(source_input.artifact_id) == bridge["source_artifact_id"]
+    assert source_input.manifest_profile_sha256 is not None
+    source_selector = artifacts.ArtifactRef(
+        artifact_id=source_input.artifact_id,
+        kind=promotion_sequence_module._EFFECT_OBLIGATION_SOURCE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=source_input.manifest_profile_sha256,
+    )
+    assert store.verify(source_selector).ok
+    assert source_input.role == promotion_sequence_module._N9_EVIDENCE_SOURCE_INPUT_ROLE
     assert source["synthetic"] is True
     assert any(
         edge["provenance"].get("synthetic") is True
@@ -1907,6 +1923,171 @@ def test_actual_retained_source_drives_effect_writer_and_marks_bridge(actual_n4_
     assert disposition.status == "refused", disposition
     assert disposition.limitation_code == "synthetic_evidence_cannot_grant_authority"
     assert bridge["source_limitation_code"] == "effect_atom_binding_shadow_only"
+
+    # The selected bridge profile is load-bearing even though the body is unchanged.
+    profileless_bridge = bridge_ref.model_copy(update={"manifest_profile_sha256": None})
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=profileless_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
+    # Same source body plus a forged lineage role does not pass the consumer.
+    current = promotion_sequence_module
+    bridge_record = current.N9PromotionEvidenceBridgeRecord.model_validate_json(raw)
+    wrong_role_input = source_input.model_copy(update={"role": "unrelated_source"})
+    forged_ref, _, _ = current._persist_model(
+        store=store,
+        value=bridge_record,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(wrong_role_input,),
+        selected_profile=True,
+    )
+    forged_bridge = bridge_ref.model_copy(
+        update={
+            "artifact_id": str(forged_ref.artifact_id),
+            "uri": f"cas://{forged_ref.artifact_id}",
+            "content_hash": n4.gy_content_hash(bridge_record.model_dump(mode="json")),
+            "manifest_profile_sha256": forged_ref.manifest_profile_sha256,
+        }
+    )
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=forged_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
+    # A same-ID alternate manifest profile with substituted inputs cannot be rebound.
+    source_record = current._read_model(
+        store=store,
+        ref=source_selector,
+        model=current._EffectObligationProducerRecord,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+    )
+    alternate_source_profile, _, _ = current._persist_model(
+        store=store,
+        value=source_record,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+        inputs=(
+            artifacts.InputRef(
+                artifact_id=bridge_owner._verifier_provenance_ref.artifact_id,
+                role="unowned_source_input",
+            ),
+        ),
+        selected_profile=True,
+    )
+    assert alternate_source_profile.artifact_id == source_selector.artifact_id
+    assert (
+        alternate_source_profile.manifest_profile_sha256 != source_selector.manifest_profile_sha256
+    )
+    alternate_profile_input = artifacts.input_ref_from_artifact_ref(
+        alternate_source_profile, role=current._N9_EVIDENCE_SOURCE_INPUT_ROLE
+    )
+    alternate_profile_bridge_ref, _, _ = current._persist_model(
+        store=store,
+        value=bridge_record,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(alternate_profile_input,),
+        selected_profile=True,
+    )
+    alternate_profile_bridge = bridge_ref.model_copy(
+        update={"manifest_profile_sha256": alternate_profile_bridge_ref.manifest_profile_sha256}
+    )
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=alternate_profile_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
+    # A different valid source artifact also cannot be rebound under the original body.
+    alternate_record = source_record.model_copy(
+        update={"proposal_id": source_record.proposal_id + "-alternate"}
+    )
+    alternate_ref, _, _ = current._persist_model(
+        store=store,
+        value=alternate_record,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+        selected_profile=True,
+    )
+    alternate_input = artifacts.input_ref_from_artifact_ref(
+        alternate_ref, role=current._N9_EVIDENCE_SOURCE_INPUT_ROLE
+    )
+    wrong_source_ref, _, _ = current._persist_model(
+        store=store,
+        value=bridge_record,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(alternate_input,),
+        selected_profile=True,
+    )
+    wrong_source_bridge = bridge_ref.model_copy(
+        update={
+            "artifact_id": str(wrong_source_ref.artifact_id),
+            "uri": f"cas://{wrong_source_ref.artifact_id}",
+            "content_hash": n4.gy_content_hash(bridge_record.model_dump(mode="json")),
+            "manifest_profile_sha256": wrong_source_ref.manifest_profile_sha256,
+        }
+    )
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=wrong_source_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
+    empty_lineage_ref, _, _ = current._persist_model(
+        store=store,
+        value=bridge_record,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(),
+        selected_profile=True,
+    )
+    empty_lineage_bridge = bridge_ref.model_copy(
+        update={
+            "artifact_id": str(empty_lineage_ref.artifact_id),
+            "uri": f"cas://{empty_lineage_ref.artifact_id}",
+            "content_hash": n4.gy_content_hash(bridge_record.model_dump(mode="json")),
+            "manifest_profile_sha256": empty_lineage_ref.manifest_profile_sha256,
+        }
+    )
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=empty_lineage_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
+    duplicate_lineage_ref, _, _ = current._persist_model(
+        store=store,
+        value=bridge_record,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(source_input, source_input),
+        selected_profile=True,
+    )
+    duplicate_lineage_bridge = bridge_ref.model_copy(
+        update={"manifest_profile_sha256": duplicate_lineage_ref.manifest_profile_sha256}
+    )
+    assert (
+        bridge_owner.resolve(
+            bridge_ref=duplicate_lineage_bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+        ).status
+        == "not_established"
+    )
+
     compatibility_path = os.environ.get("CORR_C2_LEGACY_EFFECT_BRIDGE_PATH")
     if compatibility_path and bridge["schema_version"].endswith(".v2"):
         path = Path(compatibility_path)
@@ -1992,6 +2173,8 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     assert old_body["schema_version"] == (
         "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
     )
+    old_manifest = store.get_manifest(artifacts.ArtifactID(old_bridge["source_artifact_id"]))
+    assert old_manifest.canon is None
     parsed = current._read_model(
         store=store,
         ref=artifacts.ArtifactRef(
@@ -2042,13 +2225,18 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     )
     assert misleading.source_schema_ref == current._EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
     changed_ref, _, _ = current._persist_model(
-        store=store, value=misleading, kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND
+        store=store,
+        value=misleading,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(),
+        selected_profile=True,
     )
     reference = live_ref.model_copy(
         update={
             "artifact_id": str(changed_ref.artifact_id),
             "uri": f"cas://{changed_ref.artifact_id}",
             "content_hash": n4.gy_content_hash(misleading.model_dump(mode="json")),
+            "manifest_profile_sha256": changed_ref.manifest_profile_sha256,
         }
     )
     errors, attempts, outcomes = [], [], []
@@ -2077,8 +2265,20 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
         "outer_disposition": refusal.model_dump(mode="json"),
     }
     print(json.dumps(packet, sort_keys=True))
-    assert attempts == [old_bridge["source_artifact_id"]], refusal
-    assert errors == ["effect_obligation_source_schema_mismatch"], packet
+    assert attempts == [], refusal
+    assert outcomes == []
+    assert errors == []
+    assert (
+        store.get_manifest(
+            artifacts.ArtifactRef(
+                artifact_id=changed_ref.artifact_id,
+                kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+                media_type="application/vnd.polisyos.chronology+json",
+                manifest_profile_sha256=changed_ref.manifest_profile_sha256,
+            )
+        ).inputs
+        == []
+    )
     assert refusal.status == "not_established"
     assert refusal.limitation_code == "effect_obligation_evidence_not_established"
 
@@ -2138,6 +2338,19 @@ def test_synthetic_independence_source_establishes_mechanics_but_never_authority
     assert bridge["source_disposition"] == "established"
     assert bridge["disposition"] == "blocked"
     source = json.loads(store.get_bytes(bridge["source_artifact_id"]))
+    assert bridge_ref.manifest_profile_sha256 is not None
+    bridge_selector = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID(bridge_ref.artifact_id),
+        kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
+    )
+    bridge_manifest = store.get_manifest(bridge_selector)
+    assert len(bridge_manifest.inputs) == 1
+    source_input = bridge_manifest.inputs[0]
+    assert source_input.role == "n9_promotion_evidence_source"
+    assert str(source_input.artifact_id) == bridge["source_artifact_id"]
+    assert source_input.manifest_profile_sha256 is not None
     assert source["synthetic"] is True
 
     # A hostile synthetic control conceals the marker but keeps actual source,
@@ -2151,13 +2364,18 @@ def test_synthetic_independence_source_establishes_mechanics_but_never_authority
         }
     )
     changed_ref, _semantic_hash, _raw = _persist_model(
-        store=store, value=malicious, kind=_PROMOTION_EVIDENCE_BRIDGE_KIND
+        store=store,
+        value=malicious,
+        kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(source_input,),
+        selected_profile=True,
     )
     rebound = bridge_ref.model_copy(
         update={
             "artifact_id": str(changed_ref.artifact_id),
             "uri": f"cas://{changed_ref.artifact_id}",
             "content_hash": n4.gy_content_hash(malicious.model_dump(mode="json")),
+            "manifest_profile_sha256": changed_ref.manifest_profile_sha256,
         }
     )
     ancestry = []
@@ -2174,7 +2392,12 @@ def test_synthetic_independence_source_establishes_mechanics_but_never_authority
         promotion_input=promotion_input,
         evidence_kind="effective_independence",
     )
-    assert ancestry == [(bridge["source_artifact_id"], True)]
+    assert len(ancestry) == 1
+    observed_source_ref, observed_synthetic = ancestry[0]
+    assert isinstance(observed_source_ref, artifacts.ArtifactRef)
+    assert str(observed_source_ref.artifact_id) == bridge["source_artifact_id"]
+    assert observed_source_ref.manifest_profile_sha256 == source_input.manifest_profile_sha256
+    assert observed_synthetic is True
     assert concealed.status == "not_established"
     assert concealed.limitation_code == "effective_independence_evidence_not_established"
     other = promotion_input.model_copy(
@@ -2812,9 +3035,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         replayed_read = _generation_source_read_result(replayed)
         assert replayed_read is not None and replayed_read.value is replayed
         expected_profile_read = read_core_json_artifact(repository.store, execution_ref)
-        assert (
-            replayed_read.provenance.canon_read_status == expected_profile_read.status
-        )
+        assert replayed_read.provenance.canon_read_status == expected_profile_read.status
         assert replayed_read.read_trace == (replayed_read.provenance,)
         assert replayed_read.provenance.source_materialization == "reader_materialized"
         assert replayed_read.provenance.producer_attestation_status == "not_established"
@@ -2976,7 +3197,8 @@ def test_every_generation_source_json_reader_refuses_malformed_present_profile_b
                 repository.store,
                 "verify",
                 side_effect=AssertionError("CAS verification preceded profile refusal"),
-            ) as verify,pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid")
+            ) as verify,
+            pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"),
         ):
             method(**arguments)
         assert raw_readers == [method_name]

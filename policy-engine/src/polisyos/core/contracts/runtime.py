@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator, model_validator
 
 from polisyos.ir import governance, observation
 
@@ -342,10 +342,25 @@ class AuthMeResponse(BaseModel):
     feature_overrides: dict[str, bool] = Field(default_factory=dict)
 
 
-class RuntimeApiProblem(BaseModel):
-    """Runtime api problem public type."""
+class RuntimeApiProblemContext(BaseModel):
+    """Sanitized request and exception context carried by a runtime problem."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    request_id: str | None = None
+    tenant: str | None = None
+    run_id: str | None = None
+    artifact_id: str | None = None
+    dependency: str | None = None
+    retry_state: str | None = None
+    stage: str | None = None
+    category: str | None = None
+
+
+class RuntimeApiProblem(BaseModel):
+    """Runtime API problem with a closed envelope and namespaced diagnostics."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
 
     type: str = Field(default="about:blank")
     title: str
@@ -357,6 +372,23 @@ class RuntimeApiProblem(BaseModel):
     # Backward-compatible fields for existing clients.
     error: str | None = None
     status_code: int = Field(default=500, ge=100, le=599)
+    context: RuntimeApiProblemContext | None = None
+    extensions: dict[str, JsonValue] | None = None
+
+    @field_validator("extensions")
+    @classmethod
+    def validate_diagnostic_extensions(
+        cls,
+        value: dict[str, JsonValue] | None,
+    ) -> dict[str, JsonValue] | None:
+        """Reject extension values that cannot be serialized as finite JSON."""
+        if value is None:
+            return None
+        try:
+            json.dumps(value, ensure_ascii=False, allow_nan=False)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("runtime_api_problem_extensions_must_be_json") from exc
+        return value
 
 
 class RuntimeApiError(RuntimeApiProblem):
@@ -4874,6 +4906,7 @@ __all__ = [
     "RunsListResponse",
     "RuntimeApiError",
     "RuntimeApiProblem",
+    "RuntimeApiProblemContext",
     "ScenarioAssumption",
     "ScenarioAssumptionStatus",
     "ScenarioCapabilitiesResponse",

@@ -5293,10 +5293,21 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
         if owner not in component_schemas:
             raise ValueError(f"OpenAPI compatibility alias owner is missing: {owner}")
         component_schemas[alias] = {"$ref": f"#/components/schemas/{owner}"}
-    if "RuntimeApiProblem" not in component_schemas:
-        component_schemas["RuntimeApiProblem"] = RuntimeApiProblem.model_json_schema(
-            ref_template="#/components/schemas/{model}"
-        )
+    runtime_problem_schema = RuntimeApiProblem.model_json_schema(
+        ref_template="#/components/schemas/{model}"
+    )
+    runtime_problem_defs = runtime_problem_schema.pop("$defs", {})
+    if isinstance(runtime_problem_defs, dict):
+        for name, definition in runtime_problem_defs.items():
+            if not isinstance(name, str) or not isinstance(definition, dict):
+                continue
+            existing = component_schemas.get(name)
+            if existing is not None and existing != definition:
+                raise ValueError(
+                    f"RuntimeApiProblem nested schema conflicts with component: {name}"
+                )
+            component_schemas[name] = definition
+    component_schemas["RuntimeApiProblem"] = runtime_problem_schema
     human_decision_record_schema = HumanDecisionRecord.model_json_schema(
         ref_template="#/components/schemas/{model}"
     )
@@ -5474,13 +5485,20 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
     expected_schema = RuntimeApiProblem.model_json_schema(
         ref_template="#/components/schemas/{model}"
     )
-    if (
-        not isinstance(component_schemas, dict)
-        or component_schemas.get("RuntimeApiProblem") != expected_schema
-    ):
-        violations.append(
-            "components.schemas.RuntimeApiProblem differs from the RuntimeApiProblem model"
-        )
+    expected_defs = expected_schema.pop("$defs", {})
+    if not isinstance(component_schemas, dict):
+        violations.append("components.schemas is missing")
+    else:
+        if isinstance(expected_defs, dict):
+            for name, definition in expected_defs.items():
+                if component_schemas.get(name) != definition:
+                    violations.append(
+                        f"components.schemas.{name} differs from a nested RuntimeApiProblem DTO"
+                    )
+        if component_schemas.get("RuntimeApiProblem") != expected_schema:
+            violations.append(
+                "components.schemas.RuntimeApiProblem differs from the RuntimeApiProblem model"
+            )
     for path, method, operation in iter_openapi_operations(schema):
         responses = operation.get("responses")
         if not isinstance(responses, dict):

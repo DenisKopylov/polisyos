@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security.exceptions import CrossTenantAccessError
-from polisyos.runtime.http.errors import install_exception_handlers
+from polisyos.runtime.http.errors import RuntimeHTTPError, install_exception_handlers
 from polisyos.runtime.http.execution_policy import ExecutionProfileError, PolicyFlagForbiddenError
 
 try:
@@ -105,3 +106,36 @@ def test_policyos_error_context_is_preserved_and_storage_details_are_sanitized()
     assert payload["context"]["dependency"] == "s3"
     assert payload["context"]["retry_state"] == "attempt_2"
     assert payload["context"]["stage"] == "core.artifacts.s3"
+
+
+def test_runtime_http_error_uses_one_strict_envelope_and_preserves_diagnostics() -> None:
+    client = _client_for(
+        RuntimeHTTPError(
+            status_code=409,
+            error="conflict",
+            detail="Selected evidence needs review",
+            code="evidence_conflict",
+            extensions={"authority_surface_decision": {"status": "blocked"}},
+        )
+    )
+
+    response = client.get("/runs/R1/artifacts/A1")
+
+    assert response.status_code == 409
+    payload = RuntimeApiProblem.model_validate_json(response.content, strict=True)
+    assert payload.context is not None
+    assert payload.context.run_id == "R1"
+    assert payload.extensions == {"authority_surface_decision": {"status": "blocked"}}
+    assert "authority_surface_decision" not in response.json()
+
+
+def test_key_and_value_errors_share_the_typed_problem_emitter() -> None:
+    errors = (
+        (KeyError("missing artifact"), 404),
+        (ValueError("invalid filter"), 400),
+    )
+    for exc, status_code in errors:
+        response = _client_for(exc).get("/runs/R1/artifacts/A1")
+
+        assert response.status_code == status_code
+        RuntimeApiProblem.model_validate_json(response.content, strict=True)

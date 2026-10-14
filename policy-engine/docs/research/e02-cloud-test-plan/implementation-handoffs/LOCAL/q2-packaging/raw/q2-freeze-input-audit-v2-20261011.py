@@ -57,11 +57,14 @@ COLLECTION_PLUGIN_NAME = "q2_source_freeze_capture"
 COLLECTION_PLUGIN_SOURCE = """
 from __future__ import annotations
 
+import base64
 import csv
 import email.parser
+import importlib.machinery
 import hashlib
 import io
 import json
+import math
 import os
 import re
 import site
@@ -71,6 +74,36 @@ import sysconfig
 from pathlib import Path, PurePosixPath
 
 import pytest
+
+_STARTUP_MODULES = sys.modules.copy()
+
+
+def _intrinsic_origin_evidence(name, module, module_namespace, module_file, spec, spec_origin):
+    if type(spec) is importlib.machinery.ModuleSpec and spec.loader is not None:
+        loader = spec.loader
+        loader_namespace = vars(loader) if type(loader) is type else vars(type(loader))
+        loader_module = loader_namespace.get("__module__")
+        loader_qualname = loader_namespace.get("__qualname__")
+        spec_loader = (
+            f"{loader_module}.{loader_qualname}"
+            if type(loader_module) is str and type(loader_qualname) is str
+            else None
+        )
+    else:
+        spec_loader = None
+    return {
+        "module_name": module_namespace.get("__name__")
+        if type(module_namespace.get("__name__")) is str
+        else None,
+        "exact_module_type": type(module) is type(sys),
+        "file_is_none": module_file is None,
+        "spec_is_standard": type(spec) is importlib.machinery.ModuleSpec,
+        "spec_name": spec.name if type(spec) is importlib.machinery.ModuleSpec else None,
+        "spec_origin": spec_origin if type(spec_origin) is str else None,
+        "spec_loader": spec_loader,
+        "startup_present": name in _STARTUP_MODULES,
+        "startup_identity": _STARTUP_MODULES.get(name) is module,
+    }
 
 
 def _record_claim_path(root, value, active_site_roots):
@@ -442,12 +475,93 @@ def _file_record(label, path):
     return {"label": label, "origin": str(path), "sha256": hashlib.sha256(data).hexdigest()}
 
 
+def _runtime_data_value(value, active=None):
+    value_type = type(value)
+    if value is None:
+        return ["none"]
+    if value_type is bool:
+        return ["bool", value]
+    if value_type is int:
+        return ["int", str(value)]
+    if value_type is float:
+        if not math.isfinite(value):
+            raise TypeError("non-finite float")
+        return ["float", value.hex()]
+    if value_type is str:
+        return ["str", value]
+    if value_type is bytes:
+        return ["bytes", base64.b64encode(value).decode("ascii")]
+    if value_type in (list, tuple, dict):
+        active = set() if active is None else active
+        identity = id(value)
+        if identity in active:
+            raise TypeError("cyclic runtime data")
+        active.add(identity)
+        try:
+            if value_type is list:
+                return ["list", [_runtime_data_value(item, active) for item in value]]
+            if value_type is tuple:
+                return ["tuple", [_runtime_data_value(item, active) for item in value]]
+            rows = [
+                [_runtime_data_value(key, active), _runtime_data_value(item, active)]
+                for key, item in value.items()
+            ]
+            rows.sort(
+                key=lambda row: json.dumps(
+                    row[0], ensure_ascii=True, sort_keys=True, separators=(",", ":")
+                )
+            )
+            return ["dict", rows]
+        finally:
+            active.remove(identity)
+    raise TypeError("unsupported runtime data value")
+
+
+def _module_data_digest(module):
+    if type(module) is not type(sys):
+        return {"supported": False, "bytes": None, "sha256": None}
+    try:
+        canonical = _runtime_data_value(vars(module))
+        data = json.dumps(
+            canonical,
+            ensure_ascii=True,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("ascii")
+    except (RecursionError, TypeError, ValueError):
+        return {"supported": False, "bytes": None, "sha256": None}
+    return {
+        "supported": True,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
 def _module_rows(metadata):
     rows = []
+    parent_bindings = {}
+    for parent_name, parent_module in sorted(sys.modules.items()):
+        if type(parent_name) is not str or type(parent_module) is not type(sys):
+            continue
+        for attribute, value in vars(parent_module).items():
+            if type(attribute) is str and type(value) is type(sys):
+                parent_bindings.setdefault(id(value), []).append(
+                    {"parent": parent_name, "attribute": attribute}
+                )
     for name, module in sorted(sys.modules.items()):
-        spec = getattr(module, "__spec__", None)
-        value = getattr(module, "__file__", None) or getattr(spec, "origin", None)
-        locations = getattr(spec, "submodule_search_locations", None)
+        if type(module) is not type(sys):
+            raise RuntimeError("sys.modules contains a non-module value")
+        module_namespace = vars(module)
+        spec = module_namespace.get("__spec__")
+        if spec is not None and type(spec) is not importlib.machinery.ModuleSpec:
+            locations = None
+            spec_origin = None
+        else:
+            locations = spec.submodule_search_locations if spec is not None else None
+            spec_origin = spec.origin if spec is not None else None
+        module_file = module_namespace.get("__file__")
+        value = module_file if module_file is not None else spec_origin
         if value is None and locations:
             search_locations = sorted(str(Path(item).absolute()) for item in locations)
             rows.append(
@@ -464,15 +578,30 @@ def _module_rows(metadata):
             )
             continue
         if value is None or value in {"built-in", "frozen"}:
-            rows.append(
-                {
-                    "module": name,
-                    "origin": value,
-                    "sha256": None,
-                    "distribution": None,
-                    "search_locations": sorted(str(item) for item in locations or ()),
+            row = {
+                "module": name,
+                "origin": value,
+                "sha256": None,
+                "distribution": None,
+                "search_locations": sorted(str(item) for item in locations or ()),
+            }
+            if value is None:
+                row["runtime_generated_data"] = {
+                    "exact_module_type": type(module) is type(sys),
+                    "file_is_none": module_file is None,
+                    "path_is_none": module_namespace.get("__path__") is None,
+                    "spec_is_none": module_namespace.get("__spec__") is None,
+                    "parent_bindings": sorted(
+                        parent_bindings.get(id(module), []),
+                        key=lambda item: (item["parent"], item["attribute"]),
+                    ),
+                    **_module_data_digest(module),
                 }
-            )
+            elif value in {"built-in", "frozen"}:
+                row["intrinsic_origin_evidence"] = _intrinsic_origin_evidence(
+                    name, module, module_namespace, module_file, spec, spec_origin
+                )
+            rows.append(row)
             continue
         origin = Path(os.path.abspath(str(value)))
         record = _file_record(name, origin)
@@ -1576,6 +1705,342 @@ print(json.dumps(profile, sort_keys=True, separators=(",", ":")))
 """
 
 
+PYTHON_GENERATED_MODULE_PROBE = """\
+import base64
+import hashlib
+import importlib
+import importlib.machinery
+import json
+import math
+import os
+import site
+import sys
+import sysconfig
+from pathlib import Path
+
+
+def runtime_value(value, active=None):
+    value_type = type(value)
+    if value is None:
+        return ["none"]
+    if value_type is bool:
+        return ["bool", value]
+    if value_type is int:
+        return ["int", str(value)]
+    if value_type is float:
+        if not math.isfinite(value):
+            raise TypeError("non-finite float")
+        return ["float", value.hex()]
+    if value_type is str:
+        return ["str", value]
+    if value_type is bytes:
+        return ["bytes", base64.b64encode(value).decode("ascii")]
+    if value_type in (list, tuple, dict):
+        active = set() if active is None else active
+        identity = id(value)
+        if identity in active:
+            raise TypeError("cyclic runtime data")
+        active.add(identity)
+        try:
+            if value_type is list:
+                return ["list", [runtime_value(item, active) for item in value]]
+            if value_type is tuple:
+                return ["tuple", [runtime_value(item, active) for item in value]]
+            rows = [
+                [runtime_value(key, active), runtime_value(item, active)]
+                for key, item in value.items()
+            ]
+            rows.sort(
+                key=lambda row: json.dumps(
+                    row[0], ensure_ascii=True, sort_keys=True, separators=(",", ":")
+                )
+            )
+            return ["dict", rows]
+        finally:
+            active.remove(identity)
+    raise TypeError("unsupported runtime data value")
+
+
+def module_digest(module):
+    if type(module) is not type(sys):
+        return {"supported": False, "bytes": None, "sha256": None}
+    try:
+        canonical = runtime_value(vars(module))
+        data = json.dumps(
+            canonical,
+            ensure_ascii=True,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("ascii")
+    except (RecursionError, TypeError, ValueError):
+        return {"supported": False, "bytes": None, "sha256": None}
+    return {
+        "supported": True,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def loader_name(spec):
+    if type(spec) is not importlib.machinery.ModuleSpec or spec.loader is None:
+        return None
+    loader = spec.loader
+    namespace = vars(loader) if type(loader) is type else vars(type(loader))
+    module_name = namespace.get("__module__")
+    qualname = namespace.get("__qualname__")
+    if type(module_name) is not str or type(qualname) is not str:
+        return None
+    return f"{module_name}.{qualname}"
+
+
+def capture_originless_sysmodules(modules_before):
+    for module_key, module_value in sys.modules.items():
+        if type(module_key) is not str:
+            raise RuntimeError("selected runtime sys.modules has a non-string key")
+        if modules_before.get(module_key) is module_value:
+            continue
+        if type(module_value) is not type(sys):
+            continue
+        namespace = vars(module_value)
+        if (
+            namespace.get("__file__") is None
+            and namespace.get("__path__") is None
+            and namespace.get("__spec__") is None
+        ):
+            generated_module_names.add(module_key)
+
+
+def intrinsic_module_row(name):
+    if name in sys.builtin_module_names:
+        inventory_origin = "built-in"
+    else:
+        try:
+            frozen_spec = importlib.machinery.FrozenImporter.find_spec(name, None)
+        except (ImportError, ValueError):
+            frozen_spec = None
+        inventory_origin = (
+            "frozen"
+            if type(frozen_spec) is importlib.machinery.ModuleSpec
+            and frozen_spec.origin == "frozen"
+            else None
+        )
+    if inventory_origin is None:
+        return {
+            "name": name,
+            "origin": None,
+            "module_name": None,
+            "exact_module_type": False,
+            "file_is_none": False,
+            "spec_is_standard": False,
+            "spec_name": None,
+            "spec_origin": None,
+            "spec_loader": None,
+        }
+    try:
+        module = importlib.import_module(name)
+    except (ImportError, ValueError):
+        module = None
+    if type(module) is not type(sys):
+        return {
+            "name": name,
+            "origin": inventory_origin,
+            "module_name": None,
+            "exact_module_type": False,
+            "file_is_none": False,
+            "spec_is_standard": False,
+            "spec_name": None,
+            "spec_origin": None,
+            "spec_loader": None,
+        }
+    namespace = vars(module)
+    spec = namespace.get("__spec__")
+    spec_is_standard = type(spec) is importlib.machinery.ModuleSpec
+    spec_origin = spec.origin if spec_is_standard else None
+    module_file = namespace.get("__file__")
+    actual_origin = module_file if module_file is not None else spec_origin
+    return {
+        "name": name,
+        "origin": actual_origin,
+        "module_name": namespace.get("__name__")
+        if type(namespace.get("__name__")) is str
+        else None,
+        "exact_module_type": True,
+        "file_is_none": module_file is None,
+        "spec_is_standard": spec_is_standard,
+        "spec_name": spec.name if spec_is_standard else None,
+        "spec_origin": spec_origin if type(spec_origin) is str else None,
+        "spec_loader": loader_name(spec) if spec_is_standard else None,
+    }
+
+
+request = json.load(sys.stdin)
+if not isinstance(request, dict) or set(request) != {"parents", "intrinsic_claims"}:
+    raise RuntimeError("selected-runtime provenance probe request differs from its schema")
+paths = sysconfig.get_paths()
+sysconfig_paths = {
+    key: str(Path(value).absolute())
+    for key, value in sorted(paths.items())
+    if isinstance(value, str) and value
+}
+site_roots = sorted(
+    {
+        str(Path(value).absolute())
+        for value in [
+            *site.getsitepackages(),
+            paths.get("purelib"),
+            paths.get("platlib"),
+        ]
+        if value
+    }
+)
+stdlib_roots = sorted(
+    {
+        sysconfig_paths[key]
+        for key in ("stdlib", "platstdlib")
+        if key in sysconfig_paths
+    }
+)
+prefix = Path(sys.prefix).absolute()
+base_prefix = Path(sys.base_prefix).absolute()
+config_path = prefix / "pyvenv.cfg"
+pyvenv_cfg = None
+if config_path.is_file():
+    config_data = config_path.read_bytes()
+    pyvenv_cfg = {
+        "path": str(config_path),
+        "bytes": len(config_data),
+        "sha256": hashlib.sha256(config_data).hexdigest(),
+    }
+runtime_profile = {
+    "executable": str(Path(sys.executable).absolute()),
+    "resolved_executable": str(Path(sys.executable).resolve(strict=True)),
+    "version": sys.version,
+    "implementation": sys.implementation.name,
+    "prefix": str(prefix),
+    "base_prefix": str(base_prefix),
+    "pyvenv_cfg": pyvenv_cfg,
+    "sysconfig_paths": sysconfig_paths,
+    "site_roots": site_roots,
+    "stdlib_roots": stdlib_roots,
+}
+parents = []
+generated_module_names = set()
+intrinsic_modules = []
+requested_parents = request["parents"]
+requested_intrinsic = request["intrinsic_claims"]
+if not isinstance(requested_parents, list) or not isinstance(requested_intrinsic, list):
+    raise RuntimeError("selected-runtime provenance requests are not lists")
+for requested in requested_parents:
+    if not isinstance(requested, dict) or set(requested) != {
+        "name",
+        "kind",
+        "origin",
+        "sha256",
+    }:
+        raise RuntimeError("generated-module parent differs from its schema")
+    name = requested["name"]
+    if (
+        not isinstance(name, str)
+        or not name
+        or any(not part.isidentifier() for part in name.split("."))
+        or requested["kind"] not in {"builtin", "frozen", "stdlib"}
+    ):
+        raise RuntimeError("generated-module parent name or kind is invalid")
+    modules_before = sys.modules.copy()
+    parent = importlib.import_module(name)
+    if type(parent) is not type(sys) or getattr(parent, "__name__", None) != name:
+        raise RuntimeError("selected runtime imported a different parent module")
+    spec = getattr(parent, "__spec__", None)
+    origin = getattr(parent, "__file__", None) or getattr(spec, "origin", None)
+    capture_originless_sysmodules(modules_before)
+    actual_children = []
+    for attribute, child in vars(parent).items():
+        if type(child) is not type(parent):
+            continue
+        child_name = vars(child).get("__name__")
+        if not isinstance(child_name, str) or sys.modules.get(child_name) is not child:
+            continue
+        child_spec = vars(child).get("__spec__")
+        if (
+            vars(child).get("__file__") is not None
+            or vars(child).get("__path__") is not None
+            or child_spec is not None
+        ):
+            continue
+        actual_children.append(
+            {
+                "name": child_name,
+                "attribute": attribute,
+                "exact_module_type": True,
+                "file_is_none": True,
+                "path_is_none": True,
+                "spec_is_none": True,
+                **module_digest(child),
+            }
+        )
+    actual_children.sort(key=lambda row: (row["name"], row["attribute"]))
+    if requested["kind"] in {"builtin", "frozen"}:
+        if origin != requested["origin"] or requested["sha256"] is not None:
+            raise RuntimeError("selected parent intrinsic origin differs from its bound row")
+        if requested["kind"] == "builtin" and name not in sys.builtin_module_names:
+            raise RuntimeError("selected builtin parent is not in builtin_module_names")
+    else:
+        if not isinstance(origin, str) or not Path(origin).is_absolute():
+            raise RuntimeError("selected standard-library parent has no absolute file origin")
+        parent_path = Path(origin)
+        if parent_path.resolve(strict=True) != parent_path:
+            raise RuntimeError("selected standard-library parent origin is not canonical")
+        parent_sha = hashlib.sha256(parent_path.read_bytes()).hexdigest()
+        if origin != requested["origin"] or parent_sha != requested["sha256"]:
+            raise RuntimeError("selected standard-library parent bytes differ from their row")
+    parents.append(
+        {
+            "name": name,
+            "kind": requested["kind"],
+            "origin": origin,
+            "sha256": requested["sha256"],
+            "children": actual_children,
+        }
+    )
+for requested in requested_intrinsic:
+    if not isinstance(requested, dict) or set(requested) != {"name", "origin"}:
+        raise RuntimeError("selected-runtime intrinsic claim differs from its schema")
+    name = requested["name"]
+    if (
+        not isinstance(name, str)
+        or not name
+        or any(not part.isidentifier() for part in name.split("."))
+        or requested["origin"] not in {"built-in", "frozen"}
+    ):
+        raise RuntimeError("selected-runtime intrinsic claim name or origin is invalid")
+    modules_before = sys.modules.copy()
+    intrinsic_modules.append(intrinsic_module_row(name))
+    capture_originless_sysmodules(modules_before)
+intrinsic_modules.sort(key=lambda row: row["name"])
+print(
+    json.dumps(
+        {
+            "runtime_profile": runtime_profile,
+            "bootstrap_sys_path": [
+                str(Path(item or os.getcwd()).absolute()) for item in sys.path
+            ],
+            "startup_environment": dict(sorted(os.environ.items())),
+            "isolated": sys.flags.isolated,
+            "no_site": sys.flags.no_site,
+            "optimize": sys.flags.optimize,
+            "parents": parents,
+            "generated_module_names": sorted(generated_module_names),
+            "intrinsic_modules": intrinsic_modules,
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+)
+"""
+
+
 def selected_python_runtime_profile(
     python: Path,
     *,
@@ -1718,6 +2183,425 @@ def selected_python_runtime_profile(
     }
 
 
+def selected_python_generated_module_rows(
+    python: Path,
+    parents: list[dict[str, Any]],
+    intrinsic_claims: list[dict[str, Any]],
+    expected_runtime: dict[str, Any],
+    python_executable: dict[str, Any],
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    """Recompute intrinsic origins and generated-data children in the selected runtime."""
+    if not python.is_absolute() or not (parents or intrinsic_claims):
+        raise AuditFailure("selected-runtime provenance probe requires a launcher and claims")
+    if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float)):
+        raise AuditFailure("generated-module probe timeout must be positive")
+    if timeout_seconds <= 0:
+        raise AuditFailure("generated-module probe timeout must be positive")
+    launcher_record = expected_runtime.get("launcher_record")
+    startup_environment = environment_mapping(
+        expected_runtime.get("startup_environment"), "generated-module probe environment"
+    )
+    if (
+        launcher_record != python_executable
+        or python_executable_record(python) != python_executable
+    ):
+        raise AuditFailure("generated-module probe launcher differs from the frozen runtime")
+    ordered_parents = sorted(parents, key=lambda item: item["name"])
+    ordered_intrinsic = sorted(intrinsic_claims, key=lambda item: item["name"])
+    if len({item["name"] for item in ordered_intrinsic}) != len(ordered_intrinsic):
+        raise AuditFailure("selected-runtime intrinsic claims repeat a module name")
+    payload = json.dumps(
+        {"parents": ordered_parents, "intrinsic_claims": ordered_intrinsic},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    try:
+        result = subprocess.run(  # noqa: S603 -- absolute selected Python and fixed isolated probe argv.
+            [str(python), "-I", "-S", "-B", "-c", PYTHON_GENERATED_MODULE_PROBE],
+            cwd=Path("/"),
+            env=startup_environment,
+            input=payload,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise AuditFailure("selected-runtime generated-module probe did not complete") from error
+    if result.returncode:
+        raise AuditFailure("selected-runtime generated-module probe exited unsuccessfully")
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise AuditFailure(
+            "selected-runtime generated-module probe returned malformed JSON"
+        ) from error
+    if not isinstance(report, dict) or set(report) != {
+        "runtime_profile",
+        "bootstrap_sys_path",
+        "startup_environment",
+        "isolated",
+        "no_site",
+        "optimize",
+        "parents",
+        "generated_module_names",
+        "intrinsic_modules",
+    }:
+        raise AuditFailure("selected-runtime provenance probe schema differs")
+    if report.get("runtime_profile") != expected_runtime.get("runtime_profile"):
+        raise AuditFailure(
+            "generated-module probe runtime profile differs from the selected profile"
+        )
+    if report.get("bootstrap_sys_path") != expected_runtime.get("bootstrap_sys_path"):
+        raise AuditFailure("generated-module probe import path differs from the selected profile")
+    if report.get("startup_environment") != startup_environment:
+        raise AuditFailure("generated-module probe environment differs from the selected profile")
+    if (report.get("isolated"), report.get("no_site"), report.get("optimize")) != (1, 1, 0):
+        raise AuditFailure("generated-module probe did not run with -I -S -B")
+    if python_executable_record(python) != python_executable:
+        raise AuditFailure("selected launcher changed during generated-module reconciliation")
+    returned_parents = report.get("parents")
+    if not isinstance(returned_parents, list) or len(returned_parents) != len(ordered_parents):
+        raise AuditFailure("generated-module probe did not return every requested parent")
+    if [row.get("name") for row in returned_parents if isinstance(row, dict)] != [
+        parent["name"] for parent in ordered_parents
+    ]:
+        raise AuditFailure("generated-module probe parent set differs from its request")
+    returned_intrinsic = report.get("intrinsic_modules")
+    if not isinstance(returned_intrinsic, list) or [
+        row.get("name") for row in returned_intrinsic if isinstance(row, dict)
+    ] != [claim["name"] for claim in ordered_intrinsic]:
+        raise AuditFailure("selected-runtime intrinsic module set differs from its request")
+    generated_names = report.get("generated_module_names")
+    if (
+        not isinstance(generated_names, list)
+        or any(not isinstance(name, str) for name in generated_names)
+        or generated_names != sorted(set(generated_names))
+    ):
+        raise AuditFailure("generated-module probe set is malformed or incomplete")
+    return report
+
+
+def reconcile_generated_module_rows(
+    modules: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+    runtime_profile: dict[str, Any],
+    python: Path,
+    python_executable: dict[str, Any],
+    timeout_seconds: float,
+) -> list[dict[str, Any]]:
+    """Reconcile every intrinsic claim and originless data module to runtime truth."""
+    intrinsic_claims: list[dict[str, Any]] = []
+    intrinsic_evidence_by_name: dict[str, dict[str, Any]] = {}
+    intrinsic_fields = {
+        "module_name",
+        "exact_module_type",
+        "file_is_none",
+        "spec_is_standard",
+        "spec_name",
+        "spec_origin",
+        "spec_loader",
+        "startup_present",
+        "startup_identity",
+    }
+    for module_name, row in modules.items():
+        origin = row.get("origin")
+        evidence = row.get("intrinsic_origin_evidence")
+        if origin in {"built-in", "frozen"}:
+            if not isinstance(evidence, dict) or set(evidence) != intrinsic_fields:
+                raise AuditFailure("intrinsic module source differs from selected runtime")
+            if (
+                evidence.get("module_name") != module_name
+                or evidence.get("exact_module_type") is not True
+                or type(evidence.get("file_is_none")) is not bool
+                or type(evidence.get("spec_is_standard")) is not bool
+                or type(evidence.get("startup_present")) is not bool
+                or type(evidence.get("startup_identity")) is not bool
+                or not evidence["startup_present"]
+                or not evidence["startup_identity"]
+            ):
+                raise AuditFailure("intrinsic module source differs from selected runtime")
+            intrinsic_claims.append({"name": module_name, "origin": origin})
+            intrinsic_evidence_by_name[module_name] = evidence
+        elif evidence is not None:
+            raise AuditFailure("nonintrinsic module carries intrinsic-origin evidence")
+    candidates = {
+        name: row
+        for name, row in modules.items()
+        if row.get("origin") is None and row.get("search_locations") == []
+    }
+    if not candidates and not intrinsic_claims:
+        return []
+    parent_specs: dict[str, dict[str, Any]] = {}
+    actual_bindings: set[tuple[str, str, str]] = set()
+    candidate_data: dict[str, dict[str, Any]] = {}
+    for module_name, row in candidates.items():
+        evidence = row.get("runtime_generated_data")
+        if not isinstance(evidence, dict) or set(evidence) != {
+            "exact_module_type",
+            "file_is_none",
+            "path_is_none",
+            "spec_is_none",
+            "parent_bindings",
+            "supported",
+            "bytes",
+            "sha256",
+        }:
+            raise AuditFailure(
+                f"originless module omits complete runtime-data evidence: {module_name}"
+            )
+        if any(
+            evidence.get(field) is not True
+            for field in (
+                "exact_module_type",
+                "file_is_none",
+                "path_is_none",
+                "spec_is_none",
+                "supported",
+            )
+        ):
+            raise AuditFailure(f"originless module is not a strict data-only module: {module_name}")
+        if (
+            type(evidence.get("bytes")) is not int
+            or evidence["bytes"] < 0
+            or not isinstance(evidence.get("sha256"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", evidence["sha256"])
+        ):
+            raise AuditFailure(f"originless module data digest is malformed: {module_name}")
+        bindings = evidence.get("parent_bindings")
+        if not isinstance(bindings, list) or not bindings:
+            raise AuditFailure(f"originless module has no verified parent binding: {module_name}")
+        if any(
+            not isinstance(binding, dict)
+            or set(binding) != {"parent", "attribute"}
+            or not isinstance(binding.get("parent"), str)
+            or not isinstance(binding.get("attribute"), str)
+            for binding in bindings
+        ):
+            raise AuditFailure(f"originless module parent binding is malformed: {module_name}")
+        ordered_bindings = sorted(
+            bindings, key=lambda binding: (binding["parent"], binding["attribute"])
+        )
+        if bindings != ordered_bindings or len(
+            {(binding["parent"], binding["attribute"]) for binding in bindings}
+        ) != len(bindings):
+            raise AuditFailure(
+                f"originless module parent bindings are not unique and ordered: {module_name}"
+            )
+        candidate_data[module_name] = evidence
+        for binding in bindings:
+            parent_name = binding["parent"]
+            parent_row = modules.get(parent_name)
+            parent_record = source_records.get(parent_name)
+            if not isinstance(parent_row, dict) or not isinstance(parent_record, dict):
+                raise AuditFailure(
+                    f"originless module parent has no admitted source row: {module_name}"
+                )
+            if parent_row.get("module") != parent_name:
+                raise AuditFailure(
+                    f"originless module parent name differs from its row: {module_name}"
+                )
+            if parent_record.get("kind") == "python_builtin_or_frozen":
+                origin = parent_row.get("origin")
+                if origin not in {"built-in", "frozen"}:
+                    raise AuditFailure(f"runtime-generated parent origin changed: {parent_name}")
+                kind = "builtin" if origin == "built-in" else "frozen"
+                parent_sha = None
+            elif parent_record.get("kind") == "selected_python_standard_library":
+                origin = parent_row.get("origin")
+                if not isinstance(origin, str) or not Path(origin).is_absolute():
+                    raise AuditFailure(
+                        f"runtime-generated stdlib parent has no file origin: {parent_name}"
+                    )
+                kind = "stdlib"
+                parent_sha = parent_record.get("sha256")
+            else:
+                raise AuditFailure(
+                    "runtime-generated module parent is outside builtin/frozen/stdlib custody: "
+                    f"{parent_name}"
+                )
+            candidate_parent = {
+                "name": parent_name,
+                "kind": kind,
+                "origin": origin,
+                "sha256": parent_sha,
+            }
+            existing = parent_specs.setdefault(parent_name, candidate_parent)
+            if existing != candidate_parent:
+                raise AuditFailure(
+                    f"runtime-generated parent has conflicting source rows: {parent_name}"
+                )
+            actual_bindings.add((parent_name, binding["attribute"], module_name))
+
+    probe = selected_python_generated_module_rows(
+        python,
+        list(parent_specs.values()),
+        intrinsic_claims,
+        runtime_profile,
+        python_executable,
+        timeout_seconds,
+    )
+    intrinsic_rows = probe["intrinsic_modules"]
+    if len(intrinsic_rows) != len(intrinsic_claims):
+        raise AuditFailure("intrinsic module source differs from selected runtime")
+    intrinsic_rows_by_name = {
+        row.get("name"): row for row in intrinsic_rows if isinstance(row, dict)
+    }
+    if set(intrinsic_rows_by_name) != set(intrinsic_evidence_by_name):
+        raise AuditFailure("intrinsic module source differs from selected runtime")
+    for claim in intrinsic_claims:
+        module_name = claim["name"]
+        runtime_row = intrinsic_rows_by_name[module_name]
+        evidence = intrinsic_evidence_by_name[module_name]
+        if not isinstance(runtime_row, dict) or set(runtime_row) != {
+            "name",
+            "origin",
+            "module_name",
+            "exact_module_type",
+            "file_is_none",
+            "spec_is_standard",
+            "spec_name",
+            "spec_origin",
+            "spec_loader",
+        }:
+            raise AuditFailure("intrinsic module source differs from selected runtime")
+        if runtime_row.get("origin") != claim["origin"] or any(
+            runtime_row.get(field) != evidence.get(field)
+            for field in (
+                "module_name",
+                "exact_module_type",
+                "file_is_none",
+                "spec_is_standard",
+                "spec_name",
+                "spec_origin",
+                "spec_loader",
+            )
+        ):
+            raise AuditFailure("intrinsic module source differs from selected runtime")
+        source_record = source_records.get(module_name)
+        if (
+            not isinstance(source_record, dict)
+            or source_record.get("kind") != "python_builtin_or_frozen"
+            or source_record.get("origin") != claim["origin"]
+        ):
+            raise AuditFailure("intrinsic module source differs from selected runtime")
+        source_record["intrinsic_origin_predicate"] = "independently_reconciled"
+        source_record["python_executable_sha256"] = python_executable["sha256"]
+        source_record["live_execution_provenance"] = "not_established"
+    if set(probe["generated_module_names"]) != set(candidates):
+        raise AuditFailure("complete selected-runtime generated sys.modules set differs")
+    expected_bindings: set[tuple[str, str, str]] = set()
+    expected_data: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for parent in probe["parents"]:
+        if not isinstance(parent, dict) or set(parent) != {
+            "name",
+            "kind",
+            "origin",
+            "sha256",
+            "children",
+        }:
+            raise AuditFailure("selected-runtime generated-module parent row differs from schema")
+        parent_name = parent["name"]
+        if parent_name not in parent_specs or any(
+            parent.get(field) != parent_specs[parent_name].get(field)
+            for field in ("kind", "origin", "sha256")
+        ):
+            raise AuditFailure(
+                "selected-runtime generated-module parent differs from its bound row"
+            )
+        children = parent.get("children")
+        if not isinstance(children, list):
+            raise AuditFailure(
+                f"selected-runtime parent omits its complete child set: {parent_name}"
+            )
+        for child in children:
+            if not isinstance(child, dict) or set(child) != {
+                "name",
+                "attribute",
+                "exact_module_type",
+                "file_is_none",
+                "path_is_none",
+                "spec_is_none",
+                "supported",
+                "bytes",
+                "sha256",
+            }:
+                raise AuditFailure(f"selected-runtime generated child is malformed: {parent_name}")
+            child_name = child.get("name")
+            attribute = child.get("attribute")
+            binding = (parent_name, attribute, child_name)
+            if (
+                not isinstance(child_name, str)
+                or not isinstance(attribute, str)
+                or child_name not in candidates
+                or any(
+                    child.get(field) is not True
+                    for field in (
+                        "exact_module_type",
+                        "file_is_none",
+                        "path_is_none",
+                        "spec_is_none",
+                        "supported",
+                    )
+                )
+                or type(child.get("bytes")) is not int
+                or child["bytes"] < 0
+                or not isinstance(child.get("sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", child["sha256"])
+            ):
+                raise AuditFailure(
+                    f"selected-runtime generated child is not admissible: {parent_name}"
+                )
+            if binding in expected_data:
+                raise AuditFailure(
+                    f"selected-runtime repeats a generated child binding: {parent_name}"
+                )
+            expected_bindings.add(binding)
+            expected_data[binding] = child
+
+    if actual_bindings != expected_bindings:
+        raise AuditFailure("complete selected-runtime generated-module set differs from collection")
+    records_by_module: dict[str, dict[str, Any]] = {}
+    for binding in sorted(actual_bindings):
+        parent_name, attribute, module_name = binding
+        actual = candidate_data[module_name]
+        expected = expected_data[binding]
+        if (actual["bytes"], actual["sha256"]) != (expected["bytes"], expected["sha256"]):
+            raise AuditFailure(
+                f"runtime-generated module data differs from selected Python: {module_name}"
+            )
+        parent = parent_specs[parent_name]
+        record = records_by_module.setdefault(
+            module_name,
+            {
+                "kind": "selected_python_generated_data_module",
+                "module": module_name,
+                "parent_bindings": [],
+                "parent_sources": [],
+                "python_executable_sha256": python_executable["sha256"],
+                "data_bytes": actual["bytes"],
+                "data_sha256": actual["sha256"],
+                "content_predicate": "independently_reconciled",
+                "live_execution_provenance": "not_established",
+            },
+        )
+        record["parent_bindings"].append({"parent": parent_name, "attribute": attribute})
+        record["parent_sources"].append(
+            {
+                "module": parent_name,
+                "origin": parent["origin"],
+                "sha256": parent["sha256"],
+            }
+        )
+    for record in records_by_module.values():
+        record["parent_bindings"].sort(key=lambda item: (item["parent"], item["attribute"]))
+        record["parent_sources"].sort(key=lambda item: item["module"])
+    return [records_by_module[name] for name in sorted(records_by_module)]
+
+
 def collection_profile_directories(python_profile: dict[str, Any], field: str) -> list[Path]:
     """Resolve a nonempty runtime directory set from the actual child report."""
     values = python_profile.get(field)
@@ -1836,6 +2720,9 @@ def bind_collection_origins(
     plugin_bytes: bytes,
     lock_versions: dict[str, set[str]],
     expected_runtime_profile: dict[str, Any],
+    python: Path,
+    python_executable: dict[str, Any],
+    timeout_seconds: float,
 ) -> list[dict[str, Any]]:
     """Bind every loaded module, config, startup file, plugin, and conftest origin."""
     python_profile = report.get("python")
@@ -1904,6 +2791,7 @@ def bind_collection_origins(
     ] = {}
     declared_plugin_modules: set[str] = set()
     loaded_conftest_modules: set[str] = set()
+    source_records: dict[str, dict[str, Any]] = {}
     record_owner_inventory, record_inventory_evidence = physical_record_claim_inventory(
         sorted(record_search_roots), active_site_roots
     )
@@ -1911,22 +2799,26 @@ def bind_collection_origins(
         module_name = module["module"]
         origin = module.get("origin")
         if isinstance(origin, str) and origin in {"built-in", "frozen"}:
-            retain_record(
-                {
-                    "kind": "python_builtin_or_frozen",
-                    "module": module_name,
-                    "origin": origin,
-                    "search_locations": module.get("search_locations", []),
-                },
-                module_name,
-            )
+            record = {
+                "kind": "python_builtin_or_frozen",
+                "module": module_name,
+                "origin": origin,
+                "search_locations": module.get("search_locations", []),
+                "intrinsic_origin_predicate": "independently_reconciled",
+                "python_executable_sha256": python_executable["sha256"],
+                "live_execution_provenance": "not_established",
+            }
+            retain_record(record, module_name)
+            source_records[module_name] = record
             continue
         if origin is None:
             locations = module.get("search_locations")
-            if not isinstance(locations, list) or not locations:
+            if not isinstance(locations, list):
                 raise AuditFailure(
-                    f"loaded module has neither a file nor namespace origin: {module_name}"
+                    f"originless module search locations are malformed: {module_name}"
                 )
+            if not locations:
+                continue
             namespace_distributions = module.get("namespace_distributions")
             if not isinstance(namespace_distributions, list):
                 raise AuditFailure(
@@ -2089,6 +2981,17 @@ def bind_collection_origins(
         if record.get("kind") == "helper_generated_collection_plugin":
             record["local_path"] = str(path)
         retain_record(record, module_name)
+        source_records[module_name] = record
+
+    for record in reconcile_generated_module_rows(
+        module_rows,
+        source_records,
+        expected_runtime_profile,
+        python,
+        python_executable,
+        timeout_seconds,
+    ):
+        retain_record(record, record["module"])
 
     plugin_rows = report.get("plugins")
     if not isinstance(plugin_rows, list):
@@ -2460,6 +3363,9 @@ def collect_ids(
         plugin_bytes,
         lock_versions,
         isolated_runtime_before,
+        python,
+        python_before,
+        timeout_seconds,
     )
     if not any(row.get("kind") == "helper_generated_collection_plugin" for row in origins):
         raise AuditFailure("the source-bound collection capture plugin was not loaded")
@@ -3366,6 +4272,7 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
     capture_type = plugin_namespace["_CaptureMetadata"]
     distribution_for = plugin_namespace["_distribution_for"]
     namespace_distributions = plugin_namespace["_namespace_distributions"]
+    module_data_digest = plugin_namespace["_module_data_digest"]
 
     def capture_for(site_root: Path) -> object:
         previous = sys.path[:]
@@ -3419,6 +4326,32 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
         return record_path, metadata_path, record_bytes, metadata_bytes
 
     cases: dict[str, bool] = {}
+    typed_module = types.ModuleType("q2.runtime.data.control")
+    typed_module.payload = {1: "integer-key", "1": "string-key", b"1": "bytes-key"}
+    typed_digest = module_data_digest(typed_module)
+    reordered_module = types.ModuleType("q2.runtime.data.control")
+    reordered_module.payload = {b"1": "bytes-key", "1": "string-key", 1: "integer-key"}
+    reordered_digest = module_data_digest(reordered_module)
+    changed_module = types.ModuleType("q2.runtime.data.control")
+    changed_module.payload = {1: "integer-key", "1": "changed", b"1": "bytes-key"}
+    changed_digest = module_data_digest(changed_module)
+    cases["runtime-data-digest-preserves-typed-keys-and-map-order"] = bool(
+        typed_digest["supported"] is True
+        and typed_digest["sha256"] == reordered_digest["sha256"]
+        and typed_digest["sha256"] != changed_digest["sha256"]
+    )
+    unsupported_module = types.ModuleType("q2.runtime.data.control")
+    unsupported_module.payload = object()
+    cases["runtime-data-digest-fails-closed-on-object-values"] = (
+        module_data_digest(unsupported_module)["supported"] is False
+    )
+    cyclic_module = types.ModuleType("q2.runtime.data.control")
+    cyclic_value: list[Any] = []
+    cyclic_value.append(cyclic_value)
+    cyclic_module.payload = cyclic_value
+    cases["runtime-data-digest-fails-closed-on-cycles"] = (
+        module_data_digest(cyclic_module)["supported"] is False
+    )
     with tempfile.TemporaryDirectory(prefix="q2-record-owner-") as scratch:
         root = Path(scratch)
         valid_site = root / "site-packages"

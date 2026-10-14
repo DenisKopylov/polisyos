@@ -10873,3 +10873,56 @@ def test_n7_measurement_reader_requires_admitted_scope_before_supplier_reads() -
         )
 
     assert supplier_reads == []
+
+
+@pytest.mark.parametrize("envelope_profile", [None, "sha256:" + "c" * 64])
+def test_n7_measurement_root_requires_exact_selected_manifest_profile(
+    tmp_path: Path, envelope_profile: str | None
+) -> None:
+    from polisyos.core import artifacts
+    from polisyos.pdc import ArtifactEnvelope, ArtifactRef
+    from polisyos.runtime.quality.data_forge_binding import (
+        FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+    profile = "sha256:" + "b" * 64
+    artifact_id = "sha256:" + "a" * 64
+    envelope_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        artifact_type="BaseDataset",
+        content_hash=artifact_id,
+        schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+        uri=f"cas://{artifact_id}",
+        version="v2",
+    )
+    envelope = ArtifactEnvelope(
+        ref=envelope_ref,
+        payload_ref=artifact_id,
+        payload_manifest_profile_sha256=envelope_profile,
+        payload_schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+        lifecycle_state="shadow",
+        created_by={"kind": "producer"},
+        producer_operation={"operation_id": "controlled-test"},
+    )
+    payload_ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID(artifact_id),
+        kind="policyos.gy.measurement_root_payload",
+        media_type="application/json",
+        manifest_profile_sha256=profile,
+    )
+    controller = GenerationCycleController(
+        authority_scope="contract_testing",
+        measurement_root_execution_binding=measurement_execution_binding(tmp_path),
+    )
+
+    with pytest.raises(GenerationCycleError, match="measurement root envelope identity mismatch"):
+        controller._validate_n7_acq01_measurement_root_custody(
+            _problem("n7_profile_selector_mismatch"),
+            measurement_root=envelope,
+            measurement_payload_ref=payload_ref,
+            data_snapshot_ref=payload_ref,
+            store=object(),
+            acquisition_receipt=object(),
+            active_requirement_ref="active-n7",
+        )

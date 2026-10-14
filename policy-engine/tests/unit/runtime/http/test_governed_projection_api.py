@@ -105,9 +105,7 @@ def test_governed_projection_catalog_is_typed_and_complete(runtime_api_env) -> N
     }
     assert {entry["projection_id"] for entry in payload["projections"]} == {
         projection_id.value for projection_id in ProjectionId
-    } | {
-        projection_id.value for projection_id in GuardedProjectionId
-    }
+    } | {projection_id.value for projection_id in GuardedProjectionId}
     assert all(entry["intended_audience"] for entry in payload["projections"])
     assert all(entry["stable_address"] for entry in payload["projections"])
     assert all(entry["owner_validator_id"] for entry in payload["projections"])
@@ -175,7 +173,7 @@ def test_governed_projection_endpoint_enforces_replay_time_pin(
     assert replay.status_code == 200
     assert stale.status_code == 409
     assert stale.json()["code"] == "governed_projection_replay_pin_mismatch"
-    assert stale.json()["field"] == "source_as_of"
+    assert stale.json()["extensions"]["field"] == "source_as_of"
 
 
 def test_governed_projection_endpoint_enforces_dependency_replay_pin(
@@ -187,7 +185,7 @@ def test_governed_projection_endpoint_enforces_dependency_replay_pin(
     )
 
     assert response.status_code == 409
-    assert response.json()["field"] == "source_dependency_hash"
+    assert response.json()["extensions"]["field"] == "source_dependency_hash"
 
 
 def test_governed_projection_endpoint_preserves_existing_auth_defaults(

@@ -1671,7 +1671,13 @@ class ProductionApprovalResponse(BaseModel):
 
 
 class ControlJobResponse(BaseModel):
-    """Represent one durable control-plane job and its progress/error state."""
+    """Represent durable control-job state and its open progress projection.
+
+    Worker-owned evidence payloads in ``progress`` carry their own schema
+    versions. Consumers that use an evidence projection must validate that
+    payload's schema and provenance rather than treating generic progress as
+    an authority declaration.
+    """
 
     model_config = ConfigDict(extra="forbid")
 

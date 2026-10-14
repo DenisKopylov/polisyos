@@ -13,7 +13,9 @@ from typing import Any, cast
 import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import ArtifactStore, FileSystemCAS
+from polisyos.core.artifacts import InputRef as CASInputRef
 from polisyos.data_requirement import (
     DataQualityMinimums,
     DataRequirementScope,
@@ -883,6 +885,7 @@ def _real_acq01_route(
             evidence=evidence,
             data_snapshot_ref=data_snapshot_ref,
             admission=admission,
+            registry_ref=route_registry_ref,
             world_build=world_build,
             context=context,
             catalog=owner.graph,
@@ -1030,6 +1033,59 @@ def _build_acq01_real_route_controller(
     return controller
 
 
+def _receipt_with_route_measurement_profile(
+    receipt: AcquisitionReceipt,
+    *,
+    profile_sha256: str | None,
+) -> AcquisitionReceipt:
+    """Rebuild one locally captured route with a selected-profile mutation."""
+
+    route_artifacts = tuple(
+        artifact
+        for artifact in receipt.owner_artifacts
+        if isinstance(artifact.payload.get("acq01_route"), dict)
+    )
+    if len(route_artifacts) != 1:
+        raise AssertionError("expected exactly one captured ACQ-01 route")
+    route_artifact = route_artifacts[0]
+    changed_payload = json.loads(json.dumps(route_artifact.payload))
+    changed_payload["acq01_route"]["measurement_root"]["payload_manifest_profile_sha256"] = (
+        profile_sha256
+    )
+    capture = route_artifact.capture_provenance
+    if capture is None:
+        raise AssertionError("route fixture must retain capture provenance")
+    changed_capture = AcquisitionCaptureProvenance.from_owner_response(
+        owner_component=capture.owner_component,
+        owner_endpoint=capture.owner_endpoint,
+        owner_request={"requirement_ref": route_artifact.requirement_ref},
+        owner_response=changed_payload,
+        captured_at=capture.captured_at,
+        capture_mode=capture.capture_mode,
+        network_call=capture.network_call,
+    )
+    changed_artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component=route_artifact.owner_component,
+        requirement_ref=route_artifact.requirement_ref,
+        artifact_ref=route_artifact.artifact_ref,
+        payload=changed_payload,
+        cost_usd=route_artifact.cost_usd,
+        quality=route_artifact.quality,
+        rights=route_artifact.rights,
+        binding_refs=route_artifact.binding_refs,
+        journal_ref=route_artifact.journal_ref,
+        ingested=route_artifact.ingested,
+        capture_provenance=changed_capture,
+    )
+    receipt_data = receipt.model_dump(mode="python")
+    receipt_data["owner_artifacts"] = tuple(
+        changed_artifact if artifact.artifact_ref == route_artifact.artifact_ref else artifact
+        for artifact in receipt.owner_artifacts
+    )
+    receipt_data["content_hash"] = ""
+    return AcquisitionReceipt.model_validate(receipt_data)
+
+
 def _assert_n7_world_model_record_semantics(actual: Any, expected: Any) -> None:
     """Compare every stable WMR field while allowing reconstruction time to advance."""
 
@@ -1137,10 +1193,43 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
             target_world_slots=tuple(case.candidate.atom.target_world_slots),
         )
         assert contract_context is not None
+        selected_profile = route.measurement_root.payload_manifest_profile_sha256
+        assert selected_profile is not None
+        assert route.evidence.measurement_root_ref.manifest_profile_sha256 == selected_profile
+        assert route.admission.input_refs[0].manifest_profile_sha256 == selected_profile
+        snapshot_manifest = route.store.get_manifest(route.data_snapshot_ref)
+        snapshot_root_inputs = tuple(
+            item for item in snapshot_manifest.inputs if item.role == "measurement_root"
+        )
+        assert snapshot_root_inputs == (
+            CASInputRef(
+                artifact_id=route.evidence.measurement_root_ref.artifact_id,
+                role="measurement_root",
+                manifest_profile_sha256=selected_profile,
+            ),
+        )
+        route_payload = route.owner_artifact.payload["acq01_route"]
+        registry_ref = CASArtifactRef.model_validate(route_payload["registry_ref"])
+        registry_manifest = route.store.get_manifest(registry_ref)
+        registry_root_inputs = tuple(
+            item for item in registry_manifest.inputs if item.role == "measurement_root"
+        )
+        assert registry_root_inputs == snapshot_root_inputs
         assert (
             contract_context.world_model_record.world_model_record_id
             != case.before_context.world_model_record.world_model_record_id
         )
+
+        profileless_receipt = _receipt_with_route_measurement_profile(receipt, profile_sha256=None)
+        with pytest.raises(generation_cycle_module.GenerationCycleError) as missing_profile:
+            contract_controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=profileless_receipt,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+        assert missing_profile.value.code == "n7_acq01_measurement_root_custody_invalid"
 
         production_controller = _build_acq01_real_route_controller(
             case=case,
@@ -1462,15 +1551,19 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         assert cycle.simulation.status == "joint_simulated"
         assert cycle.simulation.simulation_result_ref is not None
         assert frozenset(cycle.simulation.authority_blockers) in {
-            frozenset({
-                "simulation_only_k_sim_not_world_evidence",
-                "simulation_effect_basis_not_established",
-            }),
-            frozenset({
-                "simulation_only_k_sim_not_world_evidence",
-                "simulation_effect_basis_not_established",
-                "horizon_time_alignment_not_established",
-            }),
+            frozenset(
+                {
+                    "simulation_only_k_sim_not_world_evidence",
+                    "simulation_effect_basis_not_established",
+                }
+            ),
+            frozenset(
+                {
+                    "simulation_only_k_sim_not_world_evidence",
+                    "simulation_effect_basis_not_established",
+                    "horizon_time_alignment_not_established",
+                }
+            ),
         }
         assert cycle.value_port.status == "value_conditional"
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)

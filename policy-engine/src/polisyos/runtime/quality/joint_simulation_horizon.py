@@ -155,6 +155,22 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
 
+class _CoupledSourceTimeTrace(_StrictModel):
+    """Candidate-only projection of times emitted by the existing coupled producer."""
+
+    schema_version: Literal["policyos.runtime.coupled_source_time_trace.candidate.v1"] = (
+        "policyos.runtime.coupled_source_time_trace.candidate.v1"
+    )
+    initial_time_source: Literal["CoupledRuntimeState.time"] = "CoupledRuntimeState.time"
+    transition_time_source: Literal["coupled/time"] = "coupled/time"
+    corroborating_transition_time_source: Literal["queue/time"] = "queue/time"
+    initial_coordinate: float
+    transition_coordinates: tuple[float, ...]
+    unit_status: Literal["not_established"] = "not_established"
+    origin_status: Literal["not_established"] = "not_established"
+    horizon_relation_status: Literal["not_established"] = "not_established"
+
+
 _REPLICATION_ENGINE_STATE_CANON_SPEC = CanonSpec(
     forbid_floats=False,
     forbid_nan_inf=True,
@@ -2140,7 +2156,8 @@ class JointSimulationHorizonController:
                     "horizon_loop": True,
                     "state_delta_refs": state_delta_refs,
                     "metrics_ref_count": len(metrics_refs),
-                    "time_alignment_status": "matched",
+                    "requested_step_dispatch_status": "matched",
+                    "time_alignment_status": "not_established",
                 },
             )
 
@@ -2226,7 +2243,7 @@ class JointSimulationHorizonController:
             params = _coupled_params_for_subset(plan, subset)
             params["n_steps"] = max(1, len(request.horizon.steps()) - 1)
             params["seed"] = int(replication_seed)
-            time_alignment = _method_time_alignment(
+            time_alignment = _method_step_parameter_diagnostics(
                 method,
                 params,
                 request.horizon.step,
@@ -2276,6 +2293,9 @@ class JointSimulationHorizonController:
                         f"{queue_length}>{required_transitions}",
                     )
                 queue_rows = raw_queue
+            source_time_trace, source_time_trace_status, source_time_trace_reason = (
+                _coupled_source_time_trace(result, queue_rows)
+            )
             covered_count = min(len(requested_steps), 1 + len(queue_rows))
             points: list[TrajectoryPoint] = []
             for index, step in enumerate(requested_steps[:covered_count]):
@@ -2317,6 +2337,9 @@ class JointSimulationHorizonController:
                     "covered_steps": requested_steps[:covered_count],
                     "requested_steps": requested_steps,
                     "hold_last": False,
+                    "source_time_trace": source_time_trace,
+                    "source_time_trace_status": source_time_trace_status,
+                    "source_time_trace_reason": source_time_trace_reason,
                     **time_alignment,
                 },
             )
@@ -2345,7 +2368,7 @@ class JointSimulationHorizonController:
             }
             params.setdefault("dt", float(request.horizon.step))
             params["seed"] = int(replication_seed)
-            time_alignment = _method_time_alignment(
+            time_alignment = _method_step_parameter_diagnostics(
                 method,
                 params,
                 request.horizon.step,
@@ -2447,7 +2470,7 @@ class JointSimulationHorizonController:
             }
             params.setdefault("dt", float(request.horizon.step))
             params["seed"] = int(replication_seed)
-            time_alignment = _method_time_alignment(
+            time_alignment = _method_step_parameter_diagnostics(
                 method,
                 params,
                 request.horizon.step,
@@ -2939,14 +2962,18 @@ def _declared_parameter_default(method: object, parameter_name: str) -> object:
     return _MISSING_OUTCOME
 
 
-def _method_time_alignment(
+def _method_step_parameter_diagnostics(
     method: object,
     parameters: Mapping[str, Any],
     requested_step: int,
     *,
     parameter_name: str,
 ) -> dict[str, object]:
-    """Expose whether a method-declared time increment matches horizon labels."""
+    """Report adapter parameter equality without claiming emitted-time alignment.
+
+    This comparison describes only the step supplied to the selected method. It does
+    not establish what time any returned trajectory row represents.
+    """
     signature = getattr(method, "signature", None)
     declared_parameters = getattr(signature, "parameters", ())
     declares_step = isinstance(declared_parameters, Sequence) and any(
@@ -2965,22 +2992,100 @@ def _method_time_alignment(
         else:
             if np.isfinite(candidate) and candidate > 0:
                 parsed_step = candidate
-    aligned = (
-        declares_step
-        and parsed_step is not None
-        and np.isclose(
-            parsed_step,
-            float(requested_step),
-            rtol=0.0,
-            atol=1e-12,
+    aligned: bool | None = None
+    if declares_step and parsed_step is not None:
+        aligned = bool(
+            np.isclose(
+                parsed_step,
+                float(requested_step),
+                rtol=0.0,
+                atol=1e-12,
+            )
         )
-    )
     return {
         "requested_time_step": requested_step,
         "method_time_step_parameter": parameter_name,
         "effective_method_time_step": parsed_step,
-        "time_alignment_status": "matched" if aligned else "not_established",
+        "declared_step_parameter_matches_request": aligned,
+        "time_alignment_status": "not_established",
     }
+
+
+def _finite_source_coordinate(value: object) -> float | None:
+    """Return a finite coordinate only from a Python or NumPy real scalar."""
+    if isinstance(value, bool | np.bool_ | np.ndarray):
+        return None
+    if not isinstance(value, int | float | np.integer | np.floating):
+        return None
+    try:
+        raw = np.asarray(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if raw.ndim != 0 or raw.dtype.kind not in "iuf":
+        return None
+    try:
+        coordinate = float(raw.item())
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return coordinate if math.isfinite(coordinate) else None
+
+
+def _coupled_source_time_trace(
+    result: Mapping[str, Any],
+    queue_rows: Sequence[Any],
+) -> tuple[dict[str, object] | None, str, str]:
+    """Project actual coupled metrics without inferring units or horizon alignment."""
+    raw_initial = result.get("coupled_initial_time", _MISSING_OUTCOME)
+    if raw_initial is _MISSING_OUTCOME:
+        return None, "not_established", "initial_source_time_missing"
+    initial_coordinate = _finite_source_coordinate(raw_initial)
+    if initial_coordinate is None:
+        return None, "not_established", "initial_source_time_malformed"
+
+    raw_metrics = result.get("metrics", _MISSING_OUTCOME)
+    if raw_metrics is _MISSING_OUTCOME:
+        return None, "not_established", "source_metrics_missing"
+    if not isinstance(raw_metrics, Sequence) or isinstance(raw_metrics, str | bytes | bytearray):
+        return None, "not_established", "source_metrics_malformed"
+    if len(raw_metrics) != len(queue_rows):
+        return None, "not_established", "source_metrics_queue_row_count_mismatch"
+
+    transition_coordinates: list[float] = []
+    for index, row in enumerate(raw_metrics):
+        if not isinstance(row, Mapping):
+            return None, "not_established", f"source_metric_row_malformed:{index}"
+        raw_transition = row.get("coupled/time", _MISSING_OUTCOME)
+        if raw_transition is _MISSING_OUTCOME:
+            return None, "not_established", f"transition_source_time_missing:{index}"
+        transition = _finite_source_coordinate(raw_transition)
+        if transition is None:
+            return None, "not_established", f"transition_source_time_malformed:{index}"
+        raw_queue_time = row.get("queue/time", _MISSING_OUTCOME)
+        if raw_queue_time is _MISSING_OUTCOME:
+            return None, "not_established", f"queue_source_time_missing:{index}"
+        queue_time = _finite_source_coordinate(raw_queue_time)
+        if queue_time is None:
+            return None, "not_established", f"queue_source_time_malformed:{index}"
+        if not math.isclose(transition, queue_time, rel_tol=0.0, abs_tol=1e-12):
+            return None, "not_established", f"coupled_queue_source_time_disagreement:{index}"
+
+        metric_queue = _finite_source_coordinate(row.get("queue/queue_length", _MISSING_OUTCOME))
+        returned_queue = _finite_source_coordinate(queue_rows[index])
+        if metric_queue is None or returned_queue is None:
+            return None, "not_established", f"queue_source_value_malformed:{index}"
+        if not math.isclose(metric_queue, returned_queue, rel_tol=0.0, abs_tol=1e-12):
+            return None, "not_established", f"queue_source_value_disagreement:{index}"
+        transition_coordinates.append(transition)
+
+    trace = _CoupledSourceTimeTrace(
+        initial_coordinate=initial_coordinate,
+        transition_coordinates=tuple(transition_coordinates),
+    )
+    return (
+        trace.model_dump(mode="json"),
+        "observed_candidate",
+        "physical_unit_origin_and_horizon_relation_not_established",
+    )
 
 
 def _selected_outcome_value(

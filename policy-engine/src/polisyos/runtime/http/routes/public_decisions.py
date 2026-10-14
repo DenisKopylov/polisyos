@@ -24,7 +24,7 @@ from polisyos.runtime.http.dependencies import (
     enforce_run_tenant_access,
     get_runtime_api_context,
 )
-from polisyos.runtime.http.errors import CANONICAL_PROFILE_REFUSAL_RESPONSES
+from polisyos.runtime.http.errors import CANONICAL_PROFILE_REFUSAL_RESPONSES, conflict
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.public_decision_verification import (
     PublicDecisionVerificationError,
@@ -134,18 +134,23 @@ def verify_public_decision_record(
     ),
     status_code=201,
     operation_id="issue_public_decision_record",
-    responses={**({
-        201: {
-            "content": {
-                "application/json": {
-                    "example": PublicDecisionVerificationIssued(
-                        record_id="pvr_" + "a" * 32,
-                        public_path="/public/decisions/pvr_" + "a" * 32,
-                    ).model_dump(mode="json")
+    responses={
+        **(
+            {
+                201: {
+                    "content": {
+                        "application/json": {
+                            "example": PublicDecisionVerificationIssued(
+                                record_id="pvr_" + "a" * 32,
+                                public_path="/public/decisions/pvr_" + "a" * 32,
+                            ).model_dump(mode="json")
+                        }
+                    }
                 }
             }
-        }
-    }), **CANONICAL_PROFILE_REFUSAL_RESPONSES},
+        ),
+        **CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    },
     dependencies=[Depends(_ISSUE_AUTHZ)],
 )
 def issue_public_decision_record(
@@ -177,7 +182,7 @@ def issue_public_decision_record(
         packet_read = read_core_json_artifact(ctx.store, run.decision_packet_ref)
         packet = require_declared_profile(packet_read)
     except CanonicalProfileRefusalError as exc:
-        raise HTTPException(status_code=409, detail=exc.code) from exc
+        raise conflict(exc.code, code=exc.code) from exc
     if publication_class != "verification_report_only":
         owner = _service(request).governed_owner
         if owner is None:

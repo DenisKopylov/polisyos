@@ -1079,18 +1079,30 @@ def _verify_live_loop_observation(
     exit_capture: _LiveLoopExitCapture,
 ) -> _VerifiedLoopObservation:
     """Reconcile the actual request/job/CAS/replay before the store is closed."""
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        artifact_manifest_profile_sha256,
+        load_core_json_artifact,
+    )
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.control import WorkflowRunRequest
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control import run_lifecycle
     from polisyos.runtime.quality.authority import (
         OutcomeReplayProof,
         ProductionLoopRunProof,
         build_outcome_replay_proof,
+        output_cas_manifest_profiles_from_contract,
     )
 
     frozen = json.loads(serialize_loop_artifact(observation))
     proof = ProductionLoopRunProof.model_validate(frozen["proof"])
     replay = OutcomeReplayProof.model_validate(frozen["outcome_replay_proof"])
+    if (
+        proof.schema_version != "policyos.policy_design_case.layer3_gy_loop.v2"
+        or replay.schema_version != "policyos.runtime.outcome_replay_proof.v2"
+    ):
+        raise LoopFamilyCustodyError("live_loop_selected_profile_schema_not_current")
     actual_request = WorkflowRunRequest.model_validate(http_request)
     if (
         serialize_loop_artifact(http_request)
@@ -1195,6 +1207,7 @@ def _verify_live_loop_observation(
         frozen["proof"],
         kind="pdc.gy.production_loop_run_proof",
         schema="polisyos.runtime.ProductionLoopRunProof",
+        schema_version="2.0",
     )
     checks.append(check)
     if proof.output_replay_proof_ref is None:
@@ -1205,6 +1218,7 @@ def _verify_live_loop_observation(
         frozen["outcome_replay_proof"],
         kind="pdc.gy.outcome_replay_proof",
         schema="polisyos.runtime.OutcomeReplayProof",
+        schema_version="2.0",
     )
     checks.append(check)
     if len(proof.input_artifacts) != len(set(proof.input_artifacts)):
@@ -1224,6 +1238,69 @@ def _verify_live_loop_observation(
     )
     if expected_replay != replay:
         raise LoopFamilyCustodyError("live_loop_replay_recomputation_drift")
+    selected_profiles = output_cas_manifest_profiles_from_contract(contract)
+    selected_by_payload = {str(item.payload_artifact_id): item for item in selected_profiles}
+    if len(selected_by_payload) != len(selected_profiles):
+        raise LoopFamilyCustodyError("live_loop_selected_profile_payload_identity_duplicate")
+    for item in selected_profiles:
+        envelope = next(
+            (
+                row
+                for row in contract.get("artifact_envelopes", [])
+                if isinstance(row, Mapping)
+                and isinstance(row.get("ref"), Mapping)
+                and row["ref"].get("artifact_id") == item.envelope_artifact_id
+                and row["ref"].get("artifact_type") == item.envelope_artifact_type
+            ),
+            None,
+        )
+        roots = envelope.get("producer_roots") if isinstance(envelope, Mapping) else None
+        if not (
+            isinstance(envelope, Mapping)
+            and item.envelope_artifact_type == "BaseDataset"
+            and isinstance(roots, list)
+            and any(
+                isinstance(root, Mapping) and root.get("artifact_type") == "MeasurementRoot"
+                for root in roots
+            )
+        ):
+            raise LoopFamilyCustodyError("live_loop_selected_profile_owner_not_supported")
+        selected_ref = ArtifactRef(
+            artifact_id=ArtifactID(str(item.payload_artifact_id)),
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            manifest_profile_sha256=item.manifest_profile_sha256,
+        )
+        selected_manifest = store.get_manifest(selected_ref)
+        if (
+            artifact_manifest_profile_sha256(selected_manifest) != item.manifest_profile_sha256
+            or selected_manifest.artifact_schema is None
+            or selected_manifest.artifact_schema.name != item.payload_schema_ref
+        ):
+            raise LoopFamilyCustodyError("live_loop_selected_profile_manifest_drift")
+        selected_payload = load_core_json_artifact(
+            store,
+            selected_ref,
+            manifest_profile_sha256=item.manifest_profile_sha256,
+        )
+        if not isinstance(selected_payload, dict) or gy_content_hash(selected_payload) != envelope[
+            "ref"
+        ].get("content_hash"):
+            raise LoopFamilyCustodyError("live_loop_selected_profile_payload_drift")
+    readback_receipt = frozen.get("http_receipts", {}).get("readback")
+    chain_issues = _selected_output_profile_chain_issues(
+        contract,
+        frozen["proof"],
+        frozen["outcome_replay_proof"],
+        readback_receipt if isinstance(readback_receipt, Mapping) else None,
+        frozen.get("artifacts_index")
+        if isinstance(frozen.get("artifacts_index"), Mapping)
+        else None,
+    )
+    if chain_issues:
+        raise LoopFamilyCustodyError(
+            "live_loop_selected_profile_chain_invalid:" + json.dumps(chain_issues)
+        )
     issues: list[dict[str, str]] = []
     _validate_production_loop_proof(0, frozen["proof"], issues)
     if issues:
@@ -3304,9 +3381,8 @@ def _recompute_j_family_semantics(
     proof = outcome["production_loop_run_proof"]
     typed_proof = ProductionLoopRunProof.model_validate(proof)
     typed_replay = OutcomeReplayProof.model_validate(replay["replay_proof"])
-    if (
-        typed_proof.model_dump(mode="json", by_alias=True) != proof
-        or typed_replay.model_dump(mode="json") != replay["replay_proof"]
+    if not _runtime_proof_shape_matches_history(typed_proof, proof, by_alias=True) or not (
+        _runtime_proof_shape_matches_history(typed_replay, replay["replay_proof"])
     ):
         raise LoopFamilyCustodyError("production_recorded_proof_raw_shape_drift")
     packet_issues: list[dict[str, str]] = []
@@ -3331,8 +3407,9 @@ def _recompute_j_family_semantics(
         output_cas_refs=[
             ref for ref in proof["output_cas_refs"] if ref != proof["output_replay_proof_ref"]
         ],
+        schema_version=typed_replay.schema_version,
     )
-    if expected_replay.model_dump(mode="json") != replay["replay_proof"]:
+    if not _runtime_proof_shape_matches_history(expected_replay, replay["replay_proof"]):
         raise LoopFamilyCustodyError("production_recorded_replay_owner_drift")
     if (
         contract["terminal_state"]["kind"] != "a_spec_gap"
@@ -3403,6 +3480,7 @@ def _recompute_j_family_semantics(
                 output_cas_refs=[
                     references[item] for item in proof["output_cas_refs"] if item != ref
                 ],
+                schema_version=typed_replay.schema_version,
             ).model_dump(mode="json")
         normalized = _j_reference_projection(body, references)
         digest = "semantic:" + _gx_digest(serialize_loop_artifact(normalized))
@@ -4136,6 +4214,111 @@ def _has_finalized_control_store_observation(proof: Mapping[str, Any]) -> bool:
     )
 
 
+def _selected_output_profile_chain_issues(
+    contract: Mapping[str, Any],
+    proof: Mapping[str, Any],
+    replay: Mapping[str, Any],
+    readback: Mapping[str, Any] | None,
+    artifacts_index: Mapping[str, Any] | None = None,
+) -> list[dict[str, str]]:
+    """Require the producer-selected output view to survive proof and fresh GET."""
+
+    from pydantic import ValidationError
+
+    from polisyos.runtime.quality.authority import output_cas_manifest_profiles_from_contract
+
+    try:
+        selected = output_cas_manifest_profiles_from_contract(contract)
+        expected = [item.model_dump(mode="json") for item in selected]
+    except (TypeError, ValueError, ValidationError):
+        return [{"code": "layer3_gy_selected_output_profile_contract_invalid"}]
+
+    issues: list[dict[str, str]] = []
+    envelopes = contract.get("artifact_envelopes")
+    if not isinstance(envelopes, list):
+        return [{"code": "layer3_gy_selected_output_profile_contract_invalid"}]
+    for envelope in envelopes:
+        if not isinstance(envelope, Mapping):
+            continue
+        ref = envelope.get("ref")
+        roots = envelope.get("producer_roots")
+        is_measurement_root = (
+            isinstance(ref, Mapping)
+            and ref.get("artifact_type") == "BaseDataset"
+            and isinstance(roots, list)
+            and any(
+                isinstance(root, Mapping) and root.get("artifact_type") == "MeasurementRoot"
+                for root in roots
+            )
+        )
+        if is_measurement_root and not envelope.get("payload_manifest_profile_sha256"):
+            issues.append({"code": "layer3_gy_measurement_root_selected_profile_missing"})
+
+    proof_version = proof.get("schema_version")
+    replay_version = replay.get("schema_version")
+    proof_profiles = proof.get("output_cas_manifest_profiles")
+    replay_profiles = replay.get("output_cas_manifest_profiles")
+    if (proof_version == "policyos.policy_design_case.layer3_gy_loop.v2") != (
+        replay_version == "policyos.runtime.outcome_replay_proof.v2"
+    ):
+        issues.append({"code": "layer3_gy_selected_output_profile_schema_pair_drift"})
+    if proof_version == "policyos.policy_design_case.layer3_gy_loop.v2":
+        if proof_profiles != expected:
+            issues.append({"code": "layer3_gy_selected_output_profile_run_proof_drift"})
+    elif expected:
+        issues.append({"code": "layer3_gy_selected_output_profile_run_proof_version_missing"})
+    if replay_version == "policyos.runtime.outcome_replay_proof.v2":
+        if replay_profiles != expected:
+            issues.append({"code": "layer3_gy_selected_output_profile_replay_drift"})
+    elif expected:
+        issues.append({"code": "layer3_gy_selected_output_profile_replay_version_missing"})
+
+    if readback is not None:
+        if not (
+            proof_version == "policyos.policy_design_case.layer3_gy_loop.v2"
+            and replay_version == "policyos.runtime.outcome_replay_proof.v2"
+        ):
+            issues.append({"code": "layer3_gy_selected_output_profile_current_schema_missing"})
+        if readback.get("observed_search_exit_contract_ref") != proof.get(
+            "output_search_exit_contract_ref"
+        ):
+            issues.append({"code": "layer3_gy_selected_output_profile_get_contract_ref_drift"})
+        if readback.get("observed_search_exit_contract_hash") != replay.get("output_hash"):
+            issues.append({"code": "layer3_gy_selected_output_profile_get_contract_hash_drift"})
+        if readback.get("observed_output_cas_manifest_profiles") != expected:
+            issues.append({"code": "layer3_gy_selected_output_profile_get_projection_drift"})
+    elif expected or proof_version == "policyos.policy_design_case.layer3_gy_loop.v2":
+        issues.append({"code": "layer3_gy_selected_output_profile_get_receipt_missing"})
+    if artifacts_index is not None:
+        if artifacts_index.get("output_cas_manifest_profiles") != expected:
+            issues.append({"code": "layer3_gy_selected_output_profile_artifacts_index_drift"})
+    elif proof_version == "policyos.policy_design_case.layer3_gy_loop.v2":
+        issues.append({"code": "layer3_gy_selected_output_profile_artifacts_index_missing"})
+    return issues
+
+
+def _runtime_proof_shape_matches_history(
+    model: BaseModel,
+    raw_payload: Mapping[str, Any],
+    *,
+    by_alias: bool = False,
+) -> bool:
+    """Preserve exact v1 bytes while accepting the additive v2 proof field."""
+
+    dumped = model.model_dump(mode="json", by_alias=by_alias)
+    schema_version = raw_payload.get("schema_version")
+    if (
+        schema_version
+        in {
+            "policyos.policy_design_case.layer3_gy_loop.v1",
+            "policyos.runtime.outcome_replay_proof.v1",
+        }
+        and "output_cas_manifest_profiles" not in raw_payload
+    ):
+        dumped.pop("output_cas_manifest_profiles", None)
+    return dumped == dict(raw_payload)
+
+
 def _validate_outcome_terminal_and_replay(
     outcome: dict[str, Any],
     replay_artifact: dict[str, Any],
@@ -4257,6 +4440,19 @@ def _validate_outcome_terminal_and_replay(
     if not replay.producer_roots or replay.producer_roots != outcome.get("producer_roots"):
         issues.append({"code": "layer3_gy_outcome_producer_roots_missing"})
 
+    selected_readback = readback if isinstance(readback, dict) else None
+    issues.extend(
+        _selected_output_profile_chain_issues(
+            contract,
+            proof_payload,
+            replay_payload,
+            selected_readback,
+            outcome.get("artifacts_index")
+            if isinstance(outcome.get("artifacts_index"), dict)
+            else None,
+        )
+    )
+
     cas_checks = outcome.get("cas_resolution_checks")
     resolved_refs = {
         str(item.get("artifact_ref"))
@@ -4317,6 +4513,7 @@ def _run_durable_workspace_loop_observation(
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.core.canon import CanonSpec
     from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
@@ -4328,6 +4525,7 @@ def _run_durable_workspace_loop_observation(
     from polisyos.runtime.quality.authority import (
         OutcomeReplayProof,
         ProductionLoopRunProof,
+        output_cas_manifest_profiles_from_contract,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 
@@ -4546,6 +4744,12 @@ def _run_durable_workspace_loop_observation(
                             f"{response_payload.get('state')}"
                         )
                     progress = dict(response_payload["progress"])
+                    served_contract = progress.get("search_exit_contract")
+                    served_profiles = (
+                        output_cas_manifest_profiles_from_contract(served_contract)
+                        if isinstance(served_contract, Mapping)
+                        else []
+                    )
                     proof_payload = progress.get("production_loop_run_proof")
                     proof = ProductionLoopRunProof.model_validate(proof_payload)
                     contract_payload = progress.get("search_exit_contract")
@@ -4608,6 +4812,17 @@ def _run_durable_workspace_loop_observation(
                                 "surface": f"/api/v1/control/jobs/{launch['job_id']}",
                                 "status_code": readback_response.status_code,
                                 "observed_state": response_payload["state"],
+                                "observed_search_exit_contract_ref": progress.get(
+                                    "search_exit_contract_ref"
+                                ),
+                                "observed_search_exit_contract_hash": (
+                                    gy_content_hash(served_contract)
+                                    if isinstance(served_contract, Mapping)
+                                    else None
+                                ),
+                                "observed_output_cas_manifest_profiles": [
+                                    item.model_dump(mode="json") for item in served_profiles
+                                ],
                             },
                         },
                     }
@@ -4696,6 +4911,57 @@ def _validate_production_loop_proof(
                     "field": field,
                 }
             )
+    if proof.get("schema_version") == "policyos.policy_design_case.layer3_gy_loop.v2":
+        profiles = proof.get("output_cas_manifest_profiles")
+        if not isinstance(profiles, list):
+            issues.append(
+                {"code": "layer3_gy_proof_selected_profile_projection_missing", "index": str(index)}
+            )
+        else:
+            profile_refs: list[str] = []
+            profile_identities: list[tuple[str, str]] = []
+            for selected in profiles:
+                if not isinstance(selected, dict):
+                    issues.append(
+                        {
+                            "code": "layer3_gy_proof_selected_profile_projection_invalid",
+                            "index": str(index),
+                        }
+                    )
+                    continue
+                payload_ref = str(selected.get("payload_artifact_id") or "")
+                envelope_id = str(selected.get("envelope_artifact_id") or "")
+                envelope_type = str(selected.get("envelope_artifact_type") or "")
+                profile = str(selected.get("manifest_profile_sha256") or "")
+                profile_refs.append(payload_ref)
+                profile_identities.append((envelope_id, envelope_type))
+                if (
+                    not _looks_like_sha256_ref(payload_ref)
+                    or not _looks_like_sha256_ref(profile)
+                    or not envelope_id
+                    or not envelope_type
+                    or not selected.get("payload_schema_ref")
+                    or payload_ref not in set(proof.get("output_cas_refs") or [])
+                ):
+                    issues.append(
+                        {
+                            "code": "layer3_gy_proof_selected_profile_projection_invalid",
+                            "index": str(index),
+                        }
+                    )
+            if len(profile_identities) != len(set(profile_identities)) or len(profile_refs) != len(
+                set(profile_refs)
+            ):
+                issues.append(
+                    {
+                        "code": "layer3_gy_proof_selected_profile_projection_duplicate",
+                        "index": str(index),
+                    }
+                )
+    elif proof.get("output_cas_manifest_profiles"):
+        issues.append(
+            {"code": "layer3_gy_legacy_proof_selected_profile_claim", "index": str(index)}
+        )
     if proof.get("endpoint") != "/api/v1/control/runs":
         issues.append({"code": "layer3_gy_proof_endpoint_not_runs", "index": str(index)})
     if proof.get("job_kind") != "workflow_run":

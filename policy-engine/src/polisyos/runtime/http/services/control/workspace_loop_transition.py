@@ -171,6 +171,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         from polisyos.runtime.quality.authority import (
             ProductionLoopRunProof,
             build_outcome_replay_proof,
+            output_cas_manifest_profiles_from_contract,
         )
         from polisyos.runtime.quality.workspace.s2_design_search_operation import (
             S2_DESIGN_SEARCH_OPERATION_ID,
@@ -289,6 +290,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             for envelope in contract.artifact_envelopes
             if str(envelope.payload_ref).startswith("sha256:")
         ]
+        output_profile_views = output_cas_manifest_profiles_from_contract(contract_payload)
         output_cas_refs = [
             search_exit_ref,
             ledger_ref,
@@ -310,6 +312,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             replay_payload,
             kind="pdc.gy.outcome_replay_proof",
             schema_name="polisyos.runtime.OutcomeReplayProof",
+            schema_version="2.0",
         )
         output_cas_refs.append(replay_ref)
         authority_result, quality_scorecard, approval_projection = (
@@ -338,12 +341,14 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             output_search_exit_contract_ref=search_exit_ref,
             output_replay_proof_ref=replay_ref,
             output_cas_refs=output_cas_refs,
+            output_cas_manifest_profiles=output_profile_views,
             artifacts_index_refs=[
                 "search_exit_contract_ref",
                 "search_ledger_ref",
                 "outcome_replay_proof_ref",
                 *(["authority_derivation_trace_refs"] if authority_trace_refs else []),
                 "output_artifact_payload_refs",
+                "output_cas_manifest_profiles",
             ],
             surface_reads_checked=[
                 "control_worker_precompletion",
@@ -356,6 +361,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             proof_payload,
             kind="pdc.gy.production_loop_run_proof",
             schema_name="polisyos.runtime.ProductionLoopRunProof",
+            schema_version="2.0",
         )
         quality_scorecard["evidence_refs"] = {
             **dict(quality_scorecard.get("evidence_refs") or {}),
@@ -386,6 +392,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 "production_loop_run_proof_ref": proof_ref,
                 "authority_derivation_trace_refs": authority_trace_refs,
                 "output_artifact_payload_refs": artifact_payload_refs,
+                "output_cas_manifest_profiles": [
+                    item.model_dump(mode="json") for item in output_profile_views
+                ],
             },
             "quality_scorecard": quality_scorecard,
             "approval_projection": approval_projection,
@@ -604,6 +613,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             proof_payload,
             kind="pdc.gy.production_loop_run_proof",
             schema_name="polisyos.runtime.ProductionLoopRunProof",
+            schema_version="2.0",
         )
         progress["production_loop_run_proof"] = proof_payload
         progress["production_loop_run_proof_ref"] = proof_ref
@@ -979,6 +989,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             final_payload,
             kind="pdc.gy.production_loop_run_proof",
             schema_name="polisyos.runtime.ProductionLoopRunProof",
+            schema_version="2.0",
         )
         self._control_store.publish_completed_job_proof(
             job_id=record.job_id,

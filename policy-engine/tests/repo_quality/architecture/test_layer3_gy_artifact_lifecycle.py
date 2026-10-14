@@ -3448,3 +3448,122 @@ def test_gy_j_history_guards_every_completed_predecessor_epoch(monkeypatch, hist
     issues = []
     owner._validate_loop_epoch_partition(REPO_ROOT, generated, issues)
     assert {"code": "layer3_gy_loop_epoch_history_changed", "path": historical_path} in issues
+
+
+def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() -> None:
+    from tools.quality.validation.check_layer3_gy_loop_artifacts import (
+        _selected_output_profile_chain_issues,
+    )
+
+    payload_ref = "sha256:" + "a" * 64
+    profile = "sha256:" + "b" * 64
+    contract_ref = "sha256:" + "c" * 64
+    output_hash = "sha256:" + "d" * 64
+    selected = {
+        "envelope_artifact_id": "base-selected-measurement",
+        "envelope_artifact_type": "BaseDataset",
+        "payload_artifact_id": payload_ref,
+        "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "manifest_profile_sha256": profile,
+    }
+    contract = {
+        "artifact_envelopes": [
+            {
+                "ref": {
+                    "artifact_id": "base-selected-measurement",
+                    "artifact_type": "BaseDataset",
+                    "content_hash": "sha256:" + "e" * 64,
+                },
+                "payload_ref": payload_ref,
+                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+                "payload_manifest_profile_sha256": profile,
+                "producer_roots": [{"artifact_type": "MeasurementRoot"}],
+            }
+        ]
+    }
+    proof = {
+        "schema_version": "policyos.policy_design_case.layer3_gy_loop.v2",
+        "output_search_exit_contract_ref": contract_ref,
+        "output_cas_refs": [payload_ref],
+        "output_cas_manifest_profiles": [selected],
+    }
+    replay = {
+        "schema_version": "policyos.runtime.outcome_replay_proof.v2",
+        "output_hash": output_hash,
+        "output_cas_manifest_profiles": [selected],
+    }
+    readback = {
+        "observed_search_exit_contract_ref": contract_ref,
+        "observed_search_exit_contract_hash": output_hash,
+        "observed_output_cas_manifest_profiles": [selected],
+    }
+    artifacts_index = {"output_cas_manifest_profiles": [selected]}
+
+    assert (
+        _selected_output_profile_chain_issues(
+            contract,
+            proof,
+            replay,
+            readback,
+            artifacts_index,
+        )
+        == []
+    )
+
+    substituted_get = deepcopy(readback)
+    substituted_get["observed_output_cas_manifest_profiles"][0]["manifest_profile_sha256"] = (
+        "sha256:" + "f" * 64
+    )
+    get_issues = _selected_output_profile_chain_issues(
+        contract,
+        proof,
+        replay,
+        substituted_get,
+        artifacts_index,
+    )
+    assert {item["code"] for item in get_issues} == {
+        "layer3_gy_selected_output_profile_get_projection_drift"
+    }
+
+    marker_only_proof = deepcopy(proof)
+    marker_only_proof.pop("output_cas_manifest_profiles")
+    removed_proof_issues = _selected_output_profile_chain_issues(
+        contract,
+        marker_only_proof,
+        replay,
+        readback,
+        artifacts_index,
+    )
+    assert "layer3_gy_selected_output_profile_run_proof_drift" in {
+        item["code"] for item in removed_proof_issues
+    }
+
+    substituted_contract = deepcopy(contract)
+    substituted_contract["artifact_envelopes"][0]["payload_manifest_profile_sha256"] = (
+        "sha256:" + "f" * 64
+    )
+    contract_issues = _selected_output_profile_chain_issues(
+        substituted_contract,
+        proof,
+        replay,
+        readback,
+        artifacts_index,
+    )
+    assert {
+        "layer3_gy_selected_output_profile_run_proof_drift",
+        "layer3_gy_selected_output_profile_replay_drift",
+        "layer3_gy_selected_output_profile_get_projection_drift",
+    } <= {item["code"] for item in contract_issues}
+
+    missing_selector = deepcopy(contract)
+    missing_selector["artifact_envelopes"][0].pop("payload_manifest_profile_sha256")
+    missing_issues = _selected_output_profile_chain_issues(
+        missing_selector,
+        proof,
+        replay,
+        readback,
+        artifacts_index,
+    )
+    assert "layer3_gy_measurement_root_selected_profile_missing" in {
+        item["code"] for item in missing_issues
+    }

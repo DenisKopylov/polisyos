@@ -61,6 +61,75 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     assert violations == []
 
 
+def test_runtime_api_problem_keeps_nested_diagnostics_separate_from_envelope() -> None:
+    """The runtime model, OpenAPI schema, and emitter agree on nested JSON keys."""
+
+    from jsonschema import Draft202012Validator
+    from pydantic import ValidationError
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012
+
+    from polisyos.core.contracts.runtime import RuntimeApiProblem
+    from polisyos.runtime.http.errors import problem_response
+
+    base = {
+        "title": "Conflict",
+        "detail": "Selected data conflicts",
+        "code": "outer-code",
+        "status": 409,
+        "status_code": 409,
+    }
+    extensions = {
+        "code": "diagnostic-code",
+        "status": "diagnostic-status",
+        "status_code": [409, 422],
+        "error": None,
+        "context": {"run_id": "diagnostic-only"},
+        "extensions": {"code": "deeper-diagnostic"},
+    }
+    nested = RuntimeApiProblem.model_validate(
+        {**base, "context": {"run_id": "R1"}, "extensions": extensions},
+        strict=True,
+    )
+    assert nested.context is not None and nested.context.run_id == "R1"
+    assert nested.extensions == extensions
+    assert nested.code == "outer-code"
+    assert nested.status == nested.status_code == 409
+
+    snapshot = export_runtime_openapi_schema()
+    openapi_uri = "https://policyos.example/runtime-api/openapi.json"
+    registry = Registry().with_resource(
+        openapi_uri,
+        Resource.from_contents(snapshot, default_specification=DRAFT202012),
+    )
+    schema_validator = Draft202012Validator(
+        {"$ref": f"{openapi_uri}#/components/schemas/RuntimeApiProblem"},
+        registry=registry,
+    )
+    schema_validator.validate(nested.model_dump(mode="json"))
+    assert not schema_validator.is_valid({**nested.model_dump(mode="json"), "unmodeled": "refuse"})
+    with pytest.raises(ValidationError):
+        RuntimeApiProblem.model_validate({**base, "unmodeled": "refuse"}, strict=True)
+    with pytest.raises(ValidationError):
+        RuntimeApiProblem.model_validate(
+            {**base, "extensions": {"diagnostic": float("nan")}},
+            strict=True,
+        )
+
+    response = problem_response(
+        status_code=409,
+        code="outer-code",
+        detail="Selected data conflicts",
+        request_id="req_nested_extensions",
+        extensions=extensions,
+    )
+    emitted = RuntimeApiProblem.model_validate_json(response.body, strict=True)
+    schema_validator.validate(json.loads(response.body))
+    assert emitted.code == "outer-code"
+    assert emitted.status == emitted.status_code == response.status_code == 409
+    assert emitted.extensions == extensions
+
+
 def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
     """The resolver response set matches the runtime problem serializer and model."""
     import ast
@@ -125,7 +194,8 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
             )
             values = [payload["example"]] if "example" in payload else []
             values.extend(
-                item["value"] for item in payload.get("examples", {}).values()
+                item["value"]
+                for item in payload.get("examples", {}).values()
                 if isinstance(item, dict) and "value" in item
             )
             assert values, f"{operation_id}: problem response example is missing"
@@ -139,10 +209,12 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
         assert "409" not in batch_responses, "batch must not advertise 409"
 
     assert_routes(schema)
-    model_schema = RuntimeApiProblem.model_json_schema(
-        ref_template="#/components/schemas/{model}"
-    )
-    assert schema["components"]["schemas"]["RuntimeApiProblem"] == model_schema
+    model_schema = RuntimeApiProblem.model_json_schema(ref_template="#/components/schemas/{model}")
+    model_defs = model_schema.pop("$defs", {})
+    components = schema["components"]["schemas"]
+    assert components["RuntimeApiProblem"] == model_schema
+    for name, definition in model_defs.items():
+        assert components[name] == definition
     response = problem_response(
         status_code=409,
         code="artifact_integrity_failed",
@@ -161,24 +233,34 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
     original_op = live[operation_id]
     path = next(path for path, _, op in iter_openapi_operations(schema) if op is original_op)
     op = next(
-        op for candidate_path, _, op in iter_openapi_operations(future)
+        op
+        for candidate_path, _, op in iter_openapi_operations(future)
         if candidate_path == path and op.get("operationId") == operation_id
     )
     op["responses"]["418"] = {
         "description": "A future typed problem response.",
-        "content": {media: {
-            "schema": {"$ref": ref},
-            "examples": {"future": {"value": runtime_problem_example(
-                status_code=418, code="future_route_problem", path=path,
-                request_id="req_future_problem"
-            )}}
-        }}
+        "content": {
+            media: {
+                "schema": {"$ref": ref},
+                "examples": {
+                    "future": {
+                        "value": runtime_problem_example(
+                            status_code=418,
+                            code="future_route_problem",
+                            path=path,
+                            request_id="req_future_problem",
+                        )
+                    }
+                },
+            }
+        },
     }
     assert validate_runtime_openapi_contract(future) == []
 
     bad_media = deepcopy(schema)
     response = next(
-        op["responses"]["409"] for _, _, op in iter_openapi_operations(bad_media)
+        op["responses"]["409"]
+        for _, _, op in iter_openapi_operations(bad_media)
         if op.get("operationId") in resolver_ids
     )
     payload = response["content"].pop(media)
@@ -189,39 +271,47 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
 
     bad_ref = deepcopy(schema)
     response = next(
-        op["responses"]["409"] for _, _, op in iter_openapi_operations(bad_ref)
+        op["responses"]["409"]
+        for _, _, op in iter_openapi_operations(bad_ref)
         if op.get("operationId") in resolver_ids
     )
-    response["content"][media]["schema"]["$ref"] = (
-        "#/components/schemas/ArtifactManifestResponse"
-    )
+    response["content"][media]["schema"]["$ref"] = "#/components/schemas/ArtifactManifestResponse"
     assert validate_runtime_openapi_contract(bad_ref)
     with pytest.raises(AssertionError, match="409 response schema mismatch"):
         assert_routes(bad_ref)
 
     missing = deepcopy(schema)
-    op = next(op for _, _, op in iter_openapi_operations(missing)
-              if op.get("operationId") in resolver_ids)
+    op = next(
+        op for _, _, op in iter_openapi_operations(missing) if op.get("operationId") in resolver_ids
+    )
     del op["responses"]["409"]
     with pytest.raises(AssertionError, match="missing or invalid 409 response"):
         assert_routes(missing)
 
     malformed = deepcopy(schema)
-    op = next(op for _, _, op in iter_openapi_operations(malformed)
-              if op.get("operationId") in resolver_ids)
+    op = next(
+        op
+        for _, _, op in iter_openapi_operations(malformed)
+        if op.get("operationId") in resolver_ids
+    )
     op["responses"]["409"] = None
     with pytest.raises(AssertionError, match="missing or invalid 409 response"):
         assert_routes(malformed)
 
     batch = deepcopy(schema)
-    batch_op = next(op for _, _, op in iter_openapi_operations(batch)
-                    if op.get("operationId") == "get_artifact_batch")
-    copied = next(op["responses"]["409"] for _, _, op in iter_openapi_operations(batch)
-                  if op.get("operationId") in resolver_ids)
+    batch_op = next(
+        op
+        for _, _, op in iter_openapi_operations(batch)
+        if op.get("operationId") == "get_artifact_batch"
+    )
+    copied = next(
+        op["responses"]["409"]
+        for _, _, op in iter_openapi_operations(batch)
+        if op.get("operationId") in resolver_ids
+    )
     batch_op["responses"]["409"] = deepcopy(copied)
     with pytest.raises(AssertionError, match="batch must not advertise 409"):
         assert_routes(batch)
-
 
 
 def test_model_dispatched_success_examples_match_schema_and_reject_field_drift() -> None:
@@ -317,9 +407,7 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
             for _, _, candidate in iter_openapi_operations(corrupted_example_schema)
             if candidate.get("operationId") == operation_id
         )
-        corrupted_pair = openapi_contract._first_success_response(
-            corrupted_operation["responses"]
-        )
+        corrupted_pair = openapi_contract._first_success_response(corrupted_operation["responses"])
         assert corrupted_pair is not None
         corrupted_payload = corrupted_pair[1]["content"]["application/json"]
         corrupted_payload["examples"][example_name]["value"] = corrupted_value
@@ -394,13 +482,15 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
 
     def lex_discriminator_mapping(snapshot: dict[str, Any]) -> dict[str, Any]:
         lex_operation = next(
-            candidate for _, _, candidate in iter_openapi_operations(snapshot)
+            candidate
+            for _, _, candidate in iter_openapi_operations(snapshot)
             if candidate.get("operationId") == "get_lex_search_profile"
         )
         pair = openapi_contract._first_success_response(lex_operation["responses"])
         assert pair is not None
         response_schema = pair[1]["content"]["application/json"]["schema"]
         seen: set[str] = set()
+
         def find(value: object) -> dict[str, Any] | None:
             if isinstance(value, list):
                 for item in value:
@@ -409,7 +499,9 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
                         return found
             elif isinstance(value, dict):
                 discriminator = value.get("discriminator")
-                if isinstance(discriminator, dict) and isinstance(discriminator.get("mapping"), dict):
+                if isinstance(discriminator, dict) and isinstance(
+                    discriminator.get("mapping"), dict
+                ):
                     return discriminator["mapping"]
                 ref = value.get("$ref")
                 if isinstance(ref, str) and ref not in seen:
@@ -424,6 +516,7 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
                     if found is not None:
                         return found
             return None
+
         mapping = find(response_schema)
         assert mapping and all(isinstance(target, str) for target in mapping.values())
         return mapping
@@ -435,18 +528,25 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
     wrong_target_schema["components"]["schemas"]["R193WrongDiscriminatorTarget"] = {
         "properties": {final_component: {"type": "string", "const": "wrong-target"}}
     }
-    wrong_mapping[tag] = "#/components/schemas/R193WrongDiscriminatorTarget/properties/" + final_component
+    wrong_mapping[tag] = (
+        "#/components/schemas/R193WrongDiscriminatorTarget/properties/" + final_component
+    )
     wrong_target_violations = validate_runtime_openapi_contract(wrong_target_schema)
     assert (
         "GET /api/v1/control/lex/search-profile: "
         "success response schema differs from registered response model"
     ) in wrong_target_violations
 
-    for bad_ref in ("#/components/schemas/LexSearchProfileRefusedResponse~2Bad",
-                    "#/components/schemas/R193MissingResponse"):
+    for bad_ref in (
+        "#/components/schemas/LexSearchProfileRefusedResponse~2Bad",
+        "#/components/schemas/R193MissingResponse",
+    ):
         bad_schema = deepcopy(schema)
-        bad_op = next(candidate for _, _, candidate in iter_openapi_operations(bad_schema)
-                      if candidate.get("operationId") == "get_lex_search_profile")
+        bad_op = next(
+            candidate
+            for _, _, candidate in iter_openapi_operations(bad_schema)
+            if candidate.get("operationId") == "get_lex_search_profile"
+        )
         bad_pair = openapi_contract._first_success_response(bad_op["responses"])
         assert bad_pair is not None
         bad_pair[1]["content"]["application/json"]["schema"] = {"$ref": bad_ref}
@@ -457,15 +557,32 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
         ) in bad_violations
 
     raw_fragment_cases = (
-        ("#/components/schemas/R193ReferenceTargets/properties/Response target", "Response target", True),
-        ("#/components/schemas/R193ReferenceTargets/properties/Response%20target", "Response target", False),
-        ("#/components/schemas/R193ReferenceTargets/properties/Response#target", "Response#target", True),
-        ("#/components/schemas/R193ReferenceTargets/properties/Response%23target", "Response#target", False),
+        (
+            "#/components/schemas/R193ReferenceTargets/properties/Response target",
+            "Response target",
+            True,
+        ),
+        (
+            "#/components/schemas/R193ReferenceTargets/properties/Response%20target",
+            "Response target",
+            False,
+        ),
+        (
+            "#/components/schemas/R193ReferenceTargets/properties/Response#target",
+            "Response#target",
+            True,
+        ),
+        (
+            "#/components/schemas/R193ReferenceTargets/properties/Response%23target",
+            "Response#target",
+            False,
+        ),
     )
     for response_reference, property_name, should_fail in raw_fragment_cases:
         fragment_schema = deepcopy(schema)
         fragment_operation = next(
-            candidate for _, _, candidate in iter_openapi_operations(fragment_schema)
+            candidate
+            for _, _, candidate in iter_openapi_operations(fragment_schema)
             if candidate.get("operationId") == "get_lex_search_profile"
         )
         fragment_pair = openapi_contract._first_success_response(fragment_operation["responses"])
@@ -493,7 +610,6 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
     assert predictive_example["scenarios"][0]["interval_evaluated_count"] == 0
 
 
-
 def test_success_schema_projection_resolves_complete_local_reference_graph() -> None:
     """Full target content binds refs; malformed and unsupported refs fail closed."""
     from polisyos.runtime.http.openapi_contract import (
@@ -501,9 +617,12 @@ def test_success_schema_projection_resolves_complete_local_reference_graph() -> 
         _resolve_json_schema_pointer,
         _success_json_schema_projection,
     )
+
     pointer_doc = {"$defs": {"A/B": {"type": "string", "const": "bound"}}}
     assert _resolve_json_schema_pointer(pointer_doc, "#/%24defs/A~1B") == {
-        "type": "string", "const": "bound"}
+        "type": "string",
+        "const": "bound",
+    }
     assert _resolve_json_schema_pointer(pointer_doc, "#/$defs/A~2B") is None
     assert _resolve_json_schema_pointer(pointer_doc, "#/$defs/A%ZZB") is None
     raw_fragment_literals = frozenset(
@@ -518,45 +637,80 @@ def test_success_schema_projection_resolves_complete_local_reference_graph() -> 
         "Response café": {"type": "object", "const": "same"},
     }
     encoded_document = {"components": {"schemas": encoded_targets}}
-    assert _resolve_json_schema_pointer(
-        encoded_document, "#/components/schemas/Response%20target"
-    ) == encoded_targets["Response target"]
-    assert _resolve_json_schema_pointer(
-        encoded_document, "#/components/schemas/Response%23target"
-    ) == encoded_targets["Response#target"]
-    assert _resolve_json_schema_pointer(
-        encoded_document, "#/components/schemas/Response%20caf%C3%A9"
-    ) == encoded_targets["Response café"]
-    expected_doc = {"$defs": {"LexSearchProfileRefusedResponse": {"type": "object",
-        "properties": {"status": {"const": "refused"}}}}}
-    actual_doc = {"components": {"schemas": {
-        "LexSearchProfileRefusedResponse": expected_doc["$defs"]["LexSearchProfileRefusedResponse"],
-        "R193Other": {"properties": {"LexSearchProfileRefusedResponse": {
-            "type": "string", "const": "wrong-target"}}}}}}
-    expected = {"oneOf": [{"$ref": "#/$defs/LexSearchProfileRefusedResponse"}],
-        "discriminator": {"propertyName": "status", "mapping": {
-            "refused": "#/$defs/LexSearchProfileRefusedResponse"}}}
-    actual = {"oneOf": [{"$ref": "#/components/schemas/LexSearchProfileRefusedResponse"}],
-        "discriminator": {"propertyName": "status", "mapping": {
-            "refused": "#/components/schemas/R193Other/properties/LexSearchProfileRefusedResponse"}}}
-    assert _success_json_schema_projection(expected, document=expected_doc) != \
-        _success_json_schema_projection(actual, document=actual_doc)
-    bad1 = _success_json_schema_projection({"$ref": "#/components/schemas/X~2Y"},
-        document=actual_doc)
-    bad2 = _success_json_schema_projection({"$ref": "#/components/schemas/X~2Y"},
-        document=actual_doc)
+    assert (
+        _resolve_json_schema_pointer(encoded_document, "#/components/schemas/Response%20target")
+        == encoded_targets["Response target"]
+    )
+    assert (
+        _resolve_json_schema_pointer(encoded_document, "#/components/schemas/Response%23target")
+        == encoded_targets["Response#target"]
+    )
+    assert (
+        _resolve_json_schema_pointer(encoded_document, "#/components/schemas/Response%20caf%C3%A9")
+        == encoded_targets["Response café"]
+    )
+    expected_doc = {
+        "$defs": {
+            "LexSearchProfileRefusedResponse": {
+                "type": "object",
+                "properties": {"status": {"const": "refused"}},
+            }
+        }
+    }
+    actual_doc = {
+        "components": {
+            "schemas": {
+                "LexSearchProfileRefusedResponse": expected_doc["$defs"][
+                    "LexSearchProfileRefusedResponse"
+                ],
+                "R193Other": {
+                    "properties": {
+                        "LexSearchProfileRefusedResponse": {
+                            "type": "string",
+                            "const": "wrong-target",
+                        }
+                    }
+                },
+            }
+        }
+    }
+    expected = {
+        "oneOf": [{"$ref": "#/$defs/LexSearchProfileRefusedResponse"}],
+        "discriminator": {
+            "propertyName": "status",
+            "mapping": {"refused": "#/$defs/LexSearchProfileRefusedResponse"},
+        },
+    }
+    actual = {
+        "oneOf": [{"$ref": "#/components/schemas/LexSearchProfileRefusedResponse"}],
+        "discriminator": {
+            "propertyName": "status",
+            "mapping": {
+                "refused": "#/components/schemas/R193Other/properties/LexSearchProfileRefusedResponse"
+            },
+        },
+    }
+    assert _success_json_schema_projection(
+        expected, document=expected_doc
+    ) != _success_json_schema_projection(actual, document=actual_doc)
+    bad1 = _success_json_schema_projection(
+        {"$ref": "#/components/schemas/X~2Y"}, document=actual_doc
+    )
+    bad2 = _success_json_schema_projection(
+        {"$ref": "#/components/schemas/X~2Y"}, document=actual_doc
+    )
     assert bad1 != bad2
     dag_doc = {"$defs": {"Shared": {"type": "string", "const": "same"}}}
-    dag = _success_json_schema_projection({"anyOf": [{"$ref": "#/$defs/Shared"},
-        {"$ref": "#/$defs/Shared"}]}, document=dag_doc)
+    dag = _success_json_schema_projection(
+        {"anyOf": [{"$ref": "#/$defs/Shared"}, {"$ref": "#/$defs/Shared"}]}, document=dag_doc
+    )
     assert dag["anyOf"][0] == dag["anyOf"][1]
-    cycle_doc = {"$defs": {"Node": {"type": "object", "properties": {
-        "next": {"$ref": "#/$defs/Node"}}}}}
+    cycle_doc = {
+        "$defs": {"Node": {"type": "object", "properties": {"next": {"$ref": "#/$defs/Node"}}}}
+    }
     cycle = _success_json_schema_projection({"$ref": "#/$defs/Node"}, document=cycle_doc)
-    assert cycle == _success_json_schema_projection({"$ref": "#/$defs/Node"},
-        document=cycle_doc)
+    assert cycle == _success_json_schema_projection({"$ref": "#/$defs/Node"}, document=cycle_doc)
     assert cycle["properties"]["next"] == {"$recursive_ref": True}
-
 
 
 def test_schema_projection_omits_only_nullable_null_default_annotations() -> None:
@@ -588,9 +742,7 @@ def test_schema_projection_omits_only_nullable_null_default_annotations() -> Non
         "oneOf": [{"type": "string"}, {"type": "null"}],
         "default": None,
     }
-    nullable_one_of_without_default = {
-        "oneOf": [{"type": "string"}, {"type": "null"}]
-    }
+    nullable_one_of_without_default = {"oneOf": [{"type": "string"}, {"type": "null"}]}
     assert _success_json_schema_projection(
         nullable_one_of, document=nullable_one_of
     ) == _success_json_schema_projection(
@@ -705,9 +857,7 @@ def test_schema_projection_omits_only_nullable_null_default_annotations() -> Non
     }
     assert _success_json_schema_projection(
         required_schema, document=required_schema
-    ) != _success_json_schema_projection(
-        newly_required_schema, document=newly_required_schema
-    )
+    ) != _success_json_schema_projection(newly_required_schema, document=newly_required_schema)
 
 
 def test_success_example_gate_requires_inline_example_or_typed_binary_body() -> None:
@@ -720,7 +870,11 @@ def test_success_example_gate_requires_inline_example_or_typed_binary_body() -> 
     )
     assert _success_response_has_example(
         "200",
-        {"content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}}},
+        {
+            "content": {
+                "application/octet-stream": {"schema": {"type": "string", "format": "binary"}}
+            }
+        },
     )
     assert _success_response_has_example("204", {})
     assert not _success_response_has_example("200", {"content": {}})
@@ -729,7 +883,11 @@ def test_success_example_gate_requires_inline_example_or_typed_binary_body() -> 
     )
     assert not _success_response_has_example(
         "200",
-        {"content": {"application/json": {"examples": {"external": {"externalValue": "sample.json"}}}}},
+        {
+            "content": {
+                "application/json": {"examples": {"external": {"externalValue": "sample.json"}}}
+            }
+        },
     )
 
 
@@ -869,9 +1027,9 @@ def test_checked_in_openapi_design_problem_schema_preserves_v1_v2_and_admits_v3(
 def test_epoch_validity_batch_success_example_matches_its_wire_contract() -> None:
     schema = export_runtime_openapi_schema()
     operation = schema["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]
-    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
-        "default"
-    ]["value"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
 
     response = EpochValidityBatchResponse.model_validate(example)
 
@@ -908,8 +1066,10 @@ def test_normative_evidence_openapi_example_preserves_actual_fixture_response() 
     ]
     repository_root = Path(__file__).resolve().parents[4]
     captured = json.loads(
-        (repository_root / "docs/superpowers/journals/gy-phase5-evidence/pa1/"
-         "openapi-response-capture.json").read_text(encoding="utf-8")
+        (
+            repository_root / "docs/superpowers/journals/gy-phase5-evidence/pa1/"
+            "openapi-response-capture.json"
+        ).read_text(encoding="utf-8")
     )
     assert example["value"] == captured
     response = NormativeEvidenceSubmissionResponse.model_validate_json(
@@ -953,16 +1113,12 @@ def test_current_control_job_producer_serializes_runtime_quality_artifact_refs()
         lease_expires_at=None,
         attempt=1,
         error_message=None,
-        progress={
-            "runtime_quality_artifact_refs": {"quality_scorecard": artifact_ref}
-        },
+        progress={"runtime_quality_artifact_refs": {"quality_scorecard": artifact_ref}},
     )
 
     response = record.to_response(request_id="r10-current-producer")
     body = response.model_dump(mode="json")
-    assert body["runtime_quality_artifact_refs"] == {
-        "quality_scorecard": artifact_ref
-    }
+    assert body["runtime_quality_artifact_refs"] == {"quality_scorecard": artifact_ref}
 
 
 def test_normative_evidence_openapi_registration_removal_restores_exact_refusal(
@@ -1008,9 +1164,7 @@ def _acquisition_route_projection_payload(
         "authority_capability": "ready",
         "execution_capability": "ready",
         "qualification_status": "activated" if activated else "pending_epoch_activation",
-        "qualification_predicate": (
-            "independently_reconciled" if activated else "not_established"
-        ),
+        "qualification_predicate": ("independently_reconciled" if activated else "not_established"),
         "qualification_reason": (
             "native_owner_readback" if activated else "policy_admission_missing"
         ),
@@ -1063,9 +1217,7 @@ def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None
         ],
         "execute": paths["/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"]["post"],
     }
-    assert {
-        key: operation["operationId"] for key, operation in operations.items()
-    } == {
+    assert {key: operation["operationId"] for key, operation in operations.items()} == {
         "list": "list_run_acquisition_routes",
         "get": "get_run_acquisition_route",
         "decision": "request_run_acquisition_decision",
@@ -1096,13 +1248,10 @@ def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None
     }
     assert forbidden_authority_fields.isdisjoint(body["properties"])
     projection = schema["components"]["schemas"]["AcquisitionRouteProjection"]
-    assert projection["properties"]["schema_version"]["const"] == (
-        "AcquisitionRouteProjection@1.1"
-    )
+    assert projection["properties"]["schema_version"]["const"] == ("AcquisitionRouteProjection@1.1")
     model_properties = AcquisitionRouteProjection.model_json_schema()["properties"]
     assert (
-        projection["properties"]["world_growth"]["enum"]
-        == model_properties["world_growth"]["enum"]
+        projection["properties"]["world_growth"]["enum"] == model_properties["world_growth"]["enum"]
     )
     assert (
         projection["properties"]["qualification_status"]["enum"]
@@ -1134,15 +1283,13 @@ def test_ds15_acquisition_openapi_mutations_fail_the_semantic_contract(mutation:
     elif mutation == "growth_delta":
         projection["properties"]["admitted_observation_delta"]["default"] = 0
     elif mutation == "schema_discriminator":
-        projection["properties"]["schema_version"]["const"] = (
-            "AcquisitionRouteProjection@0.0"
-        )
+        projection["properties"]["schema_version"]["const"] = "AcquisitionRouteProjection@0.0"
     elif mutation == "replay_pin":
         del body["properties"]["replay_pins"]
     else:
-        schema["paths"][
-            "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"
-        ]["post"]["operationId"] = "get_run_acquisition_route"
+        schema["paths"]["/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"]["post"][
+            "operationId"
+        ] = "get_run_acquisition_route"
 
     with pytest.raises(AssertionError):
         _assert_ds15_acquisition_openapi_contract(schema)
@@ -1215,15 +1362,12 @@ def test_epoch_staleness_examples_separate_positive_and_declared_absence() -> No
     assert positive.status == "current"
     assert absence.fixture_only is False
     assert absence.status == "not_established"
-    assert {row.title for row in absence.institutional_absences} == {
-        "Authority not appointed"
-    }
+    assert {row.title for row in absence.institutional_absences} == {"Authority not appointed"}
     assert [row.title for row in absence.engineering_absences] == [
         "Engineering capability not wired"
     ]
     assert all(
-        row.appointment_is_closure_precondition is False
-        for row in absence.institutional_absences
+        row.appointment_is_closure_precondition is False for row in absence.institutional_absences
     )
     assert absence.engineering_absences[0].candidate_owner_module == (
         "polisyos.runtime.quality.derived_observations"
@@ -1628,7 +1772,7 @@ def _invoke_generated_operation(
     probe_path.write_text(
         "\n".join(
             (
-                f'import {{ RuntimeApiClient }} from {json.dumps(client_path.as_uri())};',
+                f"import {{ RuntimeApiClient }} from {json.dumps(client_path.as_uri())};",
                 "const calls = [];",
                 "const client = new RuntimeApiClient({",
                 '  baseUrl: "https://runtime.example",',
@@ -1741,6 +1885,8 @@ def test_runtime_contract_gate_rejects_nested_epoch_semantic_corruption(
 
     assert result.returncode == 1
     assert "OpenAPI drift detected" in result.stdout
+
+
 def test_generated_runtime_client_includes_all_acquisition_route_wrappers() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
@@ -1856,7 +2002,10 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
     normalized = subprocess.run(
         [
             "node",
-            str(repo_root / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"),
+            str(
+                repo_root
+                / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"
+            ),
             "--types",
             str(output_path),
         ],
@@ -1877,14 +2026,12 @@ def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     client_root = repo_root / "packages" / "runtime-api-client"
     dashboard_root = repo_root / "apps" / "runtime-dashboard"
     manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
-    dashboard_manifest = json.loads(
-        (dashboard_root / "package.json").read_text(encoding="utf-8")
-    )
+    dashboard_manifest = json.loads((dashboard_root / "package.json").read_text(encoding="utf-8"))
     lockfile = (repo_root / "pnpm-lock.yaml").read_text(encoding="utf-8")
     generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(encoding="utf-8")
-    dashboard_generator = (
-        dashboard_root / "scripts/generate-api-client.sh"
-    ).read_text(encoding="utf-8")
+    dashboard_generator = (dashboard_root / "scripts/generate-api-client.sh").read_text(
+        encoding="utf-8"
+    )
     readme = (client_root / "README.md").read_text(encoding="utf-8")
     package_importer = re.search(
         r"(?ms)^  packages/runtime-api-client:\n(?P<body>.*?)(?=^  [^ \n].*:\n|\Z)",

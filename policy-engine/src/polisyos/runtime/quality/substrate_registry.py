@@ -679,8 +679,8 @@ class L5CatalogAuthority:
             "changepoint_refs": list(changepoint_refs),
             "status": status,
         }
-        projection_content_hash = (
-            epoch_contract.scoped_schema_regime_projection_content_hash(mapping)
+        projection_content_hash = epoch_contract.scoped_schema_regime_projection_content_hash(
+            mapping
         )
         return epoch_contract.ScopedSchemaRegimeProjection(
             **mapping,
@@ -1371,6 +1371,7 @@ def _measurement_root_registry_input_refs(
         core.artifacts.InputRef(
             artifact_id=measurement_root_ref.artifact_id,
             role="measurement_root",
+            manifest_profile_sha256=measurement_root_ref.manifest_profile_sha256,
         ),
         core.artifacts.InputRef(
             artifact_id=fetch_receipt_ref.artifact_id,
@@ -1437,10 +1438,7 @@ def load_substrate_registry(
         read_ref = ref
     else:
         read_ref = ArtifactID.model_validate(ref)
-    if (
-        not isinstance(read_ref, artifacts.ArtifactRef)
-        or read_ref.manifest_profile_sha256 is None
-    ):
+    if not isinstance(read_ref, artifacts.ArtifactRef) or read_ref.manifest_profile_sha256 is None:
         raise SubstrateRegistryError("substrate_registry_profile_selector_missing")
     if (
         read_ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND

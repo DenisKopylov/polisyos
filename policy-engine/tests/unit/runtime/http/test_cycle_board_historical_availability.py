@@ -148,7 +148,7 @@ def test_historical_source_http_failure_contains_actual_read_receipt(
     assert response.status_code == 503, response.text
     payload = response.json()
     assert payload["code"] == "cycle_board_historical_source_invalid"
-    assert payload["read_receipt"]["source_ref"] == OWNER.as_posix()
-    assert payload["read_receipt"]["read_error"] == "FileNotFoundError"
-    assert payload["read_receipt"]["source_content_hash"] is None
-    assert payload["read_receipt"]["status"] == "UNRUN"
+    assert payload["extensions"]["read_receipt"]["source_ref"] == OWNER.as_posix()
+    assert payload["extensions"]["read_receipt"]["read_error"] == "FileNotFoundError"
+    assert payload["extensions"]["read_receipt"]["source_content_hash"] is None
+    assert payload["extensions"]["read_receipt"]["status"] == "UNRUN"

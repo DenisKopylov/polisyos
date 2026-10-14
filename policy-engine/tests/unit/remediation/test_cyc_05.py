@@ -211,9 +211,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -266,9 +264,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
         assert completed.progress["s8_status"] == "not_run"
         assert "compiled_recursive_generation_cycle_ref" not in completed.progress
         if isinstance(compiled_fixture.proposal, DesignGenerationOrganRun):
-            assert completed.progress["n4_status"] == (
-                compiled_fixture.proposal.result.status
-            )
+            assert completed.progress["n4_status"] == (compiled_fixture.proposal.result.status)
             assert completed.progress["candidate_proposal_ref"] is None
         else:
             assert completed.progress["candidate_proposal_ref"] is not None
@@ -370,9 +366,7 @@ async def test_generation_cycle_consumer_keeps_missing_source_non_positive(
     )
 
     issues = validate_generation_cycle_run(run, repo_root=tmp_path)
-    assert "strangle_receipt_currentness_not_established" in {
-        issue["code"] for issue in issues
-    }
+    assert "strangle_receipt_currentness_not_established" in {issue["code"] for issue in issues}
 
 
 @pytest.mark.asyncio
@@ -395,9 +389,7 @@ async def test_generation_cycle_consumer_keeps_parse_error_non_positive(
     )
 
     issues = validate_generation_cycle_run(run, repo_root=tmp_path)
-    assert "strangle_receipt_currentness_not_established" in {
-        issue["code"] for issue in issues
-    }
+    assert "strangle_receipt_currentness_not_established" in {issue["code"] for issue in issues}
 
 
 def test_depth_n_strangle_receipt_separates_parse_error_from_prohibited_caller(
@@ -424,13 +416,11 @@ def test_depth_n_strangle_receipt_binds_available_slice_and_invalidates_on_chang
 
     source = _source_root(tmp_path)
     (source / "route.py").write_text(
-        "def route():\n"
-        "    return build_default_recursive_generation_cycle_controller()\n",
+        "def route():\n    return build_default_recursive_generation_cycle_controller()\n",
         encoding="utf-8",
     )
     (source / "legacy.py").write_text(
-        "def route():\n"
-        "    return run_recursive_case()\n",
+        "def route():\n    return run_recursive_case()\n",
         encoding="utf-8",
     )
 
@@ -506,7 +496,10 @@ async def test_generation_cycle_candidate_band_keeps_frontier_with_unestablished
         source_limit_code = "generation_cycle_source_preservation_not_established"
     assert source_limit_code in issue_codes
 
-def _cyc05_recursive_fixture_case(tmp_path: Path) -> tuple[
+
+def _cyc05_recursive_fixture_case(
+    tmp_path: Path,
+) -> tuple[
     str,
     tuple[SubDesignContract, SubDesignContract],
     object,
@@ -516,7 +509,7 @@ def _cyc05_recursive_fixture_case(tmp_path: Path) -> tuple[
     """Build one real fixture decomposition and its explicit recursive inputs."""
 
     root = "design://cyc-05/fixture-parent"
-    loop = WorkspaceLoop()
+    loop = WorkspaceLoop(artifact_store=FileSystemCAS(tmp_path / "cas"))
     children = tuple(
         loop.decompose_fixture(
             parent_workspace_id=root,
@@ -653,12 +646,8 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     reopened = load_joint_simulation_result(
         root_node.joint_simulation_ref,
         store=outer_n5_store,
-        expected_world_model_record_content_hash=(
-            request.world_model_record.content_hash
-        ),
-        expected_atom_ids=tuple(
-            atom.intervention_id for atom in request.intervention_atoms
-        ),
+        expected_world_model_record_content_hash=(request.world_model_record.content_hash),
+        expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
         expected_selected_outcomes=request.selected_outcomes,
     )
     assert reopened.trajectories == root_node.joint_simulation.trajectories
@@ -678,10 +667,10 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     assert root_node.terminal.kind is not SearchTerminalKind.GROUNDED_ADMISSIBLE
 
 
-def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> None:
+def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity(tmp_path: Path) -> None:
     """The parent export aliases are unique while nested child evidence stays source-bound."""
 
-    loop = WorkspaceLoop()
+    loop = WorkspaceLoop(artifact_store=FileSystemCAS(tmp_path / "cas"))
     children = tuple(
         loop.decompose_fixture(
             parent_workspace_id="design://cyc-05/alias-readback-parent",
@@ -703,8 +692,7 @@ def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> 
     source_exit_ids = tuple(child.search_exit.exit_id for child in children)
     assert len(set(source_exit_ids)) == 1
     binding_hashes = tuple(
-        _search_exit_binding_hash(child.search_exit.model_dump(mode="json"))
-        for child in children
+        _search_exit_binding_hash(child.search_exit.model_dump(mode="json")) for child in children
     )
     assert len(set(binding_hashes)) == len(children)
 

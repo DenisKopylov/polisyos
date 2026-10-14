@@ -1,0 +1,44 @@
+id = "2026-10-14-e02-n9-selected-catalog-profile-lineage"
+title = "Preserve selected canonical profiles across N9 evidence lineage"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Current N9 evidence and ACQ-01 MeasurementRoot routes retain producer-selected CAS manifest profiles through persisted snapshots, registries, WorkspaceLoop estimates, versioned proofs, and the fresh control-job GET; profileless history remains unpromoted."
+evidence = [
+  "tests/unit/runtime/quality/test_epoch_validity_cascade.py",
+  "tests/unit/runtime/quality/test_generation_source.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/runtime/quality/test_substrate_registry.py",
+  "tests/unit/remediation/test_acq_01.py",
+  "tests/unit/remediation/test_cyc_05.py",
+  "tests/unit/pdc/test_gy_waist_contracts.py",
+  "tests/unit/runtime/quality/test_workspace_loop.py",
+  "tests/unit/runtime/quality/test_authority.py",
+  "tests/unit/runtime/http/test_workspace_loop_transition.py",
+  "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py",
+  "src/polisyos/runtime/http/README.md",
+]
+compatibility = "ArtifactEnvelope remains an internal PDC model, but WorkspaceLoop embeds its producer-selected payload_manifest_profile_sha256 in the existing public GET /api/v1/control/jobs/{job_id} ControlJobResponse.progress projection. The nested progress object is intentionally generic and adds no generated nested client schema; clients that inspect these evidence objects must validate their explicit schema_version. OutcomeReplayProof.v2 and ProductionLoopRunProof.v2 bind the selected profile; the composed verifier checks the exact POST-to-fresh-GET projection. Profileless v1 history remains parseable but is not current evidence; no legacy profile is inferred or backfilled. MeasurementRootProducer refuses to run without a configured ArtifactStore and emits no hash-only pseudo-ref. A direct measurement-admitted WorkspaceLoop without a configured ArtifactStore returns a typed tool_failure with an artifact_missing obligation and emits no measurement root; callers that require measurement admission must provide a supported store."
+change_class = "public-projection-additive"
+surface_classification = "public stable HTTP projection: GET /api/v1/control/jobs/{job_id}.progress; nested PDC ArtifactEnvelope remains an internal typed model"
+migration = "No database migration is required. Existing clients can ignore additive progress members. Evidence consumers must branch on the nested proof schema_version and must not promote profileless v1 history as a current selected-profile chain. New current evidence is reissued only by the existing selected-profile producer and reader path. No-store direct fixture callers remain candidate-only/refused until they supply an explicit ArtifactStore; no shared default CAS is created."
+api = "The WorkspaceLoop worker emits the selected profile with the BaseDataset envelope, reads it with a typed Core ArtifactRef, and persists the contract plus OutcomeReplayProof.v2 and ProductionLoopRunProof.v2. A fresh GET /api/v1/control/jobs/{job_id} returns these under the existing generic progress mapping; the deciding validator checks the contract ref, content hash, and selected-profile list from that actual response. N9 bridge bodies remain v3 and carry their exact source view through one fixed-role CAS InputRef."
+limitations = "The profile binds exact CAS bytes and a manifest view, not producer authority, external custody, legal authority, freshness, or production currentness. The HTTP progress member is an open projection, not a new generated nested DTO. Independent acceptance, the composed source replay, and native gates remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-selected-catalog-profile-public-projection"
+change_class = "public-projection-additive"
+impact = "additive"
+surface = "public HTTP projection: GET /api/v1/control/jobs/{job_id}.progress.search_exit_contract.artifact_envelopes[].payload_manifest_profile_sha256"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "The control-job GET preserves the producer-selected MeasurementRoot CAS profile through its generic progress projection and versioned replay proofs; profileless history remains unpromoted. A no-store WorkspaceLoop emits an artifact_missing refusal with no measurement authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

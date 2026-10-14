@@ -1350,10 +1350,42 @@ def test_program_graph_plan_refuses_conflicting_shared_slot_before_execution(
             }
         ]
         assert result.trajectories == ()
+        assert result.marginal_effects == {}
+        assert result.interaction_terms == ()
         assert result.receipt.trajectory_count == 0
         assert result.receipt.authoritative_for == ()
         assert result.receipt.calibration_status == "no_run"
     assert calls == 0
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    store = FileSystemCAS(tmp_path / "n5-program-conflict-refusal-cas")
+    try:
+        result_ref = persist_joint_simulation_result(results[0], store=store)
+        persisted = from_canonical_bytes(store.get_bytes(result_ref))
+        assert persisted["engine_decisions"][0]["reason"] == ("intervention_assignment_conflict")
+        assert persisted["diagnostics"]["engine_run_claimed"] is False
+        with pytest.raises(
+            GenerationCycleError, match="joint_simulation_result_trajectory_missing"
+        ):
+            load_joint_simulation_result(
+                result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(request.world_model_record.content_hash),
+                expected_atom_ids=tuple(
+                    item.intervention_id for item in request.intervention_atoms
+                ),
+                expected_selected_outcomes=request.selected_outcomes,
+            )
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
 
 
 def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> None:
@@ -2378,7 +2410,8 @@ def test_system_dynamics_grid_coverage_uses_real_rows_and_retains_limits(
         assert all(emission["used_dt"] == 1.0 for emission in emitted_by_inflows.values())
         assert all(emission["requested_dt"] == 2.0 for emission in emitted_by_inflows.values())
         # This diagnostic compares the requested method parameter, not emitted timestamps.
-        assert joint.diagnostics["time_alignment_status"] == "matched"
+        assert joint.diagnostics["time_alignment_status"] == "not_established"
+        assert joint.diagnostics["declared_step_parameter_matches_request"] is True
         # The protected time-basis status remains unknown even for this full-row countermodel.
         assert result.diagnostics["physical_time_basis_status"] == "not_established"
         assert (
@@ -2460,9 +2493,293 @@ def test_system_dynamics_step_changes_real_rows_on_the_requested_grid() -> None:
     assert coarse_joint.diagnostics["requested_time_step"] == 2
     assert unit_joint.diagnostics["effective_method_time_step"] == 1
     assert coarse_joint.diagnostics["effective_method_time_step"] == 2
-    assert unit_joint.diagnostics["time_alignment_status"] == "matched"
-    assert coarse_joint.diagnostics["time_alignment_status"] == "matched"
+    assert unit_joint.diagnostics["time_alignment_status"] == "not_established"
+    assert coarse_joint.diagnostics["time_alignment_status"] == "not_established"
+    assert unit_joint.diagnostics["declared_step_parameter_matches_request"] is True
+    assert coarse_joint.diagnostics["declared_step_parameter_matches_request"] is True
     assert unit_joint.points[-1].outcomes["stock1"] == pytest.approx(4.0)
     assert coarse_joint.points[-1].outcomes["stock1"] == pytest.approx(8.0)
     assert unit_result.diagnostics["physical_time_basis_status"] == "not_established"
     assert coarse_result.diagnostics["physical_time_basis_status"] == "not_established"
+
+
+def test_finite_source_coordinate_requires_real_scalar_categories() -> None:
+    """Accept producer scalar categories and reject malformed scalar-like containers."""
+    import numpy as np
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        _finite_source_coordinate,
+    )
+
+    real_scalars = (1, 1.25, np.int64(2), np.float32(2.5), np.float64(3.5))
+    for value in real_scalars:
+        assert _finite_source_coordinate(value) == pytest.approx(float(value))
+
+    malformed_values = (
+        True,
+        np.bool_(True),
+        "1",
+        1 + 0j,
+        np.complex64(1 + 0j),
+        [1.0],
+        (1.0,),
+        np.asarray([1.0]),
+        np.asarray(1.0),
+    )
+    for value in malformed_values:
+        assert _finite_source_coordinate(value) is None
+
+    for value in (float("nan"), float("inf"), -float("inf"), np.float64("nan")):
+        assert _finite_source_coordinate(value) is None
+
+
+@pytest.mark.parametrize(
+    "time_control",
+    ["actual", "irregular", "repeated", "reordered", "missing", "malformed", "singleton"],
+)
+def test_coupled_source_times_remain_candidate_through_fresh_cas_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    time_control: str,
+) -> None:
+    """Real coupled metrics survive projection while physical-time mapping stays unknown."""
+    from dataclasses import replace
+
+    from polisyos.foundry.coupling.executor import CoupledContractsExecutor
+    from polisyos.foundry.methods.catalog.simulation.coupled import (
+        CoupledPolicySimulationEstimator,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        _finite_source_coordinate,
+    )
+
+    request = _request(policy_domain="unemployment_claims_benefit").model_copy(
+        update={
+            "coupling_graph": _coupling_graph("shared_resource"),
+            "selected_outcomes": ("final_queue_length",),
+            "baseline_state": {"final_queue_length": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
+            "engine_plan": (
+                EnginePlan(
+                    engine_kind="coupled_des_abm",
+                    objective_ref="objective://b22-coupled-time-source",
+                    eligibility_conditions=(
+                        "unemployment_claims",
+                        "benefit_queue",
+                        "service_queue",
+                    ),
+                    variable_map={
+                        "agents.income": "benefit_amount",
+                        "government.balance": "service_rate",
+                    },
+                    coupled_state={
+                        "initial_income": [1000.0, 600.0],
+                        "initial_savings": [0.0, 0.0],
+                        "is_employed": [0.0, 0.0],
+                    },
+                    coupled_params={
+                        "benefit_amount": 0.0,
+                        "service_rate": 0.5,
+                        "initial_queue_length": 4.0,
+                    },
+                ),
+            ),
+        }
+    )
+
+    real_step = CoupledContractsExecutor.step
+    real_pure_step = CoupledPolicySimulationEstimator.pure_step
+    step_indices: dict[int, int] = {}
+    executor_initial_times: dict[int, float] = {}
+    executor_references: list[CoupledContractsExecutor] = []
+    step_observations: list[dict[str, Any]] = []
+    captured_runs: list[dict[str, Any]] = []
+
+    def controlled_step(self: Any, runtime_state: Any) -> Any:
+        if id(self) not in step_indices:
+            executor_references.append(self)
+            step_indices[id(self)] = 0
+            executor_initial_times[id(self)] = float(runtime_state.time)
+        index = step_indices[id(self)]
+        step_indices[id(self)] += 1
+        step_result = real_step(self, runtime_state)
+        original_metrics = dict(step_result.metrics)
+        reported_metrics = dict(original_metrics)
+        initial_time = executor_initial_times[id(self)]
+        offsets = {
+            "irregular": (0.25, 1.75, 2.5),
+            "repeated": (1.0, 1.0, 2.0),
+            "reordered": (1.0, 3.0, 2.0),
+        }
+        if time_control in offsets:
+            reported_time = initial_time + offsets[time_control][index]
+            reported_metrics["coupled/time"] = reported_time
+            reported_metrics["queue/time"] = reported_time
+        elif time_control == "missing" and index == 1:
+            reported_metrics.pop("coupled/time", None)
+        elif time_control == "malformed" and index == 1:
+            reported_metrics["coupled/time"] = "not-a-time"
+        elif time_control == "singleton" and index == 1:
+            reported_metrics["coupled/time"] = [float(original_metrics["coupled/time"])]
+        step_observations.append({"original": original_metrics, "reported": dict(reported_metrics)})
+        return replace(step_result, metrics=reported_metrics)
+
+    def captured_pure_step(state: Any, params: Any) -> dict[str, Any]:
+        first_step = len(step_observations)
+        output = real_pure_step(state, params)
+        payload = output["result"]
+        captured_runs.append(
+            {
+                "initial_time": float(payload["coupled_initial_time"]),
+                "metrics": copy.deepcopy(payload["metrics"]),
+                "queue_rows": copy.deepcopy(payload["queue_length_trajectory"]),
+                "steps": copy.deepcopy(step_observations[first_step:]),
+            }
+        )
+        return output
+
+    monkeypatch.setattr(CoupledContractsExecutor, "step", controlled_step)
+    monkeypatch.setattr(
+        CoupledPolicySimulationEstimator,
+        "pure_step",
+        staticmethod(captured_pure_step),
+    )
+    result = JointSimulationHorizonController(method_registry=MethodRegistry._create_fresh()).run(
+        request
+    )
+
+    assert result.engine_decisions[0].decision == "selected"
+    assert result.engine_decisions[0].engine_kind == "coupled_des_abm"
+    assert result.diagnostics["physical_time_basis_status"] == "not_established"
+    assert (
+        "horizon_time_alignment_not_established"
+        in result.promotion_ready_value_packet["authority_blockers"]
+    )
+    assert len(captured_runs) == len(
+        {trajectory.diagnostics["physical_run_ref"] for trajectory in result.trajectories}
+    )
+    assert len(step_observations) == sum(len(run["metrics"]) for run in captured_runs)
+
+    for run in captured_runs:
+        assert len(run["metrics"]) == len(run["queue_rows"]) == 3
+        assert len(run["steps"]) == len(run["metrics"])
+        for metric, observation, queue_value in zip(
+            run["metrics"], run["steps"], run["queue_rows"], strict=True
+        ):
+            original = observation["original"]
+            reported = observation["reported"]
+            assert float(metric["queue/queue_length"]) == float(queue_value)
+            assert float(original["queue/queue_length"]) == float(queue_value)
+            assert _finite_source_coordinate(original["coupled/time"]) == pytest.approx(
+                float(original["coupled/time"])
+            )
+            assert _finite_source_coordinate(original["queue/time"]) == pytest.approx(
+                float(original["queue/time"])
+            )
+            assert original["coupled/dt"] == reported["coupled/dt"]
+            assert {
+                key: value
+                for key, value in original.items()
+                if key not in {"coupled/time", "queue/time"}
+            } == {
+                key: value
+                for key, value in reported.items()
+                if key not in {"coupled/time", "queue/time"}
+            }
+        if time_control != "actual":
+            assert any(
+                observation["original"].get("coupled/time")
+                != observation["reported"].get("coupled/time")
+                for observation in run["steps"]
+            )
+
+    for trajectory in result.trajectories:
+        assert trajectory.diagnostics["time_alignment_status"] == "not_established"
+        assert trajectory.diagnostics["declared_step_parameter_matches_request"] is True
+        assert tuple(point.step for point in trajectory.points) == request.horizon.steps()
+        output_queue_rows = tuple(
+            float(point.outcomes["final_queue_length"]) for point in trajectory.points[1:]
+        )
+        matched_queue_runs = [
+            run
+            for run in captured_runs
+            if output_queue_rows
+            == pytest.approx(tuple(float(value) for value in run["queue_rows"]))
+        ]
+        assert matched_queue_runs
+        trace = trajectory.diagnostics["source_time_trace"]
+        trace_status = trajectory.diagnostics["source_time_trace_status"]
+        if time_control in {"missing", "malformed", "singleton"}:
+            expected_reason = (
+                "transition_source_time_missing:1"
+                if time_control == "missing"
+                else "transition_source_time_malformed:1"
+            )
+            assert trace is None
+            assert trace_status == "not_established"
+            assert trajectory.diagnostics["source_time_trace_reason"] == expected_reason
+            for run in matched_queue_runs:
+                row = run["metrics"][1]
+                assert _finite_source_coordinate(row["queue/time"]) is not None
+                if time_control == "missing":
+                    assert "coupled/time" not in row
+                elif time_control == "malformed":
+                    assert row["coupled/time"] == "not-a-time"
+                else:
+                    singleton_time = row["coupled/time"]
+                    actual_time = run["steps"][1]["original"]["coupled/time"]
+                    assert isinstance(singleton_time, list)
+                    assert len(singleton_time) == 1
+                    assert singleton_time[0] == pytest.approx(float(actual_time))
+            continue
+
+        assert trace_status == "observed_candidate"
+        assert trace["unit_status"] == "not_established"
+        assert trace["origin_status"] == "not_established"
+        assert trace["horizon_relation_status"] == "not_established"
+        matched_source_runs = [
+            run
+            for run in matched_queue_runs
+            if float(trace["initial_coordinate"]) == run["initial_time"]
+            and tuple(trace["transition_coordinates"])
+            == pytest.approx(tuple(float(row["coupled/time"]) for row in run["metrics"]))
+        ]
+        assert matched_source_runs
+        assert len(trace["transition_coordinates"]) == len(output_queue_rows)
+        if time_control == "irregular":
+            assert any(
+                tuple(trace["transition_coordinates"])
+                == pytest.approx(
+                    tuple(run["initial_time"] + offset for offset in (0.25, 1.75, 2.5))
+                )
+                for run in matched_source_runs
+            )
+        elif time_control == "repeated":
+            assert trace["transition_coordinates"][0] == trace["transition_coordinates"][1]
+        elif time_control == "reordered":
+            assert trace["transition_coordinates"][1] > trace["transition_coordinates"][2]
+
+    store = FileSystemCAS(tmp_path / f"n5-coupled-source-time-{time_control}-cas")
+    try:
+        result_ref = persist_joint_simulation_result(result, store=store)
+        fresh = load_joint_simulation_result(
+            result_ref,
+            store=store,
+            expected_world_model_record_content_hash=request.world_model_record.content_hash,
+            expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+            expected_selected_outcomes=request.selected_outcomes,
+        )
+        assert fresh.trajectories == result.trajectories
+        assert fresh.diagnostics["physical_time_basis_status"] == "not_established"
+        assert (
+            "horizon_time_alignment_not_established"
+            in fresh.promotion_ready_value_packet["authority_blockers"]
+        )
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()

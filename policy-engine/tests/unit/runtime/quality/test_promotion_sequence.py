@@ -3466,7 +3466,7 @@ def test_measurement_verification_time_cannot_claim_invalid_custody(
             binding_owner.FabricMeasurementRootPayload.model_validate(values)
         return
     future = binding_owner.FabricMeasurementRootPayload.model_validate(values)
-    source_id = MeasurementRootProducer(
+    source_id, source_profile = MeasurementRootProducer(
         artifact_store=owner.store,
         execution_scope_binding=owner.measurement_execution_binding,
     )._persist_payload(
@@ -3474,10 +3474,12 @@ def test_measurement_verification_time_cannot_claim_invalid_custody(
         fabric_fetch_ref=future.fetch_receipt_ref,
         source_checked_at=future.source_agreement_checked_at,
     )
+    assert source_profile is not None
     with pytest.raises(ValueError, match="verification_time_in_future"):
         binding_owner.resolve_fabric_measurement_root(
             store=owner.store,
             source_artifact_id=source_id,
+            manifest_profile_sha256=source_profile,
             catalog=owner.graph,
             providers=owner.providers,
             execution_scope_binding=owner.measurement_execution_binding,
@@ -3495,7 +3497,14 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
     first = _fabric_measurement_envelope(owner)
     first_payload = binding_owner.FabricMeasurementRootPayload.model_validate(
         canon.from_canonical_bytes(
-            owner.store.get_bytes(core_artifacts.ArtifactID(first.payload_ref))
+            owner.store.get_bytes(
+                core_artifacts.ArtifactRef(
+                    artifact_id=core_artifacts.ArtifactID(first.payload_ref),
+                    kind="policyos.gy.measurement_root_payload",
+                    media_type="application/json",
+                    manifest_profile_sha256=first.payload_manifest_profile_sha256,
+                )
+            )
         )
     )
     # Cross the existing second-resolution authority timestamp boundary while
@@ -3513,9 +3522,30 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
     )
     second_payload = binding_owner.FabricMeasurementRootPayload.model_validate(
         canon.from_canonical_bytes(
-            owner.store.get_bytes(core_artifacts.ArtifactID(second.payload_ref))
+            owner.store.get_bytes(
+                core_artifacts.ArtifactRef(
+                    artifact_id=core_artifacts.ArtifactID(second.payload_ref),
+                    kind="policyos.gy.measurement_root_payload",
+                    media_type="application/json",
+                    manifest_profile_sha256=second.payload_manifest_profile_sha256,
+                )
+            )
         )
     )
+    assert first.payload_manifest_profile_sha256 is not None
+    assert second.payload_manifest_profile_sha256 is not None
+    with pytest.raises(
+        binding_owner.FabricMeasurementRootBindingError,
+        match="measurement_root_selected_profile_missing",
+    ):
+        binding_owner.resolve_fabric_measurement_root(
+            store=owner.store,
+            source_artifact_id=first.payload_ref,
+            manifest_profile_sha256=None,
+            catalog=owner.graph,
+            providers=owner.providers,
+            execution_scope_binding=owner.measurement_execution_binding,
+        )
     assert first.payload_ref != second.payload_ref
     assert first_payload.source_agreement_checked_at < second_payload.source_agreement_checked_at
     assert first_payload.model_dump(
@@ -3526,6 +3556,7 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
             binding_owner.resolve_fabric_measurement_root(
                 store=owner.store,
                 source_artifact_id=envelope.payload_ref,
+                manifest_profile_sha256=envelope.payload_manifest_profile_sha256,
                 catalog=owner.graph,
                 providers=owner.providers,
                 execution_scope_binding=owner.measurement_execution_binding,
@@ -4291,10 +4322,24 @@ def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_own
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
+    assert envelope.payload_manifest_profile_sha256 is not None
     bridge_ref = repository.persist_measurement_root(
         promotion_input=promotion_input,
         envelope=envelope,
     )
+    assert bridge_ref.manifest_profile_sha256 is not None
+    bridge_selector = core_artifacts.ArtifactRef(
+        artifact_id=core_artifacts.ArtifactID(bridge_ref.artifact_id),
+        kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
+    )
+    bridge_manifest = owner.store.get_manifest(bridge_selector)
+    assert len(bridge_manifest.inputs) == 1
+    measurement_input = bridge_manifest.inputs[0]
+    assert measurement_input.role == promotion_sequence_module._N9_EVIDENCE_SOURCE_INPUT_ROLE
+    assert str(measurement_input.artifact_id) == envelope.payload_ref
+    assert measurement_input.manifest_profile_sha256 == envelope.payload_manifest_profile_sha256
     independence_ref = repository.persist_effective_independence(
         promotion_input=promotion_input,
         evidence_lines=(_independence_line("publication-1", primary_source="journal"),),
@@ -5035,6 +5080,15 @@ def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
 
     raw_record = json.loads(store.get_bytes(core_artifacts.ArtifactID(bridge_ref.artifact_id)))
     record = promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(raw_record)
+    assert bridge_ref.manifest_profile_sha256 is not None
+    bridge_selector = core_artifacts.ArtifactRef(
+        artifact_id=core_artifacts.ArtifactID(bridge_ref.artifact_id),
+        kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
+    )
+    bridge_inputs = store.get_manifest(bridge_selector).inputs
+    assert len(bridge_inputs) == 1
     wrong_verifier = store.put_bytes(
         b"attacker-selected verifier\n",
         core_artifacts.ArtifactWriteOptions(
@@ -5047,6 +5101,8 @@ def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
         store=store,
         value=forged,
         kind="polisyos.gy.n9_promotion_evidence_bridge",
+        inputs=bridge_inputs,
+        selected_profile=True,
     )
     forged_ref = ArtifactRef(
         artifact_id=str(forged_core_ref.artifact_id),
@@ -5055,6 +5111,7 @@ def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
         schema_ref=bridge_ref.schema_ref,
         uri=f"cas://{forged_core_ref.artifact_id}",
         version=bridge_ref.version,
+        manifest_profile_sha256=forged_core_ref.manifest_profile_sha256,
     )
     forged_input = promotion_input.model_copy(update={"producer_root_refs": (forged_ref,)})
     forged_receipt = run_canonical_promotion_sequence(

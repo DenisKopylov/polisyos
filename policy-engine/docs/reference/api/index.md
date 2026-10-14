@@ -2,7 +2,7 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/app.py`, and `src/polisyos/runtime/http/routes/*.py`
 Validation: `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
@@ -121,7 +121,9 @@ Most JSON responses wrap business data with `meta: ApiMeta`.
 
 ## Errors
 
-Problem responses use media type `application/problem+json` and the `RuntimeApiProblem` schema.
+Problem responses use media type `application/problem+json` and the strict
+`RuntimeApiProblem` schema. Optional `context` and `extensions` retain
+sanitized request metadata and route diagnostics inside the typed envelope.
 
 | Field                    | Required | Meaning                              |
 | ------------------------ | -------- | ------------------------------------ |
@@ -132,6 +134,8 @@ Problem responses use media type `application/problem+json` and the `RuntimeApiP
 | `request_id`             | No       | Request correlation identifier       |
 | `type`                   | No       | Problem type URI or label            |
 | `instance`               | No       | Request-specific instance identifier |
+| `context`                | No       | Sanitized request and exception metadata |
+| `extensions`             | No       | Namespaced JSON diagnostics from route failures |
 
 Example:
 

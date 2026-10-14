@@ -1,12 +1,13 @@
 # Runtime API Error Semantics
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/errors.py`, `src/polisyos/runtime/http/{authz_middleware.py,jwt_auth_middleware.py,cell_router_middleware.py,mutation_policy.py}`, `src/polisyos/core/errors.py`, and `src/polisyos/core/security/exceptions.py`
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_error_semantics.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
 - `uv run pytest -q tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
+- `corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/api/http.test.ts`
 
 This page is manually maintained from the runtime exception handlers and the
 middleware/route helpers that emit typed `application/problem+json` responses.
@@ -27,7 +28,10 @@ Runtime errors use `RuntimeApiProblem` and media type
 | `instance`               | Request path                                             |
 | `request_id`             | Correlation identifier when available                    |
 
-Handlers may also append `context` with sanitized request/exception metadata.
+Handlers may include optional typed `context` and a namespaced `extensions`
+object. Both are validated as part of the closed `RuntimeApiProblem` envelope;
+diagnostic extension values are JSON data and carry no authority, issuer,
+currentness, or publication meaning.
 
 ## Sanitization Rules
 
@@ -52,7 +56,29 @@ When present, `context` can contain:
 - `category`
 
 These keys are populated from request state, path/query params, and typed
-exception fields.
+exception fields. Older Runtime API v1 responses may omit the optional object.
+
+## Diagnostic Extensions
+
+Route-specific error diagnostics are retained under `extensions`, rather than
+merged into the top-level problem fields. Current literal keys include
+`actual`, `artifact_ref_or_route`, `authority_surface_decision`,
+`expected`, `field`, `lineage_id`, `manifest_temporal_scope`,
+`mismatches`, `phase4_gate_verdict`, `policy`,
+`pre_admission_attempt_id`, `pre_admission_attempt_status`,
+`read_receipt`, `reasons`, `requested_temporal_scope`,
+`retry_after_seconds`, `run_id`, and `surface`. The temporal helper
+currently emits `temporal_scope`, `valid_range`, `tx_range`,
+`nearest_event_points`, and `violations`.
+
+The extension object accepts finite JSON values under arbitrary diagnostic
+keys. A nested key may be named `code`, `status`, `context`, or `extensions`;
+it remains under `extensions` and cannot replace the corresponding outer
+problem field. The outer envelope stays closed to unmodeled fields. New
+extension names remain subject to API compatibility review; the map does not
+promise that every future diagnostic name or meaning is stable. Clients must
+not flatten diagnostic values into the envelope or treat them as evidence,
+authority, issuer, currentness, or publication.
 
 ## Direct Runtime Helpers
 
@@ -101,6 +127,7 @@ responses as follows:
 | `IdentityNotAvailableError`                         | `503`  | `identity_unavailable` or exception code         | `service_unavailable` |
 | `IdentityVerificationError`, `TokenValidationError` | `401`  | `identity_verification_failed` or exception code | `unauthorized`        |
 | `TenantIsolationError`                              | `403`  | `tenant_isolation_denied` or exception code      | `forbidden`           |
+| `CanonicalProfileRefusalError`                      | `409`  | `exc.code`                                       | `conflict`            |
 | `ExecutionProfileError`                             | `400`  | exception code                                   | `bad_request`         |
 | `PolicyFlagForbiddenError`                          | `403`  | exception code or `policy_flag_forbidden`        | `forbidden`           |
 | `PolicyOSError(category=TRANSIENT)`                 | `503`  | `exc.code` or `policyos_transient`               | `service_unavailable` |
@@ -118,6 +145,10 @@ responses as follows:
 | FastAPI `HTTPException(403)`     | `403`              | `forbidden`                 |
 | FastAPI `HTTPException(404)`     | `404`              | `not_found`                 |
 | other FastAPI `HTTPException`    | passthrough status | `http_error`                |
+
+Routes that translate a canonical-profile refusal use the typed conflict
+helper and preserve its `canon_profile_*` code and reason detail. The generic
+`http_error` mapping remains in place for unrelated FastAPI exceptions.
 
 ## Middleware-Specific Codes
 

@@ -188,7 +188,7 @@ def test_bureaucratic_export_preserves_publication_authority_boundary(
     assert response.status_code == 409
     payload = response.json()
     assert payload["code"] == "authority_surface_admission_blocked"
-    assert "publication" in payload["authority_surface_decision"]["may_not_use_for"]
+    assert "publication" in payload["extensions"]["authority_surface_decision"]["may_not_use_for"]
 
 
 def test_bureaucratic_render_and_export_bind_shared_replay_contract(

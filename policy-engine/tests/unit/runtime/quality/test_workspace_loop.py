@@ -53,6 +53,10 @@ def _isolate_catalog_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
 
 
+def _workspace_loop_with_cas(tmp_path: Path) -> WorkspaceLoop:
+    return WorkspaceLoop(artifact_store=FileSystemCAS(tmp_path / "workspace-cas"))
+
+
 def _observed_independent_graph(
     *,
     parent_workspace_id: str,
@@ -82,8 +86,10 @@ def test_workspace_loop_uses_canonical_slice0_catalog_builder() -> None:
     assert not hasattr(workspace_loop, "_InMemoryWorkspaceCatalogGraph")
 
 
-def test_workspace_loop_search_ledger_extends_canonical_search_ledger() -> None:
-    contract = WorkspaceLoop().run_fixture("ua_msme_credit_worldbank_measurement")
+def test_workspace_loop_search_ledger_extends_canonical_search_ledger(tmp_path: Path) -> None:
+    contract = _workspace_loop_with_cas(tmp_path).run_fixture(
+        "ua_msme_credit_worldbank_measurement"
+    )
 
     assert isinstance(contract.search_ledger, SearchLedger)
     assert contract.search_ledger.ledger_ref
@@ -179,8 +185,8 @@ def test_s2_design_search_has_distinct_executable_registration_and_preserves_ref
     )
 
 
-def test_workspace_loop_decomposes_children_and_composes_certificate() -> None:
-    loop = WorkspaceLoop()
+def test_workspace_loop_decomposes_children_and_composes_certificate(tmp_path: Path) -> None:
+    loop = _workspace_loop_with_cas(tmp_path)
     children = loop.decompose_fixture(
         parent_workspace_id="ws-gyg-independent",
         child_fixture_ids=[
@@ -206,8 +212,8 @@ def test_workspace_loop_decomposes_children_and_composes_certificate() -> None:
     assert certificate.coupling_gate["verdict"] == "valid"
 
 
-def test_child_acquisition_required_forces_parent_to_fund_cap_or_escalate() -> None:
-    loop = WorkspaceLoop()
+def test_child_acquisition_required_forces_parent_to_fund_cap_or_escalate(tmp_path: Path) -> None:
+    loop = _workspace_loop_with_cas(tmp_path)
     children = loop.decompose_fixture(
         parent_workspace_id="ws-recursive-parent",
         child_fixture_ids=[
@@ -233,8 +239,94 @@ def test_child_acquisition_required_forces_parent_to_fund_cap_or_escalate() -> N
     }
 
 
-def test_slice0_groundable_fixture_exits_partial_without_design_candidate() -> None:
+def test_measurement_admission_refuses_without_artifact_store(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _unexpected_producer_call(*_args, **_kwargs):
+        raise AssertionError("missing ArtifactStore must refuse before source production")
+
+    monkeypatch.setattr(
+        MeasurementRootProducer,
+        "produce_from_catalog",
+        _unexpected_producer_call,
+    )
+    captured_payloads: list[tuple[dict[str, object], str]] = []
+    persist_payload = WorkspaceLoop._persist_loop_payload
+
+    def _capture_payload(self, payload: dict[str, object], *, kind: str) -> str:
+        captured_payloads.append((dict(payload), kind))
+        return persist_payload(self, payload, kind=kind)
+
+    monkeypatch.setattr(WorkspaceLoop, "_persist_loop_payload", _capture_payload)
     contract = WorkspaceLoop().run_fixture("ua_msme_credit_worldbank_measurement")
+
+    assert contract.terminal_state["kind"] == "tool_failure"
+    assert (
+        contract.terminal_state["reason"]
+        == workspace_loop.WORKSPACE_MEASUREMENT_STORE_MISSING_REASON
+    )
+    assert contract.authority_boundary is None
+    assert contract.evidence_kind is None
+    assert contract.authority_derivation_traces == []
+    dataset = next(
+        envelope
+        for envelope in contract.artifact_envelopes
+        if envelope.ref.artifact_type == "BaseDataset"
+    )
+    assert dataset.producer_roots == []
+    assert dataset.payload_manifest_profile_sha256 is None
+    assert dataset.obligations == ["artifact_missing"]
+    refusal_payload, refusal_kind = next(
+        (payload, kind)
+        for payload, kind in captured_payloads
+        if payload.get("disposition") == "artifact_missing"
+    )
+    assert "measurement_rows" not in refusal_payload
+    assert refusal_kind == "policyos.gy.artifact_missing_payload"
+    assert contract.obligation_records[0].obligation_type == "artifact_missing"
+    assert contract.obligation_records[0].status == "open"
+    assert (
+        contract.obligation_records[0].obligation_id
+        in contract.terminal_state["blocking_obligations"]
+    )
+    assert contract.incompleteness_record.unresolved.missing_data[-1] == {
+        "artifact_type": "MeasurementRoot",
+        "reason": "artifact_missing",
+        "source_admission": "not_established",
+        "required_capability": "selected_profile_persistence",
+    }
+    assert (
+        contract.next_best_actions[0].operation_proposal_ref == "workspace.configure_artifact_store"
+    )
+
+
+def test_measurement_root_producer_refuses_missing_store_before_catalog_read() -> None:
+    class _NoCatalogRead:
+        def search_datasets(self, *_args, **_kwargs):
+            raise AssertionError("producer must refuse before reading catalog without CAS")
+
+    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    with pytest.raises(MeasurementRootBindingError, match="measurement_root_store_not_established"):
+        MeasurementRootProducer(artifact_store=None).produce_from_catalog(
+            manifest,
+            _NoCatalogRead(),  # type: ignore[arg-type]
+        )
+
+
+def test_measurement_root_producer_rejects_malformed_present_store() -> None:
+    with pytest.raises(TypeError, match="measurement_root_artifact_store_invalid"):
+        MeasurementRootProducer(artifact_store=object())  # type: ignore[arg-type]
+
+
+def test_workspace_loop_rejects_malformed_present_artifact_store() -> None:
+    with pytest.raises(TypeError, match="workspace_artifact_store_invalid"):
+        WorkspaceLoop(artifact_store=object())  # type: ignore[arg-type]
+
+
+def test_slice0_groundable_fixture_exits_partial_without_design_candidate(tmp_path: Path) -> None:
+    contract = _workspace_loop_with_cas(tmp_path).run_fixture(
+        "ua_msme_credit_worldbank_measurement"
+    )
 
     assert contract.terminal_state["kind"] == "grounded_partial_admissible"
     assert contract.authority_boundary is not None
@@ -337,9 +429,10 @@ def test_slice0_poor_recall_routes_to_search_ceiling_repair_required() -> None:
 
 def test_slice0_semantic_benchmark_feeds_incompleteness_record(tmp_path: Path) -> None:
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
-    contract = WorkspaceLoop(catalog_graph=catalog).run_fixture(
-        "ua_msme_credit_worldbank_measurement"
-    )
+    contract = WorkspaceLoop(
+        catalog_graph=catalog,
+        artifact_store=FileSystemCAS(tmp_path / "cas"),
+    ).run_fixture("ua_msme_credit_worldbank_measurement")
 
     benchmark_run = contract.incompleteness_record.search_quality["semantic_benchmark_run"]
 
@@ -422,8 +515,10 @@ def test_slice0_acquire_continuation_emits_costed_acquisition_required_terminal(
     )
 
 
-def test_slice0_groundable_contract_carries_authority_derivation_trace() -> None:
-    contract = WorkspaceLoop().run_fixture("ua_msme_credit_worldbank_measurement")
+def test_slice0_groundable_contract_carries_authority_derivation_trace(tmp_path: Path) -> None:
+    contract = _workspace_loop_with_cas(tmp_path).run_fixture(
+        "ua_msme_credit_worldbank_measurement"
+    )
 
     assert contract.authority_derivation_traces
     trace = contract.authority_derivation_traces[0]
@@ -493,11 +588,15 @@ def test_slice0_rejects_non_active_operation_execution() -> None:
         loop.operation_registry.executable_for_class(OperationClass.ACQUIRE)
 
 
-def test_slice0_rejects_design_candidate_output_at_exit_boundary(monkeypatch) -> None:
+def test_slice0_rejects_design_candidate_output_at_exit_boundary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     original = WorkspaceLoop._build_artifacts
 
-    def _build_design_candidate(self, manifest, terminal_kind):
-        artifacts = original(self, manifest, terminal_kind)
+    def _build_design_candidate(self, manifest, terminal_kind, *, artifact_store_refusal=False):
+        artifacts = original(
+            self, manifest, terminal_kind, artifact_store_refusal=artifact_store_refusal
+        )
         design_ref = ArtifactRef.from_payload(
             artifact_id="design-probe",
             artifact_type="DesignCandidate",
@@ -512,11 +611,13 @@ def test_slice0_rejects_design_candidate_output_at_exit_boundary(monkeypatch) ->
     monkeypatch.setattr(WorkspaceLoop, "_build_artifacts", _build_design_candidate)
 
     with pytest.raises(WorkspaceInvariantError, match="DesignCandidate"):
-        WorkspaceLoop().run_fixture("ua_msme_credit_worldbank_measurement")
+        _workspace_loop_with_cas(tmp_path).run_fixture("ua_msme_credit_worldbank_measurement")
 
 
-def test_slice0_contract_materializes_workspace_certificate_and_obligation() -> None:
-    groundable = WorkspaceLoop().run_fixture("ua_msme_credit_worldbank_measurement")
+def test_slice0_contract_materializes_workspace_certificate_and_obligation(tmp_path: Path) -> None:
+    groundable = _workspace_loop_with_cas(tmp_path).run_fixture(
+        "ua_msme_credit_worldbank_measurement"
+    )
 
     assert groundable.workspace_contract.workspace_id == groundable.workspace_id
     assert groundable.workspace_contract_ref.startswith("sha256:")
@@ -908,3 +1009,88 @@ def test_measurement_root_producer_is_owned_by_data_forge_binding_module() -> No
 
     assert "class MeasurementRootProducer" not in source
     assert MeasurementRootProducer.__module__ == "polisyos.runtime.quality.data_forge_binding"
+
+
+def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core.artifacts.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+
+    catalog = build_slice0_fixture_catalog_graph(tmp_path)
+    store = FileSystemCAS(tmp_path / "cas")
+    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(
+        manifest,
+        catalog,
+    )
+    selected_profile = envelope.payload_manifest_profile_sha256
+    assert selected_profile is not None
+    payload = json.loads(store.get_bytes(envelope.payload_ref))
+
+    # A second valid manifest view for the same bytes becomes the ID-only default.
+    alternate_ref = store.put_json(
+        payload,
+        core_artifacts.PutOptions(
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name=envelope.payload_schema_ref, version="v1"),
+            producer=ProducerInfo(
+                component="test.measurement_root_alternate_manifest",
+                version="1",
+            ),
+        ),
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert alternate_ref.artifact_id == core_artifacts.ArtifactID(envelope.payload_ref)
+    assert alternate_ref.manifest_profile_sha256 != selected_profile
+
+    selected_reads: list[str | None] = []
+    original_get_bytes = store.get_bytes
+    original_get_manifest = store.get_manifest
+
+    def record_bytes(ref):
+        if str(getattr(ref, "artifact_id", ref)) == envelope.payload_ref:
+            selected_reads.append(getattr(ref, "manifest_profile_sha256", None))
+        return original_get_bytes(ref)
+
+    def record_manifest(ref):
+        if str(getattr(ref, "artifact_id", ref)) == envelope.payload_ref:
+            selected_reads.append(getattr(ref, "manifest_profile_sha256", None))
+        return original_get_manifest(ref)
+
+    monkeypatch.setattr(store, "get_bytes", record_bytes)
+    monkeypatch.setattr(store, "get_manifest", record_manifest)
+    monkeypatch.setattr(
+        workspace_loop,
+        "_search_catalog_with_status",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("selected CAS refusal must not fall back to catalog rows")
+        ),
+    )
+
+    loop = WorkspaceLoop(catalog_graph=catalog, artifact_store=store)
+    loaded = loop._dataset_payload_for_estimate(manifest, envelope)
+    assert loaded["measurement_rows"] == payload["measurement_rows"]
+    assert selected_reads
+    assert set(selected_reads) == {selected_profile}
+
+    missing = envelope.model_copy(update={"payload_manifest_profile_sha256": None})
+    with pytest.raises(WorkspaceInvariantError, match="selected_profile_missing"):
+        loop._dataset_payload_for_estimate(manifest, missing)
+
+    wrong_profile = envelope.model_copy(
+        update={"payload_manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    with pytest.raises(CanonicalProfileRefusalError):
+        loop._dataset_payload_for_estimate(manifest, wrong_profile)
+
+    malformed_profile = envelope.model_copy(
+        update={"payload_manifest_profile_sha256": "sha256:not-a-profile"}
+    )
+    with pytest.raises(ValueError, match="manifest_profile_sha256"):
+        loop._dataset_payload_for_estimate(manifest, malformed_profile)

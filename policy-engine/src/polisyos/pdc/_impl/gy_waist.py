@@ -31,9 +31,7 @@ GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION = "policyos.gy.comparison_project
 GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v2"
 
 
-GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION = (
-    "policyos.gy.non_authority_verification.v2"
-)
+GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION = "policyos.gy.non_authority_verification.v2"
 GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v3"
 
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
@@ -114,8 +112,7 @@ class GyArtifactProjectionRule:
             not isinstance(self.top_level_fields, frozenset)
             or not self.top_level_fields
             or any(
-                not isinstance(field, str) or not field.strip()
-                for field in self.top_level_fields
+                not isinstance(field, str) or not field.strip() for field in self.top_level_fields
             )
         ):
             raise ValueError("gy_artifact_projection_rule_fields_required")
@@ -138,8 +135,7 @@ class GyArtifactProjectionOwner:
 
     def __post_init__(self) -> None:
         if not isinstance(self.exclusion_rules, tuple) or any(
-            not isinstance(rule, GyArtifactProjectionRule)
-            for rule in self.exclusion_rules
+            not isinstance(rule, GyArtifactProjectionRule) for rule in self.exclusion_rules
         ):
             raise ValueError("gy_artifact_projection_rules_invalid")
         seen_fields: set[str] = set()
@@ -223,10 +219,7 @@ def _gy_artifact_projection_json_value(value: object) -> object:
     if isinstance(value, Mapping):
         if any(not isinstance(key, str) for key in value):
             raise ValueError("gy_artifact_projection_mapping_key_invalid")
-        return {
-            key: _gy_artifact_projection_json_value(item)
-            for key, item in value.items()
-        }
+        return {key: _gy_artifact_projection_json_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_gy_artifact_projection_json_value(item) for item in value]
     if value is None or isinstance(value, (str, bool, int)):
@@ -377,9 +370,7 @@ class GyComparisonProjectionPlan:
         """
 
         migrations = {
-            entry.path: entry
-            for entry in self.entries
-            if entry.legacy_migrator is not None
+            entry.path: entry for entry in self.entries if entry.legacy_migrator is not None
         }
         if not migrations:
             return previous
@@ -401,24 +392,18 @@ class GyComparisonProjectionPlan:
             if isinstance(left, Mapping) and isinstance(right, Mapping):
                 return {
                     str(key): (
-                        walk(child, right[key], (*path, str(key)))
-                        if key in right
-                        else child
+                        walk(child, right[key], (*path, str(key))) if key in right else child
                     )
                     for key, child in left.items()
                 }
             if isinstance(left, list) and isinstance(right, list):
                 return [
-                    walk(child, right[index], (*path, index))
-                    if index < len(right)
-                    else child
+                    walk(child, right[index], (*path, index)) if index < len(right) else child
                     for index, child in enumerate(left)
                 ]
             if isinstance(left, tuple) and isinstance(right, tuple):
                 return tuple(
-                    walk(child, right[index], (*path, index))
-                    if index < len(right)
-                    else child
+                    walk(child, right[index], (*path, index)) if index < len(right) else child
                     for index, child in enumerate(left)
                 )
             return left
@@ -749,10 +734,7 @@ def build_gy_comparison_projection_plan_from_manifest(
         ):
             raise ValueError("gy_comparison_admission_manifest_invalid")
         registered = owner_rule_registry[owner_rule]
-        if (
-            action != registered.action
-            or predicate_provenance != registered.predicate_provenance
-        ):
+        if action != registered.action or predicate_provenance != registered.predicate_provenance:
             raise ValueError("gy_comparison_admission_manifest_owner_policy_mismatch")
         path = _gy_comparison_path_from_pointer(value, pointer)
         entries.append(
@@ -1641,6 +1623,11 @@ class ArtifactEnvelope(GyWaistModel):
 
     ref: ArtifactRef
     payload_ref: str
+    payload_manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     payload_schema_ref: str
     lifecycle_state: Literal["shadow", "verified", "promoted", "rejected", "superseded", "archived"]
     created_by: dict[str, str]

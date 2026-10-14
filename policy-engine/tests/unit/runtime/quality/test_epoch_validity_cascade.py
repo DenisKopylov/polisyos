@@ -363,8 +363,7 @@ def test_file_transition_history_adapter_replays_projection_input(tmp_path: Path
     assert projection_ref is not None
     manifest = fixture.store.get_manifest(receipt.receipt_ref.artifact_id)
     assert any(
-        item.artifact_id == projection_ref.artifact_id
-        and item.role == "epoch_production_input"
+        item.artifact_id == projection_ref.artifact_id and item.role == "epoch_production_input"
         for item in manifest.inputs
     )
 
@@ -1338,3 +1337,44 @@ def test_unappointed_transition_signer_returns_typed_negative_before_owner_reads
         code="epoch_transition_signer_not_established",
         predicate_class="not_established",
     )
+
+
+def test_selected_chronology_profile_roundtrips_exact_input_lineage(tmp_path: Path) -> None:
+    class ProfiledRecord(cascade._StrictModel):
+        value: str
+
+    store = artifacts.FileSystemCAS(tmp_path / "selected-profile-cas")
+    upstream_ref, _, _ = cascade._persist_model(
+        store=store,
+        value=ProfiledRecord(value="upstream"),
+        kind="test.chronology.profiled",
+        selected_profile=True,
+    )
+    upstream_input = artifacts.input_ref_from_artifact_ref(upstream_ref, role="selected-upstream")
+    ref, _, _ = cascade._persist_model(
+        store=store,
+        value=ProfiledRecord(value="downstream"),
+        kind="test.chronology.profiled",
+        inputs=(upstream_input,),
+        selected_profile=True,
+    )
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    assert manifest.canon == artifacts.CanonInfo.from_spec(cascade._RUNTIME_CONTEXT_CANON)
+    assert manifest.inputs == [upstream_input]
+    resolved = cascade._read_model(
+        store=store, ref=ref, model=ProfiledRecord, kind="test.chronology.profiled"
+    )
+    assert resolved == ProfiledRecord(value="downstream")
+
+    # Removing the selector leaves the marker-bearing bytes and record intact,
+    # but the selected manifest contract can no longer be reconciled.
+    profileless_ref = ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(ValueError, match="chronology_artifact_readback_mismatch"):
+        cascade._read_model(
+            store=store,
+            ref=profileless_ref,
+            model=ProfiledRecord,
+            kind="test.chronology.profiled",
+        )

@@ -431,6 +431,40 @@ def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: 
     assert not list((REPO_ROOT / "src/polisyos/runtime/quality").rglob("gy_s0_*.py"))
 
 
+def test_measurement_root_registry_lineage_preserves_selected_profile() -> None:
+    """Registry input construction retains the exact selected MeasurementRoot view."""
+
+    selected_profile = "sha256:" + "a" * 64
+    measurement_root_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + "1" * 64),
+        kind="policyos.gy.measurement_root_payload",
+        media_type="application/json",
+        manifest_profile_sha256=selected_profile,
+    )
+    fetch_receipt_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + "2" * 64),
+        kind="fabric.fetch_receipt",
+        media_type="application/json",
+    )
+    catalog_binding_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + "3" * 64),
+        kind="fabric.catalog_fetch_binding",
+        media_type="application/json",
+    )
+
+    input_refs = substrate_module._measurement_root_registry_input_refs(
+        measurement_root_ref=measurement_root_ref,
+        fetch_receipt_ref=fetch_receipt_ref,
+        catalog_binding_ref=catalog_binding_ref,
+        baseline_registry_ref=None,
+    )
+
+    assert len(input_refs) == 3
+    assert input_refs[0].role == "measurement_root"
+    assert input_refs[0].artifact_id == measurement_root_ref.artifact_id
+    assert input_refs[0].manifest_profile_sha256 == selected_profile
+
+
 @pytest.mark.parametrize(
     "evidence",
     [
@@ -517,9 +551,7 @@ def test_l5_projection_recomputes_hash_from_typed_no_profile_refs() -> None:
     preimage["owner_source_snapshot_ref"] = projection.owner_source_snapshot_ref.model_dump(
         mode="json"
     )
-    preimage["denominator_receipt_ref"] = projection.denominator_receipt_ref.model_dump(
-        mode="json"
-    )
+    preimage["denominator_receipt_ref"] = projection.denominator_receipt_ref.model_dump(mode="json")
     expected_hash = (
         "sha256:" + hashlib.sha256(epoch_contract.canonical_epoch_bytes(preimage)).hexdigest()
     )
@@ -556,9 +588,7 @@ def test_scoped_projection_binds_selected_view_and_rejects_malformed_profile() -
         "owner_source_snapshot_ref": owner_ref.model_dump(mode="json"),
         "denominator_receipt_ref": denominator_ref.model_dump(mode="json"),
         "applicable_regime_ids": ("regime-a",),
-        "applicable_regime_content_hashes": (
-            "sha256:" + hashlib.sha256(b"regime-a").hexdigest(),
-        ),
+        "applicable_regime_content_hashes": ("sha256:" + hashlib.sha256(b"regime-a").hexdigest(),),
         "changepoint_refs": (),
         "status": "resolved",
     }
@@ -575,9 +605,9 @@ def test_scoped_projection_binds_selected_view_and_rejects_malformed_profile() -
     )
 
     changed_view = owner_ref.model_dump(mode="json")
-    changed_view["manifest_profile_sha256"] = "sha256:" + hashlib.sha256(
-        b"different selected profile"
-    ).hexdigest()
+    changed_view["manifest_profile_sha256"] = (
+        "sha256:" + hashlib.sha256(b"different selected profile").hexdigest()
+    )
     with pytest.raises(ValueError, match="scoped regime projection hash differs"):
         epoch_contract.ScopedSchemaRegimeProjection.model_validate(
             {
@@ -743,7 +773,9 @@ def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Pa
     assert load_substrate_registry(store, selected_ref) == registry
 
 
-def test_substrate_registry_writer_returns_selected_profile_and_reader_rejects_default_selector(tmp_path: Path) -> None:
+def test_substrate_registry_writer_returns_selected_profile_and_reader_rejects_default_selector(
+    tmp_path: Path,
+) -> None:
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     store = FileSystemCAS(tmp_path / "cas")
     selected_ref = persist_substrate_registry(store, registry)

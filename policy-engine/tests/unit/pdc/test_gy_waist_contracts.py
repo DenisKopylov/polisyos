@@ -463,9 +463,7 @@ def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
     reconciled = plan.preserve_admitted_blocks(previous, current)
 
     assert reconciled["receipt"]["raw_session_identity"] == "frozen"
-    assert reconciled["receipt"]["semantic_projection"] == {
-        "semantic_hash": "sha256:semantic"
-    }
+    assert reconciled["receipt"]["semantic_projection"] == {"semantic_hash": "sha256:semantic"}
     assert plan.project(reconciled) == plan.project(current)
 
     governing_drift = copy.deepcopy(previous)
@@ -564,9 +562,7 @@ def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() 
     )
 
     assert reconciled["receipt"]["raw_session_identity"] == "frozen"
-    assert reconciled["receipt"]["semantic_projection"] == {
-        "semantic_hash": "sha256:semantic"
-    }
+    assert reconciled["receipt"]["semantic_projection"] == {"semantic_hash": "sha256:semantic"}
     assert plan.project(reconciled) == plan.project(current)
     assert migration_calls == 1
 
@@ -1590,7 +1586,6 @@ def test_promotion_trace_rejects_spend_above_bound_budget() -> None:
         AuthorityDerivationTrace.model_validate(payload)
 
 
-
 def test_gy_artifact_ref_carries_selected_manifest_profile_without_changing_legacy_shape() -> None:
     ref = _artifact_ref()
     assert "manifest_profile_sha256" not in ref.model_dump(mode="json")
@@ -1602,4 +1597,25 @@ def test_gy_artifact_ref_carries_selected_manifest_profile_without_changing_lega
     with pytest.raises(ValidationError):
         ArtifactRef.model_validate(
             {**ref.model_dump(mode="json"), "manifest_profile_sha256": "present-but-invalid"}
+        )
+
+
+def test_artifact_envelope_preserves_optional_selected_payload_profile() -> None:
+    profile = "sha256:" + "f" * 64
+    envelope = ArtifactEnvelope(
+        ref=_artifact_ref(),
+        payload_ref="sha256:" + "a" * 64,
+        payload_schema_ref="policyos.gy.fixture.v1",
+        lifecycle_state="shadow",
+        created_by={"kind": "producer"},
+        producer_operation={"operation_id": "fixture"},
+    )
+    assert "payload_manifest_profile_sha256" not in envelope.model_dump(mode="json")
+    selected = ArtifactEnvelope.model_validate(
+        {**envelope.model_dump(mode="json"), "payload_manifest_profile_sha256": profile}
+    )
+    assert selected.model_dump(mode="json")["payload_manifest_profile_sha256"] == profile
+    with pytest.raises(ValidationError):
+        ArtifactEnvelope.model_validate(
+            {**envelope.model_dump(mode="json"), "payload_manifest_profile_sha256": "sha256:bad"}
         )

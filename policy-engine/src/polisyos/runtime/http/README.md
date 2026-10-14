@@ -241,3 +241,25 @@ The generic mutation response cache is skipped for both route-owned NL launch an
 Every natural-language launch with requested models first records its immutable caller intent, authenticated tenant/cell/actor scope, actual candidate run binding, and an opaque attempt handle. The generic SQL `runtime_operation_intents` row is the unique route-scope claim; the typed control-attempt row and its append-only started/settled/admitted/refused/cancelled/failed history are a read projection of that owner. Research/governed/production profiles must append a settled event with complete producer refs before admission or a complete-evidence terminal outcome. Provider-preflight code may report the canonical producer-call state `no_call` only on source-controlled exits before the completion request begins (for example, simulation skip, missing credentials, health/model/pricing failure, or model absence). It carries a finite `producer_no_call_reason` joined to the source-owned failure code in the append-only event and fresh response. That typed refusal remains distinct from an empty/unreadable ledger, which stays `unavailable` and blocks retry cleanup. Dev skips provider preflight and records `started → admitted` with `not_applicable` producer evidence; it does not fabricate settlement. The completed job and attempt observation link in one transaction. Exact provider ledger event IDs are retained; a null amount remains unknown and a token-price estimate remains estimated. This mechanism proves local database ownership, not an external invoice, provider-side idempotency, permission authority, or production currentness.
 
 `GET /api/v1/control/admission-attempts/{attempt_id}` and the same-scope `.../by-idempotency-key` lookup are uncached. The server derives tenant, cell, and actor from verified authentication. After a lost reply, reuse the same `Idempotency-Key` and exact request intent; changed intent conflicts, and 404 means unknown rather than no provider work. Composer and Clerk persist the opaque key plus scope/body digests in the dedicated IndexedDB record and retain it while the attempt is started, settled, or unresolved. Recovery validates the shared-owner purpose/route/body digest, authenticated principal/scope, the complete append-only status sequence, and profile-specific producer observations before clearing that key. A refused `no_call` with zero producer refs and its exact typed reason joined to the failure code is resolved; `failed`, `cancelled`, or `refused` with an unavailable observation remains unresolved. Missing or malformed persisted intent, producer refs, event payloads, observation states, owner tokens, and completed-job joins fail closed; they are never materialized as an empty/default observation. Generated state is never used to change the selected profile. Generic response replay is skipped for both NL launch and run predictive-calibration POSTs, while middleware rate limiting and audit remain active. The local debug CLI cannot perform a billable preflight without an authenticated scope and stable idempotency intent.
+
+## WorkspaceLoop selected MeasurementRoot profile
+
+`MeasurementRootProducer.produce_from_catalog` persists the payload and returns its
+selected CAS manifest profile with the `BaseDataset` envelope. WorkspaceLoop reads
+that payload through the exact typed Core artifact reference; it refuses a missing
+profile, a missing store, or a payload whose content differs from the envelope. The
+selected profile and payload identity are then bound into `OutcomeReplayProof.v2`
+and `ProductionLoopRunProof.v2`.
+
+The completed job keeps the contract and both versioned proofs in the existing open
+`ControlJobResponse.progress` projection. `ControlPlaneStore` persists the full progress
+snapshot for the job, and the existing `GET /api/v1/control/jobs/{job_id}` route maps it
+back to the response. The composed verifier checks the actual fresh GET's contract ref,
+content hash, and selected profile view against the persisted proof and CAS manifest;
+the proof itself records the selected view and does not claim that a GET was observed.
+The generated `progress` schema remains generic; these nested evidence payloads are
+validated by their own versions and are not an authority declaration. Profileless v1
+proof history remains parseable but cannot establish a current selected-profile chain.
+This CAS profile binds the selected bytes and manifest view only; it does not establish
+producer authority, custody outside this CAS, legal authority, freshness, or production
+currentness.

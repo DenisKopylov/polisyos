@@ -223,6 +223,8 @@ def _persist_model(
     value: BaseModel | Mapping[str, object],
     kind: str | None = None,
     profile_record: str | None = None,
+    inputs: Sequence[artifacts.InputRef] | None = None,
+    selected_profile: bool = False,
 ) -> tuple[ArtifactRef, Digest, bytes]:
     if (kind is None) == (profile_record is None):
         raise ValueError("exactly_one_chronology_persistence_profile_required")
@@ -237,18 +239,25 @@ def _persist_model(
                 version=profile.schema_version,
             ),
             canon=artifacts.CanonInfo.from_spec(profile.canon_spec),
+            inputs=list(inputs) if inputs is not None else None,
         )
         semantic = c4_semantic_digest(profile_record, value)
     else:
         if kind is None:  # pragma: no cover - guarded by the exclusive-choice check
             raise ValueError("chronology_persistence_kind_missing")
         raw = _canonical_bytes(value)
-        options = ArtifactWriteOptions(kind=kind, media_type=_MEDIA_TYPE)
+        options = ArtifactWriteOptions(
+            kind=kind,
+            media_type=_MEDIA_TYPE,
+            canon=(
+                artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON) if selected_profile else None
+            ),
+            inputs=list(inputs) if inputs is not None else None,
+        )
         semantic = _semantic_hash(kind, value)
-    ref = store.put_bytes(
-        raw,
-        options,
-    )
+    ref = store.put_bytes(raw, options, return_selected_profile=selected_profile)
+    if selected_profile and ref.manifest_profile_sha256 is None:
+        raise ValueError("chronology_artifact_selected_profile_missing")
     observed = store.get_bytes(ref)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
@@ -289,6 +298,7 @@ def _read_model(
     profile_record: str | None = None,
 ) -> _StrictModel:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if (kind is None) == (profile_record is None):
         raise ValueError("exactly_one_chronology_read_profile_required")
     if profile_record is not None:
@@ -306,7 +316,11 @@ def _read_model(
         expected_kind = kind
         expected_media_type = _MEDIA_TYPE
         expected_schema = None
-        expected_canon = None
+        expected_canon = (
+            artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
+            if ref.manifest_profile_sha256 is not None
+            else None
+        )
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("chronology_artifact_profile_mismatch")
     report = store.verify(ref)
@@ -1033,6 +1047,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         receipt_ref: ArtifactRef,
     ) -> SemanticEpochProductionReceipt:
         from polisyos.core.artifacts import load_core_json_frame_records
+
         if (
             receipt_ref.kind != "epoch.production_receipt"
             or receipt_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
@@ -1087,6 +1102,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         manifest_ref: ArtifactRef,
     ) -> SemanticEpochManifest:
         from polisyos.core.artifacts import load_core_json_frame_records
+
         if (
             manifest_ref.kind != "epoch.semantic_manifest"
             or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
@@ -1110,9 +1126,9 @@ class FileSemanticEpochTransitionHistoryAdapter:
             raise ValueError("epoch transition semantic manifest CAS readback failed")
         try:
             manifest = SemanticEpochManifest.model_validate(
-                load_core_json_frame_records(
-                    self._artifacts, manifest_ref, raw_payload_bytes=raw
-                )[0]
+                load_core_json_frame_records(self._artifacts, manifest_ref, raw_payload_bytes=raw)[
+                    0
+                ]
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
@@ -2304,6 +2320,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
         self, statement: PromotionOwnerQueryContextStatement
     ) -> None:
         from polisyos.core.artifacts import load_core_json_artifact
+
         ref = statement.design_problem_binding_ref
         expected_schema = artifacts.SchemaInfo(
             name="polisyos.runtime.DesignProblem",
@@ -2359,6 +2376,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
         expected_verifier_provenance_ref: ArtifactRef,
     ) -> None:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if isinstance(evidence, EpochPromotionQueryEvidence):
             profile_record = "epoch_query_evidence"
             context_domain = "polisyos.promotion-query.semantic-epoch.context.v1"

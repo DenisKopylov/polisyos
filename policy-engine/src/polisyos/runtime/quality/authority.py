@@ -324,18 +324,37 @@ class OutcomeReplayLevelProof(BaseModel):
     status: Literal["verified", "drift"]
 
 
+class OutputCASManifestProfile(BaseModel):
+    """Bind one emitted PDC envelope to its exact selected CAS manifest view."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    envelope_artifact_id: StrictStr = Field(min_length=1)
+    envelope_artifact_type: StrictStr = Field(min_length=1, max_length=80)
+    payload_artifact_id: core_artifacts.ArtifactID
+    payload_schema_ref: StrictStr = Field(min_length=1, max_length=200)
+    manifest_profile_sha256: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+_OUTCOME_REPLAY_V1 = "policyos.runtime.outcome_replay_proof.v1"
+_OUTCOME_REPLAY_V2 = "policyos.runtime.outcome_replay_proof.v2"
+_PRODUCTION_LOOP_PROOF_V1 = "policyos.policy_design_case.layer3_gy_loop.v1"
+_PRODUCTION_LOOP_PROOF_V2 = "policyos.policy_design_case.layer3_gy_loop.v2"
+
+
 class OutcomeReplayProof(BaseModel):
     """Typed three-level replay proof emitted by a production outcome run."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = "policyos.runtime.outcome_replay_proof.v1"
+    schema_version: Literal[_OUTCOME_REPLAY_V1, _OUTCOME_REPLAY_V2] = _OUTCOME_REPLAY_V2
     case_id: str = Field(min_length=1)
     canonicalizer_ref: str = "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash"
     replay_levels: list[Literal["A", "B", "C"]]
     input_hashes: dict[str, str]
     output_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     producer_roots: list[dict[str, Any]] = Field(default_factory=list)
+    output_cas_manifest_profiles: list[OutputCASManifestProfile] = Field(default_factory=list)
     level_proofs: list[OutcomeReplayLevelProof]
 
     @model_validator(mode="after")
@@ -346,6 +365,14 @@ class OutcomeReplayProof(BaseModel):
             raise ValueError("level proofs must match replay_levels in order")
         if not self.input_hashes:
             raise ValueError("outcome replay proof requires content-bound inputs")
+        if self.schema_version == _OUTCOME_REPLAY_V1 and self.output_cas_manifest_profiles:
+            raise ValueError("legacy replay proof cannot claim selected CAS profiles")
+        identities = [
+            (item.envelope_artifact_id, item.envelope_artifact_type)
+            for item in self.output_cas_manifest_profiles
+        ]
+        if len(identities) != len(set(identities)):
+            raise ValueError("replay proof selected CAS profile entries must be unique")
         return self
 
 
@@ -354,7 +381,9 @@ class ProductionLoopRunProof(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
-    schema_version: str = "policyos.policy_design_case.layer3_gy_loop.v1"
+    schema_version: Literal[_PRODUCTION_LOOP_PROOF_V1, _PRODUCTION_LOOP_PROOF_V2] = (
+        _PRODUCTION_LOOP_PROOF_V2
+    )
     run_id: str = Field(min_length=1)
     job_id: str = Field(min_length=1)
     endpoint: str = Field(min_length=1)
@@ -376,6 +405,7 @@ class ProductionLoopRunProof(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     output_cas_refs: list[str]
+    output_cas_manifest_profiles: list[OutputCASManifestProfile] = Field(default_factory=list)
     artifacts_index_refs: list[str]
     surface_reads_checked: list[str]
     surface_readbacks: list[dict[str, Any]] = Field(default_factory=list)
@@ -383,6 +413,20 @@ class ProductionLoopRunProof(BaseModel):
 
     @model_validator(mode="after")
     def _validate_durable_path_shape(self) -> ProductionLoopRunProof:
+        if self.schema_version == _PRODUCTION_LOOP_PROOF_V1 and self.output_cas_manifest_profiles:
+            raise ValueError("legacy run proof cannot claim selected CAS profiles")
+        profile_identities = [
+            (item.envelope_artifact_id, item.envelope_artifact_type)
+            for item in self.output_cas_manifest_profiles
+        ]
+        if len(profile_identities) != len(set(profile_identities)):
+            raise ValueError("run proof selected CAS profile entries must be unique")
+        output_refs = set(self.output_cas_refs)
+        if any(
+            str(item.payload_artifact_id) not in output_refs
+            for item in self.output_cas_manifest_profiles
+        ):
+            raise ValueError("run proof selected CAS profile must bind a declared output ref")
         if self.endpoint != "/api/v1/control/runs":
             raise ValueError("production loop proof must originate at the control runs route")
         if self.job_kind != "workflow_run":
@@ -398,12 +442,49 @@ class ProductionLoopRunProof(BaseModel):
         return self
 
 
+def output_cas_manifest_profiles_from_contract(
+    search_exit_contract: Mapping[str, Any],
+) -> list[OutputCASManifestProfile]:
+    """Project producer-selected payload profiles from the emitted envelopes."""
+
+    envelopes = search_exit_contract.get("artifact_envelopes")
+    if not isinstance(envelopes, list):
+        raise ValueError("selected CAS profile contract envelopes are missing")
+    selected: list[OutputCASManifestProfile] = []
+    for envelope in envelopes:
+        if not isinstance(envelope, Mapping):
+            raise ValueError("selected CAS profile envelope is not an object")
+        profile = envelope.get("payload_manifest_profile_sha256")
+        if profile is None:
+            continue
+        ref = envelope.get("ref")
+        if not isinstance(ref, Mapping):
+            raise ValueError("selected CAS profile envelope ref is missing")
+        payload_ref = envelope.get("payload_ref")
+        if not isinstance(payload_ref, str) or not payload_ref:
+            raise ValueError("selected CAS profile payload ref is missing")
+        payload_schema_ref = envelope.get("payload_schema_ref")
+        if not isinstance(payload_schema_ref, str) or not payload_schema_ref:
+            raise ValueError("selected CAS profile payload schema ref is missing")
+        selected.append(
+            OutputCASManifestProfile(
+                envelope_artifact_id=str(ref.get("artifact_id") or ""),
+                envelope_artifact_type=str(ref.get("artifact_type") or ""),
+                payload_artifact_id=payload_ref,
+                payload_schema_ref=payload_schema_ref,
+                manifest_profile_sha256=profile,
+            )
+        )
+    return selected
+
+
 def build_outcome_replay_proof(
     *,
     case_id: str,
     input_payloads: Mapping[str, Any],
     search_exit_contract: Mapping[str, Any],
     output_cas_refs: Iterable[str],
+    schema_version: Literal[_OUTCOME_REPLAY_V1, _OUTCOME_REPLAY_V2] = _OUTCOME_REPLAY_V2,
 ) -> OutcomeReplayProof:
     """Build the F16 A/B/C proof from run inputs and the emitted exit contract."""
 
@@ -435,17 +516,28 @@ def build_outcome_replay_proof(
         "terminal_state": contract.get("terminal_state") or {},
         "incompleteness_record": incompleteness,
     }
+    output_profiles = (
+        output_cas_manifest_profiles_from_contract(contract)
+        if schema_version == _OUTCOME_REPLAY_V2
+        else []
+    )
     audit_input = {
         "producer_roots": producer_roots,
         "output_cas_refs": list(output_cas_refs),
     }
+    if schema_version == _OUTCOME_REPLAY_V2:
+        audit_input["output_cas_manifest_profiles"] = [
+            item.model_dump(mode="json") for item in output_profiles
+        ]
     output_hash = gy_content_hash(contract)
     return OutcomeReplayProof(
+        schema_version=schema_version,
         case_id=case_id,
         replay_levels=["A", "B", "C"],
         input_hashes=input_hashes,
         output_hash=output_hash,
         producer_roots=producer_roots,
+        output_cas_manifest_profiles=output_profiles,
         level_proofs=[
             OutcomeReplayLevelProof(
                 level="A",
@@ -758,9 +850,7 @@ class EvidenceAuthorityEnvelope(BaseModel):
 
     @field_validator("requested_execution_profile")
     @classmethod
-    def _preserve_requested_profile_absence(
-        cls, value: StrictStr | None
-    ) -> StrictStr | None:
+    def _preserve_requested_profile_absence(cls, value: StrictStr | None) -> StrictStr | None:
         """Preserve an admitted omitted request profile without inventing a value."""
         return None if value is None else _non_empty(value)
 
@@ -1346,9 +1436,7 @@ def authority_surface_decision(
             authority_result=selected_manifest_decision.authority_result,
             transition_disposition=selected_manifest_decision.transition_disposition,
             authority_boundary_ref=selected_manifest_decision.authority_boundary_ref,
-            consumed_authority_boundary=(
-                selected_manifest_decision.consumed_authority_boundary
-            ),
+            consumed_authority_boundary=(selected_manifest_decision.consumed_authority_boundary),
             may_not_use_for=list(selected_manifest_decision.may_not_use_for),
             reason=selected_manifest_decision.reason,
             blocking=selected_manifest_decision.blocking,
@@ -1377,9 +1465,7 @@ def authority_surface_decision(
         primary_authority_result = selected_contributor.authority_result
         primary_transition_disposition = selected_contributor.transition_disposition
         primary_authority_boundary_ref = selected_contributor.authority_boundary_ref
-        primary_consumed_authority_boundary = (
-            selected_contributor.consumed_authority_boundary
-        )
+        primary_consumed_authority_boundary = selected_contributor.consumed_authority_boundary
 
     all_may_not_use = list(
         dict.fromkeys(
@@ -2045,9 +2131,8 @@ def _optional_text(value: str | None) -> str | None:
 def _is_serious_profile(envelope: EvidenceAuthorityEnvelope) -> bool:
     requested = envelope.requested_execution_profile
     return (
-        (requested is not None and requested.casefold() in SERIOUS_EXECUTION_PROFILES)
-        or envelope.effective_execution_profile.casefold() in SERIOUS_EXECUTION_PROFILES
-    )
+        requested is not None and requested.casefold() in SERIOUS_EXECUTION_PROFILES
+    ) or envelope.effective_execution_profile.casefold() in SERIOUS_EXECUTION_PROFILES
 
 
 def _is_cas_ref(value: str) -> bool:
@@ -2770,6 +2855,7 @@ __all__ = [
     "GovernanceMetadata",
     "OutcomeReplayLevelProof",
     "OutcomeReplayProof",
+    "OutputCASManifestProfile",
     "PredicateProvenanceClass",
     "ProducerIdentity",
     "ProductionLoopRunProof",
@@ -2798,6 +2884,7 @@ __all__ = [
     "classify_authority_failure",
     "classify_authority_role",
     "deserialize_authority_envelope",
+    "output_cas_manifest_profiles_from_contract",
     "resolve_time_source_consistency_disposition",
     "seal_consumed_input_set",
     "serialize_authority_envelope",

@@ -215,6 +215,7 @@ _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
 ] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
 _PROMOTION_EVIDENCE_BRIDGE_KIND = "polisyos.gy.n9_promotion_evidence_bridge"
+_N9_EVIDENCE_SOURCE_INPUT_ROLE = "n9_promotion_evidence_source"
 _EFFECTIVE_INDEPENDENCE_SOURCE_KIND: Literal[
     "polisyos.gy.n9_effective_independence_producer_record"
 ] = "polisyos.gy.n9_effective_independence_producer_record"
@@ -910,13 +911,14 @@ class N9PromotionEvidenceBridgeRepository:
             store=self._store,
             value=producer_record,
             kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+            selected_profile=True,
         )
         disposition, limitation = _effective_independence_disposition(graph)
         return self._persist_bridge(
             promotion_input=promotion_input,
             evidence_kind="effective_independence",
             source_owner_ref=_EFFECTIVE_INDEPENDENCE_OWNER_REF,
-            source_artifact_id=str(source_ref.artifact_id),
+            source_ref=source_ref,
             source_artifact_kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
             source_semantic_hash=source_semantic_hash,
             source_schema_ref=str(graph["schema_version"]),
@@ -934,13 +936,19 @@ class N9PromotionEvidenceBridgeRepository:
         """Resolve a real MeasurementRoot envelope before binding it to N9."""
         from polisyos.core.artifacts import load_core_json_artifact
 
-        resolved_envelope = self._resolve_measurement_envelope(envelope.payload_ref)
+        if envelope.payload_manifest_profile_sha256 is None:
+            raise ValueError("measurement_root_selected_profile_missing")
+        source_ref = core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(envelope.payload_ref),
+            kind=_MEASUREMENT_ROOT_SOURCE_KIND,
+            media_type="application/json",
+            manifest_profile_sha256=envelope.payload_manifest_profile_sha256,
+        )
+        resolved_envelope = self._resolve_measurement_envelope(source_ref)
         if envelope != resolved_envelope:
             raise ValueError("measurement_root_envelope_binding_invalid")
         root = resolved_envelope.producer_roots[0]
-        payload = load_core_json_artifact(
-            self._store, core_artifacts.ArtifactID(envelope.payload_ref)
-        )
+        payload = load_core_json_artifact(self._store, source_ref)
         problem = DesignProblem.model_validate(payload["design_problem"])
         if N9DesignProblemBinding.from_problem(problem) != promotion_input.design_problem_binding:
             raise ValueError("measurement_root_design_problem_binding_mismatch")
@@ -948,7 +956,7 @@ class N9PromotionEvidenceBridgeRepository:
             promotion_input=promotion_input,
             evidence_kind="measurement_root",
             source_owner_ref=_MEASUREMENT_ROOT_OWNER_REF,
-            source_artifact_id=envelope.payload_ref,
+            source_ref=source_ref,
             source_artifact_kind=_MEASUREMENT_ROOT_SOURCE_KIND,
             source_semantic_hash=gy_content_hash(payload),
             source_schema_ref=envelope.payload_schema_ref,
@@ -1025,12 +1033,13 @@ class N9PromotionEvidenceBridgeRepository:
             store=self._store,
             value=source,
             kind=_EFFECT_OBLIGATION_SOURCE_KIND,
+            selected_profile=True,
         )
         return self._persist_bridge(
             promotion_input=promotion_input,
             evidence_kind="effect_obligation",
             source_owner_ref=_EFFECT_OBLIGATION_OWNER_REF,
-            source_artifact_id=str(source_ref.artifact_id),
+            source_ref=source_ref,
             source_artifact_kind=_EFFECT_OBLIGATION_SOURCE_KIND,
             source_semantic_hash=source_semantic_hash,
             source_schema_ref=source.schema_version,
@@ -1073,12 +1082,14 @@ class N9PromotionEvidenceBridgeRepository:
                 or bridge_ref.schema_ref != _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
                 or bridge_ref.version != "v3"
                 or bridge_ref.uri != f"cas://{bridge_ref.artifact_id}"
+                or bridge_ref.manifest_profile_sha256 is None
             ):
                 raise ValueError("promotion_evidence_bridge_ref_invalid")
             core_ref = core_artifacts.ArtifactRef(
                 artifact_id=core_artifacts.ArtifactID(bridge_ref.artifact_id),
                 kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
                 media_type="application/vnd.polisyos.chronology+json",
+                manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
             )
             record = _read_model(
                 store=self._store,
@@ -1099,13 +1110,20 @@ class N9PromotionEvidenceBridgeRepository:
                 or not self._verifier_provenance_is_exact(record.verifier_provenance_ref)
             ):
                 raise ValueError("promotion_evidence_bridge_binding_invalid")
+            source_ref = self._source_ref_from_bridge_manifest(core_ref, record)
             if evidence_kind == "effective_independence":
-                disposition, limitation, source_refs = self._resolve_independence_record(record)
+                disposition, limitation, source_refs = self._resolve_independence_record(
+                    record, source_ref=source_ref
+                )
             elif evidence_kind == "measurement_root":
-                disposition, limitation, source_refs = self._resolve_measurement_record(record)
+                disposition, limitation, source_refs = self._resolve_measurement_record(
+                    record, source_ref=source_ref
+                )
             else:
                 disposition, limitation, source_refs, resolved_reference = (
-                    self._resolve_effect_record(record, promotion_input=promotion_input)
+                    self._resolve_effect_record(
+                        record, promotion_input=promotion_input, source_ref=source_ref
+                    )
                 )
             if (
                 record.source_disposition != disposition
@@ -1113,7 +1131,7 @@ class N9PromotionEvidenceBridgeRepository:
             ):
                 raise ValueError("promotion_evidence_bridge_disposition_drift")
             synthetic = self._source_synthetic_provenance(
-                record.source_artifact_id, promotion_input=promotion_input
+                source_ref, promotion_input=promotion_input
             )
             if record.synthetic is not synthetic:
                 raise ValueError("promotion_evidence_bridge_synthetic_provenance_drift")
@@ -1150,7 +1168,7 @@ class N9PromotionEvidenceBridgeRepository:
         promotion_input: CanonicalPromotionInput,
         evidence_kind: _PromotionEvidenceKind,
         source_owner_ref: str,
-        source_artifact_id: str,
+        source_ref: core_artifacts.ArtifactRef,
         source_artifact_kind: _PromotionEvidenceSourceKind,
         source_semantic_hash: str,
         source_schema_ref: str,
@@ -1158,9 +1176,19 @@ class N9PromotionEvidenceBridgeRepository:
         disposition: Literal["established", "blocked"],
         limitation_code: str,
     ) -> ArtifactRef:
-        synthetic = self._source_synthetic_provenance(
-            source_artifact_id, promotion_input=promotion_input
+        expected_media_type = (
+            "application/json"
+            if source_artifact_kind == _MEASUREMENT_ROOT_SOURCE_KIND
+            else "application/vnd.polisyos.chronology+json"
         )
+        if (
+            source_ref.kind != source_artifact_kind
+            or source_ref.media_type != expected_media_type
+            or source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("promotion_evidence_source_selector_invalid")
+        source_artifact_id = str(source_ref.artifact_id)
+        synthetic = self._source_synthetic_provenance(source_ref, promotion_input=promotion_input)
         record = N9PromotionEvidenceBridgeRecord(
             evidence_kind=evidence_kind,
             candidate_id=promotion_input.candidate_summary.candidate_id,
@@ -1187,6 +1215,12 @@ class N9PromotionEvidenceBridgeRepository:
             store=self._store,
             value=record,
             kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+            inputs=[
+                core_artifacts.input_ref_from_artifact_ref(
+                    source_ref, role=_N9_EVIDENCE_SOURCE_INPUT_ROLE
+                )
+            ],
+            selected_profile=True,
         )
         artifact_type = _promotion_evidence_bridge_type(evidence_kind)
         return ArtifactRef(
@@ -1196,10 +1230,57 @@ class N9PromotionEvidenceBridgeRepository:
             schema_ref=_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
             uri=f"cas://{ref.artifact_id}",
             version="v3",
+            manifest_profile_sha256=ref.manifest_profile_sha256,
         )
 
+    def _source_ref_from_bridge_manifest(
+        self,
+        bridge_ref: core_artifacts.ArtifactRef,
+        record: N9PromotionEvidenceBridgeRecord,
+    ) -> core_artifacts.ArtifactRef:
+        """Resolve the one producer-selected source view declared by this bridge."""
+        inputs = self._store.get_manifest(bridge_ref).inputs
+        if inputs is None or len(inputs) != 1:
+            raise ValueError("promotion_evidence_source_lineage_cardinality_invalid")
+        source_input = inputs[0]
+        if (
+            source_input.role != _N9_EVIDENCE_SOURCE_INPUT_ROLE
+            or str(source_input.artifact_id) != record.source_artifact_id
+            or source_input.manifest_profile_sha256 is None
+        ):
+            raise ValueError("promotion_evidence_source_lineage_invalid")
+        media = (
+            "application/json"
+            if record.source_artifact_kind == _MEASUREMENT_ROOT_SOURCE_KIND
+            else "application/vnd.polisyos.chronology+json"
+        )
+        source_ref = core_artifacts.ArtifactRef(
+            artifact_id=source_input.artifact_id,
+            kind=record.source_artifact_kind,
+            media_type=media,
+            manifest_profile_sha256=source_input.manifest_profile_sha256,
+        )
+        if record.source_artifact_kind in {
+            _EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+            _EFFECT_OBLIGATION_SOURCE_KIND,
+        }:
+            source_manifest = self._store.get_manifest(source_ref)
+            if (
+                source_manifest.inputs != []
+                or source_manifest.producer is not None
+                or source_manifest.env is not None
+                or source_manifest.governance is not None
+                or source_manifest.tenant_context is not None
+                or source_manifest.same_input_closure is not None
+                or source_manifest.authority is not None
+                or source_manifest.warnings != []
+                or source_manifest.integrity.optional is not None
+            ):
+                raise ValueError("promotion_evidence_source_manifest_profile_invalid")
+        return source_ref
+
     def _source_synthetic_provenance(
-        self, source_artifact_id: str, *, promotion_input: CanonicalPromotionInput
+        self, source_ref: core_artifacts.ArtifactRef, *, promotion_input: CanonicalPromotionInput
     ) -> Literal[True] | None:
         """Recompute marked ancestry from actual source bytes and their bound candidate.
 
@@ -1208,19 +1289,18 @@ class N9PromotionEvidenceBridgeRepository:
         """
         from polisyos.core.artifacts import load_core_json_artifact
 
-        raw = self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
-        if _raw_hash(raw) != source_artifact_id or not self._store.verify(source_artifact_id).ok:
+        if source_ref.manifest_profile_sha256 is None:
+            raise ValueError("promotion_evidence_source_selector_missing")
+        raw = self._store.get_bytes(source_ref)
+        if _raw_hash(raw) != str(source_ref.artifact_id) or not self._store.verify(source_ref).ok:
             raise ValueError("promotion_evidence_source_content_mismatch")
         return _synthetic_evidence_payload(
-            load_core_json_artifact(
-                self._store, core_artifacts.ArtifactID(source_artifact_id), raw_payload_bytes=raw
-            ),
+            load_core_json_artifact(self._store, source_ref, raw_payload_bytes=raw),
             promotion_input,
         )
 
     def _resolve_independence_record(
-        self,
-        record: N9PromotionEvidenceBridgeRecord,
+        self, record: N9PromotionEvidenceBridgeRecord, *, source_ref: core_artifacts.ArtifactRef
     ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
         from polisyos.evidence import (
             build_effective_independence_graph,
@@ -1232,11 +1312,8 @@ class N9PromotionEvidenceBridgeRepository:
             or record.source_root_ref is not None
         ):
             raise ValueError("effective_independence_bridge_source_invalid")
-        source_ref = core_artifacts.ArtifactRef(
-            artifact_id=core_artifacts.ArtifactID(record.source_artifact_id),
-            kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
-            media_type="application/vnd.polisyos.chronology+json",
-        )
+        if source_ref.kind != _EFFECTIVE_INDEPENDENCE_SOURCE_KIND:
+            raise ValueError("effective_independence_bridge_source_invalid")
         source = _read_model(
             store=self._store,
             ref=source_ref,
@@ -1273,17 +1350,17 @@ class N9PromotionEvidenceBridgeRepository:
         )
 
     def _resolve_measurement_record(
-        self,
-        record: N9PromotionEvidenceBridgeRecord,
+        self, record: N9PromotionEvidenceBridgeRecord, *, source_ref: core_artifacts.ArtifactRef
     ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
         if (
             record.source_artifact_kind != _MEASUREMENT_ROOT_SOURCE_KIND
             or record.source_root_ref is None
         ):
             raise ValueError("measurement_root_bridge_source_invalid")
+        if source_ref.kind != _MEASUREMENT_ROOT_SOURCE_KIND:
+            raise ValueError("measurement_root_bridge_source_invalid")
         payload, root = self._resolve_measurement_source(
-            source_artifact_id=record.source_artifact_id,
-            source_root_ref=record.source_root_ref,
+            source_ref=source_ref, source_root_ref=record.source_root_ref
         )
         if (
             gy_content_hash(payload) != record.source_semantic_hash
@@ -1312,6 +1389,7 @@ class N9PromotionEvidenceBridgeRepository:
         record: N9PromotionEvidenceBridgeRecord,
         *,
         promotion_input: CanonicalPromotionInput,
+        source_ref: core_artifacts.ArtifactRef,
     ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...], CredalReference]:
         if (
             record.source_artifact_kind != _EFFECT_OBLIGATION_SOURCE_KIND
@@ -1319,11 +1397,8 @@ class N9PromotionEvidenceBridgeRepository:
             or record.source_schema_ref != _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
         ):
             raise ValueError("effect_obligation_bridge_source_invalid")
-        source_ref = core_artifacts.ArtifactRef(
-            artifact_id=core_artifacts.ArtifactID(record.source_artifact_id),
-            kind=_EFFECT_OBLIGATION_SOURCE_KIND,
-            media_type="application/vnd.polisyos.chronology+json",
-        )
+        if source_ref.kind != _EFFECT_OBLIGATION_SOURCE_KIND:
+            raise ValueError("effect_obligation_bridge_source_invalid")
         source = _read_model(
             store=self._store,
             ref=source_ref,
@@ -1386,14 +1461,19 @@ class N9PromotionEvidenceBridgeRepository:
             reference,
         )
 
-    def _resolve_measurement_envelope(self, source_artifact_id: str) -> ArtifactEnvelope:
+    def _resolve_measurement_envelope(
+        self, source_ref: core_artifacts.ArtifactRef
+    ) -> ArtifactEnvelope:
         from polisyos.runtime.quality.data_forge_binding import resolve_fabric_measurement_root
 
         if not isinstance(self._measurement_catalog, catalog_api.DatasetCatalogGraph):
             raise ValueError("measurement_root_catalog_not_established")
+        if source_ref.manifest_profile_sha256 is None:
+            raise ValueError("measurement_root_selected_profile_missing")
         return resolve_fabric_measurement_root(
             store=self._store,
-            source_artifact_id=source_artifact_id,
+            source_artifact_id=str(source_ref.artifact_id),
+            manifest_profile_sha256=source_ref.manifest_profile_sha256,
             catalog=self._measurement_catalog,
             providers=self._measurement_providers,
             execution_scope_binding=self._execution_scope_binding,
@@ -1402,16 +1482,18 @@ class N9PromotionEvidenceBridgeRepository:
     def _resolve_measurement_source(
         self,
         *,
-        source_artifact_id: str,
+        source_ref: core_artifacts.ArtifactRef,
         source_root_ref: ArtifactRef | None,
     ) -> tuple[dict[str, Any], ArtifactRef]:
         from polisyos.core.artifacts import load_core_json_artifact
 
-        envelope = self._resolve_measurement_envelope(source_artifact_id)
-        if envelope.producer_roots != [source_root_ref]:
+        envelope = self._resolve_measurement_envelope(source_ref)
+        if (
+            envelope.producer_roots != [source_root_ref]
+            or envelope.payload_manifest_profile_sha256 != source_ref.manifest_profile_sha256
+        ):
             raise ValueError("measurement_root_source_projection_mismatch")
-        selector = source_root_ref or core_artifacts.ArtifactID(source_artifact_id)
-        payload = load_core_json_artifact(self._store, selector)
+        payload = load_core_json_artifact(self._store, source_ref)
         return payload, envelope.producer_roots[0]
 
     def _resolve_measurement_source_v1_history(

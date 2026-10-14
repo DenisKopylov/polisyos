@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import time
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import numpy as np
 import pytest
@@ -236,3 +236,254 @@ def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) ->
     assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
     assert result.reproducibility_contract["node_count"] == 2
     assert result.reproducibility_contract["composition_kind"] == "serial"
+
+
+class _BoundExecutionChain:
+    """Minimal compiled-chain shape with stable occurrence identities for resume probes."""
+
+    def __init__(
+        self,
+        *,
+        factor: int = 2,
+        static_params: dict[str, object] | None = None,
+        signature_digest: str = "signature-v1",
+        cache_key: str = "cache-v1",
+        target_slot: str = "value",
+        has_dependency: bool = True,
+        second_node_value: int = 0xB74002,
+        compatibility_digest: str = "compat-v1",
+    ) -> None:
+        self.execution_order = [UUID(int=0xB74001), UUID(int=second_node_value)]
+        first_id, second_id = self.execution_order
+        self._nodes = {
+            first_id: SimpleNamespace(
+                method_fqn="demo.scale@1.0.0",
+                params={"factor": factor},
+                static_params=static_params or {"precision": "float64"},
+            ),
+            second_id: SimpleNamespace(
+                method_fqn="demo.finish@1.0.0",
+                params={},
+                static_params={},
+            ),
+        }
+        self._signatures = {
+            first_id: SimpleNamespace(stable_digest=lambda value=signature_digest: value),
+            second_id: SimpleNamespace(stable_digest=lambda: "finish-signature-v1"),
+        }
+        self.cache_keys = {first_id: cache_key, second_id: "finish-cache-v1"}
+        self.bindings = (
+            SimpleNamespace(
+                source_method="demo.scale@1.0.0",
+                source_slot="value",
+                target_method="demo.finish@1.0.0",
+                target_slot=target_slot,
+                source_node_id=first_id,
+                target_node_id=second_id,
+                compatibility=SimpleNamespace(
+                    compatible=True,
+                    source_slot=SimpleNamespace(
+                        stable_digest=lambda value=compatibility_digest: value
+                    ),
+                    target_slot=SimpleNamespace(
+                        stable_digest=lambda value=compatibility_digest: f"{value}-target"
+                    ),
+                    warnings=(),
+                    reason=None,
+                ),
+            ),
+        )
+        second_predecessors = {first_id} if has_dependency else set()
+        self.dag = SimpleNamespace(predecessors={first_id: set(), second_id: second_predecessors})
+
+    def get_node(self, node_id):
+        return self._nodes[node_id]
+
+    def get_signature(self, node_id):
+        return self._signatures[node_id]
+
+
+def _arithmetic_executor(checkpoint_dir, *, calls=None):
+    """Build the real checkpoint executor with a deterministic distinguishing dispatcher."""
+    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.foundry.methods.backends.protocol import (
+        MethodResult,
+        MethodTiming,
+        ReproducibilityInfo,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    signature = SimpleNamespace(backend=ComputeBackend.NUMPY)
+    methods = {
+        "demo.scale@1.0.0": SimpleNamespace(signature=signature, operation="scale"),
+        "demo.finish@1.0.0": SimpleNamespace(signature=signature, operation="finish"),
+    }
+    registry = SimpleNamespace(get=lambda fqn: methods[fqn])
+
+    class _ArithmeticDispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            if calls is not None:
+                calls.append(method_class.operation)
+            value = int(state["value"])
+            if method_class.operation == "scale":
+                result_value = value * int(params["factor"]) + seed
+            else:
+                result_value = value + 1
+            return MethodResult(
+                output={"value": result_value},
+                timing=MethodTiming(wall_time_ms=1.0),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+            )
+
+    return CheckpointingChainExecutor(
+        checkpoint_dir=checkpoint_dir,
+        registry=registry,
+        dispatcher=_ArithmeticDispatcher(),
+    )
+
+
+def test_effective_request_resume_matches_cold_execution(tmp_path) -> None:
+    chain = _BoundExecutionChain()
+    initial_state = {"value": 3}
+    producer = _arithmetic_executor(tmp_path)
+    producer.execute(chain, initial_state=initial_state, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    resumed = _arithmetic_executor(None).execute(
+        chain,
+        initial_state=initial_state,
+        checkpoint=checkpoint,
+        seed=11,
+    )
+    cold = _arithmetic_executor(None).execute(
+        chain,
+        initial_state=initial_state,
+        seed=11,
+    )
+
+    assert resumed.final_state == cold.final_state == {"value": 18}
+    assert [result.output for _, result in resumed.node_results] == [
+        result.output for _, result in cold.node_results
+    ]
+
+
+@pytest.mark.parametrize(
+    "change",
+    (
+        "node_params",
+        "params_per_node",
+        "initial_state",
+        "seed",
+        "static_params",
+        "signature",
+        "cache_key",
+        "binding",
+        "binding_compatibility",
+        "dag",
+        "node_occurrence",
+    ),
+)
+def test_execute_rejects_checkpoint_after_effective_request_change(tmp_path, change) -> None:
+    original_chain = _BoundExecutionChain()
+    initial_state = {"value": 3}
+    producer = _arithmetic_executor(tmp_path)
+    producer.execute(original_chain, initial_state=initial_state, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    current_chain = original_chain
+    current_state = initial_state
+    current_overrides = {}
+    current_seed = 11
+    if change == "node_params":
+        current_chain = _BoundExecutionChain(factor=3)
+    elif change == "params_per_node":
+        current_overrides = {original_chain.execution_order[0]: {"factor": 3}}
+    elif change == "initial_state":
+        current_state = {"value": 4}
+    elif change == "seed":
+        current_seed = 12
+    elif change == "static_params":
+        current_chain = _BoundExecutionChain(static_params={"precision": "float32"})
+    elif change == "signature":
+        current_chain = _BoundExecutionChain(signature_digest="signature-v2")
+    elif change == "cache_key":
+        current_chain = _BoundExecutionChain(cache_key="cache-v2")
+    elif change == "binding":
+        current_chain = _BoundExecutionChain(target_slot="alternate-value")
+    elif change == "binding_compatibility":
+        current_chain = _BoundExecutionChain(compatibility_digest="compat-v2")
+    elif change == "dag":
+        current_chain = _BoundExecutionChain(has_dependency=False)
+    elif change == "node_occurrence":
+        current_chain = _BoundExecutionChain(second_node_value=0xB74003)
+
+    # Keep the legacy filename digest and completed prefix identical so the
+    # execution-identity check, rather than an earlier guard, decides the case.
+    assert _compute_chain_digest(current_chain) == checkpoint.chain_digest
+    calls = []
+    consumer = _arithmetic_executor(None, calls=calls)
+
+    with pytest.raises(CheckpointDigestMismatchError, match="execution identity"):
+        consumer.execute(
+            current_chain,
+            initial_state=current_state,
+            params_per_node=current_overrides,
+            checkpoint=checkpoint,
+            seed=current_seed,
+        )
+    assert calls == []
+
+
+def test_execute_rejects_checkpoint_with_invalid_completed_prefix(tmp_path) -> None:
+    chain = _BoundExecutionChain()
+    producer = _arithmetic_executor(tmp_path)
+    producer.execute(chain, initial_state={"value": 3}, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+    checkpoint.completed_node_ids[0] = str(UUID(int=0xB74099))
+
+    with pytest.raises(CheckpointLoadError, match="not the current execution prefix"):
+        _arithmetic_executor(None).execute(
+            chain,
+            initial_state={"value": 3},
+            checkpoint=checkpoint,
+            seed=11,
+        )
+
+
+def test_execution_identity_removal_control_reproduces_stale_resume(tmp_path, monkeypatch) -> None:
+    def _structural_only_digest(chain, *, initial_state, params_per_node, seed):
+        del initial_state, params_per_node, seed
+        return _compute_chain_digest(chain)
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.backends.checkpointing._compute_execution_digest",
+        _structural_only_digest,
+    )
+    original_chain = _BoundExecutionChain(factor=2)
+    producer = _arithmetic_executor(tmp_path)
+    producer.execute(original_chain, initial_state={"value": 3}, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    changed_chain = _BoundExecutionChain(factor=3)
+    assert checkpoint.execution_digest == checkpoint.chain_digest
+    assert checkpoint.execution_digest is not None
+
+    stale_resume = _arithmetic_executor(None).execute(
+        changed_chain,
+        initial_state={"value": 3},
+        checkpoint=checkpoint,
+        seed=11,
+    )
+    cold = _arithmetic_executor(None).execute(
+        changed_chain,
+        initial_state={"value": 3},
+        seed=11,
+    )
+
+    assert stale_resume.final_state == {"value": 18}
+    assert cold.final_state == {"value": 21}
+    assert stale_resume.final_state != cold.final_state

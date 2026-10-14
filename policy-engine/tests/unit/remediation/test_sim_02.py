@@ -56,6 +56,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationRequest,
+    JointSimulationResult,
 )
 from tests.unit.runtime.quality.test_joint_simulation_horizon import (
     _atom,
@@ -66,9 +67,7 @@ from tests.unit.runtime.quality.test_joint_simulation_horizon import (
 
 def _single_step_ncm_request() -> JointSimulationRequest:
     """Build a request whose static NCM matches its one-point horizon."""
-    return _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    return _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
 
 
 def _request_with_same_target_assignments(
@@ -198,6 +197,38 @@ def _system_dynamics_request(
     )
 
 
+def _assert_assignment_conflict_refusal(
+    result: JointSimulationResult,
+    *,
+    objective_ref: str,
+) -> None:
+    """Assert the public result records a non-authoritative pre-run refusal."""
+    assert len(result.engine_decisions) == 1
+    decision = result.engine_decisions[0]
+    assert decision.decision == "unsupported"
+    assert decision.reason == "intervention_assignment_conflict"
+    assert decision.blockers == ("intervention_assignment_conflict",)
+    assert result.diagnostics["unsupported_objectives"] == [objective_ref]
+    assert result.diagnostics["unsupported_reasons"] == [
+        {
+            "objective_ref": objective_ref,
+            "reason": "intervention_assignment_conflict",
+            "blockers": ["intervention_assignment_conflict"],
+        }
+    ]
+    assert result.diagnostics["engine_run_claimed"] is False
+    assert result.trajectories == ()
+    assert result.marginal_effects == {}
+    assert result.interaction_terms == ()
+    assert result.higher_order_residuals == {}
+    assert result.promotion_ready_value_packet["effect_basis_status"] == (
+        "not_applicable_no_trajectory"
+    )
+    assert result.receipt.trajectory_count == 0
+    assert result.receipt.authoritative_for == ()
+    assert result.receipt.calibration_status == "no_run"
+
+
 @pytest.mark.parametrize(
     ("world_summaries", "selected_outcomes", "expected_code"),
     [
@@ -250,9 +281,7 @@ def test_ncm_selected_outcome_missing_or_nonfinite_fails_closed(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
-    request = _single_step_ncm_request().model_copy(
-        update={"selected_outcomes": selected_outcomes}
-    )
+    request = _single_step_ncm_request().model_copy(update={"selected_outcomes": selected_outcomes})
 
     with pytest.raises(JointSimulationControllerError) as raised:
         JointSimulationHorizonController().run(request)
@@ -338,9 +367,8 @@ def test_conflicting_atom_assignments_are_rejected_instead_of_last_wins(
         reverse=reverse,
     )
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(request)
-    assert raised.value.code == "intervention_assignment_conflict"
+    result = JointSimulationHorizonController().run(request)
+    _assert_assignment_conflict_refusal(result, objective_ref=request.engine_plan[0].objective_ref)
     assert calls == 0
 
 
@@ -497,10 +525,9 @@ def test_method_registry_conflict_is_rejected_before_runner(
         reverse=reverse,
     )
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController(method_registry=registry).run(request)
+    result = JointSimulationHorizonController(method_registry=registry).run(request)
 
-    assert raised.value.code == "intervention_assignment_conflict"
+    _assert_assignment_conflict_refusal(result, objective_ref=request.engine_plan[0].objective_ref)
     assert calls == []
 
 
@@ -597,10 +624,9 @@ def test_coupled_conflicting_assignments_refuse_before_method_invocation(
     )
     request = _coupled_request(left_value=1.0, right_value=2.0, reverse=reverse)
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(request)
+    result = JointSimulationHorizonController().run(request)
 
-    assert raised.value.code == "intervention_assignment_conflict"
+    _assert_assignment_conflict_refusal(result, objective_ref=request.engine_plan[0].objective_ref)
     assert calls == 0
 
 
@@ -661,10 +687,9 @@ def test_program_parameter_conflicts_refuse_before_graph_execution(
 
     monkeypatch.setattr(joint_simulation_horizon_module, "execute_program_graph", fake_execute)
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(request)
+    result = JointSimulationHorizonController().run(request)
 
-    assert raised.value.code == "intervention_assignment_conflict"
+    _assert_assignment_conflict_refusal(result, objective_ref=request.engine_plan[0].objective_ref)
     assert calls == 0
 
 
@@ -867,10 +892,9 @@ def test_system_state_override_conflict_refuses_before_method_invocation(
         }
     )
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(request)
+    result = JointSimulationHorizonController().run(request)
 
-    assert raised.value.code == "intervention_assignment_conflict"
+    _assert_assignment_conflict_refusal(result, objective_ref=request.engine_plan[0].objective_ref)
     assert calls == 0
 
 
@@ -993,7 +1017,7 @@ def test_identical_coupled_assignments_merge_independent_of_atom_order(
     left = results[0].trajectory_for("joint", ("income_subsidy", "balance_grant"))
     right = results[1].trajectory_for("joint", ("balance_grant", "income_subsidy"))
     assert left.points == right.points
-    assert left.diagnostics["time_alignment_status"] == "matched"
+    assert left.diagnostics["time_alignment_status"] == "not_established"
 
 
 def test_coupled_omitted_initial_queue_uses_registered_method_contract_default(
@@ -1053,7 +1077,7 @@ def test_coupled_short_queue_trajectory_is_partial_and_does_not_hold_final(
     assert joint.diagnostics["coverage_status"] == "partial"
     assert tuple(joint.diagnostics["covered_steps"]) == (0, 1)
     assert joint.diagnostics["hold_last"] is False
-    assert joint.diagnostics["time_alignment_status"] == "matched"
+    assert joint.diagnostics["time_alignment_status"] == "not_established"
 
 
 def test_coupled_empty_queue_trajectory_keeps_only_known_initial_state(
@@ -1078,7 +1102,7 @@ def test_coupled_empty_queue_trajectory_keeps_only_known_initial_state(
     assert joint.diagnostics["coverage_status"] == "partial"
     assert tuple(joint.diagnostics["covered_steps"]) == (0,)
     assert joint.diagnostics["hold_last"] is False
-    assert joint.diagnostics["time_alignment_status"] == "matched"
+    assert joint.diagnostics["time_alignment_status"] == "not_established"
 
 
 @pytest.mark.parametrize(
@@ -1211,7 +1235,7 @@ def test_system_dynamics_short_trajectory_is_partial_without_final_stock_fill(
     assert joint.diagnostics["coverage_status"] == "partial"
     assert tuple(joint.diagnostics["covered_steps"]) == (0,)
     assert joint.diagnostics["hold_last"] is False
-    assert joint.diagnostics["time_alignment_status"] == "matched"
+    assert joint.diagnostics["time_alignment_status"] == "not_established"
 
 
 def test_empty_system_dynamics_trajectory_has_no_outcome_row_to_project(
@@ -1273,8 +1297,8 @@ def test_empty_method_registry_trajectory_is_not_filled_from_final_state(
     assert raised.value.code == "trajectory_coverage_incomplete"
 
 
-def test_non_unit_horizon_step_aligns_real_stockflow_rows() -> None:
-    """The actual stock-flow producer receives the requested time increment."""
+def test_non_unit_horizon_step_changes_real_stockflow_rows() -> None:
+    """The producer receives the requested step; row labels are not physical-time proof."""
     request = _system_dynamics_request(
         selected_outcomes=("stock0", "stock1"),
         horizon=HorizonSpec(start=0, end=4, step=2),
@@ -1287,11 +1311,20 @@ def test_non_unit_horizon_step_aligns_real_stockflow_rows() -> None:
     assert [point.step for point in joint.points] == [0, 2, 4]
     assert [point.outcomes["stock0"] for point in joint.points] == [10.0, 12.0, 14.0]
     assert [point.outcomes["stock1"] for point in joint.points] == [0.0, 2.0, 4.0]
-    assert joint.diagnostics["time_alignment_status"] == "matched"
+    assert joint.diagnostics["time_alignment_status"] == "not_established"
+    assert type(joint.diagnostics["declared_step_parameter_matches_request"]) is bool
+    assert joint.diagnostics["declared_step_parameter_matches_request"] is True
     assert joint.diagnostics["effective_method_time_step"] == 2.0
+    serialized_joint = next(
+        item
+        for item in result.model_dump(mode="json")["trajectories"]
+        if item["run_level"] == "joint"
+    )
+    assert serialized_joint["diagnostics"]["declared_step_parameter_matches_request"] is True
     assert result.diagnostics["physical_time_basis_status"] == "not_established"
-    assert "horizon_time_alignment_not_established" in (
-        result.promotion_ready_value_packet["authority_blockers"]
+    assert (
+        "horizon_time_alignment_not_established"
+        in (result.promotion_ready_value_packet["authority_blockers"])
     )
 
 
@@ -1310,4 +1343,12 @@ def test_configured_stockflow_step_mismatch_remains_visible() -> None:
     assert [point.outcomes["stock0"] for point in joint.points] == [10.0, 11.0, 12.0]
     assert joint.diagnostics["time_alignment_status"] == "not_established"
     assert joint.diagnostics["requested_time_step"] == 2
+    assert type(joint.diagnostics["declared_step_parameter_matches_request"]) is bool
+    assert joint.diagnostics["declared_step_parameter_matches_request"] is False
     assert joint.diagnostics["effective_method_time_step"] == 1.0
+    serialized_joint = next(
+        item
+        for item in result.model_dump(mode="json")["trajectories"]
+        if item["run_level"] == "joint"
+    )
+    assert serialized_joint["diagnostics"]["declared_step_parameter_matches_request"] is False

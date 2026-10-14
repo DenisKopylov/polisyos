@@ -548,6 +548,9 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
         )
     assert public_response.status_code == 409, public_response.text
     assert public_response.json()["code"] == "canon_profile_payload_nonconformant"
+    assert public_response.json()["error"] == "conflict"
+    assert public_response.json()["detail"] == "canon_profile_payload_nonconformant"
+    assert public_response.json()["status"] == 409
     assert (
         admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
         == ()
@@ -555,7 +558,7 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
 
     import json
 
-    selected_profile_path = admin_context.store._manifest_path_for_ref(
+    selected_profile_path = owner_store._manifest_path_for_ref(
         bad_decision_ref.artifact_id,
         bad_decision_ref.manifest_profile_sha256,
     )
@@ -569,6 +572,9 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
         )
     assert profileless_response.status_code == 409, profileless_response.text
     assert profileless_response.json()["code"] == "canon_profile_absent"
+    assert profileless_response.json()["error"] == "conflict"
+    assert profileless_response.json()["detail"] == "canon_profile_absent"
+    assert profileless_response.json()["status"] == 409
     assert (
         admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
         == ()
@@ -642,29 +648,80 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
     assert analysis_read.json()["code"] == "canon_profile_incomplete"
 
     run_id = runtime_api_env["core_run_id"]
-    listed = _runtime_api_request(
+    quantities = _runtime_api_request(
         runtime_api_env,
         client.get,
+        f"/api/v1/runs/{run_id}/quantities",
+    )
+    assert quantities.status_code == 200, quantities.text
+    quantity = next(
+        item for item in quantities.json()["quantities"] if item["metric_id"] == "policy_cost"
+    )
+    scenario_create = _runtime_api_request(
+        runtime_api_env,
+        client.post,
         f"/api/v1/runs/{run_id}/scenarios",
+        json={
+            "id": "scn_canon_profile_api_refusal",
+            "policy_question": "What if policy cost is capped?",
+            "author": "test-operator",
+            "model_family": "operator-specified",
+            "interventions": [
+                {
+                    "field": "policy_cost",
+                    "operator": "set",
+                    "value": quantity,
+                    "baseline_value": quantity,
+                    "constraint_ids": [],
+                }
+            ],
+            "assumptions": [
+                {
+                    "id": "asm_canon_profile_api_refusal",
+                    "label": "No behavior change",
+                    "status": "operator_assumption",
+                    "lineage": {
+                        "id": "scenario:canon-profile-api-refusal:assumption",
+                        "status": "pending",
+                        "freshness": "current",
+                        "summary": {"source": "test"},
+                    },
+                }
+            ],
+        },
     )
-    assert listed.status_code == 200, listed.text
-    scenario = listed.json()["scenarios"][0]
-    scenario_artifact_ref = artifact_ref_for_manifest(
-        store.get_manifest(context.scenarios._artifact_by_id[scenario["id"]])
-    )
-    _record_fixture_owner(
+    assert scenario_create.status_code == 200, scenario_create.text
+    scenario = scenario_create.json()["scenario"]
+    scenario_id = scenario["id"]
+    head = context.scenarios.get_persisted_head_or_none(scenario_id)
+    assert head is not None
+    assert head.baseline_run_id == run_id
+    assert head.revision == scenario["revision"]
+    assert head.manifest_hash == scenario["manifest_hash"]
+
+    from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+
+    scenario_manifest, scenario_declaration = _runtime_api_request(
+        runtime_api_env,
+        read_core_manifest_profile,
         store,
-        scenario_artifact_ref,
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id=runtime_api_env["cell_a"],
-        runtime_api_env=runtime_api_env,
+        head.artifact_ref,
     )
+    assert scenario_manifest.kind == "runtime.scenario_manifest"
+    assert scenario_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.runtime.scenario_manifest",
+        version="1",
+    )
+    assert scenario_declaration.profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    scenario_artifact_ref = artifact_ref_for_manifest(scenario_manifest)
+    assert scenario_artifact_ref.manifest_profile_sha256 is not None
     scenario_baseline = _runtime_api_request(
         runtime_api_env,
         client.get,
-        f"/api/v1/scenarios/{scenario['id']}",
+        f"/api/v1/scenarios/{scenario_id}",
     )
     assert scenario_baseline.status_code == 200, scenario_baseline.text
+    assert scenario_baseline.json()["scenario"]["manifest_hash"] == head.manifest_hash
     _remove_one_required_canon_field(
         store,
         str(scenario_artifact_ref.artifact_id),
@@ -673,7 +730,7 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
     scenario_read = _runtime_api_request(
         runtime_api_env,
         client.get,
-        f"/api/v1/scenarios/{scenario['id']}",
+        f"/api/v1/scenarios/{scenario_id}",
     )
     assert scenario_read.status_code == 409, scenario_read.text
     assert scenario_read.headers["content-type"].startswith("application/problem+json")
@@ -956,7 +1013,7 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(
         canon=None,
     )
     assert binary.manifest_profile_sha256 is not None
-    assert store.get_manifest(binary).canon is None
+    assert _runtime_api_request(runtime_api_env, store.get_manifest, binary).canon is None
     base_path = f"/api/v1/artifacts/{binary.artifact_id}"
     for params in ({}, {"manifest_profile_sha256": binary.manifest_profile_sha256}):
         manifest_view = _runtime_api_request(runtime_api_env, client.get, base_path, params=params)

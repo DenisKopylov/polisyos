@@ -242,7 +242,7 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
         f"/api/v1/artifacts/{runtime_api_env['secret_artifact_id']}/content",
     )
     assert secret.status_code == 409
-    secret_decision = secret.json()["authority_surface_decision"]
+    secret_decision = secret.json()["extensions"]["authority_surface_decision"]
     assert secret.json()["code"] == "authority_surface_admission_blocked"
     assert secret_decision["reason"] == "secret_pii_surface_blocked"
     assert any(
@@ -558,7 +558,7 @@ def test_artifact_inspector_resolves_exact_manifest_profile_for_all_views(
             assert refusal.status_code == 409
             assert refusal.json()["code"] == "authority_surface_admission_blocked"
             assert (
-                refusal.json()["authority_surface_decision"]["reason"]
+                refusal.json()["extensions"]["authority_surface_decision"]["reason"]
                 == "authority_surface_signal_missing"
             )
 
@@ -684,7 +684,7 @@ def test_selected_manifest_lineage_preserves_each_input_profile(runtime_api_env)
         assert refusal.status_code == 409
         assert refusal.json()["code"] == "authority_surface_admission_blocked"
         assert (
-            refusal.json()["authority_surface_decision"]["reason"]
+            refusal.json()["extensions"]["authority_surface_decision"]["reason"]
             == "authority_surface_signal_missing"
         )
 
@@ -1204,7 +1204,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
                 response.text,
             )
             if denied:
-                decision = response.json()["authority_surface_decision"]
+                decision = response.json()["extensions"]["authority_surface_decision"]
                 assert decision["purpose"] == denied_purpose
                 assert denied_purpose in decision["may_not_use_for"]
                 selected_contributor = next(
@@ -1262,7 +1262,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
     )
     assert selected_raw_deny_304.status_code == 409
     assert (
-        selected_raw_deny_304.json()["authority_surface_decision"]["purpose"]
+        selected_raw_deny_304.json()["extensions"]["authority_surface_decision"]["purpose"]
         == "runtime_closeout_authority"
     )
 
@@ -1280,7 +1280,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         params={"manifest_profile_sha256": malformed_envelope.manifest_profile_sha256},
     )
     assert malformed_response.status_code == 409
-    malformed_decision = malformed_response.json()["authority_surface_decision"]
+    malformed_decision = malformed_response.json()["extensions"]["authority_surface_decision"]
     assert malformed_decision["reason"] == "selected_manifest_authority_resolution_failed"
     malformed_contributor = next(
         row
@@ -1313,7 +1313,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         params={"manifest_profile_sha256": missing_envelope.manifest_profile_sha256},
     )
     assert missing_response.status_code == 409
-    missing_decision = missing_response.json()["authority_surface_decision"]
+    missing_decision = missing_response.json()["extensions"]["authority_surface_decision"]
     assert missing_decision["reason"] == "selected_manifest_authority_resolution_failed"
     missing_contributor = next(
         row
@@ -1353,7 +1353,9 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         params={"manifest_profile_sha256": selected_inline_deny.manifest_profile_sha256},
     )
     assert selected_inline_deny_response.status_code == 409
-    selected_inline_decision = selected_inline_deny_response.json()["authority_surface_decision"]
+    selected_inline_decision = selected_inline_deny_response.json()["extensions"][
+        "authority_surface_decision"
+    ]
     assert selected_inline_decision["authority_boundary_ref"] == (
         "boundary://inline-permits-selected-denies-selected"
     )
@@ -1370,7 +1372,9 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         runtime_api_env, client.get, f"/api/v1/artifacts/{default_inline_deny.artifact_id}/content"
     )
     assert default_inline_deny_response.status_code == 409
-    default_inline_decision = default_inline_deny_response.json()["authority_surface_decision"]
+    default_inline_decision = default_inline_deny_response.json()["extensions"][
+        "authority_surface_decision"
+    ]
     assert default_inline_decision["authority_boundary_ref"] == (
         "boundary://inline-denies-selected-permits-default"
     )
@@ -1392,7 +1396,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
     )
     assert upgraded.status_code == 409
     assert upgraded.json()["code"] == "authority_surface_admission_blocked"
-    upgraded_decision = upgraded.json()["authority_surface_decision"]
+    upgraded_decision = upgraded.json()["extensions"]["authority_surface_decision"]
     assert upgraded_decision["status"] == "downgraded"
     assert upgraded_decision["reason"] == "authority_purpose_forbidden"
     assert upgraded_decision["authority_boundary_ref"] == (

@@ -18,6 +18,8 @@ from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeError,
     ConsumedInputMember,
     EvidenceAuthorityEnvelope,
+    OutcomeReplayProof,
+    OutputCASManifestProfile,
     ProducerIdentity,
     SameInputClosure,
     assert_authority_bearing,
@@ -26,6 +28,7 @@ from polisyos.runtime.quality.authority import (
     assert_same_input_closure,
     authority_envelope_json_schema,
     authority_surface_decision,
+    build_outcome_replay_proof,
     classify_authority_role,
     deserialize_authority_envelope,
     seal_consumed_input_set,
@@ -41,14 +44,10 @@ FIXTURE_PATH = (
     REPO_ROOT
     / "tests/fixtures/runtime_quality/authority_envelopes/serious_runtime_emitted_pass.json"
 )
-SCHEMA_PATH = (
-    REPO_ROOT
-    / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
-)
+SCHEMA_PATH = REPO_ROOT / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
 _TIME_SOURCE_PROJECTION_KIND = "time_source_consistency_audit_projection"
 _TIME_SOURCE_PRODUCER_REF = (
-    "polisyos.runtime.http.services.temporal."
-    "build_time_source_consistency_audit_projection"
+    "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection"
 )
 _TIME_SOURCE_PROJECTION_SCOPE = "catalog_source_runtime_time_role_consistency"
 
@@ -286,13 +285,13 @@ def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
         "dashboard_display"
     )
     wrong_boundary = deepcopy(exact_payload)
-    wrong_boundary["authority_surface_packet"]["surfaces"]["artifact"][
-        "consumed_boundary_id"
-    ] = "eval-safety-egress-foreign-boundary"
+    wrong_boundary["authority_surface_packet"]["surfaces"]["artifact"]["consumed_boundary_id"] = (
+        "eval-safety-egress-foreign-boundary"
+    )
     wrong_scope = deepcopy(exact_payload)
-    wrong_scope["authority_surface_packet"]["surfaces"]["artifact"][
-        "projection_scope"
-    ] = "marker_present_but_not_faithful"
+    wrong_scope["authority_surface_packet"]["surfaces"]["artifact"]["projection_scope"] = (
+        "marker_present_but_not_faithful"
+    )
 
     semantic_decisions = {
         "packet_removed": decide(persist(packet_removed)),
@@ -342,14 +341,10 @@ def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
         surface_payload=favorable_generic_payload,
     )
 
-    packet_surfaces = tuple(
-        exact_payload["authority_surface_packet"]["surfaces"].values()
-    )
+    packet_surfaces = tuple(exact_payload["authority_surface_packet"]["surfaces"].values())
     packet_purposes = {row["purpose"] for row in packet_surfaces}
     packet_denials = {
-        denied_use
-        for row in packet_surfaces
-        for denied_use in row["may_not_use_for"]
+        denied_use for row in packet_surfaces for denied_use in row["may_not_use_for"]
     }
     assert set(exact_payload["authority_boundary"]["authoritative_for"]) == packet_purposes
     assert set(exact_payload["authority_boundary"]["may_not_use_for"]) == packet_denials
@@ -420,8 +415,7 @@ def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
     assert exact_decision.status == "allowed"
     assert exact_decision.blocking is False
     assert {
-        name: (decision.status, decision.blocking)
-        for name, decision in semantic_decisions.items()
+        name: (decision.status, decision.blocking) for name, decision in semantic_decisions.items()
     } == {
         "packet_removed": ("blocked", True),
         "wrong_purpose": ("blocked", True),
@@ -445,9 +439,7 @@ def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
         "schema_name_mismatch": ("blocked", True),
         "schema_version_mismatch": ("blocked", True),
     }
-    assert {
-        name: decision.reason for name, decision in strict_identity_decisions.items()
-    } == {
+    assert {name: decision.reason for name, decision in strict_identity_decisions.items()} == {
         "manifest_get_failure": "eval_safety_projection_identity_unresolved",
         "manifest_kind_missing": "eval_safety_projection_identity_unresolved",
         "unauthorized_purpose_added": "eval_safety_projection_boundary_binding_invalid",
@@ -523,9 +515,7 @@ def test_declared_projection_recomputes_consistency_instead_of_trusting_markers(
     decision = _time_source_decision(payload)
 
     assert decision.status == "downgraded"
-    assert decision.time_source_dispositions == [
-        "invalid:time_source_consistency_contract_invalid"
-    ]
+    assert decision.time_source_dispositions == ["invalid:time_source_consistency_contract_invalid"]
 
 
 def test_legacy_time_source_model_name_is_not_an_accepted_alias() -> None:
@@ -711,11 +701,14 @@ def test_consumed_input_reuse_is_order_independent() -> None:
         members=[source, environment],
     )
 
-    assert assert_consumed_input_reuse(
-        sealed,
-        closure=_closed_input_closure(),
-        fresh_members=[environment, source],
-    ) == sealed
+    assert (
+        assert_consumed_input_reuse(
+            sealed,
+            closure=_closed_input_closure(),
+            fresh_members=[environment, source],
+        )
+        == sealed
+    )
 
 
 def test_valid_runtime_emitted_envelope_round_trips_and_asserts_authority() -> None:
@@ -800,7 +793,9 @@ def test_fixture_input_envelope_is_blocked_for_serious_profiles() -> None:
 
 def test_runtime_emitted_envelope_rejects_runtime_ref_mismatch() -> None:
     payload = _valid_payload()
-    payload["cas_ref"] = "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    payload["cas_ref"] = (
+        "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    )
 
     envelope = deserialize_authority_envelope(payload)
 
@@ -854,3 +849,78 @@ def test_requested_profile_null_is_explicit_and_malformed_or_missing_refuses() -
         invalid["requested_execution_profile"] = malformed
         with pytest.raises(ValidationError):
             EvidenceAuthorityEnvelope.model_validate(invalid)
+
+
+def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history() -> None:
+    artifact_id = "sha256:" + "a" * 64
+    envelope_ref = {
+        "artifact_id": "base-selected-view",
+        "artifact_type": "BaseDataset",
+    }
+    contract = {
+        "terminal_state": {"kind": "search_ceiling_repair_required"},
+        "search_ledger": {"invocations": [], "events": []},
+        "incompleteness_record": {},
+        "artifact_envelopes": [
+            {
+                "ref": envelope_ref,
+                "payload_ref": artifact_id,
+                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+                "payload_manifest_profile_sha256": "sha256:" + "b" * 64,
+            }
+        ],
+    }
+    arguments = {
+        "case_id": "selected-view",
+        "input_payloads": {"sha256:" + "c" * 64: {"input": True}},
+        "output_cas_refs": [artifact_id],
+    }
+    current = build_outcome_replay_proof(
+        **arguments,
+        search_exit_contract=contract,
+    )
+    assert current.schema_version == "policyos.runtime.outcome_replay_proof.v2"
+    assert current.output_cas_manifest_profiles == [
+        OutputCASManifestProfile(
+            envelope_artifact_id="base-selected-view",
+            envelope_artifact_type="BaseDataset",
+            payload_artifact_id=artifact_id,
+            payload_schema_ref="policyos.policy_design_case.layer3_gy_loop.v1",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        )
+    ]
+
+    alternate_contract = json.loads(json.dumps(contract))
+    alternate_contract["artifact_envelopes"][0]["payload_manifest_profile_sha256"] = (
+        "sha256:" + "d" * 64
+    )
+    alternate = build_outcome_replay_proof(
+        **arguments,
+        search_exit_contract=alternate_contract,
+    )
+    assert current.output_hash != alternate.output_hash
+    assert current.level_proofs[2].input_hash != alternate.level_proofs[2].input_hash
+
+    legacy_contract = deepcopy(contract)
+    legacy_contract["artifact_envelopes"][0].pop("payload_manifest_profile_sha256")
+    legacy = build_outcome_replay_proof(
+        **arguments,
+        search_exit_contract=legacy_contract,
+        schema_version="policyos.runtime.outcome_replay_proof.v1",
+    )
+    legacy_payload = legacy.model_dump(mode="json")
+    legacy_payload.pop("output_cas_manifest_profiles")
+    parsed_history = OutcomeReplayProof.model_validate(legacy_payload)
+    assert parsed_history.schema_version == "policyos.runtime.outcome_replay_proof.v1"
+    assert parsed_history.output_cas_manifest_profiles == []
+
+    with pytest.raises(ValidationError, match="manifest_profile_sha256"):
+        OutputCASManifestProfile.model_validate(
+            {
+                "envelope_artifact_id": "base-selected-view",
+                "envelope_artifact_type": "BaseDataset",
+                "payload_artifact_id": artifact_id,
+                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+                "manifest_profile_sha256": "present-but-malformed",
+            }
+        )

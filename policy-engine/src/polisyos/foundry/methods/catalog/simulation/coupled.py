@@ -127,6 +127,7 @@ def _run_coupled_policy(
         queue_state=queue_state,
         rng_key=jax.random.PRNGKey(int(params.get("seed", 0) if seed is None else seed)),
     )
+    coupled_initial_time = float(runtime.time)
     final_runtime, metrics = executor.run(runtime, max(1, int(params.get("n_steps", 12))))
     final_state = final_runtime.global_state
     final_queue = final_runtime.queue_state
@@ -138,6 +139,7 @@ def _run_coupled_policy(
         "completed_count": int(np.asarray(final_queue.completed_count).item()),
         "rejected_count": int(np.asarray(final_queue.rejected_count).item()),
         "queue_length_trajectory": queue_trajectory,
+        "coupled_initial_time": coupled_initial_time,
         "final_savings": np.asarray(final_state.agents.savings).astype(float).tolist(),
         "final_income": np.asarray(final_state.agents.income).astype(float).tolist(),
         "final_step": int(np.asarray(final_state.step).item()),
@@ -150,9 +152,7 @@ def _run_coupled_policy(
         "horizon": horizon,
         "diagnostic_source": "CoupledPolicySimulationEstimator.pure_step",
         "summary_keys": (
-            sorted(str(key) for key in summary)
-            if isinstance(summary, Mapping)
-            else []
+            sorted(str(key) for key in summary) if isinstance(summary, Mapping) else []
         ),
     }
     abm_result = build_content_bound_abm_result(

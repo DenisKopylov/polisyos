@@ -92,11 +92,17 @@ Boundary notes:
   trajectory rows. A short non-empty trajectory is marked partial; terminal
   summary values do not fill its missing rows, and a run-level scalar without a
   time series is not repeated over a multi-step horizon. Dynamic trajectory diagnostics
-  expose `time_alignment_status`: program-graph runs dispatch the requested
-  steps directly, while method adapters report `matched` only when a declared
-  time-step parameter equals the requested horizon step. That adapter
-  comparison does not establish the consumed World Model Record's own temporal
-  alignment or confer evidence authority. Persisted results label the numeric
+  keep `time_alignment_status=not_established`: program-graph runs expose
+  `requested_step_dispatch_status=matched`, while method adapters expose the
+  separate `declared_step_parameter_matches_request` fact. Neither fact proves
+  the time represented by a returned row. The coupled path additionally projects
+  the producer's `CoupledRuntimeState.time`, `coupled/time`, and corroborating
+  `queue/time` into a typed candidate trace after checking row count and queue-value
+  correspondence. Its unit, origin, and relation to the requested horizon remain
+  `not_established`. Only Python and NumPy integer/floating scalars are candidates;
+  strings, booleans, complex values, and array/container shapes remain malformed, while
+  missing fields remain distinct.
+  No temporal diagnostic confers evidence authority. Persisted results label the numeric
   outcome-minus-request-baseline subtraction and comparator refs
   `not_established`: a caller baseline and retained ref strings do not resolve
   a source-owned comparator/estimand pair. Multi-period results also carry

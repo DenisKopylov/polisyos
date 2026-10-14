@@ -1,0 +1,35 @@
+id = "2026-10-14-e02-public-decision-typed-refusals"
+title = "Preserve canonical profile refusal reasons in public decision errors"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Public decision issuance now exposes the specific canonical-profile refusal code and conflict family instead of generic HTTP error values."
+evidence = [
+  "src/polisyos/runtime/http/routes/public_decisions.py",
+  "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+  "docs/reference/api/error-semantics.md",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "For a canonical-profile refusal from POST /api/v1/runs/{run_id}/public-verification-record, the old response used status/status_code 409, code=http_error, error=http_error, title=\"Http error\", and detail equal to the canon_profile_* reason. The new response keeps status/status_code 409, the same problem envelope and field set, and the same reason detail; code is the existing canon_profile_* reason, error is conflict, and title is derived from that specific code (for example, canon_profile_payload_nonconformant becomes \"Canon profile payload nonconformant\"). Clients that branch on code, error, or title must account for these value changes."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API POST /api/v1/runs/{run_id}/public-verification-record error contract"
+migration = "Keep the generated client types: the RuntimeApiProblem field shapes remain unchanged and code, error, and title are still strings. Update application branches that expected code=http_error or error=http_error for this refusal; title should be treated as display text rather than a stable dispatch key."
+api = "The public Runtime API problem response changes field values for this refusal, while the RuntimeApiProblem OpenAPI schema and generated client field types remain unchanged. The supported schema-openapi-abi class is used for this public wire-contract change; generated-client compatibility is declared because the existing string fields remain structurally compatible."
+limitations = "A selected Core profile establishes byte conformance under its declared settings only. It does not attest producer identity, authority, issuer, currentness, or publication admission. Profileless historical JSON remains unqualified and is not backfilled."
+generated_client_compatibility = "declared_compatible"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-public-decision-canon-profile-refusal-code"
+change_class = "schema-openapi-abi"
+impact = "changed"
+surface = "public_stable: Runtime API v1 public decision verification issuance error response"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "For canonical-profile refusal responses, public decision issuance changes code from http_error to the existing canon_profile_* reason and error from http_error to conflict; status and detail remain unchanged, while the code-derived title becomes reason-specific."
+generated_client_compatibility = "declared_compatible"
+migration_docs = []
+runbook_docs = []

@@ -135,7 +135,7 @@ def test_confidence_ledger_risk_spend_operation_is_typed_and_protected(
     )
     assert stale.status_code == 409
     assert stale.json()["code"] == "governed_projection_replay_pin_mismatch"
-    assert stale.json()["field"] == "projection_hash"
+    assert stale.json()["extensions"]["field"] == "projection_hash"
 
     denied = viewer.get(_PATH, headers=viewer_headers)
     assert denied.status_code == 403
@@ -147,12 +147,10 @@ def test_confidence_ledger_risk_spend_openapi_is_strict_measured_negative(
 ) -> None:
     schema = runtime_api_env["app"].openapi()
     operation = schema["paths"][_PATH]["get"]
-    response_schema = operation["responses"]["200"]["content"]["application/json"][
-        "schema"
+    response_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
     ]
-    example = operation["responses"]["200"]["content"]["application/json"][
-        "examples"
-    ]["default"]["value"]
     parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
         json.dumps(example),
         strict=True,
@@ -193,8 +191,7 @@ def test_nested_outside_owner_issue_fails_closed_through_worker_service_and_api(
     (hook_root / "sitecustomize.py").write_text(
         "\n".join(
             (
-                "from tools.quality.validation import "
-                "check_layer3_gy_confidence_ledger as owner",
+                "from tools.quality.validation import check_layer3_gy_confidence_ledger as owner",
                 "original = owner.validate_payload",
                 "def validate_payload(payload):",
                 "    result = original(payload)",
@@ -222,9 +219,9 @@ def test_nested_outside_owner_issue_fails_closed_through_worker_service_and_api(
         role=PolicyOSRole.ANALYST,
         suffix="ds17-nested-owner-issue",
     )
-    analyst.app.dependency_overrides[
-        _get_confidence_ledger_risk_spend_projection_service
-    ] = lambda: service
+    analyst.app.dependency_overrides[_get_confidence_ledger_risk_spend_projection_service] = (
+        lambda: service
+    )
     try:
         response = analyst.get(_PATH, headers=headers)
     finally:

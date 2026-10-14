@@ -541,44 +541,46 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
         pytest.raises(CanonicalProfileRefusalError, match="canon_profile_payload_nonconformant"),
     ):
         read_core_json_artifact(admin_context.store, bad_decision_ref)
+    import json
+
     with admin_client:
         public_response = admin_client.post(
             f"/api/v1/runs/{run_id}/public-verification-record",
             headers={"Authorization": "Bearer canon-profile-admin"},
         )
-    assert public_response.status_code == 409, public_response.text
-    assert public_response.json()["code"] == "canon_profile_payload_nonconformant"
-    assert public_response.json()["error"] == "conflict"
-    assert public_response.json()["detail"] == "canon_profile_payload_nonconformant"
-    assert public_response.json()["status"] == 409
-    assert (
-        admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
-        == ()
-    )
+        assert public_response.status_code == 409, public_response.text
+        assert public_response.json()["code"] == "canon_profile_payload_nonconformant"
+        assert public_response.json()["error"] == "conflict"
+        assert public_response.json()["detail"] == "canon_profile_payload_nonconformant"
+        assert public_response.json()["status"] == 409
+        assert (
+            admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
+            == ()
+        )
 
-    import json
+        selected_profile_path = owner_store._manifest_path_for_ref(
+            bad_decision_ref.artifact_id,
+            bad_decision_ref.manifest_profile_sha256,
+        )
+        current_sidecar = json.loads(selected_profile_path.read_bytes())
+        current_sidecar.pop("canon")
+        selected_profile_path.write_text(
+            json.dumps(current_sidecar, sort_keys=True), encoding="utf-8"
+        )
 
-    selected_profile_path = owner_store._manifest_path_for_ref(
-        bad_decision_ref.artifact_id,
-        bad_decision_ref.manifest_profile_sha256,
-    )
-    current_sidecar = json.loads(selected_profile_path.read_bytes())
-    current_sidecar.pop("canon")
-    selected_profile_path.write_text(json.dumps(current_sidecar, sort_keys=True), encoding="utf-8")
-    with admin_client:
         profileless_response = admin_client.post(
             f"/api/v1/runs/{run_id}/public-verification-record",
             headers={"Authorization": "Bearer canon-profile-admin"},
         )
-    assert profileless_response.status_code == 409, profileless_response.text
-    assert profileless_response.json()["code"] == "canon_profile_absent"
-    assert profileless_response.json()["error"] == "conflict"
-    assert profileless_response.json()["detail"] == "canon_profile_absent"
-    assert profileless_response.json()["status"] == 409
-    assert (
-        admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
-        == ()
-    )
+        assert profileless_response.status_code == 409, profileless_response.text
+        assert profileless_response.json()["code"] == "canon_profile_absent"
+        assert profileless_response.json()["error"] == "conflict"
+        assert profileless_response.json()["detail"] == "canon_profile_absent"
+        assert profileless_response.json()["status"] == 409
+        assert (
+            admin_client.app.state.runtime_container.public_decision_verification_service.issued_record_ids()
+            == ()
+        )
 
 
 def _remove_one_required_canon_field(

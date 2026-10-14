@@ -26,3 +26,12 @@ exclude_docs: |
   migration/**
   plans/**
   quality/**
+  research/**
+  superpowers/**
+  backlog/**
+  brand/ATLAS_SOURCE_OF_TRUTH.md
+  explanation/berl-method-identity.md
+  reference/frontend/atlas-live-application-audit.md
+  reference/frontend/atlas-phase-a-synthesis.md
+  reference/frontend/atlas-v15-adjudication.md
+  system-design-decisions/README.md

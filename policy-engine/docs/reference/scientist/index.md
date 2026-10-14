@@ -54,11 +54,15 @@ There is a remaining source discrepancy: the package contract's
 `compatibility_shim_roots` array lists `backtesting` and `discovery`, while
 `policy-engine/tests/unit/scientist/methods/test_import_shims.py` asserts that
 `polisyos.scientist.backtesting` and `polisyos.scientist.discovery` have no
-import specs. The same test checks that `claims` and `search` are absent from the
-shim registry and package root arrays. It also checks a specific positive
-publisher import/facade identity. These selected assertions are not an
-all-root import-shim smoke test; use the package declaration and each targeted
-test for their stated scope.
+import specs. That test module also checks `claims` and `search` are absent from
+the shim registry and package root arrays, and checks one positive publisher
+import/facade identity. These selected assertions are not an all-root import-shim
+smoke test; use the package declaration and each targeted test for their stated
+scope. The same TOML's `phase2_2_active_root_rule` prose still calls `claims` and
+`search` compatibility roots, although `compatibility_shim_roots` omits them and
+the test module asserts both are absent from the shim registry, package root
+arrays, and import surface. This is a source-declaration mismatch; the stale
+prose is not treated as the active layout here.
 
 ## Stable Facade
 

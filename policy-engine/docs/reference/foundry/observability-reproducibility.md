@@ -167,4 +167,6 @@ Numeric/JAX claims in this documentation should point to one of these anchors:
 
 ::: polisyos.foundry.validation.release_acceptance
 
-::: polisyos.foundry.methods.catalog.snapshot
+The method-catalog snapshot API, including `MethodCatalogDiscoveryProvenanceError`, is
+documented in [Methods Catalog — ABI and Backend Contracts](methods-catalog.md#abi-and-backend-contracts).
+Its implementation is `src/polisyos/foundry/methods/catalog/snapshot.py`.

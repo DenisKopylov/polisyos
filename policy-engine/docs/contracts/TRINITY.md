@@ -42,7 +42,7 @@ There are two different public types named `TrinityBundle`:
 - `polisyos.ir.trinity.TrinityBundle` (also exported as `polisyos.ir.TrinityBundle`) is the nested payload containing `ProblemFrame`, `PolicySpec`, and `ModelSpec`. Its current declared/default schema version is `1.0`.
 - `polisyos.core.contracts.trinity.TrinityBundle` is a Core container of `ProblemFrameRef`, `PolicySpecRef`, and `ModelSpecRef`. `TrinityBundleRef` points to one persisted nested IR bundle; `TrinityManifest` wraps the Core reference bundle with manifest metadata.
 
-Use the nested IR payload for authoring, loading, and linking. Use the Core reference container when a boundary needs references to the three separately persisted artifacts. The Core container's `compatible` field is caller-provided data; constructing it does not resolve the references or establish compatibility.
+Use the nested IR payload for authoring, loading, and linking. Use the Core reference container when a boundary needs references to the three separately persisted artifacts. The Core container's `compatible` field is DTO data and defaults to `True` when omitted. Neither the default nor an explicitly supplied value resolves the references or establishes compatibility; this field is not a compatibility computation, evidence, or authority.
 
 These models validate their declared structure and field constraints. A successful DTO parse does not establish semantic adequacy, causal validity, admissibility, or publishability. `polisyos.ir.linker.link_trinity()` performs the separate registry-aware linking checks; downstream authority decisions require their own evidence and consumers.
 

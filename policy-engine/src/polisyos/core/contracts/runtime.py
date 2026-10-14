@@ -3195,6 +3195,173 @@ class RunGenericCycleSimulationChildProfileBinding(BaseModel):
         return self
 
 
+class RunGenericCycleSimulationN5Horizon(BaseModel):
+    """Publicly readable valid-time horizon from one verified N5 result."""
+
+    model_config = ConfigDict(extra="forbid")
+    start: int = Field(ge=0)
+    end: int = Field(ge=0)
+    step: int = Field(ge=1)
+    valid_time_role: str = Field(min_length=1, strict=True)
+    transaction_time_role: str = Field(min_length=1, strict=True)
+    scenario_branch_policy: str = Field(min_length=1, strict=True)
+
+    @field_validator("start", "end", "step", mode="before")
+    @classmethod
+    def _strict_horizon_ints(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("run_generic_n5_result_horizon_integer_invalid")
+        return value
+
+    @model_validator(mode="after")
+    def _verify_horizon_grid(self) -> RunGenericCycleSimulationN5Horizon:
+        if self.end < self.start or (self.end - self.start) % self.step:
+            raise ValueError("run_generic_n5_result_horizon_grid_invalid")
+        return self
+
+
+class RunGenericCycleSimulationN5TrajectoryPoint(BaseModel):
+    """One finite outcome/effect row surfaced from a verified N5 trajectory."""
+
+    model_config = ConfigDict(extra="forbid")
+    step: int = Field(ge=0)
+    outcomes: dict[str, float]
+    effects: dict[str, float]
+
+    @field_validator("step", mode="before")
+    @classmethod
+    def _strict_step(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("run_generic_n5_result_step_not_integer")
+        return value
+
+    @field_validator("outcomes", "effects", mode="before")
+    @classmethod
+    def _finite_numeric_map(cls, value: object) -> object:
+        if not isinstance(value, Mapping) or not value:
+            raise ValueError("run_generic_n5_result_numeric_map_missing")
+        for key, item in value.items():
+            if not isinstance(key, str) or not key:
+                raise ValueError("run_generic_n5_result_numeric_map_key_invalid")
+            if isinstance(item, bool) or not isinstance(item, int | float):
+                raise ValueError("run_generic_n5_result_numeric_map_value_not_real")
+            if not math.isfinite(float(item)):
+                raise ValueError("run_generic_n5_result_numeric_map_value_non_finite")
+        return value
+
+
+class RunGenericCycleSimulationN5Trajectory(BaseModel):
+    """One verified individual, pairwise, or joint numerical trajectory."""
+
+    model_config = ConfigDict(extra="forbid")
+    run_level: Literal["individual", "pairwise", "joint"]
+    atom_ids: tuple[str, ...] = Field(min_length=1)
+    points: tuple[RunGenericCycleSimulationN5TrajectoryPoint, ...] = Field(min_length=1)
+
+    @field_validator("atom_ids", mode="before")
+    @classmethod
+    def _strict_trajectory_atom_ids(cls, value: object) -> object:
+        if not isinstance(value, list | tuple) or any(
+            not isinstance(atom_id, str) or not atom_id for atom_id in value
+        ):
+            raise ValueError("run_generic_n5_result_trajectory_atom_ids_invalid")
+        return value
+
+    @model_validator(mode="after")
+    def _verify_trajectory_scope(self) -> RunGenericCycleSimulationN5Trajectory:
+        steps = tuple(point.step for point in self.points)
+        if (
+            not all(self.atom_ids)
+            or len(self.atom_ids) != len(set(self.atom_ids))
+            or len(steps) != len(set(steps))
+            or steps != tuple(sorted(steps))
+            or (self.run_level == "individual" and len(self.atom_ids) != 1)
+            or (self.run_level == "pairwise" and len(self.atom_ids) != 2)
+        ):
+            raise ValueError("run_generic_n5_result_trajectory_scope_invalid")
+        return self
+
+
+class RunGenericCycleSimulationN5ResultBody(BaseModel):
+    """Typed candidate-only body read from the selected, verified N5 CAS view."""
+
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal["policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"] = (
+        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
+    )
+    artifact_ref: ArtifactRef
+    artifact_schema_name: Literal["policyos.runtime.n5.joint_simulation_result"]
+    artifact_schema_version: Literal["1.0.0", "2.0.0", "3.0.0", "4.0.0"]
+    result_schema_version: Literal[
+        "policyos.runtime.joint_simulation_horizon.v1",
+        "policyos.runtime.joint_simulation_horizon.v2",
+        "policyos.runtime.joint_simulation_horizon.v3",
+        "policyos.runtime.joint_simulation_horizon.v4",
+    ]
+    selected_manifest_profile_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    world_model_record_ref: str = Field(min_length=1, strict=True)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    atom_ids: tuple[str, ...] = Field(min_length=1)
+    selected_outcomes: tuple[str, ...] = Field(min_length=1)
+    horizon: RunGenericCycleSimulationN5Horizon
+    trajectories: tuple[RunGenericCycleSimulationN5Trajectory, ...] = Field(min_length=1)
+    uncertainty_kind: Literal["K_sim"] = "K_sim"
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    candidate_status: Literal["candidate_unverified"] = "candidate_unverified"
+    currentness_status: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+    @field_validator("atom_ids", "selected_outcomes", mode="before")
+    @classmethod
+    def _strict_result_basis_strings(cls, value: object) -> object:
+        if not isinstance(value, list | tuple) or any(
+            not isinstance(item, str) or not item for item in value
+        ):
+            raise ValueError("run_generic_n5_result_body_string_basis_invalid")
+        return value
+
+    @model_validator(mode="after")
+    def _verify_result_body_binding(self) -> RunGenericCycleSimulationN5ResultBody:
+        result_schema_by_artifact_version = {
+            "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
+            "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
+            "3.0.0": "policyos.runtime.joint_simulation_horizon.v3",
+            "4.0.0": "policyos.runtime.joint_simulation_horizon.v4",
+        }
+        if (
+            self.artifact_ref.kind != "polisyos.runtime.joint_simulation_result"
+            or self.artifact_ref.media_type != "application/json"
+            or self.artifact_ref.manifest_profile_sha256 != self.selected_manifest_profile_sha256
+            or result_schema_by_artifact_version[self.artifact_schema_version]
+            != self.result_schema_version
+            or not all(self.atom_ids)
+            or len(self.atom_ids) != len(set(self.atom_ids))
+            or not all(self.selected_outcomes)
+            or len(self.selected_outcomes) != len(set(self.selected_outcomes))
+        ):
+            raise ValueError("run_generic_n5_result_body_manifest_binding_invalid")
+        horizon_steps = set(range(self.horizon.start, self.horizon.end + 1, self.horizon.step))
+        trajectory_scopes: set[tuple[str, frozenset[str]]] = set()
+        for trajectory in self.trajectories:
+            atom_scope = frozenset(trajectory.atom_ids)
+            scope = (trajectory.run_level, atom_scope)
+            if (
+                atom_scope - set(self.atom_ids)
+                or scope in trajectory_scopes
+                or (trajectory.run_level == "joint" and trajectory.atom_ids != self.atom_ids)
+            ):
+                raise ValueError("run_generic_n5_result_body_foreign_or_duplicate_scope")
+            trajectory_scopes.add(scope)
+            for point in trajectory.points:
+                if (
+                    point.step not in horizon_steps
+                    or not set(self.selected_outcomes).issubset(point.outcomes)
+                    or not set(self.selected_outcomes).issubset(point.effects)
+                ):
+                    raise ValueError("run_generic_n5_result_body_selected_basis_incomplete")
+        return self
+
+
 class RunGenericCycleSimulationN5Observation(BaseModel):
     """One historical, candidate-only N5 observation and its persisted lineage."""
 
@@ -3206,6 +3373,19 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     candidate_id: str = Field(min_length=1)
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_result_ref: ArtifactRef | None = None
+    simulation_result_body: RunGenericCycleSimulationN5ResultBody | None = None
+    simulation_result_body_status: (
+        Literal["not_applicable", "resolved", "not_established"] | None
+    ) = None
+    simulation_result_body_limitation_code: (
+        Literal[
+            "generic_n5_result_body_request_binding_not_established",
+            "generic_n5_result_body_selected_manifest_view_not_established",
+            "generic_n5_result_body_execution_not_successful",
+            "generic_n5_result_body_content_refused",
+        ]
+        | None
+    ) = None
     n4_source_ref: ArtifactRef
     context_job_ref: ArtifactRef
     profile_ref: ArtifactRef
@@ -3283,6 +3463,31 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
                 raise ValueError("run_generic_n5_optional_ref_kind_invalid")
         if (self.child_profile_family_ref is None) != (self.child_profile_set_ref is None):
             raise ValueError("run_generic_n5_child_family_set_pair_invalid")
+        if self.simulation_result_ref is None:
+            if (
+                self.simulation_result_body is not None
+                or self.simulation_result_body_status not in (None, "not_applicable")
+                or self.simulation_result_body_limitation_code is not None
+            ):
+                raise ValueError("run_generic_n5_result_body_without_result_ref")
+        elif self.simulation_result_body is None:
+            if (
+                self.simulation_result_body_status != "not_established"
+                or self.simulation_result_body_limitation_code is None
+            ):
+                raise ValueError("run_generic_n5_result_body_unavailable_reason_missing")
+        else:
+            body = self.simulation_result_body
+            if (
+                self.status != "joint_simulated"
+                or self.simulation_result_body_status != "resolved"
+                or body.artifact_ref != self.simulation_result_ref
+                or body.world_model_record_content_hash != self.world_model_record_content_hash
+                or body.atom_ids != self.atom_ids
+                or body.selected_outcomes != self.selected_outcomes
+                or self.simulation_result_body_limitation_code is not None
+            ):
+                raise ValueError("run_generic_n5_result_body_parent_binding_invalid")
         if self.status == "joint_simulated" and (
             self.simulation_result_ref is None or self.n5_execution_ref is None
         ):

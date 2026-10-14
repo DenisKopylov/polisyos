@@ -179,6 +179,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._last_fitted_training_corpus_fingerprint: str | None = None
         self._last_fitted_training_observation_count: int | None = None
         self._last_fitted_training_evaluation_refs: list[dict[str, Any]] | None = None
+        self._last_acquisition_training_observation_count: int | None = None
+        self._last_acquisition_training_evaluation_refs: list[dict[str, Any]] | None = None
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
@@ -404,9 +406,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 if not isinstance(module, Interval):
                     continue
                 buffers = dict(module.named_buffers(recurse=False))
-                parameters = {
-                    name for name, _ in module.named_parameters(recurse=False)
-                }
+                parameters = {name for name, _ in module.named_parameters(recurse=False)}
                 lower_bound = buffers.get("lower_bound")
                 upper_bound = buffers.get("upper_bound")
                 if (
@@ -425,9 +425,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 if not bool(torch.all(lower_tensor < upper_tensor).item()):
                     return None
                 if bool(
-                    torch.logical_and(
-                        torch.isneginf(lower_tensor), torch.isposinf(upper_tensor)
-                    )
+                    torch.logical_and(torch.isneginf(lower_tensor), torch.isposinf(upper_tensor))
                     .any()
                     .item()
                 ):
@@ -436,9 +434,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                     ("lower_bound", lower_bound),
                     ("upper_bound", upper_bound),
                 ):
-                    state_name = (
-                        f"{module_name}.{bound_name}" if module_name else bound_name
-                    )
+                    state_name = f"{module_name}.{bound_name}" if module_name else bound_name
                     if state_name not in state:
                         return None
                     constraint_bound_entries[state_name] = (
@@ -484,13 +480,9 @@ class BayesianOptimizer(BaseSearchStrategy):
                         or not bool(torch.equal(registered_tensor, tensor))
                     ):
                         return None
-                    if bound_name == "lower_bound" and bool(
-                        torch.isposinf(tensor).any().item()
-                    ):
+                    if bound_name == "lower_bound" and bool(torch.isposinf(tensor).any().item()):
                         return None
-                    if bound_name == "upper_bound" and bool(
-                        torch.isneginf(tensor).any().item()
-                    ):
+                    if bound_name == "upper_bound" and bool(torch.isneginf(tensor).any().item()):
                         return None
                     entry["values"] = encode_infinity_sentinels(values)
                     entry["constraint_owner_fqn"] = (
@@ -610,6 +602,38 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._last_fitted_training_corpus_fingerprint = corpus_fingerprint
         self._last_fitted_training_observation_count = count
         self._last_fitted_training_evaluation_refs = source_refs
+
+    def _record_acquisition_training_corpus(self, evaluations: list[Evaluation]) -> None:
+        """Bind the exact full effective corpus that selects adaptive acquisition."""
+        self._last_acquisition_training_observation_count = None
+        self._last_acquisition_training_evaluation_refs = None
+        if not evaluations or any(
+            not evaluation.is_valid or not math.isfinite(evaluation.scalar_score)
+            for evaluation in evaluations
+        ):
+            return
+        source_refs: list[dict[str, Any]] = []
+        seen_source_refs: set[tuple[str, str]] = set()
+        for evaluation in evaluations:
+            raw_ref = evaluation.metadata.get("search_source_evaluation_ref")
+            if not isinstance(raw_ref, Mapping):
+                return
+            try:
+                selected_ref = ArtifactRef.model_validate(raw_ref)
+            except (TypeError, ValueError):
+                return
+            selected_profile = selected_ref.manifest_profile_sha256
+            if selected_profile is None:
+                return
+            identity = (str(selected_ref.artifact_id), selected_profile)
+            if identity in seen_source_refs:
+                return
+            seen_source_refs.add(identity)
+            source_refs.append(selected_ref.model_dump(mode="json"))
+        if len(source_refs) != len(evaluations):
+            return
+        self._last_acquisition_training_observation_count = len(source_refs)
+        self._last_acquisition_training_evaluation_refs = source_refs
 
     def _fitted_model_matches_current_fit(self) -> bool:
         """Validate a model and fit matrices before binding training source rows."""
@@ -751,7 +775,8 @@ class BayesianOptimizer(BaseSearchStrategy):
                 X, y_bo = self._prepare_training_data(train_set)
                 self._fit_gp(X, y_bo)
                 self._record_fitted_training_corpus(train_set)
-                candidate, acq_value = self._optimize_acquisition(
+                self._record_acquisition_training_corpus(training_corpus)
+                candidate, _, acquisition_type = self._optimize_acquisition(
                     y_bo=y_bo,
                     soft_limit=soft,
                     evaluations=training_corpus,
@@ -759,8 +784,16 @@ class BayesianOptimizer(BaseSearchStrategy):
                 result = self._tensor_to_candidate(
                     candidate.squeeze(0),
                     source="bayesian_acquisition",
-                    acquisition_value=float(acq_value.squeeze().item()),
+                    acquisition_type=acquisition_type,
                 )
+                prediction = self.proposal_prediction(
+                    params=result.params,
+                    evaluations=training_corpus,
+                )
+                result.predicted_mean = prediction["predicted_mean"]
+                result.predicted_std = prediction["predicted_std"]
+                result.acquisition_value = prediction["acquisition_value"]
+                result.metadata["acquisition_type"] = prediction["acquisition_type"]
             except Exception as exc:
                 logger.warning("BayesianOptimizer failed; fallback to random: {}", exc)
                 if not self._config.fallback_on_failure:
@@ -1313,24 +1346,76 @@ class BayesianOptimizer(BaseSearchStrategy):
     def _optimize_acquisition(
         self, y_bo, soft_limit: bool, evaluations: list[Evaluation] | None = None
     ):
-        best_f = y_bo.max()
-        acq_type = self._select_acquisition(evaluations or [], y_bo)
-
-        if acq_type == AcquisitionType.UCB:
-            acq = UpperConfidenceBound(model=self._model, beta=self._config.ucb_beta)
-        elif acq_type == AcquisitionType.PI:
-            acq = ProbabilityOfImprovement(model=self._model, best_f=best_f)
-        else:
-            acq = ExpectedImprovement(model=self._model, best_f=best_f)
-
+        acq, acquisition_type = self._acquisition_function(y_bo, evaluations or [])
         restarts, raw_samples = self._effective_optim_params(soft_limit=soft_limit)
-        return optimize_acqf(
+        candidate, value = optimize_acqf(
             acq_function=acq,
             bounds=self._space.to_botorch_bounds().to(self._device),
             q=1,
             num_restarts=restarts,
             raw_samples=raw_samples,
         )
+        return candidate, value, acquisition_type
+
+    def _acquisition_function(self, y_bo, evaluations: list[Evaluation]):
+        """Build the exact single-objective acquisition used by this optimizer."""
+        best_f = y_bo.max()
+        acq_type = self._select_acquisition(evaluations, y_bo)
+
+        if acq_type == AcquisitionType.UCB:
+            acq = UpperConfidenceBound(model=self._model, beta=self._config.ucb_beta)
+            acquisition_type = AcquisitionType.UCB.value
+        elif acq_type == AcquisitionType.PI:
+            acq = ProbabilityOfImprovement(model=self._model, best_f=best_f)
+            acquisition_type = AcquisitionType.PI.value
+        else:
+            acq = ExpectedImprovement(model=self._model, best_f=best_f)
+            acquisition_type = AcquisitionType.EI.value
+        return acq, acquisition_type
+
+    def proposal_prediction(
+        self,
+        *,
+        params: Mapping[str, Any],
+        evaluations: list[Evaluation],
+    ) -> dict[str, float | str]:
+        """Recompute one exact effective candidate under the fitted native GP."""
+        if (
+            not self.native_gp_ready
+            or self._model is None
+            or self._fitted_train_y_bo is None
+            or not self._fitted_model_matches_current_fit()
+        ):
+            raise ValueError("proposal prediction requires the exact fitted native GP")
+        normalized = self._space.normalize(dict(params))
+        point = self._torch.tensor(
+            [normalized],
+            dtype=self._torch.float64,
+            device=self._device,
+        )
+        acquisition, acquisition_type = self._acquisition_function(
+            self._fitted_train_y_bo,
+            evaluations,
+        )
+        self._model.eval()
+        with self._torch.no_grad():
+            posterior = self._model.posterior(point)
+            predicted_mean = -float(posterior.mean.squeeze().item())
+            predicted_std = abs(float(posterior.variance.sqrt().squeeze().item()))
+            acquisition_values = acquisition(point).reshape(-1)
+            if acquisition_values.numel() != 1:
+                raise ValueError("proposal acquisition must produce one scalar")
+            acquisition_value = float(acquisition_values.item())
+        if not all(
+            math.isfinite(value) for value in (predicted_mean, predicted_std, acquisition_value)
+        ):
+            raise ValueError("proposal prediction must be finite")
+        return {
+            "acquisition_type": acquisition_type,
+            "predicted_mean": predicted_mean,
+            "predicted_std": predicted_std,
+            "acquisition_value": acquisition_value,
+        }
 
     def _effective_optim_params(self, soft_limit: bool) -> tuple[int, int]:
         if not soft_limit:
@@ -1392,6 +1477,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         tensor,
         source: str,
         acquisition_value: float | None = None,
+        acquisition_type: str | None = None,
     ) -> PolicyCandidate:
         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
         params = self._space.denormalize(vector)
@@ -1411,4 +1497,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             predicted_mean=predicted_mean,
             predicted_std=predicted_std,
             source_strategy=source,
+            metadata=(
+                {"acquisition_type": acquisition_type} if acquisition_type is not None else {}
+            ),
         )

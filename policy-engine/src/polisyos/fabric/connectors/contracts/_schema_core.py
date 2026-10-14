@@ -33,22 +33,6 @@ __all__ = [
 # =============================================================================
 
 
-def _float_token(value: float | None) -> dict[str, str] | None:
-    if value is None:
-        return None
-    return {"_type": "float", "repr": format(value, ".17g")}
-
-
-def _number_token(value: int | float | None) -> int | dict[str, str] | None:
-    if value is None:
-        return None
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, int):
-        return value
-    return _float_token(float(value))
-
-
 def _sorted_list(values: Sequence[str] | set[str] | frozenset[str]) -> list[str]:
     return sorted(values)
 
@@ -67,7 +51,7 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "semantic_type": field.semantic_type.value if field.semantic_type else None,
         "additivity": field.additivity.value if field.additivity else None,
         "nullable": field.nullable,
-        "bounds": [_number_token(field.bounds[0]), _number_token(field.bounds[1])],
+        "bounds": list(field.bounds),
         "allowed_values": (
             _sorted_list(field.allowed_values) if field.allowed_values is not None else None
         ),
@@ -75,7 +59,7 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "max_length": field.max_length,
         "precision": field.precision,
         "scale": field.scale,
-        "expected_completeness": _float_token(field.expected_completeness),
+        "expected_completeness": field.expected_completeness,
         "tags": _sorted_list(field.tags),
     }
     # Required is the historical default.  Keep legacy schema hashes stable,
@@ -310,7 +294,7 @@ class DataSchema(BaseModel):
 
         Hash is based on schema content only (excludes schema_id/version).
         """
-        from polisyos.core.canon import to_canonical_bytes
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
         canonical_dict = {
             "fields": [_field_hash_payload(f) for f in self.fields],
@@ -320,12 +304,16 @@ class DataSchema(BaseModel):
             "time_granularity": self.time_granularity.value if self.time_granularity else None,
             "geo_dimension": self.geo_dimension,
             "geo_granularity": self.geo_granularity.value if self.geo_granularity else None,
-            "required_completeness": _float_token(self.required_completeness),
+            "required_completeness": self.required_completeness,
             "allowed_null_fields": _sorted_list(self.allowed_null_fields),
             "tags": _sorted_list(self.tags),
         }
 
-        canonical = to_canonical_bytes(canonical_dict)
+        # Core owns canonical float representation, including signed-zero normalization.
+        canonical = to_canonical_bytes(
+            canonical_dict,
+            spec=CanonSpec(forbid_floats=False),
+        )
         return compute_content_hash(canonical, prefix=True)
 
     @property

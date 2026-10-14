@@ -184,10 +184,15 @@ function sameCandidateAcquisitionHistoryProjection() {
 }
 
 function genericCycleSimulationProjection(runId: string) {
-  const ref = (kind: string, suffix: string) => ({
+  const ref = (
+    kind: string,
+    suffix: string,
+    manifest_profile_sha256?: string,
+  ) => ({
     artifact_id: "sha256:" + suffix.repeat(64),
     kind,
     media_type: "application/json",
+    ...(manifest_profile_sha256 ? { manifest_profile_sha256 } : {}),
   });
   const sourceRef = ref("runtime.compiled_recursive_generation_cycle", "a");
   const n4SourceRef = ref("runtime.generation_source_handoff", "c");
@@ -212,10 +217,80 @@ function genericCycleSimulationProjection(runId: string) {
     candidateId: string,
     status: "joint_simulated" | "simulation_pending_n5",
   ) => {
+    const selectedResultProfile = "sha256:" + "9".repeat(64);
     const resultRef =
       status === "joint_simulated"
-        ? ref("polisyos.runtime.joint_simulation_result", "5")
+        ? ref(
+            "polisyos.runtime.joint_simulation_result",
+            "5",
+            selectedResultProfile,
+          )
         : null;
+    const resultBody =
+      resultRef == null
+        ? null
+        : {
+            schema_version:
+              "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+            artifact_ref: resultRef,
+            artifact_schema_name: "policyos.runtime.n5.joint_simulation_result",
+            artifact_schema_version: "4.0.0",
+            result_schema_version:
+              "policyos.runtime.joint_simulation_horizon.v4",
+            selected_manifest_profile_sha256: selectedResultProfile,
+            world_model_record_ref: "sha256:" + "1".repeat(64),
+            world_model_record_content_hash: "sha256:" + "6".repeat(64),
+            atom_ids: ["atom-a", "atom-b", "atom-c"],
+            selected_outcomes: ["outcome-a"],
+            horizon: {
+              start: 0,
+              end: 0,
+              step: 1,
+              valid_time_role: "valid_time",
+              transaction_time_role: "transaction_time",
+              scenario_branch_policy: "hold_world_record_constant",
+            },
+            trajectories: [
+              {
+                run_level: "individual",
+                atom_ids: ["atom-a"],
+                points: [
+                  {
+                    step: 0,
+                    outcomes: { "outcome-a": 0.45 },
+                    effects: { "outcome-a": 0.05 },
+                  },
+                ],
+              },
+              {
+                run_level: "individual",
+                atom_ids: ["atom-b"],
+                points: [
+                  {
+                    step: 0,
+                    outcomes: { "outcome-a": 0.55 },
+                    effects: { "outcome-a": 0.15 },
+                  },
+                ],
+              },
+              {
+                run_level: "joint",
+                atom_ids: ["atom-a", "atom-b", "atom-c"],
+                points: [
+                  {
+                    step: 0,
+                    outcomes: { "outcome-a": 0.75 },
+                    effects: { "outcome-a": 3.25 },
+                  },
+                ],
+              },
+            ],
+            uncertainty_kind: "K_sim",
+            authority_purpose: "cycle_input_candidate_only",
+            candidate_status: "candidate_unverified",
+            currentness_status: "not_established",
+            publication_authority: false,
+          };
     const interactionEvidence = runN5InteractionEvidenceFixture();
     interactionEvidence.numeric_interaction = "additive";
     return {
@@ -277,6 +352,17 @@ function genericCycleSimulationProjection(runId: string) {
       publication_authority: false,
       selected_outcomes: status === "joint_simulated" ? ["outcome-a"] : [],
       simulation_result_ref: resultRef,
+      simulation_result_body: resultBody,
+      simulation_result_body_status:
+        resultRef == null
+          ? "not_applicable"
+          : resultBody == null
+            ? "not_established"
+            : "resolved",
+      simulation_result_body_limitation_code:
+        resultRef != null && resultBody == null
+          ? "generic_n5_result_body_request_binding_not_established"
+          : null,
       status,
       world_model_record_content_hash: "sha256:" + "6".repeat(64),
     };
@@ -723,6 +809,21 @@ describe("OverviewTab", () => {
     ).toHaveTextContent(
       "Sibling retained after its independent attempt stopped.",
     );
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body"),
+    ).toHaveTextContent("Persisted N5 result");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body"),
+    ).toHaveTextContent("outcome-a");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body"),
+    ).toHaveTextContent("3.25");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body"),
+    ).toHaveTextContent("Intervention atoms: atom-a");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body"),
+    ).toHaveTextContent("Intervention atoms: atom-b");
     expect(panel).not.toHaveTextContent("publication_ready");
   });
 

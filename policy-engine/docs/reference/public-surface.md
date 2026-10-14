@@ -538,7 +538,7 @@ validate_metadata
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 - Export resolution incomplete: Unresolved export binding consumer: src/polisyos/core/contracts/__init__.py:_CHRONOLOGY_EXPORTS.
 
-<details><summary>Source-declared candidates (655; native exports unproved)</summary>
+<details><summary>Source-declared candidates (660; native exports unproved)</summary>
 
 ```text
 AcceptanceNonReceipt
@@ -1080,6 +1080,10 @@ RunLineageResponse
 RunNodeRecord
 RunNodesResponse
 RunRecordV1
+RunGenericCycleSimulationN5Horizon
+RunGenericCycleSimulationN5ResultBody
+RunGenericCycleSimulationN5Trajectory
+RunGenericCycleSimulationN5TrajectoryPoint
 RunRecursiveCycleBranchFailure
 RunRecursiveCycleCheckpoint
 RunSummary
@@ -1090,6 +1094,7 @@ RunTimelineView
 RunsListResponse
 RuntimeApiError
 RuntimeApiProblem
+RuntimeApiProblemContext
 ScenarioFamilyConstructRow
 ScenarioFamilyConstructRows
 ScopeAdjudicationCandidate
@@ -3168,12 +3173,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.replay`, `polisyos.scientist.replay.deterministic`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.replay`, `polisyos.scientist.replay.deterministic`, `polisyos.scientist.validation.policy_verified`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Workflow orchestration facade for experiment execution and shared observability hooks.
+- Notes: Workflow orchestration and policy-verified artifact facades, including typed legal retrieval status on candidate packs.
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
 ### Resolved supported entrypoints
@@ -3185,6 +3190,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.scientist`
 
@@ -3470,6 +3476,43 @@ verify_replay
 ```
 
 </details>
+
+#### `polisyos.scientist.validation.policy_verified`
+
+- Source: `src/polisyos/scientist/validation/policy_verified/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Stable policy-verification facade for request frames, legal packs, and verified reports.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (23; native exports unproved)</summary>
+
+```text
+LegalCandidatePack
+LegalRetrievalStatus
+LegalSourcePack
+PolicyEvidenceLink
+PolicyOption
+PolicyOptionSet
+PolicyRequestFrame
+SourceCoverageGap
+SourceVerificationReport
+VerifiedLegalClaim
+VerifiedPolicyReport
+load_legal_candidate_pack
+load_legal_source_pack
+load_policy_option_set
+load_policy_request_frame
+load_source_verification_report
+load_verified_policy_report
+persist_legal_candidate_pack
+persist_legal_source_pack
+persist_policy_option_set
+persist_policy_request_frame
+persist_source_verification_report
+persist_verified_policy_report
+```
+
+</details>
 Export total is unknown; the static reader cannot resolve the extension.
 
 ## `polisyos.evidence`
@@ -3589,7 +3632,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Summary: Runtime quality evaluation helpers.
 - Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib.
 
-<details><summary>Source-declared candidates (968; native exports unproved)</summary>
+<details><summary>Source-declared candidates (970; native exports unproved)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -4192,6 +4235,8 @@ ValueChoiceProvenanceRecord
 ValueDisposition
 ValueLossDisclosure
 ValueOfInformationAllocation
+ValueOwnerSourceProjectionRequestV1
+ValueOwnerSourceVariableProjectionV1
 ValueScheduleReviewStatus
 ValueSourceClass
 ValueTradeoffDisclosureRecord
@@ -4737,12 +4782,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.data_forge`
 
 - Classification: `public_experimental`
-- Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`, `polisyos.data_forge.read_api.academic`, `polisyos.data_forge.read_api.catalog`, `polisyos.data_forge.read_api.ukraine`
+- Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`, `polisyos.data_forge.read_api.academic`, `polisyos.data_forge.read_api.catalog`, `polisyos.data_forge.read_api.legal`, `polisyos.data_forge.read_api.ukraine`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-data-forge`
 - README: `src/polisyos/data_forge/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Ukraine demographic reader facade.
+- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Legal runtime-material and Ukraine demographic reader facades.
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
 
 ### Resolved supported entrypoints
@@ -4753,6 +4798,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.data_forge`
@@ -4961,6 +5007,13 @@ select_academic_batch_stages
 - Facade: `unresolved_exports`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 - Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/catalog.py.
+
+#### `polisyos.data_forge.read_api.legal`
+
+- Source: `src/polisyos/data_forge/read_api/legal.py`
+- Facade: `unresolved_exports`
+- Summary: Runtime-safe read and material-owner API for Legal Data Forge artifacts.
+- Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/legal.py.
 
 #### `polisyos.data_forge.read_api.ukraine`
 

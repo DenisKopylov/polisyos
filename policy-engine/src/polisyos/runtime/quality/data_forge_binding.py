@@ -10,7 +10,7 @@ from datetime import UTC, date, datetime, timedelta
 from fractions import Fraction
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -72,6 +72,28 @@ class _MeasurementRootEvidenceStore(Protocol):
     ) -> artifacts.VerificationReport:
         """Verify selected payload and manifest integrity."""
         ...
+
+
+def _is_artifact_store(value: object) -> TypeGuard[artifacts.ArtifactStore]:
+    """Check the complete public ArtifactStore method surface structurally.
+
+    Runtime dependency guards expose ArtifactStore methods through a proxy. Python's
+    runtime Protocol check can reject that supported proxy despite its callable public
+    surface, so derive the required methods from the canonical Protocol and inspect the
+    value without unwrapping or trusting a backend label.
+    """
+
+    required_methods = tuple(
+        name
+        for name, member in vars(artifacts.ArtifactStore).items()
+        if not name.startswith("_") and callable(member)
+    )
+    if not required_methods:
+        return False
+    try:
+        return all(callable(getattr(value, name, None)) for name in required_methods)
+    except Exception:
+        return False
 
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = "policyos.runtime.data_forge_snapshot_binding.v1"
@@ -566,7 +588,7 @@ class MeasurementRootProducer:
         artifact_store: artifacts.ArtifactStore | None = None,
         execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
-        if artifact_store is not None and not isinstance(artifact_store, artifacts.ArtifactStore):
+        if artifact_store is not None and not _is_artifact_store(artifact_store):
             raise TypeError("measurement_root_artifact_store_invalid")
         if (
             execution_scope_binding is not None

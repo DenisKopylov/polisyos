@@ -435,6 +435,110 @@ class TestDataSchema:
         assert hash1 == hash2
         assert hash1.startswith("sha256:")
 
+    def test_content_hash_float_tags_preserve_identity_and_default_core_strictness(self) -> None:
+        from polisyos.core.canon import CanonViolation, to_canonical_bytes
+
+        schema = DataSchema(
+            schema_id="test.float_schema",
+            version=SchemaVersion(1, 0, 0),
+            fields=(
+                FieldSpec(
+                    name="measure",
+                    data_type=SchemaType.FLOAT64,
+                    bounds=(0.0, 1.0),
+                    expected_completeness=0.8,
+                ),
+            ),
+            required_completeness=0.95,
+        )
+
+        # Existing nonzero canonical hash bytes remain unchanged.
+        assert schema.content_hash == (
+            "sha256:9888dc688bffa0e00eb1cc7f47640e7375dbb8ed9fd3732e1227ea4e69738ee7"
+        )
+        with pytest.raises(CanonViolation, match="canon_profile_payload_nonconformant"):
+            to_canonical_bytes({"_type": "float", "repr": "0.80000000000000004"})
+
+    @pytest.mark.parametrize(
+        "slot",
+        ["bounds_min", "bounds_max", "field_completeness", "schema_completeness"],
+    )
+    def test_content_hash_normalizes_signed_zero_at_every_float_slot(self, slot: str) -> None:
+        negative_bounds: tuple[float | None, float | None] = (0.0, 1.0)
+        positive_bounds = negative_bounds
+        negative_field_completeness = 0.8
+        positive_field_completeness = 0.8
+        negative_schema_completeness = 0.95
+        positive_schema_completeness = 0.95
+
+        if slot == "bounds_min":
+            negative_bounds = (-0.0, 1.0)
+            positive_bounds = (0.0, 1.0)
+        elif slot == "bounds_max":
+            negative_bounds = (-1.0, -0.0)
+            positive_bounds = (-1.0, 0.0)
+        elif slot == "field_completeness":
+            negative_field_completeness = -0.0
+            positive_field_completeness = 0.0
+        elif slot == "schema_completeness":
+            negative_schema_completeness = -0.0
+            positive_schema_completeness = 0.0
+        else:
+            raise AssertionError(f"unexpected signed-zero slot: {slot}")
+
+        def make_schema(
+            bounds: tuple[float | None, float | None],
+            field_completeness: float,
+            schema_completeness: float,
+        ) -> DataSchema:
+            return DataSchema(
+                schema_id="test.signed_zero_schema",
+                version=SchemaVersion(1, 0, 0),
+                fields=(
+                    FieldSpec(
+                        name="measure",
+                        data_type=SchemaType.FLOAT64,
+                        bounds=bounds,
+                        expected_completeness=field_completeness,
+                    ),
+                ),
+                required_completeness=schema_completeness,
+            )
+
+        negative_zero_schema = make_schema(
+            negative_bounds,
+            negative_field_completeness,
+            negative_schema_completeness,
+        )
+        positive_zero_schema = make_schema(
+            positive_bounds,
+            positive_field_completeness,
+            positive_schema_completeness,
+        )
+
+        assert negative_zero_schema.content_hash == positive_zero_schema.content_hash
+
+    @pytest.mark.parametrize("non_finite", [float("nan"), float("inf"), float("-inf")])
+    def test_schema_float_slots_reject_non_finite_values(self, non_finite: float) -> None:
+        for bounds in ((non_finite, 1.0), (-1.0, non_finite)):
+            with pytest.raises(ValueError):
+                FieldSpec(name="measure", data_type=SchemaType.FLOAT64, bounds=bounds)
+
+        with pytest.raises(ValueError):
+            FieldSpec(
+                name="measure",
+                data_type=SchemaType.FLOAT64,
+                expected_completeness=non_finite,
+            )
+
+        with pytest.raises(ValueError):
+            DataSchema(
+                schema_id="test.non_finite_schema",
+                version=SchemaVersion(1, 0, 0),
+                fields=(FieldSpec(name="measure", data_type=SchemaType.FLOAT64),),
+                required_completeness=non_finite,
+            )
+
     def test_content_hash_changes_with_schema(self) -> None:
         """Test that different schemas produce different hashes."""
         schema1 = DataSchema(

@@ -232,7 +232,13 @@ class BayesianCandidateGenerator:
         self._search_run_context_fingerprint: str | None = None
         self._source_store: Any | None = None
         self._issued_source_profiles: dict[
-            str, tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef | None]
+            str,
+            tuple[
+                BayesianSourceProfile,
+                dict[str, Any],
+                ArtifactRef | None,
+                dict[str, Any],
+            ],
         ] = {}
         self._search_method_run_profile: SearchMethodRunProfile | None = None
 
@@ -329,6 +335,15 @@ class BayesianCandidateGenerator:
                     profile,
                     dict(getattr(candidate, "params", {}) or {}),
                     fit_basis_ref,
+                    {
+                        "source": getattr(candidate, "source_strategy", None),
+                        "acquisition_type": _as_mapping(
+                            candidate_payload.get("_strategy_metadata")
+                        ).get("acquisition_type"),
+                        "predicted_mean": getattr(candidate, "predicted_mean", None),
+                        "predicted_std": getattr(candidate, "predicted_std", None),
+                        "acquisition_value": getattr(candidate, "acquisition_value", None),
+                    },
                 )
             return candidate_payload
         except Exception as exc:
@@ -401,9 +416,10 @@ class BayesianCandidateGenerator:
                 self._warm_start_rejections.append({"reason": "source profile receipt missing"})
                 continue
             raw_profile = metadata.get("warm_start_compatibility")
-            if not isinstance(raw_profile, Mapping) or raw_profile.get(
-                "warm_start_eligible"
-            ) is not True:
+            if (
+                not isinstance(raw_profile, Mapping)
+                or raw_profile.get("warm_start_eligible") is not True
+            ):
                 self._warm_start_rejections.append(
                     {"reason": "missing or incompatible warm-start fingerprint"}
                 )
@@ -544,19 +560,18 @@ class BayesianCandidateGenerator:
             warm_start_eligible=False,
         )
 
-    def set_search_method_run_profile(
-        self, profile: SearchMethodRunProfile | None
-    ) -> None:
+    def set_search_method_run_profile(self, profile: SearchMethodRunProfile | None) -> None:
         """Bind the immutable MethodJob/data basis used by this search run."""
         if profile is not None and not isinstance(profile, SearchMethodRunProfile):
             raise TypeError("Search MethodJob run profile must be a validated typed record")
-        if self._search_method_run_profile is not None and profile != self._search_method_run_profile:
+        if (
+            self._search_method_run_profile is not None
+            and profile != self._search_method_run_profile
+        ):
             raise RuntimeError("Search MethodJob run profile is immutable for this generator")
         self._search_method_run_profile = profile
 
-    def _persist_gp_fit_basis(
-        self, profile: BayesianSourceProfile
-    ) -> ArtifactRef | None:
+    def _persist_gp_fit_basis(self, profile: BayesianSourceProfile) -> ArtifactRef | None:
         """Persist the selected, complete rows required for a fresh native GP refit."""
         optimizer = self._optimizer
         if (
@@ -573,6 +588,24 @@ class BayesianCandidateGenerator:
             return None
         refs = getattr(optimizer, "_last_fitted_training_evaluation_refs", None)
         if not isinstance(refs, list) or len(refs) != profile.training_observation_count:
+            return None
+        acquisition_refs = getattr(
+            optimizer,
+            "_last_acquisition_training_evaluation_refs",
+            None,
+        )
+        acquisition_count = getattr(
+            optimizer,
+            "_last_acquisition_training_observation_count",
+            None,
+        )
+        if (
+            not isinstance(acquisition_refs, list)
+            or not acquisition_refs
+            or type(acquisition_count) is not int
+            or acquisition_count != len(acquisition_refs)
+            or acquisition_count < len(refs)
+        ):
             return None
         model_state_fingerprint = optimizer._fitted_model_state_fingerprint()
         if not isinstance(model_state_fingerprint, str) or len(model_state_fingerprint) != 64:
@@ -597,12 +630,18 @@ class BayesianCandidateGenerator:
                 for bound in self._search_space.bounds
             ]
             selected_refs = [ArtifactRef.model_validate(ref) for ref in refs]
+            selected_acquisition_refs = [
+                ArtifactRef.model_validate(ref) for ref in acquisition_refs
+            ]
             basis = SearchGPFitBasis(
+                schema_version="2",
                 run_profile=self._search_method_run_profile,
                 fit_config=fit_config,
                 bounds=bounds,
                 training_evaluation_refs=selected_refs,
                 training_observation_count=len(selected_refs),
+                acquisition_evaluation_refs=selected_acquisition_refs,
+                acquisition_observation_count=len(selected_acquisition_refs),
                 fit_backend=str(getattr(optimizer, "_device", "unknown")),
                 fitted_model_state_fingerprint=model_state_fingerprint,
                 proposal_source=profile.proposal_source,
@@ -615,7 +654,7 @@ class BayesianCandidateGenerator:
                     media_type="application/json",
                     schema=SchemaInfo(
                         name="polisyos.scientist.methods.autotune.SearchGPFitBasis",
-                        version="1.0",
+                        version="2.0",
                     ),
                     producer=ProducerInfo(
                         component="polisyos.scientist.methods.autotune.bayesian_generator",
@@ -624,6 +663,10 @@ class BayesianCandidateGenerator:
                     inputs=[
                         input_ref_from_artifact_ref(ref, role="training_evaluation")
                         for ref in selected_refs
+                    ]
+                    + [
+                        input_ref_from_artifact_ref(ref, role="acquisition_evaluation")
+                        for ref in selected_acquisition_refs
                     ],
                 ),
                 canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
@@ -675,7 +718,7 @@ class BayesianCandidateGenerator:
         issued = self._issued_source_profiles.pop(proposal_id, None)
         if issued is None:
             return None
-        profile, issued_params, fit_basis_ref = issued
+        profile, issued_params, fit_basis_ref, issued_prediction = issued
         raw_profile = strategy_metadata.get("warm_start_compatibility")
         if not isinstance(raw_profile, Mapping):
             return None
@@ -691,13 +734,51 @@ class BayesianCandidateGenerator:
         if (
             names != set(issued_params)
             or self._profile_fingerprint(actual_params) != self._profile_fingerprint(issued_params)
+            or strategy_metadata.get("source") != profile.proposal_source
         ):
             return None
+        proposal_prediction: dict[str, Any] | None = None
+        if profile.warm_start_eligible:
+            if (
+                profile.profile_kind != "configured_native_gp"
+                or profile.proposal_source != "bayesian_acquisition"
+                or fit_basis_ref is None
+                or issued_prediction.get("source") != profile.proposal_source
+            ):
+                return None
+            acquisition_type = issued_prediction.get("acquisition_type")
+            if (
+                not isinstance(acquisition_type, str)
+                or strategy_metadata.get("acquisition_type") != acquisition_type
+            ):
+                return None
+            values: dict[str, float] = {}
+            for name in ("predicted_mean", "predicted_std", "acquisition_value"):
+                expected = issued_prediction.get(name)
+                actual = strategy_metadata.get(name)
+                if (
+                    isinstance(expected, bool)
+                    or type(expected) not in {int, float}
+                    or not math.isfinite(float(expected))
+                    or isinstance(actual, bool)
+                    or type(actual) not in {int, float}
+                    or not math.isfinite(float(actual))
+                    or float(actual) != float(expected)
+                ):
+                    return None
+                values[name] = float(expected)
+            if values["predicted_std"] < 0:
+                return None
+            proposal_prediction = {
+                "acquisition_type": acquisition_type,
+                **values,
+            }
         return {
             "proposal_id": proposal_id,
             "params": dict(issued_params),
             "profile": profile,
             "fit_basis_ref": fit_basis_ref,
+            "proposal_prediction": proposal_prediction,
         }
 
     @staticmethod
@@ -953,25 +1034,25 @@ class BayesianCandidateGenerator:
                 duration_seconds = 0.0
             provenance_ref = identity.get("provenance_ref")
             evaluation = Evaluation(
-                    candidate_id=candidate_id,
-                    params=dict(params),
-                    params_normalized=normalized,
-                    objectives=[
-                        ObjectiveValue(
-                            name=self._primary_metric,
-                            raw_value=scalar,
-                            direction=OptimizationDirection.MINIMIZE,
-                        )
-                    ],
-                    scalar_score=scalar,
-                    stage_a_passed=stage_a_passed,
-                    stage_b_result=dict(stage_b_result) or None,
-                    status=status,
-                    timestamp=timestamp,
-                    wall_time_seconds=duration_seconds,
-                    provenance_ref=str(provenance_ref) if provenance_ref is not None else None,
-                    metadata=metadata,
-                )
+                candidate_id=candidate_id,
+                params=dict(params),
+                params_normalized=normalized,
+                objectives=[
+                    ObjectiveValue(
+                        name=self._primary_metric,
+                        raw_value=scalar,
+                        direction=OptimizationDirection.MINIMIZE,
+                    )
+                ],
+                scalar_score=scalar,
+                stage_a_passed=stage_a_passed,
+                stage_b_result=dict(stage_b_result) or None,
+                status=status,
+                timestamp=timestamp,
+                wall_time_seconds=duration_seconds,
+                provenance_ref=str(provenance_ref) if provenance_ref is not None else None,
+                metadata=metadata,
+            )
             evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
             proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
             from .runtime import _verify_search_source_profile_receipt
@@ -994,9 +1075,9 @@ class BayesianCandidateGenerator:
                     mode="json", exclude_none=True
                 )
                 evaluation.metadata["search_source_profile_receipt"] = receipt
-                evaluation.metadata["search_source_evaluation_ref"] = (
-                    ArtifactRef.model_validate(evaluation_ref_payload).model_dump(mode="json")
-                )
+                evaluation.metadata["search_source_evaluation_ref"] = ArtifactRef.model_validate(
+                    evaluation_ref_payload
+                ).model_dump(mode="json")
             evaluations.append(evaluation)
         return evaluations
 

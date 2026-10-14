@@ -94,11 +94,7 @@ def build_real_fetch_owner(
         _write_current_test_catalog_inputs(catalog_publish_config)
         run_content_stage_with_receipt(catalog_publish_config, "publish")
     overlay_path = tmp_path / "overlay.duckdb"
-    index_dir = (
-        catalog_publish_config.index_dir
-        if catalog_publish_config is not None
-        else tmp_path
-    )
+    index_dir = catalog_publish_config.index_dir if catalog_publish_config is not None else tmp_path
     graph = catalog_api.DatasetCatalogGraph(graph_path, index_dir, overlay_path=overlay_path)
     rows = [{"row_id": f"r-{index}", "value": index + 0.5, "optional": None} for index in range(12)]
     requests = []
@@ -197,10 +193,13 @@ def build_real_fetch_owner(
 
 def _write_current_test_catalog_inputs(config: DatasetBatchConfig) -> None:
     """Write controlled stage inputs consumed by the real catalog publisher."""
+    publish_blocking_sources = [
+        source.name for source in config.load_registry().sources if source.publish_blocking
+    ]
+    if len(publish_blocking_sources) != 1:
+        raise ValueError("controlled_test_registry_must_select_one_publish_blocking_source")
     config.merged_records_path.write_text('{"title":"Recorded local file"}\n', encoding="utf-8")
-    config.duplicates_report_path.write_text(
-        "dataset_id,duplicate_id\n", encoding="utf-8"
-    )
+    config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     config.qc_report_path.write_text(
         json.dumps(
             {
@@ -235,7 +234,8 @@ def _write_current_test_catalog_inputs(config: DatasetBatchConfig) -> None:
                 },
                 "source_preflight": {
                     "sources": [
-                        {"source": "recorded_file", "status": "complete", "ready": True}
+                        {"source": source, "status": "complete", "ready": True}
+                        for source in publish_blocking_sources
                     ]
                 },
             }
@@ -427,6 +427,7 @@ def build_worldbank_fetch_owner(tmp_path):
     import json
     from pathlib import Path
 
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
     from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_worldbank
     from polisyos.data_forge.domains.catalog.knowledge.types import DatasetCoverage
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
@@ -437,6 +438,7 @@ def build_worldbank_fetch_owner(tmp_path):
         normalize_worldbank_records,
     )
 
+    tmp_path.mkdir(parents=True, exist_ok=True)
     fixture_source = Path(__file__).parent / "connectors/sources/test_production_connectors.py"
     tree = ast.parse(fixture_source.read_text())
     function = next(
@@ -542,10 +544,29 @@ def build_worldbank_fetch_owner(tmp_path):
     providers.profiles.register(
         next(p for p in BUILTIN_PROFILES if p.profile_id == "worldbank_wdi")
     )
-    tmp_path.mkdir(parents=True, exist_ok=True)
+    worldbank_policy = catalog_api.load_catalog_source_registry().source_by_id("worldbank")
+    assert worldbank_policy is not None
+    fixture_source_registry = catalog_api.CatalogSourceRegistrySpec(sources=(worldbank_policy,))
+    source_row = worldbank_policy.model_dump(mode="json")
+    source_row["name"] = source_row.pop("source_id")
+    registry_path = tmp_path / "worldbank-current-test-source.yaml"
+    registry_path.write_text(
+        json.dumps({"version": 1, "sources": [source_row]}),
+        encoding="utf-8",
+    )
+    publish_config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "worldbank-current-catalog",
+        registry_path=registry_path,
+    )
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(WorldBankConnector, "_request_json", staticmethod(request_json))
         patch.setattr(WorldBankConnector, "_get_session", get_session)
+        patch.setattr(
+            catalog_api,
+            "load_catalog_source_registry",
+            lambda: fixture_source_registry,
+        )
+        patch.setattr(SourceProfileRegistry, "_instance", providers.profiles)
         with build_real_fetch_owner(
             tmp_path,
             dataset_names=("NY.GDP.MKTP.CD",),
@@ -555,6 +576,7 @@ def build_worldbank_fetch_owner(tmp_path):
             patch_fastlane=False,
             metric_id="gdp",
             dataset_records=[record],
+            catalog_publish_config=publish_config,
         ) as owner:
             owner.plan = owner.plan.model_copy(
                 update={"profile_id": "worldbank_wdi", "filters": {"country": ["US", "DE"]}}
@@ -958,6 +980,27 @@ def test_explicit_metric_binding_admits_its_real_nonpreferred_distribution(tmp_p
             )
         finally:
             graph.close()
+
+
+def test_worldbank_fixture_current_catalog_receipt_admits_its_exact_fetch_plan(
+    tmp_path,
+):
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+
+    with build_worldbank_fetch_owner(tmp_path) as owner:
+        resolved = owner.service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric=owner.plan.metric_id)],
+                mode="fastlane",
+                catalog_run_profile="prod_full",
+            )
+        )
+
+    assert len(resolved.fetch_plans) == 1
+    plan = resolved.fetch_plans[0]
+    assert plan.connector_id == "worldbank.wdi"
+    assert plan.dataset_id == "NY.GDP.MKTP.CD"
+    assert plan.profile_id == "worldbank_wdi"
 
 
 def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tmp_path):

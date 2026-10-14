@@ -949,8 +949,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 63789,
-                "sha256": "abbccc96dcf35ae571cd9396dfbceb600ce4f3cf28a61b41d47c4bb08feb720f"
+                "bytes": 64461,
+                "sha256": "4c9cc32bca2902d421a6798948a30c0d7e5af6bbdd57e30083bd9d0e75164034"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -1525,6 +1525,10 @@
               "RunNodeRecord",
               "RunNodesResponse",
               "RunRecordV1",
+              "RunGenericCycleSimulationN5Horizon",
+              "RunGenericCycleSimulationN5ResultBody",
+              "RunGenericCycleSimulationN5Trajectory",
+              "RunGenericCycleSimulationN5TrajectoryPoint",
               "RunRecursiveCycleBranchFailure",
               "RunRecursiveCycleCheckpoint",
               "RunSummary",
@@ -1535,6 +1539,7 @@
               "RunsListResponse",
               "RuntimeApiError",
               "RuntimeApiProblem",
+              "RuntimeApiProblemContext",
               "ScenarioFamilyConstructRow",
               "ScenarioFamilyConstructRows",
               "ScopeAdjudicationCandidate",
@@ -5005,7 +5010,8 @@
         "polisyos.scientist.governance.continuous",
         "polisyos.scientist.methods.research_dag",
         "polisyos.scientist.replay",
-        "polisyos.scientist.replay.deterministic"
+        "polisyos.scientist.replay.deterministic",
+        "polisyos.scientist.validation.policy_verified"
       ],
       "major_subsystem": true,
       "export_count": null,
@@ -5015,7 +5021,7 @@
       "has___dir__": true,
       "source_file": "src/polisyos/scientist/__init__.py",
       "summary": "Stable Scientist package facade for workflow execution and run observability.",
-      "notes": "Workflow orchestration facade for experiment execution and shared observability hooks.",
+      "notes": "Workflow orchestration and policy-verified artifact facades, including typed legal retrieval status on candidate packs.",
       "entrypoints": [
         {
           "module": "polisyos.scientist",
@@ -5617,6 +5623,114 @@
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
             "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
           }
+        },
+        {
+          "module": "polisyos.scientist.validation.policy_verified",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/scientist/validation/policy_verified/__init__.py",
+          "summary": "Stable policy-verification facade for request frames, legal packs, and verified reports.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/scientist/validation/policy_verified.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/validation/policy_verified/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/validation/policy_verified/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1491,
+                "sha256": "3800d09a498a8ec550e380d7696f886d6561d05fc9855ac5fc6b0e202d76365d"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/scientist/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7829,
+                "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+              },
+              {
+                "path": "src/polisyos/scientist/validation/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/validation/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 16194,
+                "sha256": "91906565a848458b26c669c8e8e04fc7648f8d4d1bf5e288f3b01259d3e160d3"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [
+              "LegalCandidatePack",
+              "LegalRetrievalStatus",
+              "LegalSourcePack",
+              "PolicyEvidenceLink",
+              "PolicyOption",
+              "PolicyOptionSet",
+              "PolicyRequestFrame",
+              "SourceCoverageGap",
+              "SourceVerificationReport",
+              "VerifiedLegalClaim",
+              "VerifiedPolicyReport",
+              "load_legal_candidate_pack",
+              "load_legal_source_pack",
+              "load_policy_option_set",
+              "load_policy_request_frame",
+              "load_source_verification_report",
+              "load_verified_policy_report",
+              "persist_legal_candidate_pack",
+              "persist_legal_source_pack",
+              "persist_policy_option_set",
+              "persist_policy_request_frame",
+              "persist_source_verification_report",
+              "persist_verified_policy_report"
+            ],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
         }
       ]
     },
@@ -5932,8 +6046,8 @@
                 "path": "src/polisyos/runtime/quality/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 73478,
-                "sha256": "a94e991e125e26a7e5a730e138b5cfd52885470f7e1ebac38a4f3f3d853de390"
+                "bytes": 73661,
+                "sha256": "a681fa6e4ee2d55b4fd272d7be711847c1ca7f0b574cc6c2a91d87ab87c8a2ab"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -6569,6 +6683,8 @@
               "ValueDisposition",
               "ValueLossDisclosure",
               "ValueOfInformationAllocation",
+              "ValueOwnerSourceProjectionRequestV1",
+              "ValueOwnerSourceVariableProjectionV1",
               "ValueScheduleReviewStatus",
               "ValueSourceClass",
               "ValueTradeoffDisclosureRecord",
@@ -7284,6 +7400,7 @@
         "polisyos.data_forge.read_api",
         "polisyos.data_forge.read_api.academic",
         "polisyos.data_forge.read_api.catalog",
+        "polisyos.data_forge.read_api.legal",
         "polisyos.data_forge.read_api.ukraine"
       ],
       "major_subsystem": true,
@@ -7294,7 +7411,7 @@
       "has___dir__": true,
       "source_file": "src/polisyos/data_forge/__init__.py",
       "summary": "Data Forge public facade for build-time artifact contracts and read APIs.",
-      "notes": "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Ukraine demographic reader facade.",
+      "notes": "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Legal runtime-material and Ukraine demographic reader facades.",
       "entrypoints": [
         {
           "module": "polisyos.data_forge",
@@ -7748,6 +7865,90 @@
             ],
             "complete": false,
             "reason": "Unresolved export expansion: src/polisyos/data_forge/read_api/catalog.py",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
+        },
+        {
+          "module": "polisyos.data_forge.read_api.legal",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/data_forge/read_api/legal.py",
+          "summary": "Runtime-safe read and material-owner API for Legal Data Forge artifacts.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/data_forge/read_api/legal.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/data_forge/read_api/legal/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/data_forge/read_api/legal.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 9197,
+                "sha256": "795376140218d7a7ebde90a2481af288170d1872939cb25a4e418702e3a3494e"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/data_forge/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/data_forge/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7232,
+                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+              },
+              {
+                "path": "src/polisyos/data_forge/read_api/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/data_forge/read_api/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1860,
+                "sha256": "0c7aa7d42b0569a4e99c9542dab7aaef4f1cd6afc2cae1b31cf186e63a3a7e8e"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved export expansion: src/polisyos/data_forge/read_api/legal.py",
             "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
             "declared_export_candidates": [],
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",

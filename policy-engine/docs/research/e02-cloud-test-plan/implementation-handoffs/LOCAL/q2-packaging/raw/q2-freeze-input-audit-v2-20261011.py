@@ -27,9 +27,9 @@ import subprocess
 import sys
 import time
 import tomllib
-import xml.etree.ElementTree as ET
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
+from xml.parsers import expat
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -65,12 +65,14 @@ import hashlib
 import io
 import json
 import math
+import marshal
 import os
 import re
 import site
 import stat
 import sys
 import sysconfig
+import types
 from pathlib import Path, PurePosixPath
 
 import pytest
@@ -517,6 +519,120 @@ def _runtime_data_value(value, active=None):
     raise TypeError("unsupported runtime data value")
 
 
+
+def _is_module_instance(value):
+    # Use the actual type MRO, never an instance's spoofable __class__.
+    actual_type = type(value)
+    try:
+        actual_mro = type.__getattribute__(actual_type, "__mro__")
+    except (AttributeError, TypeError):
+        return False
+    return type(actual_mro) is tuple and any(
+        class_type is types.ModuleType for class_type in actual_mro
+    )
+
+
+def _runtime_type_label(value):
+    actual_type = type(value)
+    try:
+        module_name = type.__getattribute__(actual_type, "__module__")
+        qualname = type.__getattribute__(actual_type, "__qualname__")
+    except (AttributeError, TypeError):
+        return "<unidentified-runtime-type>"
+    if type(module_name) is not str or type(qualname) is not str:
+        return "<unidentified-runtime-type>"
+    return f"{module_name}.{qualname}"
+
+
+def _module_namespace(module):
+    if not _is_module_instance(module):
+        raise TypeError("value is not a ModuleType instance")
+    return types.ModuleType.__getattribute__(module, "__dict__")
+
+
+def _type_identity(class_type):
+    if type(class_type) is not type:
+        raise TypeError("module subclass uses an unsupported metaclass")
+    module_name = type.__getattribute__(class_type, "__module__")
+    qualname = type.__getattribute__(class_type, "__qualname__")
+    name = type.__getattribute__(class_type, "__name__")
+    if any(type(value) is not str or not value for value in (module_name, qualname, name)):
+        raise TypeError("module subclass contains an invalid class identity")
+    return {"module": module_name, "qualname": qualname, "name": name}
+
+
+def _module_class_provenance(module):
+    # Capture actual type ancestry and source-associated class shape.
+    actual_type = type(module)
+    try:
+        actual_mro = type.__getattribute__(actual_type, "__mro__")
+    except (AttributeError, TypeError) as error:
+        raise TypeError("module subclass has no readable runtime MRO") from error
+    if (
+        type(actual_mro) is not tuple
+        or not any(class_type is types.ModuleType for class_type in actual_mro)
+        or not any(class_type is object for class_type in actual_mro)
+    ):
+        raise TypeError("runtime type is outside the ModuleType ancestry")
+    if actual_type is types.ModuleType:
+        return None
+    if type(actual_type) is not type:
+        raise TypeError("module subclass uses an unsupported metaclass")
+
+    class_rows = []
+    for class_type in actual_mro:
+        if class_type is types.ModuleType or class_type is object:
+            continue
+        identity = _type_identity(class_type)
+        namespace = type.__getattribute__(class_type, "__dict__")
+        attributes = []
+        for attribute, value in sorted(namespace.items()):
+            if type(attribute) is not str:
+                raise TypeError("module subclass has a non-string class attribute")
+            if type(value) is types.FunctionType:
+                code = value.__code__
+                if type(code) is not types.CodeType:
+                    raise TypeError("module subclass method has an unsupported code object")
+                filename = code.co_filename
+                if type(filename) is not str or not filename:
+                    raise TypeError("module subclass method has no source filename")
+                attributes.append(
+                    {
+                        "name": attribute,
+                        "kind": "function",
+                        "filename": filename,
+                        "firstlineno": code.co_firstlineno,
+                        "qualname": code.co_qualname,
+                        "code_sha256": hashlib.sha256(marshal.dumps(code)).hexdigest(),
+                    }
+                )
+            else:
+                attributes.append(
+                    {
+                        "name": attribute,
+                        "kind": "data",
+                        "value": _runtime_data_value(value),
+                    }
+                )
+        bases = [
+            _type_identity(base)
+            for base in type.__getattribute__(class_type, "__bases__")
+        ]
+        class_rows.append(
+            {
+                **identity,
+                "bases": bases,
+                "attributes": attributes,
+            }
+        )
+    if not class_rows:
+        raise TypeError("module subclass has no source-associated class record")
+    return {
+        "exact_module_type": False,
+        "mro": [_type_identity(class_type) for class_type in actual_mro],
+        "classes": class_rows,
+    }
+
 def _module_data_digest(module):
     if type(module) is not type(sys):
         return {"supported": False, "bytes": None, "sha256": None}
@@ -539,20 +655,34 @@ def _module_data_digest(module):
 
 
 def _module_rows(metadata):
+    module_items = tuple(sys.modules.copy().items())
+    if any(type(name) is not str for name, _value in module_items):
+        raise RuntimeError("sys.modules contains a non-string key")
+    module_items = tuple(sorted(module_items))
     rows = []
     parent_bindings = {}
-    for parent_name, parent_module in sorted(sys.modules.items()):
-        if type(parent_name) is not str or type(parent_module) is not type(sys):
+    for parent_name, parent_module in module_items:
+        if not _is_module_instance(parent_module):
             continue
-        for attribute, value in vars(parent_module).items():
-            if type(attribute) is str and type(value) is type(sys):
+        for attribute, value in _module_namespace(parent_module).items():
+            if type(attribute) is str and _is_module_instance(value):
                 parent_bindings.setdefault(id(value), []).append(
                     {"parent": parent_name, "attribute": attribute}
                 )
-    for name, module in sorted(sys.modules.items()):
-        if type(module) is not type(sys):
-            raise RuntimeError("sys.modules contains a non-module value")
-        module_namespace = vars(module)
+    for name, module in module_items:
+        if not _is_module_instance(module):
+            raise RuntimeError(
+                "sys.modules contains a non-module value: "
+                f"name={name!r} type={_runtime_type_label(module)}"
+            )
+        try:
+            module_class_provenance = _module_class_provenance(module)
+        except (AttributeError, TypeError, ValueError) as error:
+            raise RuntimeError(
+                "sys.modules module subtype has unsupported class provenance: "
+                f"name={name!r} type={_runtime_type_label(module)}"
+            ) from error
+        module_namespace = _module_namespace(module)
         spec = module_namespace.get("__spec__")
         if spec is not None and type(spec) is not importlib.machinery.ModuleSpec:
             locations = None
@@ -574,6 +704,7 @@ def _module_rows(metadata):
                         name, search_locations, metadata
                     ),
                     "search_locations": search_locations,
+                    "module_class_provenance": module_class_provenance,
                 }
             )
             continue
@@ -584,6 +715,7 @@ def _module_rows(metadata):
                 "sha256": None,
                 "distribution": None,
                 "search_locations": sorted(str(item) for item in locations or ()),
+                "module_class_provenance": module_class_provenance,
             }
             if value is None:
                 row["runtime_generated_data"] = {
@@ -611,10 +743,10 @@ def _module_rows(metadata):
                 **record,
                 "distribution": _distribution_for(name, origin, metadata),
                 "search_locations": sorted(str(item) for item in locations or ()),
+                "module_class_provenance": module_class_provenance,
             }
         )
     return rows
-
 
 def _startup_files():
     rows = {}
@@ -724,8 +856,11 @@ DOWHY_README_REL = "policy-engine/workers/dowhy-014/README.md"
 GCP_PACKAGE_REL = "policy-engine/ops/cloud/gcp/package_repo.sh"
 
 
-class AuditFailure(RuntimeError):
+class AuditError(RuntimeError):
     """Raised when source-derived Q2 inputs do not satisfy the current runner."""
+
+
+AuditFailure = AuditError
 
 
 def exact_nonbool_count_matches(value: object, expected: object) -> bool:
@@ -972,8 +1107,7 @@ def read_regular_local(path: Path) -> bytes:
             raise AuditFailure(f"input changed while it was read: {path}")
 
         cursor = Path(path.anchor)
-        component_index = 0
-        for component in parts:
+        for component_index, component in enumerate(parts):
             cursor = cursor / component
             observed = cursor.lstat()
             if stat.S_ISLNK(observed.st_mode):
@@ -987,7 +1121,6 @@ def read_regular_local(path: Path) -> bytes:
                     raise AuditFailure(f"local input path changed while it was read: {cursor}")
             elif file_signature(observed) != file_signature(before):
                 raise AuditFailure(f"local input path changed while it was read: {cursor}")
-            component_index += 1
         if path.resolve(strict=True) != path:
             raise AuditFailure(f"local input path does not resolve to its supplied path: {path}")
         return data
@@ -1080,15 +1213,38 @@ def bind_audit_helper(
     }
 
 
+def junit_testcase_attributes(data: bytes) -> list[dict[str, str]]:
+    """Read JUnit case attributes while refusing all DTD and entity declarations."""
+    test_cases: list[dict[str, str]] = []
+    parser = expat.ParserCreate()
+
+    def start_element(name: str, attributes: dict[str, str]) -> None:
+        if name == "testcase":
+            test_cases.append(attributes)
+
+    def reject_declaration(*_arguments: object) -> None:
+        raise AuditFailure("DOCTYPE or entity declarations are not allowed in baseline JUnit")
+
+    def reject_external_entity(*_arguments: object) -> int:
+        raise AuditFailure("external entities are not allowed in baseline JUnit")
+
+    parser.StartElementHandler = start_element
+    parser.StartDoctypeDeclHandler = reject_declaration
+    parser.EntityDeclHandler = reject_declaration
+    parser.ExternalEntityRefHandler = reject_external_entity
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    parser.Parse(data, True)
+    return test_cases
+
+
 def baseline_ids_from_junit(compressed: bytes, manifest: dict[str, Any]) -> set[str]:
     baseline = manifest["original_q2_suite"]
     if sha256(compressed) != baseline["baseline_junit_sha256"]:
         raise AuditFailure("source JUnit bytes differ from the original baseline digest")
     try:
-        root = ET.fromstring(gzip.decompress(compressed))
-    except (OSError, ET.ParseError) as error:
+        cases = junit_testcase_attributes(gzip.decompress(compressed))
+    except (OSError, expat.ExpatError) as error:
         raise AuditFailure(f"original Q2 JUnit is unreadable: {error}") from error
-    cases = list(root.iter("testcase"))
     if not exact_nonbool_count_matches(baseline.get("baseline_case_count"), len(cases)):
         raise AuditFailure(
             f"original Q2 JUnit count differs: {len(cases)} != {baseline['baseline_case_count']}"
@@ -1096,15 +1252,15 @@ def baseline_ids_from_junit(compressed: bytes, manifest: dict[str, Any]) -> set[
     test_paths = baseline["test_paths"]
     ids: set[str] = set()
     for case in cases:
-        classname = case.attrib.get("classname", "")
-        name = case.attrib.get("name", "")
+        classname = case.get("classname", "")
+        name = case.get("name", "")
         if not classname or not name:
             raise AuditFailure("original Q2 JUnit case omits classname or name")
         if classname == "test_installed_catalog_defaults":
             test_path = test_paths[-1]
         else:
             parts = classname.split(".")
-            test_path = "/".join(parts[:-1] + [parts[-1] + ".py"])
+            test_path = "/".join([*parts[:-1], parts[-1] + ".py"])
         if test_path not in test_paths:
             raise AuditFailure(
                 f"original Q2 JUnit case falls outside baseline source paths: {classname}"
@@ -2712,6 +2868,241 @@ def parse_collected_ids(report: dict[str, Any], allowed_paths: set[str]) -> set[
     return result
 
 
+def validate_module_class_provenance(
+    module_rows: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Reconcile each non-exact module type to class source rows and verified module origins."""
+
+    def identity(class_type: type) -> tuple[str, str, str]:
+        module_name = type.__getattribute__(class_type, "__module__")
+        qualname = type.__getattribute__(class_type, "__qualname__")
+        name = type.__getattribute__(class_type, "__name__")
+        if any(type(value) is not str or not value for value in (module_name, qualname, name)):
+            raise AuditFailure("module subclass class identity is malformed")
+        return module_name, qualname, name
+
+    module_type_identity = identity(type(sys))
+    object_identity = identity(object)
+    subclass_rows: dict[str, dict[str, Any]] = {}
+    identity_fields = frozenset({"module", "qualname", "name"})
+    class_record_fields = frozenset({"module", "qualname", "name", "bases", "attributes"})
+
+    def identity_row(
+        row: object,
+        module_name: str,
+        *,
+        expected_fields: frozenset[str],
+    ) -> tuple[str, str, str]:
+        if not isinstance(row, dict) or set(row) != expected_fields:
+            raise AuditFailure(
+                f"module class provenance contains a malformed identity: {module_name}"
+            )
+        values = (row.get("module"), row.get("qualname"), row.get("name"))
+        if any(not isinstance(value, str) or not value for value in values):
+            raise AuditFailure(f"module class provenance contains an empty identity: {module_name}")
+        return values
+
+    for module_name, module_row in module_rows.items():
+        if "module_class_provenance" not in module_row:
+            raise AuditFailure(
+                f"module inventory omits its complete runtime type classification: {module_name}"
+            )
+        evidence = module_row["module_class_provenance"]
+        if evidence is None:
+            continue
+        if not isinstance(evidence, dict) or set(evidence) != {
+            "exact_module_type",
+            "mro",
+            "classes",
+        }:
+            raise AuditFailure(f"module class provenance is malformed: {module_name}")
+        if evidence.get("exact_module_type") is not False:
+            raise AuditFailure(f"module subclass provenance claims an exact type: {module_name}")
+        mro = evidence.get("mro")
+        classes = evidence.get("classes")
+        if not isinstance(mro, list) or not isinstance(classes, list) or not classes:
+            raise AuditFailure(
+                f"module subclass provenance omits complete class ancestry: {module_name}"
+            )
+
+        mro_identities = [
+            identity_row(row, module_name, expected_fields=identity_fields) for row in mro
+        ]
+        if (
+            mro_identities.count(module_type_identity) != 1
+            or mro_identities.count(object_identity) != 1
+            or mro_identities[0] == module_type_identity
+        ):
+            raise AuditFailure(
+                "module subclass ancestry does not include the selected ModuleType base: "
+                f"{module_name}"
+            )
+        class_identities = [
+            identity_row(row, module_name, expected_fields=class_record_fields) for row in classes
+        ]
+        expected_class_identities = [
+            item for item in mro_identities if item not in {module_type_identity, object_identity}
+        ]
+        if class_identities != expected_class_identities or len(set(class_identities)) != len(
+            class_identities
+        ):
+            raise AuditFailure(
+                f"module subclass class records differ from the actual MRO: {module_name}"
+            )
+
+        source_modules = []
+        for class_row, class_identity in zip(classes, class_identities, strict=True):
+            if not isinstance(class_row, dict) or set(class_row) != {
+                "module",
+                "qualname",
+                "name",
+                "bases",
+                "attributes",
+            }:
+                raise AuditFailure(f"module subclass class record is malformed: {module_name}")
+            defining_module, class_qualname, _class_name = class_identity
+            defining_row = module_rows.get(defining_module)
+            defining_source = source_records.get(defining_module)
+            source_origin = defining_row.get("origin") if isinstance(defining_row, dict) else None
+            if (
+                not isinstance(defining_row, dict)
+                or not isinstance(defining_source, dict)
+                or not isinstance(source_origin, str)
+                or not Path(source_origin).is_absolute()
+                or defining_row.get("sha256") != defining_source.get("sha256")
+                or defining_source.get("kind")
+                not in {
+                    "tracked_source_commit_blob",
+                    "locked_python_distribution",
+                    "selected_python_standard_library",
+                    "helper_generated_collection_plugin",
+                }
+            ):
+                raise AuditFailure(
+                    f"module subclass class has no verified defining source module: "
+                    f"{defining_module}.{class_qualname}"
+                )
+            source_modules.append(defining_module)
+            bases = class_row.get("bases")
+            attributes = class_row.get("attributes")
+            if not isinstance(bases, list) or not isinstance(attributes, list):
+                raise AuditFailure(
+                    f"module subclass class omits its complete bases or attributes: "
+                    f"{defining_module}.{class_qualname}"
+                )
+            base_identities = [
+                identity_row(base, module_name, expected_fields=identity_fields) for base in bases
+            ]
+            if len(set(base_identities)) != len(base_identities) or any(
+                base not in mro_identities for base in base_identities
+            ):
+                raise AuditFailure(
+                    f"module subclass base is absent or repeated in the actual MRO: "
+                    f"{defining_module}.{class_qualname}"
+                )
+
+            attribute_names = []
+            function_count = 0
+            for attribute in attributes:
+                if not isinstance(attribute, dict) or not isinstance(attribute.get("name"), str):
+                    raise AuditFailure(
+                        f"module subclass attribute inventory is malformed: "
+                        f"{defining_module}.{class_qualname}"
+                    )
+                attribute_names.append(attribute["name"])
+                if attribute.get("kind") == "function":
+                    if set(attribute) != {
+                        "name",
+                        "kind",
+                        "filename",
+                        "firstlineno",
+                        "qualname",
+                        "code_sha256",
+                    }:
+                        raise AuditFailure(
+                            f"module subclass function record is malformed: "
+                            f"{defining_module}.{class_qualname}"
+                        )
+                    filename = attribute.get("filename")
+                    firstlineno = attribute.get("firstlineno")
+                    qualname = attribute.get("qualname")
+                    code_sha256 = attribute.get("code_sha256")
+                    if (
+                        filename != source_origin
+                        or type(firstlineno) is not int
+                        or firstlineno < 1
+                        or qualname != f"{class_qualname}.{attribute['name']}"
+                        or not isinstance(code_sha256, str)
+                        or not re.fullmatch(r"[0-9a-f]{64}", code_sha256)
+                    ):
+                        raise AuditFailure(
+                            f"module subclass method is detached from its verified source: "
+                            f"{defining_module}.{class_qualname}.{attribute['name']}"
+                        )
+                    function_count += 1
+                elif attribute.get("kind") == "data":
+                    if set(attribute) != {"name", "kind", "value"} or not isinstance(
+                        attribute.get("value"), list
+                    ):
+                        raise AuditFailure(
+                            f"module subclass data attribute is malformed: "
+                            f"{defining_module}.{class_qualname}"
+                        )
+                else:
+                    raise AuditFailure(
+                        f"module subclass attribute kind is unsupported: "
+                        f"{defining_module}.{class_qualname}"
+                    )
+            if (
+                attribute_names != sorted(attribute_names)
+                or len(set(attribute_names)) != len(attribute_names)
+                or function_count == 0
+            ):
+                raise AuditFailure(
+                    f"module subclass class is not fully source-associated: "
+                    f"{defining_module}.{class_qualname}"
+                )
+            encoded_module_name = next(
+                (
+                    attribute.get("value")
+                    for attribute in attributes
+                    if attribute.get("name") == "__module__" and attribute.get("kind") == "data"
+                ),
+                None,
+            )
+            encoded_qualname = next(
+                (
+                    attribute.get("value")
+                    for attribute in attributes
+                    if attribute.get("name") == "__qualname__" and attribute.get("kind") == "data"
+                ),
+                None,
+            )
+            if encoded_module_name != ["str", defining_module] or encoded_qualname != [
+                "str",
+                class_qualname,
+            ]:
+                raise AuditFailure(
+                    f"module subclass class labels differ from its source row: "
+                    f"{defining_module}.{class_qualname}"
+                )
+
+        if not isinstance(module_row.get("module"), str) or module_row["module"] != module_name:
+            raise AuditFailure(
+                f"module subclass name differs from its sys.modules key: {module_name}"
+            )
+        subclass_rows[module_name] = {
+            "module_origin": module_row.get("origin"),
+            "module_sha256": module_row.get("sha256"),
+            "class_record_sha256": canonical_json_sha256(evidence),
+            "class_source_modules": sorted(set(source_modules)),
+            "module_type_predicate": "independently_reconciled",
+            "live_execution_provenance": "not_established",
+        }
+    return subclass_rows
+
+
 def bind_collection_origins(
     repo: Path,
     source_sha: str,
@@ -2770,6 +3161,8 @@ def bind_collection_origins(
         if not isinstance(module, dict) or not isinstance(module.get("module"), str):
             raise AuditFailure("pytest module-origin inventory contains a malformed row")
         module_name = module["module"]
+        if "module_class_provenance" not in module:
+            raise AuditFailure(f"module inventory omits runtime type provenance: {module_name}")
         if module_name in module_rows:
             raise AuditFailure(f"pytest module-origin inventory repeats {module_name}")
         module_rows[module_name] = module
@@ -2982,6 +3375,14 @@ def bind_collection_origins(
             record["local_path"] = str(path)
         retain_record(record, module_name)
         source_records[module_name] = record
+
+    module_class_records = validate_module_class_provenance(module_rows, source_records)
+    for module_name, class_record in module_class_records.items():
+        origin_rows[f"module-class:{module_name}"] = {
+            "kind": "loaded_module_subclass_class_origin",
+            "module": module_name,
+            **class_record,
+        }
 
     for record in reconcile_generated_module_rows(
         module_rows,
@@ -3504,7 +3905,7 @@ def asset_rows_from_config(
     }
 
 
-def canonical_json_sha256(value: Any) -> str:
+def canonical_json_sha256(value: object) -> str:
     data = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
         "utf-8"
     )
@@ -3803,14 +4204,19 @@ def profile_names_from_runner_sources(
             primary_candidates.append([item.elts[0].value for item in value.elts])
     supplemental_names: list[str] | None = None
     for node in supplemental_tree.body:
-        if isinstance(node, ast.Assign) and any(
-            isinstance(target, ast.Name) and target.id == "PROFILE_NAMES" for target in node.targets
-        ):
-            if isinstance(node.value, (ast.Tuple, ast.List)) and all(
+        if (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "PROFILE_NAMES"
+                for target in node.targets
+            )
+            and isinstance(node.value, (ast.Tuple, ast.List))
+            and all(
                 isinstance(item, ast.Constant) and isinstance(item.value, str)
                 for item in node.value.elts
-            ):
-                supplemental_names = [item.value for item in node.value.elts]
+            )
+        ):
+            supplemental_names = [item.value for item in node.value.elts]
     if len(primary_candidates) != 1 or supplemental_names is None:
         raise AuditFailure("cannot derive one literal profile list from both existing Q2 runners")
     return primary_candidates[0], supplemental_names
@@ -4715,6 +5121,37 @@ def self_test() -> dict[str, Any]:
             template["candidate_baseline"]["force_include_count"] == len(expected_assets)
         ),
     }
+    junit_case = b"<testsuite><testcase classname='sample.test_module' name='case'/></testsuite>"
+    cases["junit-ordinary-testcase-parsed"] = junit_testcase_attributes(junit_case) == [
+        {"classname": "sample.test_module", "name": "case"}
+    ]
+    for control_name, payload in (
+        (
+            "junit-internal-doctype-rejected",
+            b"<!DOCTYPE testsuite [<!ENTITY x 'expanded'>]>"
+            b"<testsuite><testcase classname='x' name='&x;'/></testsuite>",
+        ),
+        (
+            "junit-external-doctype-rejected",
+            b"<!DOCTYPE testsuite SYSTEM 'file:///etc/passwd'>"
+            b"<testsuite><testcase classname='x' name='case'/></testsuite>",
+        ),
+    ):
+        try:
+            junit_testcase_attributes(payload)
+        except AuditFailure as error:
+            cases[control_name] = "DOCTYPE" in str(error) or "external entities" in str(error)
+        else:
+            cases[control_name] = False
+    if not all(
+        cases[name]
+        for name in (
+            "junit-ordinary-testcase-parsed",
+            "junit-internal-doctype-rejected",
+            "junit-external-doctype-rejected",
+        )
+    ):
+        raise AuditFailure("JUnit parser did not preserve cases and reject DTD/entity inputs")
     expanded_actual = actual | {
         "tests/unit/test_registry.py::test_registry[missing]",
         "tests/unit/test_registry.py::test_registry[unreadable]",
@@ -5184,9 +5621,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     )
     timeout_bytes = read_commit_blob(repo, args.source_sha, TIMEOUT_REL)
     timeout_text = timeout_bytes.decode("utf-8")
-    rebound_timeout, rebound_timeout_bytes = rebind_timeout_driver(
-        timeout_text, sha256(runner_bytes)
-    )
+    rebound_timeout, _ = rebind_timeout_driver(timeout_text, sha256(runner_bytes))
     timeout_patch = "".join(
         difflib.unified_diff(
             timeout_text.splitlines(keepends=True),
@@ -5484,7 +5919,7 @@ def main() -> int:
         )
     args = parser.parse_args()
     if args.command == "self-test":
-        print(json.dumps(self_test(), indent=2, sort_keys=True))
+        sys.stdout.write(json.dumps(self_test(), indent=2, sort_keys=True) + "\n")
         return 0
     output = Path(args.output_root).resolve()
     output_was_present = output.exists()
@@ -5503,20 +5938,19 @@ def main() -> int:
         (output / "source-input-audit.json").write_text(
             json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
-        print(
-            json.dumps(
-                {
-                    "status": receipt_status,
-                    "source_sha": args.source_sha,
-                    "source_tree": args.source_tree,
-                    "primary_ids": receipt["primary"]["source_derived_ids"],
-                    "supplemental_ids": receipt["supplemental"]["source_derived_ids"],
-                    "profile_cases": receipt["source_derived_profile_case_count"],
-                    "outputs": str(output),
-                },
-                sort_keys=True,
-            )
+        success_summary = json.dumps(
+            {
+                "status": receipt_status,
+                "source_sha": args.source_sha,
+                "source_tree": args.source_tree,
+                "primary_ids": receipt["primary"]["source_derived_ids"],
+                "supplemental_ids": receipt["supplemental"]["source_derived_ids"],
+                "profile_cases": receipt["source_derived_profile_case_count"],
+                "outputs": str(output),
+            },
+            sort_keys=True,
         )
+        sys.stdout.write(success_summary + "\n")
         return 0 if args.command == "prepare" or exact else 1
     except (
         AuditFailure,
@@ -5528,10 +5962,9 @@ def main() -> int:
         subprocess.SubprocessError,
     ) as error:
         if output_was_present:
-            print(
-                f"Q2 source input audit refused existing output directory without changing "
-                f"it: {output}",
-                file=sys.stderr,
+            sys.stderr.write(
+                "Q2 source input audit refused existing output directory without changing "
+                f"it: {output}\n"
             )
             return 2
         output.mkdir(parents=True, exist_ok=True)
@@ -5547,7 +5980,7 @@ def main() -> int:
         (output / "source-input-audit.json").write_text(
             json.dumps(failure, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
-        print(f"Q2 source input audit failed before any build: {error}", file=sys.stderr)
+        sys.stderr.write(f"Q2 source input audit failed before any build: {error}\n")
         return 2
 
 

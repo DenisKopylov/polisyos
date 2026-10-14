@@ -1002,6 +1002,94 @@ function GenericCycleSimulationPanel({
                     {observation.simulation_result_ref.artifact_id}
                   </p>
                 ) : null}
+                {observation.simulation_result_body ? (
+                  <div
+                    className="mt-2 space-y-2 border-t pt-2"
+                    data-testid="overview-generic-cycle-n5-result-body"
+                  >
+                    <h6>
+                      {t("pages.runs.genericCycleSimulation.resultBodyTitle")}
+                    </h6>
+                    <p>
+                      {t("pages.runs.genericCycleSimulation.resultCandidate")}
+                    </p>
+                    <p>
+                      {t("pages.runs.genericCycleSimulation.horizon", {
+                        start: observation.simulation_result_body.horizon.start,
+                        end: observation.simulation_result_body.horizon.end,
+                        step: observation.simulation_result_body.horizon.step,
+                      })}
+                    </p>
+                    {observation.simulation_result_body.trajectories.map(
+                      (trajectory, trajectoryIndex) => (
+                        <section
+                          key={
+                            trajectory.run_level +
+                            ":" +
+                            trajectory.atom_ids.join(":") +
+                            ":" +
+                            trajectoryIndex.toString()
+                          }
+                          data-testid="overview-generic-cycle-n5-trajectory"
+                        >
+                          <p>
+                            {t("pages.runs.genericCycleSimulation.trajectory", {
+                              scope: trajectory.run_level,
+                            })}
+                          </p>
+                          <p>
+                            {t(
+                              "pages.runs.genericCycleSimulation.trajectoryAtoms",
+                              {
+                                atomIds: trajectory.atom_ids.join(", "),
+                              },
+                            )}
+                          </p>
+                          {trajectory.points.map((point) => (
+                            <div key={point.step}>
+                              <p>
+                                {t("pages.runs.genericCycleSimulation.step", {
+                                  step: point.step,
+                                })}
+                              </p>
+                              {Object.entries(point.outcomes).map(
+                                ([name, value]) => (
+                                  <p key={"outcome:" + name}>
+                                    {t(
+                                      "pages.runs.genericCycleSimulation.outcome",
+                                      {
+                                        name,
+                                        value: formatNumber(value),
+                                      },
+                                    )}
+                                  </p>
+                                ),
+                              )}
+                              {Object.entries(point.effects).map(
+                                ([name, value]) => (
+                                  <p key={"effect:" + name}>
+                                    {t(
+                                      "pages.runs.genericCycleSimulation.effect",
+                                      {
+                                        name,
+                                        value: formatNumber(value),
+                                      },
+                                    )}
+                                  </p>
+                                ),
+                              )}
+                            </div>
+                          ))}
+                        </section>
+                      ),
+                    )}
+                  </div>
+                ) : observation.simulation_result_body_status ===
+                  "not_established" ? (
+                  <p data-testid="overview-generic-cycle-n5-result-body-limited">
+                    {t("pages.runs.genericCycleSimulation.bodyUnavailable")}
+                  </p>
+                ) : null}
               </li>
             ))}
           </ul>

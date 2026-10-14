@@ -1856,6 +1856,152 @@ const runCandidateSimulationProjectionSchema = z
 
 const runGenericCycleSimulationArtifactRefSchema = coreArtifactRefSchema;
 
+const runGenericCycleSimulationN5ResultBodySchema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+    ),
+    artifact_ref: runGenericCycleSimulationArtifactRefSchema,
+    artifact_schema_name: z.literal(
+      "policyos.runtime.n5.joint_simulation_result",
+    ),
+    artifact_schema_version: z.enum(["1.0.0", "2.0.0", "3.0.0", "4.0.0"]),
+    result_schema_version: z.enum([
+      "policyos.runtime.joint_simulation_horizon.v1",
+      "policyos.runtime.joint_simulation_horizon.v2",
+      "policyos.runtime.joint_simulation_horizon.v3",
+      "policyos.runtime.joint_simulation_horizon.v4",
+    ]),
+    selected_manifest_profile_sha256: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    world_model_record_ref: z.string().min(1),
+    world_model_record_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    atom_ids: z.array(z.string().min(1)).min(1),
+    selected_outcomes: z.array(z.string().min(1)).min(1),
+    horizon: z
+      .object({
+        start: z.number().int().nonnegative(),
+        end: z.number().int().nonnegative(),
+        step: z.number().int().positive(),
+        valid_time_role: z.string().min(1),
+        transaction_time_role: z.string().min(1),
+        scenario_branch_policy: z.string().min(1),
+      })
+      .strict(),
+    trajectories: z
+      .array(
+        z
+          .object({
+            run_level: z.enum(["individual", "pairwise", "joint"]),
+            atom_ids: z.array(z.string().min(1)).min(1),
+            points: z
+              .array(
+                z
+                  .object({
+                    step: z.number().int().nonnegative(),
+                    outcomes: z.record(z.string().min(1), z.number()),
+                    effects: z.record(z.string().min(1), z.number()),
+                  })
+                  .strict(),
+              )
+              .min(1),
+          })
+          .strict(),
+      )
+      .min(1),
+    uncertainty_kind: z.literal("K_sim"),
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    candidate_status: z.literal("candidate_unverified"),
+    currentness_status: z.literal("not_established"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((body, context) => {
+    const resultSchemaByArtifactVersion = {
+      "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
+      "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
+      "3.0.0": "policyos.runtime.joint_simulation_horizon.v3",
+      "4.0.0": "policyos.runtime.joint_simulation_horizon.v4",
+    } as const;
+    if (
+      body.artifact_ref.kind !== "polisyos.runtime.joint_simulation_result" ||
+      body.artifact_ref.media_type !== "application/json" ||
+      body.artifact_ref.manifest_profile_sha256 !==
+        body.selected_manifest_profile_sha256 ||
+      resultSchemaByArtifactVersion[body.artifact_schema_version] !==
+        body.result_schema_version ||
+      new Set(body.atom_ids).size !== body.atom_ids.length ||
+      new Set(body.selected_outcomes).size !== body.selected_outcomes.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "generic_n5_result_body_manifest_binding_invalid",
+      });
+    }
+    if (
+      body.horizon.end < body.horizon.start ||
+      (body.horizon.end - body.horizon.start) % body.horizon.step !== 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["horizon"],
+        message: "generic_n5_result_body_horizon_grid_invalid",
+      });
+    }
+    const seenScopes = new Set<string>();
+    for (const trajectory of body.trajectories) {
+      const atomScope = new Set(trajectory.atom_ids);
+      const scopeKey =
+        trajectory.run_level + ":" + [...atomScope].sort().join("|");
+      if (
+        atomScope.size !== trajectory.atom_ids.length ||
+        [...atomScope].some((atomId) => !body.atom_ids.includes(atomId)) ||
+        seenScopes.has(scopeKey) ||
+        (trajectory.run_level === "individual" && atomScope.size !== 1) ||
+        (trajectory.run_level === "pairwise" && atomScope.size !== 2) ||
+        (trajectory.run_level === "joint" &&
+          JSON.stringify(trajectory.atom_ids) !== JSON.stringify(body.atom_ids))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["trajectories"],
+          message: "generic_n5_result_body_scope_invalid",
+        });
+      }
+      seenScopes.add(scopeKey);
+      const pointSteps = trajectory.points.map((point) => point.step);
+      if (
+        new Set(pointSteps).size !== pointSteps.length ||
+        pointSteps.some(
+          (step, index) => index > 0 && pointSteps[index - 1]! >= step,
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["trajectories"],
+          message: "generic_n5_result_body_step_order_invalid",
+        });
+      }
+      for (const point of trajectory.points) {
+        if (
+          point.step < body.horizon.start ||
+          point.step > body.horizon.end ||
+          (point.step - body.horizon.start) % body.horizon.step !== 0 ||
+          body.selected_outcomes.some(
+            (outcome) =>
+              !Object.hasOwn(point.outcomes, outcome) ||
+              !Object.hasOwn(point.effects, outcome),
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["trajectories"],
+            message: "generic_n5_result_body_selected_basis_incomplete",
+          });
+        }
+      }
+    }
+  });
+
 function compareUnicodeCodePoints(left: string, right: string): number {
   const leftPoints = Array.from(
     left,
@@ -2017,6 +2163,22 @@ const runGenericCycleSimulationN5ObservationSchema = z
     simulation_result_ref: runGenericCycleSimulationArtifactRefSchema
       .nullable()
       .optional(),
+    simulation_result_body: runGenericCycleSimulationN5ResultBodySchema
+      .nullable()
+      .optional(),
+    simulation_result_body_status: z
+      .enum(["not_applicable", "resolved", "not_established"])
+      .nullable()
+      .optional(),
+    simulation_result_body_limitation_code: z
+      .enum([
+        "generic_n5_result_body_request_binding_not_established",
+        "generic_n5_result_body_selected_manifest_view_not_established",
+        "generic_n5_result_body_execution_not_successful",
+        "generic_n5_result_body_content_refused",
+      ])
+      .nullable()
+      .optional(),
     status: z.enum([
       "joint_simulated",
       "simulation_pending_n5",
@@ -2106,6 +2268,57 @@ const runGenericCycleSimulationN5ObservationSchema = z
           message: "generic_cycle_n5_optional_ref_kind_invalid",
         });
       }
+    }
+
+    const resultBody = observation.simulation_result_body;
+    const resultRef = observation.simulation_result_ref;
+    const resultBodyStatus = observation.simulation_result_body_status;
+    const resultBodyLimitation =
+      observation.simulation_result_body_limitation_code;
+    if (resultRef == null) {
+      if (
+        resultBody != null ||
+        (resultBodyStatus != null && resultBodyStatus !== "not_applicable") ||
+        resultBodyLimitation != null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["simulation_result_body_status"],
+          message: "generic_n5_result_body_without_result_ref",
+        });
+      }
+    } else if (resultBody == null) {
+      if (
+        resultBodyStatus !== "not_established" ||
+        resultBodyLimitation == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["simulation_result_body_status"],
+          message: "generic_n5_result_body_unavailable_reason_missing",
+        });
+      }
+    } else if (
+      resultBodyStatus !== "resolved" ||
+      resultBodyLimitation != null ||
+      observation.status !== "joint_simulated" ||
+      resultBody.artifact_ref.artifact_id !== resultRef.artifact_id ||
+      resultBody.artifact_ref.kind !== resultRef.kind ||
+      resultBody.artifact_ref.media_type !== resultRef.media_type ||
+      resultBody.artifact_ref.manifest_profile_sha256 !==
+        resultRef.manifest_profile_sha256 ||
+      resultBody.world_model_record_content_hash !==
+        observation.world_model_record_content_hash ||
+      JSON.stringify(resultBody.atom_ids) !==
+        JSON.stringify(observation.atom_ids) ||
+      JSON.stringify(resultBody.selected_outcomes) !==
+        JSON.stringify(observation.selected_outcomes)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["simulation_result_body"],
+        message: "generic_n5_result_body_parent_binding_invalid",
+      });
     }
 
     if (

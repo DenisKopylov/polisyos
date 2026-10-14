@@ -126,6 +126,21 @@ for the selected criteria, tests, and remaining producer boundary.
 
 ## Search-profile receipt and receiver boundary
 
+For a fitted configured-native acquisition with an exact persisted fit basis,
+the SearchLoop evaluation receipt stores a strict SearchGPProposalUncertainty
+bound to the emitted candidate, exact MethodJob request/result/evidence,
+profile, fit basis, metric, direction, split, and unit. The values are
+candidate-grade posterior mean, posterior standard deviation, and acquisition
+value at the effective typed candidate parameters. Fit-basis schema v2 keeps
+both the actual GP fit rows and the full ordered effective corpus used to
+select an adaptive acquisition. A fresh receiver rehydrates both from selected
+CAS profiles, refits the GP, and recomputes the three values. Missing,
+malformed, non-finite, or mismatched uncertainty is refused for warm-start
+admission; historical schema-v1 bases remain readable but cannot be promoted
+to the new proposal-evidence path. Injected optimizers and fallbacks do not
+receive this typed evidence. These candidate predictions do not establish
+policy effects, calibration, law, or external authority.
+
 The visible `warm_start_compatibility` profile is descriptive metadata. It does
 not admit a history row by itself. The configured generator keeps a one-use
 proposal record, and `SearchLoopRunner` consumes it only for the exact built-in

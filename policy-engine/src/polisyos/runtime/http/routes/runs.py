@@ -46,6 +46,7 @@ from polisyos.core.contracts.runtime import (
     RunEvidenceContextView,
     RunGenericCycleSimulationChildProfileBinding,
     RunGenericCycleSimulationN5Observation,
+    RunGenericCycleSimulationN5ResultBody,
     RunGenericCycleSimulationProjection,
     RunLineageResponse,
     RunNodesResponse,
@@ -2829,8 +2830,23 @@ def _generic_cycle_simulation_projection(
                 ):
                     raise ValueError("generic_n5_persisted_input_execution_join_mismatch")
                 resolved_result = None
+                result_manifest = None
+                result_body = None
+                result_body_status: Literal["not_applicable", "resolved", "not_established"] = (
+                    "not_applicable"
+                )
+                result_body_limitation_code: (
+                    Literal[
+                        "generic_n5_result_body_request_binding_not_established",
+                        "generic_n5_result_body_selected_manifest_view_not_established",
+                        "generic_n5_result_body_execution_not_successful",
+                        "generic_n5_result_body_content_refused",
+                    ]
+                    | None
+                ) = None
                 blockers = tuple(simulation.authority_blockers)
                 if execution.result_ref is not None:
+                    result_body_status = "not_established"
                     result_manifest = read_core_manifest_profile(store, execution.result_ref)[0]
                     result_context = result_manifest.tenant_context
                     if (
@@ -2840,14 +2856,88 @@ def _generic_cycle_simulation_projection(
                         or not store.verify(execution.result_ref).ok
                     ):
                         raise ValueError("generic_n5_result_scope_or_integrity_mismatch")
+                    expected_atom_ids = (
+                        tuple(
+                            atom.intervention_id
+                            for atom in execution.request_binding.request.intervention_atoms
+                        )
+                        if request_binding_status == "resolved"
+                        and type(execution) is GenericCycleSimulationN5ExecutionV3
+                        else None
+                    )
                     resolved_result = load_joint_simulation_result(
                         execution.result_ref,
                         store=store,
                         expected_world_model_record_content_hash=(
                             input_record.profile.context_inputs.world_model_record.content_hash
                         ),
+                        expected_atom_ids=expected_atom_ids,
                         expected_selected_outcomes=(input_record.outcome_variable,),
                     )
+                    if execution.status != "joint_simulated":
+                        result_body_limitation_code = (
+                            "generic_n5_result_body_execution_not_successful"
+                        )
+                    elif request_binding_status != "resolved":
+                        result_body_limitation_code = (
+                            "generic_n5_result_body_request_binding_not_established"
+                        )
+                    elif (
+                        execution.result_ref.manifest_profile_sha256 is None
+                        or result_manifest.artifact_schema is None
+                    ):
+                        result_body_limitation_code = (
+                            "generic_n5_result_body_selected_manifest_view_not_established"
+                        )
+                    else:
+                        try:
+                            result_body = RunGenericCycleSimulationN5ResultBody.model_validate(
+                                {
+                                    "artifact_ref": execution.result_ref,
+                                    "artifact_schema_name": result_manifest.artifact_schema.name,
+                                    "artifact_schema_version": (
+                                        result_manifest.artifact_schema.version
+                                    ),
+                                    "result_schema_version": resolved_result.schema_version,
+                                    "selected_manifest_profile_sha256": (
+                                        execution.result_ref.manifest_profile_sha256
+                                    ),
+                                    "world_model_record_ref": (
+                                        resolved_result.world_model_record_ref
+                                    ),
+                                    "world_model_record_content_hash": (
+                                        resolved_result.world_model_record_content_hash
+                                    ),
+                                    "atom_ids": resolved_result.atom_ids,
+                                    "selected_outcomes": resolved_result.selected_outcomes,
+                                    "horizon": resolved_result.horizon.model_dump(mode="python"),
+                                    "trajectories": tuple(
+                                        {
+                                            "run_level": trajectory.run_level,
+                                            "atom_ids": trajectory.atom_ids,
+                                            "points": tuple(
+                                                {
+                                                    "step": point.step,
+                                                    "outcomes": point.outcomes,
+                                                    "effects": point.effect,
+                                                }
+                                                for point in trajectory.points
+                                            ),
+                                        }
+                                        for trajectory in resolved_result.trajectories
+                                    ),
+                                    "uncertainty_kind": resolved_result.uncertainty_kind,
+                                    "authority_purpose": "cycle_input_candidate_only",
+                                    "candidate_status": "candidate_unverified",
+                                    "currentness_status": "not_established",
+                                    "publication_authority": False,
+                                }
+                            )
+                        except ValidationError:
+                            # A malformed supplied projection is refused explicitly.
+                            result_body_limitation_code = "generic_n5_result_body_content_refused"
+                        else:
+                            result_body_status = "resolved"
                     result_status, result_blockers = _joint_simulation_port_outcome(resolved_result)
                     if (
                         execution.status == "joint_simulated" and result_status != "joint_simulated"
@@ -2889,6 +2979,9 @@ def _generic_cycle_simulation_projection(
                         candidate_id=simulation.candidate_id,
                         status=simulation.status,
                         simulation_result_ref=execution.result_ref,
+                        simulation_result_body=result_body,
+                        simulation_result_body_status=result_body_status,
+                        simulation_result_body_limitation_code=result_body_limitation_code,
                         n4_source_ref=family.source_ref,
                         context_job_ref=binding.handoff.context_job_ref,
                         profile_ref=binding.handoff.profile_ref,

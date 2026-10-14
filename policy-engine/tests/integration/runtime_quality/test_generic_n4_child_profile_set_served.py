@@ -768,6 +768,8 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
     from polisyos.runtime.quality.credal_reference import (
         build_credal_reference,
@@ -1225,6 +1227,90 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert successful["simulation_result_ref"]["kind"] == (
             "polisyos.runtime.joint_simulation_result"
         )
+        result_body = successful["simulation_result_body"]
+        assert successful["simulation_result_body_status"] == "resolved"
+        assert successful["simulation_result_body_limitation_code"] is None
+        assert result_body["artifact_ref"] == successful["simulation_result_ref"]
+        assert result_body["artifact_schema_name"] == (
+            "policyos.runtime.n5.joint_simulation_result"
+        )
+        assert result_body["artifact_schema_version"] == "4.0.0"
+        assert (
+            result_body["selected_manifest_profile_sha256"]
+            == (successful["simulation_result_ref"]["manifest_profile_sha256"])
+        )
+        assert result_body["result_schema_version"] == (
+            "policyos.runtime.joint_simulation_horizon.v4"
+        )
+        assert result_body["atom_ids"] == successful["atom_ids"]
+        assert result_body["selected_outcomes"] == successful["selected_outcomes"]
+        assert (
+            result_body["world_model_record_content_hash"]
+            == (successful["world_model_record_content_hash"])
+        )
+        assert result_body["trajectories"]
+        assert all(
+            set(result_body["selected_outcomes"]).issubset(point["outcomes"])
+            and set(result_body["selected_outcomes"]).issubset(point["effects"])
+            for trajectory in result_body["trajectories"]
+            for point in trajectory["points"]
+        )
+        assert result_body["authority_purpose"] == "cycle_input_candidate_only"
+        assert result_body["candidate_status"] == "candidate_unverified"
+        assert result_body["publication_authority"] is False
+        assert result_body["currentness_status"] == "not_established"
+        from pydantic import ValidationError
+
+        from polisyos.core.contracts.runtime import (
+            RunGenericCycleSimulationN5Observation,
+            RunGenericCycleSimulationN5ResultBody,
+        )
+
+        negative_controls = (
+            ("artifact_ref", "kind", "runtime.other_result"),
+            ("artifact_ref", "media_type", "text/plain"),
+            ("artifact_ref", "manifest_profile_sha256", "sha256:" + "8" * 64),
+            ("artifact_schema_name", None, "policyos.runtime.other_result"),
+            ("artifact_schema_version", None, "3.0.0"),
+        )
+        for field, nested_field, wrong_value in negative_controls:
+            corrupted_body = copy.deepcopy(result_body)
+            if nested_field is None:
+                corrupted_body[field] = wrong_value
+            else:
+                corrupted_body[field][nested_field] = wrong_value
+            with pytest.raises(ValidationError):
+                RunGenericCycleSimulationN5ResultBody.model_validate(corrupted_body)
+        unavailable = copy.deepcopy(successful)
+        unavailable["simulation_result_body"] = None
+        unavailable["simulation_result_body_status"] = "not_established"
+        unavailable["simulation_result_body_limitation_code"] = (
+            "generic_n5_result_body_content_refused"
+        )
+        RunGenericCycleSimulationN5Observation.model_validate(unavailable)
+
+        invalid_observations = []
+        missing_body_outcome = copy.deepcopy(successful)
+        missing_body_outcome["simulation_result_body"] = None
+        missing_body_outcome["simulation_result_body_status"] = None
+        missing_body_outcome["simulation_result_body_limitation_code"] = None
+        invalid_observations.append(missing_body_outcome)
+        unrelated_limitation = copy.deepcopy(missing_body_outcome)
+        unrelated_limitation["n8_lineage_status"] = "not_established"
+        unrelated_limitation["n8_value_ref"] = None
+        unrelated_limitation["n8_limitation_code"] = "law_status_unknown"
+        invalid_observations.append(unrelated_limitation)
+        wrong_result_digest = copy.deepcopy(successful)
+        wrong_result_digest["simulation_result_body"]["artifact_ref"]["artifact_id"] = (
+            "sha256:" + "f" * 64
+        )
+        invalid_observations.append(wrong_result_digest)
+        body_on_blocked_row = copy.deepcopy(successful)
+        body_on_blocked_row["status"] = "simulation_blocked"
+        invalid_observations.append(body_on_blocked_row)
+        for invalid_observation in invalid_observations:
+            with pytest.raises(ValidationError):
+                RunGenericCycleSimulationN5Observation.model_validate(invalid_observation)
         assert successful["n5_request_binding_status"] == "resolved"
         assert successful["n5_request_content_hash"].startswith("sha256:")
         assert successful["n8_status"] == "value_conditional"
@@ -1237,6 +1323,9 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert checkpoint["budget_stop_node_ref"] is None
         assert checkpoint["failed_branches"]
         assert checkpoint["failed_branches"][0]["error_code"] == failure_code
+        assert checkpoint["failed_branches"][0]["stage"] == "leaf_generation"
+        assert details["status"] == "fail"
+        assert details["finished_at"] is not None
         assert successful["node_ref"] in checkpoint["completed_design_refs"]
         completed_child_refs = set(checkpoint["completed_design_refs"]) & expected_child_node_refs
         failed_child_refs = {
@@ -1279,6 +1368,7 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
             "generic_n5_persisted_lineage_not_established"
         )
         assert receipt.corrupt_projection["recursive_cycle_checkpoint"] == checkpoint
+        assert receipt.corrupt_projection["n5_observations"] == []
         assert receipt.incomplete_profile_projection["child_profile_status"] == ("not_established")
         assert receipt.incomplete_profile_projection["child_profile_limitation_code"] == (
             "generic_n4_child_profile_set_reference_not_established"
@@ -1332,6 +1422,48 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert budget_checkpoint["leaf_terminal_kinds"][budget_stop_ref] == "budget_exhausted"
         served_worker_phase_probe("testclient_lifespan.shutdown.start")
     served_worker_phase_probe("testclient_lifespan.shutdown.complete")
+
+    reopened_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    reopened_kwargs = dict(prepared.app_kwargs)
+    reopened_kwargs["container_overrides"] = RuntimeContainerOverrides(
+        runtime_api_context=reopened_context
+    )
+    reopened_app = create_runtime_api_app(**reopened_kwargs)
+    with TestClient(reopened_app) as reopened_client:
+        reopened_response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
+        assert reopened_response.status_code == 200, reopened_response.text
+        reopened_run = reopened_response.json()["run"]
+        assert reopened_run["status"] == "fail"
+        assert reopened_run["finished_at"] is not None
+        reopened_projection = reopened_run["generic_cycle_simulation"]
+        reopened_observation = next(
+            row
+            for row in reopened_projection["n5_observations"]
+            if row["status"] == "joint_simulated"
+        )
+        assert (
+            reopened_observation["simulation_result_body"] == (successful["simulation_result_body"])
+        )
+        assert reopened_projection["recursive_cycle_checkpoint"]["status"] == "partial"
+        assert (
+            reopened_projection["recursive_cycle_checkpoint"]["failed_branches"][0]["error_code"]
+            == failure_code
+        )
+        assert (
+            reopened_projection["recursive_cycle_checkpoint"]["failed_branches"][0]["stage"]
+            == "leaf_generation"
+        )
+        summary_response = reopened_client.get("/api/v1/runs", params={"q": receipt.run_id})
+        assert summary_response.status_code == 200, summary_response.text
+        matching_summaries = [
+            row for row in summary_response.json()["runs"] if row["run_id"] == receipt.run_id
+        ]
+        assert len(matching_summaries) == 1
+        assert matching_summaries[0]["status"] == "fail"
+        assert matching_summaries[0]["run_terminality"] == "terminal"
 
 
 @pytest.mark.integration

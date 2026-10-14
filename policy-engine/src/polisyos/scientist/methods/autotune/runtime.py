@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from math import isfinite
+from math import isclose, isfinite
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 from uuid import uuid4
 
@@ -49,6 +49,7 @@ from .models import (
     PydanticMutationCodec,
     SearchGPFitBasis,
     SearchGPFitBound,
+    SearchGPProposalUncertainty,
     SearchLoopSpec,
     SearchMethodRunProfile,
     _benchmark_evaluation_artifact_kind,
@@ -1582,6 +1583,17 @@ def _verify_search_source_profile_receipt(
         ):
             return None
 
+        proposal_uncertainty: SearchGPProposalUncertainty | None = None
+        if "proposal_uncertainty" in receipt:
+            try:
+                proposal_uncertainty = SearchGPProposalUncertainty.model_validate(
+                    receipt["proposal_uncertainty"]
+                )
+            except ValidationError:
+                return None
+        elif require_warm_start_eligible:
+            return None
+
         if evaluation_manifest.kind != f"scientist.autotune.{evaluation.loop_id}.evaluation":
             return None
         if not all(
@@ -1825,21 +1837,65 @@ def _verify_search_source_profile_receipt(
         )
         if profile.objective_fingerprint != expected_objective:
             return None
+        if proposal_uncertainty is not None:
+            try:
+                fit_basis_ref = ArtifactRef.model_validate(receipt.get("fit_basis_ref"))
+            except (TypeError, ValueError):
+                return None
+            if (
+                profile.profile_kind != "configured_native_gp"
+                or not profile.warm_start_eligible
+                or profile.proposal_source != "bayesian_acquisition"
+                or proposal_uncertainty.proposal_id != proposal_id
+                or proposal_uncertainty.producer_optimizer_fqn != profile.optimizer_fqn
+                or proposal_uncertainty.candidate_ref != candidate_ref
+                or proposal_uncertainty.suite_ref != suite_ref
+                or proposal_uncertainty.method_result_ref != method_result_ref
+                or proposal_uncertainty.method_evidence_ref != method_evidence_ref
+                or proposal_uncertainty.method_job_key != evaluation.method_job_key
+                or proposal_uncertainty.metric != receipt.get("metric")
+                or proposal_uncertainty.direction != receipt.get("direction")
+                or proposal_uncertainty.split != receipt.get("split")
+                or proposal_uncertainty.unit != receipt.get("unit")
+                or proposal_uncertainty.method_request_basis_sha256
+                != _search_source_fingerprint(dict(basis))
+                or proposal_uncertainty.proposal_params_sha256
+                != _search_source_fingerprint(dict(proposal_params))
+                or proposal_uncertainty.source_profile_sha256 != receipt.get("profile_sha256")
+                or proposal_uncertainty.fit_basis_ref != fit_basis_ref
+                or proposal_uncertainty.optimizer_config_fingerprint
+                != profile.optimizer_config_fingerprint
+                or proposal_uncertainty.search_space_fingerprint != profile.search_space_fingerprint
+                or proposal_uncertainty.training_corpus_fingerprint
+                != profile.training_corpus_fingerprint
+                or proposal_uncertainty.training_observation_count
+                != profile.training_observation_count
+                or proposal_uncertainty.context_fingerprint != profile.context_fingerprint
+                or proposal_uncertainty.objective_fingerprint != profile.objective_fingerprint
+            ):
+                return None
         if require_warm_start_eligible and (
             profile.profile_kind != "configured_native_gp"
             or profile.proposal_source != "bayesian_acquisition"
             or expected_method_run_profile is None
-            or not _recompute_search_gp_fit_basis(
+        ):
+            return None
+        if require_warm_start_eligible or proposal_uncertainty is not None:
+            if _skip_fit_recomputation:
+                if require_warm_start_eligible:
+                    return None
+            elif not _recompute_search_gp_fit_basis(
                 reader=reader,
                 evaluation_ref=exact_evaluation_ref,
                 evaluation_manifest=evaluation_manifest,
                 evaluation=evaluation,
                 receipt=receipt,
                 profile=profile,
+                proposal_params=proposal_params,
+                proposal_uncertainty=proposal_uncertainty,
                 expected_method_run_profile=expected_method_run_profile,
-            )
-        ):
-            return None
+            ):
+                return None
         if not _skip_fit_recomputation and receipt.get("fit_basis_ref") is not None:
             fit_basis_ref = ArtifactRef.model_validate(receipt["fit_basis_ref"])
             if not _search_source_manifest_input_matches(
@@ -1957,7 +2013,9 @@ def _recompute_search_gp_fit_basis(
     evaluation: BenchmarkEvaluation,
     receipt: Mapping[str, Any],
     profile: BayesianSourceProfile,
-    expected_method_run_profile: SearchMethodRunProfile,
+    proposal_params: Mapping[str, Any] | None,
+    proposal_uncertainty: SearchGPProposalUncertainty | None,
+    expected_method_run_profile: SearchMethodRunProfile | None,
 ) -> bool:
     """Recompute the fitted native GP from exact CAS-backed MethodJob observations."""
     from polisyos.core.artifacts import load_core_json_artifact
@@ -1983,14 +2041,14 @@ def _recompute_search_gp_fit_basis(
             or not _search_source_manifest_schema_matches(
                 fit_manifest,
                 name="polisyos.scientist.methods.autotune.SearchGPFitBasis",
-                version="1.0",
+                version="2.0",
             )
         ):
             return False
         fit_basis = SearchGPFitBasis.model_validate(load_core_json_artifact(reader, fit_basis_ref))
         run_profile = fit_basis.run_profile
         if (
-            run_profile != expected_method_run_profile
+            (expected_method_run_profile is not None and run_profile != expected_method_run_profile)
             or fit_basis.profile != profile
             or profile.context_fingerprint != run_profile.context_fingerprint
             or profile.objective_fingerprint != run_profile.objective_fingerprint
@@ -2004,15 +2062,29 @@ def _recompute_search_gp_fit_basis(
         ):
             return False
         source_refs = fit_basis.training_evaluation_refs
-        manifest_inputs = [
+        acquisition_refs = fit_basis.acquisition_evaluation_refs
+        acquisition_manifest_inputs = [
             (str(item.artifact_id), item.manifest_profile_sha256)
             for item in fit_manifest.inputs
-            if item.role == "training_evaluation"
+            if item.role == "acquisition_evaluation"
         ]
         expected_inputs = [
-            (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in source_refs
+            ("training_evaluation", str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in source_refs
+        ] + [
+            ("acquisition_evaluation", str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in acquisition_refs
         ]
-        if sorted(manifest_inputs) != sorted(expected_inputs):
+        actual_inputs = [
+            (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+            for item in fit_manifest.inputs
+            if item.role in {"training_evaluation", "acquisition_evaluation"}
+        ]
+        if (
+            sorted(actual_inputs) != sorted(expected_inputs)
+            or len(acquisition_manifest_inputs) != fit_basis.acquisition_observation_count
+            or len(acquisition_refs) != fit_basis.acquisition_observation_count
+        ):
             return False
 
         from polisyos.scientist.methods.search.objective import (
@@ -2059,8 +2131,8 @@ def _recompute_search_gp_fit_basis(
             context_fingerprint=run_profile.context_fingerprint,
             objective_fingerprint=run_profile.objective_fingerprint,
         )
-        training_evaluations: list[Evaluation] = []
-        for source_ref in source_refs:
+
+        def load_source_evaluation(source_ref: ArtifactRef) -> Evaluation | None:
             verified = _verify_search_source_profile_receipt(
                 store=reader,
                 evaluation_ref=source_ref,
@@ -2068,19 +2140,25 @@ def _recompute_search_gp_fit_basis(
                 _skip_fit_recomputation=True,
             )
             if verified is None:
-                return False
-            _, source_receipt, source_candidate_ref = verified
+                return None
+            source_profile, source_receipt, source_candidate_ref = verified
             source_evaluation_manifest = reader.get_manifest(source_ref)
             source_evaluation = BenchmarkEvaluation.model_validate(
                 load_core_json_artifact(reader, source_ref)
             )
-            if not _method_request_matches_search_run_profile(
-                reader=reader,
-                evaluation=source_evaluation,
-                receipt=source_receipt,
-                run_profile=run_profile,
+            if (
+                source_profile.profile_kind != "configured_native_gp"
+                or source_profile.search_space_fingerprint != profile.search_space_fingerprint
+                or source_profile.context_fingerprint != run_profile.context_fingerprint
+                or source_profile.objective_fingerprint != run_profile.objective_fingerprint
+                or not _method_request_matches_search_run_profile(
+                    reader=reader,
+                    evaluation=source_evaluation,
+                    receipt=source_receipt,
+                    run_profile=run_profile,
+                )
             ):
-                return False
+                return None
             proposal = source_receipt.get("proposal")
             params = proposal.get("params") if isinstance(proposal, Mapping) else None
             scalar = source_receipt.get("scalar_score")
@@ -2094,26 +2172,37 @@ def _recompute_search_gp_fit_basis(
                     name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
                 )
             ):
-                return False
-            training_evaluations.append(
-                Evaluation(
-                    candidate_id=str(source_candidate_ref.artifact_id),
-                    params=dict(params),
-                    params_normalized=tuple(native_space.normalize(dict(params))),
-                    objectives=[
-                        ObjectiveValue(
-                            name=run_profile.primary_metric,
-                            raw_value=float(scalar),
-                            direction=OptimizationDirection.MINIMIZE,
-                        )
-                    ],
-                    scalar_score=float(scalar),
-                    stage_a_passed=True,
-                    status=EvaluationStatus.SUCCESS,
-                    provenance_ref=str(source_receipt["method_result_ref"]["artifact_id"]),
-                    metadata={"search_source_evaluation_ref": source_ref.model_dump(mode="json")},
-                )
+                return None
+            return Evaluation(
+                candidate_id=str(source_candidate_ref.artifact_id),
+                params=dict(params),
+                params_normalized=tuple(native_space.normalize(dict(params))),
+                objectives=[
+                    ObjectiveValue(
+                        name=run_profile.primary_metric,
+                        raw_value=float(scalar),
+                        direction=OptimizationDirection.MINIMIZE,
+                    )
+                ],
+                scalar_score=float(scalar),
+                stage_a_passed=True,
+                status=EvaluationStatus.SUCCESS,
+                provenance_ref=str(source_receipt["method_result_ref"]["artifact_id"]),
+                metadata={"search_source_evaluation_ref": source_ref.model_dump(mode="json")},
             )
+
+        training_evaluations: list[Evaluation] = []
+        for source_ref in source_refs:
+            source_evaluation = load_source_evaluation(source_ref)
+            if source_evaluation is None:
+                return False
+            training_evaluations.append(source_evaluation)
+        acquisition_evaluations: list[Evaluation] = []
+        for source_ref in acquisition_refs:
+            source_evaluation = load_source_evaluation(source_ref)
+            if source_evaluation is None:
+                return False
+            acquisition_evaluations.append(source_evaluation)
         if len(training_evaluations) != fit_basis.training_observation_count:
             return False
         train_x, train_y = optimizer._prepare_training_data(training_evaluations)
@@ -2130,10 +2219,48 @@ def _recompute_search_gp_fit_basis(
                 )
             )
         )
-        return (
+        if not (
             recomputed_profile == profile
             and recomputed_profile.warm_start_eligible
             and evaluation_ref.manifest_profile_sha256 is not None
+        ):
+            return False
+        if proposal_uncertainty is None:
+            return proposal_params is None
+        if proposal_params is None or (
+            proposal_uncertainty.fit_backend != fit_basis.fit_backend
+            or proposal_uncertainty.fitted_model_state_fingerprint
+            != fit_basis.fitted_model_state_fingerprint
+            or proposal_uncertainty.training_observation_count
+            != fit_basis.training_observation_count
+            or proposal_uncertainty.acquisition_evaluation_count
+            != fit_basis.acquisition_observation_count
+        ):
+            return False
+        prediction = optimizer.proposal_prediction(
+            params=dict(proposal_params),
+            evaluations=acquisition_evaluations,
+        )
+        return (
+            proposal_uncertainty.acquisition_type == prediction["acquisition_type"]
+            and isclose(
+                proposal_uncertainty.predicted_mean,
+                prediction["predicted_mean"],
+                rel_tol=1e-10,
+                abs_tol=1e-12,
+            )
+            and isclose(
+                proposal_uncertainty.predicted_std,
+                prediction["predicted_std"],
+                rel_tol=1e-10,
+                abs_tol=1e-12,
+            )
+            and isclose(
+                proposal_uncertainty.acquisition_value,
+                prediction["acquisition_value"],
+                rel_tol=1e-10,
+                abs_tol=1e-12,
+            )
         )
     except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
         return False
@@ -2400,6 +2527,52 @@ class SearchLoopRunner:
                 fit_basis_ref = proposal_receipt.get("fit_basis_ref")
                 if source_profile.warm_start_eligible and isinstance(fit_basis_ref, ArtifactRef):
                     receipt["fit_basis_ref"] = fit_basis_ref.model_dump(mode="json")
+                    raw_prediction = proposal_receipt.get("proposal_prediction")
+                    fit_basis = load_model_artifact(
+                        self._store,
+                        fit_basis_ref,
+                        SearchGPFitBasis,
+                    )
+                    if not isinstance(raw_prediction, Mapping) or not isinstance(
+                        fit_basis, SearchGPFitBasis
+                    ):
+                        raise ValueError("native GP proposal lacks its typed uncertainty basis")
+                    proposal_uncertainty = SearchGPProposalUncertainty(
+                        producer_optimizer_fqn=source_profile.optimizer_fqn,
+                        proposal_id=proposal_receipt["proposal_id"],
+                        candidate_ref=candidate_ref,
+                        suite_ref=suite_ref,
+                        method_result_ref=evaluation.method_result_ref,
+                        method_evidence_ref=evaluation.method_evidence_ref,
+                        method_job_key=evaluation.method_job_key,
+                        metric=spec.promotion_policy.primary_metric,
+                        direction=spec.promotion_policy.direction.value,
+                        split=method_evaluator._split.value,
+                        unit=spec.promotion_policy.unit,
+                        method_request_basis_sha256=_search_source_fingerprint(dict(request_basis)),
+                        proposal_params_sha256=_search_source_fingerprint(
+                            dict(proposal_receipt["params"])
+                        ),
+                        source_profile_sha256=receipt["profile_sha256"],
+                        fit_basis_ref=fit_basis_ref,
+                        fit_backend=fit_basis.fit_backend,
+                        fitted_model_state_fingerprint=(fit_basis.fitted_model_state_fingerprint),
+                        optimizer_config_fingerprint=(source_profile.optimizer_config_fingerprint),
+                        search_space_fingerprint=source_profile.search_space_fingerprint,
+                        training_corpus_fingerprint=(source_profile.training_corpus_fingerprint),
+                        training_observation_count=(source_profile.training_observation_count),
+                        acquisition_evaluation_count=(fit_basis.acquisition_observation_count),
+                        context_fingerprint=source_profile.context_fingerprint,
+                        objective_fingerprint=source_profile.objective_fingerprint,
+                        acquisition_type=raw_prediction["acquisition_type"],
+                        predicted_mean=raw_prediction["predicted_mean"],
+                        predicted_std=raw_prediction["predicted_std"],
+                        acquisition_value=raw_prediction["acquisition_value"],
+                    )
+                    receipt["proposal_uncertainty"] = proposal_uncertainty.model_dump(
+                        mode="json",
+                        exclude_none=True,
+                    )
                     evaluation_metadata = {
                         **evaluation.metadata,
                         _SEARCH_SOURCE_RECEIPT_KEY: receipt,

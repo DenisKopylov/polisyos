@@ -311,11 +311,19 @@ function parentJointCandidateSimulationProjection(runId: string) {
   };
 }
 
-function genericCycleSimulationProjection(runId: string) {
-  const ref = (kind: string, suffix: string) => ({
+function genericCycleSimulationProjection(
+  runId: string,
+  jointAtomIds: readonly string[] = ["atom-a", "atom-b", "atom-c"],
+) {
+  const ref = (
+    kind: string,
+    suffix: string,
+    manifest_profile_sha256?: string,
+  ) => ({
     artifact_id: "sha256:" + suffix.repeat(64),
     kind,
     media_type: "application/json",
+    ...(manifest_profile_sha256 ? { manifest_profile_sha256 } : {}),
   });
   const sourceRef = ref("runtime.compiled_recursive_generation_cycle", "a");
   const n4SourceRef = ref("runtime.generation_source_handoff", "c");
@@ -340,14 +348,62 @@ function genericCycleSimulationProjection(runId: string) {
     candidateId: string,
     status: "joint_simulated" | "simulation_pending_n5",
   ) => {
+    const selectedResultProfile = "sha256:" + "9".repeat(64);
     const resultRef =
       status === "joint_simulated"
-        ? ref("polisyos.runtime.joint_simulation_result", "5")
+        ? ref(
+            "polisyos.runtime.joint_simulation_result",
+            "5",
+            selectedResultProfile,
+          )
         : null;
+    const resultBody =
+      resultRef == null
+        ? null
+        : {
+            schema_version:
+              "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+            artifact_ref: resultRef,
+            artifact_schema_name: "policyos.runtime.n5.joint_simulation_result",
+            artifact_schema_version: "4.0.0",
+            result_schema_version:
+              "policyos.runtime.joint_simulation_horizon.v4",
+            selected_manifest_profile_sha256: selectedResultProfile,
+            world_model_record_ref: "sha256:" + "1".repeat(64),
+            world_model_record_content_hash: "sha256:" + "6".repeat(64),
+            atom_ids: [...jointAtomIds],
+            selected_outcomes: ["outcome-a"],
+            horizon: {
+              start: 0,
+              end: 0,
+              step: 1,
+              valid_time_role: "valid_time",
+              transaction_time_role: "transaction_time",
+              scenario_branch_policy: "hold_world_record_constant",
+            },
+            trajectories: [
+              {
+                run_level: "joint",
+                atom_ids: [...jointAtomIds],
+                points: [
+                  {
+                    step: 0,
+                    outcomes: { "outcome-a": 0.75 },
+                    effects: { "outcome-a": 0.25 },
+                  },
+                ],
+              },
+            ],
+            uncertainty_kind: "K_sim",
+            authority_purpose: "cycle_input_candidate_only",
+            candidate_status: "candidate_unverified",
+            currentness_status: "not_established",
+            publication_authority: false,
+          };
     return {
       atom_ids:
         status === "joint_simulated"
-          ? ["atom-a", "atom-b", "atom-c"]
+          ? [...jointAtomIds]
           : [`atom-${cycleIndex}`],
       authority_blockers: ["publication_not_admitted"],
       authority_purpose: "cycle_input_candidate_only",
@@ -405,6 +461,17 @@ function genericCycleSimulationProjection(runId: string) {
       executed_steps: status === "joint_simulated" ? [0] : [],
       replication_seeds: status === "joint_simulated" ? [41, 42] : [],
       simulation_result_ref: resultRef,
+      simulation_result_body: resultBody,
+      simulation_result_body_status:
+        resultRef == null
+          ? "not_applicable"
+          : resultBody == null
+            ? "not_established"
+            : "resolved",
+      simulation_result_body_limitation_code:
+        resultRef != null && resultBody == null
+          ? "generic_n5_result_body_request_binding_not_established"
+          : null,
       status,
       world_model_record_content_hash: "sha256:" + "6".repeat(64),
     };
@@ -1285,6 +1352,113 @@ describe("runtime API validators", () => {
     ).toHaveLength(1);
   });
 
+  it("binds the surfaced N5 body to kind, media, schema, profile, and basis", () => {
+    const controls = [
+      (body: Record<string, unknown>) => {
+        mutableRecord(body.artifact_ref).kind = "runtime.other_result";
+      },
+      (body: Record<string, unknown>) => {
+        mutableRecord(body.artifact_ref).media_type = "text/plain";
+      },
+      (body: Record<string, unknown>) => {
+        body.artifact_schema_version = "3.0.0";
+      },
+      (body: Record<string, unknown>) => {
+        body.selected_manifest_profile_sha256 = "sha256:" + "8".repeat(64);
+      },
+      (body: Record<string, unknown>) => {
+        const trajectories = body.trajectories as unknown[];
+        mutableRecord(trajectories[0]).points = [
+          {
+            step: 0,
+            outcomes: { "outcome-a": 0.75 },
+            effects: { other_outcome: 0.25 },
+          },
+        ];
+      },
+    ];
+    for (const mutate of controls) {
+      const payload = runDetailsPayload("projection only");
+      const projection = mutableRecord(
+        genericCycleSimulationProjection("run-projection-mask"),
+      );
+      const observation = firstMutableRecord(
+        projection.n5_observations,
+        "n5_observations",
+      );
+      const body = mutableRecord(observation.simulation_result_body);
+      mutate(body);
+      mutableRecord(payload.run).generic_cycle_simulation = projection;
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+    }
+  });
+
+  it("requires a body or explicit body-specific refusal for every persisted result reference", () => {
+    const rejects = (
+      mutate: (observation: Record<string, unknown>) => void,
+    ) => {
+      const payload = runDetailsPayload("projection only");
+      const projection = mutableRecord(
+        genericCycleSimulationProjection("run-projection-mask"),
+      );
+      const observation = firstMutableRecord(
+        projection.n5_observations,
+        "n5_observations",
+      );
+      mutate(observation);
+      mutableRecord(payload.run).generic_cycle_simulation = projection;
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+    };
+
+    rejects((observation) => {
+      delete observation.simulation_result_body;
+      delete observation.simulation_result_body_status;
+      delete observation.simulation_result_body_limitation_code;
+    });
+    rejects((observation) => {
+      observation.simulation_result_body = null;
+      observation.simulation_result_body_status = "not_established";
+      delete observation.simulation_result_body_limitation_code;
+      observation.n8_limitation_code = "law_status_unknown";
+      observation.n8_lineage_status = "not_established";
+      observation.n8_value_ref = null;
+    });
+    rejects((observation) => {
+      observation.simulation_result_body_status = "resolved";
+      observation.simulation_result_body_limitation_code = null;
+      delete observation.simulation_result_body;
+    });
+    rejects((observation) => {
+      observation.status = "simulation_blocked";
+    });
+    rejects((observation) => {
+      const body = mutableRecord(observation.simulation_result_body);
+      mutableRecord(body.artifact_ref).artifact_id = "sha256:" + "f".repeat(64);
+    });
+    rejects((observation) => {
+      mutableRecord(observation.simulation_result_ref).manifest_profile_sha256 =
+        null;
+      delete observation.simulation_result_body;
+      delete observation.simulation_result_body_status;
+      delete observation.simulation_result_body_limitation_code;
+    });
+
+    const unavailable = runDetailsPayload("projection only");
+    const projection = mutableRecord(
+      genericCycleSimulationProjection("run-projection-mask"),
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    observation.simulation_result_body = null;
+    observation.simulation_result_body_status = "not_established";
+    observation.simulation_result_body_limitation_code =
+      "generic_n5_result_body_content_refused";
+    mutableRecord(unavailable.run).generic_cycle_simulation = projection;
+    expect(runDetailsSchema.safeParse(unavailable).success).toBe(true);
+  });
+
   it("recomputes and preserves shared-seed interaction samples and fails closed on mismatches", () => {
     const payload = runDetailsPayload("projection only");
     const projection = genericCycleSimulationProjection("run-projection-mask");
@@ -1463,8 +1637,10 @@ describe("runtime API validators", () => {
 
   it("derives a complete four-atom pair basis under permutation", () => {
     const payload = runDetailsPayload("projection only");
+    const atoms = ["atom-d", "atom-c", "atom-b", "atom-a"];
     const projection = genericCycleSimulationProjection(
       "four-atom-permutation",
+      atoms,
     );
     const observation = mutableRecord(projection.n5_observations[0]);
     const evidence = mutableRecord(observation.n5_interaction_evidence);
@@ -1472,11 +1648,9 @@ describe("runtime API validators", () => {
       evidence.interaction_terms,
       "interaction_terms",
     );
-    const atoms = ["atom-d", "atom-c", "atom-b", "atom-a"];
     const pairs = atoms.flatMap((left, index) =>
       atoms.slice(index + 1).map((right) => [left, right]),
     );
-    observation.atom_ids = atoms;
     evidence.interaction_terms = pairs.map((atom_ids) => ({
       ...template,
       atom_ids,
@@ -1484,7 +1658,15 @@ describe("runtime API validators", () => {
     evidence.checked_interaction_orders = [1, 2];
     mutableRecord(payload.run).generic_cycle_simulation = projection;
 
-    expect(runDetailsSchema.safeParse(payload).success).toBe(true);
+    const parsed = runDetailsSchema.parse(payload);
+    expect(
+      parsed.run.generic_cycle_simulation?.n5_observations[0]
+        ?.simulation_result_body?.atom_ids,
+    ).toEqual(atoms);
+    expect(
+      parsed.run.generic_cycle_simulation?.n5_observations[0]
+        ?.simulation_result_body?.trajectories[0]?.atom_ids,
+    ).toEqual(atoms);
 
     evidence.interaction_terms = (
       evidence.interaction_terms as unknown[]

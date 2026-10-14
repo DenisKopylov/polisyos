@@ -92,6 +92,7 @@ from polisyos.runtime.quality.data_forge_binding import (
     MeasurementRootBindingError,
     MeasurementRootExecutionBinding,
     MeasurementRootProducer,
+    _is_artifact_store,
     _search_catalog_with_status,
     build_default_workspace_catalog_graph,
     produce_phase2_recorded_panel_measurement_root,
@@ -1547,7 +1548,7 @@ class WorkspaceLoop:
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
-        if artifact_store is not None and not isinstance(artifact_store, ArtifactStore):
+        if artifact_store is not None and not _is_artifact_store(artifact_store):
             raise TypeError("workspace_artifact_store_invalid")
         if (
             execution_scope_binding is not None
@@ -3364,7 +3365,10 @@ class WorkspaceLoop:
         manifest: WorkspaceFixtureManifest,
         dataset_envelope: ArtifactEnvelope,
     ) -> dict[str, Any]:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts.canonical_profile import (
+            CanonicalProfileRefusalError,
+            load_core_json_artifact,
+        )
 
         profile = dataset_envelope.payload_manifest_profile_sha256
         if profile is None:
@@ -3377,11 +3381,21 @@ class WorkspaceLoop:
             media_type="application/json",
             manifest_profile_sha256=profile,
         )
-        payload = load_core_json_artifact(
-            self._artifact_store,
-            selected_ref,
-            manifest_profile_sha256=profile,
-        )
+        try:
+            payload = load_core_json_artifact(
+                self._artifact_store,
+                selected_ref,
+                manifest_profile_sha256=profile,
+            )
+        except FileNotFoundError as exc:
+            has_default_view = getattr(self._artifact_store, "has", None)
+            if (
+                not callable(has_default_view)
+                or has_default_view(core_artifacts.ArtifactID(dataset_envelope.payload_ref))
+                is not True
+            ):
+                raise
+            raise CanonicalProfileRefusalError("canon_profile_selected_view_unavailable") from exc
         if not isinstance(payload, dict):
             raise WorkspaceInvariantError("measurement_root_selected_payload_not_object")
         if gy_content_hash(payload) != dataset_envelope.ref.content_hash:

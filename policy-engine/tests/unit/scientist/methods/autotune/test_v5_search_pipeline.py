@@ -48,6 +48,7 @@ from polisyos.scientist.methods.autotune.bayesian_generator import (
 )
 from polisyos.scientist.methods.autotune.models import (
     SearchGPFitBasis,
+    SearchGPProposalUncertainty,
     load_json_artifact,
     load_model_artifact,
 )
@@ -263,17 +264,13 @@ def test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt(tmp_p
     assert evaluation.method_result_ref is not None
     request_basis = evaluation.metadata["method_request_basis"]
     assert request_basis["schema_version"] == "2"
-    assert request_basis["search_parameter_values"] == {
-        "method_offset": candidate["method_offset"]
-    }
+    assert request_basis["search_parameter_values"] == {"method_offset": candidate["method_offset"]}
     assert request_basis["search_method_run_profile"]["search_parameter_bindings"] == {
         "method_offset": "offset"
     }
     assert request_basis["job_spec"]["method_params"]["offset"] == candidate["method_offset"]
     method_result = load_json_artifact(fresh_reader, evaluation.method_result_ref)
-    assert method_result == {
-        "score": candidate["value"] + candidate["method_offset"]
-    }
+    assert method_result == {"score": candidate["value"] + candidate["method_offset"]}
     verified = _verify_search_source_profile_receipt(
         store=fresh_reader,
         evaluation_ref=evaluation_ref,
@@ -342,9 +339,7 @@ def test_search_parameter_binding_rejects_same_fqn_version_with_changed_abi(tmp_
             "store": store,
             "policy": _policy(),
             "loop_id": "v5_search",
-            "_search_method_run_profile": profile.model_dump(
-                mode="json", exclude_none=True
-            ),
+            "_search_method_run_profile": profile.model_dump(mode="json", exclude_none=True),
         },
     )
     assert evaluation.status == "search_parameter_binding_rejected"
@@ -418,7 +413,9 @@ def test_search_parameter_binding_refuses_static_or_defaultless_method_parameter
 
 
 def test_search_parameter_binding_rejects_duplicate_method_targets() -> None:
-    with pytest.raises(ValueError, match="each dynamic MethodJob parameter can have one SearchSpace binding"):
+    with pytest.raises(
+        ValueError, match="each dynamic MethodJob parameter can have one SearchSpace binding"
+    ):
         MethodJobBenchmarkEvaluator(
             method_fqn=_V5ScoreMethod.signature.fqn,
             method_version=_V5ScoreMethod.signature.version,
@@ -496,9 +493,7 @@ def test_search_parameter_binding_rejects_missing_malformed_or_out_of_bounds_can
             "store": store,
             "policy": _policy(),
             "loop_id": "v5_search",
-            "_search_method_run_profile": profile.model_dump(
-                mode="json", exclude_none=True
-            ),
+            "_search_method_run_profile": profile.model_dump(mode="json", exclude_none=True),
         },
     )
     assert evaluation.status == "search_parameter_binding_rejected"
@@ -552,9 +547,7 @@ def test_search_parameter_binding_rejects_foreign_profiles_and_undeclared_maps(
         "store": store,
         "policy": _policy(),
         "loop_id": "v5_search",
-        "_search_method_run_profile": profile.model_dump(
-            mode="json", exclude_none=True
-        ),
+        "_search_method_run_profile": profile.model_dump(mode="json", exclude_none=True),
     }
     foreign_profile = profile.model_copy(update={"method_fqn": "foreign.method@1.0.0"})
     foreign_result = evaluator.evaluate(
@@ -994,16 +987,74 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
         "method_evidence",
         "search_gp_fit_basis",
     }
-    assert next(
-        item
-        for item in source_manifest.inputs
-        if item.role == "search_gp_fit_basis"
-    ).manifest_profile_sha256 == fit_basis_ref.manifest_profile_sha256
+    assert (
+        next(
+            item for item in source_manifest.inputs if item.role == "search_gp_fit_basis"
+        ).manifest_profile_sha256
+        == fit_basis_ref.manifest_profile_sha256
+    )
 
     source_evaluation_artifact_ref = source_evaluation_ref
     fit_basis = load_model_artifact(source_reader, fit_basis_ref, SearchGPFitBasis)
     assert isinstance(fit_basis, SearchGPFitBasis)
+    source_receipt = source_evaluation.metadata["search_source_profile_receipt"]
+    proposal_uncertainty = SearchGPProposalUncertainty.model_validate(
+        source_receipt["proposal_uncertainty"]
+    )
+    emitted_metadata = source_result.history[-1].candidate["_strategy_metadata"]
+    assert proposal_uncertainty.authority_purpose == ("candidate_search_gp_proposal_uncertainty")
+    assert proposal_uncertainty.grade == "candidate_only"
+    assert proposal_uncertainty.proposal_source == "bayesian_acquisition"
+    assert proposal_uncertainty.fit_basis_ref == fit_basis_ref
+    assert proposal_uncertainty.candidate_ref == source_evaluation.candidate_ref
+    assert proposal_uncertainty.method_result_ref == source_evaluation.method_result_ref
+    assert proposal_uncertainty.method_evidence_ref == source_evaluation.method_evidence_ref
+    assert proposal_uncertainty.method_job_key == source_evaluation.method_job_key
+    assert proposal_uncertainty.acquisition_type == emitted_metadata["acquisition_type"]
+    assert proposal_uncertainty.predicted_mean == emitted_metadata["predicted_mean"]
+    assert proposal_uncertainty.predicted_std == emitted_metadata["predicted_std"]
+    assert proposal_uncertainty.acquisition_value == emitted_metadata["acquisition_value"]
+    assert len(fit_basis.acquisition_evaluation_refs) == (fit_basis.acquisition_observation_count)
     assert len(fit_basis.fitted_model_state_fingerprint) == 64
+
+    def assert_uncertainty_receipt_is_refused(receipt_variant: dict[str, Any]) -> None:
+        receipt_variant = dict(receipt_variant)
+        receipt_variant.pop("receipt_sha256", None)
+        receipt_variant["receipt_sha256"] = _search_source_fingerprint(receipt_variant)
+        variant_evaluation = source_evaluation.model_copy(
+            update={
+                "metadata": {
+                    **source_evaluation.metadata,
+                    "search_source_profile_receipt": receipt_variant,
+                }
+            }
+        )
+        variant_ref = _persist_search_benchmark_evaluation(
+            store,
+            variant_evaluation,
+            suite_ref=suite_ref,
+        )
+        assert (
+            _verify_search_source_profile_receipt(
+                store=store,
+                evaluation_ref=variant_ref,
+                expected_receipt=receipt_variant,
+                expected_profile=source_profile.model_dump(mode="json", exclude_none=True),
+                expected_method_run_profile=fit_basis.run_profile,
+                require_warm_start_eligible=True,
+            )
+            is None
+        )
+
+    missing_uncertainty_receipt = dict(source_receipt)
+    missing_uncertainty_receipt.pop("proposal_uncertainty")
+    assert_uncertainty_receipt_is_refused(missing_uncertainty_receipt)
+    changed_uncertainty_receipt = dict(source_receipt)
+    changed_uncertainty_receipt["proposal_uncertainty"] = dict(
+        source_receipt["proposal_uncertainty"]
+    )
+    changed_uncertainty_receipt["proposal_uncertainty"]["predicted_std"] += 0.5
+    assert_uncertainty_receipt_is_refused(changed_uncertainty_receipt)
     fitted_optimizer = generator._optimizer
     fitted_model = fitted_optimizer._model
     torch = fitted_optimizer._torch
@@ -1019,14 +1070,8 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
             for module in fitted_model.modules()
             if isinstance(module, Interval)
             for bound_name, bound in module.named_buffers(recurse=False)
-            if (
-                bound_name == "upper_bound"
-                and bool(torch.isposinf(bound).all().item())
-            )
-            or (
-                bound_name == "lower_bound"
-                and bool(torch.isneginf(bound).all().item())
-            )
+            if (bound_name == "upper_bound" and bool(torch.isposinf(bound).all().item()))
+            or (bound_name == "lower_bound" and bool(torch.isneginf(bound).all().item()))
         ),
         None,
     )
@@ -1105,11 +1150,15 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.methods.autotune.SearchGPFitBasis",
-                version="1.0",
+                version="2.0",
             ),
             inputs=[
                 input_ref_from_artifact_ref(ref, role="training_evaluation")
                 for ref in corrupted_training_refs
+            ]
+            + [
+                input_ref_from_artifact_ref(ref, role="acquisition_evaluation")
+                for ref in fit_basis.acquisition_evaluation_refs
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
@@ -1147,9 +1196,7 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
         is None
     )
 
-    altered_state_basis = fit_basis.model_copy(
-        update={"fitted_model_state_fingerprint": "0" * 64}
-    )
+    altered_state_basis = fit_basis.model_copy(update={"fitted_model_state_fingerprint": "0" * 64})
     altered_state_basis_ref = store.put_json(
         altered_state_basis,
         ArtifactWriteOptions(
@@ -1157,24 +1204,24 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.methods.autotune.SearchGPFitBasis",
-                version="1.0",
+                version="2.0",
             ),
             inputs=[
                 input_ref_from_artifact_ref(ref, role="training_evaluation")
                 for ref in fit_basis.training_evaluation_refs
+            ]
+            + [
+                input_ref_from_artifact_ref(ref, role="acquisition_evaluation")
+                for ref in fit_basis.acquisition_evaluation_refs
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
         return_selected_profile=True,
     )
-    altered_state_receipt = dict(
-        source_evaluation.metadata["search_source_profile_receipt"]
-    )
+    altered_state_receipt = dict(source_evaluation.metadata["search_source_profile_receipt"])
     altered_state_receipt["fit_basis_ref"] = altered_state_basis_ref.model_dump(mode="json")
     altered_state_receipt.pop("receipt_sha256", None)
-    altered_state_receipt["receipt_sha256"] = _search_source_fingerprint(
-        altered_state_receipt
-    )
+    altered_state_receipt["receipt_sha256"] = _search_source_fingerprint(altered_state_receipt)
     altered_state_evaluation = source_evaluation.model_copy(
         update={
             "metadata": {
@@ -1248,14 +1295,15 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
 
         assert mismatch_result.history
         target_profile = mismatch_generator._search_method_run_profile
-        assert target_profile == fit_basis.run_profile.model_copy(
-            update=expected_profile_update
-        )
+        assert target_profile == fit_basis.run_profile.model_copy(update=expected_profile_update)
         assert mismatch_generator._warm_start_accepted_count == 0
-        assert sum(
-            rejection.get("reason") == "source profile receipt or CAS chain invalid"
-            for rejection in mismatch_generator._warm_start_rejections
-        ) == 1
+        assert (
+            sum(
+                rejection.get("reason") == "source profile receipt or CAS chain invalid"
+                for rejection in mismatch_generator._warm_start_rejections
+            )
+            == 1
+        )
         assert not mismatch_generator._optimizer._warm_evals
 
         stage_b = mismatch_result.history[-1].stage_b_result

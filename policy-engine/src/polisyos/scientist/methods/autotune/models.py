@@ -415,7 +415,7 @@ class SearchGPFitBasis(_PydanticBaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1"] = "1"
+    schema_version: Literal["1", "2"] = "1"
     authority_purpose: Literal["candidate_gp_fit_recomputation_basis"] = (
         "candidate_gp_fit_recomputation_basis"
     )
@@ -425,6 +425,8 @@ class SearchGPFitBasis(_PydanticBaseModel):
     bounds: list[SearchGPFitBound] = Field(..., min_length=1)
     training_evaluation_refs: list[ArtifactRef] = Field(..., min_length=1)
     training_observation_count: int = Field(..., ge=1)
+    acquisition_evaluation_refs: list[ArtifactRef] = Field(default_factory=list)
+    acquisition_observation_count: int = Field(default=0, ge=0)
     fit_backend: str = Field(..., min_length=1, max_length=128)
     fitted_model_state_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
     proposal_source: str = Field(..., min_length=1, max_length=128)
@@ -442,6 +444,33 @@ class SearchGPFitBasis(_PydanticBaseModel):
         ]
         if len(set(identities)) != len(identities):
             raise ValueError("Search GP fit basis cannot double-count a source evaluation")
+        acquisition_identities = [
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in self.acquisition_evaluation_refs
+        ]
+        if self.schema_version == "2":
+            if (
+                not self.acquisition_evaluation_refs
+                or self.acquisition_observation_count != len(self.acquisition_evaluation_refs)
+                or self.acquisition_observation_count < self.training_observation_count
+            ):
+                raise ValueError(
+                    "Search GP acquisition corpus must bind its full ordered source rows"
+                )
+            if any(not ref.manifest_profile_sha256 for ref in self.acquisition_evaluation_refs):
+                raise ValueError(
+                    "Search GP acquisition refs must select exact CAS manifest profiles"
+                )
+            if len(set(acquisition_identities)) != len(acquisition_identities):
+                raise ValueError(
+                    "Search GP acquisition basis cannot double-count a source evaluation"
+                )
+            if not set(identities).issubset(set(acquisition_identities)):
+                raise ValueError(
+                    "Search GP fit observations must belong to its effective acquisition corpus"
+                )
+        elif self.acquisition_evaluation_refs or self.acquisition_observation_count:
+            raise ValueError("legacy Search GP fit bases cannot claim acquisition source rows")
         if (
             not self.profile.warm_start_eligible
             or self.profile.training_observation_count != self.training_observation_count
@@ -457,6 +486,63 @@ class SearchGPFitBasis(_PydanticBaseModel):
                 for bound in self.run_profile.search_parameter_bounds
             ):
                 raise ValueError("Search GP fit bounds do not match the bound MethodJob parameters")
+        return self
+
+
+class SearchGPProposalUncertainty(_PydanticBaseModel):
+    """Candidate-only posterior values bound to one persisted native-GP proposal."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1"] = "1"
+    authority_purpose: Literal["candidate_search_gp_proposal_uncertainty"] = (
+        "candidate_search_gp_proposal_uncertainty"
+    )
+    grade: Literal["candidate_only"] = "candidate_only"
+    quantity: Literal["posterior_mean_std_and_acquisition_at_candidate"] = (
+        "posterior_mean_std_and_acquisition_at_candidate"
+    )
+    producer_optimizer_fqn: str = Field(..., min_length=1, max_length=256)
+    proposal_id: str = Field(..., min_length=1, max_length=128)
+    proposal_source: Literal["bayesian_acquisition"] = "bayesian_acquisition"
+    candidate_ref: ArtifactRef
+    suite_ref: ArtifactRef
+    method_result_ref: ArtifactRef
+    method_evidence_ref: ArtifactRef
+    method_job_key: str = Field(..., min_length=1, max_length=256)
+    metric: str = Field(..., min_length=1, max_length=128)
+    direction: Literal["minimize", "maximize"]
+    split: Literal["selection", "holdout"]
+    unit: str | None = None
+    method_request_basis_sha256: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    proposal_params_sha256: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    source_profile_sha256: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    fit_basis_ref: ArtifactRef
+    fit_backend: str = Field(..., min_length=1, max_length=128)
+    fitted_model_state_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    optimizer_config_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    search_space_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    training_corpus_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    training_observation_count: int = Field(..., ge=1, strict=True)
+    acquisition_evaluation_count: int = Field(..., ge=1, strict=True)
+    context_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    objective_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    acquisition_type: Literal[
+        "expected_improvement",
+        "upper_confidence_bound",
+        "probability_of_improvement",
+    ]
+    predicted_mean: float
+    predicted_std: float = Field(..., ge=0)
+    acquisition_value: float
+
+    @model_validator(mode="after")
+    def _validate_finite_prediction(self) -> SearchGPProposalUncertainty:
+        if not all(
+            isfinite(value)
+            for value in (self.predicted_mean, self.predicted_std, self.acquisition_value)
+        ):
+            raise ValueError("Search GP proposal uncertainty values must be finite")
         return self
 
 

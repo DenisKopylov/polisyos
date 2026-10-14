@@ -1016,12 +1016,17 @@ def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.core import artifacts as core_artifacts
-    from polisyos.core.artifacts.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts.canonical_profile import (
+        CanonicalProfileRefusalError,
+        load_core_json_artifact,
+    )
     from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
     from polisyos.core.canon import CanonSpec
+    from polisyos.runtime.http.resilience import guard_runtime_cas
 
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
-    store = FileSystemCAS(tmp_path / "cas")
+    backing_store = FileSystemCAS(tmp_path / "cas")
+    store = guard_runtime_cas(backing_store)
     manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
     envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(
         manifest,
@@ -1050,8 +1055,8 @@ def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
     assert alternate_ref.manifest_profile_sha256 != selected_profile
 
     selected_reads: list[str | None] = []
-    original_get_bytes = store.get_bytes
-    original_get_manifest = store.get_manifest
+    original_get_bytes = backing_store.get_bytes
+    original_get_manifest = backing_store.get_manifest
 
     def record_bytes(ref):
         if str(getattr(ref, "artifact_id", ref)) == envelope.payload_ref:
@@ -1063,8 +1068,8 @@ def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
             selected_reads.append(getattr(ref, "manifest_profile_sha256", None))
         return original_get_manifest(ref)
 
-    monkeypatch.setattr(store, "get_bytes", record_bytes)
-    monkeypatch.setattr(store, "get_manifest", record_manifest)
+    monkeypatch.setattr(backing_store, "get_bytes", record_bytes)
+    monkeypatch.setattr(backing_store, "get_manifest", record_manifest)
     monkeypatch.setattr(
         workspace_loop,
         "_search_catalog_with_status",
@@ -1075,7 +1080,13 @@ def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
 
     loop = WorkspaceLoop(catalog_graph=catalog, artifact_store=store)
     loaded = loop._dataset_payload_for_estimate(manifest, envelope)
-    assert loaded["measurement_rows"] == payload["measurement_rows"]
+    selected_payload = load_core_json_artifact(
+        store,
+        envelope.payload_ref,
+        manifest_profile_sha256=selected_profile,
+    )
+    # json.loads() reads wire JSON; Core decoding restores typed float values.
+    assert loaded["measurement_rows"] == selected_payload["measurement_rows"]
     assert selected_reads
     assert set(selected_reads) == {selected_profile}
 
@@ -1086,11 +1097,65 @@ def test_measurement_estimate_reader_keeps_the_producer_selected_profile(
     wrong_profile = envelope.model_copy(
         update={"payload_manifest_profile_sha256": "sha256:" + "0" * 64}
     )
-    with pytest.raises(CanonicalProfileRefusalError):
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_selected_view_unavailable",
+    ) as refusal:
         loop._dataset_payload_for_estimate(manifest, wrong_profile)
+    assert refusal.value.code == "canon_profile_selected_view_unavailable"
+
+    missing_store = FileSystemCAS(tmp_path / "missing-cas")
+    missing_loop = WorkspaceLoop(catalog_graph=catalog, artifact_store=missing_store)
+    with pytest.raises(FileNotFoundError):
+        missing_loop._dataset_payload_for_estimate(manifest, envelope)
 
     malformed_profile = envelope.model_copy(
         update={"payload_manifest_profile_sha256": "sha256:not-a-profile"}
     )
     with pytest.raises(ValueError, match="manifest_profile_sha256"):
         loop._dataset_payload_for_estimate(manifest, malformed_profile)
+
+    class _ShapeOnlyArtifactStore:
+        """Match the base method shape while refusing all real artifact operations."""
+
+        def has(self, *_args, **_kwargs):
+            return False
+
+        def get_bytes(self, *_args, **_kwargs):
+            raise FileNotFoundError("shape_only_artifact_missing")
+
+        def get_manifest(self, *_args, **_kwargs):
+            raise FileNotFoundError("shape_only_artifact_missing")
+
+        def put_bytes(self, *_args, **_kwargs):
+            raise RuntimeError("shape_only_store_write_refused")
+
+        def put_json(self, *_args, **_kwargs):
+            raise RuntimeError("shape_only_store_write_refused")
+
+        def verify(self, *_args, **_kwargs):
+            raise FileNotFoundError("shape_only_artifact_missing")
+
+        def iter_artifact_ids(self):
+            return []
+
+        def get_raw_manifest_bytes(self, *_args, **_kwargs):
+            raise FileNotFoundError("shape_only_artifact_missing")
+
+    shape_only_store = _ShapeOnlyArtifactStore()
+    shape_only_producer = MeasurementRootProducer(artifact_store=shape_only_store)
+    with pytest.raises(RuntimeError, match="shape_only_store_write_refused"):
+        shape_only_producer._persist_payload({"probe": "shape-only producer write"})
+    shape_only_loop = WorkspaceLoop(
+        catalog_graph=catalog,
+        artifact_store=shape_only_store,
+    )
+    with pytest.raises(FileNotFoundError, match="shape_only_artifact_missing"):
+        shape_only_loop._dataset_payload_for_estimate(manifest, envelope)
+    with pytest.raises(FileNotFoundError, match="shape_only_artifact_missing"):
+        shape_only_store.verify(envelope.payload_ref)
+    with pytest.raises(RuntimeError, match="shape_only_store_write_refused"):
+        shape_only_loop._persist_loop_payload(
+            {"probe": "shape-only stores cannot persist"},
+            kind="test.shape_only_artifact_store",
+        )

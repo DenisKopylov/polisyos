@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "slice": "source47",
+  "author_role": "local_candidate_author_not_G",
+  "slice_base": "2698a57dfcd102db1ac49958195ec6a200242b98",
+  "candidate": "962a86ccb63ee609071d55022e046e647dcf6824",
+  "candidate_tree": "4f50ce7f2c5c70d21b753e7abb24b2b74102d1ff",
+  "candidate_parents": [
+    "2698a57dfcd102db1ac49958195ec6a200242b98"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2002-source47-eight-test-boundary-root-20261014/source-frame.json",
+    "sha256": "3f69a720b4998e7331560509795af9d3c8dee30d56b99e78baf653805a1669d2",
+    "bytes": 2849,
+    "availability": "local_preserved"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "sha256": "54ea3cd14681bdcb9f810cf3c173843332e582d2576a4f76e2f64d152529696c",
+      "bytes": 73758
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+      "sha256": "7d2953b5599bf31688c9f132e44dbd25a72c4324c37cbeda8a03a2a68f1db406",
+      "bytes": 13737
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "sha256": "13e4ae9db213d6c3f35d4c44a02f3a613add1e2a0fa8c5e293d00f8c222de353",
+      "bytes": 18879
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "sha256": "a3fc531a9f8b2e21517227816f734609122004dcc96fc2c5fdb1d5a9b27abfcf",
+      "bytes": 44212
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "sha256": "8461e1ca7b0ff3c6d43d72ba594e8c79c65da1bc9b13dec28adfd375d99616b1",
+      "bytes": 10522
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "sha256": "e183b7e2c99768628c57165cc94fd4b54c322c5bd7d1f06cc567f5e9ef113b0f",
+      "bytes": 36830
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "sha256": "16ba315badd0a08b582afc1fa051b1aeadb2abd4d51f1bd73c9ea9d937c83988",
+      "bytes": 56308
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "sha256": "aaf1b9e81222c3d27e86600371c02194d5dfcf9da56c3006df1115dd71d52cf0",
+      "bytes": 83646
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "final_source_freeze": false,
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": "record_after_commit_only_never_predict",
+  "quality": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2002-source47-eight-test-boundary-root-20261014/quality.json",
+    "sha256": "3aebb353a8c1f8c956dd7b39c8208189226ff221f6c92b8224cc3ce52b563cc7",
+    "bytes": 2121,
+    "availability": "local_preserved"
+  },
+  "authentic_production_currentness": "not_established",
+  "historical_closures": "unchanged_by_this_slice; B198 retained in canonical denominator",
+  "native_evidence": [
+    {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/command.json",
+        "sha256": "2696bfa83a2970739604c3d3b8700b4cd2dffb661fa9116f5858b06a07b1afdc",
+        "bytes": 2193575,
+        "availability": "local_preserved"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/stdout.txt",
+        "sha256": "e7f1559001dcff4c3b5bd990ce48c0552196b53651798f975832fd303fd63a9b",
+        "bytes": 64039,
+        "availability": "local_preserved"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_preserved"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/junit.xml",
+        "sha256": "85490f6ab091b8a28fedc9d748ab960736a559c04535815239a2f0dc8575b90d",
+        "bytes": 8880,
+        "availability": "local_preserved"
+      },
+      "source_head": "962a86ccb63ee609071d55022e046e647dcf6824",
+      "wall_seconds": 27.287561125005595,
+      "exit_code": 1,
+      "complete_input_path_count": 7723,
+      "complete_input_images_equal": true,
+      "tests": 5,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failed_nodes": [
+        "test_n7_acq01_reentry_rebinds_real_n5_and_default_n8"
+      ],
+      "classification": "bounded_native_observation_not_global_closeout",
+      "source_bound_argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/remediation/test_acq_01.py::test_n7_acq01_route_context_helper_refuses_production_scope_with_valid_route",
+        "tests/unit/remediation/test_acq_01.py::test_n7_acq01_reentry_rebinds_real_n5_and_default_n8",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_verification_time_cannot_claim_invalid_custody",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2004-source47-n9-native-actual-root-20261014/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_backend_profile": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1"
+      }
+    }
+  ],
+  "proposals": [
+    {
+      "id": "B61",
+      "outcome": "held",
+      "boundary": "source-only Prepared-B companion; no current full native receipt",
+      "next_check": "complete baseline20files/13contours plus defining producer baseline and removal controls"
+    },
+    {
+      "id": "B148",
+      "outcome": "held",
+      "boundary": "structured paired branch observations are test source only",
+      "next_check": "current six structured paired observations; unchanged A and fresh B assertions"
+    },
+    {
+      "id": "B56",
+      "outcome": "held",
+      "boundary": "measurement implementation in test source; qualifying workload not established",
+      "next_check": "all three R4 profiles and bridge removal, exact timing/RSS/queue scope; separate genuine workload input"
+    }
+  ],
+  "limitations": [
+    "4 PASS / 1 FAIL / 0 ERROR / 0 SKIP on the five-node N9 caller tier; no full N9/V3 closure.",
+    "Full Prepared-B and R3/R4 profiles remain UNRUN; controller acceptance is under independent review.",
+    "R2021 R3/R4 freeze rejected known untracked evidence before native execution; exact reproduction is preserved at R2018."
+  ],
+  "next_checks": [
+    "Apply reviewed cumulative N9 semantic blocker-set/candidate-identity test successor and rerun affected5nodes.",
+    "Collection-attested Prepared-B successor must reconcile complete runtime/JUnit quantity without inherited pytest filters.",
+    "Use corrected Root-frame admission for R3/R4; preserve unknown input boundaries."
+  ],
+  "real_chains": [
+    "Prepared-B actual producer/cache/custody/worker/checkpoint controls are source companions; full20-file/13-contour runtime and six removals not yet established.",
+    "R4 emits per-profile/per-child duration/RUSAGE_SELF RSS and executor put-to-get queue residence; three-profile runtime unrun.",
+    "N7 actual accepted route enters two real N5 calls/default N8; selected persisted N5 blocker package is reloaded; complete value tuple comparison failed on ordering."
+  ],
+  "selected_inputs": {
+    "class": "controlled_source_bound_fixtures",
+    "production_authority_inputs_used": false,
+    "scope": "native command fixtures and exact committed source; external authority/currentness not asserted"
+  }
+}

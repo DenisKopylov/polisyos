@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "slice": "source48",
+  "author_role": "local_candidate_author_not_G",
+  "slice_base": "962a86ccb63ee609071d55022e046e647dcf6824",
+  "candidate": "4dffb9f537db40bac255ea6a15f81e70a1eca080",
+  "candidate_tree": "9097af4b51cc1845a6a828837ae4eb1007b43141",
+  "candidate_parents": [
+    "962a86ccb63ee609071d55022e046e647dcf6824"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2009-source48-api-boundary-root-20261014/source-frame.json",
+    "sha256": "62d22bb2cdbbb15520135dc5457bbbc822c0325b775427808308cbdaf880cc61",
+    "bytes": 2538,
+    "availability": "local_preserved"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "sha256": "406ef039d218d7287843e239b978652b6cc744ac7b07919b74e8adb493f7d5e3",
+      "bytes": 230023
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "124c78161dd54923de4455db0418788fb16e138d03bc352315a8778b1c25c3a3",
+      "bytes": 310668
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "sha256": "a5de934c5cb66b2e0455f1fa4c3a066b810bfa3165f416f01b6f2ff744405dc6",
+      "bytes": 107173
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_export_runtime_openapi.py",
+      "sha256": "d40805fe94064009cb88e9679b135e63b7fc9c1469aba7970f67417f9e56dc99",
+      "bytes": 11067
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+      "sha256": "d6083a21c7d52c4c73842732ec0dc74a3e3e6d73ebae2ed9604bbdeb8cc99fde",
+      "bytes": 77147
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "sha256": "a2a2ffaa91733b70a3d0a4bf709d0a418b5287aa1314d6aca4a536fec42de7b1",
+      "bytes": 7606
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "sha256": "4e669a5fd34a4f2b8018b44fc4e95de5e42a9750f25056c435c6450886bd0c38",
+      "bytes": 1967
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "final_source_freeze": false,
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": "record_after_commit_only_never_predict",
+  "quality": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2009-source48-api-boundary-root-20261014/quality.json",
+    "sha256": "412e7ad04b694527505f3a7d2b28f1e267d6e4c5d18e6ed5ed1ee64f09e25f61",
+    "bytes": 1322,
+    "availability": "local_preserved"
+  },
+  "authentic_production_currentness": "not_established",
+  "historical_closures": "unchanged_by_this_slice; B198 retained in canonical denominator",
+  "native_evidence": [
+    {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/command.json",
+        "sha256": "34b5255055ebaedb42fb76e552f3a2acc6779c777550c02b039814589d128098",
+        "bytes": 2050809,
+        "availability": "local_preserved"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/stdout.txt",
+        "sha256": "9c120e0ceaa1fec369b8434de8b2981b6e548e78a7a402ecdab40bcddff6138b",
+        "bytes": 273,
+        "availability": "local_preserved"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_preserved"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/junit.xml",
+        "sha256": "7e50ac9592ad0d931f4723575b854ee42c35a2eabba10ec5fdcfda9025c63d65",
+        "bytes": 905,
+        "availability": "local_preserved"
+      },
+      "source_head": "4dffb9f537db40bac255ea6a15f81e70a1eca080",
+      "wall_seconds": 35.388428166974336,
+      "exit_code": 0,
+      "complete_input_path_count": 7723,
+      "complete_input_images_equal": true,
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failed_nodes": [],
+      "classification": "bounded_native_observation_not_global_closeout",
+      "source_bound_argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/repo_quality/tools/test_export_runtime_openapi.py::test_pre_admission_openapi_examples_use_current_owner_readback",
+        "tests/repo_quality/tools/test_export_runtime_openapi.py::test_openapi_renderer_uses_the_assigned_runtime_store_root",
+        "tests/unit/runtime/http/test_governed_projection_service.py::test_owner_validation_environment_resolves_temp_symlinks_and_keeps_source_binding",
+        "tests/repo_quality/tools/test_export_runtime_openapi.py::test_real_openapi_export_confines_app_artifacts",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2013-source48-api-focused-native-actual-root-20261014/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_backend_profile": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1"
+      }
+    },
+    {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/command.json",
+        "sha256": "4b1825ca49f7a186f8b2d40c33babcc0e51f3ebaba450deba8651ef7ae2aa154",
+        "bytes": 53815428,
+        "availability": "local_preserved"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/stdout.txt",
+        "sha256": "12929e0112527ac224cd24d4296510abc2de36b966b7ffb3d3b15c1b8d3e03d9",
+        "bytes": 20566,
+        "availability": "local_preserved"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local_preserved"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/junit.xml",
+        "sha256": "ffb8f494e09a9f3dbd496fa4b7d34c6bf73f279ae0c1ee1944111989bfae5e6a",
+        "bytes": 42412,
+        "availability": "local_preserved"
+      },
+      "source_head": "4dffb9f537db40bac255ea6a15f81e70a1eca080",
+      "wall_seconds": 780.2447624170454,
+      "exit_code": 1,
+      "complete_input_path_count": 7723,
+      "complete_input_images_equal": true,
+      "tests": 150,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0,
+      "failed_nodes": [
+        "test_from_repo_rejects_dependency_loaded_before_its_source_changes",
+        "test_authority_import_closure_actual_core_dispatch_removal_keeps_markers",
+        "test_authority_import_closure_hashes_core_and_common_profile_bytes_after_equal_metadata_change",
+        "test_surviving_spend_event_prevents_reset_after_pointer_artifacts_are_deleted",
+        "test_cross_process_negative_scope_membership_is_never_cached"
+      ],
+      "classification": "bounded_native_observation_not_global_closeout",
+      "source_bound_argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=900);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/runtime/quality/test_confidence_ledger.py",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2022-source48-confidence-module-native-actual-root-20261014/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_backend_profile": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "SCIENTIST_TORCH_DEVICE": "cpu",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1"
+      }
+    }
+  ],
+  "proposals": [
+    {
+      "id": "B13",
+      "outcome": "limited",
+      "boundary": "source-bound API generation and drift controls; consumer compilation and ordinary composed lifecycle pending",
+      "next_check": "fix generic export namespace collision; compile actual client/dashboard and complete ordinary POST/N5/CAS/fresh GET"
+    },
+    {
+      "id": "LA-021",
+      "outcome": "held",
+      "boundary": "real CAN producer/reader mismatch established; generic correction pending; codec law/history/attestation separate",
+      "next_check": "strict profile Mapping and whole IR grammar pre-persist round-trip plus removals; resolve specified G choices"
+    }
+  ],
+  "limitations": [
+    "Generated candidates not promoted: duplicate top-level JsonValue aliases; native client/dashboard typechecks absent.",
+    "Broad confidence module:145PASS/5FAIL/0ERROR/0SKIP; three stale companion fixtures and two incomplete-CAS typed-error boundaries need repair.",
+    "R2025 six-case real CAN discriminator exposed present malformed Mapping coercion and three persisted-but-reader-refused IR cases; exit0 is diagnostic only.",
+    "Later blocking source deltas require invalidating/rebinding affected evidence; G publication and compatibility remain held.",
+    "R2024 four-case owner map trace:32.800s exit2; only first case captured, subsequent calls unestablished; source/Git stable. No causal attribution to the historical1468-entry drift."
+  ],
+  "next_checks": [
+    "Batch independently reviewed source repairs, preserve all public facades and G resources.",
+    "Promote exact generated5outputs only after generic producer repair and native consumer validation.",
+    "Final source/input/backend freeze, composed replay, nativeSOTA row receipts, installed wheel/rebuilt sdist, full291-occurrence proposal report and authentic read-only closeout."
+  ],
+  "real_chains": [
+    "Controlled OpenAPI fixture invokes actual pre-admission owner transitions, persists two events and rereads deterministic IDs; production UUIDv4 remains the default.",
+    "App rendering binds isolated CAS root; owner worker removes physically resolved repository-local temporary roots while preserving external roots and binding real src/tmp input changes.",
+    "Canonical OpenAPI -> raw client/canonicalizer -> dashboard types produces exactly five candidates; fresh owner byte check passes, both single-field corruptions fail on schema drift."
+  ],
+  "canonical_generation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2016-source48-canonical-api-generation-actual-root-20261014/report.json",
+    "sha256": "3c225c80e9b8dd68b138bca57cd6e910f38b457ca86a7349e012422530dc6798",
+    "bytes": 2438469,
+    "availability": "local_preserved"
+  },
+  "independent_generator_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2016-source48-independent-api-review-r1807-3c225c80-20261014/review.json",
+    "sha256": "da79f7865e1f5b8a4144376e4a4a86a04558bc5008620a72d45f72af53f536d3",
+    "bytes": 30945,
+    "availability": "local_preserved"
+  },
+  "additional_diagnostics": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2025-source48-can-ir-writer-consumer-discriminator-actual-root-20261014/command.json",
+      "sha256": "7349b184294b091a7fd74acd3788a17cf77398aa5c8b19cce088e53d73a3ca55",
+      "bytes": 2046613,
+      "availability": "local_preserved"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2018-r3-r4-freeze-untracked-proxy-reproduction-root-20261014/receipt.json",
+      "sha256": "65a97858efbe63dc3a6c3d0e2567c860e6ef67d01ec1d1acd3d6ab1422c7bfdb",
+      "bytes": 1143,
+      "availability": "local_preserved"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2024-owner-map-trace-root-launch-custody-20261014/receipt.json",
+      "sha256": "17d3c913f0f0a0f02c9bc01da96585402765d5f10f07aac9db9d4bfc5c620b16",
+      "bytes": 2007,
+      "availability": "local_preserved"
+    }
+  ],
+  "selected_inputs": {
+    "class": "controlled_source_bound_fixtures",
+    "production_authority_inputs_used": false,
+    "scope": "native command fixtures and exact committed source; external authority/currentness not asserted"
+  }
+}

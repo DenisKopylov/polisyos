@@ -1,0 +1,1842 @@
+{
+  "schema": "source42-preservation-receipt-v2",
+  "status": "preservation_boundary_verified_wip_native_and_acceptance_incomplete",
+  "logical_tracked_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source42-preservation.json",
+  "preparation_mode": "Root materialized tracked preservation receipt from independently reviewed source frame; actual behavior qualifications remain bounded",
+  "source_state": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "684bd7315bfdeef636f1713f715f4dfa56bdde94",
+    "tree": "3d6b4857c1ff00e0c334176275d165a5aef686d8",
+    "parent": "bafca83bff9ff49eef1466bc491a8420b5cd1dbb",
+    "slice_base": "bafca83bff9ff49eef1466bc491a8420b5cd1dbb",
+    "slice_base_tree": "0443c437b512ca9cb682c1e1b9a23c6701b0c39c",
+    "source_frame": {
+      "path": "raw/r1762-source42-preservation-commit-frame-20261014/frame.json",
+      "sha256": "e228d4d20473db0c82aa264936b7ca2553c50f86cfa9b1ec4c032621f33f426c"
+    },
+    "commit_readback": {
+      "path": "raw/r1762-source42-preservation-commit-frame-20261014/commit-readback.json",
+      "sha256": "4234081e64d1c379a77136990dc7c8f30e960149887e99ab9787d0bb5499f00c"
+    }
+  },
+  "preservation_boundary": {
+    "expected_owned_path_count": 95,
+    "commit_readback": {
+      "expected_count": 95,
+      "actual_count": 95,
+      "missing": [],
+      "extra": [],
+      "byte_mismatches": [],
+      "head_is_owned_author_commit": true,
+      "tracked_remaining": []
+    },
+    "independent_checkout_rehash": {
+      "paths_rehashed": 95,
+      "mismatches": [],
+      "status": "PASS"
+    },
+    "stage_guard_incident": "Initial staging command returned1 on tracked ignored path. Follow-up Python assertion failed, yet shell newline still invoked git commit. This is a Root execution guard defect; exact committed bytes independently read back before any publication. Future dependent commits called only from guarded subprocess code.",
+    "classification": "Preservation receipt only; this does not establish final source freeze, G acceptance, native green, or complete generated-surface freshness."
+  },
+  "preserve_only_untracked": [
+    {
+      "path": "policy-engine/schemas/snapshots/scientist/_manifest.json",
+      "bytes": 1208,
+      "sha256": "0c720ac07dc31aac78a0829d392c9f119ff3ef2a99bc4e9ef8d67c0a98247c17",
+      "matches_frame": true
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/scientist/calibration_validation_bundle_v1_1.schema.json",
+      "bytes": 26331,
+      "sha256": "b03a0200afba65d0d5d0ef1f2c4e0f15635189574961036cc96569147e3008e2",
+      "matches_frame": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py.orig",
+      "bytes": 12413,
+      "sha256": "bf1123f9c625b5f7524b831b637be4e49fe7182825ec0f7c29d0364ddf2915e2",
+      "matches_frame": true
+    }
+  ],
+  "owned_footprint": {
+    "path_count": 95,
+    "by_top_level_area": {
+      "apps": 7,
+      "architecture": 1,
+      "config/other": 8,
+      "docs": 4,
+      "src": 41,
+      "tests": 33,
+      "tools": 1
+    },
+    "by_extension": {
+      ".json": 3,
+      ".lock": 1,
+      ".md": 8,
+      ".py": 71,
+      ".toml": 8,
+      ".ts": 1,
+      ".tsx": 3
+    },
+    "interpretation": {
+      "tests": 33,
+      "product_src_tree_paths": 41,
+      "apps_paths": 7,
+      "architecture_paths": 1,
+      "docs_paths": 4,
+      "tools_paths": 1,
+      "config_or_release_or_lock_paths": 8,
+      "companions_included_in_95": [
+        "8 Markdown docs/READMEs and 8 config/release/lock files are included in the preserved 95-path boundary."
+      ],
+      "note": "Area and extension totals derive from the complete 95-path frame; the full path/hash/byte denominator follows."
+    },
+    "manifest": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/runQueries.test.tsx",
+        "bytes": 11531,
+        "sha256": "134cfb2b328c451d10857c4f8eb238f3cb7fb91ca7d0bc6949217c4e4d5a1df1"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+        "bytes": 179228,
+        "sha256": "bc0132a3cfd0ee1fab39f804b345d53baef4ad4408b441d42ed8d63a170e206e"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+        "bytes": 63149,
+        "sha256": "837f50696bc2458cb5f5ca51c844e5225562b518c579b78d2c9cf9079b0ecfd1"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+        "bytes": 8795,
+        "sha256": "b4c0bf187085929f6838afeae912d84a6379958872145fb5ef625a988a7e3917"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "bytes": 164031,
+        "sha256": "4cf8736afafbf2929d67c92a73d2deb1824de09836312fcd40440fdf5acb27ac"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+        "bytes": 149826,
+        "sha256": "3c9c8125e157c30643b85627b1f5393b3ab80dd6264001c54cf1e4c5d0966442"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "bytes": 215490,
+        "sha256": "6d3299a7dbd9a472cfb1bdd4104123d6ba8d57c6b8d0d81f894f767248f80b29"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "bytes": 20371,
+        "sha256": "1202c9cae51eba5dba0288ba6d215c2c04a1821ed6574748dad66aa00bcca431"
+      },
+      {
+        "path": "policy-engine/docs/reference/api/control.md",
+        "bytes": 31668,
+        "sha256": "59e37941216baa165d723fec6afcb9747f62199631a8f3569caf27d027c46ee2"
+      },
+      {
+        "path": "policy-engine/docs/reference/api/index.md",
+        "bytes": 27993,
+        "sha256": "c62f946d627f3a59be23f31ab7dcb5d79addad7132c897633755ecb36a9f9813"
+      },
+      {
+        "path": "policy-engine/docs/reference/api/runs.md",
+        "bytes": 23178,
+        "sha256": "41801d171e7e06eaf86fa2fe7ba4f5ad67dd2da235c7de81693d33c8e3de043a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "bytes": 204294,
+        "sha256": "affc729b253773746364c5ff7d5ec900860a6c341b3b161af8ede52cf876afde"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "bytes": 11064,
+        "sha256": "93f17ea7cc008ecb9b24cc9969e35d367d4d1d351a6e8e906b4065811777b535"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-can-options-mapping.toml",
+        "bytes": 3304,
+        "sha256": "d7c545ddd904a3f80e6b12095812b5c92ffc649c94beae032ea1b76a6cfc06be"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-can-selected-canon-read.toml",
+        "bytes": 5073,
+        "sha256": "2e0f0020450454f5d56ab6e457f5ba12b66b14b5d2986ceafd41fa480b087b77"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+        "bytes": 3424,
+        "sha256": "214b95c9de9214a1689059d76995d4a09b7131f32fd17132ac1234569ab31c97"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-e02-attractor-typed-get-ref-bridge.toml",
+        "bytes": 2715,
+        "sha256": "bbff881de2970c5723097d2e04e1d0493c8f6ea44010cca9f8513a00c45d69eb"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-e02-n4-selected-catalog-kref.toml",
+        "bytes": 2180,
+        "sha256": "88a7937b62b3b7a9981b5c9369f2f188857ff3d0e143cc0151ace393dd47be6f"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+        "bytes": 5990,
+        "sha256": "fd526dca8939bb8194ad3f9e8c69fdaa9f1c1dd9470848cd616aea020518db18"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "bytes": 18952,
+        "sha256": "c21baa400dc8ebc94c7badbaad2f144914a945fdb41a034831569440907ba4bf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "bytes": 68796,
+        "sha256": "aba4c3ce6962a97c8ee731718f0ed664616043b7ac2a71d624260b55f2d5ec1c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "bytes": 191042,
+        "sha256": "e33fb8c0fdfb17e4552dd4fb8879b65dc751fd6f624686ff3c5a8014741be369"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/README.md",
+        "bytes": 4322,
+        "sha256": "dadc9354344446280305a0d03f35f4f567f0de96a2f29f08ac5edb1f8b506669"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+        "bytes": 2687,
+        "sha256": "cb4c40b6c32ee07860785be458e04f77f74e01acb1ce583eeed7d3163c216756"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "bytes": 210724,
+        "sha256": "40dbf6d9190d09ffebb1a41e68deb95d9f2ad2d7ab006f56d5276f0532872311"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "bytes": 19931,
+        "sha256": "b3f9d12cc7337aab12a49dad4e0671a0254ffc327ebd71d3035a6e49a2e53bbd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+        "bytes": 36148,
+        "sha256": "2ec2d38e593d46a90fe1b484e687cc6ea55459b293d29c6535ad7b830057ab26"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "bytes": 55523,
+        "sha256": "9fdc805c3bafe1594afad7197ccc350a3b00c685ed8c41e51cfd8f08230cb086"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+        "bytes": 9197,
+        "sha256": "795376140218d7a7ebde90a2481af288170d1872939cb25a4e418702e3a3494e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/analysis/attractors.py",
+        "bytes": 44305,
+        "sha256": "fe8c993aece00b8f97235602ac4cc9f9ebaea00f3305a57630ea0eaf92e430c4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 39025,
+        "sha256": "dc0355b60c61c5873c27378e7c387bcddb607a72ed89c6b6f7627d0923b47ac3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 91141,
+        "sha256": "b0cfcc9820ef05439f70327f286b328d491fd43377d2e5ba5c8dfbf00684ad5f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+        "bytes": 7403,
+        "sha256": "7b5b5a77485680e077aeb78ba8688a48f4c21fa7ddb738677864885c4f34a916"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "bytes": 24765,
+        "sha256": "7ee81076e13afcace6dfce2541d2cbf238e7509bd7723dd7567253877a55d81c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "bytes": 117649,
+        "sha256": "a825fb0cc1ad350b30c313a24b45f43e790264a7b096bc884bd9d8a45b78aaed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/container.py",
+        "bytes": 56818,
+        "sha256": "48b65db7cb8456d4551464be60b0ab8811680887d1a97e75fd14c0fe3bda4274"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/analysis.py",
+        "bytes": 11753,
+        "sha256": "7a0169ec8ef6be3934bdb316ce26af8451254e4d6563c428b33173b5fc9f1ebb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/debug.py",
+        "bytes": 9219,
+        "sha256": "85b3e58a6ac2e852fa56ef1a8dae11312c1cdcf68b9be923040c012f91c73a58"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "bytes": 212295,
+        "sha256": "897825fd7b4e7a0d89f5ec1cd881666d6e1470f6d1cc637fdf930c8cc40d0a65"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/attractors.py",
+        "bytes": 7820,
+        "sha256": "89a04bdbb632fb87da13941bffcd1647f3c455669dbf5f4603982ea58f98688e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "bytes": 17143,
+        "sha256": "a8821de12aee8ee369bc89231fbfada8431c998523684fabee3d7d324d04d47b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+        "bytes": 144596,
+        "sha256": "56465f0579d9ef9d764361286272cb2a97992e21a25f3ad7dfd2d83eaf335674"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "bytes": 64743,
+        "sha256": "31d976fd495d790d564be709e5c676e96a67d6e330ee3c83776a3d7ea7dc6548"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/__init__.py",
+        "bytes": 73661,
+        "sha256": "a681fa6e4ee2d55b4fd272d7be711847c1ca7f0b574cc6c2a91d87ab87c8a2ab"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "bytes": 110386,
+        "sha256": "648c286f25720fc16270ea2bed2ce8b50f703d4ac0e532ca1848f2ab7f25b78b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "bytes": 128499,
+        "sha256": "c38d1747bd56f23455dec238fdf8e333dfbcdaf2a2e64fab56abf13e1fa99396"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "bytes": 797913,
+        "sha256": "dbed5eed80ac85dc4591a9e94c4feff85caf9ff3b5f9af5246f56e2d995b0b24"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_benchmark.py",
+        "bytes": 116728,
+        "sha256": "0cc61307aa06d24687330658218fa4dd02a0bfdba87319275551928f0a4de2a6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_bind.py",
+        "bytes": 75987,
+        "sha256": "10ca25656c321160aff365bd977ddbce097bd6bb72895e4fbe01505c469ae567"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_calibration.py",
+        "bytes": 31436,
+        "sha256": "99d43e3d2b6ab5c611253944e9a6da543ab7d5a24f7f9d414b6b632c0ed31765"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+        "bytes": 174929,
+        "sha256": "ec67327bf87b5e8b8dbcf76000bfd11187b480cd57e8fe53ee27750be84371af"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "bytes": 303178,
+        "sha256": "70cad72bb8b4b191a25913977adb4c6e34d4a3462f0ff7a9f0f536796c6cba44"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "bytes": 129975,
+        "sha256": "1bd4fc119cab8368275362d2497e39535ad01bfded27d2c3995b2da15c9d83aa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/README.md",
+        "bytes": 5323,
+        "sha256": "b55a0edcabcdc077149a86830ddc20e81c4f2dbfec33131050c674de622bde2d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/knowledge_benchmark.py",
+        "bytes": 8231,
+        "sha256": "971e1ae4a6074c0fe058dd134fd4f72f1a7f65fdbd4c590aa3e288aa985710bd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py",
+        "bytes": 32114,
+        "sha256": "534b010e44b15aea96931291ea46a123c93785112653f321d32859388c385d23"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+        "bytes": 6220,
+        "sha256": "4e60cb47c079eb813a055370a3432d2c4fd48ad53110b9f002ebefc890b4fb24"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/__init__.py",
+        "bytes": 1491,
+        "sha256": "3800d09a498a8ec550e380d7696f886d6561d05fc9855ac5fc6b0e202d76365d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/models.py",
+        "bytes": 14951,
+        "sha256": "7512b759bd34198f07d3508acf9780a518d145a19ab54999483f77d18499d4e9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/service.py",
+        "bytes": 43035,
+        "sha256": "69ec2286c032f00e82617989b1f94df5df817f772e5574a1d97e0babb0087bd6"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/acquisition_epoch_production.py",
+        "bytes": 7472,
+        "sha256": "6a5e033143df6c4e2576d26bd9347f873457d07d53382a6fcaae390052b1d70a"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "bytes": 86676,
+        "sha256": "77a5e5822074e81c2ee74d69044589c86daa8a97c2bb743be77a1b5d7eb9913a"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "bytes": 46746,
+        "sha256": "ef93d11da441579c3709bb368a732ac5f28bbcdc5cfa9312e2971ef8b56a18b6"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "bytes": 42291,
+        "sha256": "370b967abd57b49bb544f9cc23e594a367a41554b81852584dc5ac0a8f02c680"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "bytes": 53731,
+        "sha256": "5e4be9e4c990f28ac16d5829e61d96f493e23ae17a38096231225f504c1d2f50"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+        "bytes": 25102,
+        "sha256": "5c82dc26056269fdbfada3ac2e65d21d8715bd9ef450fd529b64df42a691c0c0"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+        "bytes": 20311,
+        "sha256": "a35aff42952bd612c05a6831da8d56f99cd514b0c077b9ebde7986ea649af65f"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+        "bytes": 59257,
+        "sha256": "94707017ca7018837edc5db48d26e01cf61bd600b528f4dab1609225a98dc7a5"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+        "bytes": 74239,
+        "sha256": "d26d306f03be6b981e0784898c2fad192381c3bb0afd4f2c7a2afe8b4fed2c1c"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py",
+        "bytes": 21312,
+        "sha256": "dfb5e84de16852dd9817afa5ce9af81e45f6014ff301143e0e6f26c2c35e43d0"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/analysis/test_attractors.py",
+        "bytes": 11429,
+        "sha256": "c0c988c4e5e8ec6de8a40c5c43ce9a922ded8561a26b24360b2441b4e7c750e7"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+        "bytes": 12837,
+        "sha256": "cf4c4e21735dda2f2bb1d6c3bb00f3aaa31c6fef04149d935323e4dc6b9f16e2"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "bytes": 80690,
+        "sha256": "2c5bbbeb0f4add80fc4e6980b8283f97a1f5db9fd0a7425324c5be9f0e2d8ddc"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "bytes": 18925,
+        "sha256": "efd391c53f8ebac43236682fcda090c4718ab0921f35341dd38262abc88e54ee"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+        "bytes": 57141,
+        "sha256": "a3285ca6d06d2d03acf47b57fbba768f2a9526d1b43d6b9d0b4d1f50c913fd27"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_attractor_analysis_typed_get.py",
+        "bytes": 5047,
+        "sha256": "e5af4b3df7d337ce954d2cd939c43defbdd9930befa63ebb73139d2871ae6ee8"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+        "bytes": 13490,
+        "sha256": "e2993346efd51d9fb8e882c3a6afabf9dc17950d8e252337a458829ec30aead6"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+        "bytes": 59690,
+        "sha256": "19f5023bfc9b2fcd30f9fc5fa8d37307ceaa8d60d1d4a1beb7a60a20e5f95a86"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+        "bytes": 10598,
+        "sha256": "e24e75caa3a6cdc42ec9c0230d0fcd56d67d570c58ed71420fe623218dad9f52"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_executor.py",
+        "bytes": 35262,
+        "sha256": "ecf115ceba60714cda33580bafab668a3dfc09fa8e628ecdc24fc6c64d1363cd"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "bytes": 96085,
+        "sha256": "a0ad7d6cbc19dcd3e643db93628acaa57b3b21bca77cfc62d3e97da832dec35d"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_admission.py",
+        "bytes": 42702,
+        "sha256": "6070392abf426f46ce334ee290876082e28957015c32639bd7bca47545e2e540"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_benchmark.py",
+        "bytes": 9686,
+        "sha256": "b1a21e6e8212c26e9f91e2baa6a2e70151368f8291cd5da4eb988a50dd04668d"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_bind.py",
+        "bytes": 35638,
+        "sha256": "70aa1876b6d02c70cdbfd793e939ee311118299c3d6b3c0bc827db6a397956a9"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_calibration.py",
+        "bytes": 17451,
+        "sha256": "05bf580875513ed67629e7d2b7c1b1db5070a7abe510d1a174368df34ec3cb4b"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_phrasing_defense.py",
+        "bytes": 19740,
+        "sha256": "c39b43e14d8e27cf3ccbfb1c21c2775a6268bd48e9517571a16d6072ac2f3a4b"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py",
+        "bytes": 59528,
+        "sha256": "c1c2bc2ea7750749d278d0591a703952028e83826e69fa3e98b57d4ebe95dc5e"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "bytes": 100402,
+        "sha256": "3853f37067135accca168a3424dec030b59c01f0120605b05dd5ead875ca8bda"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+        "bytes": 313972,
+        "sha256": "00d4a65e77cb999a3816893001543634efecf9a748dc7ae0014fdd619baabb83"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "bytes": 235567,
+        "sha256": "a2fb4b1389c009c50ee10b34139631a71a4842e1fcf0ae7280102e63487085d2"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/test_knowledge_benchmark.py",
+        "bytes": 6661,
+        "sha256": "6eb415118140507195c65e556b2b71930733c2f49322efaea39d9c6da6d1e3d0"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py",
+        "bytes": 12227,
+        "sha256": "3226ee5bcae876770012f96ce5287ce2665157295b487f96a7a0be6c9c839dfa"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_policy_verified_nodes.py",
+        "bytes": 24596,
+        "sha256": "0ba3060d0eab167716ead8e7308c389c1c487510dbbac01c1975335e824d7b57"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py",
+        "bytes": 109594,
+        "sha256": "6c5d46d99aad40760c517b5ff7a6125b8e9d20d234fb2bff4db0563300dc6e71"
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "bytes": 784990,
+        "sha256": "9f679da4bf4e96761013621715548ab55488697177d3d33cf4afe0acbc86cd6d"
+      }
+    ]
+  },
+  "native_receipts": [
+    {
+      "id": "R1735 B31 typed-epoch-readback native",
+      "status": "FAIL_81_OF_94",
+      "result": {
+        "tests": 94,
+        "passed": 81,
+        "failed": 13,
+        "skipped": 0,
+        "wall_seconds": 61.98415304208174
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/command.json",
+          "bytes": 3504590,
+          "sha256": "0fc4adb76d70459025a78a5fe36edd833e33b3ea278b96c32e320d3d682d0b15"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/stdout.txt",
+          "bytes": 99724,
+          "sha256": "983eda45792c8a64af165007db2e71745e388a6a0b58f5009b06d6e3a736952e"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/junit.xml",
+          "bytes": 115261,
+          "sha256": "dd6a488ca087b0ebeacd14c810eae4a7118f02eefa3a3217e77c1e62dc5c7f67"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/progress.json",
+          "bytes": 220336,
+          "sha256": "579536916906295ab0ad00eb8cb94cd91c87765dc84a42a1dfa326efc2c0ae1b"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/module-origins.json",
+          "bytes": 462903,
+          "sha256": "242003e5dcdb25f974c8429ebd76a261168963e619d127a3cef0ded18e5f548c"
+        }
+      ],
+      "summary_is_navigation_only": [
+        {
+          "path": "raw/r1735-b31-native-result-summary-20261014/summary.json",
+          "bytes": 5403,
+          "sha256": "f77734426e616c770da3a1f3c1512021761d4011abba9750e7aef269417aa8ee"
+        }
+      ]
+    },
+    {
+      "id": "R1738 C12 lazy-dependency discriminator",
+      "status": "PASS_NARROW_OBSERVATION",
+      "result": {
+        "exit_code": 0,
+        "wall_seconds": 14.22280037496239,
+        "runtime_digest_changed": true,
+        "changed_module": "hnswlib",
+        "not_capability_proof": true
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1738-c12-lazy-dependency-discriminator-actual-20261014/command.json",
+          "bytes": 2046789,
+          "sha256": "065ab66c81493891ce7c9aa63efb54fdf8866c998cb73e34371274240d5a0916"
+        },
+        {
+          "path": "raw/r1738-c12-lazy-dependency-discriminator-actual-20261014/stdout.txt",
+          "bytes": 1936,
+          "sha256": "8b6bc606363e8c7ed927f9481e2208107b5395fb0ffa0502c78bb77c60198074"
+        },
+        {
+          "path": "raw/r1738-c12-lazy-dependency-discriminator-actual-20261014/stderr.txt",
+          "bytes": 777,
+          "sha256": "24454a64db6e642ab3fe840cb1d214dcee69032b505b3c6010328070f9f4770a"
+        }
+      ]
+    },
+    {
+      "id": "R1742 core IR focused reader/emission tests",
+      "status": "FAIL_3_OF_75",
+      "result": {
+        "exit_code": 1,
+        "tests": 75,
+        "failed": 3,
+        "skipped": 0,
+        "wall_seconds": 3.9498160840012133
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/command.json",
+          "bytes": 2137984,
+          "sha256": "723da34bae1c46fe2a45ed0465df05e578fd0c85ee6a4f936f12fd04d1117d2b"
+        },
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/stdout.txt",
+          "bytes": 9018,
+          "sha256": "af8e2cbb002da5d3a0157dd5e4babeaa730197cdf48011b97f132afb48ed0be1"
+        },
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/junit.xml",
+          "bytes": 21988,
+          "sha256": "d539c456d6459542b029e0903c1b6db95e74d106aa38665290ad85e2dd8d34ab"
+        },
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/progress.json",
+          "bytes": 100695,
+          "sha256": "c35d77b5016fddb4d39326598531eb28d3184d704c7d2ef72fb24d8fd0bc0a3f"
+        },
+        {
+          "path": "raw/source42-core-ir-native-emission-selected-reader-actual-r1742-20261014/module-origins.json",
+          "bytes": 26170,
+          "sha256": "b94532ce0c194bdb839d2445eb2a1827c4a154b8e30cec365b50a6fb4d7e0950"
+        }
+      ],
+      "launch_artifacts": [
+        {
+          "path": "raw/r1742-core-ir-emission-focused-driver-20261014/driver.py",
+          "bytes": 1096,
+          "sha256": "7583eda789f977e418c6b3fe931495a4ca6e508031be2a8bce6ad85c80c972ae"
+        },
+        {
+          "path": "raw/r1742-core-ir-emission-focused-driver-20261014/manifest.json",
+          "bytes": 667,
+          "sha256": "990fbddfeb2c3c9a1c232211cc9c63cc49efb3614427681a89406e9eb2acb510"
+        },
+        {
+          "path": "raw/r1742-core-ir-emission-focused-driver-20261014/launcher.stdout.txt",
+          "bytes": 10566,
+          "sha256": "3f10eec2d6301008ae5533f3af7e91406f8e990895280eeb7cbbf10c1231c034"
+        },
+        {
+          "path": "raw/r1742-core-ir-emission-focused-driver-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1754 Q2 physical-record control",
+      "status": "FAIL_CONTROL_SELFTESTS_PASS",
+      "result": {
+        "normal_control_exit_code": 1,
+        "self_test_normal_exit_code": 0,
+        "self_test_optimized_exit_code": 0,
+        "failure": "pyexpat.errors has neither file nor namespace origin"
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/controls-normal.json",
+          "bytes": 5642,
+          "sha256": "8c5ee92d7fd57d28bf3356f721a5127a338f3af82a657172eb37fa5bb4e296a3"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/controls-normal.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/controls-normal.stderr.txt",
+          "bytes": 2413,
+          "sha256": "17e06c29f1899eb70f7d4734fb1b1e266c7563cef94c3331b647d5e799ce723e"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-normal.json",
+          "bytes": 5074,
+          "sha256": "86e3362aaa367156d1c57514a1c1f2ea4436eaa12a9eef716fe710758905dbca"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-normal.stdout.txt",
+          "bytes": 3886,
+          "sha256": "e57d951813ad8fcbd3a220a1f0a3ba6145e1f9315d732ad379269e7f2c44c5d4"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-normal.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-optimized.json",
+          "bytes": 5087,
+          "sha256": "b68c4ad108dfed9dc90e4559a4efbe543351d59f418c439490f463ae108790d2"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-optimized.stdout.txt",
+          "bytes": 3886,
+          "sha256": "e57d951813ad8fcbd3a220a1f0a3ba6145e1f9315d732ad379269e7f2c44c5d4"
+        },
+        {
+          "path": "raw/r1754-q2-physical-record-native-controls-actual-20261014/self-test-optimized.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1755 B31 IR-composed suite",
+      "status": "FAIL_211_OF_222",
+      "result": {
+        "exit_code": 1,
+        "tests": 222,
+        "passed": 211,
+        "failed": 11,
+        "skipped": 0,
+        "wall_seconds": 114.88976508309133
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/command.json",
+          "bytes": 4363997,
+          "sha256": "72110b8c5317feecb4e0557238c1bcdeadbc5592253f6a2ed7ce3da9bb11f449"
+        },
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/stdout.txt",
+          "bytes": 39182,
+          "sha256": "2ede3832cbe4f5ea3848c9a0e2fdba02d3174ea9421055af56fb3789b5581bbd"
+        },
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/junit.xml",
+          "bytes": 77109,
+          "sha256": "1883f7f11b7985223cfa6e5275a0270908a7dd21de990a10867990f0a3600c7f"
+        },
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/progress.json",
+          "bytes": 322888,
+          "sha256": "2089eab6fc79aabdfdfa0a964622b1dbe4c089bc581392f49b112fd9339826a5"
+        },
+        {
+          "path": "raw/source42-b31-owner-cas-finalizer-ir-admission-actual-r1755-20261014/module-origins.json",
+          "bytes": 486648,
+          "sha256": "6962d0329e34a14a1f97ec55f15e0b8957afe8b8e5c96b3b6183df838a4afc2a"
+        }
+      ],
+      "launch_artifacts": [
+        {
+          "path": "raw/r1755-b31-ir-composed-native-driver-20261014/driver.py",
+          "bytes": 2202,
+          "sha256": "d8f0f22008afa5441f13db64275b31ddf1a41524af3cd7ae0c3b5fda9b7a3085"
+        },
+        {
+          "path": "raw/r1755-b31-ir-composed-native-driver-20261014/manifest.json",
+          "bytes": 1820,
+          "sha256": "60f277b94983685e470c857c81b3dfbb5b139acd20d113097a4bd5bba8a7e536"
+        },
+        {
+          "path": "raw/r1755-b31-ir-composed-native-driver-20261014/launcher.stdout.txt",
+          "bytes": 40729,
+          "sha256": "b960b0a625819481dae5dc84b2f550fa10774875e9111cf278f5e50d2246c6a7"
+        },
+        {
+          "path": "raw/r1755-b31-ir-composed-native-driver-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1756 C12 real-profile bootstrap (historical)",
+      "status": "FAIL_4_OF_5",
+      "result": {
+        "exit_code": 1,
+        "tests": 5,
+        "passed": 4,
+        "failed": 1,
+        "skipped": 0,
+        "junit_seconds": 498.585,
+        "wall_seconds": 506.2560297079617,
+        "failure": "expected one index build, observed two"
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/command.json",
+          "bytes": 2085012,
+          "sha256": "c87126a7f4ef1622764678e4dfd8376a0675f5b2f0a8aafae134439030e5eefc"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/stdout.txt",
+          "bytes": 15280,
+          "sha256": "c61b32393641e7bc21feca5b47b1391d699ee06e539a5029ba9b5d3f4a7be04d"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/stderr.txt",
+          "bytes": 859,
+          "sha256": "a542eec72d6d1e2c6660a98a9303e47e5164c2bb1abdaae98fd7d697c3a4ca84"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/junit.xml",
+          "bytes": 14220,
+          "sha256": "58e7bb3fb7eedaed1bd6d3063ee7717d4807ceecdf6bd2e59b217e8c508223d5"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/progress.json",
+          "bytes": 20160,
+          "sha256": "00c66f148e455eaa2c368354a0805096e24e82c520bbb89e5d5327fe173277e1"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/module-origins.json",
+          "bytes": 595842,
+          "sha256": "0697e2adde57a5118a32c159ccb3c30fd90f44f5b7cd7db01e5af69ea639c4b2"
+        },
+        {
+          "path": "raw/r1756-c12-bootstrap-real-profile-actual-20261014/timings.json",
+          "bytes": 7209,
+          "sha256": "943965b64f772264fc9f1f05618b53af1d5e2f3244717647243d6e6c1586c26f"
+        }
+      ]
+    },
+    {
+      "id": "R1757 Q2 builtin-child origin observation",
+      "status": "PASS_NARROW_OBSERVATION",
+      "result": {
+        "exit_code": 0,
+        "observed": [
+          "pyexpat.errors",
+          "pyexpat.model"
+        ],
+        "scope": "origin/type observation only"
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1757-q2-builtin-child-origin-discriminator-20261014/command.json",
+          "bytes": 2015,
+          "sha256": "e802c4e49a6ed35975d8bd6432298e381249c273183ed1d165ffdd9f9e50e5e5"
+        },
+        {
+          "path": "raw/r1757-q2-builtin-child-origin-discriminator-20261014/stdout.txt",
+          "bytes": 1606,
+          "sha256": "ab2551683db4775ad77444d93169fda6333f74808d41eae0207c4f5bd0dc8773"
+        },
+        {
+          "path": "raw/r1757-q2-builtin-child-origin-discriminator-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1758 B31 static finalizer graph diagnostic",
+      "status": "READ_ONLY_DIAGNOSTIC_NOT_EXECUTED",
+      "result": {
+        "p40": "same class deeper: owner ArtifactRef to selected CAS ArtifactRef",
+        "closure_ids": []
+      },
+      "artifacts": [
+        {
+          "path": "raw/r1758-b31-finalizer-owner-ref-graph-diagnostic-20261014/analysis.json",
+          "bytes": 33370,
+          "sha256": "af20d45df6fd3a9e20f646b09a577181b5262806e310f4560734c481f0d4f02e"
+        },
+        {
+          "path": "raw/r1758-b31-finalizer-owner-ref-graph-diagnostic-20261014/manifest.json",
+          "bytes": 1397,
+          "sha256": "cee0fd9ae3cd6b16516253363213ec887754969d5d11dfddf93e7bfebaf59d95"
+        },
+        {
+          "path": "raw/r1758-b31-finalizer-owner-ref-graph-diagnostic-20261014/runbook.md",
+          "bytes": 2682,
+          "sha256": "6468c7a64677d8fda991b9dd270b1317004a193cf0ae7f81df777f423beea372"
+        }
+      ]
+    },
+    {
+      "id": "R1758 C12 independent review",
+      "status": "GO_APPLY_AND_RUN_REPLAY; REPLAY_NOT_IN_THIS_REVIEW",
+      "result": {
+        "classification": "same spy-count proxy class widened across three Legal canonical loaders",
+        "closure_ids": []
+      },
+      "artifacts": [
+        {
+          "path": "raw/r1758-c12-all-index-knn-independent-20261014/review.json",
+          "bytes": 1451,
+          "sha256": "12258ca48374179c443b022f0314afdf358aa4cf54af2659a568d5859f7b3c81"
+        },
+        {
+          "path": "raw/r1758-c12-all-index-knn-independent-20261014/review.md",
+          "bytes": 3885,
+          "sha256": "ab7c7c51b3ac491d346f3edec81b2fa06ccd31d7e327af68db707d25933dd736"
+        }
+      ]
+    },
+    {
+      "id": "R1758 Q2 builtin-child data observation",
+      "status": "PASS_NARROW_OBSERVATION",
+      "result": {
+        "exit_code": 0,
+        "rows": 2,
+        "scope": "actual synthetic-child observation only; no complete live-provenance claim"
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1758-q2-builtin-child-data-diagnostic-20261014/command.json",
+          "bytes": 2252,
+          "sha256": "b3d1ae004a663e9c6db0c2e194103da3270b7843fbf02398b609d7776aa27edb"
+        },
+        {
+          "path": "raw/r1758-q2-builtin-child-data-diagnostic-20261014/stdout.json",
+          "bytes": 41110,
+          "sha256": "98ac2afd4cef6af357ffc4b815ecc52211697b93a6cb122ca51e8de9270bdc67"
+        },
+        {
+          "path": "raw/r1758-q2-builtin-child-data-diagnostic-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1759 Q2 virtual candidate and R1760 independent review",
+      "status": "NO_GO_EXACT_CANDIDATE_NOT_APPLIED",
+      "result": {
+        "candidate_controls": "not_run",
+        "same_origin_provenance_class_deeper": true,
+        "live_execution_provenance": "not_established"
+      },
+      "artifacts": [
+        {
+          "path": "raw/r1759-q2-runtime-generated-data-origin-20261014/r1759-q2-runtime-generated-data-origin-manifest.json",
+          "bytes": 16220,
+          "sha256": "34d94a138b0ce38353b49a46af366f57ef3021ab11266e8912f2249d0d6be33b"
+        },
+        {
+          "path": "raw/r1759-q2-runtime-generated-data-origin-20261014/r1759-q2-runtime-generated-data-origin-plan.md",
+          "bytes": 6980,
+          "sha256": "d7b2c1212207139fac585957af66cec8943330cc9d5431f6428bda5df6d9edad"
+        },
+        {
+          "path": "raw/r1759-q2-runtime-generated-data-origin-20261014/ruff-r1759-candidate.json",
+          "bytes": 9669,
+          "sha256": "2b078772ef0604b0b9b7a0af1f8b18403695f1a7e8bf07c34b3b47d465a03902"
+        }
+      ],
+      "review_artifacts": [
+        {
+          "path": "raw/r1760-q2-runtime-generated-data-origin-independent-20261014/r1760-q2-runtime-generated-data-origin-independent-review.json",
+          "bytes": 4051,
+          "sha256": "87bd9c9791fafdb7d1c71d67c1f1095f18f43d7252152431ef518ddaaaf8b54f"
+        },
+        {
+          "path": "raw/r1760-q2-runtime-generated-data-origin-independent-20261014/r1760-q2-runtime-generated-data-origin-independent-review.md",
+          "bytes": 4435,
+          "sha256": "89e0d759955fe41e82a2869b06bb342972f08e244ac3bd2b78dfbe473eaefde3"
+        }
+      ]
+    },
+    {
+      "id": "R1759 owned Python Ruff scope",
+      "status": "PASS_NARROW_LINT",
+      "result": {
+        "exit_code": 0,
+        "wall_seconds": 0.0906509580090642,
+        "not_whole_repo_or_native_green": true
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1759-source42-owned-native-quality-preservation-20261014/command.json",
+          "bytes": 25128,
+          "sha256": "fefa5efe947fc0a342010e8ca4f9107f4c9595d5060a857fc29303ea5042f747"
+        },
+        {
+          "path": "raw/r1759-source42-owned-native-quality-preservation-20261014/stdout.json",
+          "bytes": 2,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "raw/r1759-source42-owned-native-quality-preservation-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1761 UI lint/format",
+      "status": "PASS_NARROW_LINT_FORMAT",
+      "result": {
+        "eslint_exit_code": 0,
+        "prettier_exit_code": 0,
+        "no_browser_or_semantic_test": true
+      },
+      "deciding_artifacts": [
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/eslint.json",
+          "bytes": 1064,
+          "sha256": "4a10a41fccf4d2ea934f4ebef9d0c9040c0f1606ed97ef49ea8e2d5300dc301f"
+        },
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/eslint.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/eslint.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/prettier.json",
+          "bytes": 1528,
+          "sha256": "426316f9bcebcbfb28f42d5f458f60aa2a1e4c7dff8aed65e3224c8dfc68bc17"
+        },
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/prettier.stdout.txt",
+          "bytes": 66,
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        {
+          "path": "raw/r1761-source42-ui-preservation-checks-20261014/prettier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "R1763 C12 post-addon all-index real-profile run",
+      "status": "RUNNING_OR_UNFINALIZED",
+      "result": {
+        "terminal_exit_code": null,
+        "junit": null,
+        "stdout_tail": "..",
+        "no_outcome_claim": true
+      },
+      "actual_artifacts": [
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/command.json",
+          "bytes": 1032719,
+          "sha256": "06366ffc74a842327e0f76ba6a2c6bc2712aed68bfa8c44ae55019e426f565b0"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stdout.txt",
+          "bytes": 94,
+          "sha256": "ff1e5fff1198e24593ca3e3fa90f3c5ed67adb375b35d96f3e5207a79c52b125"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/progress.json",
+          "bytes": 2898,
+          "sha256": "719ca8c05f2444cb7aaa402cba1472543e4d95e97db4bcb7d2db40693b4cba78"
+        }
+      ],
+      "root_artifacts": [
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/manifest.json",
+          "bytes": 15818,
+          "sha256": "51b2b9a398c905560bb3858bef42905ce3c1f1d61c2f09f3c44821f6e87ed78c"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/current-source-bindings.json",
+          "bytes": 9150,
+          "sha256": "93e50f07b96d5e89b94dc62b860dd8086e838cac6db19ee4da62847ef98f7c3e"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/launcher.py",
+          "bytes": 16692,
+          "sha256": "465395b71156f1e3256249703042d6226cde4417dbd2306769c99fc202818ef6"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/pytest_bootstrap.py",
+          "bytes": 689,
+          "sha256": "557c8d91319a70345ae03e39ea4ff983726f525ad8aa3e86c31e74c2e6dc6a0c"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/timing_plugin.py",
+          "bytes": 11203,
+          "sha256": "3b5807dd8b022220aa169e247338d5eeeeb138512e9a3c27616752c234608588"
+        }
+      ]
+    },
+    {
+      "id": "R1764 B31 first finalizer harness",
+      "status": "ERROR_COLLECTION_IMPORTLIB_NOT_PRODUCT_FAILURE",
+      "result": {
+        "exit_code": 4,
+        "errors": 1,
+        "product_tests_run": 0,
+        "failure": "pytest importlib collection failure; relative-import module has no collectors"
+      },
+      "actual_artifacts": [
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/command.json",
+          "bytes": 2052398,
+          "sha256": "b8b1020924fb9e72dee7aff416c24df480ec24c12f3bb72f544f7615161cb1ad"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/stdout.txt",
+          "bytes": 1736,
+          "sha256": "2c8102cfa9c732f1257ebfccdcd01ab8e9e42b332cea117eb7d9622159e1d155"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/stderr.txt",
+          "bytes": 236,
+          "sha256": "1f2e84829a509008fb4891844bc071831407bd66192b437eb755cca8523071c0"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/junit.xml",
+          "bytes": 1121,
+          "sha256": "2628c4ab369791390e79904c32452b8196a9ae59fd3796efc0452e95d5f1013e"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/progress.json",
+          "bytes": 117,
+          "sha256": "631042169f0dd8c48c4a277702031bcb316dae03ad057251a4303da3499ad72e"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/module-origins.json",
+          "bytes": 452554,
+          "sha256": "52b4d8ea68b35a94299d5555c7bab219aecb1ee7be26d19a6795bcfc9c12e842"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-actual-20261014/observer-output.json",
+          "bytes": 10711,
+          "sha256": "2f7dd5583f92a4c109daeee6f6036e38514666f53e3bb380af061a0d86058bd4"
+        }
+      ],
+      "root_artifacts": [
+        {
+          "path": "raw/r1764-b31-finalizer-graph-root-20261014/launcher.py",
+          "bytes": 3751,
+          "sha256": "3d3fb7e4ba72e4f9717225d1a126e2bc5fc510ad786d6639e802650722f5bbc7"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-root-20261014/launcher.stdout.txt",
+          "bytes": 1990248,
+          "sha256": "31a598788392f6ef29d6cab25ba99bf489cdf65f16a83c87099808cd7bda1fe5"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-root-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1764-b31-finalizer-graph-root-20261014/manifest.json",
+          "bytes": 392,
+          "sha256": "b732de8613f626d3b9cb31dafa51fc9ddb8921278f823c04af037fb91a3a2322"
+        }
+      ]
+    },
+    {
+      "id": "R1765 B31 importlib actual without observer hookwrapper",
+      "status": "FAIL_2_OF_2_OBSERVER_NOT_INVOKED",
+      "result": {
+        "exit_code": 1,
+        "tests": 2,
+        "failed": 2,
+        "observer_runs": 0
+      },
+      "actual_artifacts": [
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/command.json",
+          "bytes": 2127081,
+          "sha256": "34f77fc56be2ec719857e8b3121cfcaa91bf17d6e0285c5ff4e6eded74453aaa"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/stdout.txt",
+          "bytes": 7573,
+          "sha256": "0974adeb2706ff6bef99b33c1bcf085c2b9eefcfc165872df5afc195e9351782"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/junit.xml",
+          "bytes": 7160,
+          "sha256": "08514d6a9a6b0c793e63abbe467f16b67b2e93110601b00348b871c27da8d2c9"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/progress.json",
+          "bytes": 9514,
+          "sha256": "b1b13b51e0e974fdb4f996260034171759268670e280fc6308762159a482cab6"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/module-origins.json",
+          "bytes": 459760,
+          "sha256": "de666211e3b2fc2c4799e55b7bbc754468fa138806572d4ff3b90cecac66d959"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-actual-20261014/observer-output.json",
+          "bytes": 10711,
+          "sha256": "a1203694381e15ca02561513e5a2c08b84afa12a121bc2c3ae34edac6f262a32"
+        }
+      ],
+      "root_artifacts": [
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-root-20261014/launcher.py",
+          "bytes": 3816,
+          "sha256": "c607f8ce68146e5b7461fe2885763563513b4b4f57228c877a0826c21d5992c1"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-root-20261014/launcher.stdout.txt",
+          "bytes": 2059115,
+          "sha256": "a98e4c1b7e65e97ee4c61b557d7c4565428f90be70fc7869ba595ca2a1785f23"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-root-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1765-b31-finalizer-graph-importlib-root-20261014/manifest.json",
+          "bytes": 756,
+          "sha256": "e64581e5ca0ea1c22b04206614f55904cb3dcc6561b1b2238259afc7a397d721"
+        }
+      ]
+    },
+    {
+      "id": "R1767 B31 observer-hook actual",
+      "status": "FAIL_2_OF_2_CAPTURE_INCOMPLETE",
+      "result": {
+        "exit_code": 1,
+        "tests": 2,
+        "failed": 2,
+        "observer_capture": "incomplete serialization/capture error; failures separately retained"
+      },
+      "actual_artifacts": [
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-actual-20261014/command.json",
+          "bytes": 2126536,
+          "sha256": "942be43e354e79d1d6eb273584d073c94d5bb171c0764b6b5b269d251d0a8d23"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-actual-20261014/stdout.txt",
+          "bytes": 171,
+          "sha256": "e34655e13ab81052c713553570d44cb9d5c6bd4d27279e8993ac785305be69cd"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-actual-20261014/stderr.txt",
+          "bytes": 7309,
+          "sha256": "6db9914a788f5b09e2e802113aa1022b926ec7cb5cacc766acdc716aad3551a0"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-actual-20261014/junit.xml",
+          "bytes": 7162,
+          "sha256": "54a544162f381605eb4994f154cb0926281e967dd004c72f58c8653e85830c8f"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-actual-20261014/progress.json",
+          "bytes": 9397,
+          "sha256": "b5e45d48a60530866ef63523d48e63d09ae7111f2bb51c6fff22b7452087d52b"
+        }
+      ],
+      "root_artifacts": [
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-root-20261014/launcher.py",
+          "bytes": 3804,
+          "sha256": "75115239461097d35a56898be4d97ea363df1098333dec8e0a1371fd528e746f"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-root-20261014/launcher.stdout.txt",
+          "bytes": 2058672,
+          "sha256": "234745fd33f7a79b9f8fcf9797712d37a2ef07258f73c535f94360044d9e2e5c"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-root-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-root-20261014/manifest.json",
+          "bytes": 1218,
+          "sha256": "e95c0c8889aa9116b11d8bf28bdf7eb33ad9a7b26c5c52c51d6e49be44010bf2"
+        },
+        {
+          "path": "raw/r1767-b31-finalizer-observer-hook-root-20261014/observe_semantic_epoch_finalize.py",
+          "bytes": 27147,
+          "sha256": "11d432f9305718205dde780ed9e51eaf502406a8f9e7c10c212ed5feabde5345"
+        }
+      ]
+    },
+    {
+      "id": "R1768 B31 JSON observer actual and RAW-only successor",
+      "status": "FAIL_2_OF_2_OBSERVER_CAPTURE_CAPPED; CORRECTED_OBSERVER_UNRUN",
+      "result": {
+        "actual_exit_code": 1,
+        "tests": 2,
+        "failed": 2,
+        "observer_runs": 2,
+        "each_run_capped": true,
+        "event_count_each": 20009,
+        "corrected_root_manifest_status": "prepared_unrun"
+      },
+      "actual_artifacts": [
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/command.json",
+          "bytes": 2127507,
+          "sha256": "8ea62df4ad6c16d11a3bbcb4619a6039f8909f6ef16c89e4ddf7238c265e86ee"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/stdout.txt",
+          "bytes": 7573,
+          "sha256": "c195e83ccd0f72a0be1c52394156b76d9979320e6fd84aad7811db43fe94d730"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/junit.xml",
+          "bytes": 7162,
+          "sha256": "72a38acc9843165109559854fcb52caf9771b1bfae061e0900af5e2ae5dffb9a"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/progress.json",
+          "bytes": 9513,
+          "sha256": "e51af1b77f3fa0457ddbedee08ce9a1572627310433fdb265020a11b317e79f3"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/module-origins.json",
+          "bytes": 459760,
+          "sha256": "de666211e3b2fc2c4799e55b7bbc754468fa138806572d4ff3b90cecac66d959"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-actual-20261014/observer-output.json",
+          "bytes": 66661,
+          "sha256": "abe27469e5724f0c0f8f3362cda5b5635e9b9a8ee4b53447bc21283af5cc1198"
+        }
+      ],
+      "root_successor_artifacts": [
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-root-20261014/launcher.py",
+          "bytes": 3804,
+          "sha256": "0bec96156b835a23bae38d99c73bfd593db4db73dfba7c2eaa7d324806629771"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-root-20261014/launcher.stdout.txt",
+          "bytes": 2059533,
+          "sha256": "8b3a9608c1b89260a6d22e66e9bebce99c7d428c6db62688939d32264cbc30c4"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-root-20261014/launcher.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-root-20261014/manifest.json",
+          "bytes": 1583,
+          "sha256": "8bda016ff906f9cf90ac25008111028e8092bf6ea1417b298f962cd778bfeab7"
+        },
+        {
+          "path": "raw/r1768-b31-finalizer-json-observer-root-20261014/observe_semantic_epoch_finalize.py",
+          "bytes": 27233,
+          "sha256": "8039e4703e5e6b071ea88fffc5f57c6203ef85ff820b77e5bd327c5dcdbd11c5"
+        }
+      ]
+    }
+  ],
+  "remaining_work": [
+    {
+      "area": "R1763 C12 real-profile run",
+      "status": "RUNNING_OR_UNFINALIZED",
+      "next": "Wait for the actual R1763 run to produce terminal command fields and a complete JUnit/stdout/stderr receipt. Keep the earlier R1756 4/5 failure separate."
+    },
+    {
+      "area": "B31 finalizer graph/native evidence",
+      "status": "FAIL_OR_HARNESS_ERROR; R1768 CORRECTION UNRUN",
+      "next": "Use the prepared RAW-only hookwrapper/serialization correction, then run the exact two finalizer selectors; require full observer JSON without caps and preserve command, JUnit, progress, module-origin, stdout, and stderr artifacts. R1765/R1767/R1768 currently each show two product failures."
+    },
+    {
+      "area": "Q2 intrinsic-origin provenance",
+      "status": "NO_GO exact candidate",
+      "next": "Implement the same-class intrinsic origin/source-set reconciliation and fabricated marker controls; then run normal and optimized controls, installed profiles, and Q2 freeze gates. Preserve live_execution_provenance as not_established unless separately evidenced."
+    },
+    {
+      "area": "N9 real capability chain",
+      "status": "NO_GO",
+      "next": "Demonstrate the actual produce_from_catalog -> WorkspaceLoop -> served-progress path end to end before accepting selected-profile binding as an N9 capability."
+    },
+    {
+      "area": "canonical source freeze/generation",
+      "status": "UNRUN_OR_INCOMPLETE",
+      "next": "After Root source decisions, regenerate/check affected API/client/dashboard/IR/Fabric/PDC companions and behavioral drift/corrupt-field controls; update the stale whole canonical report only through Root after the source-bound run."
+    }
+  ],
+  "p40_classification": [
+    {
+      "finding": "C12 all-index kNN delta",
+      "class": "same spy-count proxy class widened to all three Legal canonical loaders",
+      "closure_ids": []
+    },
+    {
+      "finding": "B31 owner-ref to selected-CAS reconciliation",
+      "class": "same class one level deeper; diagnostic only",
+      "closure_ids": []
+    },
+    {
+      "finding": "Q2 intrinsic built-in/frozen marker bypass",
+      "class": "same origin-provenance class one level deeper per R1760; do not retain prior new-class label",
+      "closure_ids": []
+    }
+  ],
+  "formal_closure_ids": [],
+  "limitations": [
+    "This is a preservation receipt and correction index, not final source freeze, G acceptance, N9 acceptance, Q2 acceptance, or native green.",
+    "R1735 summary.json is navigation only; its full command, stdout, stderr, JUnit, progress, and module-origin artifacts are individually referenced.",
+    "The Root stage-guard incident remains explicit: initial stage guard returned 1, a later assertion failed, and a shell newline still invoked commit; independent branch readback and current 95-path rehash passed.",
+    "R1763 C12 has no terminal status in its current command record; no result is inferred from two progress dots.",
+    "The old whole canonical report remains stale/unchanged; no tracked target is written by this packet."
+  ],
+  "failure_provenance": {
+    "P41_classification": "not_established",
+    "reason": "No exact native failing command was replayed from a predating slice base while proving zero intersection against the full 95-path changed-input denominator; do not classify these reds as inherited.",
+    "next": "Only if failure ownership is needed for closeout, replay the exact command from the correct slice base and reconcile its complete input set against all 95 owned paths."
+  },
+  "pattern_pass": {
+    "P35": "Counts and file-type denominator continue to derive from the complete 95-path preserved manifest, embedded in this receipt.",
+    "P39": "All config/docs/release/UI/test companions remain included in the 95-path preservation boundary.",
+    "P40": "C12 and B31 are same-class widened/deeper findings; Q2 marker bypass is corrected to same origin-provenance class per R1760; N9 is an incomplete capability chain.",
+    "P41": "Prior native red ownership is not_established absent exact base replay and complete input intersection."
+  },
+  "successor": {
+    "packet_id": "r1769-source42-preservation-correction-20261014",
+    "supersedes_packet": {
+      "path": "raw/r1763-source42-preservation-receipt-20261014/source42-preservation.json",
+      "sha256": "f79a94aba9b3aca53c54c43ba25f1874a7f461356688e2e75eb6cf20dffd840c"
+    },
+    "old_packet_is_immutable": true,
+    "logical_tracked_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source42-preservation.json",
+    "canonical_whole_report_status": "old_or_stale_reference_left_unchanged; this RAW correction does not refresh or replace the whole canonical report",
+    "preparation_mode": "RAW-only virtual successor; no tracked target write, source write, Git mutation, import, or test by this worker"
+  },
+  "current_source_readback": {
+    "head": "684bd7315bfdeef636f1713f715f4dfa56bdde94",
+    "tree": "3d6b4857c1ff00e0c334176275d165a5aef686d8",
+    "parent": "bafca83bff9ff49eef1466bc491a8420b5cd1dbb",
+    "owned_path_count": 95,
+    "current_checkout_rehash_mismatches": [],
+    "status": "PASS"
+  },
+  "receipt_corrections": [
+    {
+      "correction": "R1735 summary.json is navigation only, not a deciding output.",
+      "deciding_run": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014",
+      "deciding_artifacts": [
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/command.json",
+          "bytes": 3504590,
+          "sha256": "0fc4adb76d70459025a78a5fe36edd833e33b3ea278b96c32e320d3d682d0b15"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/stdout.txt",
+          "bytes": 99724,
+          "sha256": "983eda45792c8a64af165007db2e71745e388a6a0b58f5009b06d6e3a736952e"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/junit.xml",
+          "bytes": 115261,
+          "sha256": "dd6a488ca087b0ebeacd14c810eae4a7118f02eefa3a3217e77c1e62dc5c7f67"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/progress.json",
+          "bytes": 220336,
+          "sha256": "579536916906295ab0ad00eb8cb94cd91c87765dc84a42a1dfa326efc2c0ae1b"
+        },
+        {
+          "path": "raw/source42-b31-s1-typed-epoch-readback-native-actual-r1735-20261014/module-origins.json",
+          "bytes": 462903,
+          "sha256": "242003e5dcdb25f974c8429ebd76a261168963e619d127a3cef0ded18e5f548c"
+        }
+      ],
+      "summary_navigation_only": [
+        {
+          "path": "raw/r1735-b31-native-result-summary-20261014/summary.json",
+          "bytes": 5403,
+          "sha256": "f77734426e616c770da3a1f3c1512021761d4011abba9750e7aef269417aa8ee"
+        }
+      ],
+      "actual_result": {
+        "exit_code": 1,
+        "tests": 94,
+        "passed": 81,
+        "failed": 13,
+        "skipped": 0,
+        "wall_seconds": 61.98415304208174
+      }
+    },
+    {
+      "correction": "Q2 is the same origin-provenance class one level deeper, not a new class. R1760 independently rejects the exact R1759 candidate: mutable module.__file__ can claim built-in/frozen and bypass the originless-data branch.",
+      "R1760_review": [
+        {
+          "path": "raw/r1760-q2-runtime-generated-data-origin-independent-20261014/r1760-q2-runtime-generated-data-origin-independent-review.json",
+          "bytes": 4051,
+          "sha256": "87bd9c9791fafdb7d1c71d67c1f1095f18f43d7252152431ef518ddaaaf8b54f"
+        },
+        {
+          "path": "raw/r1760-q2-runtime-generated-data-origin-independent-20261014/r1760-q2-runtime-generated-data-origin-independent-review.md",
+          "bytes": 4435,
+          "sha256": "89e0d759955fe41e82a2869b06bb342972f08e244ac3bd2b78dfbe473eaefde3"
+        }
+      ],
+      "R1759_candidate": [
+        {
+          "path": "raw/r1759-q2-runtime-generated-data-origin-20261014/r1759-q2-runtime-generated-data-origin-manifest.json",
+          "bytes": 16220,
+          "sha256": "34d94a138b0ce38353b49a46af366f57ef3021ab11266e8912f2249d0d6be33b"
+        }
+      ],
+      "classification": "P40 SAME origin-provenance class, deeper intrinsic-origin marker bypass; no new class",
+      "required_closure_move": "Reconcile every collected built-in/frozen claim against the selected runtime intrinsic source/origin set, or fail closed; add marker-preserving fabricated builtin/frozen controls in normal and optimized modes.",
+      "live_execution_provenance": "not_established as a separate residual; it does not require an abstract authority decision before fixing the concrete marker bypass.",
+      "closure_ids": []
+    },
+    {
+      "correction": "N9 is NO-GO for capability acceptance: the R1693 virtual candidate does not demonstrate the real producer-to-served-progress chain.",
+      "R1693_manifest_and_census": [
+        {
+          "path": "raw/r1693-n7-selected-profile-chain-successor-20261014/r1693-selected-profile-chain-successor-manifest.json",
+          "bytes": 12809,
+          "sha256": "49308e80b5470a31df0bc10d8232d60f8a6e411899b42aa62ebf1b55053ed867"
+        },
+        {
+          "path": "raw/r1693-n7-selected-profile-chain-successor-20261014/source-caller-census.json",
+          "bytes": 9214,
+          "sha256": "fbf874fb4eefebb737a75f280a2a6fb4e9410e0f1dab614d43d715fe495485ec"
+        },
+        {
+          "path": "raw/r1693-n7-selected-profile-chain-successor-20261014/source-caller-census.py",
+          "bytes": 5119,
+          "sha256": "19392371b80ae0b7b62979afe1d11319dc1e0c084f4c6384c2545b533cc10415"
+        },
+        {
+          "path": "raw/r1693-n7-selected-profile-chain-successor-20261014/r1693-selected-profile-chain-successor.patch",
+          "bytes": 80536,
+          "sha256": "a607b200421ce09d9e3b0dab1df0e3eff468a3b4254e038c943e4cd432cd19e4"
+        }
+      ],
+      "missing_real_chain": "produce_from_catalog -> WorkspaceLoop -> served progress",
+      "capability_state": [
+        "producer_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "status": "NO_GO_virtual_candidate_unapplied; selected profile proves exact artifact/manifest selection only, not positive N9 disposition",
+      "closure_ids": []
+    },
+    {
+      "correction": "R1763 is the current C12 all-index kNN actual run and is not finalized in the saved actual record. Keep it separate from the historical R1756 4/5 failure.",
+      "actual_run_artifacts": [
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/command.json",
+          "bytes": 1032719,
+          "sha256": "06366ffc74a842327e0f76ba6a2c6bc2712aed68bfa8c44ae55019e426f565b0"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stdout.txt",
+          "bytes": 94,
+          "sha256": "ff1e5fff1198e24593ca3e3fa90f3c5ed67adb375b35d96f3e5207a79c52b125"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/progress.json",
+          "bytes": 2898,
+          "sha256": "719ca8c05f2444cb7aaa402cba1472543e4d95e97db4bcb7d2db40693b4cba78"
+        }
+      ],
+      "root_launch_artifacts": [
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/manifest.json",
+          "bytes": 15818,
+          "sha256": "51b2b9a398c905560bb3858bef42905ce3c1f1d61c2f09f3c44821f6e87ed78c"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/current-source-bindings.json",
+          "bytes": 9150,
+          "sha256": "93e50f07b96d5e89b94dc62b860dd8086e838cac6db19ee4da62847ef98f7c3e"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/launcher.py",
+          "bytes": 16692,
+          "sha256": "465395b71156f1e3256249703042d6226cde4417dbd2306769c99fc202818ef6"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/pytest_bootstrap.py",
+          "bytes": 689,
+          "sha256": "557c8d91319a70345ae03e39ea4ff983726f525ad8aa3e86c31e74c2e6dc6a0c"
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-root-20261014/timing_plugin.py",
+          "bytes": 11203,
+          "sha256": "3b5807dd8b022220aa169e247338d5eeeeb138512e9a3c27616752c234608588"
+        }
+      ],
+      "actual_record_state": {
+        "head": "684bd7315bfdeef636f1713f715f4dfa56bdde94",
+        "terminal_exit_code_present": false,
+        "junit_present": false,
+        "stdout_tail": "..",
+        "status": "RUNNING_OR_UNFINALIZED; no result claim"
+      },
+      "historical_R1756_result": "retained unchanged as a separate earlier 4 passed / 1 failed run",
+      "closure_ids": []
+    },
+    {
+      "correction": "B31 R1764/R1765/R1767/R1768 are separate harness/product/capture outcomes; later observer source is RAW-only and unrun.",
+      "R1764": "pytest collection ERROR (importlib/relative-import harness): 1 suite error, zero product tests run; not a product FAIL.",
+      "R1765": "actual 2 tests, 2 FAIL, no observer hookwrapper so observer runs=0.",
+      "R1767": "actual 2 tests, 2 FAIL; observer hook produced incomplete serialization/capture error after the test result.",
+      "R1768": "actual 2 tests, 2 FAIL; observer output is capped/incomplete (two runs, each capped at event_count 20009).",
+      "R1768_fixed_observer": "RAW-only observer correction prepared, manifest status prepared_unrun; no corrected replay result exists.",
+      "closure_ids": []
+    }
+  ],
+  "n9_current_classification": {
+    "status": "NO_GO",
+    "evidence": "R1693 selected-profile chain is virtual_candidate_unapplied and authoring verification marks imports/native gates/tests UNRUN.",
+    "missing_real_chain": "produce_from_catalog -> WorkspaceLoop -> served progress",
+    "capability_state": [
+      "producer_missing",
+      "bridge_missing",
+      "verification_missing",
+      "semantic_test_missing"
+    ],
+    "interpretation": "A selected profile binds exact artifact/manifest view only; it does not establish positive N9 disposition or a live served producer-to-consumer chain.",
+    "closure_ids": []
+  },
+  "q2_current_classification": {
+    "status": "NO_GO_EXACT_R1759_CANDIDATE",
+    "p40_classification": "SAME origin-provenance class one level deeper; intrinsic built-in/frozen marker bypass, not a new class",
+    "concrete_bypass": "A fabricated ModuleType with __file__ equal to the built-in/frozen marker is emitted as intrinsic and accepted without checking the selected runtime intrinsic module set.",
+    "closure_move": "Reconcile all built-in/frozen claims against the actual selected-runtime intrinsic source/origin set and add marker-preserving negative controls in normal and optimized modes.",
+    "live_execution_provenance": "not_established and separately bounded; no abstract authority decision is required to fix the proven marker bypass.",
+    "r1759_candidate_apply_state": "not_applied",
+    "closure_ids": []
+  },
+  "c12_current_run": {
+    "id": "R1763",
+    "status": "RUNNING_OR_UNFINALIZED",
+    "final_result": "UNRUN/NOT_AVAILABLE_IN_SAVED_RECEIPT",
+    "historical_R1756": "prior 4/5 fail remains historical and is not the result of the post-addon R1763 run.",
+    "closure_ids": []
+  },
+  "b31_current_run_sequence": [
+    {
+      "id": "R1764",
+      "classification": "harness ERROR importlib collection; no product test executed"
+    },
+    {
+      "id": "R1765",
+      "classification": "actual 2 FAIL; no observer hookwrapper, runs=0"
+    },
+    {
+      "id": "R1767",
+      "classification": "actual 2 FAIL; observer capture incomplete"
+    },
+    {
+      "id": "R1768",
+      "classification": "actual 2 FAIL; JSON observer capture capped at 20009 events per run; fixed RAW-only observer is prepared_unrun"
+    }
+  ],
+  "whole_canonical_report": {
+    "status": "old_or_stale_reference_unchanged",
+    "update": "not performed by this RAW-only successor"
+  },
+  "author_proposals": [],
+  "closure_ids": [],
+  "latest_actual_evidence": [
+    {
+      "id": "R1763",
+      "status": "BEHAVIOR_PASS_HARNESS_FREEZE_INVALID",
+      "cases": {
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 677.442325625103,
+      "command": {
+        "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/command.json",
+        "sha256": "1de40515f893bb3bd49d7aa5a5be514601d10a8f2afb7439d93d3f25064ab2b7",
+        "bytes": 2092612
+      },
+      "outputs": [
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stdout.txt",
+          "sha256": "fbec8313d12558ed823af093166d9c7262e3913746ff2ee217951e3601e7f7da",
+          "bytes": 1976
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/stderr.txt",
+          "sha256": "1a30763437d7cf8e4d2b1c52b9bf397269ae672af16d8e7efaea9765f60af208",
+          "bytes": 859
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/junit.xml",
+          "sha256": "5da340cddf79a659ac3ac735b9a81704bf0d0a28c9b328eeeda2d897276d97ad",
+          "bytes": 1061
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/timings.json",
+          "sha256": "4d151b876b47425de0ee3d5a3603adcf66ae96376ff01d5a80abc1a33a454941",
+          "bytes": 16880
+        },
+        {
+          "path": "raw/r1763-c12-all-index-knn-real-profile-actual-20261014/module-origins.json",
+          "sha256": "bbf313a0ef90848b73f417727b3e1023dcf8f4c8958de89406c7ac85cbd1665e",
+          "bytes": 595842
+        }
+      ],
+      "classification": {
+        "path": "raw/r1763-c12-capture-race-corrigendum-20261014/classification.json",
+        "sha256": "c25fdca72f76cc6af67933c81b25cef311d23c49887247b3445b1ba4b848832d",
+        "bytes": 3765
+      },
+      "limitation": "Root launched before author froze RAW packet. Full7745before/after equal keys, exactly2RAW metadata files changed; product source and all27C12bindings stable. source_stable remains false; no fullfreeze/global/nativegreen claim. Exact launch-time bytes reconstructed and hash-bound in corrigendum; independent review pending.",
+      "real_chain": "existing locked cached model → actualentity/fact/provision generation1/9/1 with1024dimensions → immutableGETintent → POSTfact1/vector+realHNSWlookup; fullsameprofile mutation/member/stale/callable/removal controls execute."
+    },
+    {
+      "id": "R1772",
+      "status": "FAIL_CONFIRMED_PRODUCT_BOUNDARY",
+      "cases": {
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0
+      },
+      "wall_seconds": 30.625473458087072,
+      "command": {
+        "path": "raw/r1772-b31-approved-dump-observer-actual-20261014/command.json",
+        "sha256": "c088435a0cd5945484d727a7f7704fafab388252f309c678f39ecfeb064d3c49",
+        "bytes": 2127261
+      },
+      "outputs": [
+        {
+          "path": "raw/r1772-b31-approved-dump-observer-actual-20261014/stdout.txt",
+          "sha256": "778bc6498237db35c2c26cd6e395dee31dff178bc648d2024f03a67848a698c4",
+          "bytes": 7573
+        },
+        {
+          "path": "raw/r1772-b31-approved-dump-observer-actual-20261014/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "raw/r1772-b31-approved-dump-observer-actual-20261014/junit.xml",
+          "sha256": "2dc79b456a00b51253bc7daeb45b55b4427eac30d7e26859319c974731e48c4c",
+          "bytes": 7160
+        },
+        {
+          "path": "raw/r1772-b31-approved-dump-observer-actual-20261014/observer-output.json",
+          "sha256": "c2a818e0a9e959a88137c3f93433ca806aecb38a4d1a3bf4f2f04ed1af663ec8",
+          "bytes": 1798481
+        }
+      ],
+      "property": "both actualfinalizers same first/only true term15 of25, unsupported0: owner native_mapping.passport_ref vs selected admitted passport_ref full equality; sameID/kind/media profileNone vs selected. ExistingCASidentity law preserved; genericgraph repair virtualauthor underway."
+    }
+  ],
+  "source_freeze_status": "95-path preservation WIP only; current blocking mechanism/prototype fixes and generated companions not applied; final globalfreeze/nativeQ2/Linux/browser/authentic/findingadjudication pending"
+}

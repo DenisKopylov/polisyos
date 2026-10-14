@@ -4439,6 +4439,7 @@ class RunNodesResponse(BaseModel):
     run_id: str
     source_kind: SourceKind
     nodes: list[RunNodeRecord] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
 
 
 class RunLineageResponse(BaseModel):
@@ -4496,6 +4497,7 @@ class RunErrorsResponse(BaseModel):
     meta: ApiMeta
     run_id: str
     errors: list[RunErrorView] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
 
 
 class AgentPipelineResponse(BaseModel):

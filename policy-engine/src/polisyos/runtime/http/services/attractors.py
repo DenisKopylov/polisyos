@@ -23,6 +23,7 @@ from polisyos.core.contracts.foundry import (
     FeedbackSolveResult,
 )
 from polisyos.foundry.analysis.attractors import (
+    _typed_analysis_ref_for_manifest,
     build_attractor_analysis_result,
     build_attractor_ensemble_analysis_result,
     build_feedback_attractor_analysis_result,
@@ -135,10 +136,7 @@ class AttractorAnalysisService:
         manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.attractor_analysis_result":
             raise ValueError("artifact is not a foundry.attractor_analysis_result")
-        ref = AttractorAnalysisResultRef(
-            artifact_id=artifact_id,
-            media_type=manifest.media_type,
-        )
+        ref = _typed_analysis_ref_for_manifest(manifest, AttractorAnalysisResultRef)
         return load_attractor_analysis_result(self._store, ref), ref
 
     def persist_basin_map(self, basin_map: BasinMap) -> BasinMapRef:
@@ -152,7 +150,7 @@ class AttractorAnalysisService:
         manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.basin_map":
             raise ValueError("artifact is not a foundry.basin_map")
-        ref = BasinMapRef(artifact_id=artifact_id, media_type=manifest.media_type)
+        ref = _typed_analysis_ref_for_manifest(manifest, BasinMapRef)
         return load_basin_map(self._store, ref), ref
 
     def persist_continuation_branch(self, branch: ContinuationBranch) -> ContinuationBranchRef:
@@ -169,7 +167,7 @@ class AttractorAnalysisService:
         manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.continuation_branch":
             raise ValueError("artifact is not a foundry.continuation_branch")
-        ref = ContinuationBranchRef(artifact_id=artifact_id, media_type=manifest.media_type)
+        ref = _typed_analysis_ref_for_manifest(manifest, ContinuationBranchRef)
         return load_continuation_branch(self._store, ref), ref
 
     def _load_model(self, ref: ArtifactRef, model: type[_ModelT]) -> _ModelT:

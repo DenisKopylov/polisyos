@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisRequest,
@@ -191,6 +192,8 @@ if router is not None:
             result, _ref = ctx.analysis.load_analysis(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="attractor_analysis_not_found") from exc
+        except CanonicalProfileRefusalError:
+            raise
         except ValueError as exc:
             raise bad_request(str(exc), code="invalid_attractor_analysis") from exc
         record_data_access_audit(
@@ -225,6 +228,8 @@ if router is not None:
             basin_map, _ref = ctx.analysis.load_basin_map(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="basin_map_not_found") from exc
+        except CanonicalProfileRefusalError:
+            raise
         except ValueError as exc:
             raise bad_request(str(exc), code="invalid_basin_map") from exc
         record_data_access_audit(
@@ -259,6 +264,8 @@ if router is not None:
             branch, _ref = ctx.analysis.load_continuation_branch(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="continuation_branch_not_found") from exc
+        except CanonicalProfileRefusalError:
+            raise
         except ValueError as exc:
             raise bad_request(str(exc), code="invalid_continuation_branch") from exc
         record_data_access_audit(

@@ -34,6 +34,7 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.policy_verified import (
     LegalCandidatePack,
+    LegalRetrievalStatus,
     LegalSourcePack,
     PolicyRequestFrame,
     SourceCoverageGap,
@@ -471,9 +472,7 @@ def test_parse_json_object_assertion_is_not_swallowed(monkeypatch: pytest.Monkey
 
 
 def test_parse_json_object_accepts_think_prefixed_json() -> None:
-    assert _parse_json_object('<think>legal reasoning</think>{"ok":true}') == {
-        "ok": True
-    }
+    assert _parse_json_object('<think>legal reasoning</think>{"ok":true}') == {"ok": True}
 
 
 def test_parse_json_object_returns_none_when_no_object_exists() -> None:
@@ -535,4 +534,71 @@ def test_assemble_legal_candidate_pack_surfaces_typed_degraded_legal_status(tmp_
 
     assert pack.fact_hits == []
     assert pack.source_statuses["legal"].status.value == "missing_config"
+    assert pack.legal_retrieval_status[0].search_mode is None
+    assert pack.legal_retrieval_status[0].limitation_code == (
+        "legal_graph_unavailable:missing_config"
+    )
     assert "legal_graph_unavailable:missing_config" in pack.notes
+
+
+def test_assemble_legal_candidate_pack_preserves_mixed_query_statuses(
+    monkeypatch, tmp_path
+) -> None:
+    _, ctx, _ = _make_ctx(tmp_path, "R_policy_verified_mixed_retrieval")
+    frame = PolicyRequestFrame(
+        request_id="req-mixed-retrieval",
+        policy_question="first retrieval query",
+        jurisdiction="UA",
+        goals=["second retrieval query"],
+    )
+    state = ExperimentState(
+        run_id="R_policy_verified_mixed_retrieval",
+        params={"max_candidate_queries": 2},
+    )
+
+    class _MixedStatusToolkit:
+        def assemble_legal_candidate_pack(
+            self, query, *, jurisdiction="UA", domain=None, as_of=None
+        ):
+            del jurisdiction, domain, as_of
+            if query == "first retrieval query":
+                status = LegalRetrievalStatus(
+                    query=query,
+                    route="hybrid_facts",
+                    search_mode="text",
+                    vector_refusal_code="query_encoder_runtime_material_not_established",
+                )
+            else:
+                status = LegalRetrievalStatus(
+                    query=query,
+                    route="provisions",
+                    limitation_code="query_encoder_assets_unavailable",
+                )
+            return LegalCandidatePack(
+                request_id="toolkit",
+                queries=[query],
+                legal_retrieval_status=[status],
+            )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.validation.policy_verified.service._build_legal_toolkit",
+        lambda ctx, state: _MixedStatusToolkit(),
+    )
+    pack = assemble_legal_candidate_pack(ctx, state, frame)
+
+    assert [status.query for status in pack.legal_retrieval_status] == [
+        "first retrieval query",
+        "second retrieval query",
+    ]
+    assert pack.legal_retrieval_status[0].search_mode == "text"
+    assert pack.legal_retrieval_status[0].vector_refusal_code == (
+        "query_encoder_runtime_material_not_established"
+    )
+    assert pack.legal_retrieval_status[1].search_mode is None
+    assert pack.legal_retrieval_status[1].limitation_code == "query_encoder_assets_unavailable"
+
+    legacy_pack = LegalCandidatePack.model_validate(
+        {"schema_version": "1.0", "request_id": "req-legacy"}
+    )
+    assert legacy_pack.schema_version == "1.0"
+    assert legacy_pack.legal_retrieval_status == []

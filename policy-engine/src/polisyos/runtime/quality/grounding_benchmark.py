@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
@@ -542,11 +542,7 @@ def _run_benchmark(
     score_slices = _score_decisions(generated_cases, dropped_cases, decisions)
     headline = _headline(score_slices)
     calibration = _calibration_anchor_set(reference, generated_cases)
-    detector = (
-        _detector_liveness(valid_cases, references)
-        if include_detector_liveness
-        else ()
-    )
+    detector = _detector_liveness(valid_cases, references) if include_detector_liveness else ()
     findings = _findings(score_slices, generated_cases, decisions, detector)
     summary = {
         "case_count": len(generated_cases),
@@ -715,9 +711,7 @@ def _assemble_cases(
     for epoch_id in ("epoch_1", "epoch_2"):
         atoms = _selected_atoms(references[epoch_id], limit=5)
         new_atoms = [
-            atom
-            for atom in atoms
-            if str(atom.signature.op or "").startswith(("energy_", "food_"))
+            atom for atom in atoms if str(atom.signature.op or "").startswith(("energy_", "food_"))
         ]
         selected = new_atoms[0] if new_atoms else atoms[0]
         cases.append(_case_from_atom(selected, "growth", "new_lever_loop_closure", epoch_id, 0))
@@ -898,14 +892,8 @@ def _slice_divergences(
     representative_slices: Sequence[Mapping[str, Any]],
     live_slices: Sequence[Mapping[str, Any]],
 ) -> tuple[dict[str, Any], ...]:
-    rep = {
-        (row["baseline_id"], row["stream"], row["family"]): row
-        for row in representative_slices
-    }
-    live = {
-        (row["baseline_id"], row["stream"], row["family"]): row
-        for row in live_slices
-    }
+    rep = {(row["baseline_id"], row["stream"], row["family"]): row for row in representative_slices}
+    live = {(row["baseline_id"], row["stream"], row["family"]): row for row in live_slices}
     out: list[dict[str, Any]] = []
     for key in sorted(set(rep) & set(live)):
         rep_row = rep[key]
@@ -932,14 +920,10 @@ def _slice_divergences(
 class _BenchmarkRunContext:
     """Per-run engine cache; avoids rebuilding FTS and CGF engines per decision."""
 
-    relation_engines: dict[tuple[str, str], GroundingRelationEngine] = field(
-        default_factory=dict
-    )
+    relation_engines: dict[tuple[str, str], GroundingRelationEngine] = field(default_factory=dict)
     bind_gates: dict[str, GroundingBindGate] = field(default_factory=dict)
     admission_engines: dict[str, GroundingAdmissionEngine] = field(default_factory=dict)
-    phrasing_engines: dict[str, GroundingPhrasingDefenseEngine] = field(
-        default_factory=dict
-    )
+    phrasing_engines: dict[str, GroundingPhrasingDefenseEngine] = field(default_factory=dict)
 
     def relation_engine(
         self,
@@ -1100,9 +1084,7 @@ def _cgf_decision(
         certificate_chain=chain,
         replay_complete=True,
         latency_ms=_elapsed_ms(start),
-        notes=(
-            "cg2_production_freeze_applies_to_bind; useful_recall_counts_relation_level",
-        )
+        notes=("cg2_production_freeze_applies_to_bind; useful_recall_counts_relation_level",)
         if baseline_id == "full_cgf_stack"
         else (),
     )
@@ -1257,9 +1239,7 @@ def _score_decisions(
     for dropped in dropped_cases:
         dropped_counts[(dropped.epoch_id, dropped.stream, dropped.family)] += 1
 
-    by_slice: dict[tuple[str, str, str, str], list[GroundingBenchmarkDecision]] = (
-        defaultdict(list)
-    )
+    by_slice: dict[tuple[str, str, str, str], list[GroundingBenchmarkDecision]] = defaultdict(list)
     for decision in decisions:
         slice_key = (
             decision.baseline_id,
@@ -1322,9 +1302,7 @@ def _score_decisions(
 
 def _headline(score_slices: Sequence[ScoreSlice]) -> BenchmarkHeadline:
     growth = [
-        row
-        for row in score_slices
-        if row.baseline_id == _CGF_BASELINE and row.stream == "growth"
+        row for row in score_slices if row.baseline_id == _CGF_BASELINE and row.stream == "growth"
     ]
     false_num = sum(row.false_bind.numerator for row in growth)
     false_den = sum(row.false_bind.denominator for row in growth)
@@ -1403,9 +1381,7 @@ def _detector_liveness(
                 substrate_registry=_unsafe_causal_substrate_registry(),
                 disable_mechanism_witness_resolution=True,
             ),
-            mutation_switches=(
-                "GroundingAdmissionEngine.disable_mechanism_witness_resolution",
-            ),
+            mutation_switches=("GroundingAdmissionEngine.disable_mechanism_witness_resolution",),
             working=working,
         )
     )
@@ -1445,9 +1421,7 @@ def _detector_liveness(
                 substrate_registry=_unsafe_causal_substrate_registry(),
                 allow_substrate_registry_authority=True,
             ),
-            mutation_switches=(
-                "GroundingAdmissionEngine.allow_substrate_registry_authority",
-            ),
+            mutation_switches=("GroundingAdmissionEngine.allow_substrate_registry_authority",),
             working=working,
         )
     )
@@ -1487,9 +1461,7 @@ def _detector_liveness(
                 disable_calibration_owner_validation=True,
             ),
             calibration_ledger_factory=_fabricated_calibration_ledger,
-            mutation_switches=(
-                "GroundingBindGate.disable_calibration_owner_validation",
-            ),
+            mutation_switches=("GroundingBindGate.disable_calibration_owner_validation",),
             working=working,
         )
     )
@@ -1521,8 +1493,7 @@ def _variant_counts(
     *,
     relation_policy: GroundingEnginePolicy | None = None,
     bind_gate_factory: Callable[[CredalReference], GroundingBindGate] | None = None,
-    admission_engine_factory: Callable[[CredalReference], GroundingAdmissionEngine]
-    | None = None,
+    admission_engine_factory: Callable[[CredalReference], GroundingAdmissionEngine] | None = None,
     calibration_ledger_factory: Callable[
         [GroundingBenchmarkCase, CredalReference],
         GroundingCalibrationLedger,
@@ -1562,11 +1533,7 @@ def _variant_counts(
     )
     confident = false_bind + hallucination
     current_interval = _interval(confident, len(cases))
-    working_interval = (
-        working.confident_wrong_interval
-        if working is not None
-        else current_interval
-    )
+    working_interval = working.confident_wrong_interval if working is not None else current_interval
     materially_degraded = (
         current_interval.rate > working_interval.rate
         and current_interval.lower > working_interval.upper
@@ -1645,8 +1612,7 @@ def _is_false_bind(case: GroundingBenchmarkCase, decision: GroundingBenchmarkDec
     if "must-" not in case.obligation_labels:
         return 0
     identified = (
-        decision.relation in _IDENTIFYING_RELATIONS
-        or decision.bind_decision in _BIND_RELATIONS
+        decision.relation in _IDENTIFYING_RELATIONS or decision.bind_decision in _BIND_RELATIONS
     )
     if not identified:
         return 0
@@ -2519,9 +2485,7 @@ def _baseline_configs() -> dict[str, BaselineConfig]:
         },
         "greedy_per_axis": {
             "baseline_id": "greedy_per_axis",
-            "implementation": (
-                "GroundingEnginePolicy.use_greedy_solver CG1 identification only"
-            ),
+            "implementation": ("GroundingEnginePolicy.use_greedy_solver CG1 identification only"),
             "provenance": "contract_testing_mutation_switch_existing_cg1",
             "decision_boundary": (
                 "bind-equivalent identification when greedy per-axis CG1 relation is "
@@ -2806,9 +2770,7 @@ def _detection_floor_findings(
         None,
     )
     detectable_single = [
-        row.variant_id
-        for row in detector_liveness
-        if row.detection_floor == "detectable_single"
+        row.variant_id for row in detector_liveness if row.detection_floor == "detectable_single"
     ]
     detectable_stacked = [
         row.variant_id
@@ -3098,7 +3060,7 @@ def _reference_from_edges(
         }
     )
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-06-29",

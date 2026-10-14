@@ -1,0 +1,23 @@
+id = "2026-10-14-e02-n4-selected-catalog-kref"
+title = "Bind K_ref alignments to the selected catalog source"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "K_ref v3 reads the complete selected ds_variable_alignments rowset and persists a candidate-only source profile, including empty rowsets; N9 replay rehydrates full K_ref only from the validated effect record."
+evidence = [
+  "tests/unit/runtime/quality/test_credal_reference.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "src/polisyos/runtime/quality/promotion_sequence.py",
+  "src/polisyos/runtime/quality/grounding_bind.py",
+  "tests/unit/runtime/quality/test_grounding_bind.py",
+]
+compatibility = "K_ref v3 binds the selected catalog path, profile, version, and complete alignment rowset into its component hash. The N9 v4 projection remains narrow; a v3 marker is rebound only from the existing persisted effect record after full replay validation. Historical v1/v2 replay remains profileless and is never backfilled. Unknown schemas are refused at construction, persisted replay, and direct CG2 consumption even if dataclass construction is bypassed. A missing or malformed explicitly selected catalog refuses K_ref construction; no default-path fallback is used."
+change_class = "internal-runtime-contract"
+surface_classification = "internal: Runtime Quality K_ref"
+migration = "New source-bound K_ref records use v3. Existing v1/v2 records retain their original profileless semantics and hashes. Reissue only through the normal producer after a source is explicitly selected."
+api = "Adds a typed catalog source profile to CredalReference and the persisted K_ref replay record; existing runtime endpoints are unchanged."
+limitations = "The source profile is candidate-only. It does not establish custody, producer authenticity, legal authority, or currentness. The source/test candidate has not been executed; generated ABI/schema contracts, independent review, actual composed consumer replay, and native closeout remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

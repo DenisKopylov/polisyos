@@ -1,4 +1,4 @@
-"""Runtime-safe read API for shadow legal Data Forge artifacts."""
+"""Runtime-safe read and material-owner API for Legal Data Forge artifacts."""
 
 from __future__ import annotations
 
@@ -20,6 +20,10 @@ _EXPORTS = {
     ),
     "GenerationIdentity": "polisyos.data_forge.kernel.io.generation_basis",
     "LegalSearchBenchmarkCase": ("polisyos.data_forge.domains.legal.batch.benchmark_fixtures"),
+    "LEGAL_RUNTIME_MATERIAL_RULE_VERSION": ("polisyos.data_forge.domains.legal.runtime_material"),
+    "LegalRuntimeMaterialError": ("polisyos.data_forge.domains.legal.runtime_material"),
+    "LegalRuntimeMaterialHandle": ("polisyos.data_forge.domains.legal.runtime_material"),
+    "LegalRuntimeMaterialOwner": ("polisyos.data_forge.domains.legal.runtime_material"),
     "DocSourcePropsV1": "polisyos.data_forge.domains.legal.corpus.index",
     "GonkaClientPool": "polisyos.data_forge.domains.legal.batch.spo_client",
     "LEGAL_BATCH_RUNTIME_MODULE": _LEGAL_DOMAIN,

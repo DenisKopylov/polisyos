@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+
 from polisyos.data_forge.domains.academic.knowledge.types import (
     CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
     ClaimLineageAuditPage,
@@ -14,6 +17,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
 )
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetSearchResult
 from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
+from polisyos.lex.knowledge import LegalQueryProfileError
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,
@@ -170,6 +174,10 @@ class _MockLegalGraph:
                 similarity=0.95,
             )
         ]
+
+    def hybrid_search_with_status(self, query, **kwargs):
+        results = self.hybrid_search(query, **kwargs)
+        return results, getattr(self, "query_profile_error", None)
 
     def search_provisions(self, query, *, top_k=10, min_similarity=0.3):
         return [
@@ -479,3 +487,73 @@ def test_toolkit_policy_verified_legal_pack_methods() -> None:
 
     versions = toolkit.get_versioned_source_refs(doc_id="doc-1")
     assert versions[0].version_id == "v-1"
+
+
+class _TextOnlyLegalGraph(_MockLegalGraph):
+    """Legal graph whose hybrid route falls back and vector routes refuse."""
+
+    @property
+    def query_profile_error(self):
+        return LegalQueryProfileError("query_encoder_runtime_material_not_established")
+
+    def search_provisions(self, query, *, top_k=10, min_similarity=0.3):
+        del query, top_k, min_similarity
+        raise self.query_profile_error
+
+
+class _ConcurrentStatusLegalGraph(_MockLegalGraph):
+    """Graph mock whose shared latest status cannot represent each query."""
+
+    def __init__(self) -> None:
+        self._barrier = Barrier(2)
+        self.query_profile_error = None
+
+    def hybrid_search(self, query, **kwargs):
+        results = super().hybrid_search(query, **kwargs)
+        self._barrier.wait(timeout=5)
+        self.query_profile_error = LegalQueryProfileError("shared_latest_status")
+        return results
+
+    def hybrid_search_with_status(self, query, **kwargs):
+        results = self.hybrid_search(query, **kwargs)
+        return results, LegalQueryProfileError(f"query_{query}_refused")
+
+
+def test_toolkit_candidate_pack_preserves_text_fallback_and_vector_refusals() -> None:
+    toolkit = KnowledgeToolkit(legal_graph=_TextOnlyLegalGraph())
+
+    # The direct Python compatibility method remains a list-returning candidate path.
+    assert isinstance(toolkit.search_legal_facts("ліцензія"), list)
+
+    candidate_pack = toolkit.assemble_legal_candidate_pack("ліцензія")
+    statuses = {status.route: status for status in candidate_pack.legal_retrieval_status}
+
+    assert candidate_pack.fact_hits
+    assert statuses["hybrid_facts"].search_mode == "text"
+    assert (
+        statuses["hybrid_facts"].vector_refusal_code
+        == "query_encoder_runtime_material_not_established"
+    )
+    assert statuses["constraints"].search_mode == "structured"
+    assert statuses["constraints"].limitation_code is None
+    assert statuses["provisions"].search_mode is None
+    assert statuses["provisions"].limitation_code == (
+        "query_encoder_runtime_material_not_established"
+    )
+
+
+def test_legal_search_status_stays_with_its_concurrent_query() -> None:
+    toolkit = KnowledgeToolkit(legal_graph=_ConcurrentStatusLegalGraph())
+    queries = ("alpha", "beta")
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {
+            query: executor.submit(toolkit.search_legal_facts_with_status, query)
+            for query in queries
+        }
+        responses = {query: future.result(timeout=10) for query, future in futures.items()}
+
+    for query, response in responses.items():
+        assert response.results[0].fact_text == f"Mock legal fact for {query}"
+        assert response.search_mode == "text"
+        assert response.vector_refusal_code == f"query_{query}_refused"

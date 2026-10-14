@@ -69,10 +69,15 @@ from polisyos.runtime.quality.confidence_ledger import (
     validate_confidence_ledger_receipt,
 )
 from polisyos.runtime.quality.credal_reference import (
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     CREDAL_REFERENCE_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
+    CredalReferenceCatalogSourceProfile,
     CredalReferenceEdge,
+    _component_versions,
+    _data_forge_catalog_source_profile_content_hash,
+    _reference_hash,
     replace_reference_edge,
 )
 from polisyos.runtime.quality.data_forge_binding import (
@@ -2554,6 +2559,146 @@ def test_no_self_promotion_rejected_by_trace_guard() -> None:
         )
 
 
+@_requires_cp_sat
+def test_selected_catalog_kref_replays_through_effect_bridge_to_cg2_consumer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.promotion_sequence import (
+        CredalReferencePromotabilityProjection,
+        _input_from_owner_projection,
+        _owner_projection_from_input,
+        _resolve_cg2_owner_promotability,
+    )
+    from tests.unit.runtime.quality.test_credal_reference import (
+        _build_n4_reference_from_selected_catalog,
+        _selected_n4_catalog_source,
+        _write_n4_catalog,
+    )
+
+    catalog_root = (tmp_path / "catalog-root").resolve()
+    selected_rows = (
+        ("selected-a", "tax", "policy.tax_rate", "a", 0.92, "A canonical", False, 0.0),
+        ("selected-a", "raw unknown", "unmapped.canonical", "a", 0.89, "A other", False, 0.0),
+    )
+    snapshot_root = catalog_root / "snapshots" / "catalog-a"
+    database_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    _write_n4_catalog(database_path, selected_rows)
+    source = _selected_n4_catalog_source(catalog_root, snapshot_root)
+    selected_reference = _build_n4_reference_from_selected_catalog(
+        monkeypatch,
+        catalog_root,
+        source,
+    )
+    source_profile = selected_reference.data_forge_catalog_source_profile
+    assert source_profile is not None
+
+    legacy_fixture = _credal_reference()
+    edges = {**legacy_fixture.essential_edges, **selected_reference.essential_edges}
+    components = _component_versions(
+        edges,
+        world_model_record_hash=selected_reference.component_versions["WMR"],
+        l2_source_profile_hash=selected_reference.component_versions.get("L2_SOURCE_PROFILE"),
+        data_forge_catalog_profile_hash=source_profile.content_hash,
+    )
+    reference_hash = _reference_hash(
+        component_versions=components,
+        edge_index=edges,
+        as_of=selected_reference.as_of,
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+    )
+    reference = CredalReference(
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        reference_epoch="kref:" + reference_hash.removeprefix("sha256:")[:16],
+        reference_hash=reference_hash,
+        as_of=selected_reference.as_of,
+        component_versions=components,
+        essential_edges=edges,
+        data_forge_catalog_source_profile=source_profile,
+    )
+    _, decision = _cg2_contract_bind(reference)
+    promotion_input = _promotion_input(
+        credal_reference=reference,
+        grounding_decision_certificate=decision,
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+    bound = promotion_sequence_module._bind_production_promotion_evidence(
+        promotion_input,
+        context={"effect_obligation_writer_input": _effect_writer_input(promotion_input)},
+        repository=repository,
+    )
+    effect_refs = tuple(
+        ref for ref in bound.producer_root_refs if ref.artifact_type == "N9EffectObligationBridge"
+    )
+    assert len(effect_refs) == 1
+
+    owner_projection = _owner_projection_from_input(bound)
+    replay_input = _input_from_owner_projection(owner_projection, repo_root=None)
+    assert type(replay_input.credal_reference) is CredalReferencePromotabilityProjection
+    assert _resolve_cg2_owner_promotability(replay_input).resolution is None
+
+    resolution, replayed_reference = repository.resolve_with_credal_reference(
+        bridge_ref=effect_refs[0],
+        promotion_input=replay_input,
+        evidence_kind="effect_obligation",
+    )
+    assert resolution.status == "established"
+    assert replayed_reference == reference
+    assert replayed_reference is not None
+    assert replayed_reference.data_forge_catalog_source_profile == source_profile
+
+    receipt = run_canonical_promotion_sequence(
+        replay_input,
+        confidence_ledger_session=_ledger_session(binding=replay_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+    assert effect.status == PromotionObligationStatus.SATISFIED
+    assert type(receipt.owner_projection.credal_reference) is CredalReferencePromotabilityProjection
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            promotion_evidence_resolver=repository,
+        )
+        == ()
+    )
+
+    empty_repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "empty-cas")
+    )
+    missing_resolution, missing_reference = empty_repository.resolve_with_credal_reference(
+        bridge_ref=effect_refs[0],
+        promotion_input=replay_input,
+        evidence_kind="effect_obligation",
+    )
+    assert missing_resolution.status == "not_established"
+    assert missing_reference is None
+
+
+def test_v3_owner_projection_keeps_kref_narrow_until_full_record_resolves() -> None:
+    from polisyos.runtime.quality.promotion_sequence import (
+        CredalReferencePromotabilityProjection,
+        _input_from_owner_projection,
+        _owner_projection_from_input,
+        _resolve_cg2_owner_promotability,
+    )
+
+    marker = CredalReferencePromotabilityProjection(
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        reference_epoch="kref:selected-v3-marker",
+        reference_hash=_hash("8"),
+        as_of="2026-10-14",
+    )
+    owner_input = _promotion_input(credal_reference=marker)
+    projection = _owner_projection_from_input(owner_input)
+    replay = _input_from_owner_projection(projection, repo_root=None)
+
+    assert type(replay.credal_reference) is CredalReferencePromotabilityProjection
+    assert _resolve_cg2_owner_promotability(replay).resolution is None
+
+
 def test_no_cg2_owner_grant_stays_shadow() -> None:
     receipt = _run(
         _promotion_input(
@@ -3748,13 +3893,9 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
 
     snapshot_ref = persist(
-
         store=owner.store,
-
         evidence=evidence,
-
         execution_scope_binding=owner.measurement_execution_binding,
-
     )
 
     assert isinstance(snapshot_ref, DataSnapshotRef)
@@ -6278,7 +6419,14 @@ def _run(promotion_input: CanonicalPromotionInput) -> CanonicalPromotionReceipt:
 def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
     summary = overrides.pop("summary", _summary())
     value_receipt = overrides.pop("value_receipt", _value_receipt())
-    reference, decision = _cg2_contract_bind()
+    reference_override = overrides.get("credal_reference")
+    decision_override = overrides.get("grounding_decision_certificate")
+    if isinstance(reference_override, CredalReference) and decision_override is not None:
+        reference, decision = reference_override, decision_override
+    else:
+        reference, decision = _cg2_contract_bind(
+            reference_override if isinstance(reference_override, CredalReference) else None
+        )
     kwargs = {
         "design_problem_binding": overrides.pop(
             "design_problem_binding",
@@ -6612,8 +6760,8 @@ def _value_receipt(
     )
 
 
-def _cg2_contract_bind() -> tuple[CredalReference, object]:
-    reference = _credal_reference()
+def _cg2_contract_bind(reference: CredalReference | None = None) -> tuple[CredalReference, object]:
+    reference = reference or _credal_reference()
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
     decision = GroundingBindGate.for_contract_testing(
@@ -6766,7 +6914,7 @@ def _credal_reference() -> CredalReference:
     ]
     edge_index = {edge.key: edge for edge in edges}
     draft = CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch="kref:unbound-test-fixture",
         reference_hash=_hash("0"),
         as_of="2026-06-29",
@@ -7126,9 +7274,7 @@ def test_n9_measurement_fresh_reader_rejects_missing_or_foreign_admitted_scope(
     if mutation == "missing":
         foreign_binding = None
     elif mutation == "tenant":
-        foreign_scope = replace(
-            admission.scope, tenant_id="tenant-foreign-measurement-test"
-        )
+        foreign_scope = replace(admission.scope, tenant_id="tenant-foreign-measurement-test")
         foreign_admission = replace(admission, scope=foreign_scope)
         foreign_job = admission.job
     elif mutation == "cell":
@@ -7147,9 +7293,7 @@ def test_n9_measurement_fresh_reader_rejects_missing_or_foreign_admitted_scope(
         else:
             foreign_job = replace(admission.job, effective_execution_profile="governed")
         foreign_scope = admission.scope
-        foreign_admission = replace(
-            admission, job=foreign_job, attempt=foreign_job.attempt
-        )
+        foreign_admission = replace(admission, job=foreign_job, attempt=foreign_job.attempt)
     if mutation != "missing":
         foreign_binding = bind_measurement_root_execution_scope(
             admission=foreign_admission,
@@ -7164,6 +7308,7 @@ def test_n9_measurement_fresh_reader_rejects_missing_or_foreign_admitted_scope(
             providers=owner.providers,
             execution_scope_binding=foreign_binding,
         )
+
 
 @pytest.mark.parametrize("sink", ["data_snapshot", "substrate_registry"])
 @pytest.mark.parametrize("binding_source", ["missing", "foreign"])
@@ -7256,3 +7401,121 @@ def test_measurement_root_persistence_rechecks_admitted_scope_before_cas_write(
         if path.is_file()
     }
     assert cas_after == cas_before
+
+
+def test_credal_replay_persists_empty_v3_catalog_profile_and_preserves_v2_absence() -> None:
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
+
+    edge = CredalReferenceEdge(
+        modality="WMR_WORLD_SLOT",
+        edge_id="controlled-slot",
+        status="incomplete",
+        admissible_completions=(AdmissibleCompletion("may_not_exist"),),
+        provenance={"owner": "WMR", "source": "controlled_replay_fixture"},
+    ).with_content_hash()
+    edge_index = {edge.key: edge}
+    profile_body = {
+        "schema_version": ("runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"),
+        "selection_owner": "legacy.default_l1_catalog",
+        "source_repo_root": "/controlled",
+        "source_snapshot_root": "/controlled",
+        "source_database_path": "/controlled/catalog/dataset_catalog.duckdb",
+        "catalog_run_profile": None,
+        "selection_basis": "legacy_default_candidate_only",
+        "source_version": "controlled-empty",
+        "alignment_table": "ds_variable_alignments",
+        "alignment_query_version": "full_primary_key_order_v1",
+        "alignment_row_count": 0,
+        "alignment_rows_sha256": gy_content_hash(
+            {
+                "columns": [
+                    "dataset_id",
+                    "raw_variable",
+                    "canonical_var",
+                    "method",
+                    "confidence",
+                    "evidence",
+                    "is_proxy",
+                    "proxy_penalty",
+                ],
+                "rows": (),
+            }
+        ),
+        "source_read_prepared_at_utc": "2026-10-14T09:00:00Z",
+        "authority_band": "candidate",
+        "source_snapshot_authenticity": "not_established",
+        "currentness_status": "not_established",
+        "time_semantics": "read_transaction_opened_at",
+    }
+    profile = CredalReferenceCatalogSourceProfile.model_validate(
+        {
+            **profile_body,
+            "content_hash": _data_forge_catalog_source_profile_content_hash(profile_body),
+        }
+    )
+    first_profile_body = profile.model_dump(mode="json", exclude={"content_hash"})
+    later_profile_body = {
+        **first_profile_body,
+        "source_read_prepared_at_utc": "2026-10-14T09:01:00Z",
+    }
+    later_profile = CredalReferenceCatalogSourceProfile.model_validate(
+        {
+            **later_profile_body,
+            "content_hash": _data_forge_catalog_source_profile_content_hash(later_profile_body),
+        }
+    )
+    assert later_profile.source_read_prepared_at_utc != profile.source_read_prepared_at_utc
+    assert later_profile.content_hash == profile.content_hash
+
+    world_hash = "sha256:" + "1" * 64
+    components = _component_versions(
+        edge_index,
+        world_model_record_hash=world_hash,
+        data_forge_catalog_profile_hash=profile.content_hash,
+    )
+    digest = _reference_hash(
+        component_versions=components,
+        edge_index=edge_index,
+        as_of="2026-10-14",
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+    )
+    current = CredalReference(
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        reference_epoch="kref:" + digest.removeprefix("sha256:")[:16],
+        reference_hash=digest,
+        as_of="2026-10-14",
+        component_versions=components,
+        essential_edges=edge_index,
+        data_forge_catalog_source_profile=profile,
+    )
+    current_record = _CredalReferenceReplayRecord.from_reference(current)
+    current_payload = current_record.model_dump(mode="json")
+    assert current_payload["data_forge_catalog_source_profile"]["alignment_row_count"] == 0
+    assert current_record.to_reference() == current
+
+    historical_schema = CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION
+    historical_components = _component_versions(edge_index, world_model_record_hash=world_hash)
+    historical_digest = _reference_hash(
+        component_versions=historical_components,
+        edge_index=edge_index,
+        as_of="2026-10-14",
+        schema_version=historical_schema,
+    )
+    historical = CredalReference(
+        schema_version=historical_schema,
+        reference_epoch="kref:" + historical_digest.removeprefix("sha256:")[:16],
+        reference_hash=historical_digest,
+        as_of="2026-10-14",
+        component_versions=historical_components,
+        essential_edges=edge_index,
+    )
+    historical_record = _CredalReferenceReplayRecord.from_reference(historical)
+    historical_payload = historical_record.model_dump(mode="json")
+    assert "data_forge_catalog_source_profile" not in historical_payload
+    assert historical_record.to_reference() == historical
+
+    unsupported_payload = dict(historical_payload)
+    unsupported_payload["schema_version"] = "policyos.runtime.grounding_credal_reference.v999"
+    with pytest.raises(ValueError, match="effect_credal_reference_schema_not_supported"):
+        _CredalReferenceReplayRecord.model_validate(unsupported_payload)

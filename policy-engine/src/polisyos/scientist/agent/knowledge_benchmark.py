@@ -12,7 +12,10 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from polisyos.data_forge.read_api import legal as legal_read_api
-from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
+from polisyos.scientist.agent.knowledge_tools import (
+    KnowledgeToolkit,
+    LegalFactSearchResponse,
+)
 
 _RETRIEVAL_DIAGNOSTIC_THRESHOLD_PCT = 70.0
 _MAY_NOT_USE_FOR = (
@@ -40,9 +43,9 @@ class LexSemanticOutcome(Protocol):
 
 
 class LegalSearchToolkit(Protocol):
-    """Narrow legal-search behavior required by the diagnostic."""
+    """Narrow typed legal-search behavior required by the diagnostic."""
 
-    def search_legal_facts(
+    def search_legal_facts_with_status(
         self,
         query: str,
         *,
@@ -50,7 +53,7 @@ class LegalSearchToolkit(Protocol):
         trust_tier: str,
         domain: str | None,
         include_candidates: bool,
-    ) -> list[Any]: ...
+    ) -> LegalFactSearchResponse: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,9 +77,7 @@ class ScientistRetrievalBenchmarkOutcome:
         Raises:
             ValueError: Always, because this diagnostic publishes no authority.
         """
-        raise ValueError(
-            f"Scientist retrieval diagnostic is not authoritative for {purpose!r}"
-        )
+        raise ValueError(f"Scientist retrieval diagnostic is not authoritative for {purpose!r}")
 
 
 def _matches(result: Any, case: Any) -> bool:
@@ -84,17 +85,12 @@ def _matches(result: Any, case: Any) -> bool:
         getattr(result, "action_canon", "") or getattr(result, "predicate", "") or ""
     ).lower()
     norm_type = str(
-        getattr(result, "norm_type_canon", "")
-        or getattr(result, "norm_type", "")
-        or ""
+        getattr(result, "norm_type_canon", "") or getattr(result, "norm_type", "") or ""
     ).lower()
     domain = str(getattr(result, "top_domain", "") or "").lower()
     return bool(
         (not case.expected_actions or action in set(case.expected_actions))
-        and (
-            not case.expected_norm_types
-            or norm_type in set(case.expected_norm_types)
-        )
+        and (not case.expected_norm_types or norm_type in set(case.expected_norm_types))
         and (case.domain is None or domain == case.domain.lower())
     )
 
@@ -154,13 +150,16 @@ def run_retrieval_benchmark(
     hits = 0
     cases = tuple(legal_read_api.legal_search_benchmark_cases())
     for case in cases:
-        results = toolkit.search_legal_facts(
+        search_result = toolkit.search_legal_facts_with_status(
             case.query,
             top_k=5,
             trust_tier="grounded_fact",
             domain=case.domain,
             include_candidates=False,
         )
+        if not isinstance(search_result, LegalFactSearchResponse):
+            raise ValueError("legal search status envelope invalid")
+        results = search_result.results
         matched = any(_matches(result, case) for result in results)
         hits += int(matched)
         rows.append(
@@ -168,6 +167,9 @@ def run_retrieval_benchmark(
                 "case_id": case.case_id,
                 "results_total": len(results),
                 "matched": matched,
+                "search_mode": search_result.search_mode or "unavailable",
+                "vector_refusal_code": search_result.vector_refusal_code,
+                "limitation_code": search_result.limitation_code,
             }
         )
 

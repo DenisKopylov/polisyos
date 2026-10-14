@@ -2068,3 +2068,401 @@ def test_n5_abm_source_flip_runs_behavior_and_restores_bytes(
     assert result["result"] == "RED"
     assert result["proof"]["stub_fence_observed"] is True
     assert source_path.read_bytes() == original
+
+
+def test_compatible_atom_permutation_preserves_real_outputs_after_fresh_cas_read(
+    tmp_path: Path,
+) -> None:
+    """B20: compatible atom orders preserve real outputs for a supported NCM step."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+    atom_orders = (
+        request.intervention_atoms,
+        tuple(reversed(request.intervention_atoms)),
+    )
+    store = FileSystemCAS(tmp_path / "n5-compatible-order-cas")
+    fresh_results: list[JointSimulationResult] = []
+    try:
+        for atom_order in atom_orders:
+            ordered_request = request.model_copy(update={"intervention_atoms": atom_order})
+            result = JointSimulationHorizonController(
+                method_registry=MethodRegistry._create_fresh()
+            ).run(ordered_request)
+
+            assert result.engine_decisions[0].decision == "selected"
+            assert result.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
+            assert result.diagnostics["engine_run_claimed"] is True
+            assert result.trajectories
+
+            result_ref = persist_joint_simulation_result(result, store=store)
+            fresh = load_joint_simulation_result(
+                result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    ordered_request.world_model_record.content_hash
+                ),
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in ordered_request.intervention_atoms
+                ),
+                expected_selected_outcomes=ordered_request.selected_outcomes,
+            )
+            assert fresh.atom_ids == tuple(
+                atom.intervention_id for atom in ordered_request.intervention_atoms
+            )
+            assert fresh.trajectories == result.trajectories
+            fresh_results.append(fresh)
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+    def semantic_projection(
+        result: JointSimulationResult,
+    ) -> tuple[object, ...]:
+        trajectories = {
+            (item.run_level, tuple(sorted(item.atom_ids))): tuple(
+                (
+                    point.step,
+                    tuple(sorted(point.outcomes.items())),
+                    tuple(sorted(point.effect.items())),
+                    point.engine_state,
+                    (
+                        None
+                        if point.replication_sampling is None
+                        else point.replication_sampling.model_dump(mode="json")
+                    ),
+                )
+                for point in item.points
+            )
+            for item in result.trajectories
+        }
+        assert all(len(atom.causal_do_expr.assignments) == 1 for atom in request.intervention_atoms)
+        engine_variable_by_atom_id = {
+            atom.intervention_id: request.engine_plan[0].variable_map[
+                atom.causal_do_expr.assignments[0].variable
+            ]
+            for atom in request.intervention_atoms
+        }
+        assert len(set(engine_variable_by_atom_id.values())) == len(engine_variable_by_atom_id)
+
+        def canonical_sampling_summary(
+            summary: Any,
+            pair_atom_ids: tuple[str, str],
+        ) -> dict[str, Any]:
+            assert len(pair_atom_ids) == 2
+            assert len(set(pair_atom_ids)) == 2
+            ordered_pair_ids = tuple(
+                atom_id for atom_id in result.atom_ids if atom_id in set(pair_atom_ids)
+            )
+            assert ordered_pair_ids == pair_atom_ids
+
+            projection = summary.model_dump(mode="json")
+            samples = projection["samples"]
+            assert isinstance(samples, list)
+            assert samples
+            for sample in samples:
+                assert isinstance(sample, dict)
+                engine_state = sample["engine_state"]
+                assert isinstance(engine_state, dict)
+                source_scope_states = engine_state["source_scope_engine_states"]
+                assert isinstance(source_scope_states, dict)
+                assert {"pairwise", "individual_left", "individual_right"}.issubset(
+                    source_scope_states
+                )
+                assert "individual_by_atom_id" not in source_scope_states
+
+                for scope_name, atom_id in zip(
+                    ("individual_left", "individual_right"), pair_atom_ids, strict=True
+                ):
+                    individual_state = source_scope_states[scope_name]
+                    assert isinstance(individual_state, dict)
+                    intervention = individual_state["intervention"]
+                    assert isinstance(intervention, dict)
+                    assert set(intervention) == {engine_variable_by_atom_id[atom_id]}
+
+                individual_by_atom_id = {
+                    pair_atom_ids[0]: source_scope_states.pop("individual_left"),
+                    pair_atom_ids[1]: source_scope_states.pop("individual_right"),
+                }
+                source_scope_states["individual_by_atom_id"] = individual_by_atom_id
+            return projection
+
+        interactions = {
+            (tuple(sorted(item.atom_ids)), item.outcome): (
+                item.by_step,
+                item.formula,
+                {
+                    step: canonical_sampling_summary(summary, item.atom_ids)
+                    for step, summary in item.replication_sampling_by_step.items()
+                },
+            )
+            for item in result.interaction_terms
+        }
+        return (
+            tuple(sorted(result.atom_ids)),
+            result.engine_decisions,
+            trajectories,
+            interactions,
+            result.marginal_effects,
+            result.higher_order_residuals,
+            result.feedback_classification.model_dump(mode="json"),
+            tuple(result.diagnostics["interaction_evidence_issues"]),
+            tuple(result.diagnostics["interaction_sampling_issues"]),
+            tuple(result.promotion_ready_value_packet["authority_blockers"]),
+        )
+
+    assert fresh_results[0].atom_ids == tuple(
+        atom.intervention_id for atom in request.intervention_atoms
+    )
+    assert fresh_results[1].atom_ids == tuple(
+        atom.intervention_id for atom in reversed(request.intervention_atoms)
+    )
+    assert fresh_results[0].atom_ids != fresh_results[1].atom_ids
+    assert semantic_projection(fresh_results[0]) == semantic_projection(fresh_results[1])
+
+
+@pytest.mark.parametrize(
+    "producer_rows",
+    ["empty", "short", "full", "producer-uses-wrong-dt"],
+    ids=("empty-refuses", "short-is-partial", "full-is-complete", "wrong-dt-is-limited"),
+)
+def test_system_dynamics_grid_coverage_uses_real_rows_and_retains_limits(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    producer_rows: str,
+) -> None:
+    """B22: real stock-flow rows determine coverage; final-state markers cannot fill gaps."""
+
+    from polisyos.foundry.methods.catalog.simulation.dynamics import (
+        StockFlowSystemDynamicsEstimator,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    real_pure_step = StockFlowSystemDynamicsEstimator.pure_step
+    emitted_by_inflows: dict[tuple[float, ...], dict[str, object]] = {}
+
+    def controlled_pure_step(
+        state: dict[str, Any],
+        params: dict[str, Any],
+    ) -> dict[str, Any]:
+        requested_dt = float(params["dt"])
+        used_dt = 1.0 if producer_rows == "producer-uses-wrong-dt" else requested_dt
+        output = real_pure_step(state, {**params, "dt": used_dt})
+        payload = output["result"]
+        inflows = tuple(float(value) for value in state["exogenous_inflows"])
+        raw_rows = tuple(tuple(float(value) for value in row) for row in payload["trajectory"])
+        if len(raw_rows) != 3:
+            raise AssertionError("controlled test expects three real producer rows")
+        if producer_rows == "empty":
+            payload["trajectory"] = []
+        elif producer_rows == "short":
+            payload["trajectory"] = payload["trajectory"][:-1]
+        emitted_by_inflows[inflows] = {
+            "requested_dt": requested_dt,
+            "used_dt": used_dt,
+            "raw_rows": raw_rows,
+            "final_stocks": tuple(float(value) for value in payload["final_stocks"]),
+            "returned_row_count": len(payload["trajectory"]),
+        }
+        return output
+
+    monkeypatch.setattr(
+        StockFlowSystemDynamicsEstimator,
+        "pure_step",
+        staticmethod(controlled_pure_step),
+    )
+    base = _shared_resource_stock_flow_fallback_request(
+        candidate_order=("system_dynamics", "method_registry_estimator")
+    )
+    system_dynamics_plan = base.engine_plan[0].model_copy(
+        update={"system_dynamics_params": {"dt": 2.0}}
+    )
+    request = base.model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=4, step=2),
+            "engine_plan": (system_dynamics_plan, *base.engine_plan[1:]),
+        }
+    )
+    controller = JointSimulationHorizonController(method_registry=MethodRegistry._create_fresh())
+
+    if producer_rows == "empty":
+        with pytest.raises(
+            JointSimulationControllerError,
+            match="trajectory_coverage_incomplete",
+        ):
+            controller.run(request)
+        assert len(emitted_by_inflows) == 1
+        only_emission = next(iter(emitted_by_inflows.values()))
+        assert only_emission["requested_dt"] == 2.0
+        assert only_emission["used_dt"] == 2.0
+        assert only_emission["raw_rows"]
+        assert only_emission["returned_row_count"] == 0
+        assert only_emission["final_stocks"]
+        return
+
+    result = controller.run(request)
+    assert result.engine_decisions[0].decision == "selected"
+    assert result.engine_decisions[0].engine_kind == "system_dynamics"
+    assert result.diagnostics["engine_run_claimed"] is True
+    assert result.diagnostics["physical_time_basis_status"] == "not_established"
+    assert (
+        "horizon_time_alignment_not_established"
+        in result.promotion_ready_value_packet["authority_blockers"]
+    )
+    assert set(emitted_by_inflows) == {
+        (1.0, 0.0),
+        (0.0, 1.0),
+        (1.0, 1.0),
+    }
+
+    requested_steps = request.horizon.steps()
+    expected_row_count = 2 if producer_rows == "short" else 3
+    expected_coverage = "partial" if producer_rows == "short" else "complete"
+
+    def semantic_steps(diagnostics: dict[str, Any], key: str) -> tuple[int, ...]:
+        raw_steps = diagnostics[key]
+        assert isinstance(raw_steps, (list, tuple))
+        assert all(isinstance(step, int) and not isinstance(step, bool) for step in raw_steps)
+        return tuple(raw_steps)
+
+    assert all(emission["requested_dt"] == 2.0 for emission in emitted_by_inflows.values())
+    assert all(
+        emission["returned_row_count"] == expected_row_count
+        for emission in emitted_by_inflows.values()
+    )
+    joint = result.trajectory_for(
+        "joint",
+        tuple(atom.intervention_id for atom in request.intervention_atoms),
+    )
+    assert tuple(point.step for point in joint.points) == requested_steps[:expected_row_count]
+    assert semantic_steps(joint.diagnostics, "requested_steps") == requested_steps
+    assert (
+        semantic_steps(joint.diagnostics, "covered_steps") == requested_steps[:expected_row_count]
+    )
+    assert joint.diagnostics["coverage_status"] == expected_coverage
+    assert joint.diagnostics["hold_last"] is False
+    joint_emission = emitted_by_inflows[(1.0, 1.0)]
+    actual_rows = tuple(
+        tuple(float(value) for value in point.engine_state["stock_values"])
+        for point in joint.points
+    )
+    assert actual_rows == joint_emission["raw_rows"][:expected_row_count]
+
+    if producer_rows == "short":
+        assert tuple(point.step for point in joint.points) == (0, 2)
+        assert actual_rows[-1] != joint_emission["final_stocks"]
+        assert any(
+            issue.startswith("horizon_incomplete:")
+            for issue in result.diagnostics["interaction_evidence_issues"]
+        )
+        assert (
+            "interaction_evidence_incomplete"
+            in result.promotion_ready_value_packet["authority_blockers"]
+        )
+        assert (
+            "interaction_evidence_incomplete" in result.diagnostics["interaction_sampling_issues"]
+        )
+    else:
+        assert tuple(point.step for point in joint.points) == requested_steps
+        assert result.diagnostics["interaction_evidence_issues"] == []
+
+    if producer_rows == "producer-uses-wrong-dt":
+        assert all(emission["used_dt"] == 1.0 for emission in emitted_by_inflows.values())
+        assert all(emission["requested_dt"] == 2.0 for emission in emitted_by_inflows.values())
+        # This diagnostic compares the requested method parameter, not emitted timestamps.
+        assert joint.diagnostics["time_alignment_status"] == "matched"
+        # The protected time-basis status remains unknown even for this full-row countermodel.
+        assert result.diagnostics["physical_time_basis_status"] == "not_established"
+        assert (
+            "horizon_time_alignment_not_established"
+            in result.promotion_ready_value_packet["authority_blockers"]
+        )
+
+    store = FileSystemCAS(tmp_path / f"n5-grid-coverage-{producer_rows}-cas")
+    try:
+        result_ref = persist_joint_simulation_result(result, store=store)
+        fresh = load_joint_simulation_result(
+            result_ref,
+            store=store,
+            expected_world_model_record_content_hash=request.world_model_record.content_hash,
+            expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+            expected_selected_outcomes=request.selected_outcomes,
+        )
+        fresh_joint = fresh.trajectory_for(
+            "joint",
+            tuple(atom.intervention_id for atom in request.intervention_atoms),
+        )
+        assert fresh_joint.points == joint.points
+        assert semantic_steps(fresh_joint.diagnostics, "requested_steps") == requested_steps
+        assert (
+            semantic_steps(fresh_joint.diagnostics, "covered_steps")
+            == requested_steps[:expected_row_count]
+        )
+        assert fresh_joint.diagnostics["coverage_status"] == expected_coverage
+        assert (
+            fresh.diagnostics["interaction_evidence_issues"]
+            == result.diagnostics["interaction_evidence_issues"]
+        )
+        assert (
+            "horizon_time_alignment_not_established"
+            in fresh.promotion_ready_value_packet["authority_blockers"]
+        )
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+def test_system_dynamics_step_changes_real_rows_on_the_requested_grid() -> None:
+    """A unit-step change reaches the registered producer and its actual trajectory."""
+
+    request = _shared_resource_stock_flow_fallback_request(
+        candidate_order=("system_dynamics", "method_registry_estimator")
+    )
+
+    def run_for_step(step: int) -> tuple[JointSimulationRequest, JointSimulationResult]:
+        plan = request.engine_plan[0].model_copy(
+            update={"system_dynamics_params": {"dt": float(step)}}
+        )
+        selected_request = request.model_copy(
+            update={
+                "horizon": HorizonSpec(start=0, end=2 * step, step=step),
+                "engine_plan": (plan, *request.engine_plan[1:]),
+            }
+        )
+        result = JointSimulationHorizonController(
+            method_registry=MethodRegistry._create_fresh()
+        ).run(selected_request)
+        return selected_request, result
+
+    unit_request, unit_result = run_for_step(1)
+    coarse_request, coarse_result = run_for_step(2)
+    unit_joint = unit_result.trajectory_for(
+        "joint",
+        tuple(atom.intervention_id for atom in unit_request.intervention_atoms),
+    )
+    coarse_joint = coarse_result.trajectory_for(
+        "joint",
+        tuple(atom.intervention_id for atom in coarse_request.intervention_atoms),
+    )
+
+    assert tuple(point.step for point in unit_joint.points) == unit_request.horizon.steps()
+    assert tuple(point.step for point in coarse_joint.points) == coarse_request.horizon.steps()
+    assert unit_joint.diagnostics["requested_time_step"] == 1
+    assert coarse_joint.diagnostics["requested_time_step"] == 2
+    assert unit_joint.diagnostics["effective_method_time_step"] == 1
+    assert coarse_joint.diagnostics["effective_method_time_step"] == 2
+    assert unit_joint.diagnostics["time_alignment_status"] == "matched"
+    assert coarse_joint.diagnostics["time_alignment_status"] == "matched"
+    assert unit_joint.points[-1].outcomes["stock1"] == pytest.approx(4.0)
+    assert coarse_joint.points[-1].outcomes["stock1"] == pytest.approx(8.0)
+    assert unit_result.diagnostics["physical_time_basis_status"] == "not_established"
+    assert coarse_result.diagnostics["physical_time_basis_status"] == "not_established"

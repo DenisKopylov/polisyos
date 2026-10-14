@@ -55,6 +55,7 @@ class LegalKnowledgeGraph:
         query_encoder: object | None = None,
         query_profile: tuple[LegalQueryProfile, ...] | None = None,
         query_encoder_refusal: LegalQueryProfileError | None = None,
+        query_runtime_material_owner: object | None = None,
     ) -> None:
         """Open the graph with optional local encoder and frozen query intent.
 
@@ -63,10 +64,12 @@ class LegalKnowledgeGraph:
             index_dir: Directory containing selected Legal embedding generations.
             openai_api_key: Deprecated compatibility label; it does not authorize vectors.
             embedding_model: Deprecated compatibility label retained for callers.
-            query_encoder: Legacy loaded encoder; asset compatibility is checked, but the
-                current runtime refuses vectors without an owner-resolved runtime bundle.
+            query_encoder: Legacy loaded encoder candidate. Asset compatibility is checked,
+                but caller-supplied encoders remain refused for vector admission.
             query_profile: Immutable snapshots captured when this query was requested.
             query_encoder_refusal: Provider refusal deferred until the fresh reader admission.
+            query_runtime_material_owner: Legal owner admitted after fresh intent and
+                member checks.
         """
         self._store = LegalKnowledgeStore(db_path, index_dir)
         self._openai_api_key = openai_api_key
@@ -75,12 +78,24 @@ class LegalKnowledgeGraph:
             query_encoder_refusal, LegalQueryProfileError
         ):
             raise TypeError("query_encoder_refusal_invalid")
+        if query_encoder is not None and query_runtime_material_owner is not None:
+            raise TypeError("query_encoder_and_runtime_material_owner_conflict")
+        if query_runtime_material_owner is not None:
+            from polisyos.data_forge.read_api import legal as legal_read_api
+
+            if type(query_runtime_material_owner) is not legal_read_api.LegalRuntimeMaterialOwner:
+                raise TypeError("query_runtime_material_owner_invalid")
         self._query_encoder = query_encoder
+        self._query_runtime_material_owner = query_runtime_material_owner
         self._query_profile = query_profile
         self._query_encoder_refusal = query_encoder_refusal
-        if self._query_encoder_refusal is None and query_encoder is None:
+        if (
+            self._query_encoder_refusal is None
+            and query_encoder is None
+            and query_runtime_material_owner is None
+        ):
             self._query_encoder_refusal = LegalQueryProfileError("query_encoder_assets_unavailable")
-        if query_encoder is None:
+        if query_encoder is None and query_runtime_material_owner is None:
             self._query_profile_error: LegalQueryProfileError | None = self._query_encoder_refusal
         elif query_profile is None:
             self._query_profile_error = LegalQueryProfileError("query_profile_unavailable")
@@ -94,7 +109,7 @@ class LegalKnowledgeGraph:
 
     @property
     def query_profile_error(self) -> LegalQueryProfileError | None:
-        """Return the latest typed reason vector search was refused, if any."""
+        """Return the legacy latest-query refusal; concurrent callers use same-call status."""
         return self._query_profile_error
 
     # ------------------------------------------------------------------
@@ -103,7 +118,11 @@ class LegalKnowledgeGraph:
 
     def _get_query_input(self, query: str) -> LegalQueryInput:
         """Bind raw query text to the configured encoder candidate and intent."""
-        if self._query_encoder is None and self._query_profile is None:
+        if (
+            self._query_encoder is None
+            and self._query_runtime_material_owner is None
+            and self._query_profile is None
+        ):
             error = self._query_encoder_refusal or LegalQueryProfileError(
                 "query_encoder_assets_unavailable"
             )
@@ -119,6 +138,7 @@ class LegalKnowledgeGraph:
             encoder=self._query_encoder,
             profile=self._query_profile,
             runtime_refusal=self._query_encoder_refusal,
+            runtime_material_owner=self._query_runtime_material_owner,
         )
 
     def _record_query_profile_error(self, error: LegalQueryProfileError) -> None:
@@ -345,7 +365,7 @@ class LegalKnowledgeGraph:
             quality_band=quality_band,
         )
 
-    def hybrid_search(
+    def hybrid_search_with_status(
         self,
         query: str,
         *,
@@ -361,11 +381,11 @@ class LegalKnowledgeGraph:
         include_candidates: bool = False,
         min_fused_confidence: float | None = None,
         quality_band: str | None = None,
-    ) -> list[LegalFactResult]:
+    ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
         """Combined vector + text search with score fusion.
 
-        Unsupported vector requests return text results while preserving their
-        typed refusal in ``query_profile_error``.
+        Return the retrieval result and its typed vector outcome together so
+        concurrent callers cannot exchange status through shared graph state.
         """
         text_results = self._store.text_search_facts(
             query,
@@ -399,7 +419,7 @@ class LegalKnowledgeGraph:
             )
         except LegalQueryProfileError as exc:
             self._record_query_profile_error(exc)
-            return text_results[:top_k]
+            return text_results[:top_k], exc
 
         # Score fusion: merge by fact_id
         scores: dict[str, float] = {}
@@ -417,61 +437,100 @@ class LegalKnowledgeGraph:
         # Sort by fused score
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
 
-        return [
-            LegalFactResult(
-                fact_id=fid,
-                subject_name=fact_map[fid].subject_name,
-                predicate=fact_map[fid].predicate,
-                object_name=fact_map[fid].object_name,
-                fact_text=fact_map[fid].fact_text,
-                confidence=fact_map[fid].confidence,
-                norm_type=fact_map[fid].norm_type,
-                action_canon=fact_map[fid].action_canon,
-                norm_type_canon=fact_map[fid].norm_type_canon,
-                condition_text_uk=fact_map[fid].condition_text_uk,
-                exception_text_uk=fact_map[fid].exception_text_uk,
-                procedure_text_uk=fact_map[fid].procedure_text_uk,
-                thresholds_json=fact_map[fid].thresholds_json,
-                source_quote_uk=fact_map[fid].source_quote_uk,
-                trust_tier=fact_map[fid].trust_tier,
-                grounding_status=fact_map[fid].grounding_status,
-                canonical_status=fact_map[fid].canonical_status,
-                reference_resolution_status=fact_map[fid].reference_resolution_status,
-                structure_quality=fact_map[fid].structure_quality,
-                constraint_type_canon=fact_map[fid].constraint_type_canon,
-                legal_unit_subtype=fact_map[fid].legal_unit_subtype,
-                route_class=fact_map[fid].route_class,
-                empty_spo_retry_eligible=fact_map[fid].empty_spo_retry_eligible,
-                audit_miss_prone=fact_map[fid].audit_miss_prone,
-                reference_bearing=fact_map[fid].reference_bearing,
-                threshold_bearing=fact_map[fid].threshold_bearing,
-                fused_confidence=fact_map[fid].fused_confidence,
-                confidence_breakdown_json=fact_map[fid].confidence_breakdown_json,
-                consistency_score=fact_map[fid].consistency_score,
-                hallucination_flags_json=fact_map[fid].hallucination_flags_json,
-                quality_band=fact_map[fid].quality_band,
-                doc_id=fact_map[fid].doc_id,
-                doc_family_id=fact_map[fid].doc_family_id,
-                version_id=fact_map[fid].version_id,
-                jurisdiction=fact_map[fid].jurisdiction,
-                top_domain=fact_map[fid].top_domain,
-                effective_from=fact_map[fid].effective_from,
-                effective_to=fact_map[fid].effective_to,
-                temporal_state=fact_map[fid].temporal_state,
-                temporal_resolution_status=fact_map[fid].temporal_resolution_status,
-                temporal_source_scope=fact_map[fid].temporal_source_scope,
-                temporal_source_kind=fact_map[fid].temporal_source_kind,
-                temporal_confidence=fact_map[fid].temporal_confidence,
-                temporal_provenance_json=fact_map[fid].temporal_provenance_json,
-                doc_name=fact_map[fid].doc_name,
-                doc_reestr_code=fact_map[fid].doc_reestr_code,
-                provision_anchor=fact_map[fid].provision_anchor,
-                provision_citation=fact_map[fid].provision_citation,
-                similarity=score,
-            )
-            for fid, score in ranked
-            if fid in fact_map
-        ]
+        return (
+            [
+                LegalFactResult(
+                    fact_id=fid,
+                    subject_name=fact_map[fid].subject_name,
+                    predicate=fact_map[fid].predicate,
+                    object_name=fact_map[fid].object_name,
+                    fact_text=fact_map[fid].fact_text,
+                    confidence=fact_map[fid].confidence,
+                    norm_type=fact_map[fid].norm_type,
+                    action_canon=fact_map[fid].action_canon,
+                    norm_type_canon=fact_map[fid].norm_type_canon,
+                    condition_text_uk=fact_map[fid].condition_text_uk,
+                    exception_text_uk=fact_map[fid].exception_text_uk,
+                    procedure_text_uk=fact_map[fid].procedure_text_uk,
+                    thresholds_json=fact_map[fid].thresholds_json,
+                    source_quote_uk=fact_map[fid].source_quote_uk,
+                    trust_tier=fact_map[fid].trust_tier,
+                    grounding_status=fact_map[fid].grounding_status,
+                    canonical_status=fact_map[fid].canonical_status,
+                    reference_resolution_status=fact_map[fid].reference_resolution_status,
+                    structure_quality=fact_map[fid].structure_quality,
+                    constraint_type_canon=fact_map[fid].constraint_type_canon,
+                    legal_unit_subtype=fact_map[fid].legal_unit_subtype,
+                    route_class=fact_map[fid].route_class,
+                    empty_spo_retry_eligible=fact_map[fid].empty_spo_retry_eligible,
+                    audit_miss_prone=fact_map[fid].audit_miss_prone,
+                    reference_bearing=fact_map[fid].reference_bearing,
+                    threshold_bearing=fact_map[fid].threshold_bearing,
+                    fused_confidence=fact_map[fid].fused_confidence,
+                    confidence_breakdown_json=fact_map[fid].confidence_breakdown_json,
+                    consistency_score=fact_map[fid].consistency_score,
+                    hallucination_flags_json=fact_map[fid].hallucination_flags_json,
+                    quality_band=fact_map[fid].quality_band,
+                    doc_id=fact_map[fid].doc_id,
+                    doc_family_id=fact_map[fid].doc_family_id,
+                    version_id=fact_map[fid].version_id,
+                    jurisdiction=fact_map[fid].jurisdiction,
+                    top_domain=fact_map[fid].top_domain,
+                    effective_from=fact_map[fid].effective_from,
+                    effective_to=fact_map[fid].effective_to,
+                    temporal_state=fact_map[fid].temporal_state,
+                    temporal_resolution_status=fact_map[fid].temporal_resolution_status,
+                    temporal_source_scope=fact_map[fid].temporal_source_scope,
+                    temporal_source_kind=fact_map[fid].temporal_source_kind,
+                    temporal_confidence=fact_map[fid].temporal_confidence,
+                    temporal_provenance_json=fact_map[fid].temporal_provenance_json,
+                    doc_name=fact_map[fid].doc_name,
+                    doc_reestr_code=fact_map[fid].doc_reestr_code,
+                    provision_anchor=fact_map[fid].provision_anchor,
+                    provision_citation=fact_map[fid].provision_citation,
+                    similarity=score,
+                )
+                for fid, score in ranked
+                if fid in fact_map
+            ],
+            None,
+        )
+
+    def hybrid_search(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        vector_weight: float = 0.7,
+        text_weight: float = 0.3,
+        trust_tier: str | None = "grounded_fact",
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
+        include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
+    ) -> list[LegalFactResult]:
+        """Return the legacy list projection of hybrid search."""
+        results, query_status = self.hybrid_search_with_status(
+            query,
+            top_k=top_k,
+            vector_weight=vector_weight,
+            text_weight=text_weight,
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
+        )
+        self._query_profile_error = query_status
+        return results
 
     # ------------------------------------------------------------------
     # Graph methods (delegated)

@@ -71,6 +71,7 @@ def test_aipw_emits_bootstrap_eif_contract_and_diagnostics():
     inner = result["result"]
 
     assert inner["interval_method"].startswith("bootstrap_eif")
+    assert inner["confidence_level"] == 0.95
     assert inner["ci_lower"] <= inner["ate"] <= inner["ci_upper"]
     assert inner["nuisance_contract"]["propensity_backend"] == "lightgbm"
     assert inner["nuisance_contract"]["outcome_backend"] == "lightgbm"
@@ -90,6 +91,32 @@ def test_aipw_emits_bootstrap_eif_contract_and_diagnostics():
     assert inner["selection_manifest"]["selection_objective"] == "causal_risk"
     assert inner["selection_manifest"]["tested_propensity_backends"]
     assert inner["selection_manifest"]["tested_outcome_backends"]
+
+
+def test_aipw_nondefault_confidence_request_is_limited_at_native_fixed_level() -> None:
+    state = _make_state()
+    params = {**_params(), "confidence_level": 0.8}
+
+    native = AIPWEstimator.pure_step(state, params)["result"]
+
+    assert native["confidence_level"] == 0.95
+    assert native["status"] == "limited"
+    assert "unsupported_confidence_level_request" in native["inference_limitations"]
+    report = AIPWEstimator.report_from_result(data=state, params=params, result=native)
+    assert report.status.value == "assumption_failed"
+    assert report.point_estimate is None
+    assert report.confidence_interval is None
+
+    for malformed_level in (None, "0.95", True, float("nan")):
+        malformed_report = AIPWEstimator.report_from_result(
+            data=state,
+            params={"confidence_level": malformed_level},
+            result={**native, "status": "candidate", "inference_limitations": []},
+        )
+        assert malformed_report.status.value == "assumption_failed"
+        assert malformed_report.point_estimate is None
+        assert malformed_report.confidence_interval is None
+        assert "confidence_level_not_established" in malformed_report.status_reason
 
 
 def test_tmle_targets_deterministically_and_reports_targeting_summary():
@@ -218,3 +245,83 @@ def test_bootstrap_ci_ignores_non_finite_draws() -> None:
 
     assert lower == pytest.approx(1.05)
     assert upper == pytest.approx(1.95)
+
+
+def test_aipw_report_projection_preserves_native_interval_and_candidate_limit() -> None:
+    state = {
+        "outcome": np.asarray([0.0, 2.0, 1.0, 4.0]),
+        "treatment": np.asarray([0.0, 1.0, 0.0, 1.0]),
+        "X": np.asarray([[0.0], [1.0], [2.0], [3.0]]),
+    }
+    native = {
+        "ate": 1.5,
+        "standard_error": 0.25,
+        "ci_lower": 1.01,
+        "ci_upper": 1.99,
+        "interval_method": "wald_eif",
+        "confidence_level": 0.95,
+        "status": "candidate",
+        "inference_profile": "regular_iid",
+        "inference_limitations": [],
+    }
+
+    report = AIPWEstimator.report_from_result(data=state, params={}, result=native)
+
+    assert report.method.value == "aipw"
+    assert report.status.value == "success"
+    assert report.confidence_level == 0.95
+    assert report.point_estimate == native["ate"]
+    assert report.confidence_interval == (native["ci_lower"], native["ci_upper"])
+    assert report.metadata["gate_eligible"] is False
+    assert report.metadata["inference_profile"] == "regular_iid"
+    assert report.metadata["inference_limitations"] == []
+    assert report.metadata["assumption_basis"] == "consumer_asserted"
+    assert report.metadata["interval_method"] == native["interval_method"]
+
+    wrong_level = AIPWEstimator.report_from_result(
+        data=state, params={}, result={**native, "confidence_level": 0.9}
+    )
+    assert wrong_level.status.value == "assumption_failed"
+    assert wrong_level.point_estimate is None
+    assert wrong_level.confidence_interval is None
+    assert "confidence_level_not_established" in wrong_level.status_reason
+
+
+def test_aipw_report_projection_keeps_unsupported_profile_point_free() -> None:
+    state = {
+        "outcome": np.asarray([0.0, 2.0, 1.0, 4.0]),
+        "treatment": np.asarray([0.0, 1.0, 0.0, 1.0]),
+        "X": np.asarray([[0.0], [1.0], [2.0], [3.0]]),
+    }
+    native = {
+        "ate": 1.5,
+        "standard_error": 0.25,
+        "ci_lower": 1.01,
+        "ci_upper": 1.99,
+        "interval_method": "wald_eif",
+        "confidence_level": 0.95,
+        "status": "candidate",
+        "inference_profile": "unverified_rows",
+        "inference_limitations": ["unsupported_inference_profile"],
+    }
+
+    report = AIPWEstimator.report_from_result(data=state, params={}, result=native)
+
+    assert report.status.value == "assumption_failed"
+    assert report.point_estimate is None
+    assert report.confidence_interval is None
+    assert report.metadata["gate_eligible"] is False
+
+    unsupported_interval = AIPWEstimator.report_from_result(
+        data=state,
+        params={},
+        result={
+            **native,
+            "inference_profile": "regular_iid",
+            "inference_limitations": [],
+            "interval_method": "unavailable_eif",
+        },
+    )
+    assert unsupported_interval.status.value == "assumption_failed"
+    assert unsupported_interval.point_estimate is None
+    assert unsupported_interval.confidence_interval is None

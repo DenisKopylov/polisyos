@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
@@ -94,12 +94,14 @@ def _put_epoch_evidence(
     payload: bytes,
     *,
     kind: str,
+    canon: CanonInfo | None = None,
 ) -> ArtifactRef:
     return store.put_bytes(
         payload,
         ArtifactWriteOptions(
             kind=kind,
             media_type="application/vnd.polisyos.epoch+json",
+            canon=canon,
         ),
     )
 
@@ -235,6 +237,7 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
             store,
             epoch_contract.canonical_epoch_bytes({"semantic_value": registration.facet_id}),
             kind="epoch.semantic_facet_source.v1",
+            canon=epoch_contract.epoch_canon_info(),
         )
         assert str(ref.artifact_id) == registration.source_binding_ref
         facet_source_refs[registration.source_binding_ref] = ref

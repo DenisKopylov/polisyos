@@ -101,6 +101,7 @@ const runNodesPayload = {
   meta,
   run_id: runId,
   source_kind: "core_run",
+  notes: ["workflow_report_missing_or_unavailable"],
 };
 
 const runWorkflowPayload = {
@@ -345,8 +346,9 @@ describe("run query hooks", () => {
         endpoint: "/api/v1/debug/runs/{run_id}/errors",
         hook: useRunErrorsHook,
         queryOptions: runErrorsQueryOptions(runId),
-        assertData: (data: { errors: unknown[] }) => {
+        assertData: (data: { errors: unknown[]; notes?: unknown[] }) => {
           expect(data.errors).toEqual([]);
+          expect(data.notes).toBeUndefined();
         },
         payload: runErrorsPayload,
       },
@@ -373,8 +375,11 @@ describe("run query hooks", () => {
         endpoint: "/api/v1/runs/{run_id}/nodes",
         hook: useRunNodesHook,
         queryOptions: runNodesQueryOptions(runId),
-        assertData: (data: { nodes: unknown[] }) => {
+        assertData: (data: { nodes: unknown[]; notes?: unknown[] }) => {
           expect(data.nodes).toEqual([]);
+          expect(data.notes).toEqual([
+            "workflow_report_missing_or_unavailable",
+          ]);
         },
         payload: runNodesPayload,
       },

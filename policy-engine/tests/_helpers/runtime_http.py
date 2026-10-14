@@ -9,7 +9,7 @@ from contextlib import contextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import pytest
 
@@ -35,7 +35,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
@@ -45,6 +45,7 @@ from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_s
 from polisyos.pdc import ArtifactRef as PDCArtifactRef
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+from polisyos.runtime.http.resilience import run_guarded_dependency_operation
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
@@ -145,23 +146,75 @@ def _with_runtime_fixture_authority(payload: object) -> object:
     return result
 
 
-def _put_json(store: FileSystemCAS, payload: object, *args: object, **kwargs: object):
-    return _put_json_raw(
-        store,
-        _with_runtime_fixture_authority(payload),
-        *args,
-        **kwargs,
+def _put_json(
+    store: FileSystemCAS,
+    payload: object,
+    *args: object,
+    return_selected_profile: bool = False,
+    **kwargs: object,
+):
+    fixture_payload = _with_runtime_fixture_authority(payload)
+    if not return_selected_profile:
+        return _put_json_raw(store, fixture_payload, *args, **kwargs)
+    if args:
+        raise TypeError("selected_profile_fixture_writer_requires_keyword_options")
+
+    kind = kwargs.pop("kind", None)
+    inputs = kwargs.pop("inputs", None)
+    schema_version = kwargs.pop("schema_version", "1.0")
+    forbid_floats = kwargs.pop("forbid_floats", False)
+    if (
+        kwargs
+        or not isinstance(kind, str)
+        or (inputs is not None and not isinstance(inputs, list))
+        or not isinstance(schema_version, str)
+        or not isinstance(forbid_floats, bool)
+    ):
+        raise TypeError("selected_profile_fixture_writer_requires_supported_options")
+    return store.put_json(
+        fixture_payload,
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=kind, version=schema_version),
+            inputs=cast("list[InputRef] | None", inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=forbid_floats),
+        return_selected_profile=True,
     )
 
 
+def _record_fixture_view_owner(
+    store: Any,
+    artifact_id: object,
+    manifest_profile_sha256: str,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    writer: str,
+) -> None:
+    """Record one selected view through the configured store guard."""
+
+    def record_view_owner() -> None:
+        store._ownership_index.record_view_owner(
+            artifact_id,
+            manifest_profile_sha256,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            writer=writer,
+        )
+
+    run_guarded_dependency_operation(store, record_view_owner)
+
+
 def _record_fixture_owner(
-    store: FileSystemCAS,
+    store: Any,
     *refs: object,
     tenant_id: str,
     cell_id: str,
     runtime_api_env: Mapping[str, object] | None = None,
 ) -> None:
-    """Mark CAS views and, when requested, index their real fixture run roots."""
+    """Mark exact CAS views through the raw store or its guarded runtime facade."""
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         for ref in refs:
             artifact_id = getattr(ref, "artifact_id", None)
@@ -177,7 +230,8 @@ def _record_fixture_owner(
             if supplied_profile is not None:
                 if not isinstance(ref, ArtifactRef):
                     raise TypeError("fixture_profile_view_requires_core_artifact_ref")
-                store._ownership_index.record_view_owner(
+                _record_fixture_view_owner(
+                    store,
                     artifact_id,
                     supplied_profile,
                     tenant_id=tenant_id,
@@ -193,7 +247,8 @@ def _record_fixture_owner(
             if supplied_profile is not None and supplied_profile != profile:
                 raise ValueError("fixture_owner_ref_profile_mismatch")
             if supplied_profile is None:
-                store._ownership_index.record_view_owner(
+                _record_fixture_view_owner(
+                    store,
                     artifact_id,
                     profile,
                     tenant_id=tenant_id,
@@ -210,8 +265,16 @@ def _record_fixture_owner(
         )
 
 
+def _read_persisted_run_index_record(run_index: Any, run_id: str) -> Any:
+    """Read the persisted index through its service method, bypassing route stubs."""
+    get_run = getattr(type(run_index), "get_run", None)
+    if not callable(get_run):
+        raise TypeError("fixture_owner_run_requires_runtime_run_index_service")
+    return get_run(run_index, run_id)
+
+
 def _persist_fixture_owner_run(
-    store: FileSystemCAS,
+    store: Any,
     refs: tuple[object, ...],
     *,
     runtime_api_env: Mapping[str, object],
@@ -251,7 +314,7 @@ def _persist_fixture_owner_run(
     if run_dir.exists():
         runtime_context.run_index.refresh(force=True)
         try:
-            indexed = runtime_context.run_index.get_run(run_id)
+            indexed = _read_persisted_run_index_record(runtime_context.run_index, run_id)
         except KeyError as exc:
             raise RuntimeError("fixture_owner_run_exists_without_indexed_record") from exc
         indexed_identities = tuple(
@@ -295,7 +358,7 @@ def _persist_fixture_owner_run(
                 status="completed",
             )
         runtime_context.run_index.refresh(force=True)
-        indexed = runtime_context.run_index.get_run(run_id)
+        indexed = _read_persisted_run_index_record(runtime_context.run_index, run_id)
         indexed_identities = tuple(
             sorted(
                 (artifact_ref_identity_key(ref) for ref in indexed.details.root_artifacts),
@@ -351,9 +414,11 @@ def _finalize_fixture_run(
     status: str,
     errors: list[dict[str, object]] | None = None,
 ) -> ArtifactRef:
-    """Finalize under the run's recorded owner so CAS input checks are real."""
+    """Finalize the fixture run and register its exact selected manifest view."""
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        return run.finalize(status=status, errors=errors)
+        manifest_ref = run.finalize(status=status, errors=errors)
+        _record_fixture_owner(run.store, manifest_ref, tenant_id=tenant_id, cell_id=cell_id)
+    return manifest_ref
 
 
 def _seed_fixture_producer_cost_events(
@@ -1570,6 +1635,7 @@ def build_runtime_api_env(
             ],
         },
         kind="scientist.workflow_report",
+        return_selected_profile=True,
     )
     workflow_spec_ref = _put_json(
         store,

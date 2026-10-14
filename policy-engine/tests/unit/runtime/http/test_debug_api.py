@@ -5,9 +5,17 @@ from types import SimpleNamespace
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    CanonInfo,
+    SchemaInfo,
+)
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.runtime import AgentPipelineCostEvent
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.services.debug import (
     DebugService,
     SimulationResultProjectionError,
@@ -122,7 +130,7 @@ def test_debug_cost_readers_preserve_exact_selected_profile(
 ) -> None:
     class _RecordingCAS(FileSystemCAS):
         def __init__(self, root):
-            super().__init__(root)
+            super().__init__(root, ownership_enforced=True, ownership_requires_scope=False)
             self.verify_refs: list[object] = []
             self.get_bytes_refs: list[object] = []
 
@@ -135,38 +143,7 @@ def test_debug_cost_readers_preserve_exact_selected_profile(
             return super().get_bytes(artifact_ref)
 
     store = _RecordingCAS(tmp_path / reader_name)
-    payload = b'{"candidate":"same-bytes"}'
-    schema = SchemaInfo(name=schema_name, version="1.0" if "compiled" in kind else "3")
-    shared = {
-        "kind": kind,
-        "media_type": "application/json",
-        "schema": schema,
-    }
-    sibling_ref = store.put_bytes(
-        payload,
-        PutOptions(
-            **shared,
-            tenant_context=ArtifactTenantContextInfo(
-                tenant_id="tenant-sibling",
-                cell_id="cell-sibling",
-            ),
-        ),
-    )
-    selected_ref = store.put_bytes(
-        payload,
-        PutOptions(
-            **shared,
-            tenant_context=ArtifactTenantContextInfo(
-                tenant_id="tenant-selected",
-                cell_id="cell-selected",
-            ),
-        ),
-    )
-    assert selected_ref.artifact_id == sibling_ref.artifact_id
-    assert selected_ref.manifest_profile_sha256 != sibling_ref.manifest_profile_sha256
-    assert store.get_manifest(sibling_ref).tenant_context.tenant_id == "tenant-sibling"
-    assert store.get_manifest(selected_ref).tenant_context.tenant_id == "tenant-selected"
-
+    canon_spec = CanonSpec(forbid_floats=False)
     event = AgentPipelineCostEvent(
         event_id="event-selected-profile",
         cost_origin="reported",
@@ -177,6 +154,61 @@ def test_debug_cost_readers_preserve_exact_selected_profile(
         model="configured-model",
         provider="configured-provider",
     )
+    selected_proposal_record = None
+    if reader_name == "_agent_steps_from_n4_candidate_proposal":
+        from polisyos.runtime.quality import generation_source
+
+        payload = to_canonical_bytes({"candidate": "same-bytes"}, generation_source._SOURCE_CANON)
+
+        def proposal_record(tenant_id: str, cell_id: str) -> SimpleNamespace:
+            return SimpleNamespace(
+                run_id="run-selected",
+                core_run_id="run-selected",
+                job_id="job-selected",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                control_job_attempt=1,
+                nl_preflight_cost_events=(),
+                n4_generation_cost_events=(event,),
+            )
+
+        selected_proposal_record = proposal_record("tenant-selected", "cell-selected")
+        sibling_options = generation_source._n4_candidate_proposal_v3_write_options(
+            proposal_record("tenant-sibling", "cell-sibling")
+        )
+        selected_options = generation_source._n4_candidate_proposal_v3_write_options(
+            selected_proposal_record
+        )
+    else:
+        payload = to_canonical_bytes({"candidate": "same-bytes"}, canon_spec)
+
+        def compiled_options(tenant_id: str, cell_id: str) -> PutOptions:
+            return PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version="1.0"),
+                canon=CanonInfo.from_spec(canon_spec),
+                tenant_context=ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id),
+            )
+
+        sibling_options = compiled_options("tenant-sibling", "cell-sibling")
+        selected_options = compiled_options("tenant-selected", "cell-selected")
+
+    with tenant_scope(None, tenant_id="tenant-sibling", cell_id="cell-sibling"):
+        sibling_ref = store.put_bytes(payload, sibling_options, return_selected_profile=True)
+    with tenant_scope(None, tenant_id="tenant-selected", cell_id="cell-selected"):
+        selected_ref = store.put_bytes(payload, selected_options, return_selected_profile=True)
+    assert selected_ref.artifact_id == sibling_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert selected_ref.manifest_profile_sha256 != sibling_ref.manifest_profile_sha256
+    with tenant_scope(None, tenant_id="tenant-sibling", cell_id="cell-sibling"):
+        assert store.get_manifest(sibling_ref).tenant_context.tenant_id == "tenant-sibling"
+    with tenant_scope(None, tenant_id="tenant-selected", cell_id="cell-selected"):
+        assert store.get_manifest(selected_ref).tenant_context.tenant_id == "tenant-selected"
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_manifest(sibling_ref)
+
     if reader_name == "_agent_steps_from_compiled_cycle":
         from polisyos.runtime.http.services.control.generation_cycle import (
             CompiledRecursiveGenerationCycleRun,
@@ -195,25 +227,11 @@ def test_debug_cost_readers_preserve_exact_selected_profile(
     else:
         from polisyos.runtime.quality import generation_source
 
+        assert selected_proposal_record is not None
         monkeypatch.setattr(
             generation_source.N4CandidateProposalRecordV3,
             "model_validate",
-            classmethod(
-                lambda _cls, _payload: SimpleNamespace(
-                    core_run_id="run-selected",
-                    job_id="job-selected",
-                    tenant_id="tenant-selected",
-                    cell_id="cell-selected",
-                    control_job_attempt=1,
-                    nl_preflight_cost_events=(),
-                    n4_generation_cost_events=(event,),
-                )
-            ),
-        )
-        monkeypatch.setattr(
-            generation_source,
-            "_has_n4_candidate_proposal_v3_owner_profile",
-            lambda _manifest, _proposal: True,
+            classmethod(lambda _cls, _payload: selected_proposal_record),
         )
 
     run = SimpleNamespace(
@@ -229,7 +247,8 @@ def test_debug_cost_readers_preserve_exact_selected_profile(
     store.verify_refs.clear()
     store.get_bytes_refs.clear()
 
-    steps, note = getattr(debug, reader_name)(run, sensitive_keys=())
+    with tenant_scope(None, tenant_id="tenant-selected", cell_id="cell-selected"):
+        steps, note = getattr(debug, reader_name)(run, sensitive_keys=())
 
     assert note is None
     assert steps and steps[0].cost_events == [event]

@@ -48,10 +48,19 @@ def admission_request(tmp_path: Path) -> tuple[Path, artifacts.FileSystemCAS]:
             "CREATE TABLE lex_facts (doc_id VARCHAR, jurisdiction VARCHAR, top_domain VARCHAR)"
         )
 
-    def put(payload: bytes, *, kind: str) -> artifacts.ArtifactRef:
+    def put(
+        payload: bytes,
+        *,
+        kind: str,
+        canon: artifacts.CanonInfo | None = None,
+    ) -> artifacts.ArtifactRef:
         return store.put_bytes(
             payload,
-            artifacts.PutOptions(kind=kind, media_type="application/vnd.polisyos.epoch+json"),
+            artifacts.PutOptions(
+                kind=kind,
+                media_type="application/vnd.polisyos.epoch+json",
+                canon=canon,
+            ),
         )
 
     registry = semantic_epoch.load_facet_registry(root / owner_paths[1])
@@ -60,6 +69,7 @@ def admission_request(tmp_path: Path) -> tuple[Path, artifacts.FileSystemCAS]:
         ref = put(
             epoch_contract.canonical_epoch_bytes({"semantic_value": registration.facet_id}),
             kind="epoch.semantic_facet_source.v1",
+            canon=epoch_contract.epoch_canon_info(),
         )
         assert str(ref.artifact_id) == registration.source_binding_ref
         facet_refs[registration.source_binding_ref] = ref.model_dump(mode="json")

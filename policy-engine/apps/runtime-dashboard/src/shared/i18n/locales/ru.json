@@ -622,6 +622,8 @@
       "governanceErrorsPanel": "Errors panel",
       "runErrorsLoading": "Loading run errors...",
       "runErrorsLoadError": "Unable to load run errors",
+      "workflowTimelineFallback": "Записи узлов и ошибки узлов рабочего процесса взяты из временной шкалы запуска, поскольку отчет недоступен.",
+      "workflowLimitationStatusNotReported": "Сервер не сообщил, использовался ли резервный вариант с временной шкалой.",
       "debugAliasesLoading": "Loading node aliases...",
       "debugNodesLoadError": "Unable to load run nodes for debug",
       "debugLoading": "Loading node debug...",

@@ -244,7 +244,7 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     assert secret.status_code == 409
     secret_decision = secret.json()["authority_surface_decision"]
     assert secret.json()["code"] == "authority_surface_admission_blocked"
-    assert secret_decision["reason"] == "authority_purpose_forbidden"
+    assert secret_decision["reason"] == "secret_pii_surface_blocked"
     assert any(
         contributor["basis"] == "selected_manifest"
         and contributor["authority_boundary_ref"] == "boundary-runtime-api-secret-lineage-refusal"

@@ -93,8 +93,11 @@ from polisyos.runtime.quality.confidence_ledger import (
     validate_confidence_ledger_receipt,
 )
 from polisyos.runtime.quality.credal_reference import (
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    CREDAL_REFERENCE_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
+    CredalReferenceCatalogSourceProfile,
     CredalReferenceEdge,
     replace_reference_edge,
 )
@@ -326,6 +329,34 @@ class _CredalReferenceReplayRecord(_StrictModel):
     as_of: str = Field(min_length=1)
     component_versions: dict[str, str]
     essential_edges: tuple[_CredalEdgeReplayRecord, ...]
+    data_forge_catalog_source_profile: CredalReferenceCatalogSourceProfile | None = None
+
+    @model_validator(mode="after")
+    def _validate_catalog_source_epoch(self) -> _CredalReferenceReplayRecord:
+        profile = self.data_forge_catalog_source_profile
+        component_hash = self.component_versions.get("DATA_FORGE_CATALOG_SOURCE_PROFILE")
+        if self.schema_version == CREDAL_REFERENCE_SCHEMA_VERSION:
+            if profile is None or component_hash != profile.content_hash:
+                raise ValueError("effect_credal_reference_catalog_source_profile_missing")
+        elif self.schema_version in {
+            "policyos.runtime.grounding_credal_reference.v1",
+            CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        }:
+            if profile is not None or component_hash is not None:
+                raise ValueError("historical_credal_reference_catalog_profile_not_allowed")
+        else:
+            raise ValueError("effect_credal_reference_schema_not_supported")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_catalog_source_epoch(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        if self.data_forge_catalog_source_profile is None:
+            payload.pop("data_forge_catalog_source_profile", None)
+        return payload
 
     @classmethod
     def from_reference(cls, reference: CredalReference) -> _CredalReferenceReplayRecord:
@@ -339,6 +370,7 @@ class _CredalReferenceReplayRecord(_StrictModel):
                 _CredalEdgeReplayRecord.from_edge(edge)
                 for edge in reference.essential_edges.values()
             ),
+            data_forge_catalog_source_profile=reference.data_forge_catalog_source_profile,
         )
 
     def to_reference(self) -> CredalReference:
@@ -353,6 +385,7 @@ class _CredalReferenceReplayRecord(_StrictModel):
             as_of=self.as_of,
             component_versions=self.component_versions,
             essential_edges=edge_index,
+            data_forge_catalog_source_profile=self.data_forge_catalog_source_profile,
         )
         if replace_reference_edge(reference, edges[0]) != reference:
             raise ValueError("effect_credal_reference_hash_mismatch")
@@ -941,8 +974,8 @@ class N9PromotionEvidenceBridgeRepository:
         """Produce and bind a replayable RACE O_effect decision."""
 
         reference = promotion_input.credal_reference
-        if reference is None:
-            raise ValueError("effect_credal_reference_missing")
+        if not isinstance(reference, CredalReference):
+            raise ValueError("effect_credal_reference_full_record_required")
         normalized_proposal = json.loads(json.dumps(dict(proposal), sort_keys=True))
         if not isinstance(normalized_proposal, dict):
             raise TypeError("effect_proposal_payload_invalid")
@@ -1013,9 +1046,26 @@ class N9PromotionEvidenceBridgeRepository:
         promotion_input: CanonicalPromotionInput,
         evidence_kind: _PromotionEvidenceKind,
     ) -> N9PromotionEvidenceResolution:
-        """Read, verify, and bind one evidence bridge or return a typed nonreceipt."""
+        """Read one evidence bridge, exposing only its verified projection."""
+
+        resolution, _reference = self.resolve_with_credal_reference(
+            bridge_ref=bridge_ref,
+            promotion_input=promotion_input,
+            evidence_kind=evidence_kind,
+        )
+        return resolution
+
+    def resolve_with_credal_reference(
+        self,
+        *,
+        bridge_ref: ArtifactRef,
+        promotion_input: CanonicalPromotionInput,
+        evidence_kind: _PromotionEvidenceKind,
+    ) -> tuple[N9PromotionEvidenceResolution, CredalReference | None]:
+        """Resolve a bridge and return K_ref only from its bound effect record."""
 
         owner_ref = _promotion_evidence_owner_ref(evidence_kind)
+        resolved_reference: CredalReference | None = None
         try:
             expected_type = _promotion_evidence_bridge_type(evidence_kind)
             if (
@@ -1054,9 +1104,8 @@ class N9PromotionEvidenceBridgeRepository:
             elif evidence_kind == "measurement_root":
                 disposition, limitation, source_refs = self._resolve_measurement_record(record)
             else:
-                disposition, limitation, source_refs = self._resolve_effect_record(
-                    record,
-                    promotion_input=promotion_input,
+                disposition, limitation, source_refs, resolved_reference = (
+                    self._resolve_effect_record(record, promotion_input=promotion_input)
                 )
             if (
                 record.source_disposition != disposition
@@ -1072,21 +1121,27 @@ class N9PromotionEvidenceBridgeRepository:
                 disposition, limitation = "blocked", "synthetic_evidence_cannot_grant_authority"
             if record.disposition != disposition or record.limitation_code != limitation:
                 raise ValueError("promotion_evidence_bridge_authority_projection_drift")
-            return N9PromotionEvidenceResolution(
-                evidence_kind=evidence_kind,
-                status="established" if disposition == "established" else "refused",
-                owner_ref=owner_ref,
-                limitation_code=limitation,
-                evidence_refs=tuple(dict.fromkeys((bridge_ref.artifact_id, *source_refs))),
-                predicate_class="independently_reconciled",
+            return (
+                N9PromotionEvidenceResolution(
+                    evidence_kind=evidence_kind,
+                    status="established" if disposition == "established" else "refused",
+                    owner_ref=owner_ref,
+                    limitation_code=limitation,
+                    evidence_refs=tuple(dict.fromkeys((bridge_ref.artifact_id, *source_refs))),
+                    predicate_class="independently_reconciled",
+                ),
+                resolved_reference,
             )
         except (KeyError, OSError, TypeError, ValueError):
-            return N9PromotionEvidenceResolution(
-                evidence_kind=evidence_kind,
-                status="not_established",
-                owner_ref=owner_ref,
-                limitation_code=f"{evidence_kind}_evidence_not_established",
-                predicate_class="not_established",
+            return (
+                N9PromotionEvidenceResolution(
+                    evidence_kind=evidence_kind,
+                    status="not_established",
+                    owner_ref=owner_ref,
+                    limitation_code=f"{evidence_kind}_evidence_not_established",
+                    predicate_class="not_established",
+                ),
+                None,
             )
 
     def _persist_bridge(
@@ -1257,7 +1312,7 @@ class N9PromotionEvidenceBridgeRepository:
         record: N9PromotionEvidenceBridgeRecord,
         *,
         promotion_input: CanonicalPromotionInput,
-    ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
+    ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...], CredalReference]:
         if (
             record.source_artifact_kind != _EFFECT_OBLIGATION_SOURCE_KIND
             or record.source_root_ref is not None
@@ -1328,6 +1383,7 @@ class N9PromotionEvidenceBridgeRepository:
                 l6_resolution.content_hash,
                 grounding_relation.content_hash,
             ),
+            reference,
         )
 
     def _resolve_measurement_envelope(self, source_artifact_id: str) -> ArtifactEnvelope:
@@ -1741,7 +1797,10 @@ class CanonicalPromotionInput(_StrictModel):
         default=None,
         exclude=True,
     )
-    credal_reference: CredalReference | None = Field(default=None, exclude=True)
+    credal_reference: CredalReference | CredalReferencePromotabilityProjection | None = Field(
+        default=None,
+        exclude=True,
+    )
     s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
     s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
     s8_value_posture: Layer2S8ValuePostureInput | None = None
@@ -1789,12 +1848,21 @@ class CanonicalPromotionInput(_StrictModel):
         return self
 
 
-def _promotion_evidence_resolutions(
+@dataclass(frozen=True)
+class _PromotionEvidenceResolutionBundle:
+    """Ephemeral verified evidence projections plus a full replay-resolved K_ref."""
+
+    resolutions: dict[str, N9PromotionEvidenceResolution]
+    credal_reference: CredalReference | None
+
+
+def _promotion_evidence_resolutions_with_reference(
     promotion_input: CanonicalPromotionInput,
     *,
     resolver: N9PromotionEvidenceBridgeRepository | None,
-) -> dict[str, N9PromotionEvidenceResolution]:
+) -> _PromotionEvidenceResolutionBundle:
     resolutions: dict[str, N9PromotionEvidenceResolution] = {}
+    resolved_reference: CredalReference | None = None
     evidence_specs: tuple[tuple[_PromotionEvidenceKind, str, str], ...] = (
         (
             "effective_independence",
@@ -1819,11 +1887,32 @@ def _promotion_evidence_resolutions(
             if item.artifact_type == artifact_type
         )
         if resolver is not None and len(refs) == 1:
-            resolutions[evidence_kind] = resolver.resolve(
-                bridge_ref=refs[0],
-                promotion_input=promotion_input,
-                evidence_kind=evidence_kind,
-            )
+            if evidence_kind == "effect_obligation":
+                resolution, effect_reference = resolver.resolve_with_credal_reference(
+                    bridge_ref=refs[0],
+                    promotion_input=promotion_input,
+                    evidence_kind=evidence_kind,
+                )
+                marker = promotion_input.credal_reference
+                if (
+                    effect_reference is not None
+                    and marker is not None
+                    and (
+                        effect_reference.schema_version != marker.schema_version
+                        or effect_reference.reference_epoch != marker.reference_epoch
+                        or effect_reference.reference_hash != marker.reference_hash
+                        or effect_reference.as_of != marker.as_of
+                    )
+                ):
+                    effect_reference = None
+                resolved_reference = effect_reference
+            else:
+                resolution = resolver.resolve(
+                    bridge_ref=refs[0],
+                    promotion_input=promotion_input,
+                    evidence_kind=evidence_kind,
+                )
+            resolutions[evidence_kind] = resolution
             continue
         limitation = (
             f"{evidence_kind}_bridge_duplicate"
@@ -1837,7 +1926,42 @@ def _promotion_evidence_resolutions(
             limitation_code=limitation,
             predicate_class="not_established",
         )
-    return resolutions
+    return _PromotionEvidenceResolutionBundle(
+        resolutions=resolutions,
+        credal_reference=resolved_reference,
+    )
+
+
+def _promotion_evidence_resolutions(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    resolver: N9PromotionEvidenceBridgeRepository | None,
+) -> dict[str, N9PromotionEvidenceResolution]:
+    """Return the public evidence projection without widening its persisted shape."""
+
+    return _promotion_evidence_resolutions_with_reference(
+        promotion_input,
+        resolver=resolver,
+    ).resolutions
+
+
+def _input_with_resolved_credal_reference(
+    promotion_input: CanonicalPromotionInput,
+    reference: CredalReference | None,
+) -> CanonicalPromotionInput:
+    """Rebind a narrow marker only to its fully validated persisted effect record."""
+
+    marker = promotion_input.credal_reference
+    if reference is None or isinstance(marker, CredalReference):
+        return promotion_input
+    if marker is None or (
+        reference.schema_version != marker.schema_version
+        or reference.reference_epoch != marker.reference_epoch
+        or reference.reference_hash != marker.reference_hash
+        or reference.as_of != marker.as_of
+    ):
+        return promotion_input
+    return promotion_input.model_copy(update={"credal_reference": reference})
 
 
 def _bind_production_promotion_evidence(
@@ -3672,24 +3796,36 @@ def _input_from_owner_projection(
     repo_root: Path | None,
 ) -> CanonicalPromotionInput:
     reference = projection.credal_reference
+    if reference is None:
+        canonical_reference: CredalReference | CredalReferencePromotabilityProjection | None = None
+    elif reference.schema_version == CREDAL_REFERENCE_SCHEMA_VERSION:
+        canonical_reference = CredalReferencePromotabilityProjection(
+            schema_version=reference.schema_version,
+            reference_epoch=reference.reference_epoch,
+            reference_hash=reference.reference_hash,
+            as_of=reference.as_of,
+        )
+    elif reference.schema_version in {
+        "policyos.runtime.grounding_credal_reference.v1",
+        CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    }:
+        canonical_reference = CredalReference(
+            schema_version=reference.schema_version,
+            reference_epoch=reference.reference_epoch,
+            reference_hash=reference.reference_hash,
+            as_of=reference.as_of,
+            component_versions={},
+            essential_edges={},
+        )
+    else:
+        raise ValueError("promotion_credal_reference_schema_not_supported")
     return CanonicalPromotionInput(
         design_problem_binding=projection.design_problem_binding,
         candidate_summary=projection.candidate_summary,
         value_receipt=projection.value_receipt,
         world_model_record=projection.world_model_record,
         grounding_decision_certificate=projection.grounding_decision_certificate,
-        credal_reference=(
-            CredalReference(
-                schema_version=reference.schema_version,
-                reference_epoch=reference.reference_epoch,
-                reference_hash=reference.reference_hash,
-                as_of=reference.as_of,
-                component_versions={},
-                essential_edges={},
-            )
-            if reference is not None
-            else None
-        ),
+        credal_reference=canonical_reference,
         s6_blind_spot_posture=projection.s6_blind_spot_posture,
         s7_delegation_posture=projection.s7_delegation_posture,
         s8_value_posture=projection.s8_value_posture,
@@ -4938,11 +5074,16 @@ def _run_promotion_sequence_with_bound_session(
             registry=confidence_ledger_session.registry,
         ),
     )
-    cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
-    evidence_resolutions = _promotion_evidence_resolutions(
+    evidence_bundle = _promotion_evidence_resolutions_with_reference(
         promotion_input,
         resolver=promotion_evidence_resolver,
     )
+    promotion_input = _input_with_resolved_credal_reference(
+        promotion_input,
+        evidence_bundle.credal_reference,
+    )
+    cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
+    evidence_resolutions = evidence_bundle.resolutions
     obligations = _compile_obligations(
         promotion_input,
         cg2_attempt=cg2_attempt,
@@ -4987,9 +5128,13 @@ def _rebind_promotion_receipt_to_ledger_head(
     """Recompute one candidate decision against the batch's final ledger head."""
 
     del receipt
-    evidence_resolutions = _promotion_evidence_resolutions(
+    evidence_bundle = _promotion_evidence_resolutions_with_reference(
         promotion_input,
         resolver=promotion_evidence_resolver,
+    )
+    promotion_input = _input_with_resolved_credal_reference(
+        promotion_input,
+        evidence_bundle.credal_reference,
     )
     return _build_promotion_receipt_from_owners(
         promotion_input,
@@ -4997,7 +5142,7 @@ def _rebind_promotion_receipt_to_ledger_head(
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
         ledger_semantic_projection=ledger_semantic_projection,
-        evidence_resolutions=evidence_resolutions,
+        evidence_resolutions=evidence_bundle.resolutions,
         promotion_safety_resolution=(
             promotion_evidence_resolver.resolve_promotion_safety(promotion_input=promotion_input)
             if promotion_evidence_resolver is not None
@@ -5432,11 +5577,16 @@ def _validate_promotion_receipt_with_bound_session(
                 )
             elif resolved_epoch != epoch_projection:
                 issues.append({"code": "epoch_validity_projection_binding_mismatch"})
-    replay_cg2_attempt = _resolve_cg2_owner_promotability(replay_input)
-    evidence_resolutions = _promotion_evidence_resolutions(
+    evidence_bundle = _promotion_evidence_resolutions_with_reference(
         replay_input,
         resolver=promotion_evidence_resolver,
     )
+    replay_input = _input_with_resolved_credal_reference(
+        replay_input,
+        evidence_bundle.credal_reference,
+    )
+    replay_cg2_attempt = _resolve_cg2_owner_promotability(replay_input)
+    evidence_resolutions = evidence_bundle.resolutions
     replay_base_obligations = _compile_obligations(
         replay_input,
         cg2_attempt=replay_cg2_attempt,
@@ -5871,6 +6021,8 @@ def _resolve_cg2_owner_promotability(
     certificate = promotion_input.grounding_decision_certificate
     reference = promotion_input.credal_reference
     if certificate is None or reference is None:
+        return _CG2OwnerPromotabilityAttempt(resolution=None, owner_ref=owner_ref)
+    if not isinstance(reference, CredalReference):
         return _CG2OwnerPromotabilityAttempt(resolution=None, owner_ref=owner_ref)
     resolver = resolve_grounding_decision_promotability
     if certificate.authority_scope == "contract_testing":
@@ -6472,7 +6624,7 @@ def _identification_obligation(
             owner_ref=cg2_attempt.owner_ref,
             detail=(
                 "CG2 owner-store resolution could not run because the CG2 decision "
-                "certificate or credal reference is missing."
+                "certificate or validated full credal reference is missing."
             ),
         )
     if not resolution.promotable and not _cg2_resolution_is_contract_lane_bind(resolution):

@@ -5,16 +5,17 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 import numpy as np
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.canonical_profile import (
     artifact_ref_for_manifest,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -557,6 +558,80 @@ def build_feedback_attractor_analysis_result(
     )
 
 
+_AnalysisRefT = TypeVar("_AnalysisRefT", bound=ArtifactRef)
+_AnalysisPayloadT = TypeVar("_AnalysisPayloadT", bound=BaseModel)
+
+_ANALYSIS_REF_CONTRACTS: dict[type[ArtifactRef], tuple[str, str, str, str]] = {
+    AttractorAnalysisResultRef: (
+        AttractorAnalysisResult.ARTIFACT_KIND,
+        AttractorAnalysisResult.ARTIFACT_MEDIA_TYPE,
+        AttractorAnalysisResult.ARTIFACT_SCHEMA_NAME,
+        AttractorAnalysisResult.ARTIFACT_SCHEMA_VERSION,
+    ),
+    BasinMapRef: (
+        BasinMap.ARTIFACT_KIND,
+        BasinMap.ARTIFACT_MEDIA_TYPE,
+        BasinMap.ARTIFACT_SCHEMA_NAME,
+        BasinMap.ARTIFACT_SCHEMA_VERSION,
+    ),
+    ContinuationBranchRef: (
+        ContinuationBranch.ARTIFACT_KIND,
+        ContinuationBranch.ARTIFACT_MEDIA_TYPE,
+        ContinuationBranch.ARTIFACT_SCHEMA_NAME,
+        ContinuationBranch.ARTIFACT_SCHEMA_VERSION,
+    ),
+}
+
+
+def _typed_analysis_ref_for_manifest(
+    manifest: ArtifactManifest,
+    ref_type: type[_AnalysisRefT],
+) -> _AnalysisRefT:
+    """Build an exact typed analysis reference after checking its producer contract."""
+    try:
+        expected_kind, expected_media_type, schema_name, schema_version = _ANALYSIS_REF_CONTRACTS[
+            ref_type
+        ]
+    except KeyError as exc:
+        raise TypeError("unsupported typed analysis reference") from exc
+
+    ref_contract = (
+        ref_type.model_fields["kind"].default,
+        ref_type.model_fields["media_type"].default,
+    )
+    if ref_contract != (expected_kind, expected_media_type):
+        raise TypeError("typed analysis reference diverges from its producer contract")
+    if manifest.kind != expected_kind:
+        raise ValueError(f"artifact kind must be {expected_kind}")
+    if manifest.media_type != expected_media_type:
+        raise ValueError(f"artifact media type must be {expected_media_type}")
+    schema = manifest.artifact_schema
+    if schema is None or (schema.name, schema.version) != (schema_name, schema_version):
+        raise ValueError(f"artifact schema must be {schema_name}@{schema_version}")
+
+    generic_ref = artifact_ref_for_manifest(manifest)
+    return ref_type.model_validate(generic_ref.model_dump(mode="python"))
+
+
+def _load_typed_analysis_artifact(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    ref_type: type[_AnalysisRefT],
+    payload_type: type[_AnalysisPayloadT],
+) -> _AnalysisPayloadT:
+    """Load one selected analysis artifact through its typed kind and schema contract."""
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected_ref = _typed_analysis_ref_for_manifest(manifest, ref_type)
+    schema = manifest.artifact_schema
+    if schema is None:
+        raise ValueError("typed analysis artifact schema is absent")
+    payload = payload_type.model_validate(read_core_json_artifact(store, selected_ref).value)
+    if getattr(payload, "schema_version", None) != schema.version:
+        raise ValueError("artifact payload schema_version does not match its manifest schema")
+    return payload
+
+
 def persist_attractor_analysis_result(
     store: FileSystemCAS,
     result: AttractorAnalysisResult,
@@ -568,9 +643,12 @@ def persist_attractor_analysis_result(
     ref = store.put_json(
         result,
         PutOptions(
-            kind="foundry.attractor_analysis_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.AttractorAnalysisResult", version="1.0"),
+            kind=AttractorAnalysisResult.ARTIFACT_KIND,
+            media_type=AttractorAnalysisResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=AttractorAnalysisResult.ARTIFACT_SCHEMA_NAME,
+                version=AttractorAnalysisResult.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=[
                 *_result_input_refs(result),
                 *_coerce_input_refs(extra_inputs, role_prefix="extra"),
@@ -629,13 +707,16 @@ def attach_abm_bifurcation_report_ref(
 
 def load_attractor_analysis_result(
     store: FileSystemCAS,
-    ref: AttractorAnalysisResultRef,
+    ref: ArtifactRef,
 ) -> AttractorAnalysisResult:
-    """Load an attractor-analysis result from CAS."""
+    """Load an attractor-analysis result from its exact selected CAS profile."""
 
-    manifest, _declaration = read_core_manifest_profile(store, ref)
-    selected = AttractorAnalysisResultRef.model_validate(artifact_ref_for_manifest(manifest))
-    return AttractorAnalysisResult.model_validate(read_core_json_artifact(store, selected).value)
+    return _load_typed_analysis_artifact(
+        store,
+        ref,
+        ref_type=AttractorAnalysisResultRef,
+        payload_type=AttractorAnalysisResult,
+    )
 
 
 def persist_basin_map(
@@ -649,9 +730,12 @@ def persist_basin_map(
     ref = store.put_json(
         basin_map,
         PutOptions(
-            kind="foundry.basin_map",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.BasinMap", version="1.0"),
+            kind=BasinMap.ARTIFACT_KIND,
+            media_type=BasinMap.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=BasinMap.ARTIFACT_SCHEMA_NAME,
+                version=BasinMap.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=_coerce_input_refs(extra_inputs, role_prefix="extra"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -659,12 +743,15 @@ def persist_basin_map(
     return BasinMapRef(artifact_id=ref.artifact_id)
 
 
-def load_basin_map(store: FileSystemCAS, ref: BasinMapRef) -> BasinMap:
-    """Load a basin-map sidecar from CAS."""
+def load_basin_map(store: FileSystemCAS, ref: ArtifactRef) -> BasinMap:
+    """Load a basin-map sidecar artifact from its exact selected CAS profile."""
 
-    manifest, _declaration = read_core_manifest_profile(store, ref)
-    selected = BasinMapRef.model_validate(artifact_ref_for_manifest(manifest))
-    return BasinMap.model_validate(read_core_json_artifact(store, selected).value)
+    return _load_typed_analysis_artifact(
+        store,
+        ref,
+        ref_type=BasinMapRef,
+        payload_type=BasinMap,
+    )
 
 
 def persist_continuation_branch(
@@ -678,9 +765,12 @@ def persist_continuation_branch(
     ref = store.put_json(
         branch,
         PutOptions(
-            kind="foundry.continuation_branch",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ContinuationBranch", version="1.0"),
+            kind=ContinuationBranch.ARTIFACT_KIND,
+            media_type=ContinuationBranch.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ContinuationBranch.ARTIFACT_SCHEMA_NAME,
+                version=ContinuationBranch.ARTIFACT_SCHEMA_VERSION,
+            ),
             inputs=_coerce_input_refs(extra_inputs, role_prefix="extra"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -690,13 +780,16 @@ def persist_continuation_branch(
 
 def load_continuation_branch(
     store: FileSystemCAS,
-    ref: ContinuationBranchRef,
+    ref: ArtifactRef,
 ) -> ContinuationBranch:
-    """Load a continuation branch sidecar from CAS."""
+    """Load a continuation branch from its exact selected CAS profile."""
 
-    manifest, _declaration = read_core_manifest_profile(store, ref)
-    selected = ContinuationBranchRef.model_validate(artifact_ref_for_manifest(manifest))
-    return ContinuationBranch.model_validate(read_core_json_artifact(store, selected).value)
+    return _load_typed_analysis_artifact(
+        store,
+        ref,
+        ref_type=ContinuationBranchRef,
+        payload_type=ContinuationBranch,
+    )
 
 
 def _validate_positive_controls(

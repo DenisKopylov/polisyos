@@ -8,11 +8,15 @@ all bound to the same generation.
 
 from __future__ import annotations
 
+import hashlib
+import importlib
+import json
 import sys
 import types
 from collections.abc import Callable, Sequence
+from importlib import metadata as importlib_metadata
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, cast
 
 import duckdb
 import numpy as np
@@ -23,12 +27,14 @@ from polisyos.core.contracts.control import (
     LexSearchRequest,
 )
 from polisyos.data_forge.domains.legal import embedding_projection as legal_projection
+from polisyos.data_forge.domains.legal import runtime_material as legal_runtime_material
 from polisyos.data_forge.domains.legal.batch import embedder as legal_embedder
 from polisyos.data_forge.kernel.embeddings import (
     _generator_rule_version,
     derive_encoder_identity,
     resolve_embedding_generation,
 )
+from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.store import (
     LegalKnowledgeStore,
@@ -107,13 +113,19 @@ class _FakeTokenizer:
 
 
 class _DirectionalLegalEncoder:
-    """Same-dimensional fixture that gives target and decoy separate axes."""
+    """Directional fake with a configurable output dimension."""
 
-    def __init__(self, *, revision: int = 0, device: str = "cpu") -> None:
+    def __init__(
+        self,
+        *,
+        revision: int = 0,
+        device: str = "cpu",
+        dimension: int = 4,
+    ) -> None:
         self.revision = revision
         self.device = device
         self.model_name = "directional-legal"
-        self.dimension = 4
+        self.dimension = dimension
         self.config = {"model_name": self.model_name, "dimension": self.dimension}
         self.tokenizer = _FakeTokenizer(0)
         self.encoded_texts: list[str] = []
@@ -921,7 +933,7 @@ def test_producer_generation_reaches_native_http_with_typed_runtime_material_ref
     assert changed_encoder_response.status_code == 200, changed_encoder_response.text
     changed_body = changed_encoder_response.json()
     assert changed_body["search_mode"] == "text"
-    assert changed_body["vector_refusal_code"] == "query_encoder_assets_changed"
+    assert changed_body["vector_refusal_code"] == "encoder_identity_mismatch"
     assert [item["fact_id"] for item in changed_body["results"]] == ["fact-1"]
 
     assert empty_intent_response.status_code == 200, empty_intent_response.text
@@ -1131,3 +1143,890 @@ def test_reopened_threshold_consumer_retains_numeric_scalar(
     assert result.canonical_unit == "km"
     assert result.threshold_id == "threshold-zero"
     assert result.fact_id == "fact-zero"
+
+
+def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_legal_vector_db(db_path)
+    tables = ("entities", "facts", "provisions")
+    producer = _DirectionalLegalEncoder(dimension=1024)
+    _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    stale_profiles = _legal_query_profiles(tmp_path)
+    _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    wrong_model_profiles = _legal_query_profiles(tmp_path)
+
+    owner = legal_read_api.LegalRuntimeMaterialOwner(
+        cache_root=tmp_path / "unopened-local-cache",
+        manifest_path=tmp_path / "unopened-manifest",
+    )
+    resolution_attempts: list[str] = []
+
+    def _forbidden_resolution() -> object:
+        resolution_attempts.append("called")
+        raise AssertionError("unadmitted candidates must be rejected before owner resolution")
+
+    monkeypatch.setattr(owner, "resolve_encoder", _forbidden_resolution)
+
+    # A stale GET intent remains distinguishable before model identity or owner availability.
+    stale_graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_profile=stale_profiles,
+        query_runtime_material_owner=owner,
+    )
+    try:
+        for table in tables:
+            with pytest.raises(LegalQueryProfileError) as stale:
+                _search_legal_table(stale_graph, table)
+            assert stale.value.code == "query_profile_stale_or_mismatched"
+    finally:
+        stale_graph.close()
+    assert resolution_attempts == []
+
+    # The ordinary generation path records a different model identity. Do not
+    # relabel this as merely unestablished owner material: mismatch is exact.
+    wrong_model_graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_profile=wrong_model_profiles,
+        query_runtime_material_owner=owner,
+    )
+    try:
+        for table in tables:
+            with pytest.raises(LegalQueryProfileError) as wrong_model:
+                _search_legal_table(wrong_model_graph, table)
+            assert wrong_model.value.code == "encoder_identity_mismatch"
+    finally:
+        wrong_model_graph.close()
+    assert resolution_attempts == []
+
+    # This generation goes through the ordinary Legal producer with the owner's
+    # model-name label and supported dimension, but has no source-issued runtime
+    # binding. Candidate metadata alone cannot authorize loading or vector use.
+    claimed_owner_label_producer = _DirectionalLegalEncoder(dimension=1024)
+    _build_legal_vectors(
+        db_path,
+        tmp_path,
+        claimed_owner_label_producer,
+        embedding_model=owner.embedding_model,
+    )
+    unbound_profiles = _legal_query_profiles(tmp_path)
+    runtime_marker = f"{legal_read_api.LEGAL_RUNTIME_MATERIAL_RULE_VERSION}=".encode()
+    assert owner.embedding_model.encode() in unbound_profiles[0].inventory_bytes
+    assert runtime_marker not in unbound_profiles[0].inventory_bytes
+    producer_history = tuple(claimed_owner_label_producer.encoded_texts)
+
+    unbound_graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_profile=unbound_profiles,
+        query_runtime_material_owner=owner,
+    )
+    try:
+        for table in tables:
+            with pytest.raises(LegalQueryProfileError) as unbound:
+                _search_legal_table(unbound_graph, table)
+            assert unbound.value.code == "query_encoder_runtime_material_not_established"
+    finally:
+        unbound_graph.close()
+    assert resolution_attempts == []
+    assert tuple(claimed_owner_label_producer.encoded_texts) == producer_history
+
+    # Current member drift remains its own refusal for each consumer and still
+    # precedes model identity/binding resolution.
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "UPDATE lex_entities SET name_en = ?, name_uk = ? WHERE entity_id = ?",
+            ["changed current entity", "змінена сутність", "entity-target"],
+        )
+        con.execute(
+            "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+            ["changed current material", "fact-1"],
+        )
+        con.execute(
+            "UPDATE lex_provisions SET provision_text = ? WHERE provision_id = ?",
+            ["Changed current provision text.", "provision-1"],
+        )
+        con.execute("CHECKPOINT")
+    member_graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_profile=unbound_profiles,
+        query_runtime_material_owner=owner,
+    )
+    try:
+        for table in tables:
+            with pytest.raises(LegalQueryProfileError) as changed_member:
+                _search_legal_table(member_graph, table)
+            assert changed_member.value.code == "selected_generation_membership_mismatch"
+    finally:
+        member_graph.close()
+    assert resolution_attempts == []
+    assert tuple(claimed_owner_label_producer.encoded_texts) == producer_history
+
+
+def test_python_runtime_profile_distinguishes_venv_launch_aliases(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    resolved_executable = Path(sys.executable).resolve(strict=True)
+    first_launcher = tmp_path / "venv-one" / "bin" / "python"
+    second_launcher = tmp_path / "venv-two" / "bin" / "python"
+    first_launcher.parent.mkdir(parents=True)
+    second_launcher.parent.mkdir(parents=True)
+    first_launcher.symlink_to(resolved_executable)
+    second_launcher.symlink_to(resolved_executable)
+
+    first_profile = legal_runtime_material._python_execution_profile(
+        str(first_launcher), require_loaded_runtime_modules=False
+    )
+    second_profile = legal_runtime_material._python_execution_profile(
+        str(second_launcher), require_loaded_runtime_modules=False
+    )
+
+    assert first_profile["executable_resolved_path"] == second_profile["executable_resolved_path"]
+    assert first_profile["executable_sha256"] == second_profile["executable_sha256"]
+    assert (
+        first_profile["executable_invocation_path"] != second_profile["executable_invocation_path"]
+    )
+    assert first_profile != second_profile
+    first_prefixes = first_profile["prefixes"]
+    first_site_packages = first_profile["site_packages"]
+    assert isinstance(first_prefixes, dict)
+    assert isinstance(first_site_packages, dict)
+    assert first_prefixes["prefix"] == sys.prefix
+    assert first_profile["sys_path"]
+    assert first_site_packages["global"]
+    with monkeypatch.context() as profile_patch:
+        profile_patch.setattr(sys, "prefix", str(tmp_path / "alternate-prefix"))
+        alternate_prefix_profile = legal_runtime_material._python_execution_profile(
+            str(first_launcher), require_loaded_runtime_modules=False
+        )
+    alternate_prefixes = alternate_prefix_profile["prefixes"]
+    assert isinstance(alternate_prefixes, dict)
+    assert alternate_prefixes["prefix"] != first_prefixes["prefix"]
+    assert alternate_prefix_profile != first_profile
+
+    alternate_site = tmp_path / "alternate-site-packages"
+    with monkeypatch.context() as profile_patch:
+        profile_patch.setattr(
+            legal_runtime_material.site,
+            "getsitepackages",
+            lambda: [str(alternate_site)],
+        )
+        alternate_site_profile = legal_runtime_material._python_execution_profile(
+            str(first_launcher), require_loaded_runtime_modules=False
+        )
+    alternate_site_packages = alternate_site_profile["site_packages"]
+    assert isinstance(alternate_site_packages, dict)
+    assert alternate_site_packages["global"][0]["invocation_path"] == str(alternate_site)
+    assert alternate_site_profile != first_profile
+
+
+def test_runtime_profile_bootstrap_stabilizes_modules_and_refuses_later_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    try:
+        for distribution_name in legal_runtime_material._RUNTIME_ROOT_DISTRIBUTIONS:
+            importlib_metadata.distribution(distribution_name)
+    except importlib_metadata.PackageNotFoundError:
+        pytest.skip("the owner-controlled runtime profile is not installed")
+
+    for module_name in legal_runtime_material._REQUIRED_RUNTIME_PROFILE_MODULES:
+        importlib.import_module(module_name)
+    if "hnswlib" in sys.modules:
+        monkeypatch.delitem(sys.modules, "hnswlib")
+    unprimed_profile = legal_runtime_material._loaded_runtime_module_profile()
+    assert unprimed_profile["hnswlib"]["state"] == "not_loaded"
+    unprimed_digest = legal_runtime_material._installed_runtime_digest()
+
+    legal_runtime_material._load_runtime_profile_modules()
+    warmed_profile = legal_runtime_material._loaded_runtime_module_profile()
+    assert tuple(warmed_profile) == legal_runtime_material._RUNTIME_PROFILE_MODULES
+    assert all(
+        warmed_profile[name]["state"] != "not_loaded"
+        for name in legal_runtime_material._RUNTIME_PROFILE_MODULES
+    )
+    assert warmed_profile["hnswlib"]["state"] == "loaded_file"
+    warmed_digest = legal_runtime_material._installed_runtime_digest()
+    assert warmed_digest != unprimed_digest
+    hnswlib_module = importlib.import_module("hnswlib")
+    hnswlib_path = Path(str(hnswlib_module.__file__)).resolve()
+    assert warmed_profile["hnswlib"]["resolved_path"] == str(hnswlib_path)
+    assert (
+        warmed_profile["hnswlib"]["sha256"] == hashlib.sha256(hnswlib_path.read_bytes()).hexdigest()
+    )
+    assert legal_runtime_material._installed_runtime_digest() == warmed_digest
+
+    class _Tokenizer:
+        @property
+        def special_tokens_map(self) -> dict[str, str]:
+            return {}
+
+        def get_vocab(self) -> dict[str, int]:
+            return {"token": 0}
+
+        def get_added_vocab(self) -> dict[str, int]:
+            return {}
+
+    class _Model:
+        def __init__(self) -> None:
+            self.device = "cpu"
+            self.config: dict[str, object] = {}
+            self.training = False
+            self.tokenizer = _Tokenizer()
+            self.weight = np.zeros((1,), dtype=np.float32)
+            self.encode_calls = 0
+
+        def named_parameters(self) -> list[tuple[str, np.ndarray]]:
+            return [("weight", self.weight)]
+
+        def named_buffers(self) -> list[tuple[str, np.ndarray]]:
+            return []
+
+        def modules(self) -> list[_Model]:
+            return [self]
+
+        def get_sentence_embedding_dimension(self) -> int:
+            return 1024
+
+        def encode(self, texts: list[str], **_kwargs: object) -> np.ndarray:
+            self.encode_calls += 1
+            return np.zeros((len(texts), 1024), dtype=np.float32)
+
+    model = _Model()
+    asset_identity = derive_encoder_identity(
+        model,
+        include_live_model_state=True,
+        require_zero_copy=True,
+    )
+    owner = legal_runtime_material.LegalRuntimeMaterialOwner(
+        cache_root=tmp_path,
+        manifest_path=tmp_path / "manifest.json",
+    )
+    model_files_digest = "a" * 64
+    runtime_digest = legal_runtime_material._installed_runtime_digest()
+    source_digest = legal_runtime_material._source_closure_digest()
+    bound_encode = model.encode
+    encode_fingerprint = legal_runtime_material._encode_method_fingerprint(bound_encode)
+    binding_digest = legal_runtime_material._binding_digest(
+        model_files_digest=model_files_digest,
+        asset_identity=asset_identity,
+        runtime_digest=runtime_digest,
+        source_digest=source_digest,
+        encode_fingerprint=encode_fingerprint,
+    )
+    handle = legal_runtime_material.LegalRuntimeMaterialHandle(
+        owner=owner,
+        model=model,
+        asset_identity=asset_identity,
+        model_files_digest=model_files_digest,
+        runtime_digest=runtime_digest,
+        source_digest=source_digest,
+        encode_fingerprint=encode_fingerprint,
+        binding_digest=binding_digest,
+        bound_encode=bound_encode,
+        _seal=legal_runtime_material._HANDLE_SEAL,
+    )
+    owner._handles[binding_digest] = handle
+
+    monkeypatch.delitem(sys.modules, "hnswlib")
+    with (
+        pytest.raises(legal_runtime_material.LegalRuntimeMaterialError) as drift,
+        handle.checked_encode_lease(
+            expected_binding=binding_digest,
+            expected_assets=asset_identity,
+        ) as checked_encode,
+    ):
+        checked_encode(["must not execute"])
+    assert drift.value.code == "query_encoder_runtime_material_changed"
+    assert model.encode_calls == 0
+
+
+def test_model_file_inventory_confines_snapshot_and_blob_paths(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    revision = legal_runtime_material.LEGAL_CONTROLLED_MODEL_REVISION
+    model_cache_directory = (
+        f"models--{legal_runtime_material.LEGAL_CONTROLLED_MODEL_ID.replace('/', '--')}"
+    )
+    cache_root = tmp_path / "hf-cache"
+    model_root = cache_root / model_cache_directory
+    snapshot = model_root / "snapshots" / revision
+    blobs = model_root / "blobs"
+    snapshot.mkdir(parents=True)
+    blobs.mkdir(parents=True)
+
+    names = [f"member-{index:02d}.bin" for index in range(9)]
+    file_entries: list[dict[str, object]] = []
+    contents: dict[str, bytes] = {}
+    for name in names:
+        content = f"fixture-material:{name}".encode()
+        contents[name] = content
+        (blobs / name).write_bytes(content)
+        (snapshot / name).symlink_to(Path("..") / ".." / "blobs" / name)
+        file_entries.append(
+            {
+                "name": name,
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "size_bytes": len(content),
+            }
+        )
+
+    manifest = {
+        "revision": revision,
+        "named_file_count": len(file_entries),
+        "files": file_entries,
+        "logical_bytes": sum(len(content) for content in contents.values()),
+    }
+    manifest_bytes = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    manifest_path = tmp_path / "asset-file-manifest.json"
+    manifest_path.write_bytes(manifest_bytes)
+    monkeypatch.setattr(
+        legal_runtime_material,
+        "LEGAL_CONTROLLED_MANIFEST_SHA256",
+        hashlib.sha256(manifest_bytes).hexdigest(),
+    )
+
+    digest, members = legal_runtime_material._model_file_inventory(
+        snapshot=snapshot,
+        cache_root=cache_root,
+        manifest_path=manifest_path,
+    )
+    assert len(digest) == 64
+    assert [str(member["name"]) for member in members] == sorted(names)
+    assert [str(member["sha256"]) for member in members] == [
+        hashlib.sha256(contents[name]).hexdigest() for name in sorted(names)
+    ]
+
+    outside_snapshot = tmp_path / "outside" / model_cache_directory / "snapshots" / revision
+    outside_snapshot.mkdir(parents=True)
+    with pytest.raises(legal_runtime_material.LegalRuntimeMaterialError) as outside_refusal:
+        legal_runtime_material._model_file_inventory(
+            snapshot=outside_snapshot,
+            cache_root=cache_root,
+            manifest_path=manifest_path,
+        )
+    assert outside_refusal.value.code == "query_encoder_runtime_material_not_established"
+
+    escaped_cache_root = tmp_path / "escaped-cache"
+    escaped_cache_root.mkdir()
+    (escaped_cache_root / model_cache_directory).symlink_to(model_root, target_is_directory=True)
+    with pytest.raises(legal_runtime_material.LegalRuntimeMaterialError) as cache_refusal:
+        legal_runtime_material._model_file_inventory(
+            snapshot=snapshot,
+            cache_root=escaped_cache_root,
+            manifest_path=manifest_path,
+        )
+    assert cache_refusal.value.code == "query_encoder_runtime_material_not_established"
+
+    escaped_blobs_root = tmp_path / "escaped-blob-cache"
+    escaped_model_root = escaped_blobs_root / model_cache_directory
+    escaped_snapshot = escaped_model_root / "snapshots" / revision
+    external_blobs = tmp_path / "external-blobs"
+    escaped_snapshot.mkdir(parents=True)
+    external_blobs.mkdir()
+    (escaped_model_root / "blobs").symlink_to(external_blobs, target_is_directory=True)
+    for name in names:
+        (external_blobs / name).write_bytes(contents[name])
+        (escaped_snapshot / name).symlink_to(Path("..") / ".." / "blobs" / name)
+
+    with pytest.raises(legal_runtime_material.LegalRuntimeMaterialError) as blobs_refusal:
+        legal_runtime_material._model_file_inventory(
+            snapshot=escaped_snapshot,
+            cache_root=escaped_blobs_root,
+            manifest_path=manifest_path,
+        )
+    assert blobs_refusal.value.code == "query_encoder_runtime_material_not_established"
+
+
+def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    try:
+        sentence_transformers_version = importlib_metadata.version("sentence-transformers")
+    except importlib_metadata.PackageNotFoundError:
+        pytest.skip("the pinned SentenceTransformers runtime is not installed")
+    if sentence_transformers_version != "2.7.0":
+        pytest.skip("the controlled witness requires SentenceTransformers 2.7.0")
+
+    repo_root = Path(__file__).resolve().parents[3]
+    profile_root = (
+        repo_root / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/"
+        "c12-real-encoder-profile"
+    )
+    cache_root = profile_root / "hf-cache"
+    manifest_path = profile_root / "asset-file-manifest.txt"
+    if not cache_root.is_dir() or not manifest_path.is_file():
+        pytest.skip("the named local-only controlled model inputs are unavailable")
+
+    try:
+        from fastapi.testclient import TestClient
+        from sentence_transformers import SentenceTransformer
+    except ModuleNotFoundError:  # pragma: no cover - runtime dependency guard
+        pytest.skip("controlled runtime dependencies are not installed")
+
+    encoded_texts: list[str] = []
+    encode_batches: list[list[str]] = []
+    encoded_models: list[object] = []
+    producer_mutation: dict[str, object] = {"armed": True, "mutated": False}
+    query_mutation: dict[str, object] = {"armed": False, "mutated": False}
+    original_encode = cast("Callable[..., object]", SentenceTransformer.encode)
+
+    def _mutate_first_parameter(model: object) -> tuple[object, float]:
+        parameters_method = getattr(model, "parameters", None)
+        assert callable(parameters_method)
+        parameter = next(iter(parameters_method()))
+        first_value = parameter.data.view(-1)[0]
+        original_value = float(first_value.item())
+        first_value.add_(1)
+        return parameter, original_value
+
+    def _restore_first_parameter(parameter: object, original_value: float) -> None:
+        parameter.data.view(-1)[0].fill_(original_value)
+
+    def _counted_encode(
+        model: object,
+        texts: list[str],
+        *args: object,
+        **kwargs: object,
+    ) -> object:
+        result = original_encode(model, texts, *args, **kwargs)
+        encoded_texts.extend(texts)
+        encode_batches.append(list(texts))
+        encoded_models.append(model)
+        if query_mutation["armed"] is True:
+            parameter, original_value = _mutate_first_parameter(model)
+            query_mutation["parameter"] = parameter
+            query_mutation["original_value"] = original_value
+            query_mutation["armed"] = False
+            query_mutation["mutated"] = True
+        return result
+
+    monkeypatch.setattr(SentenceTransformer, "encode", _counted_encode)
+    original_pause = legal_embedder.pause_between_batches
+
+    def _mutate_between_fact_chunks(seconds: float) -> None:
+        original_pause(seconds)
+        last_batch = encode_batches[-1] if encode_batches else []
+        if producer_mutation["armed"] is True and any(
+            "Cabinet" in text and "budget" in text for text in last_batch
+        ):
+            parameter, original_value = _mutate_first_parameter(encoded_models[-1])
+            producer_mutation["parameter"] = parameter
+            producer_mutation["original_value"] = original_value
+            producer_mutation["armed"] = False
+            producer_mutation["mutated"] = True
+
+    monkeypatch.setattr(legal_embedder, "pause_between_batches", _mutate_between_fact_chunks)
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    _prepare_legal_vector_db(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "fact-decoy",
+                "Municipal council",
+                "Міська рада",
+                "denies",
+                "tax credit",
+                "податковий кредит",
+                "The council denies the tax credit.",
+                "norm",
+                "deny",
+                "tax_credit_denial",
+                "",
+                "",
+                "",
+                "",
+                "Article 9",
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                [
+                    f"fact-noise-{index:02d}",
+                    "Transit office",
+                    "Транспортний відділ",
+                    "publishes",
+                    "rail service notice",
+                    "повідомлення про графік поїздів",
+                    f"Transit office publishes rail service notice {index}.",
+                    "norm",
+                    "publish",
+                    "transit_notice",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "Transit rule",
+                ]
+                for index in range(7)
+            ],
+        )
+        con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
+        con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
+        con.execute("CHECKPOINT")
+
+    owner = legal_read_api.LegalRuntimeMaterialOwner(
+        cache_root=cache_root,
+        manifest_path=manifest_path,
+    )
+    with pytest.raises(legal_read_api.LegalRuntimeMaterialError) as changed_between_chunks:
+        legal_embedder.build_local_embeddings_and_indexes(
+            db_path=db_path,
+            output_dir=tmp_path,
+            runtime_material_owner=owner,
+        )
+    assert changed_between_chunks.value.code == "query_encoder_runtime_material_changed"
+    mutated_parameter = producer_mutation["parameter"]
+    original_parameter_value = producer_mutation["original_value"]
+    assert mutated_parameter is not None and isinstance(original_parameter_value, float)
+    _restore_first_parameter(mutated_parameter, original_parameter_value)
+    fact_batches_before_refusal = [
+        batch
+        for batch in encode_batches
+        if any("Cabinet" in text and "budget" in text for text in batch)
+    ]
+    assert [len(batch) for batch in fact_batches_before_refusal] == [8]
+    assert producer_mutation["mutated"] is True
+    assert not (
+        tmp_path
+        / ".legal_embedding_generations"
+        / "lex_fact_embeddings"
+        / "embedding_generation.json"
+    ).exists()
+    encoded_texts.clear()
+    encode_batches.clear()
+    encoded_models.clear()
+
+    stats = legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        runtime_material_owner=owner,
+    )
+    assert stats.facts_embedded == 9
+    handle = owner.resolve_encoder()
+    reference = resolve_embedding_generation(
+        tmp_path / ".legal_embedding_generations" / "lex_fact_embeddings",
+        legacy_embeddings_path=tmp_path / "lex_fact_embeddings.npz",
+        legacy_index_path=tmp_path / "lex_fact_index.hnsw",
+    )
+    assert reference is not None and reference.selected and reference.status == "complete"
+    bound_rule = reference.inventory["basis"]["generator_rule_version"]
+    assert (
+        f"{legal_read_api.LEGAL_RUNTIME_MATERIAL_RULE_VERSION}={handle.binding_digest}"
+        in bound_rule
+    )
+    identity_before_swap = derive_encoder_identity(
+        handle,
+        include_live_model_state=True,
+        require_zero_copy=True,
+    )
+
+    decoy_vector: np.ndarray
+    with np.load(reference.embeddings_path, allow_pickle=True) as payload:
+        fact_ids = tuple(str(item) for item in payload["ids"].tolist())
+        vectors = np.asarray(payload["vectors"], dtype=np.float32)
+    decoy_vector = vectors[fact_ids.index("fact-decoy")].copy()
+
+    original_load_entity_index = LegalKnowledgeStore._load_entity_index
+    original_load_fact_index = LegalKnowledgeStore._load_fact_index
+    original_load_provision_index = LegalKnowledgeStore._load_provision_index
+    counted_indexes: list[_CountingIndex] = []
+
+    def _track_index(index: object) -> _CountingIndex:
+        counted = index if isinstance(index, _CountingIndex) else _CountingIndex(index)
+        if all(existing is not counted for existing in counted_indexes):
+            counted_indexes.append(counted)
+        return counted
+
+    def _total_knn_calls() -> int:
+        return sum(index.knn_calls for index in counted_indexes)
+
+    def _counted_entity_index(
+        store: LegalKnowledgeStore,
+    ) -> tuple[object, list[str], object]:
+        index, entity_ids, generation = original_load_entity_index(store)
+        counted = _track_index(index)
+        store._entity_index = counted
+        return counted, entity_ids, generation
+
+    def _counted_fact_index(
+        store: LegalKnowledgeStore,
+    ) -> tuple[object, list[str], object]:
+        index, fact_ids, generation = original_load_fact_index(store)
+        counted = _track_index(index)
+        store._fact_index = counted
+        return counted, fact_ids, generation
+
+    def _counted_provision_index(
+        store: LegalKnowledgeStore,
+    ) -> tuple[object, list[str], object]:
+        index, provision_ids, generation = original_load_provision_index(store)
+        counted = _track_index(index)
+        store._provision_index = counted
+        return counted, provision_ids, generation
+
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_entity_index", _counted_entity_index)
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_fact_index", _counted_fact_index)
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_provision_index", _counted_provision_index)
+
+    provider = LegalQueryEncoderProvider(runtime_material_owner=owner)
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "runtime-cas",
+        allow_fixture_identity=True,
+        enable_security_middlewares=False,
+        container_overrides=RuntimeContainerOverrides(legal_query_encoder_provider=provider),
+    )
+    query = legal_projection.fact_embedding_text(
+        (
+            "Cabinet",
+            "Кабмін",
+            "sets",
+            "budget",
+            "бюджет",
+            "Cabinet sets the budget",
+            "norm",
+            "set",
+            "budget_setting",
+            "",
+            "",
+            "",
+            "",
+            "стаття 1",
+        )
+    )
+
+    with TestClient(app) as client:
+        get_response = client.get(
+            "/api/v1/control/lex/search-profile",
+            params={"output_dir": str(tmp_path)},
+        )
+        assert get_response.status_code == 200, get_response.text
+        profile_body = get_response.json()
+        assert profile_body["status"] == "available"
+        intent = profile_body["query_generation_intent"]
+        payload = {
+            "query": query,
+            "top_k": 1,
+            "output_dir": str(tmp_path),
+            "query_generation_intent": intent,
+        }
+        positive_knn_calls_before = _total_knn_calls()
+        post_response = client.post("/api/v1/control/lex/search", json=payload)
+
+        assert post_response.status_code == 200, post_response.text
+        positive_body = post_response.json()
+        assert positive_body["search_mode"] == "vector"
+        assert positive_body["vector_refusal_code"] is None
+        assert [row["fact_id"] for row in positive_body["results"]] == ["fact-1"]
+        assert _total_knn_calls() - positive_knn_calls_before == 1
+
+        # The owner uses its captured identity only as the expected binding.
+        # A live mutation must be rejected by the lease before encode/HNSW.
+        parameter, original_value = _mutate_first_parameter(handle._model)
+        encoded_before_live_mutation = len(encoded_texts)
+        knn_calls_before_live_mutation = _total_knn_calls()
+        live_mutation_response = client.post("/api/v1/control/lex/search", json=payload)
+        assert live_mutation_response.status_code == 200, live_mutation_response.text
+        live_mutation_body = live_mutation_response.json()
+        assert live_mutation_body["search_mode"] == "text"
+        assert live_mutation_body["vector_refusal_code"] == (
+            "query_encoder_runtime_material_changed"
+        )
+        assert len(encoded_texts) == encoded_before_live_mutation
+        assert _total_knn_calls() == knn_calls_before_live_mutation
+        _restore_first_parameter(parameter, original_value)
+
+        # A mutation during encode is caught by the lease's post-call check;
+        # its query vector never reaches native HNSW.
+        query_mutation["armed"] = True
+        encoded_before_postcheck = len(encoded_texts)
+        knn_calls_before_postcheck = _total_knn_calls()
+        postcheck_response = client.post("/api/v1/control/lex/search", json=payload)
+        assert postcheck_response.status_code == 200, postcheck_response.text
+        postcheck_body = postcheck_response.json()
+        assert postcheck_body["search_mode"] == "text"
+        assert postcheck_body["vector_refusal_code"] == ("query_encoder_runtime_material_changed")
+        assert query_mutation["mutated"] is True
+        assert len(encoded_texts) == encoded_before_postcheck + 1
+        assert _total_knn_calls() == knn_calls_before_postcheck
+        query_parameter = query_mutation["parameter"]
+        query_original_value = query_mutation["original_value"]
+        assert query_parameter is not None and isinstance(query_original_value, float)
+        _restore_first_parameter(query_parameter, query_original_value)
+
+        profiles = _legal_query_profiles(tmp_path)
+        direct_graph = LegalKnowledgeGraph(
+            db_path,
+            tmp_path,
+            query_profile=profiles,
+            query_runtime_material_owner=owner,
+        )
+        try:
+            for table in ("entities", "facts", "provisions"):
+                knn_calls_before_direct_search = _total_knn_calls()
+                assert _search_legal_table(direct_graph, table)
+                assert _total_knn_calls() - knn_calls_before_direct_search == 1
+        finally:
+            direct_graph.close()
+
+        alternate_site = tmp_path / "alternate-site-packages"
+        alternate_site.mkdir()
+        knn_calls_before_profile_swap = _total_knn_calls()
+        encoded_before_profile_swap = len(encoded_texts)
+        with monkeypatch.context() as profile_swap:
+            profile_swap.setattr(sys, "path", [*sys.path, str(alternate_site)])
+            profile_response = client.post("/api/v1/control/lex/search", json=payload)
+            assert profile_response.status_code == 200, profile_response.text
+            profile_body = profile_response.json()
+            assert profile_body["search_mode"] == "text"
+            assert profile_body["vector_refusal_code"] == ("query_encoder_runtime_material_changed")
+        assert len(encoded_texts) == encoded_before_profile_swap
+        assert _total_knn_calls() == knn_calls_before_profile_swap
+
+        decoy_calls: list[str] = []
+
+        def _same_assets_decoy(
+            texts: list[str],
+            **_kwargs: object,
+        ) -> np.ndarray:
+            decoy_calls.extend(texts)
+            return np.tile(decoy_vector.reshape(1, -1), (len(texts), 1))
+
+        runtime_decoy_calls: list[str] = []
+
+        def _same_assets_runtime_decoy(
+            _model: object,
+            texts: list[str],
+            **_kwargs: object,
+        ) -> np.ndarray:
+            runtime_decoy_calls.extend(texts)
+            return np.tile(decoy_vector.reshape(1, -1), (len(texts), 1))
+
+        knn_calls_before_runtime_swap = _total_knn_calls()
+        with monkeypatch.context() as runtime_swap:
+            runtime_swap.setattr(type(handle._model), "encode", _same_assets_runtime_decoy)
+            assert (
+                derive_encoder_identity(
+                    handle,
+                    include_live_model_state=True,
+                    require_zero_copy=True,
+                )
+                == identity_before_swap
+            )
+            runtime_response = client.post("/api/v1/control/lex/search", json=payload)
+            assert runtime_response.status_code == 200, runtime_response.text
+            runtime_body = runtime_response.json()
+            assert runtime_body["search_mode"] == "text"
+            assert runtime_body["vector_refusal_code"] == ("query_encoder_runtime_material_changed")
+        assert runtime_decoy_calls == []
+        assert _total_knn_calls() == knn_calls_before_runtime_swap
+
+        handle._model.encode = _same_assets_decoy  # type: ignore[method-assign]
+        assert (
+            derive_encoder_identity(
+                handle,
+                include_live_model_state=True,
+                require_zero_copy=True,
+            )
+            == identity_before_swap
+        )
+        knn_calls_before_callable_swap = _total_knn_calls()
+        changed_response = client.post("/api/v1/control/lex/search", json=payload)
+        assert changed_response.status_code == 200, changed_response.text
+        changed_body = changed_response.json()
+        assert changed_body["search_mode"] == "text"
+        assert changed_body["vector_refusal_code"] == "query_encoder_runtime_material_changed"
+        assert decoy_calls == []
+        assert _total_knn_calls() == knn_calls_before_callable_swap
+
+        stale_intent = [dict(item) for item in intent]
+        generation_id = stale_intent[0]["generation_id"]
+        stale_intent[0]["generation_id"] = "e" * 32 if generation_id != "e" * 32 else "f" * 32
+        knn_calls_before_stale_intent = _total_knn_calls()
+        stale_response = client.post(
+            "/api/v1/control/lex/search",
+            json={**payload, "query_generation_intent": stale_intent},
+        )
+        assert stale_response.status_code == 200, stale_response.text
+        stale_body = stale_response.json()
+        assert stale_body["vector_refusal_code"] == "query_profile_stale_or_mismatched"
+        assert decoy_calls == []
+        assert _total_knn_calls() == knn_calls_before_stale_intent
+
+        # The same source-owned gate covers direct entity, fact, and provision
+        # vector entrypoints; each call is refused before callable or HNSW use.
+        direct_graph = LegalKnowledgeGraph(
+            db_path,
+            tmp_path,
+            query_profile=profiles,
+            query_runtime_material_owner=owner,
+        )
+        try:
+            for table in ("entities", "facts", "provisions"):
+                knn_calls_before_direct_refusal = _total_knn_calls()
+                with pytest.raises(LegalQueryProfileError) as refusal:
+                    _search_legal_table(direct_graph, table)
+                assert refusal.value.code == "query_encoder_runtime_material_changed"
+                assert _total_knn_calls() == knn_calls_before_direct_refusal
+        finally:
+            direct_graph.close()
+        assert decoy_calls == []
+
+        # Remove only the live callable property check while retaining the
+        # generation rule token and asset identity. The same-asset decoy then
+        # wins, proving the gate distinguishes behavior rather than markers.
+        rule_before_removal = reference.inventory["basis"]["generator_rule_version"]
+        decoy_calls.clear()
+        knn_calls_before_gate_removal = _total_knn_calls()
+        with monkeypatch.context() as patcher:
+            patcher.setattr(
+                legal_read_api.LegalRuntimeMaterialHandle,
+                "_assert_live",
+                lambda *_args, **_kwargs: None,
+            )
+            removal_graph = LegalKnowledgeGraph(
+                db_path,
+                tmp_path,
+                query_profile=profiles,
+                query_runtime_material_owner=owner,
+            )
+            try:
+                decoy_results = removal_graph.search_facts(
+                    query,
+                    top_k=1,
+                    min_similarity=0.0,
+                    trust_tier=None,
+                )
+            finally:
+                removal_graph.close()
+        assert reference.inventory["basis"]["generator_rule_version"] == rule_before_removal
+        assert [row.fact_id for row in decoy_results] == ["fact-decoy"]
+        assert decoy_calls == [query]
+        assert _total_knn_calls() - knn_calls_before_gate_removal == 1
+
+        with duckdb.connect(str(db_path)) as con:
+            con.execute(
+                "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+                ["changed current controlled fact", "fact-1"],
+            )
+            con.execute("CHECKPOINT")
+        knn_calls_before_member_change = _total_knn_calls()
+        member_response = client.post("/api/v1/control/lex/search", json=payload)
+        assert member_response.status_code == 200, member_response.text
+        member_body = member_response.json()
+        assert member_body["vector_refusal_code"] == "selected_generation_membership_mismatch"
+        assert _total_knn_calls() == knn_calls_before_member_change
+
+    assert app.state.runtime_container.legal_query_encoder_provider is provider

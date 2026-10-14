@@ -14,7 +14,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import ValidationError
 
-from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    require_declared_profile,
+)
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.canonical_profile import (
@@ -68,7 +71,7 @@ from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMidd
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -214,11 +217,23 @@ class DebugService:
 
     def list_run_nodes(self, run: IndexedRunRecord) -> list[RunNodeRecord]:
         """List workflow nodes by merging workflow-report rows with trace events."""
+        return self.list_run_nodes_with_notes(run)[0]
+
+    def list_run_nodes_with_notes(
+        self, run: IndexedRunRecord
+    ) -> tuple[list[RunNodeRecord], list[str]]:
+        """Return workflow nodes and an explicit limitation for absence-only fallback."""
+        notes: list[str] = []
         timeline_events = self._timeline_service.build_for_run(run).timeline.events
-        workflow_nodes = self._load_workflow_nodes(run.workflow_report_ref)
+        workflow_nodes = self._load_workflow_nodes(
+            run.workflow_report_ref,
+            on_missing=lambda: notes.append("workflow_report_missing_or_unavailable"),
+        )
+        if notes:
+            return _nodes_from_timeline(timeline_events), notes
         if not workflow_nodes:
-            return _nodes_from_timeline(timeline_events)
-        return _merge_workflow_nodes_with_timeline(workflow_nodes, timeline_events)
+            return [], notes
+        return _merge_workflow_nodes_with_timeline(workflow_nodes, timeline_events), notes
 
     def get_node_debug(self, run: IndexedRunRecord, *, alias: str) -> NodeDebugView:
         """Return per-node timeline, cache, and artifact details.
@@ -226,7 +241,7 @@ class DebugService:
         Raises:
             KeyError: If `alias` does not match any node in the run.
         """
-        nodes = self.list_run_nodes(run)
+        nodes, notes = self.list_run_nodes_with_notes(run)
         by_alias = {node.alias: node for node in nodes}
         record = by_alias.get(alias)
         if record is None:
@@ -271,7 +286,7 @@ class DebugService:
             cache_hits=cache_hits,
             cache_stores=cache_stores,
             cache_bypasses=cache_bypasses,
-            notes=[],
+            notes=notes,
         )
 
     def get_simulation_result_candidate(
@@ -482,8 +497,15 @@ class DebugService:
             validation_trace = _extract_validation_trace(state_payload)
             report_ref = _extract_report_ref(state_payload, _GOVERNANCE_REPORT_KEY)
 
+        report_missing: list[bool] = []
         if report_ref is not None:
-            report_payload = self._load_json_artifact(report_ref)
+            report_payload = self._load_json_artifact(
+                report_ref,
+                on_missing=lambda: report_missing.append(True),
+            )
+            if report_missing:
+                report_ref = None
+        if report_ref is not None:
             verdict = _as_str(report_payload.get("verdict"))
             issues = _as_list_of_dicts(report_payload.get("issues"))
             notes = _as_list_of_strings(report_payload.get("notes"))
@@ -530,16 +552,16 @@ class DebugService:
             packet_payload,
         )
         governance_block = packet_payload.get("governance")
+        notes = ["governance_report_missing_or_unavailable"] if report_ref is None else []
         if isinstance(governance_block, dict):
             fallback = True
             verdict = _as_str(governance_block.get("verdict"))
             issues = _as_list_of_dicts(governance_block.get("issues"))
-            notes = _as_list_of_strings(governance_block.get("notes"))
+            notes.extend(_as_list_of_strings(governance_block.get("notes")))
             links = _governance_links_from_payload(governance_block)
         else:
             verdict = None
             issues = []
-            notes = []
             links = None
 
         return GovernanceDebugView(
@@ -583,6 +605,12 @@ class DebugService:
 
     def get_run_errors(self, run: IndexedRunRecord) -> list[RunErrorView]:
         """Collect sanitized manifest, workflow, and trace errors for one run."""
+        return self.get_run_errors_with_notes(run)[0]
+
+    def get_run_errors_with_notes(
+        self, run: IndexedRunRecord
+    ) -> tuple[list[RunErrorView], list[str]]:
+        """Return run errors and limitations on any absence-only workflow fallback."""
         errors: list[RunErrorView] = []
 
         for item in run.manifest_errors:
@@ -598,12 +626,14 @@ class DebugService:
                 )
             )
 
-        for node in self.list_run_nodes(run):
+        workflow_nodes, notes = self.list_run_nodes_with_notes(run)
+        node_error_source = "trace" if notes else "workflow_report"
+        for node in workflow_nodes:
             if node.status != "fail":
                 continue
             errors.append(
                 RunErrorView(
-                    source="workflow_report",
+                    source=node_error_source,
                     code=node.error_code or "node.failure",
                     message=(
                         _sanitize_string(node.error_message or "Node execution failed")
@@ -637,7 +667,7 @@ class DebugService:
                     )
 
         errors.sort(key=_error_sort_key)
-        return errors
+        return errors, notes
 
     def get_run_agents(self, run: IndexedRunRecord) -> AgentPipelineView:
         """Build the agent-pipeline view from decision packet, state, and trace data.
@@ -978,7 +1008,7 @@ class DebugService:
                 return None, "llm_producer_control_job_owner_not_established"
             event_payload = store.get_job_created_event_payload(control_job_id)
             outbox_event = store.get_job_created_outbox_event(control_job_id)
-        except (ControlJobExecutionAdmissionError, OSError, RuntimeError, TypeError, ValueError):
+        except ControlJobExecutionAdmissionError, OSError, RuntimeError, TypeError, ValueError:
             return None, "llm_producer_control_job_owner_not_established"
 
         outbox_payload = getattr(outbox_event, "payload", None)
@@ -1049,7 +1079,7 @@ class DebugService:
                 profile_id=job.effective_execution_profile,
                 control_job_id=job.job_id,
             )
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None, "llm_producer_control_job_owner_not_established"
         return binding, None
 
@@ -1386,15 +1416,21 @@ class DebugService:
             item.alias: item for item in _nodes_from_timeline(timeline_events) if item.alias
         }
 
-        report_payload = self._load_json_artifact(run.workflow_report_ref)
+        report_payload = self._load_json_artifact(
+            run.workflow_report_ref,
+            on_missing=lambda: notes.append("workflow_report_missing_or_unavailable"),
+        )
         report_rows = _as_list_of_dicts(report_payload.get("nodes"))
         report_by_alias = _workflow_report_nodes_by_alias(report_rows)
 
         workflow_spec_ref = self._find_run_input_ref_by_kind(run, _WORKFLOW_SPEC_KIND)
-        workflow_spec_payload = self._load_json_artifact(workflow_spec_ref)
+        workflow_spec_payload = self._load_json_artifact(
+            workflow_spec_ref,
+            on_missing=lambda: notes.append("workflow_spec_missing_or_unavailable"),
+        )
         spec_rows = _as_list_of_dicts(workflow_spec_payload.get("nodes"))
         spec_by_alias, spec_order = _workflow_spec_nodes(spec_rows)
-        if not spec_by_alias:
+        if not spec_by_alias and "workflow_spec_missing_or_unavailable" not in notes:
             notes.append("workflow_spec_missing_or_unavailable")
 
         aliases: list[str] = []
@@ -1519,8 +1555,13 @@ class DebugService:
         workflow_report_ref: ArtifactRef | None,
         *,
         payload: dict[str, Any] | None = None,
+        on_missing: Callable[[], None] | None = None,
     ) -> list[RunNodeRecord]:
-        payload = payload if payload is not None else self._load_json_artifact(workflow_report_ref)
+        payload = (
+            payload
+            if payload is not None
+            else self._load_json_artifact(workflow_report_ref, on_missing=on_missing)
+        )
         rows = payload.get("nodes")
         if not isinstance(rows, list):
             return []
@@ -1654,15 +1695,69 @@ class DebugService:
             )
         return payload
 
-    def _load_json_artifact(self, ref: ArtifactRef | None) -> dict[str, Any]:
+    def _load_json_artifact(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        on_missing: Callable[[], None] | None = None,
+    ) -> dict[str, Any]:
         if ref is None:
+            if on_missing is not None:
+                on_missing()
             return {}
         try:
-            payload = read_core_json_artifact(self._store, ref).value
-        except (FileNotFoundError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:
-            logger.debug("Failed to load JSON artifact %s: %s", ref.artifact_id, exc)
-            return {}
-        return payload if isinstance(payload, dict) else {}
+            profiled = read_core_json_artifact(self._store, ref)
+            payload = require_declared_profile(profiled)
+        except CanonicalProfileRefusalError:
+            raise
+        except FileNotFoundError as exc:
+            try:
+                self._store.get_raw_manifest_bytes(ref)
+            except FileNotFoundError as selected_manifest_missing:
+                try:
+                    self._store.get_raw_manifest_bytes(ref.artifact_id)
+                except FileNotFoundError as default_manifest_missing:
+                    try:
+                        self._store.get_bytes(ref.artifact_id)
+                    except FileNotFoundError:
+                        logger.debug(
+                            "Optional JSON artifact %s is unavailable: %s",
+                            ref.artifact_id,
+                            exc,
+                        )
+                        if on_missing is not None:
+                            on_missing()
+                        return {}
+                    except CanonicalProfileRefusalError:
+                        raise
+                    except (TypeError, ValueError, UnicodeDecodeError) as payload_exc:
+                        raise CanonicalProfileRefusalError(
+                            "canon_profile_payload_unavailable"
+                        ) from payload_exc
+                    raise CanonicalProfileRefusalError(
+                        "canon_profile_raw_manifest_unavailable"
+                    ) from default_manifest_missing
+                except CanonicalProfileRefusalError:
+                    raise
+                except (TypeError, ValueError, UnicodeDecodeError) as manifest_exc:
+                    raise CanonicalProfileRefusalError(
+                        "canon_profile_raw_manifest_unavailable"
+                    ) from manifest_exc
+                raise CanonicalProfileRefusalError(
+                    "canon_profile_selection_unverified"
+                ) from selected_manifest_missing
+            except CanonicalProfileRefusalError:
+                raise
+            except (TypeError, ValueError, UnicodeDecodeError) as manifest_exc:
+                raise CanonicalProfileRefusalError(
+                    "canon_profile_raw_manifest_unavailable"
+                ) from manifest_exc
+            raise CanonicalProfileRefusalError("canon_profile_payload_unavailable") from exc
+        except (TypeError, ValueError, UnicodeDecodeError) as exc:
+            raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant") from exc
+        if not isinstance(payload, dict):
+            raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant")
+        return payload
 
     def _agent_steps_from_compiled_cycle(
         self,
@@ -2737,7 +2832,7 @@ def _as_float_or_none(value: Any) -> float | None:
         return None
     try:
         parsed = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     return max(parsed, 0.0)
 
@@ -2852,7 +2947,7 @@ def _normalize_status(raw: str | None) -> NodeStatus:
 def _as_int(value: Any) -> int:
     try:
         parsed = int(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return 0
     return max(parsed, 0)
 
@@ -2870,7 +2965,7 @@ def _as_dict(value: Any) -> dict[str, Any]:
 def _as_float(value: Any, *, default: float = 0.0) -> float:
     try:
         parsed = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return default
     return max(parsed, 0.0)
 
@@ -2975,7 +3070,7 @@ def _state_input_ref(
         return None, f"state_input_ref_malformed:{key}"
     try:
         ref = ArtifactRef.model_validate(raw_ref)
-    except (TypeError, ValueError, ValidationError):
+    except TypeError, ValueError, ValidationError:
         return None, f"state_input_ref_malformed:{key}"
     if ref.kind != expected_kind or ref.media_type != "application/json":
         return None, f"state_input_ref_kind_mismatch:{key}"
@@ -3203,7 +3298,7 @@ def _data_view_request_ref_from_snapshot(
         request_payload = get_ir_json_artifact(store, selected_request_ref)
     except CanonViolation:
         return None, "data_view_request_profile_not_established"
-    except (FileNotFoundError, TypeError, ValueError):
+    except FileNotFoundError, TypeError, ValueError:
         return None, "data_view_request_payload_unavailable"
     if not isinstance(request_payload, dict):
         return None, "data_view_request_payload_invalid"
@@ -3211,7 +3306,7 @@ def _data_view_request_ref_from_snapshot(
     for model in (QueryDataViewRequest, AnalyticsDataViewRequest):
         try:
             model.model_validate(request_payload)
-        except (TypeError, ValueError, ValidationError):
+        except TypeError, ValueError, ValidationError:
             continue
         valid_models += 1
     if valid_models != 1:

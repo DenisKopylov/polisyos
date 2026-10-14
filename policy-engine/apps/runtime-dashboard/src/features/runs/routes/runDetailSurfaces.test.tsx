@@ -756,6 +756,7 @@ describe("run detail surfaces", () => {
     useRunNodesMock.mockReturnValue({
       data: {
         nodes: [{ alias: "node-a" }, { alias: "node-b" }],
+        notes: ["workflow_report_missing_or_unavailable"],
       },
       error: null,
       isError: false,
@@ -1696,11 +1697,35 @@ describe("run detail surfaces", () => {
     renderRoute("/runs/run-1/debug", "/runs/:runId/:tab", <DebugTab />);
 
     expect(screen.getByTestId("run-tab-debug")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.runs.workflowTimelineFallback"),
+    ).toHaveAttribute("role", "status");
     expect(screen.getAllByText("start").length).toBeGreaterThan(0);
     expect(await screen.findByTestId("node-debug-panel")).toHaveTextContent(
       "node-a:node-debug",
     );
     expect(await screen.findByTestId("errors-panel")).toHaveTextContent("1");
+  });
+
+  it("keeps fallback status unknown when an older server omits notes", async () => {
+    useRunNodesMock.mockReturnValue({
+      data: { nodes: [{ alias: "node-a" }] },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useRunErrorsMock.mockReturnValue({
+      data: { errors: [] },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRoute("/runs/run-1/debug", "/runs/:runId/:tab", <DebugTab />);
+
+    expect(
+      await screen.findByText("pages.runs.workflowLimitationStatusNotReported"),
+    ).toHaveAttribute("role", "status");
   });
 
   it("renders WorkflowTab with DAG, lineage graph, and missing artifact warning", async () => {

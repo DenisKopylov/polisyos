@@ -4287,7 +4287,7 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_nodes",
         )
-        nodes = ctx.debug.list_run_nodes(run)
+        nodes, notes = ctx.debug.list_run_nodes_with_notes(run)
         record_data_access_audit(
             request,
             resource_id=run_id,
@@ -4300,6 +4300,7 @@ if router is not None:
             run_id=run_id,
             source_kind=run.source_kind,
             nodes=nodes,
+            notes=notes,
         )
 
     @router.get(
@@ -4792,7 +4793,14 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_workflow",
         )
-        workflow = ctx.debug.get_run_workflow(run)
+        try:
+            workflow = ctx.debug.get_run_workflow(run)
+        except CanonicalProfileRefusalError as exc:
+            raise conflict(
+                "The selected workflow JSON has a malformed or byte-inconsistent canon profile",
+                code=exc.code,
+                extensions={"run_id": run_id, "surface": "run_workflow"},
+            ) from exc
         record_data_access_audit(
             request,
             resource_id=run_id,

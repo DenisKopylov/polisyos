@@ -16,7 +16,13 @@ from _helpers.runtime_http import (
     close_runtime_api_env,
 )
 
-from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo, profile_bound_ref
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    PutOptions,
+    SchemaInfo,
+    artifact_ref_for_manifest,
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, CanonInfo, ProducerInfo
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
@@ -29,6 +35,45 @@ def runtime_api_env(tmp_path):
         yield env
     finally:
         close_runtime_api_env(env)
+
+
+class _OwnedArtifactUnavailableStore:
+    """Simulate disappearance only after the wrapped CAS admits the exact read."""
+
+    def __init__(self, wrapped: Any, ref: ArtifactRef) -> None:
+        self._wrapped = wrapped
+        self._artifact_id = str(ref.artifact_id)
+        self.checked_manifest_profiles: list[str | None] = []
+        self.checked_payload_reads = 0
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._wrapped, name)
+
+    def _matches(self, selector: object) -> bool:
+        return str(getattr(selector, "artifact_id", selector)) == self._artifact_id
+
+    def get_raw_manifest_bytes(
+        self, selector: object, *, manifest_profile_sha256: str | None = None
+    ) -> bytes:
+        if not self._matches(selector):
+            return self._wrapped.get_raw_manifest_bytes(
+                selector, manifest_profile_sha256=manifest_profile_sha256
+            )
+        self._wrapped.get_raw_manifest_bytes(
+            selector, manifest_profile_sha256=manifest_profile_sha256
+        )
+        profile = manifest_profile_sha256
+        if profile is None:
+            profile = getattr(selector, "manifest_profile_sha256", None)
+        self.checked_manifest_profiles.append(profile)
+        raise FileNotFoundError("fixture simulates loss after the owner-gated read")
+
+    def get_bytes(self, selector: object) -> bytes:
+        if not self._matches(selector):
+            return self._wrapped.get_bytes(selector)
+        self._wrapped.get_bytes(selector)
+        self.checked_payload_reads += 1
+        raise FileNotFoundError("fixture simulates loss after the owner-gated read")
 
 
 def test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserves_bytes(
@@ -258,6 +303,66 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
     run = context.run_index.get_run(run_id)
     assert run.decision_packet_ref is not None
     store = context.store
+    baseline_workflow = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/workflow",
+    )
+    assert baseline_workflow.status_code == 200, baseline_workflow.text
+    baseline_nodes = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/nodes",
+    )
+    assert baseline_nodes.status_code == 200, baseline_nodes.text
+    node_alias = baseline_nodes.json()["nodes"][0]["alias"]
+
+    assert run.workflow_report_ref is not None
+    missing_refs = (None, run.workflow_report_ref)
+    for missing_ref in missing_refs:
+        unavailable_store = None
+        if missing_ref is None:
+            monkeypatch.setattr(context.debug, "_store", store)
+        else:
+            unavailable_store = _OwnedArtifactUnavailableStore(store, missing_ref)
+            monkeypatch.setattr(context.debug, "_store", unavailable_store)
+        missing_run = replace(run, workflow_report_ref=missing_ref)
+        monkeypatch.setattr(
+            context.run_index,
+            "get_run",
+            lambda _run_id, missing_run=missing_run: missing_run,
+        )
+        missing_workflow = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/runs/{run_id}/workflow",
+        )
+        assert missing_workflow.status_code == 200, missing_workflow.text
+        missing_notes = missing_workflow.json()["workflow"]["notes"]
+        assert "workflow_report_missing_or_unavailable" in missing_notes
+        missing_nodes = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/runs/{run_id}/nodes",
+        )
+        assert missing_nodes.status_code == 200, missing_nodes.text
+        assert "workflow_report_missing_or_unavailable" in missing_nodes.json()["notes"]
+        missing_errors = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/debug/runs/{run_id}/errors",
+        )
+        assert missing_errors.status_code == 200, missing_errors.text
+        assert "workflow_report_missing_or_unavailable" in missing_errors.json()["notes"]
+        if unavailable_store is not None:
+            assert missing_ref.manifest_profile_sha256 is not None
+            assert (
+                missing_ref.manifest_profile_sha256 in unavailable_store.checked_manifest_profiles
+            )
+            assert None in unavailable_store.checked_manifest_profiles
+            assert unavailable_store.checked_payload_reads >= 1
+
+    monkeypatch.setattr(context.run_index, "get_run", lambda _run_id: run)
     with tenant_scope(
         None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
     ):
@@ -266,14 +371,17 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
             {"nodes": [], "workflow_id": "debug-profile-test", "fraction": 1.5},
             CanonSpec(forbid_floats=False),
         )
-        bad_ref = store.put_bytes(
-            bad_payload,
-            PutOptions(
-                kind="scientist.workflow_report",
-                media_type="application/json",
-                schema=SchemaInfo(name="test.WorkflowReport", version="1"),
-                canon=CanonInfo(forbid_floats=True),
-                tenant_context=selected_manifest.tenant_context,
+        bad_ref = profile_bound_ref(
+            store,
+            store.put_bytes(
+                bad_payload,
+                PutOptions(
+                    kind="scientist.workflow_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="test.WorkflowReport", version="1"),
+                    canon=CanonInfo(forbid_floats=True),
+                    tenant_context=selected_manifest.tenant_context,
+                ),
             ),
         )
         decision_bytes = store.get_bytes(run.decision_packet_ref)
@@ -297,6 +405,13 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
                 ),
             ),
         )
+    _record_fixture_owner(
+        store,
+        bad_ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        runtime_api_env=runtime_api_env,
+    )
     monkeypatch.setattr(
         context.run_index,
         "get_run",
@@ -305,6 +420,53 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
         ),
     )
 
+    original_raw_manifest = store.get_raw_manifest_bytes
+
+    def missing_selected_view(selector, *, manifest_profile_sha256=None):
+        selected_id = str(getattr(selector, "artifact_id", selector))
+        selected_profile = manifest_profile_sha256 or getattr(
+            selector, "manifest_profile_sha256", None
+        )
+        if (
+            selected_id == str(bad_ref.artifact_id)
+            and selected_profile == bad_ref.manifest_profile_sha256
+        ):
+            original_raw_manifest(selector, manifest_profile_sha256=manifest_profile_sha256)
+            raise FileNotFoundError("selected profile view is unavailable")
+        return original_raw_manifest(
+            selector,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", missing_selected_view)
+    unavailable_view = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/workflow",
+    )
+    assert unavailable_view.status_code == 409, unavailable_view.text
+    assert unavailable_view.json()["code"] == "canon_profile_selection_unverified"
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", original_raw_manifest)
+
+    original_get_bytes = store.get_bytes
+
+    def missing_payload(selector):
+        selected_id = str(getattr(selector, "artifact_id", selector))
+        if selected_id == str(bad_ref.artifact_id):
+            original_get_bytes(selector)
+            raise FileNotFoundError("selected payload is unavailable")
+        return original_get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", missing_payload)
+    missing_payload_view = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/workflow",
+    )
+    assert missing_payload_view.status_code == 409, missing_payload_view.text
+    assert missing_payload_view.json()["code"] == "canon_profile_payload_unavailable"
+    monkeypatch.setattr(store, "get_bytes", original_get_bytes)
+
     debug_response = _runtime_api_request(
         runtime_api_env,
         runtime_api_env["client"].get,
@@ -312,6 +474,25 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
     )
     assert debug_response.status_code == 409, debug_response.text
     assert debug_response.json()["code"] == "canon_profile_payload_nonconformant"
+
+    _remove_one_required_canon_field(
+        store,
+        str(bad_ref.artifact_id),
+        bad_ref.manifest_profile_sha256,
+    )
+    for sibling_path in (
+        f"/api/v1/runs/{run_id}/workflow",
+        f"/api/v1/runs/{run_id}/nodes",
+        f"/api/v1/debug/runs/{run_id}/nodes/{node_alias}",
+        f"/api/v1/debug/runs/{run_id}/errors",
+    ):
+        sibling = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            sibling_path,
+        )
+        assert sibling.status_code == 409, sibling.text
+        assert sibling.json()["code"] == "canon_profile_incomplete"
 
     from polisyos.core.security.identity import PolicyOSRole
     from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -432,12 +613,29 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
         },
     )
     assert analysis.status_code == 200, analysis.text
-    analysis_ref = analysis.json()["analysis_result_ref"]
-    _remove_one_required_canon_field(store, analysis_ref["artifact_id"])
+    analysis_ref = ArtifactRef.model_validate(analysis.json()["analysis_result_ref"])
+    _record_fixture_owner(
+        store,
+        analysis_ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        runtime_api_env=runtime_api_env,
+    )
+    analysis_baseline = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/analysis/{analysis_ref.artifact_id}",
+    )
+    assert analysis_baseline.status_code == 200, analysis_baseline.text
+    _remove_one_required_canon_field(
+        store,
+        str(analysis_ref.artifact_id),
+        analysis_ref.manifest_profile_sha256,
+    )
     analysis_read = _runtime_api_request(
         runtime_api_env,
         client.get,
-        f"/api/v1/analysis/{analysis_ref['artifact_id']}",
+        f"/api/v1/analysis/{analysis_ref.artifact_id}",
     )
     assert analysis_read.status_code == 409, analysis_read.text
     assert analysis_read.headers["content-type"].startswith("application/problem+json")
@@ -451,8 +649,27 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
     )
     assert listed.status_code == 200, listed.text
     scenario = listed.json()["scenarios"][0]
-    scenario_artifact_ref = context.scenarios._artifact_by_id[scenario["id"]]
-    _remove_one_required_canon_field(store, scenario_artifact_ref)
+    scenario_artifact_ref = artifact_ref_for_manifest(
+        store.get_manifest(context.scenarios._artifact_by_id[scenario["id"]])
+    )
+    _record_fixture_owner(
+        store,
+        scenario_artifact_ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        runtime_api_env=runtime_api_env,
+    )
+    scenario_baseline = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/scenarios/{scenario['id']}",
+    )
+    assert scenario_baseline.status_code == 200, scenario_baseline.text
+    _remove_one_required_canon_field(
+        store,
+        str(scenario_artifact_ref.artifact_id),
+        scenario_artifact_ref.manifest_profile_sha256,
+    )
     scenario_read = _runtime_api_request(
         runtime_api_env,
         client.get,
@@ -466,35 +683,76 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
 def test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete(
     runtime_api_env,
 ) -> None:
-    from polisyos.core.artifacts import CanonInfo, PutOptions
-    from polisyos.core.canon.canon_json import to_canonical_bytes
-
-    client = runtime_api_env["client"]
-    store = runtime_api_env["app"].state.runtime_api_ctx.store
     payload = to_canonical_bytes({"raw": "exact bytes"})
-    ref = store.put_bytes(
-        payload,
-        PutOptions(
-            kind="test.raw_profile_bytes",
-            media_type="application/json",
-            canon=CanonInfo(),
-        ),
+    ref = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.raw_profile_bytes",
+        media_type="application/json",
+        payload_bytes=payload,
+        schema=SchemaInfo(name="test.raw_profile_bytes", version="1"),
+        canon=CanonInfo(),
     )
-    _remove_one_required_canon_field(store, str(ref.artifact_id))
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
+    params = {"manifest_profile_sha256": ref.manifest_profile_sha256}
+    base_path = f"/api/v1/artifacts/{ref.artifact_id}"
 
-    content = client.get(
-        f"/api/v1/artifacts/{ref.artifact_id}/content",
+    baseline_semantic = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/content",
+        params=params,
+    )
+    assert baseline_semantic.status_code == 200, baseline_semantic.text
+    baseline_raw = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/content",
+        params=params,
+        headers={"accept": "application/octet-stream"},
+    )
+    assert baseline_raw.status_code == 200, baseline_raw.text
+    assert baseline_raw.content == payload
+    baseline_download = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/download",
+        params=params,
+    )
+    assert baseline_download.status_code == 200, baseline_download.text
+    assert baseline_download.content == payload
+
+    _remove_one_required_canon_field(
+        store,
+        str(ref.artifact_id),
+        ref.manifest_profile_sha256,
+    )
+
+    content = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/content",
+        params=params,
         headers={"accept": "application/octet-stream"},
     )
     assert content.status_code == 200, content.text
     assert content.content == payload
     assert content.headers["content-type"].startswith("application/json")
 
-    download = client.get(f"/api/v1/artifacts/{ref.artifact_id}/download")
+    download = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/download",
+        params=params,
+    )
     assert download.status_code == 200, download.text
     assert download.content == payload
 
-    semantic = client.get(f"/api/v1/artifacts/{ref.artifact_id}/content")
+    semantic = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/content",
+        params=params,
+    )
     assert semantic.status_code == 409, semantic.text
     assert semantic.headers["content-type"].startswith("application/problem+json")
     assert semantic.json()["code"] == "canon_profile_incomplete"
@@ -508,51 +766,58 @@ def _put_inspector_profile_fixture(
     payload_bytes: bytes,
     schema: SchemaInfo,
     canon: CanonInfo | None,
+    include_authority: bool = True,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist one locally owned API fixture with the requested exact profile state."""
     store = runtime_api_env["app"].state.runtime_api_ctx.store
     tenant_id = runtime_api_env["tenant_a"]
     cell_id = runtime_api_env["cell_a"]
-    payload_sha256 = hashlib.sha256(payload_bytes).hexdigest()
-    payload_ref = f"sha256:{payload_sha256}"
-    boundary_id = f"boundary-{kind.replace('.', '-')}-{payload_sha256[:8]}"
-    boundary = {
-        **_runtime_fixture_authority_boundary(boundary_id=boundary_id),
-        "subject_ref": payload_ref,
-        "subject_kind": kind,
-    }
-
+    envelope_ref: ArtifactRef | None = None
+    authority: ArtifactAuthorityInfo | None = None
+    if include_authority:
+        payload_sha256 = hashlib.sha256(payload_bytes).hexdigest()
+        payload_ref = f"sha256:{payload_sha256}"
+        boundary_id = f"boundary-{kind.replace('.', '-')}-{payload_sha256[:8]}"
+        boundary = {
+            **_runtime_fixture_authority_boundary(boundary_id=boundary_id),
+            "subject_ref": payload_ref,
+            "subject_kind": kind,
+        }
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            envelope_ref = _put_fixture_authority_envelope(
+                store, boundary, producer_version="inspector-profile-r4"
+            )
+            authority = ArtifactAuthorityInfo(
+                authority_envelope_ref=str(envelope_ref.artifact_id),
+                authority_envelope_manifest_profile_sha256=(envelope_ref.manifest_profile_sha256),
+                diagnostic_event_ref=f"event://tests/runtime-api/{boundary_id}",
+                manifest_ref=f"cas-manifest://{payload_ref}",
+                payload_sha256=payload_sha256,
+            )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        envelope_ref = _put_fixture_authority_envelope(
-            store,
-            boundary,
-            producer_version="inspector-profile-r4",
-        )
-        authority = ArtifactAuthorityInfo(
-            authority_envelope_ref=str(envelope_ref.artifact_id),
-            authority_envelope_manifest_profile_sha256=envelope_ref.manifest_profile_sha256,
-            diagnostic_event_ref=f"event://tests/runtime-api/{boundary_id}",
-            manifest_ref=f"cas-manifest://{payload_ref}",
-            payload_sha256=payload_sha256,
-        )
         options: dict[str, Any] = {
             "kind": kind,
             "media_type": media_type,
             "schema": schema,
             "producer": ProducerInfo(component="tests.inspector_profile", version="1"),
-            "authority": authority,
         }
+        if authority is not None:
+            options["authority"] = authority
         if canon is not None:
             options["canon"] = canon
         selected = profile_bound_ref(
             store,
-            store.put_bytes(payload_bytes, PutOptions(**options)),
+            store.put_bytes(
+                payload_bytes,
+                PutOptions(**options),
+                return_selected_profile=return_selected_profile,
+            ),
         )
-
+    owner_refs = ((envelope_ref,) if envelope_ref is not None else ()) + (selected,)
     _record_fixture_owner(
         store,
-        envelope_ref,
-        selected,
+        *owner_refs,
         tenant_id=tenant_id,
         cell_id=cell_id,
         runtime_api_env=runtime_api_env,
@@ -560,7 +825,9 @@ def _put_inspector_profile_fixture(
     return selected
 
 
-def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_api_env) -> None:
+def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(
+    runtime_api_env, monkeypatch
+) -> None:
     """Exercise typed refusal and representation behavior through the actual API routes."""
     app = runtime_api_env["app"]
     context = app.state.runtime_api_ctx
@@ -583,6 +850,26 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
         schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
         canon=CanonInfo(version="0.3.0"),
     )
+    base_view = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="ir.backtest_report",
+        media_type="application/json",
+        payload_bytes=report_bytes,
+        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+        canon=CanonInfo(),
+        include_authority=False,
+    )
+    supported = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="ir.backtest_report",
+        media_type="application/json",
+        payload_bytes=report_bytes,
+        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+        canon=CanonInfo(),
+        return_selected_profile=True,
+    )
+    assert base_view.artifact_id == supported.artifact_id
+    assert base_view.manifest_profile_sha256 != supported.manifest_profile_sha256
 
     for ref, expected_code in (
         (absent, "canon_profile_absent"),
@@ -615,10 +902,40 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
             else to_canonical_bytes({"schema_version": "1.0", "marker": "unknown"})
         )
 
-    app.state.runtime_api_ctx = replace(
-        context,
+    container = app.state.runtime_container
+    candidate_context = replace(
+        container.runtime_api_context,
         allow_candidate_predictive_diagnostic_surface=True,
     )
+    monkeypatch.setattr(container, "runtime_api_context", candidate_context)
+    monkeypatch.setattr(app.state, "runtime_api_ctx", candidate_context)
+
+    reader_candidate_diagnostic = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{base_view.artifact_id}/predictive-coverage-diagnostic",
+        params={"manifest_profile_sha256": base_view.manifest_profile_sha256},
+    )
+    assert reader_candidate_diagnostic.status_code == 200, reader_candidate_diagnostic.text
+    candidate_projection = reader_candidate_diagnostic.json()
+    assert candidate_projection["measurement_status"] == "invalid_source"
+    assert candidate_projection["reason_code"] == "predictive_scope_not_established"
+    assert candidate_projection["source_materialization"] == "reader_materialized"
+    assert candidate_projection["producer_attestation_status"] == "not_established"
+
+    # A candidate diagnostic must not inherit the source manifest's authority.
+    authority_bearing_diagnostic = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{supported.artifact_id}/predictive-coverage-diagnostic",
+        params={"manifest_profile_sha256": supported.manifest_profile_sha256},
+    )
+    assert authority_bearing_diagnostic.status_code == 409, authority_bearing_diagnostic.text
+    assert authority_bearing_diagnostic.headers["content-type"].startswith(
+        "application/problem+json"
+    )
+    assert authority_bearing_diagnostic.json()["code"] == "authority_surface_admission_blocked"
+
     diagnostic = _runtime_api_request(
         runtime_api_env,
         client.get,
@@ -852,6 +1169,21 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
     """The capped path retains a conformant in-limit decode and round trip."""
     from polisyos.core.artifacts import canonical_profile as core_profile
 
+    payload = to_canonical_bytes({"schema_version": "1.0"})
+    ref = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="ir.backtest_report",
+        media_type="application/json",
+        payload_bytes=payload,
+        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+        canon=CanonInfo(),
+    )
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        manifest = context.store.get_manifest(ref)
+
     decode = core_profile.from_canonical_bytes
     encode = core_profile.to_canonical_bytes
     decode_calls: list[int] = []
@@ -867,24 +1199,19 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
 
     monkeypatch.setattr(core_profile, "from_canonical_bytes", observe_decode)
     monkeypatch.setattr(core_profile, "to_canonical_bytes", observe_encode)
-    payload = to_canonical_bytes({"schema_version": "1.0"})
-    ref = _put_inspector_profile_fixture(
-        runtime_api_env,
-        kind="ir.backtest_report",
-        media_type="application/json",
-        payload_bytes=payload,
-        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
-        canon=CanonInfo(),
-    )
-    context = runtime_api_env["app"].state.runtime_api_ctx
     with tenant_scope(
         None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
     ):
-        preview = context.artifacts.get_predictive_coverage_diagnostic(ref.artifact_id)
+        preview = context.artifacts.get_predictive_coverage_diagnostic(
+            ref.artifact_id,
+            manifest=manifest,
+        )
 
     assert preview is not None
+    assert preview.measurement_status == "invalid_source"
+    assert preview.producer_attestation_status == "not_established"
     assert decode_calls == [len(payload)]
-    assert encode_calls
+    assert encode_calls == [1]
 
 
 def test_content_preview_caps_actual_selected_bytes_before_codec(
@@ -937,7 +1264,7 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
 
         def __init__(self, wrapped):
             self._wrapped = wrapped
-            self.payload_reads: dict[str, int] = {}
+            self.payload_reads: dict[tuple[str, str | None], int] = {}
 
         def __getattr__(self, name):
             return getattr(self._wrapped, name)
@@ -975,7 +1302,9 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
 
         def get_bytes(self, selector):
             artifact_id = str(getattr(selector, "artifact_id", selector))
-            self.payload_reads[artifact_id] = self.payload_reads.get(artifact_id, 0) + 1
+            profile_sha256 = getattr(selector, "manifest_profile_sha256", None)
+            view_key = (artifact_id, profile_sha256)
+            self.payload_reads[view_key] = self.payload_reads.get(view_key, 0) + 1
             return self._wrapped.get_bytes(selector)
 
     bounded_store = UnderreportedManifestStore(wrapped_store)
@@ -995,7 +1324,7 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
     with tenant_scope(
         None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
     ):
-        selected_large_manifest = bounded_store.get_manifest(large_ref.artifact_id)
+        selected_large_manifest = bounded_store.get_manifest(large_ref)
         assert selected_large_manifest.byte_size == 1
         large_preview = service.get_content_preview(
             large_ref.artifact_id,
@@ -1003,7 +1332,7 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
             manifest=selected_large_manifest,
         )
 
-        selected_unknown_manifest = bounded_store.get_manifest(unknown_ref.artifact_id)
+        selected_unknown_manifest = bounded_store.get_manifest(unknown_ref)
         with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
             service.get_content_preview(
                 unknown_ref.artifact_id,
@@ -1017,8 +1346,16 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
     assert large_preview.mode == "binary"
     assert large_preview.canon_read_status == "not_evaluated"
     assert large_preview.preview == large_payload[:limit].hex()
-    assert bounded_store.payload_reads[str(large_ref.artifact_id)] == 1
-    assert bounded_store.payload_reads[str(unknown_ref.artifact_id)] == 1
+    assert (
+        bounded_store.payload_reads[(str(large_ref.artifact_id), large_ref.manifest_profile_sha256)]
+        == 1
+    )
+    assert (
+        bounded_store.payload_reads[
+            (str(unknown_ref.artifact_id), unknown_ref.manifest_profile_sha256)
+        ]
+        == 1
+    )
 
     decode_calls: list[int] = []
     encode_calls: list[int] = []
@@ -1036,7 +1373,7 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
     with tenant_scope(
         None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
     ):
-        selected_small_manifest = bounded_store.get_manifest(small_ref.artifact_id)
+        selected_small_manifest = bounded_store.get_manifest(small_ref)
         small_preview = service.get_content_preview(
             small_ref.artifact_id,
             max_bytes=limit,
@@ -1049,7 +1386,10 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(
     assert small_preview.canon_read_status == "declared_bytes_conformant"
     assert decode_calls == [len(small_payload)]
     assert encode_calls
-    assert bounded_store.payload_reads[str(small_ref.artifact_id)] == 1
+    assert (
+        bounded_store.payload_reads[(str(small_ref.artifact_id), small_ref.manifest_profile_sha256)]
+        == 1
+    )
 
 
 def test_action_selection_receipt_guard_survives_python_optimized_mode() -> None:
@@ -1071,3 +1411,112 @@ def test_action_selection_receipt_guard_survives_python_optimized_mode() -> None
         text=True,
     )
     assert completed.returncode == 0, completed.stderr
+
+
+def test_nodes_and_errors_expose_only_genuine_timeline_fallback(
+    runtime_api_env, monkeypatch
+) -> None:
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = runtime_api_env["core_run_id"]
+    run = context.run_index.get_run(run_id)
+    assert run.decision_packet_ref is not None
+    store = context.store
+
+    assert run.workflow_report_ref is not None
+    missing_refs = (None, run.workflow_report_ref)
+    for missing_ref in missing_refs:
+        unavailable_store = None
+        if missing_ref is None:
+            monkeypatch.setattr(context.debug, "_store", store)
+        else:
+            unavailable_store = _OwnedArtifactUnavailableStore(store, missing_ref)
+            monkeypatch.setattr(context.debug, "_store", unavailable_store)
+        missing_run = replace(run, workflow_report_ref=missing_ref)
+        monkeypatch.setattr(
+            context.run_index,
+            "get_run",
+            lambda _run_id, missing_run=missing_run: missing_run,
+        )
+        nodes = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/runs/{run_id}/nodes",
+        )
+        assert nodes.status_code == 200, nodes.text
+        assert nodes.json()["nodes"]
+        assert "workflow_report_missing_or_unavailable" in nodes.json()["notes"]
+        node_alias = nodes.json()["nodes"][0]["alias"]
+        node_debug = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/debug/runs/{run_id}/nodes/{node_alias}",
+        )
+        assert node_debug.status_code == 200, node_debug.text
+        assert "workflow_report_missing_or_unavailable" in node_debug.json()["debug"]["notes"]
+
+        errors = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"/api/v1/debug/runs/{run_id}/errors",
+        )
+        assert errors.status_code == 200, errors.text
+        assert "workflow_report_missing_or_unavailable" in errors.json()["notes"]
+        node_errors = [
+            item for item in errors.json()["errors"] if item.get("node_alias") is not None
+        ]
+        assert node_errors
+        assert all(item["source"] == "trace" for item in node_errors)
+        if unavailable_store is not None:
+            assert missing_ref.manifest_profile_sha256 is not None
+            assert (
+                missing_ref.manifest_profile_sha256 in unavailable_store.checked_manifest_profiles
+            )
+            assert None in unavailable_store.checked_manifest_profiles
+            assert unavailable_store.checked_payload_reads >= 1
+
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        selected_manifest = store.get_manifest(run.decision_packet_ref)
+    empty_payload = to_canonical_bytes({"nodes": [], "run_id": run_id})
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        empty_ref = profile_bound_ref(
+            store,
+            store.put_bytes(
+                empty_payload,
+                PutOptions(
+                    kind="scientist.workflow_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.scientist.orchestration.engine.WorkflowReport",
+                        version="1.0",
+                    ),
+                    producer=ProducerInfo(component="tests.workflow_report", version="1"),
+                    canon=CanonInfo(),
+                    tenant_context=selected_manifest.tenant_context,
+                ),
+            ),
+        )
+    _record_fixture_owner(
+        store,
+        empty_ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        runtime_api_env=runtime_api_env,
+    )
+    empty_run = replace(run, workflow_report_ref=empty_ref)
+    monkeypatch.setattr(
+        context.run_index,
+        "get_run",
+        lambda _run_id: empty_run,
+    )
+    present_empty = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/nodes",
+    )
+    assert present_empty.status_code == 200, present_empty.text
+    assert present_empty.json()["nodes"] == []
+    assert "workflow_report_missing_or_unavailable" not in present_empty.json()["notes"]

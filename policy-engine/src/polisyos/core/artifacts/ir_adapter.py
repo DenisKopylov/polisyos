@@ -52,14 +52,6 @@ def _coerce_payload(value: Any) -> dict[str, Any]:
         dumped = model_dump(mode="python")
         if not isinstance(dumped, Mapping):
             raise TypeError("Adapter model_dump() must return a mapping")
-        model_fields = getattr(type(value), "model_fields", None)
-        if isinstance(model_fields, Mapping):
-            unexpected_fields = set(model_fields) - set(CoreArtifactRef.model_fields)
-            if unexpected_fields:
-                unexpected = ", ".join(sorted(unexpected_fields))
-                raise TypeError(
-                    f"Invalid Core artifact selector: unexpected field(s): {unexpected}"
-                )
         return _coerce_payload(dumped)
     if hasattr(value, "__dataclass_fields__"):
         from dataclasses import asdict

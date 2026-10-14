@@ -56,10 +56,19 @@ def production_admission_inputs(
             "(doc_id VARCHAR, jurisdiction VARCHAR, top_domain VARCHAR)"
         )
 
-    def put(payload: bytes, *, kind: str) -> artifacts.ArtifactRef:
+    def put(
+        payload: bytes,
+        *,
+        kind: str,
+        canon: artifacts.CanonInfo | None = None,
+    ) -> artifacts.ArtifactRef:
         return store.put_bytes(
             payload,
-            artifacts.PutOptions(kind=kind, media_type="application/vnd.polisyos.epoch+json"),
+            artifacts.PutOptions(
+                kind=kind,
+                media_type="application/vnd.polisyos.epoch+json",
+                canon=canon,
+            ),
         )
 
     registry = semantic_epoch.load_facet_registry(root / owner_paths[1])
@@ -68,6 +77,7 @@ def production_admission_inputs(
         ref = put(
             contracts.epoch.canonical_epoch_bytes({"semantic_value": registration.facet_id}),
             kind="epoch.semantic_facet_source.v1",
+            canon=contracts.epoch.epoch_canon_info(),
         )
         if str(ref.artifact_id) != registration.source_binding_ref:
             raise AssertionError("fixture semantic source differs from canonical registry")

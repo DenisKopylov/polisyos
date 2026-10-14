@@ -833,7 +833,12 @@ from .external_audit import (
     build_public_audit_archive_record,
     validate_public_audit_archive_record,
 )
-from .generation_cycle import RealValueOwnerGateway, ValueTransportRunReceiptV1
+from .generation_cycle import (
+    RealValueOwnerGateway,
+    ValueOwnerSourceProjectionRequestV1,
+    ValueOwnerSourceVariableProjectionV1,
+    ValueTransportRunReceiptV1,
+)
 from .graded_outcomes import (
     S1_GRADED_OUTCOME_SCHEMA_VERSION,
     GradedOutcomeDecision,
@@ -1714,6 +1719,8 @@ __all__ = [
     "ValueDisposition",
     "ValueLossDisclosure",
     "ValueOfInformationAllocation",
+    "ValueOwnerSourceProjectionRequestV1",
+    "ValueOwnerSourceVariableProjectionV1",
     "ValueScheduleReviewStatus",
     "ValueSourceClass",
     "ValueTradeoffDisclosureRecord",

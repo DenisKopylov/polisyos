@@ -4097,6 +4097,7 @@ export const runNodesSchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
   nodes: z.array(runNodeRecordSchema).optional(),
+  notes: z.array(z.string()).optional(),
 });
 
 export const runLineageSchema = z.object({
@@ -4410,6 +4411,7 @@ export const runErrorsSchema = z.object({
   meta: apiMetaSchema,
   run_id: z.string(),
   errors: z.array(runErrorViewSchema).optional(),
+  notes: z.array(z.string()).optional(),
 });
 
 export const runAgentsSchema = z.object({

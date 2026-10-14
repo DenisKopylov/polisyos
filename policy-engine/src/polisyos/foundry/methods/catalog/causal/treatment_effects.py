@@ -51,6 +51,20 @@ def _treatment_slots() -> frozenset[SlotSpec]:
     )
 
 
+_AIPW_FIXED_CONFIDENCE_LEVEL = 0.95
+
+
+def _is_supported_aipw_confidence_level(value: object) -> bool:
+    """Return whether a value names AIPW's current native 95% interval."""
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return False
+    try:
+        normalized = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return False
+    return bool(np.isfinite(normalized)) and normalized == _AIPW_FIXED_CONFIDENCE_LEVEL
+
+
 def _logistic_propensity(X: np.ndarray, t: np.ndarray, max_iter: int = 50) -> np.ndarray:
     """Fit logistic regression for propensity scores."""
     n, k = X.shape
@@ -80,7 +94,10 @@ def _logistic_propensity(X: np.ndarray, t: np.ndarray, max_iter: int = 50) -> np
     tags={"causal", "treatment-effects", "aipw", "doubly-robust"},
 )
 class AIPWEstimator:
-    """Estimate ATE with augmented IPW under consistent nuisance fits; avoid extreme weights from poor overlap."""
+    """Estimate ATE with augmented IPW under consistent nuisance fits.
+
+    The current native interval is fixed at 95%; other requested levels are limited.
+    """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -124,12 +141,26 @@ class AIPWEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        X = np.asarray(state["X"], dtype=float)
-        T = np.asarray(state["treatment"], dtype=float)
-        Y = np.asarray(state["outcome"], dtype=float)
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        if isinstance(state, HTEObservationalData):
+            X = np.asarray(state.covariates, dtype=float)
+            if state.confounders is not None:
+                X = np.column_stack((X, np.asarray(state.confounders, dtype=float)))
+            T = np.asarray(state.treatment, dtype=float)
+            Y = np.asarray(state.outcome, dtype=float)
+        else:
+            X = np.asarray(state["X"], dtype=float)
+            T = np.asarray(state["treatment"], dtype=float)
+            Y = np.asarray(state["outcome"], dtype=float)
         fit_result, nuisance = fit_aipw_ate(X, T, Y, params)
         payload = result_payload(fit_result, nuisance)
+        inference_limitations = list(fit_result.inference_limitations)
+        if not _is_supported_aipw_confidence_level(
+            params.get("confidence_level", _AIPW_FIXED_CONFIDENCE_LEVEL)
+        ):
+            inference_limitations.append("unsupported_confidence_level_request")
 
         return {
             "result": {
@@ -146,8 +177,136 @@ class AIPWEstimator:
                 "n_obs": len(Y),
                 "n_trimmed": int(np.sum(~nuisance.trim_mask)),
                 **payload,
+                "status": "limited" if inference_limitations else "candidate",
+                "confidence_level": _AIPW_FIXED_CONFIDENCE_LEVEL,
+                "inference_profile": nuisance.contract.inference_profile,
+                "inference_limitations": inference_limitations,
+                "gate_eligible": False,
+                "assumption_basis": "consumer_asserted",
             }
         }
+
+    @staticmethod
+    def report_from_result(
+        *,
+        data: HTEObservationalData | Mapping[str, Any],
+        params: Mapping[str, Any],
+        result: Mapping[str, Any],
+    ) -> CausalEffectReport:
+        """Project AIPW's native numerical output into the shared causal report.
+
+        The report preserves the interval returned by the AIPW producer. It is a
+        descriptive candidate projection; its regular-iid declaration and
+        assumption text do not verify sampling, assignment, or identification.
+        """
+        treatment = np.asarray(
+            data.treatment if isinstance(data, HTEObservationalData) else data["treatment"],
+            dtype=float,
+        ).reshape(-1)
+        outcome = np.asarray(
+            data.outcome if isinstance(data, HTEObservationalData) else data["outcome"],
+            dtype=float,
+        ).reshape(-1)
+        contract = ATENuisanceContract.from_params(params)
+        limitations = list(result.get("inference_limitations", ()))
+        try:
+            numerical = tuple(
+                float(result[name]) for name in ("ate", "standard_error", "ci_lower", "ci_upper")
+            )
+            finite_interval = bool(
+                np.all(np.isfinite(numerical))
+                and numerical[1] >= 0.0
+                and numerical[2] <= numerical[3]
+            )
+        except KeyError, TypeError, ValueError, OverflowError:
+            finite_interval = False
+        inference_profile = result.get("inference_profile", contract.inference_profile)
+        interval_method = str(result.get("interval_method", "unknown"))
+        interval_parts = interval_method.split("+")
+        interval_suffixes = interval_parts[1:]
+        supported_interval_method = (
+            interval_parts[0] in {"bootstrap_eif", "wald_eif"}
+            and len(interval_suffixes) == len(set(interval_suffixes))
+            and interval_suffixes
+            == [suffix for suffix in ("coverage_guard", "conformal") if suffix in interval_suffixes]
+        )
+        confidence_value = result.get("confidence_level")
+        result_confidence_level_supported = _is_supported_aipw_confidence_level(confidence_value)
+        requested_confidence_level_supported = _is_supported_aipw_confidence_level(
+            params.get("confidence_level", _AIPW_FIXED_CONFIDENCE_LEVEL)
+        )
+        confidence_level_matches = (
+            result_confidence_level_supported and requested_confidence_level_supported
+        )
+        if not confidence_level_matches and "confidence_level_not_established" not in limitations:
+            limitations.append("confidence_level_not_established")
+        supported = (
+            inference_profile == "regular_iid"
+            and contract.inference_profile == "regular_iid"
+            and result.get("status") == "candidate"
+            and supported_interval_method
+            and confidence_level_matches
+            and not limitations
+            and finite_interval
+            and result.get("ci_lower") is not None
+            and result.get("ci_upper") is not None
+        )
+        status = EstimationStatus.SUCCESS
+        reason = None
+        if not supported:
+            if not limitations and not finite_interval:
+                limitations.append("numerical_result_invalid")
+            if not supported_interval_method:
+                limitations.append("unsupported_interval_method")
+            status = (
+                EstimationStatus.NUMERICAL_FAILURE
+                if "numerical_result_invalid" in limitations
+                else EstimationStatus.ASSUMPTION_FAILED
+            )
+            reason = ", ".join(str(item) for item in limitations) or (
+                "regular_iid_eif_profile_not_established"
+            )
+        inference_method = (
+            "bootstrap"
+            if interval_parts[0] == "bootstrap_eif"
+            else "asymptotic"
+            if supported_interval_method
+            else "none"
+        )
+        confidence_level = float(confidence_value) if confidence_level_matches else None
+        return CausalEffectReport(
+            method=CausalMethod.AIPW,
+            status=status,
+            status_reason=reason,
+            estimand="ATE",
+            point_estimate=float(result["ate"]) if supported else None,
+            standard_error=float(result["standard_error"]) if supported else None,
+            confidence_interval=(float(result["ci_lower"]), float(result["ci_upper"]))
+            if supported
+            else None,
+            confidence_level=confidence_level if supported else None,
+            inference_method=inference_method if supported else "none",
+            sample_size=len(outcome),
+            n_treated=int(np.count_nonzero(treatment > 0.5)),
+            n_control=int(np.count_nonzero(treatment <= 0.5)),
+            pre_periods=0,
+            post_periods=0,
+            method_params=contract.as_contract_payload(),
+            assumptions={
+                "exchangeability": "Consumer must establish exchangeability conditional on the supplied adjustment basis.",
+                "positivity": "Consumer must establish population positivity; diagnostics cover this sample only.",
+                "iid_sampling": "The regular_iid profile is consumer asserted, not sampling admission.",
+                "consistency": "Consumer must establish consistency and the treatment contrast.",
+            },
+            metadata={
+                "producer_fqn": AIPWEstimator.signature.fqn,
+                "inference_profile": inference_profile,
+                "inference_limitations": limitations,
+                "assumption_basis": "consumer_asserted",
+                "gate_eligible": False,
+                "interval_method": interval_method,
+            },
+        )
 
 
 @foundry_method(

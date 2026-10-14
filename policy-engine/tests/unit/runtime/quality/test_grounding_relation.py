@@ -12,7 +12,7 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import credal_reference as credal_owner
 from polisyos.runtime.quality import grounding_relation as grounding_owner
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
@@ -573,7 +573,7 @@ def _reference() -> CredalReference:
         }
     )
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-06-29",
@@ -1362,6 +1362,7 @@ def test_reference_coverage_caches_are_scoped_to_epoch_and_component_versions() 
         component_versions=component_versions,
         edge_index=reference.essential_edges,
         as_of=as_of,
+        schema_version=reference.schema_version,
     )
     reissued_reference = CredalReference(
         schema_version=reference.schema_version,

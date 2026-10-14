@@ -1,0 +1,35 @@
+id = "2026-10-14-e02-attractor-typed-get-ref-bridge"
+title = "Bind Foundry analysis reads to selected CAS profiles"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Foundry attractor-analysis, basin-map, and continuation-branch readers validate the selected manifest kind, media type, schema, payload schema version, and profile-bound bytes before serving typed results."
+evidence = [
+  "tests/unit/foundry/analysis/test_attractors.py",
+  "tests/unit/runtime/http/test_attractor_analysis_typed_get.py",
+  "tests/unit/runtime/http/test_analysis_api.py",
+  "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+]
+compatibility = "Existing semantic GET paths retain their response models and valid payloads. Ref DTO kind and media type values are now fixed to their current Foundry contract. Malformed-present canonical profiles retain the documented typed 409 response; ordinary malformed artifact identifiers remain 400."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API v1 and Foundry typed artifact references"
+migration = "No stored artifacts or hashes are rewritten. Readers accept only the current AttractorAnalysisResult@1.0, BasinMap@1.0, and ContinuationBranch@1.0 contracts. Historical profileless artifact eligibility remains not established."
+api = "The selected manifest profile is carried from the service intake into the canonical payload read. Kind, media type, and manifest schema are checked against current producer contracts; payload schema_version must agree with the manifest. The OpenAPI/public-surface snapshot and generated clients must be refreshed after source freeze."
+limitations = "This does not attest producer authority or external currentness. Runtime/API tests and generated public-surface/client checks are UNRUN in this virtual patch; root acceptance must replay them on the composed source."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-attractor-typed-get-ref-bridge"
+change_class = "schema-openapi-abi"
+impact = "narrowing"
+surface = "public_stable: Foundry analysis artifact ref kind/media fields and semantic GET refusal behavior"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Attractor analysis, basin map, and continuation branch GETs consume exact selected canonical profiles; wrong kind/media/schema and malformed-present profile inputs refuse, while valid current-schema producer artifacts remain readable."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

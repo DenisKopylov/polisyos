@@ -1381,6 +1381,13 @@ def _resolve_grounding_decision_promotability(
     *,
     store: _OwnedCalibrationStore,
 ) -> GroundingPromotabilityResolution:
+    from polisyos.runtime.quality.credal_reference import (
+        _credal_reference_schema_admission_error,
+    )
+
+    schema_admission_error = _credal_reference_schema_admission_error(
+        credal_reference.schema_version
+    )
     expected_hash = recompute_grounding_decision_content_hash(certificate)
     content_hash_valid = certificate.content_hash == expected_hash
     reference_epoch_match = (
@@ -1393,7 +1400,9 @@ def _resolve_grounding_decision_promotability(
     store_anchor_hash = store_record.content_hash if store_record is not None else None
 
     promotable = False
-    if certificate.synthetic or _synthetic_reference(credal_reference):
+    if schema_admission_error is not None:
+        reason = schema_admission_error
+    elif certificate.synthetic or _synthetic_reference(credal_reference):
         reason = "synthetic_input_cannot_grant_authority"
     elif not content_hash_valid:
         reason = "decision_certificate_content_hash_mismatch"

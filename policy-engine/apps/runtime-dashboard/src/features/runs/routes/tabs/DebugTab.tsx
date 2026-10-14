@@ -153,6 +153,19 @@ export default function DebugTab() {
   const nodeRecords = nodesQuery.data?.nodes ?? [];
   const timelineEvents = timelineQuery.data?.timeline.events ?? [];
   const runErrors = errorsQuery.data?.errors ?? [];
+  const fallbackNotes = [
+    ...(nodesQuery.data?.notes ?? []),
+    ...(errorsQuery.data?.notes ?? []),
+  ];
+  const usesTimelineFallback = fallbackNotes.includes(
+    "workflow_report_missing_or_unavailable",
+  );
+  const limitationsNotReported =
+    nodesQuery.data !== undefined &&
+    errorsQuery.data !== undefined &&
+    !usesTimelineFallback &&
+    (nodesQuery.data.notes === undefined ||
+      errorsQuery.data.notes === undefined);
   const [selectedAlias, setSelectedAlias] = useState<string | null>(null);
 
   useEffect(() => {
@@ -179,6 +192,16 @@ export default function DebugTab() {
 
   return (
     <div className="space-y-5" data-testid="run-tab-debug">
+      {usesTimelineFallback ? (
+        <p className="text-muted" role="status">
+          {t("pages.runs.workflowTimelineFallback")}
+        </p>
+      ) : limitationsNotReported ? (
+        <p className="text-muted" role="status">
+          {t("pages.runs.workflowLimitationStatusNotReported")}
+        </p>
+      ) : null}
+
       <div className="grid gap-3 md:grid-cols-4">
         <MetricCard
           label={t("pages.runs.timelineEvents")}

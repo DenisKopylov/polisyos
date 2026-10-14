@@ -440,6 +440,8 @@ def test_n9_writer_reissues_only_the_governed_credal_input_epoch(
     assert report["status"] == "pass", report
     assert report["issues"] == []
     assert _historical_credal_v1_contract_bytes() == historical
+    # This generated-contract path uses the synthetic, profileless v2 helper.
+    # Full K_ref v3 inputs are tested with content-bound catalog profiles.
     expected = {
         "contract_lane_anytime_refusal": "policyos.runtime.grounding_credal_reference.v2",
         "production_honest_shadow": None,

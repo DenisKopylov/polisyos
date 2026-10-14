@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from collections import UserDict
+from collections.abc import Iterator
 from dataclasses import replace
 from pathlib import Path
 from types import MappingProxyType
@@ -27,6 +28,7 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
 )
 from polisyos.runtime.quality.credal_reference import (
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     DEFAULT_L2_SCHOLAR_KG_PATH,
     AdmissibleCompletion,
     CompletionKind,
@@ -43,6 +45,7 @@ from polisyos.runtime.quality.credal_reference import (
     bind_grounding_certificate_reference,
     build_credal_reference,
     build_grounding_backend_availability,
+    credal_reference_data_forge_catalog_source_profile,
     credal_reference_l2_source_profile,
     derive_variable_alignment_edge,
     essential_edge_scope_definition,
@@ -50,6 +53,7 @@ from polisyos.runtime.quality.credal_reference import (
     reference_lift,
     replace_reference_edge,
 )
+from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 _MISSING_FIXTURE_MARKER = object()
@@ -117,9 +121,10 @@ def _profiled_l2_reference(
         component_versions=component_versions,
         edge_index=edges,
         as_of="2026-10-11",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     )
     return CredalReference(
-        schema_version="policyos.runtime.grounding_credal_reference.v2",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-10-11",
@@ -250,16 +255,61 @@ def test_skg_byte_or_selected_version_change_changes_semantic_kref_identity() ->
     assert baseline.component_versions != changed_version.component_versions
 
 
-def test_profileless_historical_l2_reference_stays_readable() -> None:
+def test_profileless_v3_credal_reference_is_refused() -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_catalog_source_profile_missing",
+    ):
+        CredalReference(
+            schema_version=owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+            reference_epoch="kref:unbound-profileless-v3",
+            reference_hash="sha256:" + "5" * 64,
+            as_of="2026-10-14",
+            component_versions={},
+            essential_edges={},
+        )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.grounding_credal_reference.v1",
+        CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    ],
+)
+def test_supported_historical_profileless_reference_schemas_stay_readable(
+    schema_version: str,
+) -> None:
     historical = CredalReference(
-        schema_version="policyos.runtime.grounding_credal_reference.v1",
+        schema_version=schema_version,
         reference_epoch="kref:historical-profileless",
         reference_hash="sha256:" + "4" * 64,
         as_of="2026-10-11",
         component_versions={},
         essential_edges={},
     )
+    assert historical.schema_version == schema_version
     assert credal_reference_l2_source_profile(historical) is None
+
+
+def test_unknown_profileless_reference_schema_is_rejected_at_construction() -> None:
+    from dataclasses import replace
+
+    historical = CredalReference(
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        reference_epoch="kref:historical-profileless",
+        reference_hash="sha256:" + "4" * 64,
+        as_of="2026-10-11",
+        component_versions={},
+        essential_edges={},
+    )
+    with pytest.raises(ValueError, match="credal_reference_schema_not_supported"):
+        replace(
+            historical,
+            schema_version="policyos.runtime.grounding_credal_reference.v999",
+        )
 
 
 def test_selected_l2_profile_rejects_unqualified_read_time() -> None:
@@ -336,6 +386,7 @@ def test_prepared_skg_rows_drive_kref_without_claiming_data_forge_source(
     assert data_forge_alignment.provenance["owner"] == "L2/DataForge"
     assert data_forge_alignment.provenance["source"] == "ds_variable_alignments"
     assert "selected_source_profile" not in data_forge_alignment.provenance
+    assert data_forge_alignment.provenance["selected_catalog_source_profile_hash"]
 
 
 def _phase5_l6_law_scope():
@@ -352,10 +403,13 @@ def _phase5_l6_law_scope():
     index = {edge.key: edge for edge in edges}
     versions = owner._component_versions(index, world_model_record=world)
     digest = owner._reference_hash(
-        component_versions=versions, edge_index=index, as_of=owner.DEFAULT_REFERENCE_AS_OF
+        component_versions=versions,
+        edge_index=index,
+        as_of=owner.DEFAULT_REFERENCE_AS_OF,
+        schema_version=owner.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     )
     scoped = CredalReference(
-        owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+        owner.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         "kref:" + digest.removeprefix("sha256:")[:16],
         digest,
         owner.DEFAULT_REFERENCE_AS_OF,
@@ -446,7 +500,7 @@ def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it() 
     assert _CredalReferenceReplayRecord.from_reference(historical).to_reference() == historical
     edge = next(iter(historical.essential_edges.values()))
     assert owner.replace_reference_edge(historical, edge) == historical
-    assert current.schema_version == "policyos.runtime.grounding_credal_reference.v2"
+    assert current.schema_version == "policyos.runtime.grounding_credal_reference.v3"
     certificate = owner.bind_grounding_certificate_reference(
         historical,
         certificate_id="historical_epoch_replay_control",
@@ -1004,7 +1058,6 @@ def test_credal_json_ready_fallback_preserves_sorted_stateful_default_order() ->
 def test_l6_observation_route_edges_use_one_validated_manifest_resolution(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from collections.abc import Iterator
     from contextlib import contextmanager
 
     from polisyos.foundry.extensions import registry as foundry_registry
@@ -1157,9 +1210,10 @@ def test_credal_reference_captures_deep_immutable_source_content() -> None:
         component_versions=source_versions,
         edge_index=source_edges,
         as_of="2026-10-13",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     )
     reference = CredalReference(
-        schema_version="policyos.runtime.grounding_credal_reference.v2",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch="kref:selected-epoch",
         reference_hash=reference_hash,
         as_of="2026-10-13",
@@ -1432,7 +1486,7 @@ def test_credal_reference_captures_json_scalar_subclasses_as_builtin_wire_values
         json.dumps(legacy_edge_payload, ensure_ascii=False, sort_keys=True, default=str)
     )
 
-    schema_version = MutableWireText("schema-wire", "mutable-schema")
+    schema_version = MutableWireText(CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION, "mutable-schema")
     reference_epoch = MutableWireText("epoch-wire", "mutable-epoch")
     reference_hash = MutableWireText("hash-wire", "mutable-reference-hash")
     as_of = MutableWireText("2026-10-13", "mutable-as-of")
@@ -1641,9 +1695,10 @@ def _r1219_controlled_reference(
         component_versions=component_versions,
         edge_index=edge_index,
         as_of=as_of,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     )
     return CredalReference(
-        schema_version="policyos.runtime.grounding_credal_reference.v2",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of=as_of,
@@ -2090,3 +2145,332 @@ def test_credal_production_default_vintage_refusal_constructs_no_source_profile(
     with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
         owner.build_credal_reference(REPO_ROOT)
     assert profile_validations == []
+
+
+def _write_n4_catalog(path: Path, rows: tuple[tuple[object, ...], ...]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with duckdb.connect(str(path)) as connection:
+        connection.execute("DROP TABLE IF EXISTS ds_variable_alignments")
+        connection.execute(
+            """
+            CREATE TABLE ds_variable_alignments (
+                dataset_id VARCHAR NOT NULL,
+                raw_variable VARCHAR NOT NULL,
+                canonical_var VARCHAR NOT NULL,
+                method VARCHAR NOT NULL,
+                confidence FLOAT NOT NULL,
+                evidence VARCHAR NOT NULL,
+                is_proxy BOOLEAN DEFAULT FALSE,
+                proxy_penalty FLOAT DEFAULT 0.0,
+                PRIMARY KEY (dataset_id, raw_variable, canonical_var)
+            )
+            """
+        )
+        for row in rows:
+            connection.execute(
+                "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                row,
+            )
+
+
+def _selected_n4_catalog_source(repo_root: Path, snapshot_root: Path) -> CatalogServingSourcePaths:
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        default_substrate_catalog_paths,
+    )
+
+    root = repo_root.resolve()
+    snapshot = snapshot_root.resolve()
+    database = snapshot / "datasets" / "graph" / "dataset_catalog.duckdb"
+    base_paths = default_substrate_catalog_paths(root)
+    return CatalogServingSourcePaths(
+        repo_root=root,
+        snapshot_root=snapshot,
+        database_path=database,
+        index_dir=database.parent,
+        overlay_path=root / "production_data" / "acquisition-overlay.json",
+        catalog_run_profile="prod_core_blocking",
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=replace(base_paths, l1_dcat_path=database),
+    )
+
+
+def _build_n4_reference_from_selected_catalog(
+    monkeypatch: pytest.MonkeyPatch,
+    repo_root: Path,
+    source: CatalogServingSourcePaths,
+) -> CredalReference:
+    import asyncio
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from polisyos.data_forge.domains.academic.knowledge import skg_query
+    from polisyos.data_forge.read_api.academic import PreparedSKGCredalSourceRows
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
+
+    selected_profile = _selected_l2_profile_fixture()
+    selected_rows = PreparedSKGCredalSourceRows(
+        source_snapshot_ref=selected_profile.source_snapshot_ref,
+        source_snapshot_sha256=selected_profile.source_snapshot_sha256,
+        version_id=7,
+        variables=(
+            skg_query._CredalVariableRow(
+                "policy.tax_rate",
+                "policy.tax_rate",
+                True,
+                "controlled-fixture",
+                0.95,
+                2,
+                None,
+                None,
+            ),
+        ),
+        variable_synonyms=(),
+        causal_edges=(),
+        family_edges=(),
+        moderation_edges=(),
+        contested_edges=(),
+        causal_claim_results=(),
+        synthetic_column_present=False,
+        synthetic_values=(),
+    )
+
+    class _PreparedReadFixture:
+        def read_credal_source_rows(self) -> PreparedSKGCredalSourceRows:
+            return selected_rows
+
+    @contextmanager
+    def _prepared_l2_source(_root: Path, _world: object) -> Iterator[object]:
+        yield owner._PreparedL2Source(
+            prepared_read=_PreparedReadFixture(),
+            profile=selected_profile,
+            version="7",
+        )
+
+    monkeypatch.setattr(owner, "_prepared_l2_source", _prepared_l2_source)
+    monkeypatch.setattr(owner, "_iter_l3_edges", lambda *_args, **_kwargs: ())
+    monkeypatch.setattr(owner, "_iter_l6_edges", lambda *_args, **_kwargs: ())
+    monkeypatch.setattr(owner, "_iter_wmr_edges", lambda *_args, **_kwargs: ())
+    world = SimpleNamespace(content_hash="sha256:" + "1" * 64)
+
+    async def _build():
+        await asyncio.sleep(0)
+        return owner.build_credal_reference(repo_root, world_model_record=world)
+
+    return asyncio.run(run_catalog_source_awaitable(source, _build()))
+
+
+def test_selected_catalog_context_binds_all_alignment_rows_into_kref(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+    root = tmp_path.resolve()
+    default_path = default_substrate_catalog_paths(root).l1_dcat_path
+    _write_n4_catalog(
+        default_path,
+        (("default", "tax", "policy.tax_rate", "default", 0.91, "default basis", False, 0.0),),
+    )
+    selected_a_path = (
+        root / "snapshots" / "catalog-a" / "datasets" / "graph" / "dataset_catalog.duckdb"
+    )
+    selected_a_rows = (
+        ("selected-a", "tax", "policy.tax_rate", "a", 0.92, "A canonical", False, 0.0),
+        ("selected-a", "raw unknown", "unmapped.canonical", "a", 0.89, "A other", False, 0.0),
+    )
+    _write_n4_catalog(selected_a_path, selected_a_rows)
+    source_a = _selected_n4_catalog_source(root, root / "snapshots" / "catalog-a")
+
+    reference_a = _build_n4_reference_from_selected_catalog(monkeypatch, root, source_a)
+    profile_a = credal_reference_data_forge_catalog_source_profile(reference_a)
+    assert profile_a is not None
+    assert profile_a.selection_owner == "catalog_serving_source_paths"
+    assert profile_a.selection_basis == "explicit_path_candidate_only"
+    assert profile_a.source_database_path == str(selected_a_path.resolve())
+    assert profile_a.alignment_row_count == 2
+    assert profile_a.alignment_rows_sha256
+    assert profile_a.authority_band == "candidate"
+    assert profile_a.source_snapshot_authenticity == "not_established"
+    assert profile_a.currentness_status == "not_established"
+    selected_a_edges = tuple(
+        edge
+        for edge in reference_a.essential_edges.values()
+        if edge.modality == "L2_DATA_FORGE_VARIABLE_ALIGNMENT"
+    )
+    assert len(selected_a_edges) == 2
+    assert any(edge.status == "incomplete" for edge in selected_a_edges)
+    assert {
+        edge.provenance["selected_catalog_source_profile_hash"] for edge in selected_a_edges
+    } == {profile_a.content_hash}
+
+    _write_n4_catalog(
+        default_path,
+        (
+            (
+                "default",
+                "changed",
+                "policy.tax_rate",
+                "default",
+                0.99,
+                "changed default",
+                False,
+                0.0,
+            ),
+        ),
+    )
+    reference_a_after_default_change = _build_n4_reference_from_selected_catalog(
+        monkeypatch,
+        root,
+        source_a,
+    )
+    assert reference_a_after_default_change.reference_hash == reference_a.reference_hash
+
+    selected_b_path = (
+        root / "snapshots" / "catalog-b" / "datasets" / "graph" / "dataset_catalog.duckdb"
+    )
+    selected_b_rows = (
+        ("selected-b", "income", "policy.tax_rate", "b", 0.96, "B basis", False, 0.0),
+    )
+    _write_n4_catalog(selected_b_path, selected_b_rows)
+    source_b = _selected_n4_catalog_source(root, root / "snapshots" / "catalog-b")
+    reference_b = _build_n4_reference_from_selected_catalog(monkeypatch, root, source_b)
+    profile_b = credal_reference_data_forge_catalog_source_profile(reference_b)
+
+    assert profile_b is not None
+    assert profile_b.source_database_path == str(selected_b_path.resolve())
+    assert profile_b.alignment_row_count == 1
+    assert reference_b.reference_hash != reference_a.reference_hash
+
+
+def test_selected_catalog_denominator_survives_absent_l2_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
+
+    root = tmp_path.resolve()
+    snapshot_root = root / "snapshots" / "catalog-without-l2"
+    catalog_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    rows = (
+        ("selected", "tax", "policy.tax_rate", "source", 0.92, "tax map", False, 0.0),
+        ("selected", "unknown", "unmapped.canonical", "source", 0.89, "other", False, 0.0),
+    )
+    _write_n4_catalog(catalog_path, rows)
+    source = _selected_n4_catalog_source(root, snapshot_root)
+
+    @contextmanager
+    def _absent_l2(_root: Path, _world: object) -> Iterator[None]:
+        yield None
+
+    monkeypatch.setattr(owner, "_prepared_l2_source", _absent_l2)
+    monkeypatch.setattr(owner, "_iter_l3_edges", lambda *_args, **_kwargs: ())
+    monkeypatch.setattr(owner, "_iter_l6_edges", lambda *_args, **_kwargs: ())
+    monkeypatch.setattr(owner, "_iter_wmr_edges", lambda *_args, **_kwargs: ())
+    world = SimpleNamespace(content_hash="sha256:" + "1" * 64)
+
+    async def _build():
+        await asyncio.sleep(0)
+        return owner.build_credal_reference(root, world_model_record=world)
+
+    reference = asyncio.run(run_catalog_source_awaitable(source, _build()))
+    profile = credal_reference_data_forge_catalog_source_profile(reference)
+    edges = tuple(
+        edge
+        for edge in reference.essential_edges.values()
+        if edge.modality == "L2_DATA_FORGE_VARIABLE_ALIGNMENT"
+    )
+
+    assert profile is not None
+    assert profile.alignment_row_count == len(rows) == len(edges)
+    assert "L2_SOURCE_PROFILE" not in reference.component_versions
+    assert reference.component_versions["DATA_FORGE_CATALOG_SOURCE_PROFILE"] == profile.content_hash
+    assert {edge.status for edge in edges} == {"incomplete"}
+    assert {edge.provenance["selected_catalog_source_profile_hash"] for edge in edges} == {
+        profile.content_hash
+    }
+
+
+def test_empty_selected_catalog_profile_survives_replay_and_present_source_never_falls_back(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+    root = tmp_path.resolve()
+    default_path = default_substrate_catalog_paths(root).l1_dcat_path
+    _write_n4_catalog(
+        default_path,
+        (("default", "tax", "policy.tax_rate", "default", 0.91, "default basis", False, 0.0),),
+    )
+    empty_path = root / "snapshots" / "empty" / "datasets" / "graph" / "dataset_catalog.duckdb"
+    _write_n4_catalog(empty_path, ())
+    source_empty = _selected_n4_catalog_source(root, root / "snapshots" / "empty")
+    empty_reference = _build_n4_reference_from_selected_catalog(
+        monkeypatch,
+        root,
+        source_empty,
+    )
+    empty_profile = credal_reference_data_forge_catalog_source_profile(empty_reference)
+    assert empty_profile is not None
+    assert empty_profile.alignment_row_count == 0
+    assert empty_profile.alignment_rows_sha256
+    assert empty_reference.component_versions["DATA_FORGE_CATALOG_SOURCE_PROFILE"] == (
+        empty_profile.content_hash
+    )
+    assert not any(
+        edge.modality == "L2_DATA_FORGE_VARIABLE_ALIGNMENT"
+        for edge in empty_reference.essential_edges.values()
+    )
+    replay = _CredalReferenceReplayRecord.from_reference(empty_reference)
+    assert replay.data_forge_catalog_source_profile == empty_profile
+    assert replay.to_reference() == empty_reference
+
+    missing_source = _selected_n4_catalog_source(
+        root,
+        root / "snapshots" / "missing",
+    )
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_data_forge_catalog_source_missing",
+    ):
+        _build_n4_reference_from_selected_catalog(monkeypatch, root, missing_source)
+
+    malformed_path = (
+        root / "snapshots" / "malformed" / "datasets" / "graph" / "dataset_catalog.duckdb"
+    )
+    malformed_path.parent.mkdir(parents=True, exist_ok=True)
+    with duckdb.connect(str(malformed_path)):
+        pass
+    (malformed_path.parent / "manifest.json").write_text("{", encoding="utf-8")
+    malformed_source = _selected_n4_catalog_source(root, root / "snapshots" / "malformed")
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_data_forge_manifest_invalid",
+    ):
+        _build_n4_reference_from_selected_catalog(monkeypatch, root, malformed_source)
+
+    missing_table_path = (
+        root / "snapshots" / "missing-table" / "datasets" / "graph" / "dataset_catalog.duckdb"
+    )
+    missing_table_path.parent.mkdir(parents=True, exist_ok=True)
+    with duckdb.connect(str(missing_table_path)) as connection:
+        connection.execute("CREATE TABLE unrelated (id INTEGER)")
+    missing_table_source = _selected_n4_catalog_source(
+        root,
+        root / "snapshots" / "missing-table",
+    )
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_data_forge_catalog_read_failed",
+    ):
+        _build_n4_reference_from_selected_catalog(monkeypatch, root, missing_table_source)

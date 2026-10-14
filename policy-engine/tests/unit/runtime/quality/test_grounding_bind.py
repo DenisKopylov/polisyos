@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
@@ -587,6 +587,46 @@ def test_forged_promotable_production_certificate_resolves_non_promotable() -> N
     assert resolution.reason == "synthetic_input_cannot_grant_authority"
 
 
+def test_cg2_refuses_unknown_schema_after_credal_constructor_bypass() -> None:
+    reference = _reference()
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="cg2-unknown-kref-schema",
+    )
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(cg1)
+
+    forged_reference = object.__new__(CredalReference)
+    for field_name in (
+        "reference_epoch",
+        "reference_hash",
+        "as_of",
+        "component_versions",
+        "essential_edges",
+        "data_forge_catalog_source_profile",
+    ):
+        object.__setattr__(forged_reference, field_name, getattr(reference, field_name))
+    object.__setattr__(
+        forged_reference,
+        "schema_version",
+        "policyos.runtime.grounding_credal_reference.v999",
+    )
+
+    resolution = resolve_grounding_decision_promotability_for_contract_testing(
+        decision,
+        forged_reference,
+    )
+
+    assert decision.reference_epoch == forged_reference.reference_epoch
+    assert decision.reference_hash == forged_reference.reference_hash
+    assert resolution.reference_epoch_match is True
+    assert resolution.promotable is False
+    assert resolution.reason == "credal_reference_schema_not_supported"
+
+
 def test_contract_testing_bind_resolves_non_promotable() -> None:
     reference = _reference()
     engine = GroundingRelationEngine(reference)
@@ -645,8 +685,9 @@ def _reference(*, include_duplicate_tax_alias: bool = False) -> CredalReference:
             "edges": [edge.to_payload() for edge in sorted(edges, key=lambda item: item.key)],
         }
     )
+    # This synthetic structural fixture has no catalog source, so it stays on v2.
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-06-29",

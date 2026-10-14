@@ -15,6 +15,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ClaimVocabularySourceRowBinding,
 )
 from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
+from polisyos.scientist.agent.knowledge_tools import LegalFactSearchResponse
 from polisyos.scientist.agent.tools.knowledge_tools_adapter import (
     build_knowledge_tool_registry,
 )
@@ -84,6 +85,10 @@ class MockKnowledgeToolkit:
             projection_rule_version=CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
         )
 
+    def search_legal_facts(self, query: str) -> list[dict[str, Any]]:
+        """Search legal facts using the legacy direct toolkit shape."""
+        return [{"fact_id": query}]
+
     def search_legal_provisions(self, query: str) -> list[dict[str, Any]]:
         """Search for legal provisions."""
         return []
@@ -133,6 +138,7 @@ class TestBuildKnowledgeToolRegistry:
         assert "get_parameter_prior" in names
         assert "audit_academic_claim_lineage" in names
         assert "search_legal_provisions" in names
+        assert "search_legal_facts" in names
 
     def test_private_methods_excluded(self):
         toolkit = MockKnowledgeToolkit()
@@ -196,6 +202,53 @@ class TestBuildKnowledgeToolRegistry:
             "vector_refusal_code": "query_encoder_generation_intent_mismatch",
         }
         assert toolkit.status_calls == 1
+
+    def test_legal_tool_uses_typed_status_envelope(self):
+        class StatusToolkit(MockKnowledgeToolkit):
+            status_calls = 0
+
+            def search_legal_facts_with_status(
+                self,
+                query: str,
+                *,
+                top_k: int = 20,
+                trust_tier: str | None = "grounded_fact",
+                jurisdiction: str | None = "UA",
+                domain: str | None = None,
+                as_of: str | None = None,
+                include_candidates: bool = False,
+            ) -> LegalFactSearchResponse:
+                del query, top_k, trust_tier, jurisdiction, domain, as_of, include_candidates
+                self.status_calls += 1
+                return LegalFactSearchResponse(
+                    search_mode="text",
+                    vector_refusal_code="query_encoder_assets_unavailable",
+                )
+
+        toolkit = StatusToolkit()
+        assert isinstance(toolkit.search_legal_facts("budget"), list)
+        registry = build_knowledge_tool_registry(toolkit)
+        result = registry.execute("search_legal_facts", {"query": "budget"})
+
+        assert result.error is None
+        assert result.result == {
+            "results": [],
+            "search_mode": "text",
+            "vector_refusal_code": "query_encoder_assets_unavailable",
+        }
+        assert toolkit.status_calls == 1
+
+    def test_legal_status_envelope_rejects_missing_text_refusal(self):
+        with pytest.raises(ValueError, match="text_legal_search_requires_vector_refusal"):
+            LegalFactSearchResponse(results=[], search_mode="text")
+
+    def test_legal_status_envelope_rejects_mixed_unavailable_refusals(self):
+        with pytest.raises(ValueError, match="unavailable_legal_search_requires_limitation"):
+            LegalFactSearchResponse(
+                results=[],
+                limitation_code="legal_source_unavailable",
+                vector_refusal_code="query_encoder_assets_unavailable",
+            )
 
     def test_domain_inference(self):
         toolkit = MockKnowledgeToolkit()

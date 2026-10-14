@@ -10,9 +10,11 @@ academic, catalog, legal, and Ukraine data build pipelines.
 
 ## Public API
 
-The stable runtime import surface is `polisyos.data_forge.read_api`. Domain
-packages are build-time implementation unless registered through
-`polisyos.data_forge_domains`.
+The runtime import surface is `polisyos.data_forge.read_api`. Domain packages
+remain implementation owners; runtime consumers use the Legal material owner
+only through `read_api.legal`, where it resolves the source-pinned local model
+and exposes an owner-issued checked handle. That controlled profile does not
+establish production source selection or authority.
 
 Ukraine's historical build-time domain exports remain available through
 `polisyos.data_forge.domains.ukraine`; the compatibility package resolves

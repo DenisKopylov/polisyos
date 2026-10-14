@@ -9,14 +9,16 @@ data preparation and governed artifact publication.
 
 - `polisyos.data_forge`
 - `polisyos.data_forge.read_api`
+- `polisyos.data_forge.read_api.legal`
 
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
 quality checks, provenance manifests, and golden/differential migration tests.
-Runtime consumers use `polisyos.data_forge.read_api` only. `read_api` keeps its
-domain surfaces lazy, so importing `polisyos.data_forge.read_api` does not load
-`domains/` or `kernel/` internals. Domain internals under `domains/` remain
-non-public.
+Runtime consumers use `polisyos.data_forge.read_api` facades only. The Legal
+facade exposes a bounded local runtime-material owner; its exact model revision,
+runtime bytes, source closure, and effective encode settings are recomputed by
+the owner and do not select production sources or confer authority. Domain
+implementation under `domains/` remains non-public.
 
 ## Role
 

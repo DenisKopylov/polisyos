@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -40,12 +40,48 @@ class PolicyRequestFrame(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class LegalRetrievalStatus(BaseModel):
+    """One route's observed legal retrieval outcome for one query."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str = Field(min_length=1)
+    route: Literal["hybrid_facts", "constraints", "provisions"]
+    search_mode: Literal["text", "vector", "structured"] | None = None
+    vector_refusal_code: str | None = None
+    limitation_code: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_retrieval_outcome(self) -> LegalRetrievalStatus:
+        """Keep vector admission, fallback, and unavailable outcomes distinct."""
+        if self.search_mode in {"vector", "structured"} and (
+            self.vector_refusal_code is not None or self.limitation_code is not None
+        ):
+            raise ValueError("vector_legal_search_cannot_carry_refusal")
+        if self.search_mode == "text" and (
+            not self.vector_refusal_code or self.limitation_code is not None
+        ):
+            raise ValueError("text_legal_search_requires_vector_refusal")
+        if self.search_mode is None and (
+            not self.limitation_code or self.vector_refusal_code is not None
+        ):
+            raise ValueError("unavailable_legal_search_requires_limitation")
+        allowed_modes = {
+            "hybrid_facts": {"text", "vector", None},
+            "constraints": {"structured", None},
+            "provisions": {"vector", None},
+        }
+        if self.search_mode not in allowed_modes[self.route]:
+            raise ValueError("legal_retrieval_mode_invalid_for_route")
+        return self
+
+
 class LegalCandidatePack(BaseModel):
     """Legal candidate pack public type."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     request_id: str
     queries: list[str] = Field(default_factory=list)
     fact_hits: list[LegalFactResult] = Field(default_factory=list)
@@ -54,6 +90,7 @@ class LegalCandidatePack(BaseModel):
     source_family_hints: dict[str, str] = Field(default_factory=dict)
     anchor_coverage_hints: dict[str, list[str]] = Field(default_factory=dict)
     source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
+    legal_retrieval_status: list[LegalRetrievalStatus] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -234,6 +271,7 @@ def load_policy_request_frame(
 ) -> PolicyRequestFrame:
     """Load policy request frame."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return PolicyRequestFrame.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -260,6 +298,7 @@ def load_legal_candidate_pack(
 ) -> LegalCandidatePack:
     """Load legal candidate pack."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return LegalCandidatePack.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -284,6 +323,7 @@ def persist_legal_source_pack(
 def load_legal_source_pack(store: FileSystemCAS, ref: LegalSourcePackRef) -> LegalSourcePack:
     """Load legal source pack."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return LegalSourcePack.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -311,6 +351,7 @@ def load_source_verification_report(
 ) -> SourceVerificationReport:
     """Load source verification report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return SourceVerificationReport.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -335,6 +376,7 @@ def persist_policy_option_set(
 def load_policy_option_set(store: FileSystemCAS, ref: PolicyOptionSetRef) -> PolicyOptionSet:
     """Load policy option set."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return PolicyOptionSet.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -362,6 +404,7 @@ def load_verified_policy_report(
 ) -> VerifiedPolicyReport:
     """Load verified policy report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return VerifiedPolicyReport.model_validate(load_core_json_artifact(store, ref))
 
 

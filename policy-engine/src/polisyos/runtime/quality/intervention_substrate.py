@@ -366,17 +366,17 @@ class LawLeverResolution(_StrictModel):
     )
     mapping_evidence_ref: artifacts.ArtifactRef | None = None
     current_authority_status: Literal["blocked"] = "blocked"
-    mapping_reason_code: str = (
-        "law_mapping_correspondence_not_established"
-    )
+    mapping_reason_code: str = "law_mapping_correspondence_not_established"
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         """Keep pre-v3 bodies unchanged when nested in historical receipts."""
         payload = handler(self)
-        if self.schema_version in {INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
-                                   "policyos.runtime.intervention_substrate_lift.v1"}:
+        if self.schema_version in {
+            INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+            "policyos.runtime.intervention_substrate_lift.v1",
+        }:
             for key in ("knob_id", "numeric_evaluation_status", "recognition", "synthetic"):
                 payload.pop(key, None)
         return payload
@@ -389,43 +389,60 @@ class LawLeverResolution(_StrictModel):
                 raise ValueError("law_mapping_correspondence_not_established")
             if not self.knob_id or self.recognition is None:
                 raise ValueError("law_mapping_recognition_missing")
-            if (self.recognition.request.lever_ref != "knob:" + self.knob_id
-                    or self.recognition.request.norm_ref != (
-                        "lex_rule_thresholds:" + self.threshold_id)
-                    or (self.knob is not None and self.knob.operator_kind != self.knob_id)):
+            if (
+                self.recognition.request.lever_ref != "knob:" + self.knob_id
+                or self.recognition.request.norm_ref != ("lex_rule_thresholds:" + self.threshold_id)
+                or (self.knob is not None and self.knob.operator_kind != self.knob_id)
+            ):
                 raise ValueError("law_mapping_recognition_entity_mismatch")
-            if (self.synthetic != self.recognition.synthetic
-                    or self.mapping_reason_code != self.recognition.reason_code
-                    or self.mapping_predicate_provenance != (
-                        self.recognition.comparison_predicate_provenance)):
+            if (
+                self.synthetic != self.recognition.synthetic
+                or self.mapping_reason_code != self.recognition.reason_code
+                or self.mapping_predicate_provenance
+                != (self.recognition.comparison_predicate_provenance)
+            ):
                 raise ValueError("law_mapping_recognition_projection_mismatch")
             if self.recognition.status != "passed" and (
-                self.numeric_evaluation_status != "not_run" or self.knob is not None
+                self.numeric_evaluation_status != "not_run"
+                or self.knob is not None
                 or self.legal_threshold_evaluation is not None
                 or self.temporal_competence is not None
             ):
                 raise ValueError("law_mapping_subject_must_precede_numeric_evaluation")
             if self.numeric_evaluation_status == "evaluated" and (
-                self.knob is None or self.legal_threshold_evaluation is None
+                self.knob is None
+                or self.legal_threshold_evaluation is None
                 or self.temporal_competence is None
             ):
                 raise ValueError("law_mapping_numeric_evaluation_missing")
-            if (self.recognition.status == "passed"
-                    and self.numeric_evaluation_status != "evaluated"):
+            if (
+                self.recognition.status == "passed"
+                and self.numeric_evaluation_status != "evaluated"
+            ):
                 raise ValueError("law_mapping_numeric_evaluation_missing")
             if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
                 raise ValueError("law_mapping_resolution_content_hash_mismatch")
-        elif self.schema_version in {INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
-                                     "policyos.runtime.intervention_substrate_lift.v1"}:
-            if (self.knob_id is not None or self.recognition is not None
-                    or self.synthetic is not None or self.numeric_evaluation_status != "not_run"):
+        elif self.schema_version in {
+            INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+            "policyos.runtime.intervention_substrate_lift.v1",
+        }:
+            if (
+                self.knob_id is not None
+                or self.recognition is not None
+                or self.synthetic is not None
+                or self.numeric_evaluation_status != "not_run"
+            ):
                 raise ValueError("law_mapping_historical_epoch_cannot_carry_current_recognition")
             historical = self.model_dump(mode="json")
             for key in (*new_fields, "content_hash"):
                 historical.pop(key, None)
             if self.schema_version == "policyos.runtime.intervention_substrate_lift.v1":
-                for key in ("mapping_evidence_ref", "mapping_predicate_provenance",
-                            "current_authority_status", "mapping_reason_code"):
+                for key in (
+                    "mapping_evidence_ref",
+                    "mapping_predicate_provenance",
+                    "current_authority_status",
+                    "mapping_reason_code",
+                ):
                     historical.pop(key)
             elif self.status != "blocked":
                 raise ValueError("law_mapping_correspondence_not_established")
@@ -560,9 +577,7 @@ def _link_candidate_scenario_intervention(
     selected_policy_spec = trinity_bundle.policy_spec.model_copy(
         update={"interventions": [source_matches[0]]}
     )
-    selected_bundle = trinity_bundle.model_copy(
-        update={"policy_spec": selected_policy_spec}
-    )
+    selected_bundle = trinity_bundle.model_copy(update={"policy_spec": selected_policy_spec})
     linked_bundle, link_report = link_trinity(
         selected_bundle,
         intervention_generation_registry_bundle(
@@ -573,17 +588,10 @@ def _link_candidate_scenario_intervention(
         strict=True,
     )
     if not link_report.ok:
-        raise InterventionSubstrateError(
-            "candidate_scenario_selected_intervention_not_linked"
-        )
+        raise InterventionSubstrateError("candidate_scenario_selected_intervention_not_linked")
     linked_rows = tuple(linked_bundle.bindings.interventions)
-    if (
-        len(linked_rows) != 1
-        or linked_rows[0].intervention_id != intervention_id
-    ):
-        raise InterventionSubstrateError(
-            "candidate_scenario_selected_intervention_link_ambiguous"
-        )
+    if len(linked_rows) != 1 or linked_rows[0].intervention_id != intervention_id:
+        raise InterventionSubstrateError("candidate_scenario_selected_intervention_link_ambiguous")
     return (
         linked_rows[0],
         gy_content_hash(selected_policy_spec.model_dump(mode="json")),
@@ -819,10 +827,7 @@ def materialize_candidate_scenario_proposal_action(
 
     verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     verified_context = revalidate_cycle_substrate_context(context)
-    if (
-        profile != source_v1.profile
-        or profile.content_hash != source_v1.profile.content_hash
-    ):
+    if profile != source_v1.profile or profile.content_hash != source_v1.profile.content_hash:
         raise InterventionSubstrateError("candidate_scenario_source_profile_mismatch")
     if source_v1.context_job_ref != context_job_ref:
         raise InterventionSubstrateError("candidate_scenario_context_job_view_mismatch")
@@ -830,18 +835,16 @@ def materialize_candidate_scenario_proposal_action(
         gy_content_hash(problem.model_dump(mode="json"))
     ):
         raise InterventionSubstrateError("candidate_scenario_source_problem_mismatch")
-    if (
-        source_v1.profile_config_ref != candidate_simulation_profile_ref(profile)
-        or profile.profile_selection_ref != cycle_job_profile_selection_ref(problem)
-    ):
+    if source_v1.profile_config_ref != candidate_simulation_profile_ref(
+        profile
+    ) or profile.profile_selection_ref != cycle_job_profile_selection_ref(problem):
         raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
     problem_ref = cycle_job_design_problem_ref(problem)
     if (
         verified_context.design_problem_ref != problem_ref
         or source_v1.cycle_problem_ref != problem_ref
         or source_v1.context_hash != verified_context.content_hash
-        or source_v1.world_model_record_hash
-        != verified_context.world_model_record.content_hash
+        or source_v1.world_model_record_hash != verified_context.world_model_record.content_hash
     ):
         raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
     if (
@@ -878,10 +881,9 @@ def materialize_candidate_scenario_proposal_action(
         parameters=intervention.params,
         linked_write_slots=linked_intervention.writes_slots,
     )
-    if (
-        candidate.atom.target_world_slots != (rule.target_world_slot,)
-        or candidate.atom.causal_do_expr.write_variables != (rule.target_world_slot,)
-    ):
+    if candidate.atom.target_world_slots != (
+        rule.target_world_slot,
+    ) or candidate.atom.causal_do_expr.write_variables != (rule.target_world_slot,):
         raise InterventionSubstrateError("candidate_scenario_atom_write_set_mismatch")
     world = verified_context.world_model_record
     if type(world) is not WorldModelRecord:
@@ -915,16 +917,13 @@ def materialize_candidate_scenario_proposal_action(
             or declaration.target_world_slot != rule.target_world_slot
             or declaration.target_unit_id != rule.unit_id
             or declaration.outcome_variable != problem.outcome_of_interest.target_variable
-            or world_slot_units.get(declaration.target_world_slot)
-            != declaration.target_unit_id
-            or world_slot_units.get(declaration.outcome_variable)
-            != declaration.outcome_unit_id
+            or world_slot_units.get(declaration.target_world_slot) != declaration.target_unit_id
+            or world_slot_units.get(declaration.outcome_variable) != declaration.outcome_unit_id
             or profile.n5.baseline_state.get(declaration.target_world_slot)
             != declaration.target_baseline
             or profile.n5.baseline_state.get(declaration.outcome_variable)
             != declaration.outcome_baseline
-            or str(source_record.ncm_ref.artifact_id)
-            not in world.simulation_model_ref.ncm_refs
+            or str(source_record.ncm_ref.artifact_id) not in world.simulation_model_ref.ncm_refs
         ):
             raise InterventionSubstrateError("candidate_scenario_model_binding_mismatch")
         payload_v4 = {
@@ -1015,14 +1014,10 @@ def replace_intervention_substrate_bundle(
     """Return a validated bundle after content-addressing top-level updates."""
 
     if "content_hash" in update:
-        raise InterventionSubstrateError(
-            "intervention_substrate_content_hash_update_forbidden"
-        )
+        raise InterventionSubstrateError("intervention_substrate_content_hash_update_forbidden")
     verified = verify_intervention_substrate_bundle_content_hash(bundle)
     payload = gy_artifact_self_identity_projection(verified)
-    payload.update(
-        dict(update)
-    )
+    payload.update(dict(update))
     payload["content_hash"] = intervention_substrate_bundle_content_hash(payload)
     return InterventionSubstrateBundle.model_validate(payload)
 
@@ -1084,12 +1079,10 @@ def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBund
         "policy_scenario_templates": payloads.get("policy_scenario_templates", {}),
         "slot_family_manifest": payloads.get("slot_family_manifest", {}),
         "world_mechanism_manifest": (
-            payloads.get("owner_authority_bindings", {}).get("world_mechanism_manifest")
-            or {}
+            payloads.get("owner_authority_bindings", {}).get("world_mechanism_manifest") or {}
         ),
         "lex_authority_manifest": (
-            payloads.get("owner_authority_bindings", {}).get("lex_authority_manifest")
-            or {}
+            payloads.get("owner_authority_bindings", {}).get("lex_authority_manifest") or {}
         ),
         "owner_authority_manifest": payloads.get("owner_authority_bindings", {}),
         "source_refs": source_refs,
@@ -1123,24 +1116,17 @@ def resolve_intervention_lever(
         context = revalidate_cycle_substrate_context(cycle_substrate_context)
         if (
             world_model_record is not None
-            and world_model_record.content_hash
-            != context.world_model_record_content_hash
+            and world_model_record.content_hash != context.world_model_record_content_hash
         ):
-            raise InterventionSubstrateError(
-                "cycle_substrate_world_model_record_mismatch"
-            )
+            raise InterventionSubstrateError("cycle_substrate_world_model_record_mismatch")
         if (
             context.intervention_substrate is not None
             and context.intervention_substrate.content_hash != bundle.content_hash
         ):
-            raise InterventionSubstrateError(
-                "cycle_substrate_l6_bundle_content_mismatch"
-            )
+            raise InterventionSubstrateError("cycle_substrate_l6_bundle_content_mismatch")
         if context.candidate_levers:
             if context.intervention_substrate is None:
-                raise InterventionSubstrateError(
-                    "cycle_substrate_l6_bundle_missing"
-                )
+                raise InterventionSubstrateError("cycle_substrate_l6_bundle_missing")
             matches = tuple(
                 candidate
                 for candidate in context.candidate_levers
@@ -1174,19 +1160,11 @@ def resolve_intervention_lever(
                 "lever_id": candidate.lever_id,
                 "reason_code": "knob_operator_unresolved",
                 "candidate_entry_content_hash": candidate.entry_content_hash,
-                "selected_registry_entry_hash": (
-                    candidate.selected_registry_entry_hash
-                ),
-                "substrate_input_content_hash": (
-                    candidate.substrate_input_content_hash
-                ),
+                "selected_registry_entry_hash": (candidate.selected_registry_entry_hash),
+                "substrate_input_content_hash": (candidate.substrate_input_content_hash),
                 "context_binding_hash": context.context_binding_hash,
-                "substrate_registry_content_hash": (
-                    context.substrate_registry_content_hash
-                ),
-                "world_model_record_content_hash": (
-                    context.world_model_record_content_hash
-                ),
+                "substrate_registry_content_hash": (context.substrate_registry_content_hash),
+                "world_model_record_content_hash": (context.world_model_record_content_hash),
                 "source_refs": candidate.source_refs,
             }
             return InterventionLeverRefusal(
@@ -1223,8 +1201,7 @@ def resolve_intervention_lever(
             "world_model_record_id": world_binding.world_model_record_id,
             "world_model_record_content_hash": world_binding.world_model_record_content_hash,
             "target_slot_bindings": [
-                binding.model_dump(mode="json")
-                for binding in world_binding.target_slot_bindings
+                binding.model_dump(mode="json") for binding in world_binding.target_slot_bindings
             ],
         },
         "source_ref": bundle.source_refs.get(
@@ -1294,33 +1271,47 @@ def resolve_law_bound_lever(
             ),
         )
     request = LegalCorrespondenceRequest(
-        lever_ref="knob:" + knob, lever_content_hash=gy_content_hash(bundle.knob_dictionary[knob]),
+        lever_ref="knob:" + knob,
+        lever_content_hash=gy_content_hash(bundle.knob_dictionary[knob]),
         norm_ref="lex_rule_thresholds:" + threshold.threshold_id,
         norm_content_hash=gy_content_hash(threshold.model_dump(mode="json")),
         as_of=authority.as_of,
-        proposal_producer_ref=str(bundle.owner_authority_manifest.get("producer_ref") or
-                                  "runtime.quality.intervention_substrate.unallocated"),
+        proposal_producer_ref=str(
+            bundle.owner_authority_manifest.get("producer_ref")
+            or "runtime.quality.intervention_substrate.unallocated"
+        ),
         proposal_content_hash=bundle.content_hash,
     )
     recognition = recognize_legal_correspondence(store, source_ref, request)
-    evidence_ref = (None if store is None
-                    else persist_legal_correspondence_result(store, recognition))
+    evidence_ref = (
+        None if store is None else persist_legal_correspondence_result(store, recognition)
+    )
     fields = {
         "schema_version": LAW_LEVER_RESOLUTION_SCHEMA_VERSION,
-        "law_token": token, "status": "blocked", "knob": None, "knob_id": knob,
-        "threshold_id": threshold.threshold_id, "provision_ref": threshold.provision_ref,
-        "legal_threshold_evaluation": None, "temporal_competence": None,
-        "numeric_evaluation_status": "not_run", "recognition": recognition.model_dump(mode="json"),
+        "law_token": token,
+        "status": "blocked",
+        "knob": None,
+        "knob_id": knob,
+        "threshold_id": threshold.threshold_id,
+        "provision_ref": threshold.provision_ref,
+        "legal_threshold_evaluation": None,
+        "temporal_competence": None,
+        "numeric_evaluation_status": "not_run",
+        "recognition": recognition.model_dump(mode="json"),
         "synthetic": recognition.synthetic,
         "mapping_predicate_provenance": recognition.comparison_predicate_provenance,
-        "mapping_evidence_ref": (None if evidence_ref is None
-                                 else evidence_ref.model_dump(mode="json")),
-        "current_authority_status": "blocked", "mapping_reason_code": recognition.reason_code,
+        "mapping_evidence_ref": (
+            None if evidence_ref is None else evidence_ref.model_dump(mode="json")
+        ),
+        "current_authority_status": "blocked",
+        "mapping_reason_code": recognition.reason_code,
     }
     if recognition.status != "passed":
         return LawLeverResolution(**fields, content_hash=gy_content_hash(fields))
     lever = resolve_intervention_lever(
-        bundle, operator_kind=knob, parameter_value=parameter_value,
+        bundle,
+        operator_kind=knob,
+        parameter_value=parameter_value,
         world_model_record=world_model_record,
     )
     candidate_unit = authority.candidate_unit or lever.domain.unit
@@ -1343,12 +1334,14 @@ def resolve_law_bound_lever(
         threshold_id=threshold.threshold_id,
         as_of=authority.as_of,
     )
-    fields.update({
-        "knob": lever.model_dump(mode="json"),
-        "legal_threshold_evaluation": evaluation.model_dump(mode="json"),
-        "temporal_competence": temporal.model_dump(mode="json"),
-        "numeric_evaluation_status": "evaluated",
-    })
+    fields.update(
+        {
+            "knob": lever.model_dump(mode="json"),
+            "legal_threshold_evaluation": evaluation.model_dump(mode="json"),
+            "temporal_competence": temporal.model_dump(mode="json"),
+            "numeric_evaluation_status": "evaluated",
+        }
+    )
     return LawLeverResolution(**fields, content_hash=gy_content_hash(fields))
 
 
@@ -1367,9 +1360,7 @@ def route_observation_family_method(
     _assert_compiled_contract(bundle.observation_manifest, contract_id)
     resolved_registry = registry
     if resolved_registry is None:
-        registry_module = importlib.import_module(
-            "polisyos.foundry.extensions.registry"
-        )
+        registry_module = importlib.import_module("polisyos.foundry.extensions.registry")
 
         with registry_module.controlled_builtin_foundry_method_registry_scope() as (
             controlled_registry,
@@ -1494,8 +1485,11 @@ def project_value_method_route_constraint(
 
 
 def produce_intervention_legal_subject_spine(
-    repo_root: Path, bundle: InterventionSubstrateBundle, *,
-    legal_store: _LegalKnowledgeStoreProtocol, store: artifacts.ArtifactStore,
+    repo_root: Path,
+    bundle: InterventionSubstrateBundle,
+    *,
+    legal_store: _LegalKnowledgeStoreProtocol,
+    store: artifacts.ArtifactStore,
     annotations: Mapping[str, LegalSubjectAnnotationSource] | None = None,
 ) -> artifacts.ArtifactRef:
     """Bind separately declared annotations through actual L6/L3 entity owners.
@@ -1508,31 +1502,42 @@ def produce_intervention_legal_subject_spine(
         raise InterventionSubstrateError("legal_subject_annotation_roles_incomplete")
     refs: dict[str, artifacts.ArtifactRef] = {}
     for role in ("lever", "norm"):
-        raw_declaration = (annotations[role].model_dump(mode="json") if annotations is not None
-                           else _read_json_object(repo_root / "architecture/policy_design_case"
-                                 / f"legal_subject_{role}_annotations.synthetic.json"))
+        raw_declaration = (
+            annotations[role].model_dump(mode="json")
+            if annotations is not None
+            else _read_json_object(
+                repo_root
+                / "architecture/policy_design_case"
+                / f"legal_subject_{role}_annotations.synthetic.json"
+            )
+        )
         declaration = LegalSubjectAnnotationSource.model_validate(raw_declaration)
         if declaration.source_role != role:
             raise InterventionSubstrateError("legal_subject_annotation_role_mismatch", role)
         hashes: dict[str, str] = {}
         if role == "lever":
-            hashes = {"knob:" + key: gy_content_hash(value)
-                      for key, value in bundle.knob_dictionary.items()}
+            hashes = {
+                "knob:" + key: gy_content_hash(value)
+                for key, value in bundle.knob_dictionary.items()
+            }
         else:
             for row in declaration.annotations:
                 kind, separator, identifier = row.entity_ref.partition(":")
                 if kind != "lex_rule_thresholds" or not separator or not identifier:
                     raise InterventionSubstrateError(
-                        "legal_subject_norm_reference_invalid", row.entity_ref)
+                        "legal_subject_norm_reference_invalid", row.entity_ref
+                    )
                 threshold = legal_store.resolve_rule_threshold(threshold_id=identifier)
                 if threshold is None:
                     raise InterventionSubstrateError(
-                        "legal_subject_norm_unresolved", row.entity_ref)
+                        "legal_subject_norm_unresolved", row.entity_ref
+                    )
                 hashes[row.entity_ref] = gy_content_hash(threshold.model_dump(mode="json"))
         declared_ref = persist_legal_subject_annotations(store, declaration)
         refs[role] = bind_legal_subject_annotations(store, declared_ref, hashes)
-    return produce_legal_subject_spine(store, lever_source_ref=refs["lever"],
-                                      norm_source_ref=refs["norm"])
+    return produce_legal_subject_spine(
+        store, lever_source_ref=refs["lever"], norm_source_ref=refs["norm"]
+    )
 
 
 def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
@@ -1659,55 +1664,84 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     law_coverage = coverage["law_trace"]
     record(
         case_id="all_real_laws_trace_l3_thresholds",
-        passed=(law_coverage["total"] > 0 and law_coverage["traced"] == law_coverage["total"]
-                and not law_coverage["identity_symmetric_difference"]),
+        passed=(
+            law_coverage["total"] > 0
+            and law_coverage["traced"] == law_coverage["total"]
+            and not law_coverage["identity_symmetric_difference"]
+        ),
         expected="all_real_law_routes_trace_real_l3_provisions_and_knobs",
         actual=f"{law_coverage['traced']}/{law_coverage['total']}",
         detail=law_coverage,
     )
 
     subject_ref = produce_intervention_legal_subject_spine(
-        repo_root, bundle, legal_store=lex_store,
+        repo_root,
+        bundle,
+        legal_store=lex_store,
         store=build_artifact_store(
             ArtifactStoreConfig(
                 backend="filesystem",
                 root=str(repo_root / ".polisyos/cas"),
             ),
-        ))
-    subject_bundle = replace_intervention_substrate_bundle(bundle, update={
-        "owner_authority_manifest": {**bundle.owner_authority_manifest,
-                                     "legal_subject_spine_ref": subject_ref.model_dump(
-                                         mode="json")}})
+        ),
+    )
+    subject_bundle = replace_intervention_substrate_bundle(
+        bundle,
+        update={
+            "owner_authority_manifest": {
+                **bundle.owner_authority_manifest,
+                "legal_subject_spine_ref": subject_ref.model_dump(mode="json"),
+            }
+        },
+    )
     subject_outcomes = []
     subject_pairs = set()
     for law_token in sorted(bundle.lex_intervention_map):
         for knob_id in _lex_map_knobs(bundle.lex_intervention_map, law_token):
             subject_pairs.add((law_token, knob_id))
             outcome = resolve_law_bound_lever(
-                subject_bundle, law_token=law_token, knob_id=knob_id,
-                parameter_value=_representative_knob_value(bundle.knob_dictionary[knob_id],
-                                                           knob_id=knob_id),
-                legal_store=lex_store, world_model_record=world_record)
-            subject_outcomes.append({"law_token": law_token, "knob_id": knob_id,
-                                     "recognition": outcome.recognition.status,
-                                     "synthetic": outcome.synthetic,
-                                     "current_authority_status": outcome.current_authority_status,
-                                     "numeric_evaluation_status": outcome.numeric_evaluation_status,
-                                     "result_ref": outcome.mapping_evidence_ref.model_dump(
-                                         mode="json")})
+                subject_bundle,
+                law_token=law_token,
+                knob_id=knob_id,
+                parameter_value=_representative_knob_value(
+                    bundle.knob_dictionary[knob_id], knob_id=knob_id
+                ),
+                legal_store=lex_store,
+                world_model_record=world_record,
+            )
+            subject_outcomes.append(
+                {
+                    "law_token": law_token,
+                    "knob_id": knob_id,
+                    "recognition": outcome.recognition.status,
+                    "synthetic": outcome.synthetic,
+                    "current_authority_status": outcome.current_authority_status,
+                    "numeric_evaluation_status": outcome.numeric_evaluation_status,
+                    "result_ref": outcome.mapping_evidence_ref.model_dump(mode="json"),
+                }
+            )
     subject_identity_hash = gy_content_hash(sorted(subject_pairs, key=str))
-    record(case_id="every_real_pair_recognized_relative_to_synthetic_sources",
-           passed=(subject_identity_hash == law_coverage["independent_identity_hash"]
-                   and len(subject_outcomes) == law_coverage["total"]
-                   and all(row["recognition"] == "passed" and row["synthetic"] is True
-                           and row["current_authority_status"] == "blocked"
-                           for row in subject_outcomes)),
-           expected="complete_real_pair_set_recognized_synthetically_without_authority",
-           actual=f"{len(subject_outcomes)}/{law_coverage['total']}",
-           detail={"source_ref": subject_ref.model_dump(mode="json"),
-                   "identity_hash": subject_identity_hash,
-                   "independent_identity_hash": law_coverage["independent_identity_hash"],
-                   "outcomes": subject_outcomes})
+    record(
+        case_id="every_real_pair_recognized_relative_to_synthetic_sources",
+        passed=(
+            subject_identity_hash == law_coverage["independent_identity_hash"]
+            and len(subject_outcomes) == law_coverage["total"]
+            and all(
+                row["recognition"] == "passed"
+                and row["synthetic"] is True
+                and row["current_authority_status"] == "blocked"
+                for row in subject_outcomes
+            )
+        ),
+        expected="complete_real_pair_set_recognized_synthetically_without_authority",
+        actual=f"{len(subject_outcomes)}/{law_coverage['total']}",
+        detail={
+            "source_ref": subject_ref.model_dump(mode="json"),
+            "identity_hash": subject_identity_hash,
+            "independent_identity_hash": law_coverage["independent_identity_hash"],
+            "outcomes": subject_outcomes,
+        },
+    )
     admitted = resolve_law_bound_lever(
         subject_bundle,
         law_token=_BUDGET_LAW,
@@ -1744,53 +1778,83 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         },
     )
     transposed_manifest = copy.deepcopy(subject_bundle.lex_authority_manifest)
-    law_entries = {row["law_token"]: row
-                   for row in transposed_manifest["intervention_map_entries"]}
+    law_entries = {row["law_token"]: row for row in transposed_manifest["intervention_map_entries"]}
     budget_entry, tax_entry = law_entries[_BUDGET_LAW], law_entries["tax_relief_statute"]
     budget_entry["provision_ref"], tax_entry["provision_ref"] = (
-        tax_entry["provision_ref"], budget_entry["provision_ref"])
+        tax_entry["provision_ref"],
+        budget_entry["provision_ref"],
+    )
     transposed = resolve_law_bound_lever(
         replace_intervention_substrate_bundle(
-            subject_bundle, update={"lex_authority_manifest": transposed_manifest},
-        ), law_token=tax_entry["law_token"], knob_id="tax_relief_rate", parameter_value=0.24,
-        legal_store=lex_store, world_model_record=world_record,
+            subject_bundle,
+            update={"lex_authority_manifest": transposed_manifest},
+        ),
+        law_token=tax_entry["law_token"],
+        knob_id="tax_relief_rate",
+        parameter_value=0.24,
+        legal_store=lex_store,
+        world_model_record=world_record,
     )
     record(
         case_id="real_unrelated_law_target_cannot_authorize",
-        passed=(transposed.status == "blocked" and transposed.mapping_evidence_ref is not None
-                and transposed.recognition.status == "rejected"
-                and transposed.recognition.reason_code == "legal_subject_mismatch"
-                and transposed.numeric_evaluation_status == "not_run"),
+        passed=(
+            transposed.status == "blocked"
+            and transposed.mapping_evidence_ref is not None
+            and transposed.recognition.status == "rejected"
+            and transposed.recognition.reason_code == "legal_subject_mismatch"
+            and transposed.numeric_evaluation_status == "not_run"
+        ),
         expected="transposed_real_entities_rejected_against_fixed_synthetic_subject_sources",
-        actual=transposed.recognition.status, detail=transposed.model_dump(mode="json"),
+        actual=transposed.recognition.status,
+        detail=transposed.model_dump(mode="json"),
     )
     from unittest.mock import patch
 
     with patch("polisyos.foundry.validation.legal_correspondence._same_subject", return_value=True):
         removed_subject = resolve_law_bound_lever(
-            replace_intervention_substrate_bundle(subject_bundle,
-                update={"lex_authority_manifest": transposed_manifest}),
-            law_token=tax_entry["law_token"], knob_id="tax_relief_rate", parameter_value=0.24,
-            legal_store=lex_store, world_model_record=world_record)
-    subject_removal_red = (transposed.recognition.status == "rejected"
-                           and removed_subject.recognition.status == "passed"
-                           and removed_subject.legal_threshold_evaluation["status"] == "admitted")
-    record(case_id="subject_comparison_removal_admits_real_transposition",
-           passed=subject_removal_red,
-           expected="unchanged_negative_goes_red_when_subject_comparison_removed",
-           actual=removed_subject.recognition.status,
-           detail={"control": "subject equality removed; source declarations remain intact",
-                   "removed_result": removed_subject.model_dump(mode="json")})
+            replace_intervention_substrate_bundle(
+                subject_bundle, update={"lex_authority_manifest": transposed_manifest}
+            ),
+            law_token=tax_entry["law_token"],
+            knob_id="tax_relief_rate",
+            parameter_value=0.24,
+            legal_store=lex_store,
+            world_model_record=world_record,
+        )
+    subject_removal_red = (
+        transposed.recognition.status == "rejected"
+        and removed_subject.recognition.status == "passed"
+        and removed_subject.legal_threshold_evaluation["status"] == "admitted"
+    )
+    record(
+        case_id="subject_comparison_removal_admits_real_transposition",
+        passed=subject_removal_red,
+        expected="unchanged_negative_goes_red_when_subject_comparison_removed",
+        actual=removed_subject.recognition.status,
+        detail={
+            "control": "subject equality removed; source declarations remain intact",
+            "removed_result": removed_subject.model_dump(mode="json"),
+        },
+    )
     unknown_subject = resolve_law_bound_lever(
-        bundle, law_token=_BUDGET_LAW, knob_id="budget_allocation_multiplier",
-        parameter_value=0.24, legal_store=lex_store, world_model_record=world_record)
-    record(case_id="missing_subject_precedes_numeric_evaluation",
-           passed=(unknown_subject.recognition.status == "ambiguous"
-                   and unknown_subject.numeric_evaluation_status == "not_run"
-                   and unknown_subject.legal_threshold_evaluation is None),
-           expected="ambiguous_subject_with_numeric_not_run",
-           actual=unknown_subject.recognition.status,
-           detail=unknown_subject.model_dump(mode="json"))
+        bundle,
+        law_token=_BUDGET_LAW,
+        knob_id="budget_allocation_multiplier",
+        parameter_value=0.24,
+        legal_store=lex_store,
+        world_model_record=world_record,
+    )
+    record(
+        case_id="missing_subject_precedes_numeric_evaluation",
+        passed=(
+            unknown_subject.recognition.status == "ambiguous"
+            and unknown_subject.numeric_evaluation_status == "not_run"
+            and unknown_subject.legal_threshold_evaluation is None
+        ),
+        expected="ambiguous_subject_with_numeric_not_run",
+        actual=unknown_subject.recognition.status,
+        detail=unknown_subject.model_dump(mode="json"),
+    )
 
     dangling_bundle = replace_intervention_substrate_bundle(
         bundle,
@@ -1880,18 +1944,24 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
 
         with patch(__name__ + "._missing_method_dependencies", return_value=("absent_probe_dep",)):
             dependency_removed = route_observation_family_method(
-                bundle, family="budget_flows", registry=registry,
+                bundle,
+                family="budget_flows",
+                registry=registry,
             )
         record(
             case_id="family_method_route_python314_unavailable_truthful_blocker",
-            passed=(dependency_removed.status == RouteStatus.BLOCKED
-                    and dependency_removed.reason_code == "method_unavailable_python314"
-                    and bool(dependency_removed.candidate_method_fqns)
-                    and not dependency_removed.selected_method_fqn),
+            passed=(
+                dependency_removed.status == RouteStatus.BLOCKED
+                and dependency_removed.reason_code == "method_unavailable_python314"
+                and bool(dependency_removed.candidate_method_fqns)
+                and not dependency_removed.selected_method_fqn
+            ),
             expected="dependency_removal_control_blocks_a_real_input_contract",
             actual=str(dependency_removed.reason_code),
-            detail={"control": "dependency availability removed in memory; not a station census",
-                    "route": dependency_removed.model_dump(mode="json")},
+            detail={
+                "control": "dependency availability removed in memory; not a station census",
+                "route": dependency_removed.model_dump(mode="json"),
+            },
         )
         grown = _free_grow_bundle(
             bundle,
@@ -1906,27 +1976,49 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         )
         # Membership grows as data before evaluating the new law proposal.
         grown_annotations = {}
-        for role, entity in (("lever", "knob:" + _FREE_GROW_KNOB),
-                             ("norm", "lex_rule_thresholds:" + _FREE_GROW_L3_THRESHOLD_ID)):
-            raw = _read_json_object(repo_root / "architecture/policy_design_case"
-                                   / f"legal_subject_{role}_annotations.synthetic.json")
-            raw["annotations"].append({"entity_ref": entity, "subject": {
-                "namespace": "synthetic.legal-subject-controls", "namespace_version": "1",
-                "subject_id": "delta", "valid_from": "1990-01-01", "valid_until": None}})
+        for role, entity in (
+            ("lever", "knob:" + _FREE_GROW_KNOB),
+            ("norm", "lex_rule_thresholds:" + _FREE_GROW_L3_THRESHOLD_ID),
+        ):
+            raw = _read_json_object(
+                repo_root
+                / "architecture/policy_design_case"
+                / f"legal_subject_{role}_annotations.synthetic.json"
+            )
+            raw["annotations"].append(
+                {
+                    "entity_ref": entity,
+                    "subject": {
+                        "namespace": "synthetic.legal-subject-controls",
+                        "namespace_version": "1",
+                        "subject_id": "delta",
+                        "valid_from": "1990-01-01",
+                        "valid_until": None,
+                    },
+                }
+            )
             grown_annotations[role] = LegalSubjectAnnotationSource.model_validate(raw)
         grown_spine = produce_intervention_legal_subject_spine(
-            repo_root, grown, legal_store=lex_store,
+            repo_root,
+            grown,
+            legal_store=lex_store,
             store=build_artifact_store(
                 ArtifactStoreConfig(
                     backend="filesystem",
                     root=str(repo_root / ".polisyos/cas"),
                 ),
             ),
-            annotations=grown_annotations)
-        grown = replace_intervention_substrate_bundle(grown, update={
-            "owner_authority_manifest": {**grown.owner_authority_manifest,
-                                         "legal_subject_spine_ref": grown_spine.model_dump(
-                                             mode="json")}})
+            annotations=grown_annotations,
+        )
+        grown = replace_intervention_substrate_bundle(
+            grown,
+            update={
+                "owner_authority_manifest": {
+                    **grown.owner_authority_manifest,
+                    "legal_subject_spine_ref": grown_spine.model_dump(mode="json"),
+                }
+            },
+        )
         grown_law = resolve_law_bound_lever(
             grown,
             law_token=_FUTURE_RELIEF_LAW,
@@ -2002,10 +2094,15 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     if law_consumers["status"] != "pass":
         issues.append({"code": "law_credal_consumer_behavior_failed", "detail": law_consumers})
     strangles = _intervention_substrate_strangle_receipts(
-        repo_root, consumers=consumers, law_resolution=admitted, law_consumers=law_consumers,
-        subject_recognition={"subject_removal_red": subject_removal_red,
-                             "missing": unknown_subject.model_dump(mode="json"),
-                             "transposed": transposed.model_dump(mode="json")},
+        repo_root,
+        consumers=consumers,
+        law_resolution=admitted,
+        law_consumers=law_consumers,
+        subject_recognition={
+            "subject_removal_red": subject_removal_red,
+            "missing": unknown_subject.model_dump(mode="json"),
+            "transposed": transposed.model_dump(mode="json"),
+        },
     )
     if any(receipt["status"] != "strangled" for receipt in strangles):
         issues.append({"code": "intervention_substrate_default_not_strangled"})
@@ -2033,9 +2130,11 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
                 "conjunct": "law_to_knob_correspondence_and_authorized_law_free_growth",
                 "status": "not_established",
                 "capability": "producer_missing",
-                "reason": ("Synthetic source-relative recognition is implemented; "
-                           "real legal-subject authority remains CORR-B1 "
-                           "and is not established by it."),
+                "reason": (
+                    "Synthetic source-relative recognition is implemented; "
+                    "real legal-subject authority remains CORR-B1 "
+                    "and is not established by it."
+                ),
             }
         ],
         "source_content_hashes": dict(bundle.source_content_hashes),
@@ -2044,7 +2143,9 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
 
 
 def _law_credal_consumer_behavior_report(
-    repo_root: Path, bundle: InterventionSubstrateBundle, world_record: WorldModelRecord,
+    repo_root: Path,
+    bundle: InterventionSubstrateBundle,
+    world_record: WorldModelRecord,
 ) -> dict[str, Any]:
     """Recompute the scoped L6/WMR handoff without issuing a full K_ref or certificate."""
     from dataclasses import replace
@@ -2053,8 +2154,10 @@ def _law_credal_consumer_behavior_report(
     from polisyos.runtime.quality import credal_reference, grounding_relation
 
     with patch.object(credal_reference, "load_l6_intervention_substrate", return_value=bundle):
-        edges = [*credal_reference._iter_l6_edges(repo_root, world_model_record=world_record),
-                 *credal_reference._iter_wmr_edges(world_record)]
+        edges = [
+            *credal_reference._iter_l6_edges(repo_root, world_model_record=world_record),
+            *credal_reference._iter_wmr_edges(world_record),
+        ]
     laws = [edge for edge in edges if edge.modality == "L6_LEX_INTERVENTION_MAP"]
     source_ids = sorted(bundle.lex_intervention_map)
     raw_ids = sorted(_read_json_object(default_l6_bundle_paths(repo_root)["lex_intervention_map"]))
@@ -2063,79 +2166,140 @@ def _law_credal_consumer_behavior_report(
     def project(rows: Sequence[Any]) -> tuple[Any, tuple[Any, ...]]:
         index = {edge.key: edge for edge in rows}
         versions = credal_reference._component_versions(index, world_model_record=world_record)
-        digest = credal_reference._reference_hash(component_versions=versions, edge_index=index,
-                                                 as_of=credal_reference.DEFAULT_REFERENCE_AS_OF)
+        digest = credal_reference._reference_hash(
+            component_versions=versions,
+            edge_index=index,
+            as_of=credal_reference.DEFAULT_REFERENCE_AS_OF,
+            schema_version=credal_reference.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        )
         reference = credal_reference.CredalReference(
-            credal_reference.CREDAL_REFERENCE_SCHEMA_VERSION,
-            "kref:" + digest.removeprefix("sha256:")[:16], digest,
-            credal_reference.DEFAULT_REFERENCE_AS_OF, versions, index,
+            credal_reference.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+            "kref:" + digest.removeprefix("sha256:")[:16],
+            digest,
+            credal_reference.DEFAULT_REFERENCE_AS_OF,
+            versions,
+            index,
         )
         return reference, grounding_relation._reference_atoms_from_cg0(reference)
 
     reference, atoms = project(edges)
     expected = []
     for operator, raw_knob in sorted(bundle.knob_dictionary.items()):
-        knob = resolve_intervention_lever(bundle, operator_kind=operator,
+        knob = resolve_intervention_lever(
+            bundle,
+            operator_kind=operator,
             parameter_value=_representative_knob_value(raw_knob, knob_id=operator),
-            world_model_record=world_record)
+            world_model_record=world_record,
+        )
         for slot in world_record.policy_slot_map:
             if grounding_relation._operator_target_compatible(
-                reference, op_id=operator, domain=knob.domain.model_dump(mode="json"),
-                target_slot=slot.slot_id, explicit_slots=knob.target_world_slots,
+                reference,
+                op_id=operator,
+                domain=knob.domain.model_dump(mode="json"),
+                target_slot=slot.slot_id,
+                explicit_slots=knob.target_world_slots,
             ):
                 expected.append((operator, (slot.slot_id,)))
     actual = sorted((atom.signature.op, atom.signature.X_do) for atom in atoms)
 
     def valid(rows: Sequence[Any], projected_atoms: Sequence[Any]) -> bool:
-        law_keys = {credal_reference._edge_key_text(edge.key) for edge in rows
-                    if edge.modality == "L6_LEX_INTERVENTION_MAP"}
-        return all(edge.status == "incomplete" for edge in rows
-                   if edge.modality == "L6_LEX_INTERVENTION_MAP") and all(
+        law_keys = {
+            credal_reference._edge_key_text(edge.key)
+            for edge in rows
+            if edge.modality == "L6_LEX_INTERVENTION_MAP"
+        }
+        return all(
+            edge.status == "incomplete"
+            for edge in rows
+            if edge.modality == "L6_LEX_INTERVENTION_MAP"
+        ) and all(
             atom.signature.admissibility == "reference_contested"
             and bool(law_keys.intersection(atom.edge_scope))
-            for atom in projected_atoms)
+            for atom in projected_atoms
+        )
 
-    confirmed_removed = [replace(edge, status="confirmed").with_content_hash()
-                         if edge in laws else edge for edge in edges]
-    association_removed = [replace(edge, admissible_completions=
-        credal_reference._incomplete_completions("law_mapping_correspondence_not_established")
-    ).with_content_hash() if edge in laws else edge for edge in edges]
+    confirmed_removed = [
+        replace(edge, status="confirmed").with_content_hash() if edge in laws else edge
+        for edge in edges
+    ]
+    association_removed = [
+        replace(
+            edge,
+            admissible_completions=credal_reference._incomplete_completions(
+                "law_mapping_correspondence_not_established"
+            ),
+        ).with_content_hash()
+        if edge in laws
+        else edge
+        for edge in edges
+    ]
     _ref, confirmed_atoms = project(confirmed_removed)
     _ref, dropped_atoms = project(association_removed)
     status_red = not valid(confirmed_removed, confirmed_atoms)
     association_red = not valid(association_removed, dropped_atoms)
-    expected_pairs = {(law, knob) for law in bundle.lex_intervention_map
-                      for knob in _lex_map_knobs(bundle.lex_intervention_map, law)}
-    recognized_pairs = {(row["law_token"], row["knob_id"])
-                        for edge in laws for row in edge.provenance["mapping_resolutions"]}
+    expected_pairs = {
+        (law, knob)
+        for law in bundle.lex_intervention_map
+        for knob in _lex_map_knobs(bundle.lex_intervention_map, law)
+    }
+    recognized_pairs = {
+        (row["law_token"], row["knob_id"])
+        for edge in laws
+        for row in edge.provenance["mapping_resolutions"]
+    }
     source_recognized = expected_pairs == recognized_pairs and all(
-        row["recognition"]["status"] == "passed" and row["synthetic"] is True
+        row["recognition"]["status"] == "passed"
+        and row["synthetic"] is True
         and row["current_authority_status"] == "blocked"
-        for edge in laws for row in edge.provenance["mapping_resolutions"])
-    passed = (source_ids == raw_ids == actual_ids and actual == sorted(expected)
-              and bool(atoms) and source_recognized
-              and valid(edges, atoms) and status_red and association_red)
-    return {"status": "pass" if passed else "fail",
+        for edge in laws
+        for row in edge.provenance["mapping_resolutions"]
+    )
+    passed = (
+        source_ids == raw_ids == actual_ids
+        and actual == sorted(expected)
+        and bool(atoms)
+        and source_recognized
+        and valid(edges, atoms)
+        and status_red
+        and association_red
+    )
+    return {
+        "status": "pass" if passed else "fail",
         "scope": "Actual L6 and WMR owner outputs only; not a complete K_ref or certificate",
         "source_relative_recognition_passed": source_recognized,
-        "law_denominator": {"total": len(source_ids), "identity_hash": gy_content_hash(source_ids),
+        "law_denominator": {
+            "total": len(source_ids),
+            "identity_hash": gy_content_hash(source_ids),
             "raw_identity_hash": gy_content_hash(raw_ids),
             "consumer_identity_hash": gy_content_hash(actual_ids),
             "raw_identity_difference": sorted(set(source_ids) ^ set(raw_ids)),
-            "consumer_identity_difference": sorted(set(source_ids) ^ set(actual_ids))},
-        "recognition_pair_denominator": {"total": len(expected_pairs),
+            "consumer_identity_difference": sorted(set(source_ids) ^ set(actual_ids)),
+        },
+        "recognition_pair_denominator": {
+            "total": len(expected_pairs),
             "identity_hash": gy_content_hash(sorted(expected_pairs)),
             "consumer_identity_hash": gy_content_hash(sorted(recognized_pairs)),
-            "identity_symmetric_difference": sorted(expected_pairs ^ recognized_pairs)},
-        "atom_denominator": {"total": len(actual), "identity_hash": gy_content_hash(actual),
+            "identity_symmetric_difference": sorted(expected_pairs ^ recognized_pairs),
+        },
+        "atom_denominator": {
+            "total": len(actual),
+            "identity_hash": gy_content_hash(actual),
             "independent_identity_hash": gy_content_hash(sorted(expected)),
-            "identity_symmetric_difference": sorted(set(actual) ^ set(expected))},
+            "identity_symmetric_difference": sorted(set(actual) ^ set(expected)),
+        },
         "laws": [edge.to_payload() for edge in laws],
-        "atoms": [{"operator": atom.signature.op, "targets": atom.signature.X_do,
-                   "admissibility": atom.signature.admissibility, "edge_scope": atom.edge_scope}
-                  for atom in atoms],
+        "atoms": [
+            {
+                "operator": atom.signature.op,
+                "targets": atom.signature.X_do,
+                "admissibility": atom.signature.admissibility,
+                "edge_scope": atom.edge_scope,
+            }
+            for atom in atoms
+        ],
         "remove_status_keep_markers_goes_red": status_red,
-        "remove_association_keep_incomplete_goes_red": association_red}
+        "remove_association_keep_incomplete_goes_red": association_red,
+    }
 
 
 def _manifest_consumer_behavior_report(
@@ -2211,17 +2375,22 @@ def _manifest_consumer_behavior_report(
     registry = build_substrate_registry_from_existing_catalogs(_repo_root_for_bundle(bundle))
     context = build_cycle_substrate_context(
         design_problem_ref=gy_content_hash({"candidate_route_probe": bundle.content_hash}),
-        domain="candidate_route_probe", substrate_registry=registry,
+        domain="candidate_route_probe",
+        substrate_registry=registry,
         selected_registry_entry_hashes=tuple(
             entry.entry_content_hash
             for entry in world_record.substrate_registry_ref.resolved_entries
         ),
-        world_model_record=world_record, intervention_substrate=bundle,
-        candidate_levers=(), transport_context=None,
-        source_pack_content_hash=None, substrate_input_content_hash=None,
+        world_model_record=world_record,
+        intervention_substrate=bundle,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=None,
     )
     configured_default = generation_cycle._DefaultSimulationBoundFoundryValuePort(
-        repo_root=_repo_root_for_bundle(bundle), cycle_substrate_context=context,
+        repo_root=_repo_root_for_bundle(bundle),
+        cycle_substrate_context=context,
         observation_family=exemplar,
     )
 
@@ -2248,18 +2417,24 @@ def _manifest_consumer_behavior_report(
         return inputs
 
     with patch.object(
-        generation_cycle, "_value_method_selection_inputs", remove_family_configuration,
+        generation_cycle,
+        "_value_method_selection_inputs",
+        remove_family_configuration,
     ):
         configured_family_removed = configured_selection()
     with patch.object(
-        generation_cycle, "_value_method_selection_inputs", remove_source_configuration,
+        generation_cycle,
+        "_value_method_selection_inputs",
+        remove_source_configuration,
     ):
         configured_source_removed = configured_selection()
     configured_owner_methods = set(
         next(route for route in routes if route.family == exemplar).candidate_method_fqns,
     )
-    configured_valid = (configured_positive["status"] == "selected"
-                        and configured_positive["selected_method_fqn"] in configured_owner_methods)
+    configured_valid = (
+        configured_positive["status"] == "selected"
+        and configured_positive["selected_method_fqn"] in configured_owner_methods
+    )
     configured_family_red = configured_family_removed["status"] != "selected"
     configured_source_red = (
         configured_source_removed.get("selected_method_fqn") not in configured_owner_methods
@@ -2279,7 +2454,9 @@ def _manifest_consumer_behavior_report(
         selection = select(malformed, exemplar)
         try:
             generation_cycle._value_method_route_constraint(
-                candidate={}, problem={}, inputs={
+                candidate={},
+                problem={},
+                inputs={
                     "observation_to_contract_manifest": malformed,
                     "observation_family": exemplar,
                 },
@@ -2292,7 +2469,10 @@ def _manifest_consumer_behavior_report(
     original_intake = generation_cycle._value_method_route_constraint
 
     def removed_presence_intake(
-        *, candidate: object, problem: object, inputs: Mapping[str, Any],
+        *,
+        candidate: object,
+        problem: object,
+        inputs: Mapping[str, Any],
     ) -> MethodRouteConstraint | None:
         raw = inputs.get("observation_to_contract_manifest")
         if not isinstance(raw, Mapping) or "routes" not in raw:
@@ -2377,12 +2557,15 @@ def _manifest_consumer_behavior_report(
     passed = (
         source_ids == owner_ids == n4_families
         and all(row["passed"] for row in results)
-        and configured_valid and configured_family_red and configured_source_red
+        and configured_valid
+        and configured_family_red
+        and configured_source_red
         and actual_configuration_inputs["observation_to_contract_manifest"]
         == bundle.observation_manifest
-        and all(row["selection"]["status"] == "blocked"
-                and row["context_intake"]["status"] == "blocked"
-                for row in shape_results.values())
+        and all(
+            row["selection"]["status"] == "blocked" and row["context_intake"]["status"] == "blocked"
+            for row in shape_results.values()
+        )
         and missing_source_removed["status"] == "selected"
         and source_shape_happy["status"] == "selected"
         and grown_result["status"] == "selected"
@@ -2546,8 +2729,11 @@ def _intervention_substrate_strangle_receipts(
             "behavior_content_hash": gy_content_hash(
                 consumers
                 if replacement != "resolve_law_bound_lever"
-                else {"resolution": law_resolution.model_dump(mode="json"),
-                      "handoff": law_consumers, "subject_recognition": subject_recognition}
+                else {
+                    "resolution": law_resolution.model_dump(mode="json"),
+                    "handoff": law_consumers,
+                    "subject_recognition": subject_recognition,
+                }
             ),
         }
         receipts.append({**payload, "content_hash": gy_content_hash(payload)})
@@ -2914,8 +3100,7 @@ def _owner_registry_bundle(
 
 def _owner_intervention_id(operator_kind: str) -> str:
     cleaned = "".join(
-        char if char.isalnum() or char == "_" else "_"
-        for char in operator_kind.casefold()
+        char if char.isalnum() or char == "_" else "_" for char in operator_kind.casefold()
     ).strip("_")
     if not cleaned or not cleaned[0].isalpha():
         cleaned = f"l6_{cleaned}"
@@ -2949,12 +3134,7 @@ def _free_grow_bundle(
             "world_mechanism_manifest": {
                 **bundle.world_mechanism_manifest,
                 "mechanisms": {
-                    **(
-                        _mapping_or_none(
-                            bundle.world_mechanism_manifest.get("mechanisms")
-                        )
-                        or {}
-                    ),
+                    **(_mapping_or_none(bundle.world_mechanism_manifest.get("mechanisms")) or {}),
                     _FREE_GROW_MECHANISM: {
                         "mechanism_id": _FREE_GROW_MECHANISM,
                         "params": {
@@ -2985,9 +3165,7 @@ def _free_grow_bundle(
             "lex_authority_manifest": {
                 **bundle.lex_authority_manifest,
                 "intervention_map_entries": [
-                    *_mapping_list(
-                        bundle.lex_authority_manifest.get("intervention_map_entries")
-                    ),
+                    *_mapping_list(bundle.lex_authority_manifest.get("intervention_map_entries")),
                     {
                         "law_token": _FUTURE_RELIEF_LAW,
                         "provision_ref": f"lex_rule_thresholds:{threshold.threshold_id}",
@@ -3023,7 +3201,7 @@ def _free_grow_bundle(
                 ],
                 "artifacts": _mapping_list(bundle.observation_manifest.get("artifacts")),
             },
-        }
+        },
     )
 
 
@@ -3127,10 +3305,7 @@ def _remove_property_mutation_report(
             status = "red" if exc.code == expected_code else "unexpected"
             actual = exc.code
         else:
-            if (
-                isinstance(outcome, ObservationMethodRoute)
-                and outcome.reason_code == expected_code
-            ):
+            if isinstance(outcome, ObservationMethodRoute) and outcome.reason_code == expected_code:
                 status = "red"
                 actual = str(outcome.reason_code)
             else:
@@ -3154,9 +3329,7 @@ def _coverage_report(
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
     bundle = verify_intervention_substrate_bundle_content_hash(bundle)
-    registry_module = importlib.import_module(
-        "polisyos.foundry.extensions.registry"
-    )
+    registry_module = importlib.import_module("polisyos.foundry.extensions.registry")
 
     world_details: list[dict[str, Any]] = []
     world_bound = 0
@@ -3176,9 +3349,7 @@ def _coverage_report(
                 world_model_record=world_model_record,
             )
         except InterventionSubstrateError as exc:
-            world_details.append(
-                {"knob_id": knob_id, "status": "unresolved", "reason": exc.code}
-            )
+            world_details.append({"knob_id": knob_id, "status": "unresolved", "reason": exc.code})
             continue
         world_bound += 1 if resolved.target_world_slots else 0
         world_details.append(
@@ -3227,8 +3398,12 @@ def _coverage_report(
             )
         except InterventionSubstrateError as exc:
             law_details.append(
-                {"law_token": law_token, "knob_id": knob_id,
-                 "status": "unresolved", "reason": exc.code}
+                {
+                    "law_token": law_token,
+                    "knob_id": knob_id,
+                    "status": "unresolved",
+                    "reason": exc.code,
+                }
             )
             continue
         law_traced += 1
@@ -3241,9 +3416,11 @@ def _coverage_report(
                 "provision_ref": resolved_law.provision_ref,
                 "recognition_status": resolved_law.recognition.status,
                 "numeric_evaluation_status": resolved_law.numeric_evaluation_status,
-                "threshold_reason": (resolved_law.legal_threshold_evaluation["reason"]
-                                     if resolved_law.legal_threshold_evaluation is not None
-                                     else None),
+                "threshold_reason": (
+                    resolved_law.legal_threshold_evaluation["reason"]
+                    if resolved_law.legal_threshold_evaluation is not None
+                    else None
+                ),
             }
         )
 
@@ -3352,7 +3529,7 @@ def _dead_route_bundle(bundle: InterventionSubstrateBundle) -> InterventionSubst
         bundle,
         update={
             "observation_manifest": observation_manifest,
-        }
+        },
     )
 
 
@@ -3368,8 +3545,7 @@ def _unavailable_route_bundle(bundle: InterventionSubstrateBundle) -> Interventi
                 "target_contract": {
                     "contract_id": unavailable_contract,
                     "contract_fqn": (
-                        "polisyos.foundry.methods.catalog.bayesian.protocols."
-                        "BartRegressionData"
+                        "polisyos.foundry.methods.catalog.bayesian.protocols.BartRegressionData"
                     ),
                 },
             },
@@ -3387,7 +3563,7 @@ def _unavailable_route_bundle(bundle: InterventionSubstrateBundle) -> Interventi
         bundle,
         update={
             "observation_manifest": observation_manifest,
-        }
+        },
     )
 
 
@@ -3425,12 +3601,7 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
             "world_mechanism_manifest": {
                 **bundle.world_mechanism_manifest,
                 "mechanisms": {
-                    **(
-                        _mapping_or_none(
-                            bundle.world_mechanism_manifest.get("mechanisms")
-                        )
-                        or {}
-                    ),
+                    **(_mapping_or_none(bundle.world_mechanism_manifest.get("mechanisms")) or {}),
                     fake_mechanism: {
                         "mechanism_id": fake_mechanism,
                         "params": {
@@ -3449,7 +3620,7 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
                     },
                 },
             },
-        }
+        },
     )
     return resolve_intervention_lever(
         mutated,
@@ -3479,9 +3650,7 @@ def _law_provision_reference_binds_without_l3_validation_signal(
             "lex_authority_manifest": {
                 **bundle.lex_authority_manifest,
                 "intervention_map_entries": [
-                    *_mapping_list(
-                        bundle.lex_authority_manifest.get("intervention_map_entries")
-                    ),
+                    *_mapping_list(bundle.lex_authority_manifest.get("intervention_map_entries")),
                     {
                         "law_token": fake_law,
                         "provision_ref": f"lex_rule_thresholds:{fake_threshold_id}",
@@ -3498,7 +3667,7 @@ def _law_provision_reference_binds_without_l3_validation_signal(
                     },
                 ],
             },
-        }
+        },
     )
     return resolve_law_bound_lever(
         mutated,
@@ -3520,7 +3689,7 @@ def _world_slot_owner_derivation_disabled_signal(
         bundle,
         update={
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-        }
+        },
     )
     coverage = _coverage_report(
         bundle=mutated,
@@ -3546,7 +3715,7 @@ def _world_slot_hardcoded_bypass_signal(bundle: InterventionSubstrateBundle) -> 
         update={
             "knob_dictionary": raw_knobs,
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-        }
+        },
     )
     first_knob = next(iter(sorted(mutated.knob_dictionary)))
     return resolve_intervention_lever(
@@ -3622,8 +3791,7 @@ def _validate_value_in_domain(
 ) -> float | int | str | bool:
     if domain.kind == "discrete":
         allowed = tuple(
-            _sequence_or_none(raw_knob.get("values") or raw_knob.get("allowed_values"))
-            or ()
+            _sequence_or_none(raw_knob.get("values") or raw_knob.get("allowed_values")) or ()
         )
         if value not in allowed:
             raise InterventionSubstrateError("knob_parameter_out_of_domain", operator_kind)
@@ -3655,9 +3823,7 @@ def _knob_mechanism_id(
     mechanism_registry: MechanismTypeRegistry,
 ) -> str:
     mechanism_id = str(
-        raw_knob.get("mechanism_id")
-        or raw_knob.get("intervention_kind")
-        or operator_kind
+        raw_knob.get("mechanism_id") or raw_knob.get("intervention_kind") or operator_kind
     ).strip()
     if mechanism_id not in mechanism_registry.mechanisms:
         raise InterventionSubstrateError("knob_owner_mechanism_unresolved", mechanism_id)
@@ -3821,11 +3987,7 @@ def _law_authority(
         "doc_family_id": _optional_text(
             owner_entry.get("doc_family_id") or expectations.get("doc_family_id")
         ),
-        "provision_ref": (
-            provision_ref
-            if provision_ref.startswith("duckdb://")
-            else None
-        ),
+        "provision_ref": (provision_ref if provision_ref.startswith("duckdb://") else None),
         "candidate_unit": _optional_text(
             owner_entry.get("candidate_unit") or expectations.get("candidate_unit")
         ),
@@ -3941,9 +4103,7 @@ def _lex_owner_registry(
                     mechanism_id=mechanism_id,
                     mechanism_registry=mechanism_registry,
                 ),
-                "default_value": _owner_param_value(
-                    _knob_default(raw_knob, knob_id=str(knob_id))
-                ),
+                "default_value": _owner_param_value(_knob_default(raw_knob, knob_id=str(knob_id))),
                 "min_value": _owner_optional_param_value(
                     raw_knob.get("min", raw_knob.get("min_value"))
                 ),

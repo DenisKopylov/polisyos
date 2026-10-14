@@ -17,8 +17,8 @@ policy и search flows.
 - **Read-only store** — `LegalKnowledgeStore` открывает DuckDB в `read_only=True` и лениво подключает optional vector indexes.
 - **Hybrid retrieval** — text, structured и vector search могут комбинироваться через `LegalKnowledgeGraph`.
 - **Graph traversal** — API умеет искать related entities и нормы, а не только keyword matches.
-- **Content-bound vector admission** — `LegalQueryProfile` freezes the requested generation ID and full inventory bytes. Before encoding or native HNSW search, the Store resolves the current selector, verifies current projected members and matrix/index contents, and checks live encoder assets.
-- **Explicit text fallback** — `hybrid_search()` returns its text results when vector admission refuses and retains the typed reason in `query_profile_error`. Direct vector methods raise `LegalQueryProfileError`; a missing vector result cannot be mistaken for an empty successful query.
+- **Content-bound vector admission** — `LegalQueryProfile` freezes the requested generation ID and full inventory bytes. Before encoding or native HNSW search, the Store resolves the current selector, verifies current projected members and matrix/index contents, and checks the recomputed live model state and installed runtime profile. Strict identity hashes only views of contiguous CPU `torch.Tensor` storage or C-contiguous NumPy arrays; it refuses other array-like values without conversion. The bounded candidate claim assumes a trusted process: no concurrent external model/runtime mutation during a lease, and no mutation of callable globals or closure state while the profile is admitted. The handle lock serializes owner leases but does not make pre/post hashes atomic against mutation and restoration; untrusted in-process plugins are outside scope.
+- **Explicit text fallback** — `hybrid_search_with_status()` returns results with the typed outcome from that same invocation, so concurrent consumers cannot exchange refusals through shared graph state. The list-returning `hybrid_search()` remains available and keeps `query_profile_error` as a legacy latest-call diagnostic. Direct vector methods raise `LegalQueryProfileError`; a missing vector result cannot be mistaken for an empty successful query.
 - **Chronology owner query** — `LegalKnowledgeStore` enumerates the complete
   `lex_amendments` denominator before applying sparse valid/effect and
   knowledge/admission cutoffs. Missing valid/effect carriers stay in the
@@ -47,23 +47,29 @@ table. A new selector requires a fresh request profile, even when the corpus and
 encoder assets are unchanged.
 
 `derive_encoder_identity` recomputes loaded weights, configuration, and tokenizer assets. It
-cannot attest an arbitrary replacement of the encoder's `encode` callable. The current
-`LegalQueryEncoderProvider` checks those assets but does not resolve an owner-controlled executable
-runtime bundle. The shared store therefore refuses every loaded object with
-`query_encoder_runtime_material_not_established` before calling `encode`, after it revalidates the
-selected generation, request intent, projected members, and asset identity. The guard covers entity,
-fact, and provision vector searches;
-`hybrid_search()` returns text results while retaining the typed refusal, and direct vector methods
-raise `LegalQueryProfileError`.
+cannot attest an arbitrary replacement of the encoder's `encode` callable. Legacy user-supplied
+encoders therefore remain candidates only. A `LegalRuntimeMaterialOwner` is the narrow positive
+path: it resolves the exact named local model revision and supported installed runtime, derives an
+owner-issued handle, and binds the recomputed material digest into each Legal generation rule. The
+shared store checks that binding after request, selected-generation, and projected-member checks,
+then captures and invokes the checked owner method under its lease. Entity, fact, and provision
+vector methods use this same gate.
 
-The selected-generation GET remains available for immutable request intent; it does not claim that a
-runtime encoder is available. POST `/api/v1/control/lex/search` reports `search_mode` and
-`vector_refusal_code`; a selected generation with no source-resolved runtime profile returns actual
-text-search results with `query_encoder_runtime_material_not_established`. Historical generations
-remain readable and are not rewritten. Restoring vector execution requires an owner-resolved runtime
-material binding shared by the producer and fresh reader; asset hashes or object labels alone do not
-supply that binding. The controlled same-assets callable-swap test is a falsifier for the refusal
-property, not a production or legal-authority claim.
+The v2 owner profile remeasures named parameters and buffers, module training/configuration state,
+tokenizer state, effective encode settings, and the installed runtime both before and after every
+leased encode. CPU tensor bytes are streamed from contiguous storage views; unsupported layouts
+refuse instead of copying weights. Generic state-dictionary identities used by other producers
+remain unchanged and do not acquire the Legal owner's runtime meaning.
+
+The selected-generation GET remains an immutable request-intent snapshot; it does not claim model or
+deployment currentness. A controlled owner may return vector results only when its recomputed
+material matches the producer's persisted binding. HTTP POST reports `search_mode` and
+`vector_refusal_code`; when the runtime or generation binding is unavailable or mismatched, its
+existing hybrid route returns actual text results with the typed refusal. Direct vector methods raise
+`LegalQueryProfileError` and do not fall back to text. Historical generations remain readable and
+vector-refused; they are never rewritten. This local controlled profile does not establish L01/L02
+production selection, deployment currentness, reuse permission, G status, or legal authority. The
+same-assets callable-swap and matched-removal witness tests the executable behavior boundary.
 
 ## Current State
 

@@ -1,17 +1,21 @@
 id = "2026-10-09-e02-can-options-mapping"
-title = "Core-to-IR writes preserve typed option mappings"
+title = "Core-to-IR writes preserve typed metadata and selector boundaries"
 type = "fixed"
 component = "ir-artifacts"
 owner = "team-polisyos"
-summary = "The Core-to-IR adapter preserves every declared write option, and IR reads now require complete raw profiles and byte-level conformance."
+summary = "The Core-to-IR adapter projects typed Pydantic metadata and mapping values into complete write options while keeping strict selector validation at the selector boundary; IR reads require complete raw profiles and byte-level conformance."
 evidence = [
   "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_mapping_write_options_preserve_every_core_option_field",
   "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_refuses_malformed_supplied_mapping_options",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_native_tags_round_trip_through_fresh_profiled_ir_reader",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_core_decoder_aliases_outside_ir_are_refused_for_fresh_profiled_view",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_it",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_raw_only_reader_refuses_unresolvable_profiled_selector_before_payload",
 ]
-compatibility = "Mapping-based callers retain all Core ArtifactWriteOptions fields, including tenant context, same-input closure, authority, and warnings; malformed or unknown supplied values fail closed. IR reads also refuse incomplete or malformed raw profiles and payload bytes that do not round-trip under the declared supported IR profile. Exact ArtifactRef selectors are preserved for both sidecar and blob reads."
+compatibility = "StorePutOptions and Mapping callers may supply typed Pydantic metadata or plain mapping values; all Core ArtifactWriteOptions fields, including tenant context, same-input closure, authority, and warnings, survive projection. Malformed or unknown metadata and selector fields fail closed at their respective boundaries. IR reads also refuse incomplete or malformed raw profiles and payload bytes that do not round-trip under the declared supported IR profile. Exact ArtifactRef selectors are preserved for both sidecar and blob reads."
 change_class = "internal"
 surface_classification = "internal: polisyos.ir.artifacts is not a supported entrypoint"
 migration = "No persisted manifest schema, canonicalization profile, payload bytes, or CAS identifiers change."
-api = "The IR ArtifactStore contract types write options as StorePutOptions or Mapping and requires raw get_manifest_bytes for strict reads; the Core adapter accepts ArtifactWriteOptions directly and forwards selected-view reads."
-limitations = "Byte conformance shows that the declared profile reproduces stored bytes; it does not attest producer identity or recover input choices that leave no byte witness, such as exclude_none when there are no null values. Core/IR tag-family changes and profile-less history migration remain separate G decisions."
+api = "The IR ArtifactStore contract types write options as StorePutOptions or Mapping, with metadata options accepting Pydantic BaseModel or Mapping values, and requires raw get_manifest_bytes plus exact typed get_manifest resolution for strict profile-bearing reads; the Core adapter accepts ArtifactWriteOptions directly and forwards selected-view reads. Core selector unknown-field checks remain scoped to selector admission."
+limitations = "Current Core native canonical-value emission covers the shared bytes, date, datetime, decimal, and float tags. Core decoding recognizes the bytes_hex and float_hex alternate spellings, which are refused by IR after exact selected-view resolution. Separately, the Core Mapping canonicalizer preserves a caller-supplied array_digest typed mapping, and the raw-reader test demonstrates that IR refuses it; this is not evidence of a qualifying Foundry producer-to-persisted-CAS-to-consumer chain. Foundry static-hash normalization is a separate surface and does not establish that artifact chain. Byte conformance does not attest producer identity or recover input choices that leave no byte witness, such as exclude_none when there are no null values. Core/IR tag-family changes and profile-less history migration remain separate G decisions."
 generated_client_compatibility = "not_applicable"

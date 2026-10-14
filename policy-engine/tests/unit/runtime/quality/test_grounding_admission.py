@@ -4,7 +4,7 @@ import pytest
 
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
@@ -582,7 +582,7 @@ def _reference(*, include_mechanism: bool) -> CredalReference:
         }
     )
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-06-29",

@@ -8,6 +8,7 @@ receipt or installs a test chronology verifier.
 import base64
 import hashlib
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -36,6 +37,8 @@ from polisyos.runtime.quality import chronology_qualification
 from polisyos.runtime.quality import semantic_epoch as epoch
 from polisyos.runtime.quality.acquisition_executor import (
     ActivatedSemanticEpochAdmissionReceipt,
+    _logical_type,
+    _persist_acquisition_semantic_candidate,
     build_admission_passport,
 )
 from polisyos.runtime.quality.chronology_qualification import QualificationConsumer
@@ -298,12 +301,18 @@ def _semantic_handshake(
 
     assert hasattr(source_ref, "artifact_id")
 
-    def put(payload: bytes, *, kind: str):
+    def put(
+        payload: bytes,
+        *,
+        kind: str,
+        canon: artifacts.CanonInfo | None = None,
+    ):
         return store.put_bytes(
             payload,
             ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/vnd.polisyos.epoch+json",
+                canon=canon,
             ),
         )
 
@@ -357,17 +366,11 @@ def _semantic_handshake(
         purpose_admission_cutoff_ref=query.purpose_admission_cutoff_ref,
         requested_query_context_ref=query.requested_query_context_ref,
     )
-    candidate_ref = put(
-        epoch_contract.acquisition_semantic_candidate_bytes(candidate_statement),
-        kind="epoch.acquisition_semantic_boundary_candidate",
-    )
-    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidate(
-        candidate_ref=candidate_ref,
-        candidate_content_hash=(
-            epoch_contract.acquisition_semantic_candidate_content_hash(candidate_statement)
-        ),
+    candidate = _persist_acquisition_semantic_candidate(
+        artifact_store=store,
         statement=candidate_statement,
     )
+    candidate_ref = candidate.candidate_ref
     manifest_values = {
         "schema_version": "polisyos.epoch.semantic-manifest.v1",
         "scope_identity": query.scope_identity.model_dump(mode="json"),
@@ -439,7 +442,11 @@ def _semantic_handshake(
         "status": "prepared",
     }
     canonical = epoch_contract.canonical_epoch_bytes(statement)
-    prepared_ref = put(len(canonical).to_bytes(8, "big") + canonical, kind="epoch.prepared")
+    prepared_ref = put(
+        len(canonical).to_bytes(8, "big") + canonical,
+        kind="epoch.prepared",
+        canon=epoch_contract.epoch_canon_info(),
+    )
     prepared = epoch.PreparedSemanticEpoch(
         prepared_epoch_ref=prepared_ref,
         prepared_content_hash=epoch._model_hash(
@@ -525,11 +532,39 @@ def _authority(
     tmp_path: Path,
     *,
     source_rows: list[dict[str, object]],
+    variable_specs: Sequence[Mapping[str, object]] | None = None,
+    unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
 ):
     repo_root = tmp_path / "repo"
     graph = catalog_read_api.build_slice0_fixture_catalog_graph(repo_root / "catalog")
     graph.close()
     baseline = repo_root / "catalog/catalog.duckdb"
+    if unadmitted_baseline_observations:
+        import duckdb
+
+        connection = duckdb.connect(str(baseline))
+        try:
+            for observation in unadmitted_baseline_observations:
+                connection.execute(
+                    "INSERT INTO ds_observations (observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    tuple(
+                        observation[field]
+                        for field in (
+                            "observation_id",
+                            "dataset_id",
+                            "raw_variable",
+                            "canonical_var",
+                            "country_code",
+                            "year",
+                            "survey_year",
+                            "wave",
+                            "value",
+                            "condition_json",
+                        )
+                    ),
+                )
+        finally:
+            connection.close()
     source_path = repo_root / "evidence/local-distress.json"
     source_path.parent.mkdir(parents=True, exist_ok=True)
     source_path.write_bytes(canonical_json_bytes(source_rows))
@@ -598,52 +633,113 @@ def _authority(
         encoding="utf-8",
     )
     l5 = _write_l5(repo_root)
-    entry = catalog_read_api.build_authority_entry(
-        source_lane="local_lift",
-        target_variable="cells.distress_score",
-        landing_dataset_id="acquisition.local.corrected_firm_panels",
-        landing_distribution_id="acquisition.local.corrected_firm_panels.json",
-        raw_field="distress_score",
-        raw_unit="ratio",
-        canonical_unit="ratio",
-        unit_transform="identity",
-        unit_transform_ref="fabric://units/ratio-identity/v1",
-        alignment_method="meta_analytic",
-        alignment_confidence=0.8,
-        is_proxy=False,
-        proxy_penalty=0.0,
-        aggregation_method="identity",
-        valid_min=0.0,
-        valid_max=1.0,
-        evidence_refs=("repo://evidence/local-distress.json",),
-        schema_contract_ref="repo://acquisition-registry#/local-distress/schema",
-        schema_columns=(
+    if variable_specs is None:
+        selected_specs: tuple[Mapping[str, object], ...] = (
+            {
+                "target_variable": "cells.distress_score",
+                "raw_field": "distress_score",
+                "raw_unit": "ratio",
+                "canonical_unit": "ratio",
+                "landing_dataset_id": "acquisition.local.corrected_firm_panels",
+                "landing_distribution_id": "acquisition.local.corrected_firm_panels.json",
+                "unit_transform_ref": "fabric://units/ratio-identity/v1",
+                "schema_contract_ref": "repo://acquisition-registry#/local-distress/schema",
+                "title": "Owner-validated local distress observations",
+                "description": "Content-bound local observations for the distress slot.",
+                "temporal_start": "2024",
+                "temporal_end": "2025",
+            },
+        )
+    else:
+        selected_specs = tuple(variable_specs)
+    source_columns = tuple(sorted({name for row in source_rows for name in row}))
+    schema_columns_list: list[catalog_read_api.AuthoritySchemaColumn] = []
+    for name in source_columns:
+        values = [row.get(name) for row in source_rows]
+        logical_type = _logical_type(values)
+        if logical_type.startswith("mixed["):
+            raise ValueError("semantic_epoch_fixture_schema_type_unresolved")
+        schema_columns_list.append(
             catalog_read_api.AuthoritySchemaColumn(
-                name="country_code", logical_types=("string",), nullable=False
+                name=name,
+                logical_types=(logical_type,),
+                nullable=any(name not in row or row.get(name) is None for row in source_rows),
+            )
+        )
+    schema_columns = tuple(schema_columns_list)
+    years = tuple(
+        sorted(
+            int(row[key])
+            for row in source_rows
+            for key in ("year", "survey_year", "wave")
+            if row.get(key) is not None
+        )
+    )
+    if not years:
+        raise ValueError("native_epoch_fixture_requires_time_coordinate")
+    entries = tuple(
+        catalog_read_api.build_authority_entry(
+            source_lane="local_lift",
+            target_variable=str(spec["target_variable"]),
+            landing_dataset_id=str(
+                spec.get(
+                    "landing_dataset_id",
+                    "acquisition.local." + str(spec["target_variable"]).replace(".", "_"),
+                )
             ),
-            catalog_read_api.AuthoritySchemaColumn(
-                name="distress_score", logical_types=("number",), nullable=False
+            landing_distribution_id=str(
+                spec.get(
+                    "landing_distribution_id",
+                    "acquisition.local." + str(spec["target_variable"]).replace(".", "_") + ".json",
+                )
             ),
-            catalog_read_api.AuthoritySchemaColumn(
-                name="year", logical_types=("integer",), nullable=False
+            raw_field=str(spec["raw_field"]),
+            raw_unit=str(spec.get("raw_unit", spec.get("canonical_unit", "ratio"))),
+            canonical_unit=str(spec.get("canonical_unit", spec.get("raw_unit", "ratio"))),
+            unit_transform=str(spec.get("unit_transform", "identity")),
+            unit_transform_ref=str(
+                spec.get(
+                    "unit_transform_ref",
+                    "fabric://units/" + str(spec.get("canonical_unit", "ratio")) + "-identity/v1",
+                )
             ),
-        ),
-        l5_family_id="distress_enforcement",
-        local_source_path="evidence/local-distress.json",
-        local_source_sha256=_sha(source_path),
-        local_license_id="CC-BY-4.0",
-        local_rights_receipt_path="evidence/local-distress-rights-receipt.json",
-        local_rights_receipt_sha256=_sha(rights_receipt_path),
-        title="Owner-validated local distress observations",
-        description="Content-bound local observations for the distress slot.",
-        country_codes=("UA",),
-        temporal_start="2024",
-        temporal_end="2025",
+            alignment_method="meta_analytic",
+            alignment_confidence=0.8,
+            is_proxy=False,
+            proxy_penalty=0.0,
+            aggregation_method="identity",
+            valid_min=float(spec.get("valid_min", 0.0)),
+            valid_max=float(spec.get("valid_max", 1.0)),
+            evidence_refs=("repo://evidence/local-distress.json",),
+            schema_contract_ref=str(
+                spec.get(
+                    "schema_contract_ref",
+                    "repo://acquisition-registry#/" + str(spec["raw_field"]) + "/schema",
+                )
+            ),
+            schema_columns=schema_columns,
+            l5_family_id="distress_enforcement",
+            local_source_path="evidence/local-distress.json",
+            local_source_sha256=_sha(source_path),
+            local_license_id="CC-BY-4.0",
+            local_rights_receipt_path="evidence/local-distress-rights-receipt.json",
+            local_rights_receipt_sha256=_sha(rights_receipt_path),
+            title=str(
+                spec.get("title", f"Owner-validated local {spec['target_variable']} observations")
+            ),
+            description=str(
+                spec.get("description", "Content-bound synthetic candidate observations.")
+            ),
+            country_codes=("UA",),
+            temporal_start=str(spec.get("temporal_start", years[0])),
+            temporal_end=str(spec.get("temporal_end", years[-1])),
+        )
+        for spec in selected_specs
     )
     registry = catalog_read_api.build_authority_registry(
         baseline_content_sha256=_sha(baseline),
         l5_measurement_registry_sha256=_sha(l5),
-        entries=(entry,),
+        entries=entries,
     )
     registry_path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
     registry_path.parent.mkdir(parents=True, exist_ok=True)
@@ -677,7 +773,7 @@ def _authority(
             repo_root=repo_root,
             baseline_path=baseline,
         ),
-        entry,
+        entries,
     )
 
 
@@ -692,10 +788,11 @@ def _fixture(
         {"country_code": "UA", "year": 2024, "distress_score": 0.42},
         {"country_code": "UA", "year": 2025, "distress_score": 0.51},
     ]
-    authority, entry = _authority(
+    authority, entries = _authority(
         tmp_path,
         source_rows=source_rows or selected_rows,
     )
+    entry = entries[0]
     resolved = authority.resolve(entry.entry_id)
     payload = canonical_json_bytes(selected_rows)
     store = FileSystemCAS(tmp_path / "cas")
@@ -775,6 +872,7 @@ def _real_epoch_scenario(tmp_path: Path, *, epoch_id: int = 1) -> SimpleNamespac
         ArtifactWriteOptions(
             kind="epoch.semantic_facet_source.v1",
             media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
         ),
     )
     history = FileSemanticEpochHistoryRepository(
@@ -835,20 +933,11 @@ def _real_epoch_scenario(tmp_path: Path, *, epoch_id: int = 1) -> SimpleNamespac
         purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
         requested_query_context_ref=native_query.requested_query_context_ref,
     )
-    candidate_ref = store.put_bytes(
-        epoch_contract.acquisition_semantic_candidate_bytes(candidate_statement),
-        ArtifactWriteOptions(
-            kind="epoch.acquisition_semantic_boundary_candidate",
-            media_type="application/vnd.polisyos.epoch+json",
-        ),
-    )
-    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidate(
-        candidate_ref=candidate_ref,
-        candidate_content_hash=(
-            epoch_contract.acquisition_semantic_candidate_content_hash(candidate_statement)
-        ),
+    candidate = _persist_acquisition_semantic_candidate(
+        artifact_store=store,
         statement=candidate_statement,
     )
+    candidate_ref = candidate.candidate_ref
     prepared = service.prepare_acquisition_candidate(
         query=query,
         candidate_ref=candidate.candidate_ref,
@@ -896,4 +985,175 @@ def _emit_admitted_ref(scenario: SimpleNamespace):
         boundary_candidate=scenario.candidate,
         pending_receipt=scenario.pending,
         artifact_store=scenario.store,
+    )
+
+
+def make_native_multivariable_active_projections(
+    tmp_path: Path,
+    *,
+    source_rows: list[dict[str, object]],
+    variable_specs: Sequence[Mapping[str, object]],
+    unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
+) -> SimpleNamespace:
+    """Create active projections through the real signed epoch owner chain.
+
+    Rows are controlled synthetic candidate inputs; source meaning, assignment,
+    support, sampling, and unit authority remain unestablished.
+    """
+    if not variable_specs:
+        raise ValueError("native_epoch_fixture_requires_variable_specs")
+    authority, entries = _authority(
+        tmp_path / "authority",
+        source_rows=source_rows,
+        variable_specs=variable_specs,
+        unadmitted_baseline_observations=unadmitted_baseline_observations,
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = canonical_json_bytes(source_rows)
+    source_ref = store.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind="fabric.acquisition.raw_evidence", media_type="application/json"),
+    )
+    journal = AppendOnlyEvidenceJournal(tmp_path / "journal.jsonl")
+    overlay_path = catalog_read_api.default_acquisition_overlay_path(authority.repo_root)
+    overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)
+    overlay.initialize()
+    history = FileSemanticEpochHistoryRepository(root=tmp_path / "history", artifacts=store)
+    facet_ref = store.put_bytes(
+        epoch_contract.canonical_epoch_bytes({"semantic_value": "catalog-semantics"}),
+        ArtifactWriteOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+    )
+    service = epoch.SemanticEpochService(
+        boundary_registry=epoch.build_boundary_registry(
+            (
+                epoch.EpochBoundarySourceRegistration(
+                    registration_id="n13b-acquisition-native-history",
+                    owner_kind="catalog_acquisition",
+                    owner_source_ref=epoch._sha256(b"test-catalog-owner"),
+                    opaque_scope_binding_ref=epoch._sha256(b"test-catalog-scope"),
+                ),
+            )
+        ),
+        boundary_adapters={
+            "catalog_acquisition": epoch.CatalogAcquisitionEpochBoundaryOwnerAdapter(
+                owner=overlay, artifacts=store
+            )
+        },
+        facet_registry=epoch.build_facet_registry(
+            (
+                epoch.SemanticFacetRegistration(
+                    facet_id="catalog-semantics", source_binding_ref=str(facet_ref.artifact_id)
+                ),
+            )
+        ),
+        facet_provider=epoch.ArtifactSemanticFacetProvider(
+            artifacts=store, source_refs={str(facet_ref.artifact_id): facet_ref}
+        ),
+        history=history,
+        artifact_store=store,
+        qualification_consumer=QualificationConsumer.from_unallocated_policy_authority(),
+        chronology_adapter=epoch.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
+            history=history, artifacts=store
+        ),
+    )
+    projections: dict[str, object] = {}
+    for epoch_id, entry in enumerate(entries, start=1):
+        resolved = authority.resolve(entry.entry_id)
+        attempt_id = f"n8-multivariable-owner-{epoch_id:02d}"
+        request_ref = journal.append_request(
+            attempt_id=attempt_id,
+            request={
+                "authority_entry_id": entry.entry_id,
+                "authority_registry_content_sha256": resolved.registry_content_sha256,
+                "variable_id": entry.target_variable,
+                "source_lane": entry.source_lane,
+                "dataset_id": entry.landing_dataset_id,
+                "distribution_id": entry.landing_distribution_id,
+                "connector_id": resolved.registration.connector_id,
+                "profile_id": resolved.registration.source_profile_id,
+                "request_dataset_id": resolved.registration.request_dataset_id,
+                "schema_contract": entry.schema_projection(),
+            },
+        )
+        raw_ref = journal.append_raw_evidence(
+            attempt_id=attempt_id,
+            request_ref=request_ref,
+            payload=payload,
+            status_code=None,
+            response_headers={"content-type": "application/json"},
+            budget=derive_live_http_budget(
+                _profile(), max_response_bytes=65_536, max_decompressed_bytes=65_536
+            ),
+        )
+        candidate0, prepared0 = _semantic_handshake(store, source_ref=source_ref)
+        native_query = service.acquisition_owner_query(query=prepared0.query)
+        statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
+            source_record_ref=candidate0.statement.source_record_ref,
+            source_record_content_hash=candidate0.statement.source_record_content_hash,
+            scope_identity_ref=native_query.scope_identity_ref,
+            authority_purpose=native_query.authority_purpose,
+            valid_effect_coordinate_ref=native_query.valid_effect_coordinate_ref,
+            visibility_knowledge_cutoff_ref=native_query.visibility_knowledge_cutoff_ref,
+            purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
+            requested_query_context_ref=native_query.requested_query_context_ref,
+        )
+        candidate = _persist_acquisition_semantic_candidate(
+            artifact_store=store,
+            statement=statement,
+        )
+        candidate_ref = candidate.candidate_ref
+        prepared = service.prepare_acquisition_candidate(
+            query=prepared0.query, candidate_ref=candidate_ref
+        )
+        passport = build_admission_passport(
+            epoch_id=epoch_id,
+            raw_evidence_ref=raw_ref,
+            artifact_store=store,
+            raw_artifact_id=str(source_ref.artifact_id),
+            authority=authority,
+            boundary_candidate=candidate,
+            prepared_epoch=prepared,
+        )
+        pending = overlay.admit_epoch(
+            passport=passport,
+            prepared_epoch=prepared,
+            boundary_candidate=candidate,
+            artifact_store=store,
+            authority=authority,
+        )
+        scenario = SimpleNamespace(
+            store=store,
+            authority=authority,
+            entry=entry,
+            raw_ref=raw_ref,
+            overlay=overlay,
+            history=history,
+            service=service,
+            query=prepared0.query,
+            candidate=candidate,
+            prepared=prepared,
+            passport=passport,
+            pending=pending,
+        )
+        native_case = sign_native_epoch_scenario(scenario, tmp_path / f"policy-{epoch_id:02d}")
+        finalized = finalize_native_epoch_case(native_case)
+        projections[entry.target_variable] = overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=finalized.activated.receipt_ref,
+            artifact_store=store,
+            passport=passport,
+            authority=authority,
+        )
+    return SimpleNamespace(
+        repo_root=authority.repo_root,
+        baseline_path=authority.baseline_path,
+        overlay_path=overlay_path,
+        artifact_store=store,
+        authority=authority,
+        overlay=overlay,
+        projections=projections,
+        entries=entries,
     )

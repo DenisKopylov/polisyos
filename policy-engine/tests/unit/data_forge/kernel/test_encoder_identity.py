@@ -12,6 +12,7 @@ import pytest
 from polisyos.data_forge.kernel.embeddings import (
     EmbeddingGenerationRef,
     _build_embedding_generation_from_vectors,
+    _tensor_bytes,
     build_embedding_generation,
     derive_encoder_identity,
     embedding_generation_manifest,
@@ -147,6 +148,19 @@ class _Encoder:
         return np.vstack([vector for _text in texts])
 
 
+class _NamedStateEncoder(_Encoder):
+    def __init__(self) -> None:
+        super().__init__()
+        self.live_buffer = np.asarray([0.25, 0.75], dtype=np.float32)
+        self.training = True
+
+    def named_parameters(self) -> tuple[tuple[str, np.ndarray], ...]:
+        return (("encoder.weight", self.weight),)
+
+    def named_buffers(self) -> tuple[tuple[str, np.ndarray], ...]:
+        return (("encoder.runtime_scale", self.live_buffer),)
+
+
 def _make_hnsw(vectors: np.ndarray, labels: list[int] | None = None) -> object:
     import hnswlib
 
@@ -175,6 +189,72 @@ def test_encoder_identity_tracks_live_weights_and_tokenizer_assets() -> None:
     assert changed_weights != changed_tokenizer
     assert changed_tokenizer != changed_sequence_length
     assert changed_sequence_length != changed_normalizer
+
+
+def test_live_encoder_identity_tracks_named_buffers_and_module_mode() -> None:
+    encoder = _NamedStateEncoder()
+    legacy_identity = derive_encoder_identity(encoder)
+    original = derive_encoder_identity(
+        encoder,
+        include_live_model_state=True,
+        require_zero_copy=True,
+    )
+
+    encoder.live_buffer[0] = 0.5
+    changed_buffer = derive_encoder_identity(
+        encoder,
+        include_live_model_state=True,
+        require_zero_copy=True,
+    )
+    encoder.training = False
+    changed_mode = derive_encoder_identity(
+        encoder,
+        include_live_model_state=True,
+        require_zero_copy=True,
+    )
+
+    assert original != changed_buffer
+    assert changed_buffer != changed_mode
+    assert derive_encoder_identity(encoder) == legacy_identity
+
+
+def test_zero_copy_tensor_identity_uses_original_storage_and_refuses_strides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    values = np.arange(8, dtype=np.float32)
+    raw, dtype, shape = _tensor_bytes(values, require_zero_copy=True)
+    assert isinstance(raw, memoryview)
+    assert raw.obj is values
+    assert dtype == "float32"
+    assert shape == (8,)
+
+    streamed_values = np.frombuffer(raw, dtype=np.float32)
+    values[0] = 42.0
+    assert streamed_values[0] == 42.0
+
+    with pytest.raises(ValueError, match="contiguous tensor bytes"):
+        _tensor_bytes(values[::2], require_zero_copy=True)
+
+    def unexpected_array_conversion(_value: object) -> np.ndarray:
+        raise AssertionError("strict zero-copy mode must not materialize array-likes")
+
+    monkeypatch.setattr(np, "asarray", unexpected_array_conversion)
+    with pytest.raises(ValueError, match="CPU torch tensor or NumPy array"):
+        _tensor_bytes([1.0, 2.0], require_zero_copy=True)
+
+
+def test_zero_copy_torch_memoryview_aliases_original_cpu_storage() -> None:
+    torch = pytest.importorskip("torch")
+    values = torch.arange(4, dtype=torch.float32)
+
+    raw, dtype, shape = _tensor_bytes(values, require_zero_copy=True)
+
+    assert isinstance(raw, memoryview)
+    assert dtype == "torch.float32"
+    assert shape == (4,)
+    original = raw.tobytes()
+    values[0].add_(1)
+    assert raw.tobytes() != original
 
 
 def test_generation_persists_identity_of_encoder_that_produced_vectors(

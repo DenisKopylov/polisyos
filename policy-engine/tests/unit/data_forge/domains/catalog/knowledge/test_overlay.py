@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import duckdb
 import pytest
@@ -24,13 +25,14 @@ from polisyos.runtime.quality.acquisition_executor import (
     ObservationProvenanceClass,
     build_admission_passport,
 )
+from tests._helpers import semantic_epoch_native as semantic_epoch_native_helper
 from tests._helpers.semantic_epoch_native import (
+    _emit_admitted_ref,
     _fixture,
     _real_epoch_scenario,
     _semantic_handshake_from_passport,
     _valid_passport,
 )
-from tests.unit.runtime.quality import test_acquisition_executor as acquisition_executor_tests
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
     _second_real_epoch_scenario,
@@ -59,37 +61,12 @@ def _scenario_with_raw_rows(
 ):
     """Build the normal served scenario around one explicit source-row set."""
 
-    fixture = acquisition_executor_tests._fixture
-
-    build_entry = acquisition_executor_tests.catalog_read_api.build_authority_entry
-
-    def entry_with_condition_column(*args, **kwargs):
-        columns = tuple(kwargs["schema_columns"])
-        if not any(column.name == "condition_json" for column in columns):
-            kwargs["schema_columns"] = tuple(
-                sorted(
-                    (
-                        *columns,
-                        acquisition_executor_tests.catalog_read_api.AuthoritySchemaColumn(
-                            name="condition_json",
-                            logical_types=("object",),
-                            nullable=False,
-                        ),
-                    ),
-                    key=lambda column: column.name,
-                )
-            )
-        return build_entry(*args, **kwargs)
+    fixture = semantic_epoch_native_helper._fixture
 
     def selected_fixture(root: Path):
         return fixture(root, rows=rows, source_rows=rows)
 
-    monkeypatch.setattr(acquisition_executor_tests, "_fixture", selected_fixture)
-    monkeypatch.setattr(
-        acquisition_executor_tests.catalog_read_api,
-        "build_authority_entry",
-        entry_with_condition_column,
-    )
+    monkeypatch.setattr(semantic_epoch_native_helper, "_fixture", selected_fixture)
     return _real_epoch_scenario(tmp_path)
 
 
@@ -1578,6 +1555,82 @@ def test_legacy_row_has_not_established_semantic_epoch(tmp_path: Path) -> None:
     assert row == (legacy_id, None, "legacy_not_established")
 
 
+def test_epoch_statement_readback_recanonicalizes_typed_native_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real membership bytes survive Core readback, while changed decoded bytes refuse."""
+
+    scenario = _real_epoch_scenario(tmp_path)
+    query = scenario.service.acquisition_owner_query(query=scenario.query)
+    membership = scenario.overlay.resolve_native_membership(query=query)
+    kind = "epoch.r1721_typed_native_membership_fixture"
+    domain = "polisyos.test.r1721-typed-native-membership"
+
+    ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=scenario.store,
+        value=membership,
+        kind=kind,
+        domain=domain,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    persisted = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=ref,
+        expected_kind=kind,
+    )
+    persisted_query = persisted.get("query")
+    assert isinstance(persisted_query, dict)
+    assert isinstance(persisted_query.get("valid_effect_coordinate_bytes"), bytes)
+    expected_canonical = contracts.epoch.canonical_epoch_bytes(membership)
+    assert contracts.epoch.canonical_epoch_bytes(persisted) == expected_canonical
+    assert (
+        scenario.store.get_bytes(ref)
+        == len(expected_canonical).to_bytes(8, "big") + expected_canonical
+    )
+    assert scenario.store.get_manifest(ref).canon == contracts.epoch.epoch_canon_info()
+
+    real_reader = overlay_module._load_profiled_framed_statement
+
+    def altered_readback(
+        *,
+        artifact_store: overlay_module._ArtifactStore,
+        ref: overlay_module.ArtifactRef,
+        expected_kind: str,
+        raw_payload_bytes: bytes | None = None,
+    ) -> dict[str, object]:
+        mapping = real_reader(
+            artifact_store=artifact_store,
+            ref=ref,
+            expected_kind=expected_kind,
+            raw_payload_bytes=raw_payload_bytes,
+        )
+        if expected_kind != kind:
+            return mapping
+        query_mapping = mapping.get("query")
+        if not isinstance(query_mapping, dict):
+            raise AssertionError("native membership query did not decode as a mapping")
+        altered_query = dict(query_mapping)
+        altered_query["valid_effect_coordinate_bytes"] = b"changed-after-profile-read"
+        return {**mapping, "query": altered_query}
+
+    monkeypatch.setattr(overlay_module, "_load_profiled_framed_statement", altered_readback)
+    with pytest.raises(OverlayAdmissionError) as refusal:
+        overlay_module._persist_epoch_statement(
+            artifact_store=scenario.store,
+            value=membership,
+            kind=kind,
+            domain=domain,
+        )
+    assert refusal.value.code == "semantic_external_receipt_profile_readback_mismatch"
+    assert (
+        scenario.store.get_bytes(ref)
+        == len(expected_canonical).to_bytes(8, "big") + expected_canonical
+    )
+    assert scenario.store.get_manifest(ref).canon == contracts.epoch.epoch_canon_info()
+    assert ref.manifest_profile_sha256 is not None
+
+
 def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless_history(
     tmp_path: Path,
 ) -> None:
@@ -1594,11 +1647,14 @@ def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless
     )
     assert external_ref.manifest_profile_sha256 is not None
     assert store.get_manifest(external_ref).canon == external_profile
-    assert overlay_module._load_external_statement(
-        artifact_store=store,
-        ref=external_ref,
-        expected_kind=external_kind,
-    ) == external_value
+    assert (
+        overlay_module._load_external_statement(
+            artifact_store=store,
+            ref=external_ref,
+            expected_kind=external_kind,
+        )
+        == external_value
+    )
 
     legacy_body = overlay_module.fabric_data_plane.canonical_json_bytes(external_value)
     legacy_ref = store.put_bytes(
@@ -1615,7 +1671,9 @@ def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless
             expected_kind=external_kind,
         )
     assert refusal.value.code == "semantic_external_receipt_profile_missing"
-    assert store.get_bytes(legacy_ref.artifact_id) == len(legacy_body).to_bytes(8, "big") + legacy_body
+    assert (
+        store.get_bytes(legacy_ref.artifact_id) == len(legacy_body).to_bytes(8, "big") + legacy_body
+    )
 
     epoch_kind = "epoch.r6_epoch_statement_fixture"
     epoch_ref, _ = overlay_module._persist_epoch_statement(
@@ -1626,3 +1684,186 @@ def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless
     )
     assert epoch_ref.manifest_profile_sha256 is not None
     assert store.get_manifest(epoch_ref).canon == overlay_module.epoch_contract.epoch_canon_info()
+
+
+def _alternate_profiled_provenance_ref(
+    scenario: SimpleNamespace,
+    owner_ref: overlay_module.ArtifactRef,
+) -> overlay_module.ArtifactRef:
+    """Persist the same owner bytes under a different, valid CAS canon profile."""
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_mapping, _ = overlay_module._load_owner_record(
+            con,
+            ref=owner_ref,
+            expected_kind="epoch.acquisition_projection_verifier_provenance",
+        )
+    finally:
+        con.close()
+    canonical = contracts.epoch.canonical_epoch_bytes(owner_mapping)
+    payload = len(canonical).to_bytes(8, "big") + canonical
+    alternate_canon = CanonInfo.from_spec(
+        overlay_module.canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    )
+    alternate_ref = scenario.store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind=owner_ref.kind,
+            media_type=owner_ref.media_type,
+            canon=alternate_canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate_ref.artifact_id == owner_ref.artifact_id
+    assert alternate_ref.kind == owner_ref.kind
+    assert alternate_ref.media_type == owner_ref.media_type
+    assert alternate_ref.manifest_profile_sha256 is not None
+    assert scenario.store.get_bytes(alternate_ref) == payload
+    assert scenario.store.get_manifest(alternate_ref).canon == alternate_canon
+    return alternate_ref
+
+
+def test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views(
+    tmp_path: Path,
+) -> None:
+    """The fresh finalizer resolves the actual selected CAS provenance before its gate."""
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = _emit_admitted_ref(scenario)
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    projection_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.semantic_projection_verification_receipt_ref,
+        expected_kind="epoch.acquisition_semantic_projection_verification_receipt",
+    )
+    projection = contracts.epoch.AcquisitionSemanticProjectionVerificationReceipt.model_validate(
+        projection_mapping
+    )
+    provenance_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.verifier_provenance_ref,
+        expected_kind="epoch.acquisition_projection_verifier_provenance",
+    )
+    provenance = contracts.epoch.AcquisitionProjectionVerifierProvenance.model_validate(
+        provenance_mapping
+    )
+
+    owner_ref = projection.verifier_provenance_ref
+    selected_ref = admitted.verifier_provenance_ref
+    assert owner_ref.manifest_profile_sha256 is None
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert selected_ref.artifact_id == owner_ref.artifact_id
+    assert selected_ref.kind == owner_ref.kind
+    assert selected_ref.media_type == owner_ref.media_type
+    assert scenario.store.get_manifest(selected_ref).canon == contracts.epoch.epoch_canon_info()
+    assert projection.status == "verified"
+    assert projection.verifier_provenance_content_hash == overlay_module._semantic_content_hash(
+        domain="polisyos.epoch.acquisition-projection-verifier.v1",
+        value=provenance,
+    )
+
+    production = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=admitted_ref,
+    )
+
+    # The actual provenance chain has passed; this fixture still lacks the separate
+    # appointed policy authority, so no positive epoch production is claimed.
+    assert production.status == "not_established"
+    assert production.failure_codes == ("policy_admission_missing",)
+
+
+def test_fresh_admission_consumer_refuses_same_bytes_under_wrong_provenance_profile(
+    tmp_path: Path,
+) -> None:
+    """A different resolvable profile cannot substitute for the epoch provenance profile."""
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = _emit_admitted_ref(scenario)
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    original_provenance_bytes = scenario.store.get_bytes(admitted.verifier_provenance_ref)
+    wrong_profile_ref = _alternate_profiled_provenance_ref(
+        scenario,
+        admitted.verifier_provenance_ref,
+    )
+    assert wrong_profile_ref.manifest_profile_sha256 != (
+        admitted.verifier_provenance_ref.manifest_profile_sha256
+    )
+    assert scenario.store.get_bytes(admitted.verifier_provenance_ref) == original_provenance_bytes
+
+    forged_evidence = admitted.model_copy(update={"verifier_provenance_ref": wrong_profile_ref})
+    forged_evidence_ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=scenario.store,
+        value=forged_evidence,
+        kind="epoch.admitted_acquisition_boundary_evidence",
+        domain="polisyos.epoch.admitted-acquisition-boundary-evidence.v1",
+    )
+    production = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=forged_evidence_ref,
+    )
+
+    assert production.status == "not_established"
+    assert production.failure_codes == ("epoch_scope_unresolved",)
+    assert scenario.store.get_bytes(admitted.verifier_provenance_ref) == original_provenance_bytes
+    assert scenario.store.get_manifest(wrong_profile_ref).canon != (
+        contracts.epoch.epoch_canon_info()
+    )
+
+
+def test_owner_to_cas_emission_rejects_forged_profile_while_markers_and_bytes_remain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The producer compares the actual selector, not just matching ref markers."""
+    scenario = _real_epoch_scenario(tmp_path)
+    actual_verify = scenario.overlay.verify_semantic_projection
+    alternate_refs: list[overlay_module.ArtifactRef] = []
+
+    def mismatched_profile(
+        *,
+        native_membership_ref: overlay_module.ArtifactRef,
+        semantic_denominator_ref: overlay_module.ArtifactRef,
+        prospective_candidate: contracts.epoch.AcquisitionSemanticBoundaryCandidate | None,
+    ) -> contracts.epoch.AcquisitionSemanticProjectionVerificationReceipt:
+        projection = actual_verify(
+            native_membership_ref=native_membership_ref,
+            semantic_denominator_ref=semantic_denominator_ref,
+            prospective_candidate=prospective_candidate,
+        )
+        alternate_refs.append(
+            _alternate_profiled_provenance_ref(scenario, projection.verifier_provenance_ref)
+        )
+        return projection.model_copy(update={"verifier_provenance_ref": alternate_refs[-1]})
+
+    monkeypatch.setattr(scenario.overlay, "verify_semantic_projection", mismatched_profile)
+    with pytest.raises(OverlayAdmissionError) as refusal:
+        _emit_admitted_ref(scenario)
+
+    assert refusal.value.code == "acquisition_projection_verifier_provenance_drift"
+    assert len(alternate_refs) == 1
+    owner_ref = alternate_refs[0]
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_mapping, _ = overlay_module._load_owner_record(
+            con,
+            ref=owner_ref,
+            expected_kind="epoch.acquisition_projection_verifier_provenance",
+        )
+    finally:
+        con.close()
+    owner_canonical = contracts.epoch.canonical_epoch_bytes(owner_mapping)
+    owner_payload = len(owner_canonical).to_bytes(8, "big") + owner_canonical
+    assert scenario.store.get_bytes(owner_ref) == owner_payload
+    assert owner_ref.manifest_profile_sha256 is not None
+    assert scenario.store.get_manifest(owner_ref).canon == CanonInfo.from_spec(
+        overlay_module.canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    )

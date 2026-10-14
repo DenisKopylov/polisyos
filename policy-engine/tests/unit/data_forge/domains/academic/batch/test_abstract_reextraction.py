@@ -301,7 +301,9 @@ async def test_removal_of_source_presence_preservation_breaks_actual_raw_project
     monkeypatch.setattr(owner._SubsetExtractor, "__init__", remove_presence)
     with pytest.raises(AssertionError, match="raw_source_presence_transport_lost") as observed:
         await test_subset_persists_axes_and_refuses_unadjudicated_publication(tmp_path)
-    print(json.dumps({"removed_property": "raw_source_presence", "gate_failure": str(observed.value)}))
+    print(
+        json.dumps({"removed_property": "raw_source_presence", "gate_failure": str(observed.value)})
+    )
 
 
 def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path: Path) -> None:
@@ -428,7 +430,10 @@ def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_p
     original = _reference()
     edge_index = {**original.essential_edges, **{edge.key: edge for edge in edges}}
     digest = credal._reference_hash(
-        component_versions=original.component_versions, edge_index=edge_index, as_of=original.as_of
+        component_versions=original.component_versions,
+        edge_index=edge_index,
+        as_of=original.as_of,
+        schema_version=original.schema_version,
     )
     reference = replace(
         original,
@@ -468,7 +473,9 @@ def test_removal_of_snapshot_provenance_breaks_sibling_consumer_gate(tmp_path, m
     monkeypatch.setattr(credal, "_iter_l2_edges", credal._iter_l2_source_edges)
     with pytest.raises(AssertionError, match="snapshot_synthetic_ancestry_lost") as observed:
         test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path)
-    print(json.dumps({"removed_property": "snapshot_ancestry", "gate_failure": str(observed.value)}))
+    print(
+        json.dumps({"removed_property": "snapshot_ancestry", "gate_failure": str(observed.value)})
+    )
 
 
 def test_removal_of_synthetic_authority_refusal_breaks_downstream_gate(tmp_path, monkeypatch):
@@ -477,7 +484,9 @@ def test_removal_of_synthetic_authority_refusal_breaks_downstream_gate(tmp_path,
     monkeypatch.setattr(grounding_bind, "_synthetic_reference", lambda _reference: False)
     with pytest.raises(AssertionError, match="synthetic_specific_refusal_lost") as observed:
         test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path)
-    print(json.dumps({"removed_property": "synthetic_refusal", "gate_failure": str(observed.value)}))
+    print(
+        json.dumps({"removed_property": "synthetic_refusal", "gate_failure": str(observed.value)})
+    )
 
 
 def test_price_uses_observed_tokens_preserves_missing_and_excludes_synthetic():

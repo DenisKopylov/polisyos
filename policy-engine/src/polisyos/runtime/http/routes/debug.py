@@ -158,7 +158,12 @@ if router is not None:
             debug=debug_view,
         )
 
-    @router.get("/{run_id}/errors", response_model=RunErrorsResponse, operation_id="get_run_errors")
+    @router.get(
+        "/{run_id}/errors",
+        response_model=RunErrorsResponse,
+        operation_id="get_run_errors",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    )
     def get_run_errors(
         run_id: str,
         request: Request,
@@ -171,11 +176,12 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_errors",
         )
-        errors = ctx.debug.get_run_errors(run)
+        errors, notes = ctx.debug.get_run_errors_with_notes(run)
         return RunErrorsResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
             errors=errors,
+            notes=notes,
         )
 
     @router.get(

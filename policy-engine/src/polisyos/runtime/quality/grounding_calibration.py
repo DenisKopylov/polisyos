@@ -20,7 +20,7 @@ from polisyos.core import artifacts  # Pydantic resolves these fields at runtime
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     CredalReference,
     _iter_l6_edges,
     _iter_wmr_edges,
@@ -573,7 +573,7 @@ def build_refusal_reference_scaffold(repo_root: Path, world: WorldModelRecord) -
     }
     digest = gy_content_hash(payload)
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"synthetic-refusal:{digest.removeprefix('sha256:')[:16]}",
         reference_hash=digest,
         as_of=str(world.created_at),

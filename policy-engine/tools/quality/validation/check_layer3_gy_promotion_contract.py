@@ -56,7 +56,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSession,
 )
 from polisyos.runtime.quality.credal_reference import (
-    CREDAL_REFERENCE_SCHEMA_VERSION,
+    CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
@@ -2400,9 +2400,10 @@ def _credal_reference() -> CredalReference:
         component_versions=component_versions,
         edge_index=edge_index,
         as_of="2026-06-29",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
     )
     return CredalReference(
-        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
         reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
         reference_hash=reference_hash,
         as_of="2026-06-29",

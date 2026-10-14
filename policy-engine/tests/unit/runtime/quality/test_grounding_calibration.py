@@ -284,6 +284,8 @@ def test_actual_proof_world_pin_replays_original_bytes_time_and_structural_refer
     assert declaration.purpose == "structural_grounding_proof_only"
     a = owner.build_refusal_reference_scaffold(root, first)
     b = owner.build_refusal_reference_scaffold(root, second)
+    assert a.schema_version == owner.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION
+    assert a.data_forge_catalog_source_profile is None
     assert a.reference_hash == b.reference_hash
     assert a.as_of == b.as_of == first.created_at
     assert a.essential_edges == b.essential_edges
@@ -338,13 +340,22 @@ def test_proof_source_matching_removal_is_decisive_with_original_positive(monkey
     invalid = _rehashed_proof_declaration(
         owner, declaration, world_created_at="2026-09-09T00:00:00+00:00"
     )
-    assert owner.resolve_grounding_proof_world_input(root, declaration).created_at == declaration.world_created_at
+    assert (
+        owner.resolve_grounding_proof_world_input(root, declaration).created_at
+        == declaration.world_created_at
+    )
     with pytest.raises(ValueError, match="grounding_proof_world_binding_mismatch"):
         owner.resolve_grounding_proof_world_input(root, invalid)
     monkeypatch.setattr(owner, "_world_matches_proof_input", lambda *_args: True)
-    assert owner.resolve_grounding_proof_world_input(root, declaration).created_at == declaration.world_created_at
+    assert (
+        owner.resolve_grounding_proof_world_input(root, declaration).created_at
+        == declaration.world_created_at
+    )
     # The unchanged refusal gate, when invoked with the guard removed, must red.
-    assert owner.resolve_grounding_proof_world_input(root, invalid).created_at != invalid.world_created_at
+    assert (
+        owner.resolve_grounding_proof_world_input(root, invalid).created_at
+        != invalid.world_created_at
+    )
 
 
 def test_proof_world_pin_uses_core_integrity_for_bytes_outside_logical_hash() -> None:

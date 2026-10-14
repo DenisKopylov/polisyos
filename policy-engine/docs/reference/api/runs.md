@@ -177,6 +177,10 @@ Return per-node execution records for the run.
   - `run_id`
   - `source_kind`
   - `nodes`: array of `RunNodeRecord`
+  - `notes`: optional limitation codes. When the workflow report is genuinely absent, the nodes
+    are a timeline fallback and `notes` contains `workflow_report_missing_or_unavailable`. A
+    present malformed report still returns the typed canonical-profile refusal. Older servers may
+    omit `notes`; that leaves fallback status unreported.
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \

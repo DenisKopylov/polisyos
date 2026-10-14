@@ -2,6 +2,7 @@
 
 from .models import (
     LegalCandidatePack,
+    LegalRetrievalStatus,
     LegalSourcePack,
     PolicyEvidenceLink,
     PolicyOption,
@@ -27,6 +28,7 @@ from .models import (
 
 __all__ = [
     "LegalCandidatePack",
+    "LegalRetrievalStatus",
     "LegalSourcePack",
     "PolicyEvidenceLink",
     "PolicyOption",

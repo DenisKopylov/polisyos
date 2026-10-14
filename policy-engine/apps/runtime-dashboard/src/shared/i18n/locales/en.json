@@ -917,6 +917,8 @@
       "governanceErrorsPanel": "Errors panel",
       "runErrorsLoading": "Loading run errors...",
       "runErrorsLoadError": "Unable to load run errors",
+      "workflowTimelineFallback": "Node records and workflow-node failures come from the run timeline because the workflow report is unavailable.",
+      "workflowLimitationStatusNotReported": "This server did not report whether timeline fallback was used.",
       "debugAliasesLoading": "Loading node aliases...",
       "debugNodesLoadError": "Unable to load run nodes for debug",
       "debugLoading": "Loading node debug...",

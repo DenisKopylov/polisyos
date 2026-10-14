@@ -6001,3 +6001,340 @@ def test_source_flip_output_root_rejects_paths_outside_local_raw(
     monkeypatch.delenv(value_contract._SOURCE_FLIP_OUTPUT_ROOT_ENV, raising=False)
     with pytest.raises(ValueError, match="must remain under canonical LOCAL/raw"):
         value_contract._source_flip_output_base(tmp_path.resolve(), tmp_path.resolve() / "outside")
+
+
+@pytest.mark.parametrize("method_name", ["aipw", "tmle"])
+def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
+    method_name: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Canonical active admissions reach the real method, CAS, and fresh reader."""
+    from dataclasses import replace
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection,
+    )
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+        AIPWEstimator,
+        TMLEEstimator,
+    )
+    from polisyos.ir.analytics.causal import load_causal_effect_report
+    from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle
+    from polisyos.ir.registry.refs import CausalEffectReportRef
+    from polisyos.runtime.quality import (
+        ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceVariableProjectionV1,
+    )
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    method_fqn = {"aipw": AIPWEstimator.signature.fqn, "tmle": TMLEEstimator.signature.fqn}[
+        method_name
+    ]
+    candidate, problem, world = _avg_income_candidate(), _avg_income_problem(), _world_record()
+    source_rows: list[dict[str, object]] = []
+    for index in range(200):
+        treatment = float(index % 2)
+        covariate = float((index // 2) % 2)
+        outcome = float((index * 11) % 17 < (6 + int(treatment) + int(covariate)))
+        source_rows.append(
+            {
+                "country_code": "UA",
+                "year": 1800 + index,
+                "avg_income": outcome,
+                "observed_treatment": treatment,
+                "income_covariate": covariate,
+                "condition_json": '{"unit":"binary"}',
+            }
+        )
+    source_fixture = make_native_multivariable_active_projections(
+        tmp_path / "native-owner-source",
+        source_rows=source_rows,
+        variable_specs=(
+            {
+                "target_variable": "avg_income",
+                "raw_field": "avg_income",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+            {
+                "target_variable": "observed_treatment",
+                "raw_field": "observed_treatment",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+            {
+                "target_variable": "income_covariate",
+                "raw_field": "income_covariate",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+        ),
+    )
+    projections = source_fixture.projections
+    estimand_spec = json.dumps(
+        {
+            "query_id": "n8-source-projection-controlled",
+            "estimand_id": "ATE",
+            "outcome": "avg_income",
+            "treatment_or_exposure": "observed_treatment",
+            "covariates_or_conditioning": ["income_covariate"],
+            "adjustment_set": ["income_covariate"],
+            "population": "unspecified",
+            "sample_filter": None,
+            "time_horizon": None,
+            "prediction_origin": None,
+            "unit": "binary",
+            "scale": "identity",
+            "transform": None,
+            "target_role": "estimate",
+            "loss_or_utility_id": None,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    request = ValueOwnerSourceProjectionRequestV1(
+        selected_method_fqn=method_fqn,
+        estimand_spec_json=estimand_spec,
+        variable_projections=tuple(
+            ValueOwnerSourceVariableProjectionV1(
+                role=role,
+                variable_id=variable_id,
+                projection_payload=projections[variable_id].model_dump(mode="json"),
+            )
+            for role, variable_id in (
+                ("outcome", "avg_income"),
+                ("treatment", "observed_treatment"),
+                ("covariate", "income_covariate"),
+            )
+        ),
+        outcome_lower=0.0,
+        outcome_upper=1.0,
+        outcome_bounds_unit="binary",
+        method_parameters_json="{}",
+        seed=7,
+    )
+    core_store = source_fixture.artifact_store
+    ir_store = ensure_ir_artifact_store(core_store)
+    substrate_paths = replace(
+        default_substrate_catalog_paths(source_fixture.repo_root),
+        l1_dcat_path=source_fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=source_fixture.repo_root,
+        snapshot_root=source_fixture.baseline_path.parent,
+        database_path=source_fixture.baseline_path,
+        index_dir=source_fixture.repo_root / "index",
+        overlay_path=source_fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    gateway = RealValueOwnerGateway(
+        repo_root=source_fixture.repo_root,
+        catalog_overlay_path=source_fixture.overlay_path,
+        catalog_serving_source=catalog_source,
+        artifact_store=core_store,
+        activated_observation_projection=projections["avg_income"],
+        source_projection_request=request,
+    )
+    basis_refs: list[Any] = []
+    original_producer = gc._produce_value_owner_method_run_basis
+
+    def capture_producer(**kwargs: Any) -> Any:
+        ref = original_producer(**kwargs)
+        basis_refs.append(ref)
+        return ref
+
+    outer_sets: list[ValueOuterSet] = []
+    original_consumer = gc._value_outer_set_from_owner_method_run_basis
+
+    def capture_consumer(**kwargs: Any) -> ValueOuterSet:
+        result = original_consumer(**kwargs)
+        outer_sets.append(result)
+        return result
+
+    monkeypatch.setattr(gc, "_produce_value_owner_method_run_basis", capture_producer)
+    monkeypatch.setattr(gc, "_value_outer_set_from_owner_method_run_basis", capture_consumer)
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
+
+    def run(selected_gateway: RealValueOwnerGateway) -> ValuePortObservation:
+        with catalog_serving_source_scope(catalog_source):
+            return FoundryValuePort(
+                evaluation_context=_simulation_execution_context(
+                    candidate=candidate, simulation=simulation, problem=problem
+                ),
+                owner_gateway=selected_gateway,
+                requested_method_fqn=method_fqn,
+                artifact_store=core_store,
+            )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+
+    observation = run(gateway)
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",)
+    assert observation.value_ref is not None and observation.selected_method_fqn == method_fqn
+    assert len(basis_refs) == len(outer_sets) == 1
+    basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
+        gc._value_load_ref_payload(ir_store, basis_refs[0])
+    )
+    assignment = gc.ValueOwnerSourceVariableAssignmentV1.model_validate(
+        gc._value_load_ref_payload(ir_store, basis.assignment_ref)
+    )
+    report = load_causal_effect_report(
+        ir_store, CausalEffectReportRef.model_validate(basis.report_ref.model_dump(mode="python"))
+    )
+    bounds_ref = gc._value_artifact_ref(
+        report.metadata["identification_bounds_ref"], expected_kind="ir.bounds_bundle"
+    )
+    bounds = BoundsBundle.model_validate(gc._value_load_ref_payload(ir_store, bounds_ref))
+    manski = next(item for item in bounds.method_summaries if item.method is BoundMethod.MANSKI)
+    outer_set = outer_sets[0]
+    assert basis.selected_method_fqn == method_fqn
+    assert (
+        assignment.assignment_provenance == "consumer_asserted"
+        and assignment.source_time_status == "not_established"
+    )
+    assert assignment.outcome_bounds_unit == assignment.measurement_unit == "binary"
+    assert len(assignment.role_profiles) == 3
+    for role_profile in assignment.role_profiles:
+        assert (
+            role_profile.profile_ref.manifest_profile_sha256 is not None
+            and role_profile.projection_ref.manifest_profile_sha256 is not None
+        )
+        assert gc._value_load_ref_payload(ir_store, role_profile.projection_ref) == projections[
+            role_profile.variable_id
+        ].model_dump(mode="json")
+    assert (
+        report.status.value == "success"
+        and report.estimand == "ATE"
+        and report.confidence_interval is not None
+    )
+    assert report.metadata["gate_eligible"] is False
+    assert bounds.estimand_type == "ate" and manski.lower_bound < manski.upper_bound
+    assert outer_set.identification_mode == "partial"
+    assert outer_set.lower == (manski.lower_bound,) and outer_set.upper == (manski.upper_bound,)
+    assert outer_set.statistical_lower == (
+        report.confidence_interval[0],
+    ) and outer_set.statistical_upper == (report.confidence_interval[1],)
+    assert (
+        outer_set.assumption_status == "declared"
+        and outer_set.representation_status == "search_only"
+    )
+    assert "consumer_asserted_treatment_role" in outer_set.assumptions
+
+    genuine = projections["observed_treatment"]
+    forged = ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=genuine.receipt_ref,
+        receipt_content_sha256=genuine.receipt_content_sha256,
+        passport_ref=genuine.passport_ref,
+        passport_content_sha256=genuine.passport_content_sha256,
+        variable_id=genuine.variable_id,
+        epoch_id=genuine.epoch_id,
+        passport_id=genuine.passport_id,
+        admission_content_sha256=_hash("e"),
+        observations=tuple(row.observation for row in genuine.observations),
+    )
+    forged_request = request.model_copy(
+        update={
+            "variable_projections": tuple(
+                item.model_copy(update={"projection_payload": forged.model_dump(mode="json")})
+                if item.variable_id == "observed_treatment"
+                else item
+                for item in request.variable_projections
+            )
+        }
+    )
+    basis_count = len(basis_refs)
+    forged_observation = run(replace(gateway, source_projection_request=forged_request))
+    assert forged_observation.status == "value_blocked" and forged_observation.value_ref is None
+    assert "value_owner_source_projection_canonical_owner_mismatch" in str(
+        forged_observation.reason
+    )
+    assert len(basis_refs) == basis_count
+
+    null_observation = run(replace(gateway, source_projection_request=None))
+    assert null_observation.status == "value_blocked"
+    assert "value_owner_method_run_intent_unresolved" in null_observation.authority_blockers
+    assert "value_owner_source_request_explicit_null" in str(null_observation.reason)
+    assert null_observation.value_ref is None
+
+
+def test_n8_source_profile_rejects_unprojected_query_row_set(
+    tmp_path: Path,
+) -> None:
+    "An extra physical row cannot join a complete active owner projection."
+    from polisyos.runtime.quality import generation_cycle as gc
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    source_rows = [
+        {
+            "country_code": "UA",
+            "year": 1800 + index,
+            "avg_income": float((index * 11) % 17 < 7),
+            "observed_treatment": float(index % 2),
+            "income_covariate": float((index // 2) % 2),
+            "condition_json": '{"unit":"binary"}',
+        }
+        for index in range(200)
+    ]
+    unprojected = {
+        "observation_id": "fixture-unprojected-avg-income-2400",
+        "dataset_id": "acquisition.local.avg_income",
+        "raw_variable": "avg_income",
+        "canonical_var": "avg_income",
+        "country_code": "UA",
+        "year": 2400,
+        "survey_year": None,
+        "wave": None,
+        "value": 1.0,
+        "condition_json": '{"unit":"binary"}',
+    }
+    fixture = make_native_multivariable_active_projections(
+        tmp_path / "native-owner-source-with-extra-baseline-row",
+        source_rows=source_rows,
+        variable_specs=(
+            {
+                "target_variable": "avg_income",
+                "raw_field": "avg_income",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+            {
+                "target_variable": "observed_treatment",
+                "raw_field": "observed_treatment",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+            {
+                "target_variable": "income_covariate",
+                "raw_field": "income_covariate",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+            },
+        ),
+        unadmitted_baseline_observations=(unprojected,),
+    )
+    projection = fixture.projections["avg_income"]
+    projected_ids = {row.observation.observation_id for row in projection.observations}
+    assert projection.activation_state == "active"
+    assert projection.predicate_provenance == "recomputed"
+    assert unprojected["observation_id"] not in projected_ids
+
+    with pytest.raises(gc.ValueOwnerAccessError) as refusal:
+        gc._load_value_data_profile_from_l1_dcat(
+            repo_root=fixture.repo_root,
+            outcome="avg_income",
+            owner_access_ref="fixture://n8-active-source-profile",
+            overlay_path=fixture.overlay_path,
+            scope_region="UA",
+            artifact_store=fixture.artifact_store,
+            activated_observation_projection=projection,
+        )
+    assert refusal.value.code == ("acquire_data:active_observation_projection_rowset_mismatch")

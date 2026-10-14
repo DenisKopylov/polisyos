@@ -627,16 +627,20 @@ class PendingOverlayAdmissionReceipt(epoch_contract.PendingOverlayAdmissionState
 
 
 class _ArtifactStore(Protocol):
-    def has(self, artifact_id: ArtifactID) -> bool: ...
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool: ...
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
-    def get_manifest(self, artifact_id: ArtifactID) -> object: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> artifacts.ArtifactManifest: ...
 
-    def verify(self, artifact_id: ArtifactID) -> object: ...
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> artifacts.VerificationReport: ...
 
     def put_bytes(
-        self, data: bytes, opts: object, *, return_selected_profile: bool = False
+        self,
+        data: bytes,
+        opts: artifacts.PutOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef: ...
 
 
@@ -788,12 +792,15 @@ def _persist_external_statement(
         or getattr(manifest, "canon", None) != expected_canon
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed", kind)
-    if _load_profiled_framed_statement(
-        artifact_store=artifact_store,
-        ref=ref,
-        expected_kind=kind,
-        raw_payload_bytes=readback,
-    ) != mapping:
+    if (
+        _load_profiled_framed_statement(
+            artifact_store=artifact_store,
+            ref=ref,
+            expected_kind=kind,
+            raw_payload_bytes=readback,
+        )
+        != mapping
+    ):
         raise OverlayAdmissionError("semantic_external_receipt_profile_readback_mismatch", kind)
     return ref, _overlay_statement_content_hash(value)
 
@@ -832,14 +839,19 @@ def _persist_epoch_statement(
         or getattr(manifest, "canon", None) != expected_canon
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed", kind)
-    expected_mapping = _model_json(value) if isinstance(value, BaseModel) else value
     observed_mapping = _load_profiled_framed_statement(
         artifact_store=artifact_store,
         ref=ref,
         expected_kind=kind,
         raw_payload_bytes=readback,
     )
-    if observed_mapping != expected_mapping:
+    try:
+        observed_canonical = epoch_contract.canonical_epoch_bytes(observed_mapping)
+    except (TypeError, ValueError) as exc:
+        raise OverlayAdmissionError(
+            "semantic_external_receipt_profile_readback_mismatch", kind
+        ) from exc
+    if observed_canonical != canonical:
         raise OverlayAdmissionError("semantic_external_receipt_profile_readback_mismatch", kind)
     return ref, _semantic_content_hash(domain=domain, value=value)
 
@@ -940,10 +952,7 @@ def _load_external_statement(
         or str(ref.artifact_id) != f"sha256:{hashlib.sha256(payload).hexdigest()}"
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
         or getattr(manifest, "kind", None) != expected_kind
-        or (
-            getattr(manifest, "media_type", None)
-            != "application/vnd.polisyos.epoch+json"
-        )
+        or (getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json")
         or (
             getattr(manifest, "canon", None)
             != artifacts.CanonInfo.from_spec(_OVERLAY_EXTERNAL_CANON)
@@ -974,11 +983,13 @@ def _single_framed_json(payload: bytes) -> dict[str, object]:
 
 
 def _same_artifact_content_identity(left: ArtifactRef, right: ArtifactRef) -> bool:
-    """Compare content identity while allowing the CAS copy to add its selected profile."""
+    """Compare a selected CAS ref with an owner projection without dropping selectors."""
+    left_identity = artifacts.artifact_ref_identity_key(left)
+    right_identity = artifacts.artifact_ref_identity_key(right)
     return (
-        left.artifact_id == right.artifact_id
-        and left.kind == right.kind
-        and left.media_type == right.media_type
+        left_identity[:3] == right_identity[:3]
+        and left_identity[3] is not None
+        and right_identity[3] in (None, left_identity[3])
     )
 
 
@@ -2770,7 +2781,7 @@ class CatalogAcquisitionOverlay:
             domain="polisyos.epoch.acquisition-projection-verifier.v1",
         )
         if (
-            provenance_ref != projection.verifier_provenance_ref
+            not _same_artifact_content_identity(provenance_ref, projection.verifier_provenance_ref)
             or provenance_hash != projection.verifier_provenance_content_hash
             or provenance_owner_hash != projection.verifier_provenance_content_hash
         ):

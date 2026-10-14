@@ -180,6 +180,10 @@ def build_knowledge_tool_registry(
                 status_method = getattr(toolkit, "search_datasets_with_status", None)
                 if callable(status_method):
                     handler = status_method
+            elif name == "search_legal_facts":
+                status_method = getattr(toolkit, "search_legal_facts_with_status", None)
+                if callable(status_method):
+                    handler = status_method
             definition = _method_to_tool_definition(name, handler, domain=_infer_domain(name))
             registry.register(definition, handler)
         except Exception as exc:

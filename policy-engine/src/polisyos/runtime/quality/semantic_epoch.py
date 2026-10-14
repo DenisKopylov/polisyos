@@ -69,6 +69,20 @@ def _raw_cas_hash(payload: bytes) -> Digest:
     return _sha256(payload)
 
 
+def _selected_cas_ref_matches_owner_projection(
+    selected: ArtifactRef,
+    owner: ArtifactRef,
+) -> bool:
+    """Reconcile a selected CAS view with its profileless or equally selected owner ref."""
+    selected_identity = artifacts.artifact_ref_identity_key(selected)
+    owner_identity = artifacts.artifact_ref_identity_key(owner)
+    return (
+        selected_identity[:3] == owner_identity[:3]
+        and selected_identity[3] is not None
+        and owner_identity[3] in (None, selected_identity[3])
+    )
+
+
 def _artifact_ref_for_bytes(*, payload: bytes, kind: str, media_type: str) -> ArtifactRef:
     return ArtifactRef(
         artifact_id=ArtifactID.model_validate(_raw_cas_hash(payload)),
@@ -1348,9 +1362,15 @@ class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
 
 
 def _persist_model(
-    *, store: ArtifactStore, value: BaseModel, kind: str, inputs: list[InputRef] | None = None
+    *,
+    store: ArtifactStore,
+    value: BaseModel,
+    kind: str,
+    inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> tuple[ArtifactRef, Digest]:
     from polisyos.core.artifacts import load_core_json_frame_records
+
     raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(value))
     ref = store.put_bytes(
         raw,
@@ -1360,6 +1380,7 @@ def _persist_model(
             canon=epoch_contract.epoch_canon_info(),
             inputs=inputs,
         ),
+        return_selected_profile=return_selected_profile,
     )
     report = store.verify(ref)
     readback = store.get_bytes(ref)
@@ -1914,6 +1935,7 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
             store=self._artifacts,
             value=receipt,
             kind="epoch.acquisition_native_membership",
+            return_selected_profile=True,
         )
         semantic = self._owner.resolve_semantic_candidate_denominator(
             query=owner_query,
@@ -1924,6 +1946,7 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
             store=self._artifacts,
             value=semantic,
             kind="epoch.acquisition_semantic_denominator_receipt",
+            return_selected_profile=True,
         )
         projection = self._owner.verify_semantic_projection(
             native_membership_ref=native_ref,
@@ -1934,6 +1957,7 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
             store=self._artifacts,
             value=projection,
             kind="epoch.acquisition_semantic_projection_verification_receipt",
+            return_selected_profile=True,
         )
         if projection.status != "verified":
             raise ValueError("acquisition semantic projection is not verified")
@@ -2010,6 +2034,7 @@ class ArtifactSemanticFacetProvider:
         query: EpochResolutionQuery,
     ) -> tuple[SemanticFacetValue, ...]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         del owner_batches, query
         expected = tuple(row.source_binding_ref for row in registry.registrations)
         if set(expected) != set(self._source_refs):
@@ -2638,11 +2663,9 @@ class SemanticEpochService:
             ArtifactWriteOptions(
                 kind="epoch.prepared",
                 media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
+                canon=epoch_contract.epoch_canon_info(),
                 inputs=[
-                    artifacts.input_ref_from_artifact_ref(
-                        manifest_ref, role="semantic_manifest"
-                    )
+                    artifacts.input_ref_from_artifact_ref(manifest_ref, role="semantic_manifest")
                 ],
             ),
         )
@@ -2712,8 +2735,14 @@ class SemanticEpochService:
         prepared_for_failure: PreparedSemanticEpoch | None = None
         try:
 
-            def load_mapping(ref: ArtifactRef, *, kind: str) -> dict[str, object]:
+            def load_mapping(
+                ref: ArtifactRef,
+                *,
+                kind: str,
+                expected_canon: artifacts.CanonInfo | None = None,
+            ) -> dict[str, object]:
                 from polisyos.core.artifacts import load_core_json_frame_records
+
                 report = self._artifact_store.verify(ref)
                 payload = self._artifact_store.get_bytes(ref)
                 manifest = self._artifact_store.get_manifest(ref)
@@ -2726,6 +2755,12 @@ class SemanticEpochService:
                     or manifest.media_type != "application/vnd.polisyos.epoch+json"
                     or ref.kind != kind
                     or ref.media_type != "application/vnd.polisyos.epoch+json"
+                    or (
+                        expected_canon is not None
+                        and (
+                            ref.manifest_profile_sha256 is None or manifest.canon != expected_canon
+                        )
+                    )
                     or len(records) != 1
                 ):
                     raise ValueError("admitted acquisition artifact readback differs")
@@ -2814,6 +2849,7 @@ class SemanticEpochService:
                 load_mapping(
                     admitted.verifier_provenance_ref,
                     kind="epoch.acquisition_projection_verifier_provenance",
+                    expected_canon=epoch_contract.epoch_canon_info(),
                 )
             )
             if (
@@ -2851,7 +2887,10 @@ class SemanticEpochService:
                 != admitted.native_membership_receipt_ref
                 or projection_receipt.semantic_denominator_receipt_ref
                 != admitted.semantic_denominator_receipt_ref
-                or projection_receipt.verifier_provenance_ref != admitted.verifier_provenance_ref
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.verifier_provenance_ref,
+                    projection_receipt.verifier_provenance_ref,
+                )
                 or provenance.owner_kind != "catalog_acquisition"
             ):
                 raise ValueError("admitted acquisition recursive binding differs")
@@ -2891,6 +2930,13 @@ class SemanticEpochService:
                         projection_receipt,
                     ),
                     admitted.semantic_projection_verification_receipt_content_hash,
+                ),
+                (
+                    _model_hash(
+                        b"polisyos.epoch.acquisition-projection-verifier.v1\0",
+                        provenance,
+                    ),
+                    projection_receipt.verifier_provenance_content_hash,
                 ),
             )
             if any(expected != observed for expected, observed in expected_hashes):

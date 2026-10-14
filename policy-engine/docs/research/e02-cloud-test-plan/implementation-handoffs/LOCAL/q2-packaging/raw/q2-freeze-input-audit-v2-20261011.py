@@ -13,9 +13,12 @@ import argparse
 import ast
 import base64
 import copy
+import csv
 import difflib
+import email.parser
 import gzip
 import hashlib
+import io
 import json
 import os
 import re
@@ -26,7 +29,10 @@ import time
 import tomllib
 import xml.etree.ElementTree as ET
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 HANDOFF_REL = (
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging"
@@ -48,94 +54,395 @@ REVIEWED_PROFILE_NAMES = (
     "rebuilt-gcp-archive-wheel",
 )
 COLLECTION_PLUGIN_NAME = "q2_source_freeze_capture"
-COLLECTION_PLUGIN_SOURCE = """from __future__ import annotations
+COLLECTION_PLUGIN_SOURCE = """
+from __future__ import annotations
 
+import csv
+import email.parser
 import hashlib
-import importlib.metadata
+import io
 import json
 import os
+import re
 import site
+import stat
 import sys
 import sysconfig
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
 
-def _distribution_for(module_name: str, origin: Path) -> dict[str, str] | None:
-    top_level = module_name.split(".", 1)[0]
-    names = importlib.metadata.packages_distributions().get(top_level, [])
-    for name in sorted(names):
-        distribution = importlib.metadata.distribution(name)
-        root = Path(os.path.abspath(str(distribution.locate_file(""))))
-        try:
-            relative = origin.relative_to(root).as_posix()
-        except ValueError:
-            continue
-        entries = {entry.as_posix(): entry for entry in (distribution.files or ())}
-        entry = entries.get(relative)
-        record_entry = next(
-            (item for item in (distribution.files or ()) if item.name == "RECORD"),
-            None,
+def _record_claim_path(root, value, active_site_roots):
+    if not isinstance(value, str) or not value or "\\\\" in value or "\\x00" in value:
+        return None, False
+    if PurePosixPath(value).is_absolute():
+        return None, False
+    if not isinstance(root, Path) or not root.is_absolute():
+        return None, False
+    roots = tuple(Path(site_root) for site_root in active_site_roots)
+    if not roots or not any(root.is_relative_to(site_root) for site_root in roots):
+        return None, False
+    try:
+        candidate = root / value
+        physical = candidate.resolve(strict=False)
+    except (OSError, RuntimeError, ValueError):
+        return None, False
+    if not physical.is_absolute():
+        return None, False
+    within_site_profile = any(physical.is_relative_to(site_root) for site_root in roots)
+    parts = value.split("/")
+    safe = (
+        within_site_profile
+        and PurePosixPath(value).as_posix() == value
+        and all(part not in {"", ".", ".."} for part in parts)
+        and physical == candidate
+    )
+    return physical, safe
+
+
+def _canonical_dist_info_names(name, version):
+    if (
+        not isinstance(name, str)
+        or not name
+        or name != name.strip()
+        or "/" in name
+        or "\\\\" in name
+        or not isinstance(version, str)
+        or not version
+        or version != version.strip()
+        or "/" in version
+        or "\\\\" in version
+    ):
+        return set()
+    name_forms = {
+        name.lower(),
+        name.lower().replace("-", "_"),
+        re.sub(r"[-_.]+", "_", name).lower(),
+    }
+    version_forms = {version, re.sub(r"[-_.]+", "_", version)}
+    return {
+        f"{name_form}-{version_form}.dist-info"
+        for name_form in name_forms
+        for version_form in version_forms
+    }
+
+
+def _metadata_identity(data):
+    try:
+        message = email.parser.BytesParser().parsebytes(data)
+        names = message.get_all("Name", [])
+        versions = message.get_all("Version", [])
+    except (TypeError, ValueError):
+        return None, None
+    if len(names) != 1 or len(versions) != 1:
+        return None, None
+    name, version = names[0], versions[0]
+    if not isinstance(name, str) or not isinstance(version, str):
+        return None, None
+    if (
+        not name.strip()
+        or not version.strip()
+        or name != name.strip()
+        or version != version.strip()
+    ):
+        return None, None
+    return name, version
+
+
+def _read_path(path):
+    try:
+        data = path.read_bytes()
+        observed = path.lstat()
+        resolved = path.resolve(strict=True)
+    except OSError:
+        return None, False
+    direct = (
+        stat.S_ISREG(observed.st_mode)
+        and not stat.S_ISLNK(observed.st_mode)
+        and resolved == path
+    )
+    return data, direct
+
+
+def _record_claims(data, root, active_site_roots):
+    claims = {}
+    well_formed = True
+    try:
+        reader = csv.reader(io.StringIO(data.decode("utf-8"), newline=""))
+        for row in reader:
+            if len(row) != 3:
+                well_formed = False
+                continue
+            path, safe = _record_claim_path(root, row[0], active_site_roots)
+            if path is None:
+                well_formed = False
+                continue
+            algorithm, separator, value = row[1].partition("=")
+            if not separator:
+                algorithm, value = "", ""
+            claims.setdefault(str(path), []).append(
+                {
+                    "hash_algorithm": algorithm,
+                    "hash_value": value,
+                    "size": row[2],
+                    "safe_path": safe,
+                }
+            )
+    except (UnicodeDecodeError, csv.Error):
+        well_formed = False
+    return claims, well_formed
+
+
+
+class _CaptureMetadata:
+    def __init__(self, active_site_roots):
+        self.active_site_roots = tuple(
+            sorted(
+                {
+                    Path(value).resolve(strict=True)
+                    for value in active_site_roots
+                    if isinstance(value, str) and Path(value).is_dir()
+                }
+            )
         )
-        if entry is None or record_entry is None:
-            continue
-        record = distribution.read_text("RECORD") or ""
-        file_hash = entry.hash
-        return {
-            "name": distribution.metadata.get("Name", name),
-            "version": distribution.version,
-            "record_path": str(root / record_entry),
-            "record_hash_algorithm": file_hash.mode if file_hash is not None else "",
-            "record_hash_value": file_hash.value if file_hash is not None else "",
-            "distribution_record_sha256": hashlib.sha256(record.encode("utf-8")).hexdigest(),
-        }
-    return None
+        self._record_distributions = None
 
-
-def _namespace_distributions(
-    module_name: str, locations: list[str]
-) -> list[dict[str, object]]:
-    top_level = module_name.split(".", 1)[0]
-    rows = []
-    for name in sorted(importlib.metadata.packages_distributions().get(top_level, [])):
-        distribution = importlib.metadata.distribution(name)
-        root = Path(os.path.abspath(str(distribution.locate_file(""))))
-        files = distribution.files or ()
-        entries = {entry.as_posix() for entry in files}
-        owned = []
-        for value in locations:
-            location = Path(value)
+    def _search_roots(self):
+        roots = set()
+        for value in sys.path:
+            candidate = Path(os.path.abspath(value or os.getcwd()))
             try:
-                relative = location.relative_to(root).as_posix().rstrip("/")
+                resolved = candidate.resolve(strict=True)
+            except OSError:
+                continue
+            if not resolved.is_dir():
+                continue
+            if any(resolved.is_relative_to(root) for root in self.active_site_roots):
+                roots.add(resolved)
+        return tuple(sorted(roots))
+
+    def _snapshot_dist_info(self, root, info_dir):
+        info_stat = None
+        try:
+            info_stat = info_dir.lstat()
+            info_resolved = info_dir.resolve(strict=True)
+        except OSError:
+            pass
+        direct_info_dir = (
+            info_stat is not None
+            and stat.S_ISDIR(info_stat.st_mode)
+            and not stat.S_ISLNK(info_stat.st_mode)
+            and info_resolved == info_dir
+        )
+        record_path = info_dir / "RECORD"
+        metadata_path = info_dir / "METADATA"
+        record_bytes, direct_record = _read_path(record_path)
+        metadata_bytes, direct_metadata = _read_path(metadata_path)
+        record_sha256 = (
+            hashlib.sha256(record_bytes).hexdigest() if record_bytes is not None else None
+        )
+        metadata_sha256 = (
+            hashlib.sha256(metadata_bytes).hexdigest() if metadata_bytes is not None else None
+        )
+        name, version = _metadata_identity(metadata_bytes or b"")
+        claims, record_well_formed = _record_claims(
+            record_bytes or b"", root, self.active_site_roots
+        )
+        identity_valid = bool(
+            direct_info_dir
+            and direct_record
+            and direct_metadata
+            and record_bytes is not None
+            and metadata_bytes is not None
+            and record_well_formed
+            and info_dir.name in _canonical_dist_info_names(name, version)
+        )
+        return {
+            "root": root,
+            "dist_info_path": info_dir,
+            "record_path": record_path,
+            "metadata_path": metadata_path,
+            "name": name,
+            "version": version,
+            "record_sha256": record_sha256,
+            "metadata_sha256": metadata_sha256,
+            "claims": claims,
+            "record_well_formed": record_well_formed,
+            "identity_valid": identity_valid,
+        }
+
+    @staticmethod
+    def _fingerprint(snapshot):
+        claims = tuple(
+            (
+                path,
+                tuple(
+                    (
+                        row["hash_algorithm"],
+                        row["hash_value"],
+                        row["size"],
+                        row["safe_path"],
+                    )
+                    for row in rows
+                ),
+            )
+            for path, rows in sorted(snapshot["claims"].items())
+        )
+        return (
+            str(snapshot["root"]),
+            str(snapshot["dist_info_path"]),
+            str(snapshot["record_path"]),
+            str(snapshot["metadata_path"]),
+            snapshot["name"],
+            snapshot["version"],
+            snapshot["record_sha256"],
+            snapshot["metadata_sha256"],
+            snapshot["identity_valid"],
+            claims,
+        )
+
+    def distribution_records(self):
+        if self._record_distributions is None:
+            snapshots = []
+            for root in self._search_roots():
+                for info_dir in sorted(root.glob("*.dist-info")):
+                    record_path = info_dir / "RECORD"
+                    try:
+                        record_path.lstat()
+                    except FileNotFoundError:
+                        continue
+                    except OSError as error:
+                        raise RuntimeError(
+                            "cannot inventory a visible distribution RECORD"
+                        ) from error
+                    snapshot = self._snapshot_dist_info(root, info_dir)
+                    if snapshot["record_sha256"] is None:
+                        raise RuntimeError("cannot read a visible distribution RECORD")
+                    if not snapshot["record_well_formed"]:
+                        raise RuntimeError(
+                            "cannot completely enumerate a visible distribution RECORD"
+                        )
+                    snapshots.append(snapshot)
+            unique = {}
+            for snapshot in snapshots:
+                unique.setdefault(self._fingerprint(snapshot), snapshot)
+            self._record_distributions = tuple(
+                unique[key] for key in sorted(unique, key=repr)
+            )
+        return self._record_distributions
+
+
+def _distribution_result(snapshot):
+    if not snapshot["identity_valid"]:
+        return None
+    return {
+        "name": snapshot["name"],
+        "version": snapshot["version"],
+        "record_path": str(snapshot["record_path"]),
+        "distribution_record_sha256": snapshot["record_sha256"],
+        "dist_info_path": str(snapshot["dist_info_path"]),
+        "metadata_path": str(snapshot["metadata_path"]),
+        "metadata_sha256": snapshot["metadata_sha256"],
+    }
+
+
+def _distribution_for(_module_name, origin, metadata):
+    try:
+        physical_origin = origin.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    if (
+        physical_origin != origin
+        or not any(
+            physical_origin.is_relative_to(root) for root in metadata.active_site_roots
+        )
+    ):
+        return None
+    owners = []
+    for snapshot in metadata.distribution_records():
+        for claim in snapshot["claims"].get(str(physical_origin), ()):
+            owners.append((snapshot, claim))
+    if len(owners) != 1 or not owners[0][1]["safe_path"]:
+        return None
+    snapshot, claim = owners[0]
+    distribution = _distribution_result(snapshot)
+    if distribution is None:
+        return None
+    distribution["record_hash_algorithm"] = claim["hash_algorithm"]
+    distribution["record_hash_value"] = claim["hash_value"]
+    return distribution
+
+
+def _namespace_distributions(_module_name, locations, metadata):
+    rows = []
+    snapshots = metadata.distribution_records()
+    owned_by_snapshot = {}
+    for value in locations:
+        location = Path(value)
+        try:
+            physical_location = location.resolve(strict=True)
+        except (OSError, RuntimeError, ValueError):
+            continue
+        if (
+            physical_location != location
+            or not any(
+                physical_location.is_relative_to(root)
+                for root in metadata.active_site_roots
+            )
+        ):
+            continue
+        owners = []
+        claims_by_path = {}
+        malformed = False
+        for snapshot in snapshots:
+            try:
+                relative = physical_location.relative_to(snapshot["root"])
             except ValueError:
                 continue
-            if any(entry.startswith(f"{relative}/") for entry in entries):
-                owned.append(value)
-        record_entry = next((entry for entry in files if entry.name == "RECORD"), None)
-        if not owned or record_entry is None:
+            if not relative.parts:
+                continue
+            owned_paths = []
+            for claim_path, claim_rows in snapshot["claims"].items():
+                target = Path(claim_path)
+                if target == physical_location or not target.is_relative_to(physical_location):
+                    continue
+                owned_paths.append(claim_path)
+                if len(claim_rows) != 1 or any(
+                    not claim["safe_path"] for claim in claim_rows
+                ):
+                    malformed = True
+                claims_by_path.setdefault(claim_path, []).append(snapshot)
+            if not owned_paths:
+                continue
+            if not snapshot["identity_valid"]:
+                malformed = True
+            owners.append((snapshot, owned_paths))
+        if any(len(path_owners) != 1 for path_owners in claims_by_path.values()):
+            malformed = True
+        if malformed:
             continue
-        record = distribution.read_text("RECORD") or ""
-        rows.append(
-            {
-                "name": distribution.metadata.get("Name", name),
-                "version": distribution.version,
-                "record_path": str(root / record_entry),
-                "distribution_record_sha256": hashlib.sha256(
-                    record.encode("utf-8")
-                ).hexdigest(),
-                "search_locations": owned,
-            }
-        )
+        for snapshot, _owned_paths in owners:
+            key = _CaptureMetadata._fingerprint(snapshot)
+            owned_by_snapshot.setdefault(key, {"snapshot": snapshot, "locations": []})[
+                "locations"
+            ].append(value)
+    for key in sorted(owned_by_snapshot):
+        item = owned_by_snapshot[key]
+        distribution = _distribution_result(item["snapshot"])
+        if distribution is None:
+            continue
+        distribution["search_locations"] = sorted(set(item["locations"]))
+        rows.append(distribution)
     return rows
 
 
-def _file_record(label: str, path: Path) -> dict[str, str]:
+def _file_record(label, path):
     data = path.read_bytes()
     return {"label": label, "origin": str(path), "sha256": hashlib.sha256(data).hexdigest()}
 
 
-def _module_rows() -> list[dict[str, object]]:
+def _module_rows(metadata):
     rows = []
     for name, module in sorted(sys.modules.items()):
         spec = getattr(module, "__spec__", None)
@@ -150,7 +457,7 @@ def _module_rows() -> list[dict[str, object]]:
                     "sha256": None,
                     "distribution": None,
                     "namespace_distributions": _namespace_distributions(
-                        name, search_locations
+                        name, search_locations, metadata
                     ),
                     "search_locations": search_locations,
                 }
@@ -173,14 +480,14 @@ def _module_rows() -> list[dict[str, object]]:
             {
                 "module": name,
                 **record,
-                "distribution": _distribution_for(name, origin),
+                "distribution": _distribution_for(name, origin, metadata),
                 "search_locations": sorted(str(item) for item in locations or ()),
             }
         )
     return rows
 
 
-def _startup_files() -> list[dict[str, str]]:
+def _startup_files():
     rows = {}
     for directory in site.getsitepackages():
         root = Path(directory)
@@ -209,29 +516,65 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         )
     pytest_path = Path(os.path.abspath(pytest.__file__))
     sysconfig_paths = sysconfig.get_paths()
+    sysconfig_profile_paths = {
+        key: str(Path(value).absolute())
+        for key, value in sorted(sysconfig_paths.items())
+        if isinstance(value, str) and value
+    }
+    prefix_path = Path(sys.prefix).absolute()
+    base_prefix_path = Path(sys.base_prefix).absolute()
+    pyvenv_cfg_path = prefix_path / "pyvenv.cfg"
+    pyvenv_cfg = None
+    if pyvenv_cfg_path.is_file():
+        pyvenv_cfg_bytes = pyvenv_cfg_path.read_bytes()
+        pyvenv_cfg = {
+            "path": str(pyvenv_cfg_path),
+            "bytes": len(pyvenv_cfg_bytes),
+            "sha256": hashlib.sha256(pyvenv_cfg_bytes).hexdigest(),
+        }
+    site_roots = sorted(
+        {
+            str(Path(value).absolute())
+            for value in [
+                *site.getsitepackages(),
+                sysconfig_paths.get("purelib"),
+                sysconfig_paths.get("platlib"),
+            ]
+            if value
+        }
+    )
+    capture_metadata = _CaptureMetadata(site_roots)
     output = {
         "node_ids": [item.nodeid for item in session.items],
         "collection_exitstatus": int(exitstatus),
         "effective_environment": dict(sorted(os.environ.items())),
         "python": {
-            "executable": str(Path(sys.executable).absolute()),
-            "version": sys.version,
-            "implementation": sys.implementation.name,
-            "prefix": str(Path(sys.prefix).absolute()),
-            "base_prefix": str(Path(sys.base_prefix).absolute()),
+            "runtime_profile": {
+                "executable": str(Path(sys.executable).absolute()),
+                "resolved_executable": str(Path(sys.executable).resolve(strict=True)),
+                "version": sys.version,
+                "implementation": sys.implementation.name,
+                "sysconfig_paths": sysconfig_profile_paths,
+                "prefix": str(prefix_path),
+                "base_prefix": str(base_prefix_path),
+                "pyvenv_cfg": pyvenv_cfg,
+                "site_roots": site_roots,
+                "stdlib_roots": sorted(
+                    {
+                        str(Path(sysconfig_paths[key]).absolute())
+                        for key in ("stdlib", "platstdlib")
+                        if key in sysconfig_paths
+                    }
+                ),
+            },
             "sys_path": [str(Path(item or os.getcwd()).absolute()) for item in sys.path],
-            "stdlib_roots": sorted(
-                str(Path(sysconfig_paths[key]).absolute())
-                for key in ("stdlib", "platstdlib")
-                if key in sysconfig_paths
-            ),
         },
         "pytest": {
             "version": pytest.__version__,
             "origin": str(pytest_path),
         },
         "plugins": sorted(plugins, key=lambda row: (str(row["name"]), str(row["module"]))),
-        "module_origins": _module_rows(),
+        "module_origins": _module_rows(capture_metadata),
         "config_origin": str(Path(config.inifile).absolute()) if config.inifile else None,
         "startup_files": _startup_files(),
     }
@@ -644,7 +987,134 @@ def baseline_ids_from_junit(compressed: bytes, manifest: dict[str, Any]) -> set[
 
 
 def normalized_distribution_name(value: str) -> str:
+    """Normalize a package name using the lock profile's PEP 503 comparison."""
     return re.sub(r"[-_.]+", "-", value).lower()
+
+
+def canonical_dist_info_names(name: str, version: str) -> set[str]:
+    """Derive accepted canonical metadata-directory spellings from identity fields."""
+    if (
+        not name
+        or name != name.strip()
+        or "/" in name
+        or "\\" in name
+        or not version
+        or version != version.strip()
+        or "/" in version
+        or "\\" in version
+    ):
+        return set()
+    name_forms = {
+        name.lower(),
+        name.lower().replace("-", "_"),
+        re.sub(r"[-_.]+", "_", name).lower(),
+    }
+    version_forms = {version, re.sub(r"[-_.]+", "_", version)}
+    return {
+        f"{name_form}-{version_form}.dist-info"
+        for name_form in name_forms
+        for version_form in version_forms
+    }
+
+
+def record_claim_path(
+    value: object, root: Path, site_roots: list[Path]
+) -> tuple[Path | None, bool]:
+    """Resolve one RECORD row physically and mark only direct in-root paths safe."""
+    if not isinstance(value, str) or not value or "\\" in value or "\x00" in value:
+        return None, False
+    if PurePosixPath(value).is_absolute():
+        return None, False
+    if not root.is_absolute():
+        return None, False
+    if not site_roots or not any(root.is_relative_to(site_root) for site_root in site_roots):
+        return None, False
+    try:
+        candidate = root / value
+        physical = candidate.resolve(strict=False)
+    except (OSError, RuntimeError, ValueError):
+        return None, False
+    if not physical.is_absolute():
+        return None, False
+    within_site_profile = any(physical.is_relative_to(site_root) for site_root in site_roots)
+    parts = value.split("/")
+    safe = (
+        within_site_profile
+        and PurePosixPath(value).as_posix() == value
+        and all(part not in {"", ".", ".."} for part in parts)
+        and physical == candidate
+    )
+    return physical, safe
+
+
+def safe_record_relative_path(value: object) -> PurePosixPath | None:
+    """Return only a canonical non-traversing RECORD-relative path."""
+    if not isinstance(value, str) or not value or "\\" in value or "\x00" in value:
+        return None
+    path = PurePosixPath(value)
+    if path.is_absolute() or path.as_posix() != value:
+        return None
+    if any(part in {"", ".", ".."} for part in value.split("/")):
+        return None
+    return path
+
+
+def physical_record_claim_inventory(
+    search_roots: list[Path], site_roots: list[Path]
+) -> tuple[
+    dict[str, list[tuple[str, str, str, bool]]],
+    list[dict[str, Any]],
+]:
+    """Resolve every visible physical RECORD row and retain each RECORD as recheck evidence."""
+    claims: dict[str, list[tuple[str, str, str, bool]]] = {}
+    evidence: dict[str, dict[str, Any]] = {}
+    inspected_records: set[str] = set()
+    for raw_root in sorted(set(search_roots)):
+        try:
+            root = raw_root.resolve(strict=True)
+        except (OSError, RuntimeError, ValueError) as error:
+            raise AuditFailure(
+                f"effective installed-package search root is unavailable: {raw_root}"
+            ) from error
+        if root != raw_root or not root.is_dir():
+            raise AuditFailure(f"effective installed-package root is not canonical: {raw_root}")
+        if not any(root.is_relative_to(site_root) for site_root in site_roots):
+            continue
+        for info_dir in sorted(root.glob("*.dist-info")):
+            record_path = info_dir / "RECORD"
+            try:
+                record_path.lstat()
+            except FileNotFoundError:
+                continue
+            except OSError as error:
+                raise AuditFailure(
+                    f"cannot inventory a visible installed RECORD: {record_path}"
+                ) from error
+            record_key = str(record_path)
+            if record_key in inspected_records:
+                continue
+            inspected_records.add(record_key)
+            record_data = read_regular_local(record_path)
+            try:
+                reader = csv.reader(io.StringIO(record_data.decode("utf-8"), newline=""))
+                for row in reader:
+                    if len(row) != 3:
+                        raise AuditFailure(f"installed RECORD has a malformed row: {record_path}")
+                    physical, safe = record_claim_path(row[0], root, site_roots)
+                    if physical is None:
+                        raise AuditFailure(
+                            f"installed RECORD contains an invalid path claim: {record_path}"
+                        )
+                    claims.setdefault(str(physical), []).append((record_key, row[1], row[2], safe))
+            except (UnicodeDecodeError, csv.Error) as error:
+                raise AuditFailure(f"installed RECORD is unreadable: {record_path}") from error
+            evidence[record_key] = {
+                "kind": "locked_python_distribution_record",
+                "origin": record_key,
+                "bytes": len(record_data),
+                "sha256": sha256(record_data),
+            }
+    return claims, [evidence[key] for key in sorted(evidence)]
 
 
 def locked_python_versions(repo: Path, source_sha: str) -> dict[str, set[str]]:
@@ -673,14 +1143,24 @@ def locked_python_versions(repo: Path, source_sha: str) -> dict[str, set[str]]:
 def locked_distribution_record(
     distribution: dict[str, object],
     lock_versions: dict[str, set[str]],
-    python_prefixes: list[Path],
+    site_roots: list[Path],
     context: str,
+    record_cache: dict[tuple[str, ...], dict[str, Any]] | None = None,
+    record_rows_cache: dict[tuple[str, ...], dict[str, list[tuple[str, str, bool]]]] | None = None,
+    *,
+    record_owner_inventory: dict[str, list[tuple[str, str, str, bool]]],
+    file_origin: Path | None = None,
+    file_bytes: bytes | None = None,
+    namespace_location: Path | None = None,
 ) -> dict[str, Any]:
-    """Bind installed package bytes and its RECORD to a locked distribution version."""
+    """Bind a canonical metadata RECORD and its actual file or namespace claim."""
     name = distribution.get("name")
     version = distribution.get("version")
-    record_path = distribution.get("record_path")
+    record_path_value = distribution.get("record_path")
     record_sha = distribution.get("distribution_record_sha256")
+    metadata_path_value = distribution.get("metadata_path")
+    metadata_sha = distribution.get("metadata_sha256")
+    dist_info_path_value = distribution.get("dist_info_path")
     if not isinstance(name, str) or not isinstance(version, str):
         raise AuditFailure(f"installed distribution identity is malformed: {context}")
     if version not in lock_versions.get(normalized_distribution_name(name), set()):
@@ -688,28 +1168,206 @@ def locked_distribution_record(
             f"installed module distribution is not pinned by uv.lock: {name}=={version}"
         )
     if (
-        not isinstance(record_path, str)
-        or not Path(record_path).is_absolute()
+        not isinstance(record_path_value, str)
+        or not Path(record_path_value).is_absolute()
         or not isinstance(record_sha, str)
         or not re.fullmatch(r"[0-9a-f]{64}", record_sha)
+        or not isinstance(metadata_path_value, str)
+        or not Path(metadata_path_value).is_absolute()
+        or not isinstance(metadata_sha, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", metadata_sha)
+        or not isinstance(dist_info_path_value, str)
+        or not Path(dist_info_path_value).is_absolute()
     ):
-        raise AuditFailure(f"installed distribution RECORD identity is malformed: {name}")
-    path = Path(os.path.abspath(record_path))
-    if not any(path.is_relative_to(prefix) for prefix in python_prefixes):
+        raise AuditFailure(f"installed distribution metadata identity is malformed: {name}")
+    path = Path(os.path.abspath(record_path_value))
+    metadata_path = Path(os.path.abspath(metadata_path_value))
+    dist_info_path = Path(os.path.abspath(dist_info_path_value))
+    expected_dist_info_names = canonical_dist_info_names(name, version)
+    if (
+        not expected_dist_info_names
+        or path.name != "RECORD"
+        or path.parent.name not in expected_dist_info_names
+        or dist_info_path != path.parent
+        or metadata_path != path.parent / "METADATA"
+    ):
         raise AuditFailure(
-            f"installed distribution RECORD is outside the selected Python profile: {name}"
+            f"installed distribution RECORD is not its canonical metadata path: {name}"
         )
-    data = read_regular_local(path)
-    if sha256(data) != record_sha:
-        raise AuditFailure(f"installed distribution RECORD changed during collection: {name}")
-    return {
-        "kind": "locked_python_distribution_record",
-        "origin": str(path),
-        "distribution": name,
-        "version": version,
-        "bytes": len(data),
-        "sha256": record_sha,
-    }
+    root = path.parent.parent
+    try:
+        canonical_root = root.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure(f"installed distribution search root is unavailable: {name}") from error
+    if canonical_root != root or not any(
+        root.is_relative_to(site_root) for site_root in site_roots
+    ):
+        raise AuditFailure(f"installed distribution RECORD is outside active site roots: {name}")
+    if (file_origin is None) == (namespace_location is None):
+        raise AuditFailure(f"installed distribution claim has no unique origin context: {context}")
+    if file_origin is not None and not isinstance(file_bytes, bytes):
+        raise AuditFailure(f"installed module claim omits source bytes: {context}")
+
+    cache_key = (
+        name,
+        version,
+        str(path),
+        record_sha,
+        str(metadata_path),
+        metadata_sha,
+    )
+    record = record_cache.get(cache_key) if record_cache is not None else None
+    record_rows = record_rows_cache.get(cache_key) if record_rows_cache is not None else None
+    if record is None or record_rows is None:
+        record_data = read_regular_local(path)
+        if sha256(record_data) != record_sha:
+            raise AuditFailure(f"installed distribution RECORD changed during collection: {name}")
+        metadata_data = read_regular_local(metadata_path)
+        if sha256(metadata_data) != metadata_sha:
+            raise AuditFailure(f"installed distribution METADATA changed during collection: {name}")
+        try:
+            message = email.parser.BytesParser().parsebytes(metadata_data)
+            metadata_names = message.get_all("Name", [])
+            metadata_versions = message.get_all("Version", [])
+        except (TypeError, ValueError) as error:
+            raise AuditFailure(f"installed distribution METADATA is unreadable: {name}") from error
+        if (
+            len(metadata_names) != 1
+            or len(metadata_versions) != 1
+            or metadata_names[0] != name
+            or metadata_versions[0] != version
+            or path.parent.name
+            not in canonical_dist_info_names(metadata_names[0], metadata_versions[0])
+        ):
+            raise AuditFailure(
+                f"installed distribution identity differs from canonical METADATA: {name}"
+            )
+        parsed_rows: dict[str, list[tuple[str, str, bool]]] = {}
+        try:
+            reader = csv.reader(io.StringIO(record_data.decode("utf-8"), newline=""))
+            for row in reader:
+                if len(row) != 3:
+                    raise AuditFailure(f"installed distribution RECORD has a malformed row: {name}")
+                physical, safe = record_claim_path(row[0], root, site_roots)
+                if physical is None:
+                    raise AuditFailure(
+                        f"installed distribution RECORD has an invalid path claim: {name}"
+                    )
+                parsed_rows.setdefault(str(physical), []).append((row[1], row[2], safe))
+        except (UnicodeDecodeError, csv.Error) as error:
+            raise AuditFailure(f"installed distribution RECORD is unreadable: {name}") from error
+        record = {
+            "kind": "locked_python_distribution_record",
+            "origin": str(path),
+            "distribution": name,
+            "version": version,
+            "bytes": len(record_data),
+            "sha256": record_sha,
+            "metadata_origin": str(metadata_path),
+            "metadata_bytes": len(metadata_data),
+            "metadata_sha256": metadata_sha,
+        }
+        record_rows = parsed_rows
+        if record_cache is not None:
+            record_cache[cache_key] = record
+        if record_rows_cache is not None:
+            record_rows_cache[cache_key] = record_rows
+
+    if file_origin is not None:
+        try:
+            physical_origin = file_origin.resolve(strict=True)
+        except (OSError, RuntimeError, ValueError) as error:
+            raise AuditFailure(f"installed module origin is unavailable: {context}") from error
+        if physical_origin != file_origin or not any(
+            physical_origin.is_relative_to(site_root) for site_root in site_roots
+        ):
+            raise AuditFailure(f"installed module is outside its canonical site root: {context}")
+        matching = record_rows.get(str(physical_origin), [])
+        all_owners = record_owner_inventory.get(str(physical_origin), [])
+        if (
+            len(all_owners) != 1
+            or all_owners[0][0] != str(path)
+            or not all_owners[0][3]
+            or len(matching) != 1
+            or not matching[0][2]
+        ):
+            raise AuditFailure(
+                f"installed module does not have one safe canonical RECORD row: {context}"
+            )
+        hash_field, size_field, _safe_claim = matching[0]
+        algorithm, separator, value = hash_field.partition("=")
+        expected_hash = (
+            base64.urlsafe_b64encode(hashlib.sha256(file_bytes).digest())
+            .decode("ascii")
+            .rstrip("=")
+        )
+        if (
+            not separator
+            or algorithm != "sha256"
+            or value != expected_hash
+            or distribution.get("record_hash_algorithm") != algorithm
+            or distribution.get("record_hash_value") != value
+            or not size_field.isdigit()
+            or int(size_field) != len(file_bytes)
+        ):
+            raise AuditFailure(
+                f"installed module bytes differ from its canonical wheel RECORD: {context}"
+            )
+    else:
+        if namespace_location is None:
+            raise AuditFailure(f"namespace claim omits its search location: {context}")
+        try:
+            physical_location = namespace_location.resolve(strict=True)
+        except (OSError, RuntimeError, ValueError) as error:
+            raise AuditFailure(f"namespace location is unavailable: {context}") from error
+        if physical_location != namespace_location or not any(
+            physical_location.is_relative_to(site_root) for site_root in site_roots
+        ):
+            raise AuditFailure(
+                f"namespace location is outside canonical active site roots: {context}"
+            )
+        try:
+            namespace_relative = physical_location.relative_to(root)
+        except ValueError as error:
+            raise AuditFailure(
+                f"namespace location is outside its canonical distribution root: {context}"
+            ) from error
+        if not namespace_relative.parts:
+            raise AuditFailure(
+                f"namespace location is not a contained package directory: {context}"
+            )
+        namespace_claims = [
+            (Path(claim_path), claim_rows)
+            for claim_path, claim_rows in record_rows.items()
+            if Path(claim_path) != physical_location
+            and Path(claim_path).is_relative_to(physical_location)
+        ]
+        if not namespace_claims or any(
+            len(claim_rows) != 1 or not claim_rows[0][2]
+            for _claim_path, claim_rows in namespace_claims
+        ):
+            raise AuditFailure(f"namespace location has no exact contained RECORD claim: {context}")
+        inventory_namespace_claims = [
+            (Path(claim_path), owner_rows)
+            for claim_path, owner_rows in record_owner_inventory.items()
+            if Path(claim_path) != physical_location
+            and Path(claim_path).is_relative_to(physical_location)
+        ]
+        if (
+            not inventory_namespace_claims
+            or any(
+                len(owner_rows) != 1 or not owner_rows[0][3]
+                for _claim_path, owner_rows in inventory_namespace_claims
+            )
+            or not any(
+                any(owner[0] == str(path) for owner in owner_rows)
+                for _claim_path, owner_rows in inventory_namespace_claims
+            )
+        ):
+            raise AuditFailure(
+                f"namespace location has ambiguous physical RECORD ownership: {context}"
+            )
+    return record
 
 
 def directory_identity(path: Path) -> dict[str, int]:
@@ -763,14 +1421,62 @@ def literal_pytest_plugins(data: bytes, relative: str) -> set[str]:
 
 
 def python_executable_record(python: Path) -> dict[str, Any]:
-    """Capture the exact selected collector executable and file identity."""
-    resolved = python.resolve(strict=True)
-    data = read_regular_local(resolved)
-    identity = resolved.stat()
-    if not stat.S_ISREG(identity.st_mode) or not os.access(resolved, os.X_OK):
-        raise AuditFailure(f"collector Python is not an executable regular file: {resolved}")
+    """Bind the selected launcher path, resolved binary, and adjacent venv config."""
+    if not python.is_absolute():
+        raise AuditFailure(f"collector Python launcher must be absolute: {python}")
+    launcher = Path(os.path.abspath(python))
+    try:
+        launcher_identity = launcher.lstat()
+        resolved = launcher.resolve(strict=True)
+        data = read_regular_local(resolved)
+        identity = resolved.stat()
+    except OSError as error:
+        raise AuditFailure(f"collector Python launcher is unavailable: {launcher}") from error
+    if not (stat.S_ISREG(launcher_identity.st_mode) or stat.S_ISLNK(launcher_identity.st_mode)):
+        raise AuditFailure(f"collector Python launcher is not a file or symlink: {launcher}")
+    if not stat.S_ISREG(identity.st_mode) or not os.access(launcher, os.X_OK):
+        raise AuditFailure(f"collector Python target is not an executable regular file: {resolved}")
+
+    launcher_record: dict[str, Any] = {
+        "path": str(launcher),
+        "kind": "symlink" if stat.S_ISLNK(launcher_identity.st_mode) else "regular_file",
+        "stat": {
+            "device": launcher_identity.st_dev,
+            "inode": launcher_identity.st_ino,
+            "mode": launcher_identity.st_mode,
+            "size": launcher_identity.st_size,
+            "mtime_ns": launcher_identity.st_mtime_ns,
+        },
+    }
+    if stat.S_ISLNK(launcher_identity.st_mode):
+        launcher_record["symlink_target"] = os.readlink(launcher)
+
+    runtime_profile = None
+    for ancestor in launcher.parents:
+        config_path = ancestor / "pyvenv.cfg"
+        try:
+            config_identity = config_path.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as error:
+            raise AuditFailure(f"venv configuration is unavailable: {config_path}") from error
+        if stat.S_ISLNK(config_identity.st_mode) or not stat.S_ISREG(config_identity.st_mode):
+            raise AuditFailure(f"venv configuration is not a regular file: {config_path}")
+        config_bytes = read_regular_local(config_path)
+        runtime_profile = {
+            "kind": "venv",
+            "root": str(ancestor),
+            "pyvenv_cfg": {
+                "path": str(config_path),
+                "bytes": len(config_bytes),
+                "sha256": sha256(config_bytes),
+            },
+        }
+        break
+
     return {
-        "requested_path": str(python),
+        "requested_path": str(launcher),
+        "launcher": launcher_record,
         "resolved_path": str(resolved),
         "sha256": sha256(data),
         "stat": {
@@ -780,7 +1486,300 @@ def python_executable_record(python: Path) -> dict[str, Any]:
             "size": identity.st_size,
             "mtime_ns": identity.st_mtime_ns,
         },
+        "runtime_profile": runtime_profile or {"kind": "global_python"},
     }
+
+
+def environment_mapping(value: object, context: str) -> dict[str, str]:
+    """Require a complete environment object with valid string keys and values."""
+    if not isinstance(value, dict):
+        raise AuditFailure(f"{context} is not an environment object")
+    if any(
+        type(key) is not str
+        or not key
+        or "=" in key
+        or "\x00" in key
+        or type(item) is not str
+        or "\x00" in item
+        for key, item in value.items()
+    ):
+        raise AuditFailure(f"{context} contains a malformed environment key or value")
+    return value
+
+
+PYTHON_RUNTIME_PROFILE_PROBE = """\\
+import hashlib
+import io
+import json
+import os
+import site
+import sys
+import sysconfig
+from pathlib import Path
+
+startup_environment = dict(sorted(os.environ.items()))
+paths = {
+    key: str(Path(value).absolute())
+    for key, value in sorted(sysconfig.get_paths().items())
+    if isinstance(value, str) and value
+}
+prefix_path = Path(sys.prefix).absolute()
+base_prefix_path = Path(sys.base_prefix).absolute()
+cfg_path = prefix_path / "pyvenv.cfg"
+cfg_bytes = cfg_path.read_bytes() if cfg_path.is_file() else None
+pyvenv_cfg = {
+    "path": str(cfg_path),
+    "bytes": len(cfg_bytes),
+    "sha256": hashlib.sha256(cfg_bytes).hexdigest(),
+} if cfg_bytes is not None else None
+site_roots = sorted(
+    {
+        str(Path(value).absolute())
+        for value in [
+            *site.getsitepackages(),
+            sysconfig.get_paths().get("purelib"),
+            sysconfig.get_paths().get("platlib"),
+        ]
+        if isinstance(value, str) and value
+    }
+)
+stdlib_roots = sorted(
+    {
+        paths[key]
+        for key in ("stdlib", "platstdlib")
+        if key in paths
+    }
+)
+runtime_profile = {
+    "executable": str(Path(sys.executable).absolute()),
+    "resolved_executable": str(Path(sys.executable).resolve(strict=True)),
+    "version": sys.version,
+    "implementation": sys.implementation.name,
+    "prefix": str(prefix_path),
+    "base_prefix": str(base_prefix_path),
+    "pyvenv_cfg": pyvenv_cfg,
+    "sysconfig_paths": paths,
+    "site_roots": site_roots,
+    "stdlib_roots": stdlib_roots,
+}
+profile = {
+    "runtime_profile": runtime_profile,
+    "bootstrap_sys_path": [
+        str(Path(item or os.getcwd()).absolute()) for item in sys.path
+    ],
+    "startup_environment": startup_environment,
+    "isolated": sys.flags.isolated,
+    "no_site": sys.flags.no_site,
+    "optimize": sys.flags.optimize,
+}
+print(json.dumps(profile, sort_keys=True, separators=(",", ":")))
+"""
+
+
+def selected_python_runtime_profile(
+    python: Path,
+    *,
+    home: Path,
+    timeout_seconds: float,
+    probe_environment: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Derive runtime roles and startup environment through the bound launcher.
+
+    The isolated probe disables site processing so these keys are interpreter-startup
+    additions, not sitecustomize or pytest plugin claims.
+    """
+    if not python.is_absolute() or not home.is_absolute() or not home.is_dir() or home.is_symlink():
+        raise AuditFailure("isolated runtime profile requires an absolute launcher and safe HOME")
+    if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float)):
+        raise AuditFailure("isolated runtime profile timeout must be a positive number")
+    if timeout_seconds <= 0:
+        raise AuditFailure("isolated runtime profile timeout must be a positive number")
+    launcher_record = python_executable_record(python)
+    environment = (
+        {
+            "HOME": str(home),
+            "LANG": "C",
+            "LC_ALL": "C",
+            "PATH": "/usr/bin:/bin",
+        }
+        if probe_environment is None
+        else environment_mapping(probe_environment, "isolated launcher probe input")
+    )
+    if environment.get("HOME") != str(home):
+        raise AuditFailure("isolated launcher probe input does not preserve its selected HOME")
+    try:
+        result = subprocess.run(  # noqa: S603 -- absolute launcher and fixed standard-library probe argv.
+            [
+                str(python),
+                "-I",
+                "-S",
+                "-B",
+                "-c",
+                PYTHON_RUNTIME_PROFILE_PROBE,
+            ],
+            cwd=Path("/"),
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise AuditFailure("isolated selected-launcher profile probe did not complete") from error
+    if result.returncode:
+        raise AuditFailure(f"isolated selected-launcher profile probe exited {result.returncode}")
+    try:
+        profile = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise AuditFailure("isolated selected-launcher profile is malformed JSON") from error
+    if not isinstance(profile, dict):
+        raise AuditFailure("isolated selected-launcher profile root is not an object")
+    if set(profile) != {
+        "runtime_profile",
+        "bootstrap_sys_path",
+        "startup_environment",
+        "isolated",
+        "no_site",
+        "optimize",
+    }:
+        raise AuditFailure("isolated selected-launcher probe envelope differs from its schema")
+    startup_environment = environment_mapping(
+        profile.get("startup_environment"), "isolated selected-launcher startup environment"
+    )
+    if any(startup_environment.get(key) != value for key, value in environment.items()):
+        raise AuditFailure(
+            "selected launcher changed its explicit environment before profile capture"
+        )
+    runtime_profile = profile.get("runtime_profile")
+    required_roles = {
+        "executable",
+        "resolved_executable",
+        "version",
+        "implementation",
+        "prefix",
+        "base_prefix",
+        "pyvenv_cfg",
+        "sysconfig_paths",
+        "site_roots",
+        "stdlib_roots",
+    }
+    if not isinstance(runtime_profile, dict) or not required_roles.issubset(runtime_profile):
+        raise AuditFailure("isolated selected-launcher profile omits runtime roles")
+    if (
+        type(profile.get("isolated")) is not int
+        or profile["isolated"] != 1
+        or type(profile.get("no_site")) is not int
+        or profile["no_site"] != 1
+        or type(profile.get("optimize")) is not int
+        or profile["optimize"] != 0
+    ):
+        raise AuditFailure("selected-launcher probe did not run with -I -S -B")
+    if runtime_profile.get("resolved_executable") != launcher_record.get("resolved_path"):
+        raise AuditFailure("isolated probe executable differs from the bound launcher target")
+    runtime = launcher_record.get("runtime_profile")
+    if not isinstance(runtime, dict):
+        raise AuditFailure("selected launcher has no source-bound runtime classification")
+    if runtime.get("kind") == "venv":
+        if runtime_profile.get("prefix") != runtime.get("root") or runtime_profile.get(
+            "pyvenv_cfg"
+        ) != runtime.get("pyvenv_cfg"):
+            raise AuditFailure("isolated probe prefix or pyvenv.cfg differs from its launcher")
+    elif runtime.get("kind") == "global_python":
+        if (
+            runtime_profile.get("prefix") != runtime_profile.get("base_prefix")
+            or runtime_profile.get("pyvenv_cfg") is not None
+        ):
+            raise AuditFailure("isolated global Python probe reported a venv profile")
+    else:
+        raise AuditFailure("selected launcher has an unknown runtime classification")
+    collection_profile_directories(runtime_profile, "site_roots")
+    collection_profile_directories(runtime_profile, "stdlib_roots")
+    bootstrap = profile.get("bootstrap_sys_path")
+    if (
+        not isinstance(bootstrap, list)
+        or not bootstrap
+        or any(not isinstance(value, str) or not Path(value).is_absolute() for value in bootstrap)
+    ):
+        raise AuditFailure("isolated selected-launcher profile has malformed bootstrap paths")
+    if python_executable_record(python) != launcher_record:
+        raise AuditFailure("selected launcher or venv configuration changed during isolated probe")
+    return {
+        "launcher_record": launcher_record,
+        "runtime_profile": runtime_profile,
+        "bootstrap_sys_path": bootstrap,
+        "startup_environment": startup_environment,
+        "probe_flags": {
+            "isolated": profile["isolated"],
+            "no_site": profile["no_site"],
+            "optimize": profile["optimize"],
+        },
+    }
+
+
+def collection_profile_directories(python_profile: dict[str, Any], field: str) -> list[Path]:
+    """Resolve a nonempty runtime directory set from the actual child report."""
+    values = python_profile.get(field)
+    if not isinstance(values, list) or not values:
+        raise AuditFailure(f"pytest runtime profile omits {field}")
+    roots = []
+    for value in values:
+        if not isinstance(value, str) or not Path(value).is_absolute():
+            raise AuditFailure(f"pytest runtime profile has an invalid {field} entry")
+        try:
+            root = Path(value).resolve(strict=True)
+        except OSError as error:
+            raise AuditFailure(
+                f"pytest runtime profile directory is unavailable: {value}"
+            ) from error
+        if not root.is_dir():
+            raise AuditFailure(f"pytest runtime profile entry is not a directory: {value}")
+        roots.append(root)
+    return list(dict.fromkeys(roots))
+
+
+def validate_python_runtime_profile(
+    expected_runtime: dict[str, Any], observed_profile: dict[str, Any]
+) -> None:
+    """Reconcile the complete runtime role object to its isolated selected-launcher probe."""
+    if not isinstance(expected_runtime, dict) or not isinstance(observed_profile, dict):
+        raise AuditFailure("collector Python runtime profile is malformed")
+    launcher_record = expected_runtime.get("launcher_record")
+    expected_profile = expected_runtime.get("runtime_profile")
+    probe_flags = expected_runtime.get("probe_flags")
+    if not isinstance(launcher_record, dict) or not isinstance(expected_profile, dict):
+        raise AuditFailure("isolated selected-launcher runtime record is malformed")
+    if not isinstance(probe_flags, dict):
+        raise AuditFailure("isolated selected-launcher probe flags are missing")
+    requested_path = launcher_record.get("requested_path")
+    if not isinstance(requested_path, str) or not Path(requested_path).is_absolute():
+        raise AuditFailure("collector Python launcher record omits its absolute path")
+    if python_executable_record(Path(requested_path)) != launcher_record:
+        raise AuditFailure("collector Python launcher or runtime config changed before collection")
+    if probe_flags != {"isolated": 1, "no_site": 1, "optimize": 0}:
+        raise AuditFailure("runtime expectation was not derived with -I -S -B")
+    observed_runtime = observed_profile.get("runtime_profile")
+    if not isinstance(observed_runtime, dict):
+        raise AuditFailure("pytest report omits its complete runtime role object")
+    if observed_runtime != expected_profile:
+        differing_fields = sorted(
+            key
+            for key in set(expected_profile) | set(observed_runtime)
+            if expected_profile.get(key) != observed_runtime.get(key)
+        )
+        raise AuditFailure(
+            "pytest runtime role object differs from isolated launcher probe: "
+            + ", ".join(differing_fields)
+        )
+    if not isinstance(expected_profile.get("prefix"), str) or not isinstance(
+        expected_profile.get("base_prefix"), str
+    ):
+        raise AuditFailure("isolated runtime role object omits its interpreter prefixes")
+    if not isinstance(expected_profile.get("sysconfig_paths"), dict):
+        raise AuditFailure("isolated runtime role object omits sysconfig paths")
+    collection_profile_directories(expected_profile, "site_roots")
+    collection_profile_directories(expected_profile, "stdlib_roots")
 
 
 def collection_environment(product: Path, output_root: Path, result_path: Path) -> dict[str, str]:
@@ -836,6 +1835,7 @@ def bind_collection_origins(
     plugin_path: Path,
     plugin_bytes: bytes,
     lock_versions: dict[str, set[str]],
+    expected_runtime_profile: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Bind every loaded module, config, startup file, plugin, and conftest origin."""
     python_profile = report.get("python")
@@ -845,23 +1845,39 @@ def bind_collection_origins(
     sys_path = python_profile.get("sys_path")
     if not isinstance(sys_path, list):
         raise AuditFailure("pytest collection report omits its effective import path")
-    python_prefixes = [
-        Path(value).resolve(strict=True)
-        for value in (python_profile.get("prefix"), python_profile.get("base_prefix"))
+    runtime_roles = expected_runtime_profile.get("runtime_profile")
+    if not isinstance(runtime_roles, dict):
+        raise AuditFailure("isolated runtime profile omits its role object")
+    active_site_roots = collection_profile_directories(runtime_roles, "site_roots")
+    stdlib_roots = collection_profile_directories(runtime_roles, "stdlib_roots")
+    bootstrap_values = expected_runtime_profile.get("bootstrap_sys_path")
+    if not isinstance(bootstrap_values, list) or not bootstrap_values:
+        raise AuditFailure("isolated runtime profile omits its bootstrap import path")
+    bootstrap_paths = {
+        Path(value).resolve(strict=False)
+        for value in bootstrap_values
         if isinstance(value, str) and Path(value).is_absolute()
-    ]
-    if not python_prefixes:
-        raise AuditFailure("pytest collection report omits its selected Python prefixes")
+    }
+    python_roots = active_site_roots + stdlib_roots
+    record_search_roots: set[Path] = set()
     for value in sys_path:
         if not isinstance(value, str) or not Path(value).is_absolute():
             raise AuditFailure("pytest collection report has a non-absolute sys.path entry")
-        entry = Path(os.path.abspath(value))
-        if not entry.is_relative_to(repo) and not any(
-            entry.is_relative_to(prefix) for prefix in python_prefixes
-        ):
-            raise AuditFailure(
-                f"pytest import path is outside the source/profile boundary: {entry}"
-            )
+        entry = Path(os.path.abspath(value)).resolve(strict=False)
+        if entry.is_relative_to(repo) or entry in bootstrap_paths:
+            continue
+        if any(entry.is_relative_to(root) for root in python_roots):
+            if any(entry.is_relative_to(root) for root in active_site_roots):
+                try:
+                    search_root = Path(value).resolve(strict=True)
+                except OSError:
+                    continue
+                if search_root.is_dir():
+                    record_search_roots.add(search_root)
+            continue
+        raise AuditFailure(
+            f"pytest import path is outside the reconciled source/runtime roots: {entry}"
+        )
     module_rows: dict[str, dict[str, Any]] = {}
     for module in modules:
         if not isinstance(module, dict) or not isinstance(module.get("module"), str):
@@ -882,8 +1898,15 @@ def bind_collection_origins(
             origin_rows[key] = record
 
     origin_rows: dict[str, dict[str, Any]] = {}
+    distribution_record_cache: dict[tuple[str, ...], dict[str, Any]] = {}
+    distribution_record_rows_cache: dict[
+        tuple[str, ...], dict[str, list[tuple[str, str, bool]]]
+    ] = {}
     declared_plugin_modules: set[str] = set()
     loaded_conftest_modules: set[str] = set()
+    record_owner_inventory, record_inventory_evidence = physical_record_claim_inventory(
+        sorted(record_search_roots), active_site_roots
+    )
     for module in modules:
         module_name = module["module"]
         origin = module.get("origin")
@@ -920,25 +1943,19 @@ def bind_collection_origins(
                     "path_kind": "directory",
                     "directory_identity": identity,
                 }
-                in_python_profile = any(
-                    location.is_relative_to(prefix) for prefix in python_prefixes
-                )
-                if location.is_relative_to(repo) and not in_python_profile:
+                in_site_profile = any(location.is_relative_to(root) for root in active_site_roots)
+                in_standard_library = any(location.is_relative_to(root) for root in stdlib_roots)
+                if location.is_relative_to(repo) and not (in_site_profile or in_standard_library):
                     relative = location.relative_to(repo).as_posix()
                     base_record["source_sha"] = source_sha
                     base_record["git_tree_oid"] = commit_tree_oid(repo, source_sha, relative)
                     base_record["source_relative_path"] = relative
                 else:
-                    if not in_python_profile:
+                    if not (in_site_profile or in_standard_library):
                         raise AuditFailure(
-                            f"namespace search location is outside the selected profile: {location}"
+                            f"namespace search location is outside active Python roots: {location}"
                         )
-                    stdlib_roots = [
-                        Path(value).resolve(strict=True)
-                        for value in python_profile.get("stdlib_roots", [])
-                        if isinstance(value, str) and Path(value).is_absolute()
-                    ]
-                    if not any(location.is_relative_to(root) for root in stdlib_roots):
+                    if in_site_profile or not in_standard_library:
                         matched = [
                             distribution
                             for distribution in namespace_distributions
@@ -953,8 +1970,12 @@ def bind_collection_origins(
                             record = locked_distribution_record(
                                 distribution,
                                 lock_versions,
-                                python_prefixes,
+                                active_site_roots,
                                 module_name,
+                                record_cache=distribution_record_cache,
+                                record_rows_cache=distribution_record_rows_cache,
+                                record_owner_inventory=record_owner_inventory,
+                                namespace_location=location,
                             )
                             retain_record(record, module_name)
                 retain_record(base_record, module_name)
@@ -981,8 +2002,9 @@ def bind_collection_origins(
                 relative = path.relative_to(repo).as_posix()
             except ValueError:
                 relative = None
-            in_python_profile = any(path.is_relative_to(prefix) for prefix in python_prefixes)
-            if relative is not None and not in_python_profile:
+            in_site_profile = any(path.is_relative_to(root) for root in active_site_roots)
+            in_standard_library = any(path.is_relative_to(root) for root in stdlib_roots)
+            if relative is not None and not (in_site_profile or in_standard_library):
                 object_id, committed = commit_blob_record(repo, source_sha, relative)
                 if data != committed:
                     raise AuditFailure(
@@ -1003,17 +2025,12 @@ def bind_collection_origins(
                 if path.name == "conftest.py" and module_name.endswith("conftest"):
                     loaded_conftest_modules.add(module_name)
             else:
-                if not in_python_profile:
+                if not (in_site_profile or in_standard_library):
                     raise AuditFailure(
-                        f"loaded module origin is outside the selected Python profile: {origin}"
+                        f"loaded module origin is outside active Python roots: {origin}"
                     )
-                stdlib_roots = [
-                    Path(value)
-                    for value in python_profile.get("stdlib_roots", [])
-                    if isinstance(value, str) and Path(value).is_absolute()
-                ]
                 distribution = module.get("distribution")
-                if distribution is None and any(path.is_relative_to(root) for root in stdlib_roots):
+                if distribution is None and in_standard_library and not in_site_profile:
                     record = {
                         "kind": "selected_python_standard_library",
                         "module": module_name,
@@ -1022,6 +2039,10 @@ def bind_collection_origins(
                         "sha256": observed_sha,
                     }
                 else:
+                    if not in_site_profile:
+                        raise AuditFailure(
+                            f"installed module origin is outside active site roots: {origin}"
+                        )
                     if not isinstance(distribution, dict):
                         raise AuditFailure(
                             f"loaded installed module has no distribution identity: {origin}"
@@ -1042,7 +2063,15 @@ def bind_collection_origins(
                             f"installed module bytes differ from its wheel RECORD: {origin}"
                         )
                     distribution_record = locked_distribution_record(
-                        distribution, lock_versions, python_prefixes, module_name
+                        distribution,
+                        lock_versions,
+                        active_site_roots,
+                        module_name,
+                        record_cache=distribution_record_cache,
+                        record_rows_cache=distribution_record_rows_cache,
+                        record_owner_inventory=record_owner_inventory,
+                        file_origin=path,
+                        file_bytes=data,
                     )
                     retain_record(distribution_record, module_name)
                     name = distribution["name"]
@@ -1130,11 +2159,9 @@ def bind_collection_origins(
             raise AuditFailure("Python startup-file inventory contains a malformed row")
         origin = Path(startup["origin"])
         if not origin.is_absolute() or not any(
-            origin.is_relative_to(prefix) for prefix in python_prefixes
+            origin.is_relative_to(root) for root in active_site_roots
         ):
-            raise AuditFailure(
-                f"Python startup file is outside the selected interpreter profile: {origin}"
-            )
+            raise AuditFailure(f"Python startup file is outside active site roots: {origin}")
         data = read_regular_local(origin)
         if sha256(data) != startup.get("sha256"):
             raise AuditFailure(f"Python startup file changed during collection: {origin}")
@@ -1145,7 +2172,136 @@ def bind_collection_origins(
             "bytes": len(data),
             "sha256": sha256(data),
         }
+    for record_evidence in record_inventory_evidence:
+        key = str(record_evidence["origin"])
+        existing = origin_rows.get(key)
+        if existing is None:
+            origin_rows[key] = record_evidence
+            continue
+        if (
+            existing.get("bytes") != record_evidence["bytes"]
+            or existing.get("sha256") != record_evidence["sha256"]
+        ):
+            raise AuditFailure(f"installed RECORD changed during complete ownership census: {key}")
     return [origin_rows[key] for key in sorted(origin_rows)]
+
+
+def bound_pytest_environment(
+    report: dict[str, Any],
+    origins: list[dict[str, Any]],
+    lock_versions: dict[str, set[str]],
+) -> dict[str, str]:
+    """Derive pytest's environment contribution from its locked installed origin and RECORD."""
+    pytest_profile = report.get("pytest")
+    module_inventory = report.get("module_origins")
+    if not isinstance(pytest_profile, dict) or not isinstance(module_inventory, list):
+        raise AuditFailure("pytest environment source omits its runtime module identity")
+    if not isinstance(origins, list) or any(not isinstance(row, dict) for row in origins):
+        raise AuditFailure("pytest environment source has malformed bound origin records")
+    if any(not isinstance(row, dict) for row in module_inventory):
+        raise AuditFailure("pytest environment source has malformed module-origin records")
+    version = pytest_profile.get("version")
+    origin = pytest_profile.get("origin")
+    if not isinstance(version, str) or not version or not isinstance(origin, str):
+        raise AuditFailure("pytest environment source has a malformed version or origin")
+    if not Path(origin).is_absolute() or version not in lock_versions.get("pytest", set()):
+        raise AuditFailure("pytest environment source is outside the locked version profile")
+    module_rows = [
+        row for row in module_inventory if isinstance(row, dict) and row.get("module") == "pytest"
+    ]
+    if len(module_rows) != 1 or module_rows[0].get("origin") != origin:
+        raise AuditFailure("pytest version does not identify exactly one loaded module origin")
+    module_row = module_rows[0]
+    distribution = module_row.get("distribution")
+    if not isinstance(distribution, dict):
+        raise AuditFailure("pytest loaded origin has no installed distribution identity")
+    distribution_name = distribution.get("name")
+    distribution_version = distribution.get("version")
+    record_path = distribution.get("record_path")
+    record_sha256 = distribution.get("distribution_record_sha256")
+    if (
+        not isinstance(distribution_name, str)
+        or normalized_distribution_name(distribution_name) != "pytest"
+        or distribution_version != version
+        or not isinstance(record_path, str)
+        or not Path(record_path).is_absolute()
+        or not isinstance(record_sha256, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", record_sha256)
+    ):
+        raise AuditFailure("pytest module identity is not bound to its locked RECORD digest")
+    module_bindings = [
+        row
+        for row in origins
+        if row.get("kind") == "locked_python_distribution"
+        and row.get("module") == "pytest"
+        and row.get("origin") == origin
+        and isinstance(row.get("distribution"), str)
+        and normalized_distribution_name(row["distribution"]) == "pytest"
+        and row.get("version") == version
+        and row.get("distribution_record_sha256") == record_sha256
+        and row.get("sha256") == module_row.get("sha256")
+    ]
+    if len(module_bindings) != 1:
+        raise AuditFailure("pytest module bytes lack one locked distribution-origin binding")
+    record_bindings = [
+        row
+        for row in origins
+        if row.get("kind") == "locked_python_distribution_record"
+        and row.get("origin") == record_path
+        and isinstance(row.get("distribution"), str)
+        and normalized_distribution_name(row["distribution"]) == "pytest"
+        and row.get("version") == version
+        and row.get("sha256") == record_sha256
+        and isinstance(row.get("modules"), list)
+        and "pytest" in row["modules"]
+    ]
+    if len(record_bindings) != 1:
+        raise AuditFailure("pytest RECORD bytes lack one source-bound installed-origin record")
+    return {"PYTEST_VERSION": module_bindings[0]["version"]}
+
+
+def reconcile_effective_collection_environment(
+    declared_environment: object,
+    startup_environment: object,
+    framework_environment: object,
+    effective_environment: object,
+) -> dict[str, dict[str, str]]:
+    """Reconcile every effective collection key across declared, startup, and framework roles."""
+    declared = environment_mapping(declared_environment, "declared collection environment")
+    startup = environment_mapping(startup_environment, "isolated launcher startup environment")
+    framework = environment_mapping(framework_environment, "bound framework environment")
+    effective = environment_mapping(effective_environment, "effective collection environment")
+    if any(startup.get(key) != value for key, value in declared.items()):
+        raise AuditFailure("selected launcher changed a declared collection environment value")
+    role_overlap = sorted(set(startup) & set(framework))
+    if role_overlap:
+        raise AuditFailure(
+            "startup and framework environment roles overlap: " + ", ".join(role_overlap)
+        )
+    expected = {**startup, **framework}
+    if effective != expected:
+        missing = sorted(set(expected) - set(effective))
+        unexpected = sorted(set(effective) - set(expected))
+        changed = sorted(
+            key for key in set(expected) & set(effective) if expected[key] != effective[key]
+        )
+        reasons = []
+        if missing:
+            reasons.append("missing=" + ",".join(missing))
+        if unexpected:
+            reasons.append("unexpected=" + ",".join(unexpected))
+        if changed:
+            reasons.append("changed=" + ",".join(changed))
+        raise AuditFailure(
+            "effective pytest environment differs from the complete reconciled transition: "
+            + "; ".join(reasons)
+        )
+    return {
+        "declared": declared,
+        "startup": startup,
+        "framework": framework,
+        "effective": effective,
+    }
 
 
 def recheck_collection_origins(rows: list[dict[str, Any]]) -> None:
@@ -1164,6 +2320,17 @@ def recheck_collection_origins(rows: list[dict[str, Any]]) -> None:
         data = read_regular_local(Path(origin))
         if len(data) != row.get("bytes") or sha256(data) != row.get("sha256"):
             raise AuditFailure(f"collection input changed after it was read: {origin}")
+        metadata_origin = row.get("metadata_origin")
+        if metadata_origin is not None:
+            if not isinstance(metadata_origin, str) or not Path(metadata_origin).is_absolute():
+                raise AuditFailure("captured distribution METADATA path is malformed")
+            metadata_data = read_regular_local(Path(metadata_origin))
+            if len(metadata_data) != row.get("metadata_bytes") or sha256(metadata_data) != row.get(
+                "metadata_sha256"
+            ):
+                raise AuditFailure(
+                    f"distribution METADATA changed after it was read: {metadata_origin}"
+                )
 
 
 def collect_ids(
@@ -1190,6 +2357,14 @@ def collect_ids(
         raise AuditFailure(f"collection result path already exists: {result_path}")
     python_before = python_executable_record(python)
     environment = collection_environment(product, output_root, result_path)
+    isolated_runtime_before = selected_python_runtime_profile(
+        python,
+        home=Path(environment["HOME"]),
+        timeout_seconds=timeout_seconds,
+        probe_environment=environment,
+    )
+    if isolated_runtime_before["launcher_record"] != python_before:
+        raise AuditFailure("selected Python launcher changed before isolated profile capture")
     args = [
         str(python),
         "-B",
@@ -1267,10 +2442,10 @@ def collect_ids(
     if not isinstance(report, dict):
         raise AuditFailure(f"pytest collection report root is not an object: {label}")
     captured_environment = report.get("effective_environment")
-    if not isinstance(captured_environment, dict) or captured_environment != environment:
-        raise AuditFailure(
-            "pytest collection changed or omitted its explicit effective environment"
-        )
+    python_profile = report.get("python")
+    if not isinstance(python_profile, dict):
+        raise AuditFailure("pytest collection report omits its Python runtime profile")
+    validate_python_runtime_profile(isolated_runtime_before, python_profile)
     if report.get("collection_exitstatus") != 0:
         raise AuditFailure(
             "pytest collection report does not confirm a complete successful session"
@@ -1278,16 +2453,23 @@ def collect_ids(
     ids = parse_collected_ids(report, allowed_paths)
     lock_versions = locked_python_versions(repo, source_sha)
     origins = bind_collection_origins(
-        repo, source_sha, report, plugin_path, plugin_bytes, lock_versions
+        repo,
+        source_sha,
+        report,
+        plugin_path,
+        plugin_bytes,
+        lock_versions,
+        isolated_runtime_before,
     )
     if not any(row.get("kind") == "helper_generated_collection_plugin" for row in origins):
         raise AuditFailure("the source-bound collection capture plugin was not loaded")
-    python_profile = report.get("python")
     pytest_profile = report.get("pytest")
-    if not isinstance(python_profile, dict) or not isinstance(pytest_profile, dict):
-        raise AuditFailure("pytest collection report omits Python or pytest identity")
+    if not isinstance(pytest_profile, dict):
+        raise AuditFailure("pytest collection report omits pytest identity")
     try:
-        child_executable = Path(str(python_profile["executable"])).resolve(strict=True)
+        child_executable = Path(
+            str(python_profile["runtime_profile"]["resolved_executable"])
+        ).resolve(strict=True)
     except (KeyError, OSError) as error:
         raise AuditFailure(
             "pytest collection report has no resolvable Python executable"
@@ -1298,13 +2480,21 @@ def collect_ids(
         raise AuditFailure("pytest collection report has no version")
     if pytest_profile["version"] not in lock_versions.get("pytest", set()):
         raise AuditFailure("pytest version is not pinned by the frozen application lock")
-    pytest_origins = [
-        row
-        for row in report.get("module_origins", [])
-        if isinstance(row, dict) and row.get("module") == "pytest"
-    ]
-    if len(pytest_origins) != 1 or pytest_origins[0].get("origin") != pytest_profile.get("origin"):
-        raise AuditFailure("pytest identity does not match its loaded module origin")
+    framework_environment = bound_pytest_environment(report, origins, lock_versions)
+    environment_transition = reconcile_effective_collection_environment(
+        environment,
+        isolated_runtime_before["startup_environment"],
+        framework_environment,
+        captured_environment,
+    )
+    isolated_runtime_after = selected_python_runtime_profile(
+        python,
+        home=Path(environment["HOME"]),
+        timeout_seconds=timeout_seconds,
+        probe_environment=environment,
+    )
+    if isolated_runtime_after != isolated_runtime_before:
+        raise AuditFailure("selected Python runtime profile changed during source collection")
     python_after = python_executable_record(python)
     if python_after != python_before:
         raise AuditFailure("collector Python executable changed during source collection")
@@ -1312,8 +2502,20 @@ def collect_ids(
     record["collected_node_ids_sha256"] = canonical_ids_sha256(ids)
     record["collected_node_ids"] = sorted(ids)
     record["complete_collection_report_sha256"] = sha256(read_regular_local(result_path))
-    record["effective_environment"] = environment
-    record["effective_environment_sha256"] = canonical_json_sha256(environment)
+    record["declared_environment"] = environment_transition["declared"]
+    record["startup_environment"] = environment_transition["startup"]
+    record["framework_environment"] = environment_transition["framework"]
+    record["effective_environment"] = environment_transition["effective"]
+    record["declared_environment_sha256"] = canonical_json_sha256(
+        environment_transition["declared"]
+    )
+    record["startup_environment_sha256"] = canonical_json_sha256(environment_transition["startup"])
+    record["framework_environment_sha256"] = canonical_json_sha256(
+        environment_transition["framework"]
+    )
+    record["effective_environment_sha256"] = canonical_json_sha256(
+        environment_transition["effective"]
+    )
     record["plugin_policy"] = {
         "autoload_disabled": True,
         "explicit_capture_plugin": COLLECTION_PLUGIN_NAME,
@@ -1322,6 +2524,7 @@ def collect_ids(
         "external_plugins_from_locked_source_declarations_only": True,
     }
     record["python_executable"] = python_before
+    record["isolated_python_runtime_profile"] = isolated_runtime_before
     record["python_runtime_profile"] = python_profile
     record["pytest_profile"] = pytest_profile
     record["loaded_plugins"] = report.get("plugins")
@@ -1990,6 +3193,563 @@ def self_test_origin_gate_symlink() -> dict[str, bool]:
         }
 
 
+def self_test_environment_reconciliation() -> dict[str, bool]:
+    """Exercise full environment transition and bound pytest-version falsifiers."""
+    version = "9.0.2"
+    module_origin = "/fixture/site-packages/pytest/__init__.py"
+    record_origin = "/fixture/site-packages/pytest-9.0.2.dist-info/RECORD"
+    record_sha256 = "a" * 64
+    module_sha256 = "b" * 64
+    report: dict[str, Any] = {
+        "pytest": {"version": version, "origin": module_origin},
+        "module_origins": [
+            {
+                "module": "pytest",
+                "origin": module_origin,
+                "sha256": module_sha256,
+                "distribution": {
+                    "name": "pytest",
+                    "version": version,
+                    "record_path": record_origin,
+                    "distribution_record_sha256": record_sha256,
+                },
+            }
+        ],
+    }
+    origins: list[dict[str, Any]] = [
+        {
+            "kind": "locked_python_distribution",
+            "module": "pytest",
+            "origin": module_origin,
+            "distribution": "pytest",
+            "version": version,
+            "distribution_record_sha256": record_sha256,
+            "sha256": module_sha256,
+        },
+        {
+            "kind": "locked_python_distribution_record",
+            "origin": record_origin,
+            "distribution": "pytest",
+            "version": version,
+            "sha256": record_sha256,
+            "modules": ["pytest"],
+        },
+    ]
+    framework = bound_pytest_environment(report, origins, {"pytest": {version}})
+    declared = {"HOME": "/fixture/home", "LANG": "C"}
+    startup = {**declared, "PROFILE_PROBE_MARKER": "independently-derived"}
+    effective = {**startup, **framework}
+    reconciled = reconcile_effective_collection_environment(declared, startup, framework, effective)
+    cases = {
+        "complete-declared-startup-and-bound-framework-transition": (
+            reconciled["effective"] == effective
+            and reconciled["framework"] == {"PYTEST_VERSION": version}
+        ),
+        "unowned-key-added-with-source-roles-unchanged-rejected": False,
+        "declared-value-changed-rejected": False,
+        "startup-addition-removed-with-profile-marker-unchanged-rejected": False,
+        "startup-addition-changed-with-profile-marker-unchanged-rejected": False,
+        "framework-version-marker-changed-rejected": False,
+        "malformed-environment-value-rejected": False,
+        "startup-and-framework-role-overlap-rejected": False,
+        "pytest-self-reported-version-without-matching-locked-origin-rejected": False,
+        "pytest-origin-changed-with-version-marker-unchanged-rejected": False,
+        "pytest-record-claim-changed-with-version-marker-unchanged-rejected": False,
+        "pytest-origin-without-matching-record-binding-rejected": False,
+        "pytest-record-digest-mismatch-with-version-marker-unchanged-rejected": False,
+    }
+
+    def rejected(operation: Callable[[], object]) -> bool:
+        try:
+            operation()
+        except AuditFailure:
+            return True
+        return False
+
+    unexpected = {**effective, "UNDECLARED_PROFILE_VALUE": "candidate"}
+    cases["unowned-key-added-with-source-roles-unchanged-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(declared, startup, framework, unexpected)
+    )
+    changed_declared = {**effective, "LANG": "changed"}
+    cases["declared-value-changed-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, startup, framework, changed_declared
+        )
+    )
+    missing_startup = dict(effective)
+    missing_startup.pop("PROFILE_PROBE_MARKER")
+    cases["startup-addition-removed-with-profile-marker-unchanged-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, startup, framework, missing_startup
+        )
+    )
+    changed_startup = {**effective, "PROFILE_PROBE_MARKER": "different"}
+    cases["startup-addition-changed-with-profile-marker-unchanged-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, startup, framework, changed_startup
+        )
+    )
+    changed_framework = {**effective, "PYTEST_VERSION": "9.0.3"}
+    cases["framework-version-marker-changed-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, startup, framework, changed_framework
+        )
+    )
+    malformed_environment = {**effective, "LANG": 1}
+    cases["malformed-environment-value-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, startup, framework, malformed_environment
+        )
+    )
+    overlapping_startup = {**startup, "PYTEST_VERSION": version}
+    cases["startup-and-framework-role-overlap-rejected"] = rejected(
+        lambda: reconcile_effective_collection_environment(
+            declared, overlapping_startup, framework, effective
+        )
+    )
+    false_version_report = copy.deepcopy(report)
+    false_version_report["pytest"]["version"] = "9.0.3"
+    cases["pytest-self-reported-version-without-matching-locked-origin-rejected"] = rejected(
+        lambda: bound_pytest_environment(false_version_report, origins, {"pytest": {version}})
+    )
+    false_origin_report = copy.deepcopy(report)
+    false_origin_report["pytest"]["origin"] = "/fixture/other/pytest/__init__.py"
+    cases["pytest-origin-changed-with-version-marker-unchanged-rejected"] = rejected(
+        lambda: bound_pytest_environment(false_origin_report, origins, {"pytest": {version}})
+    )
+    false_record_claim_report = copy.deepcopy(report)
+    false_record_claim_report["module_origins"][0]["distribution"]["distribution_record_sha256"] = (
+        "c" * 64
+    )
+    cases["pytest-record-claim-changed-with-version-marker-unchanged-rejected"] = rejected(
+        lambda: bound_pytest_environment(false_record_claim_report, origins, {"pytest": {version}})
+    )
+    missing_record_origins = [origins[0]]
+    cases["pytest-origin-without-matching-record-binding-rejected"] = rejected(
+        lambda: bound_pytest_environment(report, missing_record_origins, {"pytest": {version}})
+    )
+    changed_record_origins = copy.deepcopy(origins)
+    changed_record_origins[1]["sha256"] = "c" * 64
+    cases["pytest-record-digest-mismatch-with-version-marker-unchanged-rejected"] = rejected(
+        lambda: bound_pytest_environment(report, changed_record_origins, {"pytest": {version}})
+    )
+    failures = sorted(name for name, passed in cases.items() if not passed)
+    if failures:
+        raise AuditFailure(
+            "effective environment self-test falsifier remained green: " + ", ".join(failures)
+        )
+    return cases
+
+
+def self_test_record_origin_inventory() -> dict[str, bool]:
+    """Exercise physical RECORD ownership and metadata-path boundary controls."""
+    import tempfile
+    import types
+
+    sentinel = object()
+    prior_pytest = sys.modules.get("pytest", sentinel)
+    pytest_stub = types.ModuleType("pytest")
+    pytest_stub.hookimpl = lambda **_kwargs: (lambda function: function)
+    sys.modules["pytest"] = pytest_stub
+    plugin_namespace: dict[str, Any] = {"__name__": "q2_source_freeze_capture_test"}
+    try:
+        exec(  # noqa: S102 -- executes only the exact owned capture source in an in-memory fixture.
+            compile(COLLECTION_PLUGIN_SOURCE, "q2-source-freeze-capture", "exec"),
+            plugin_namespace,
+        )
+    finally:
+        if prior_pytest is sentinel:
+            sys.modules.pop("pytest", None)
+        else:
+            sys.modules["pytest"] = prior_pytest
+
+    capture_type = plugin_namespace["_CaptureMetadata"]
+    distribution_for = plugin_namespace["_distribution_for"]
+    namespace_distributions = plugin_namespace["_namespace_distributions"]
+
+    def capture_for(site_root: Path) -> object:
+        previous = sys.path[:]
+        sys.path.insert(0, str(site_root))
+        try:
+            capture = capture_type([str(site_root)])
+            capture.distribution_records()
+            return capture
+        finally:
+            sys.path[:] = previous
+
+    def make_record(
+        info_dir: Path,
+        name: str | None,
+        version: str,
+        claims: dict[str, bytes],
+    ) -> tuple[Path, Path, bytes, bytes]:
+        info_dir.mkdir(parents=True)
+        metadata_lines = []
+        if name is not None:
+            metadata_lines.append(f"Name: {name}")
+        metadata_lines.append(f"Version: {version}")
+        metadata_bytes = ("\n".join(metadata_lines) + "\n\n").encode("utf-8")
+        metadata_path = info_dir / "METADATA"
+        metadata_path.write_bytes(metadata_bytes)
+        root = info_dir.parent
+        record_rows = []
+        for relative, contents in sorted(claims.items()):
+            safe_relative = safe_record_relative_path(relative)
+            if safe_relative is not None:
+                target = root / safe_relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(contents)
+            digest = (
+                base64.urlsafe_b64encode(hashlib.sha256(contents).digest())
+                .decode("ascii")
+                .rstrip("=")
+            )
+            record_rows.append((relative, f"sha256={digest}", str(len(contents))))
+        record_rows.extend(
+            [
+                (f"{info_dir.name}/METADATA", "", ""),
+                (f"{info_dir.name}/RECORD", "", ""),
+            ]
+        )
+        output = io.StringIO(newline="")
+        csv.writer(output).writerows(record_rows)
+        record_bytes = output.getvalue().encode("utf-8")
+        record_path = info_dir / "RECORD"
+        record_path.write_bytes(record_bytes)
+        return record_path, metadata_path, record_bytes, metadata_bytes
+
+    cases: dict[str, bool] = {}
+    with tempfile.TemporaryDirectory(prefix="q2-record-owner-") as scratch:
+        root = Path(scratch)
+        valid_site = root / "site-packages"
+        valid_site.mkdir()
+        module_bytes = b"one exact installed module\n"
+        valid_info = valid_site / "pkg-1.0.dist-info"
+        valid_record, valid_metadata, valid_record_bytes, valid_metadata_bytes = make_record(
+            valid_info,
+            "pkg",
+            "1.0",
+            {"pkg/module.py": module_bytes, "pkg/valid.py": b"x=1\n"},
+        )
+        data_record = valid_site / "data" / "RECORD"
+        data_record.parent.mkdir()
+        data_record.write_bytes(valid_record_bytes)
+        module_path = valid_site / "pkg" / "module.py"
+        valid_capture = capture_for(valid_site)
+        valid_inventory, _valid_inventory_evidence = physical_record_claim_inventory(
+            [valid_site], [valid_site]
+        )
+        valid_row = distribution_for("__main__", module_path, valid_capture)
+        cases["canonical-metadata-record-positive"] = bool(
+            valid_row
+            and valid_row["record_path"] == str(valid_record)
+            and valid_row["metadata_path"] == str(valid_metadata)
+            and valid_row["dist_info_path"] == str(valid_info)
+        )
+        cases["data-record-equal-bytes-does-not-replace-metadata-record"] = bool(
+            valid_row and data_record.read_bytes() == valid_record.read_bytes()
+        )
+        if valid_row is None:
+            raise AuditFailure("canonical RECORD fixture did not identify its module owner")
+        bound = locked_distribution_record(
+            valid_row,
+            {"pkg": {"1.0"}},
+            [valid_site],
+            "record-inventory positive control",
+            record_cache={},
+            record_rows_cache={},
+            record_owner_inventory=valid_inventory,
+            file_origin=module_path,
+            file_bytes=module_bytes,
+        )
+        cases["metadata-and-record-bytes-reconciled"] = bool(
+            bound.get("metadata_origin") == str(valid_metadata)
+            and bound.get("metadata_sha256") == hashlib.sha256(valid_metadata_bytes).hexdigest()
+        )
+        forged_metadata_row = dict(valid_row)
+        forged_metadata_row["metadata_path"] = str(data_record)
+        forged_metadata_row["dist_info_path"] = str(data_record.parent)
+        try:
+            locked_distribution_record(
+                forged_metadata_row,
+                {"pkg": {"1.0"}},
+                [valid_site],
+                "counterfeit metadata path control",
+                record_owner_inventory=valid_inventory,
+                file_origin=module_path,
+                file_bytes=module_bytes,
+            )
+        except AuditFailure:
+            cases["counterfeit-metadata-path-with-equal-bytes-rejected"] = True
+        else:
+            cases["counterfeit-metadata-path-with-equal-bytes-rejected"] = False
+
+        nameless_info = valid_site / "nameless-1.0.dist-info"
+        make_record(nameless_info, None, "1.0", {"pkg/module.py": module_bytes})
+        nameless_capture = capture_for(valid_site)
+        cases["nameless-overlapping-claim-retained-and-fails-closed"] = (
+            len(nameless_capture.distribution_records()) == 2
+            and distribution_for("__main__", module_path, nameless_capture) is None
+        )
+
+        conflicting_info = valid_site / "shadow-9.0.dist-info"
+        make_record(conflicting_info, "shadow", "9.0", {"pkg/module.py": module_bytes})
+        conflict_capture = capture_for(valid_site)
+        cases["duplicate-file-claim-from-distinct-records-rejected"] = (
+            distribution_for("__main__", module_path, conflict_capture) is None
+        )
+
+        reentry_site = root / "reentry-fixture" / "site-packages"
+        reentry_site.mkdir(parents=True)
+        reentry_valid_info = reentry_site / "pkg-1.0.dist-info"
+        make_record(
+            reentry_valid_info,
+            "pkg",
+            "1.0",
+            {"pkg/module.py": module_bytes, "pkg/valid.py": b"x=1\n"},
+        )
+        reentry_module_path = reentry_site / "pkg" / "module.py"
+        reentry_namespace_path = reentry_site / "pkg"
+        reentry_info = reentry_site / "shadow-2.0.dist-info"
+        reentry_record, _reentry_metadata, _record_bytes, _metadata_bytes = make_record(
+            reentry_info, "shadow", "2.0", {}
+        )
+        reentry_hash = (
+            base64.urlsafe_b64encode(hashlib.sha256(module_bytes).digest())
+            .decode("ascii")
+            .rstrip("=")
+        )
+        reentry_rows = list(csv.reader(io.StringIO(reentry_record.read_text(encoding="utf-8"))))
+        reentry_rows.append(
+            ("../site-packages/pkg/module.py", f"sha256={reentry_hash}", str(len(module_bytes)))
+        )
+        reentry_output = io.StringIO(newline="")
+        csv.writer(reentry_output).writerows(reentry_rows)
+        reentry_record.write_text(reentry_output.getvalue(), encoding="utf-8")
+        reentry_capture = capture_for(reentry_site)
+        reentry_claims = [
+            claim
+            for snapshot in reentry_capture.distribution_records()
+            for claim in snapshot["claims"].get(str(reentry_module_path), ())
+        ]
+        cases["physical-inventory-retains-valid-and-reentered-rows"] = (
+            len(reentry_claims) == 2 and sum(claim["safe_path"] for claim in reentry_claims) == 1
+        )
+        cases["reentered-in-root-row-blocks-valid-owner"] = (
+            distribution_for("__main__", reentry_module_path, reentry_capture) is None
+        )
+        cases["reentered-in-root-row-blocks-namespace-owner"] = (
+            namespace_distributions(
+                "sample_namespace", [str(reentry_namespace_path)], reentry_capture
+            )
+            == []
+        )
+        reentry_snapshots = reentry_capture.distribution_records()
+        reentry_snapshot = next(
+            snapshot for snapshot in reentry_snapshots if snapshot["dist_info_path"] == reentry_info
+        )
+        reentry_distribution = plugin_namespace["_distribution_result"](reentry_snapshot)
+        reentry_valid_snapshot = next(
+            snapshot
+            for snapshot in reentry_snapshots
+            if snapshot["dist_info_path"] == reentry_valid_info
+        )
+        reentry_valid_distribution = plugin_namespace["_distribution_result"](
+            reentry_valid_snapshot
+        )
+        if reentry_distribution is None or reentry_valid_distribution is None:
+            raise AuditFailure("re-entry fixture lost one canonical physical RECORD identity")
+        reentry_distribution["record_hash_algorithm"] = "sha256"
+        reentry_distribution["record_hash_value"] = reentry_hash
+        reentry_valid_distribution["record_hash_algorithm"] = "sha256"
+        reentry_valid_distribution["record_hash_value"] = reentry_hash
+        reentry_inventory, _reentry_evidence = physical_record_claim_inventory(
+            [reentry_site], [reentry_site]
+        )
+        cases["parent-inventory-retains-two-physical-owners"] = (
+            len(reentry_inventory.get(str(reentry_module_path), [])) == 2
+        )
+        try:
+            locked_distribution_record(
+                reentry_valid_distribution,
+                {"pkg": {"1.0"}},
+                [reentry_site],
+                "re-entry parent valid-row competitor control",
+                record_owner_inventory=reentry_inventory,
+                file_origin=reentry_module_path,
+                file_bytes=module_bytes,
+            )
+        except AuditFailure:
+            cases["parent-census-rejects-valid-row-with-reentered-competitor"] = True
+        else:
+            cases["parent-census-rejects-valid-row-with-reentered-competitor"] = False
+        try:
+            locked_distribution_record(
+                reentry_distribution,
+                {"shadow": {"2.0"}},
+                [reentry_site],
+                "re-entry parent module control",
+                record_owner_inventory=reentry_inventory,
+                file_origin=reentry_module_path,
+                file_bytes=module_bytes,
+            )
+        except AuditFailure:
+            cases["parent-census-rejects-reentered-competing-row"] = True
+        else:
+            cases["parent-census-rejects-reentered-competing-row"] = False
+        try:
+            locked_distribution_record(
+                reentry_valid_distribution,
+                {"pkg": {"1.0"}},
+                [reentry_site],
+                "re-entry parent namespace control",
+                record_owner_inventory=reentry_inventory,
+                namespace_location=reentry_namespace_path,
+            )
+        except AuditFailure:
+            cases["parent-census-rejects-reentered-namespace-row"] = True
+        else:
+            cases["parent-census-rejects-reentered-namespace-row"] = False
+
+        external_site = root / "venv" / "lib" / "python3.14" / "site-packages"
+        external_site.mkdir(parents=True)
+        external_bin = root / "venv" / "bin"
+        external_bin.mkdir(parents=True)
+        external_script = external_bin / "entrypoint"
+        external_script_bytes = b"#!/usr/bin/env python3\n"
+        external_script.write_bytes(external_script_bytes)
+        external_info = external_site / "pkg-1.0.dist-info"
+        external_record, _external_metadata, _record_bytes, _metadata_bytes = make_record(
+            external_info, "pkg", "1.0", {"pkg/module.py": module_bytes}
+        )
+        external_hash = (
+            base64.urlsafe_b64encode(hashlib.sha256(external_script_bytes).digest())
+            .decode("ascii")
+            .rstrip("=")
+        )
+        external_rows = list(csv.reader(io.StringIO(external_record.read_text(encoding="utf-8"))))
+        external_rows.append(
+            ("../../../bin/entrypoint", f"sha256={external_hash}", str(len(external_script_bytes)))
+        )
+        external_output = io.StringIO(newline="")
+        csv.writer(external_output).writerows(external_rows)
+        external_record.write_text(external_output.getvalue(), encoding="utf-8")
+        external_capture = capture_for(external_site)
+        external_owner = distribution_for(
+            "__main__", external_site / "pkg" / "module.py", external_capture
+        )
+        external_inventory, _external_evidence = physical_record_claim_inventory(
+            [external_site], [external_site]
+        )
+        external_rows_for_script = external_inventory.get(str(external_script), [])
+        cases["external-installed-script-kept-outside-in-root-owner-set"] = bool(
+            external_owner
+            and external_rows_for_script
+            and all(not row[3] for row in external_rows_for_script)
+            and not external_script.is_relative_to(external_site)
+        )
+        if external_owner is not None:
+            external_owner["record_hash_algorithm"] = "sha256"
+            external_owner["record_hash_value"] = (
+                base64.urlsafe_b64encode(hashlib.sha256(module_bytes).digest())
+                .decode("ascii")
+                .rstrip("=")
+            )
+            try:
+                locked_distribution_record(
+                    external_owner,
+                    {"pkg": {"1.0"}},
+                    [external_site],
+                    "external installed script parent control",
+                    record_owner_inventory=external_inventory,
+                    file_origin=external_site / "pkg" / "module.py",
+                    file_bytes=module_bytes,
+                )
+            except AuditFailure:
+                cases["parent-preserves-external-script-with-in-root-module"] = False
+            else:
+                cases["parent-preserves-external-script-with-in-root-module"] = True
+        else:
+            cases["parent-preserves-external-script-with-in-root-module"] = False
+
+        namespace_path = valid_site / "pkg"
+        valid_namespace = namespace_distributions(
+            "sample_namespace", [str(namespace_path)], valid_capture
+        )
+        cases["namespace-component-containment-positive"] = bool(
+            len(valid_namespace) == 1
+            and valid_namespace[0]["search_locations"] == [str(namespace_path)]
+        )
+
+        counterfeit_site = root / "counterfeit-site"
+        counterfeit_site.mkdir()
+        counterfeit_info = counterfeit_site / "pkg-1.0.dist-info"
+        make_record(counterfeit_info, "impostor", "1.0", {"pkg/module.py": module_bytes})
+        counterfeit_module = counterfeit_site / "pkg" / "module.py"
+        counterfeit_capture = capture_for(counterfeit_site)
+        cases["counterfeit-metadata-name-keeps-claim-but-is-not-an-owner"] = (
+            len(counterfeit_capture.distribution_records()) == 1
+            and distribution_for("__main__", counterfeit_module, counterfeit_capture) is None
+        )
+
+        data_only_site = root / "data-only-site"
+        data_only_site.mkdir()
+        data_only_info = data_only_site / "pkg-1.0.dist-info"
+        data_only_info.mkdir()
+        (data_only_info / "METADATA").write_bytes(b"Name: pkg\nVersion: 1.0\n\n")
+        data_only_module = data_only_site / "pkg" / "module.py"
+        data_only_module.parent.mkdir()
+        data_only_module.write_bytes(module_bytes)
+        data_only_record = data_only_site / "data" / "RECORD"
+        data_only_record.parent.mkdir()
+        data_only_record.write_bytes(valid_record_bytes)
+        data_only_capture = capture_for(data_only_site)
+        cases["noncanonical-data-record-alone-cannot-own-module"] = (
+            distribution_for("__main__", data_only_module, data_only_capture) is None
+        )
+
+        invalid_site = root / "invalid-site"
+        invalid_site.mkdir()
+        invalid_info = invalid_site / "pkg-1.0.dist-info"
+        invalid_record, _invalid_metadata, _record_bytes, _metadata_bytes = make_record(
+            invalid_info, "pkg", "1.0", {}
+        )
+        invalid_rows = list(csv.reader(io.StringIO(invalid_record.read_text(encoding="utf-8"))))
+        invalid_rows.append(("/etc/passwd", "", ""))
+        invalid_output = io.StringIO(newline="")
+        csv.writer(invalid_output).writerows(invalid_rows)
+        invalid_record.write_text(invalid_output.getvalue(), encoding="utf-8")
+        try:
+            capture_for(invalid_site)
+        except RuntimeError:
+            cases["child-rejects-unresolvable-absolute-record-row"] = True
+        else:
+            cases["child-rejects-unresolvable-absolute-record-row"] = False
+        try:
+            physical_record_claim_inventory([invalid_site], [invalid_site])
+        except AuditFailure:
+            cases["parent-rejects-unresolvable-absolute-record-row"] = True
+        else:
+            cases["parent-rejects-unresolvable-absolute-record-row"] = False
+
+        traversal_site = root / "traversal-site"
+        traversal_site.mkdir()
+        traversal_info = traversal_site / "ns-1.0.dist-info"
+        make_record(traversal_info, "ns", "1.0", {"pkg/../../outside.py": b"x=1\n"})
+        traversal_capture = capture_for(traversal_site)
+        cases["namespace-traversal-row-does-not-own-contained-directory"] = (
+            namespace_distributions(
+                "sample_namespace", [str(traversal_site / "pkg")], traversal_capture
+            )
+            == []
+        )
+
+    failures = sorted(name for name, passed in cases.items() if not passed)
+    if failures:
+        raise AuditFailure("canonical RECORD self-test failed: " + ", ".join(failures))
+    return cases
+
+
 def self_test() -> dict[str, Any]:
     """Exercise manifest drift controls without a repository, build, or test suite."""
     baseline = {"tests/unit/test_source.py::test_baseline"}
@@ -2128,6 +3888,8 @@ def self_test() -> dict[str, Any]:
         raise AuditFailure("source audit accepted a non-full runner gate digest")
     origin_controls = self_test_origin_gate_symlink()
     cases.update({f"installed-origin-{name}": passed for name, passed in origin_controls.items()})
+    record_controls = self_test_record_origin_inventory()
+    cases.update({f"record-owner-{name}": passed for name, passed in record_controls.items()})
     cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"] = all(
         origin_controls.values()
     )
@@ -2191,6 +3953,7 @@ def self_test() -> dict[str, Any]:
     )
     if not profile_contract_control:
         raise AuditFailure("self-test failed to reject a divergent primary profile contract")
+    environment_controls = self_test_environment_reconciliation()
     return {
         "status": "pass",
         "product_source_read": False,
@@ -2198,6 +3961,7 @@ def self_test() -> dict[str, Any]:
         "build_or_install": False,
         "actual_node_ids": len(actual),
         "corrupt_field_and_marker_preserving_removal_controls": cases,
+        "effective_environment_reconciliation_controls": environment_controls,
         "profile_contract_divergence_control": profile_contract_control,
     }
 
@@ -2205,9 +3969,12 @@ def self_test() -> dict[str, Any]:
 def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     repo = Path(args.repo).resolve(strict=True)
     product = repo / "policy-engine"
-    python = Path(args.python).resolve(strict=True)
-    if not args.python.startswith("/") or not python.is_file():
-        raise AuditFailure(f"collector Python is unavailable: {python}")
+    python_argument = Path(args.python)
+    if not python_argument.is_absolute():
+        raise AuditFailure(f"collector Python launcher must be absolute: {args.python}")
+    python = Path(os.path.abspath(python_argument))
+    if not python.is_file() or not os.access(python, os.X_OK):
+        raise AuditFailure(f"collector Python launcher is unavailable: {python}")
     if args.collection_timeout_seconds <= 0:
         raise AuditFailure("collection timeout must be positive and explicit")
     output = Path(args.output_root).resolve()

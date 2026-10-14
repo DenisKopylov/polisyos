@@ -33,6 +33,7 @@ from polisyos.data_forge.kernel.io.generation_basis import (
     build_generation_basis,
 )
 from polisyos.data_forge.kernel.runtime import pause_between_batches
+from polisyos.data_forge.read_api import legal as legal_read_api
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -59,6 +60,15 @@ class EmbeddingStats:
 def _generation_index_dir(output_dir: Path, npz_name: str) -> Path:
     """Return the authoritative generation directory for one legal projection."""
     return output_dir / _LEGAL_GENERATION_ROOT / npz_name
+
+
+def _derive_encoder_identity(encoder: object, *, live_model_state: bool) -> GenerationIdentity:
+    """Derive the selected identity profile without upgrading legacy encoders."""
+    return derive_encoder_identity(
+        encoder,
+        include_live_model_state=live_model_state,
+        require_zero_copy=live_model_state,
+    )
 
 
 def _load_reusable_vectors(
@@ -175,6 +185,7 @@ def _embed_table(
     batch_size: int,
     chunk_size: int,
     pause_seconds: float,
+    runtime_material_handle: object | None = None,
     incremental: bool = False,
 ) -> tuple[int, int]:
     """Embed a table and return (embedded_count, skipped_count)."""
@@ -218,7 +229,16 @@ def _embed_table(
         raise ValueError(f"{table} contains duplicate {id_column} values")
 
     basis_kind = f"legal_{table}_embedding"
-    projection_rule_version = LEGAL_EMBEDDING_PROJECTION_RULE_VERSION
+    if (
+        runtime_material_handle is not None
+        and type(runtime_material_handle) is not legal_read_api.LegalRuntimeMaterialHandle
+    ):
+        raise TypeError("legal_runtime_material_handle_invalid")
+    projection_rule_version = (
+        runtime_material_handle.projection_rule_version
+        if runtime_material_handle is not None
+        else LEGAL_EMBEDDING_PROJECTION_RULE_VERSION
+    )
     current_basis = None
     if current_rows:
         current_basis = build_generation_basis(
@@ -256,12 +276,20 @@ def _embed_table(
     for start in range(0, len(rows_to_encode), chunk_size):
         batch_rows = rows_to_encode[start : start + chunk_size]
         texts = [text for _identifier, text in batch_rows]
-        raw_vectors = model.encode(
-            texts,
-            batch_size=batch_size,
-            show_progress_bar=False,
-            normalize_embeddings=True,
-        )
+        if runtime_material_handle is None:
+            raw_vectors = model.encode(
+                texts,
+                batch_size=batch_size,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            )
+        else:
+            raw_vectors = runtime_material_handle.encode_for_generation(
+                texts,
+                batch_size=batch_size,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            )
         vectors = np.asarray(raw_vectors, dtype=np.float32)
         if (
             vectors.ndim != 2
@@ -275,7 +303,9 @@ def _embed_table(
         pause_between_batches(pause_seconds)
 
     try:
-        current_encoder_identity = derive_encoder_identity(model)
+        current_encoder_identity = _derive_encoder_identity(
+            model, live_model_state=runtime_material_handle is not None
+        )
     except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("legal embedding encoder assets became unavailable") from exc
     if current_encoder_identity != encoder_identity:
@@ -301,6 +331,8 @@ def _embed_table(
         projection_rule_version=projection_rule_version,
         encoder=model,
         encoder_identity=encoder_identity,
+        include_live_model_state=runtime_material_handle is not None,
+        require_zero_copy_identity=runtime_material_handle is not None,
         legacy_embeddings_path=npz_path,
         legacy_index_path=hnsw_path,
     )
@@ -313,17 +345,59 @@ def build_local_embeddings_and_indexes(
     *,
     db_path: Path,
     output_dir: Path,
-    embedding_model: str = "intfloat/multilingual-e5-large",
-    embedding_device: str = "mps",
-    embedding_batch_size: int = 24,
-    embedding_chunk_size: int = 2000,
+    embedding_model: str | None = None,
+    embedding_device: str | None = None,
+    embedding_batch_size: int | None = None,
+    embedding_chunk_size: int | None = None,
     thermal_pause_seconds: float = 0.0,
     incremental: bool = False,
     fp16: bool = False,
     encoder: object | None = None,
+    runtime_material_owner: object | None = None,
 ) -> EmbeddingStats:
     """Build local embeddings + HNSW for entities/facts/provisions."""
     t0 = time.monotonic()
+    runtime_material_handle: object | None = None
+    if runtime_material_owner is not None:
+        if type(runtime_material_owner) is not legal_read_api.LegalRuntimeMaterialOwner:
+            raise TypeError("legal_runtime_material_owner_invalid")
+        if encoder is not None or fp16:
+            raise ValueError("owned_legal_runtime_material_conflicts_with_encoder_options")
+        expected_settings = (
+            ("embedding_model", embedding_model, runtime_material_owner.embedding_model),
+            ("embedding_device", embedding_device, runtime_material_owner.embedding_device),
+            (
+                "embedding_batch_size",
+                embedding_batch_size,
+                runtime_material_owner.producer_batch_size,
+            ),
+            (
+                "embedding_chunk_size",
+                embedding_chunk_size,
+                runtime_material_owner.producer_chunk_size,
+            ),
+        )
+        for setting_name, requested, expected in expected_settings:
+            if requested is not None and requested != expected:
+                raise ValueError(f"owned_legal_runtime_material_{setting_name}_mismatch")
+        embedding_model = runtime_material_owner.embedding_model
+        embedding_device = runtime_material_owner.embedding_device
+        embedding_batch_size = runtime_material_owner.producer_batch_size
+        embedding_chunk_size = runtime_material_owner.producer_chunk_size
+        runtime_material_handle = runtime_material_owner.resolve_encoder()
+        if type(runtime_material_handle) is not legal_read_api.LegalRuntimeMaterialHandle:
+            raise TypeError("legal_runtime_material_handle_invalid")
+    else:
+        embedding_model = (
+            "intfloat/multilingual-e5-large" if embedding_model is None else embedding_model
+        )
+        embedding_device = "mps" if embedding_device is None else embedding_device
+        embedding_batch_size = 24 if embedding_batch_size is None else embedding_batch_size
+        embedding_chunk_size = 2000 if embedding_chunk_size is None else embedding_chunk_size
+    assert embedding_model is not None
+    assert embedding_device is not None
+    assert embedding_batch_size is not None
+    assert embedding_chunk_size is not None
 
     model_kwargs = {}
     if fp16 and embedding_device in ("mps", "cuda"):
@@ -335,7 +409,9 @@ def build_local_embeddings_and_indexes(
         except ImportError:
             pass
 
-    if encoder is not None:
+    if runtime_material_handle is not None:
+        model = runtime_material_handle
+    elif encoder is not None:
         if fp16:
             raise ValueError("fp16 cannot be applied to a preloaded legal embedding encoder")
         model = encoder
@@ -358,7 +434,9 @@ def build_local_embeddings_and_indexes(
             f"device {embedding_device!r}"
         )
     try:
-        encoder_identity = derive_encoder_identity(model)
+        encoder_identity = _derive_encoder_identity(
+            model, live_model_state=runtime_material_handle is not None
+        )
     except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError(f"unsupported legal embedding encoder: {exc}") from exc
 
@@ -379,6 +457,7 @@ def build_local_embeddings_and_indexes(
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
+        runtime_material_handle=runtime_material_handle,
         incremental=incremental,
     )
     stats.entities_embedded = embedded
@@ -406,6 +485,7 @@ def build_local_embeddings_and_indexes(
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
+        runtime_material_handle=runtime_material_handle,
         incremental=incremental,
     )
     stats.facts_embedded = embedded
@@ -428,6 +508,7 @@ def build_local_embeddings_and_indexes(
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
+        runtime_material_handle=runtime_material_handle,
         incremental=incremental,
     )
     stats.provisions_embedded = embedded

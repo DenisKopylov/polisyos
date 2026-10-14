@@ -9,10 +9,53 @@ import pytest
 
 from polisyos.data_forge.domains.legal.batch.config import BatchConfig
 from polisyos.data_forge.domains.legal.batch.pipeline import run_batch_pipeline
+from polisyos.lex.knowledge.types import LegalFactResult
 from polisyos.scientist import ScientistLegalBenchmarkRunner
+from polisyos.scientist.agent.knowledge_tools import LegalFactSearchResponse
 
 
 class _PerfectRetrievalToolkit:
+    def search_legal_facts_with_status(
+        self,
+        query: str,
+        *,
+        top_k: int,
+        trust_tier: str,
+        domain: str | None,
+        include_candidates: bool,
+    ) -> LegalFactSearchResponse:
+        del query, top_k, trust_tier, include_candidates
+        return LegalFactSearchResponse(
+            results=[
+                LegalFactResult(
+                    fact_id=f"fact-{index}",
+                    subject_name="Cabinet",
+                    predicate=action,
+                    object_name="budget",
+                    fact_text=action,
+                    confidence=1.0,
+                    norm_type="obligation",
+                    action_canon=action,
+                    norm_type_canon=norm_type,
+                    top_domain=domain or "",
+                    doc_name="fixture",
+                    doc_reestr_code="fixture",
+                    provision_citation="Article 1",
+                    similarity=1.0,
+                )
+                for index, (action, norm_type) in enumerate(
+                    (
+                        ("requires", "obligation"),
+                        ("enters_into_force", "entry_into_force"),
+                        ("sets_threshold", "procedure"),
+                    ),
+                    start=1,
+                )
+            ],
+            search_mode="text",
+            vector_refusal_code="query_encoder_assets_unavailable",
+        )
+
     def search_legal_facts(
         self,
         query: str,
@@ -105,6 +148,11 @@ def test_perfect_retrieval_cannot_promote_failed_lex_semantics(tmp_path) -> None
     assert payload["lex_semantic_receipt"]["passed"] is False
     assert payload["retrieval_diagnostic"]["passed"] is True
     assert payload["combined_readiness"]["passed"] is False
+    assert all(
+        row["search_mode"] == "text"
+        and row["vector_refusal_code"] == "query_encoder_assets_unavailable"
+        for row in payload["retrieval_diagnostic"]["cases"]
+    )
 
 
 def test_scientist_runner_rejects_lex_result_that_disagrees_with_receipt(tmp_path) -> None:

@@ -762,6 +762,38 @@ are not upgraded implicitly; source-backed candidate runs must reacquire a v2
 profile with one explicit unit across every row.
 
 
+An opt-in `ValueOwnerSourceProjectionRequestV1` can select active Data Forge
+observation projections for one outcome, binary treatment, and one or more
+covariates. It binds each selected projection and content-hashed v2 profile to
+an explicit ATE estimand, identity scale, outcome support, outcome unit, and
+registered AIPW or TMLE method. The N8 producer builds a complete common-row
+input without converting units or inferring missing rows, runs the selected
+method, and invokes the existing BoundsEngine under the caller-declared finite
+outcome support. The persisted report carries the separate Manski
+`BoundsBundle` reference; the native method confidence interval remains a
+separate sampling channel. A fresh CAS consumer re-resolves every role profile
+and projection, rebuilds the exact method input, recomputes the BoundsEngine
+bundle, re-executes the registered method, and compares the resulting report
+and runner fingerprint before returning a search-only `ValueOuterSet`.
+
+The new source route is candidate-only. Before using a selected projection,
+N8 resolves its receipt and passport through the provision-backed Data Forge
+acquisition authority and active overlay selected by the current catalog
+source. It compares the complete owner-issued projection with the supplied
+projection, including receipt, admission, passport, and selected observation
+fields; a valid digest or active/recomputed marker is not an owner readback. N8
+also requires the scoped physical query IDs to exactly equal this complete owner-
+projected set, with no missing, duplicate, or extra rows; matching payload on an
+unprojected row is insufficient.
+Treatment meaning, support, sampling, assignment, positivity, exchangeability,
+causal truth, and source-time currentness remain unestablished. The request
+accepts only the explicitly supported identity-unit ATE shape; transforms,
+filters, time horizons, unsupported methods, unit conversion, incomplete row
+joins, malformed selectors, and explicit null are refused. Omitting the
+optional request preserves existing owner-data behavior; malformed input never
+falls back to a fixture or default.
+
+
 
 The v2 run basis now uses a complete selected-manifest input multiset at every
 profile, panel, request, report, execution-receipt, and basis boundary. Duplicate
@@ -808,6 +840,31 @@ a separate candidate-coverage path and does not upgrade a bounded index or add
 bind/admit/promote authority.
 
 
+New K_ref v3 builds resolve Data Forge variable alignments through the active
+CatalogServingSourcePaths context and the existing substrate-path resolver.
+The complete ds_variable_alignments primary-key rowset is retained in a
+candidate-only catalog profile, including a zero-row profile, and each derived
+edge binds that profile hash. The profile records selected path, run profile,
+source version, and transaction-opened time; source authenticity and
+currentness remain not_established. A present malformed or missing selected
+catalog refuses the build instead of switching to the repository default.
+Historical v1/v2 replay records remain profileless and are never backfilled
+from the current catalog. New v3 replay records persist and validate the full
+profile, even when the selected alignment table has zero rows.
+
+The N9 v4 owner projection continues to carry only the narrow K_ref identity
+marker. During receipt replay, a v3 marker cannot construct a substitute
+empty `CredalReference`; the consumer obtains the complete reference only by
+resolving the existing content-bound effect-obligation record, validating its
+persisted replay record, and comparing schema, epoch, hash, and `as_of`. If
+that full source record is absent or invalid, CG2 remains unresolved. Historical
+v1/v2 projection behavior is preserved without adding a source-profile claim.
+
+The canonical K_ref constructor admits only v1/v2 historical profileless references
+and v3 references with the source profile. The direct CG2 resolver independently
+refuses unknown schema versions, including a K_ref object whose frozen dataclass
+constructor was bypassed. Persisted replay independently rejects unknown versions.
+
 N8 transport is candidate-only and requires a profile-selected `CausalGraphModelRef` from the
 cycle-substrate context. Measured source/target covariates can add selection nodes to that graph,
 but cannot create graph edges. The transport producer persists its exact request, selected-graph
@@ -819,11 +876,13 @@ request and run basis and is used again by the fresh consumer. The candidate's e
 `simplified` run remains `transported_limited` and reports `simplified_legacy`; it does not
 claim graph truth, a Y0 surrogate profile, external data authority, calibration, or value
 promotion. This establishes reproducible candidate transport execution, not
-causal-graph truth, external data authority, calibration, or value promotion. B31 remains held: the
-current value-data profile is outcome-only. The inspected DID/SCM outputs report ATT while available
-Manski/TMLE bounds use ATE; the original B31 criterion is estimator-agnostic and does not require
-that method pair. The current N8 runner does not provide a consumer proving same-estimand/unit
-partial-identification bounds plus the native uncertainty channel and conversion lineage.
+causal-graph truth, external data authority, calibration, or value promotion. B31 remains held.
+The default substrate profile remains outcome-only, while the opt-in source request can exercise
+same-ATE native AIPW/TMLE uncertainty and BoundsEngine Manski output through the N8 producer,
+selected CAS artifacts, and fresh consumer. The role and outcome-support declarations are still
+consumer asserted; the active projection/profile does not establish treatment assignment, causal
+identification, source-time currentness, unit conversions, or calibration authority. The original
+criterion is estimator-agnostic, and all source-bound results remain candidate-only.
 
 
 The candidate-only `RealValueOwnerGateway` and `ValueTransportRunReceiptV1` are exported from

@@ -127,19 +127,26 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.db_path = db_path
             self.index_dir = index_dir
             self.query_encoder = query_encoder
             self.query_profile = query_profile
             self.search_calls: list[tuple[str, dict[str, object]]] = []
+            self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
             self.close_count = 0
-            self.query_profile_error = None
             instances.append(self)
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
             self.search_calls.append((query, kwargs))
             return owner_results
+
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
+            self.hybrid_calls.append((query, kwargs))
+            return owner_results, None
 
         def close(self) -> None:
             self.close_count += 1
@@ -170,6 +177,7 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
     ]
     assert graph.close_count == 1
     assert graph.query_profile is None
+    assert graph.hybrid_calls == []
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_unavailable"
 
@@ -205,19 +213,22 @@ def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.query_profile = query_profile
             self.close_count = 0
-            self.query_profile_error = query_encoder_refusal or LegalQueryProfileError(
+            self._status_for_call = query_encoder_refusal or LegalQueryProfileError(
                 "query_encoder_assets_unavailable"
             )
             self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
             instances.append(self)
 
-        def hybrid_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
             self.hybrid_calls.append((query, kwargs))
-            return owner_results
+            return owner_results, self._status_for_call
 
         def close(self) -> None:
             self.close_count += 1
@@ -238,6 +249,7 @@ def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
             {"top_k": 7, "trust_tier": None, "include_candidates": False},
         )
     ]
+    assert not hasattr(graph, "query_profile_error")
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_encoder_assets_unavailable"
     assert [item.fact_id for item in response.results] == ["fact-typed"]
@@ -303,15 +315,23 @@ def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.query_profile = query_profile
             self.close_count = 0
             self.text_calls: list[tuple[str, dict[str, object]]] = []
+            self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
             self.text_calls.append((query, kwargs))
             return owner_results
+
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
+            self.hybrid_calls.append((query, kwargs))
+            return owner_results, None
 
         def close(self) -> None:
             self.close_count += 1
@@ -336,6 +356,7 @@ def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(
             {"top_k": 7, "trust_tier": None, "include_candidates": False},
         )
     ]
+    assert graph.hybrid_calls == []
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_malformed"
     assert [item.fact_id for item in response.results] == ["fact-text"]
@@ -358,13 +379,21 @@ def test_search_lex_graph_treats_empty_present_intent_as_malformed(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.query_profile = query_profile
             self.close_count = 0
+            self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
             del query, kwargs
             return owner_results
+
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
+            self.hybrid_calls.append((query, kwargs))
+            return owner_results, None
 
         def close(self) -> None:
             self.close_count += 1
@@ -383,6 +412,7 @@ def test_search_lex_graph_treats_empty_present_intent_as_malformed(
 
     assert graph is not None
     assert graph.query_profile is None
+    assert graph.hybrid_calls == []
     assert graph.close_count == 1
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_malformed"
@@ -422,12 +452,18 @@ def test_search_lex_graph_degrades_known_error_and_closes_graph(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.close_count = 0
             instances.append(self)
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+            raise RuntimeError("owner search unavailable")
+
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
             raise RuntimeError("owner search unavailable")
 
         def close(self) -> None:
@@ -466,12 +502,18 @@ def test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally(
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
             query_encoder_refusal: LegalQueryProfileError | None = None,
+            query_runtime_material_owner: object | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.close_count = 0
             instances.append(self)
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+            raise _SentinelSearchError("unknown owner failure")
+
+        def hybrid_search_with_status(
+            self, query: str, **kwargs: object
+        ) -> tuple[list[LegalFactResult], LegalQueryProfileError | None]:
             raise _SentinelSearchError("unknown owner failure")
 
         def close(self) -> None:

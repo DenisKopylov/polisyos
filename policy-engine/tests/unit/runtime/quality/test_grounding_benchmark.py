@@ -11,6 +11,13 @@ from polisyos.runtime.quality.grounding_benchmark import (
 )
 
 
+def test_contract_fixture_reference_keeps_legacy_profileless_schema() -> None:
+    reference = build_grounding_benchmark_reference_for_contract_testing()
+
+    assert reference.schema_version == gb.CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION
+    assert reference.data_forge_catalog_source_profile is None
+
+
 def test_benchmark_drops_underivable_labels_instead_of_authoring_truth() -> None:
     reference = build_grounding_benchmark_reference_for_contract_testing()
     scoreboard = run_grounding_benchmark_for_contract_testing(reference)
@@ -94,9 +101,7 @@ def test_greedy_baseline_is_identification_only_not_cgf_hybrid() -> None:
     scoreboard = run_grounding_benchmark_for_contract_testing(reference)
 
     greedy_decisions = [
-        decision
-        for decision in scoreboard.decisions
-        if decision.baseline_id == "greedy_per_axis"
+        decision for decision in scoreboard.decisions if decision.baseline_id == "greedy_per_axis"
     ]
 
     assert greedy_decisions
@@ -154,8 +159,7 @@ def test_label_derivation_resolves_owner_refs_against_epoch_reference() -> None:
     )
 
     assert any(
-        row.case_id == forged.case_id
-        and row.reason == "label_derivation_owner_ref_unresolved"
+        row.case_id == forged.case_id and row.reason == "label_derivation_owner_ref_unresolved"
         for row in scoreboard.dropped_cases
     )
 
@@ -217,7 +221,9 @@ def test_detector_liveness_broken_variants_degrade_headline() -> None:
         "cg3_mechanism_witness_trust_restored_stacked",
     }.issubset(variants)
     assert all(row.detection_floor != "not_applicable" for row in variants.values())
-    assert all(row.confident_wrong_interval.denominator == row.denominator for row in variants.values())
+    assert all(
+        row.confident_wrong_interval.denominator == row.denominator for row in variants.values()
+    )
 
 
 def test_scoreboard_is_deterministic_for_same_reference_and_seed() -> None:

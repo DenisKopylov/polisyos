@@ -141,7 +141,7 @@ security = [
   "spacy>=3.7.0",
 ]
 rag = ["faiss-cpu>=1.7.4,<2.0"]
-rag-local = ["sentence-transformers>=2.2.0,<3.0", "onnxruntime>=1.18.0,<2.0"]
+rag-local = ["sentence-transformers>=2.2.0,<3.0", "onnxruntime>=1.18.0,<2.0", "sentencepiece==0.2.1"]
 academic-skg = ["pypdf>=5.5.0"]
 sandbox = ["RestrictedPython>=7.0,<8.0"]
 shapesafe = ["beartype>=0.18.0"]

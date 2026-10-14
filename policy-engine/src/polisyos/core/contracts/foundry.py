@@ -119,22 +119,22 @@ class IdentifiabilityDiagnosticRef(ArtifactRef):
 class AttractorAnalysisResultRef(ArtifactRef):
     """Artifact reference for a multi-attractor analysis summary."""
 
-    kind: str = "foundry.attractor_analysis_result"
-    media_type: str = "application/json"
+    kind: Literal["foundry.attractor_analysis_result"] = "foundry.attractor_analysis_result"
+    media_type: Literal["application/json"] = "application/json"
 
 
 class BasinMapRef(ArtifactRef):
     """Artifact reference for dense basin membership samples."""
 
-    kind: str = "foundry.basin_map"
-    media_type: str = "application/json"
+    kind: Literal["foundry.basin_map"] = "foundry.basin_map"
+    media_type: Literal["application/json"] = "application/json"
 
 
 class ContinuationBranchRef(ArtifactRef):
     """Artifact reference for an equilibrium, cycle, or bifurcation continuation branch."""
 
-    kind: str = "foundry.continuation_branch"
-    media_type: str = "application/json"
+    kind: Literal["foundry.continuation_branch"] = "foundry.continuation_branch"
+    media_type: Literal["application/json"] = "application/json"
 
 
 class PeriodicOrbitDiagnosticsRef(ArtifactRef):
@@ -1273,6 +1273,13 @@ class AttractorAnalysisProvenance(BaseModel):
 class AttractorAnalysisResult(BaseModel):
     """Top-level Foundry artifact for attractors, bifurcations, and certificates."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.AttractorAnalysisResult"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.attractor_analysis_result"]] = (
+        "foundry.attractor_analysis_result"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -1310,6 +1317,11 @@ class BasinMapSample(BaseModel):
 class BasinMap(BaseModel):
     """Dense basin-map sidecar for attractor analysis."""
 
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.BasinMap"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.basin_map"]] = "foundry.basin_map"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -1339,6 +1351,11 @@ class ContinuationBranchPoint(BaseModel):
 
 class ContinuationBranch(BaseModel):
     """Continuation sidecar for equilibria, periodic orbits, or bifurcation curves."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ContinuationBranch"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.continuation_branch"]] = "foundry.continuation_branch"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 

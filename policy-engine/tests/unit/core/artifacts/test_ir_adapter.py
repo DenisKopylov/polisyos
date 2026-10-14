@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from hashlib import sha256
 from types import MappingProxyType
@@ -54,11 +55,15 @@ from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
+from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
 from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
+from polisyos.ir.artifacts.contracts import InputRef as IRInputRef
+from polisyos.ir.artifacts.contracts import SchemaInfo as IRSchemaInfo
 from polisyos.ir.artifacts.contracts import StorePutOptions, normalize_artifact_ref
 from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
+from polisyos.ir.model_layer.canon import to_canonical_bytes as to_ir_canonical_bytes
 
 _IR_INCOMPATIBLE_TAG_PAYLOADS = [
     pytest.param(
@@ -161,7 +166,7 @@ def test_ir_adapter_refuses_selector_objects_with_unrecognized_fields(tmp_path) 
         def model_dump(self, *, mode: str) -> str:
             return str(ref.artifact_id)
 
-    for selector in (
+    invalid_selectors = (
         SelectorWithExtraField(),
         PropertySelectorWithExtraField(),
         SelectorModelWithExcludedExtra(
@@ -194,9 +199,19 @@ def test_ir_adapter_refuses_selector_objects_with_unrecognized_fields(tmp_path) 
         RootOnlyObject(),
         StringDumpObject(),
         object(),
-    ):
-        with pytest.raises(TypeError, match="Invalid Core artifact selector"):
-            adapter.get_manifest(selector)
+    )
+    selector_readers = (
+        adapter.get_bytes,
+        adapter.has,
+        adapter.get_manifest,
+        adapter.get_raw_manifest_bytes,
+        adapter.get_manifest_bytes,
+        adapter.verify,
+    )
+    for selector in invalid_selectors:
+        for read in selector_readers:
+            with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+                read(selector)
 
     assert adapter.get_manifest(
         CoreArtifactID.model_validate(str(ref.artifact_id))
@@ -488,24 +503,44 @@ def test_ir_write_round_trips_selected_lineage_profile_through_fresh_core_reader
     assert fresh_reader.get_bytes(exact_source_ref) == source_payload
 
 
-def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(tmp_path) -> None:
-    """A Mapping write projects every declared Core option into the durable manifest."""
-    exact_bytes = b'{"value":"mapping-options"}'
-    core_id = CoreArtifactRef.model_validate(
-        {
-            "artifact_id": "sha256:" + sha256(exact_bytes).hexdigest(),
-            "kind": "test.ir-mapping-options",
-            "media_type": "application/json",
-        }
-    ).artifact_id
-    options = ArtifactWriteOptions(
-        kind="test.ir-mapping-options",
+@pytest.mark.parametrize(
+    "representation",
+    ["typed-options", "mapping-of-models", "mapping-of-plain-maps"],
+)
+def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(
+    tmp_path, representation
+) -> None:
+    """Typed and mapping metadata survive adapter projection into selected CAS bytes."""
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    adapter = ensure_ir_artifact_store(store)
+    source_ref = store.put_bytes(
+        b'{"source":"typed-input"}',
+        ArtifactWriteOptions(
+            kind="test.ir-typed-model-options-source",
+            media_type="application/json",
+        ),
+        return_selected_profile=True,
+    )
+    assert source_ref.manifest_profile_sha256 is not None
+
+    payload = {"value": "typed-model-options"}
+    canon_spec = IRCanonSpec()
+    ir_canon_info = IRCanonInfo.from_spec(canon_spec)
+    expected_payload_bytes = to_ir_canonical_bytes(payload, canon_spec)
+    options = StorePutOptions(
+        kind="test.ir-typed-model-options",
         media_type="application/json",
-        schema=CoreSchemaInfo(name="test.ir-mapping-options", version="1"),
+        schema=IRSchemaInfo(name="test.ir-typed-model-options", version="2"),
         producer=ProducerInfo(component="polisyos.tests.ir_adapter", version="1"),
         env=EnvInfo(python="3.14", platform="test", deps_lock_hash="lock-hash"),
-        inputs=[CoreInputRef(artifact_id=core_id, role="source")],
-        canon=CoreCanonInfo(),
+        inputs=[
+            IRInputRef(
+                artifact_id=IRArtifactID(str(source_ref.artifact_id)),
+                role="source",
+                manifest_profile_sha256=source_ref.manifest_profile_sha256,
+            )
+        ],
+        canon=ir_canon_info,
         governance=ArtifactGovernanceInfo(classification="internal"),
         tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
         same_input_closure=ArtifactSameInputClosureInfo(
@@ -516,47 +551,84 @@ def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(tmp_p
             job_id="job-a",
             tenant_id="tenant-a",
             cell_id="cell-a",
-            evidence_input_refs=(str(core_id),),
+            evidence_input_refs=(str(source_ref.artifact_id),),
         ),
         authority=ArtifactAuthorityInfo(
             authority_envelope_ref="sha256:" + "2" * 64,
             diagnostic_event_ref="sha256:" + "3" * 64,
             manifest_ref="cas-manifest://sha256:" + "4" * 64,
-            payload_sha256=sha256(exact_bytes).hexdigest(),
+            payload_sha256=sha256(expected_payload_bytes).hexdigest(),
         ),
         warnings=[WarningRecord(code="retained", msg="keep this warning")],
     )
 
-    def model_payload(value):
-        if value is None:
-            return None
+    def plain_projection(value):
+        if isinstance(value, BaseModel):
+            return plain_projection(value.model_dump(mode="python"))
+        if isinstance(value, Mapping):
+            return {key: plain_projection(item) for key, item in value.items()}
         if isinstance(value, list):
-            return [model_payload(item) for item in value]
-        if hasattr(value, "model_dump"):
-            return value.model_dump(mode="python")
+            return [plain_projection(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(plain_projection(item) for item in value)
         return value
 
-    mapping_options = MappingProxyType(
-        {name: model_payload(value) for name, value in vars(options).items()}
+    if representation == "typed-options":
+        supplied_options = options
+    elif representation == "mapping-of-models":
+        supplied_options = MappingProxyType(dict(vars(options)))
+    else:
+        supplied_options = MappingProxyType(
+            {name: plain_projection(value) for name, value in vars(options).items()}
+        )
+    assert isinstance(supplied_options, (StorePutOptions, Mapping))
+
+    selected_ref = adapter.put_json(
+        payload,
+        supplied_options,
+        canon_spec,
+        return_selected_profile=True,
     )
-    assert isinstance(mapping_options, Mapping)
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert adapter.has(selected_ref)
+    assert adapter.get_bytes(selected_ref) == expected_payload_bytes
+    assert store.get_bytes(selected_ref) == expected_payload_bytes
+    assert adapter.verify(selected_ref).ok
 
-    store = FileSystemCAS(tmp_path / ".polisyos")
-    ref = ensure_ir_artifact_store(store).put_json({"value": "mapping-options"}, mapping_options)
-    manifest = store.get_manifest(ref)
-
-    assert manifest.kind == options.kind
-    assert manifest.media_type == options.media_type
-    assert manifest.artifact_schema == options.schema
-    assert manifest.producer == options.producer
-    assert manifest.env == options.env
-    assert manifest.inputs == options.inputs
-    assert manifest.canon == options.canon
-    assert manifest.governance == options.governance
-    assert manifest.tenant_context == options.tenant_context
-    assert manifest.same_input_closure == options.same_input_closure
-    assert manifest.authority == options.authority
-    assert manifest.warnings == options.warnings
+    selected_manifest_bytes = adapter.get_manifest_bytes(selected_ref)
+    assert adapter.get_raw_manifest_bytes(selected_ref) == selected_manifest_bytes
+    assert store.get_manifest_bytes(selected_ref) == selected_manifest_bytes
+    raw_manifest = json.loads(selected_manifest_bytes)
+    assert raw_manifest["schema"] == {
+        "name": "test.ir-typed-model-options",
+        "version": "2",
+    }
+    selected_manifest = resolve_manifest_by_profile(
+        store, selected_ref.artifact_id, selected_ref.manifest_profile_sha256
+    )
+    assert selected_manifest == adapter.get_manifest(selected_ref)
+    assert selected_manifest.kind == options.kind
+    assert selected_manifest.media_type == "application/json"
+    assert selected_manifest.artifact_schema == CoreSchemaInfo(
+        name="test.ir-typed-model-options", version="2"
+    )
+    assert selected_manifest.producer == options.producer
+    assert selected_manifest.env == options.env
+    assert selected_manifest.inputs == [
+        CoreInputRef(
+            artifact_id=CoreArtifactID(str(source_ref.artifact_id)),
+            role="source",
+            manifest_profile_sha256=source_ref.manifest_profile_sha256,
+        )
+    ]
+    assert selected_manifest.canon == CoreCanonInfo.model_validate(
+        ir_canon_info.model_dump(mode="python")
+    )
+    assert selected_manifest.governance == options.governance
+    assert selected_manifest.tenant_context == options.tenant_context
+    assert selected_manifest.same_input_closure == options.same_input_closure
+    assert selected_manifest.authority == options.authority
+    assert selected_manifest.warnings == options.warnings
 
 
 @pytest.mark.parametrize(
@@ -578,6 +650,22 @@ def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(tmp_p
             "kind": "test.invalid-mapping",
             "media_type": "application/json",
             "canon": {"max_depth": 128},
+        },
+        {
+            "kind": "test.invalid-mapping",
+            "media_type": "application/json",
+            "schema": {"name": "missing-required-version"},
+        },
+        {
+            "kind": "test.invalid-mapping",
+            "media_type": "application/json",
+            "inputs": [
+                {
+                    "artifact_id": "sha256:" + "a" * 64,
+                    "role": "source",
+                    "unexpected": "preserve strict metadata validation",
+                }
+            ],
         },
     ],
 )
@@ -700,6 +788,41 @@ class _RawManifestReader:
         return ensure_ir_artifact_store(self.store).get_bytes(artifact_id)
 
 
+def _observe_selected_core_reads(
+    core_store: FileSystemCAS, monkeypatch: pytest.MonkeyPatch
+) -> tuple[CoreToIRArtifactStoreAdapter, dict[str, list[object]]]:
+    """Return the real typed Core-to-IR adapter and record its exact selectors."""
+    observed: dict[str, list[object]] = {
+        "get_manifest_bytes": [],
+        "get_manifest": [],
+        "get_bytes": [],
+    }
+    for method_name in observed:
+        reader = getattr(core_store, method_name)
+
+        def record(selector, *, name=method_name, read=reader):
+            observed[name].append(selector)
+            return read(selector)
+
+        monkeypatch.setattr(core_store, method_name, record)
+    ir_store = ensure_ir_artifact_store(core_store)
+    assert isinstance(ir_store, CoreToIRArtifactStoreAdapter)
+    return ir_store, observed
+
+
+def _assert_exact_selected_core_read_selectors(
+    observed: dict[str, list[object]], selected_ref: CoreArtifactRef
+) -> None:
+    """Require every observed read family to retain the complete selected ref."""
+    expected = normalize_artifact_ref(selected_ref)
+    assert expected["manifest_profile_sha256"] == selected_ref.manifest_profile_sha256
+    for method_name in ("get_manifest_bytes", "get_manifest", "get_bytes"):
+        selectors = observed[method_name]
+        assert selectors, f"No selected-view {method_name} calls were observed"
+        for selector in selectors:
+            assert normalize_artifact_ref(selector) == expected, method_name
+
+
 def test_ir_reader_accepts_raw_canonical_manifest_bytes_without_byte_mutation(tmp_path) -> None:
     """The existing G producer and a raw-byte reader agree on exact Decimal bytes."""
     core_store = FileSystemCAS(tmp_path / ".polisyos")
@@ -724,7 +847,6 @@ def test_ir_reader_accepts_raw_canonical_manifest_bytes_without_byte_mutation(tm
     assert read_store.get_manifest_bytes(ref) == manifest
     assert persisted_bytes == b'{"amount":{"_type":"decimal","value":"12.30"}}'
     assert core_store.get_bytes(ref.artifact_id) == persisted_bytes
-
 
 
 def test_ir_raw_only_reader_refuses_unresolvable_profiled_selector_before_payload(tmp_path) -> None:
@@ -840,26 +962,48 @@ def test_ir_reader_requires_every_persisted_profile_field_before_bytes(
     assert reader.byte_reads == 0
 
 
-def test_current_core_default_put_json_round_trips_through_fresh_ir_reader(tmp_path) -> None:
-    """The current Core producer's shared tag subset remains a readable IR value."""
+def test_current_core_native_tags_round_trip_through_fresh_profiled_ir_reader(
+    tmp_path, monkeypatch
+) -> None:
+    """Actual Core native tag emissions resolve as an exact IR selected view."""
     root = tmp_path / ".polisyos"
-    payload = {"amount": Decimal("12.30")}
-    ref = FileSystemCAS(root).put_json(
+    payload = {
+        "bytes": b"\x00\xff",
+        "date": date(2026, 10, 14),
+        "datetime": datetime(2026, 10, 14, 12, 0, tzinfo=UTC),
+        "decimal": Decimal("12.30"),
+        "float": 1.5,
+    }
+    selected_ref = FileSystemCAS(root).put_json(
         payload,
-        ArtifactWriteOptions(kind="test.core-default-to-ir", media_type="application/json"),
+        ArtifactWriteOptions(kind="test.core-native-tags-to-ir", media_type="application/json"),
+        canon_spec=CoreCanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    assert selected_ref.manifest_profile_sha256 is not None
     fresh = FileSystemCAS(root)
-    exact_bytes = fresh.get_bytes(ref)
-    assert exact_bytes == b'{"amount":{"_type":"decimal","value":"12.30"}}'
-    assert ref.artifact_id.hex == sha256(exact_bytes).hexdigest()
-    reader = _RawManifestReader(fresh, fresh.get_manifest_bytes(ref))
+    exact_bytes = fresh.get_bytes(selected_ref)
+    assert exact_bytes == (
+        b'{"bytes":{"_type":"bytes","data":"AP8=","encoding":"base64"},'
+        b'"date":{"_type":"date","iso":"2026-10-14"},'
+        b'"datetime":{"_type":"datetime","iso_utc":"2026-10-14T12:00:00Z"},'
+        b'"decimal":{"_type":"decimal","value":"12.30"},'
+        b'"float":{"_type":"float","repr":"1.5"}}'
+    )
+    assert selected_ref.artifact_id.hex == sha256(exact_bytes).hexdigest()
+    assert fresh.get_manifest(selected_ref).canon == CoreCanonInfo(forbid_floats=False)
+    ir_store, observed = _observe_selected_core_reads(fresh, monkeypatch)
 
-    loaded = get_json_artifact(_ensure_ir_artifact_store(reader), ref.artifact_id)
+    loaded = get_json_artifact(ir_store, selected_ref)
 
     assert loaded == payload
-    assert isinstance(loaded["amount"], Decimal)
-    assert reader.manifest_reads == reader.byte_reads == 1
-    assert fresh.get_bytes(ref) == exact_bytes
+    assert isinstance(loaded["bytes"], bytes)
+    assert type(loaded["date"]) is date
+    assert isinstance(loaded["datetime"], datetime)
+    assert isinstance(loaded["decimal"], Decimal)
+    assert isinstance(loaded["float"], float)
+    assert fresh.get_bytes(selected_ref) == exact_bytes
+    _assert_exact_selected_core_read_selectors(observed, selected_ref)
 
 
 def test_default_ir_artifact_reopens_as_typed_backtest_report(tmp_path) -> None:
@@ -872,9 +1016,7 @@ def test_default_ir_artifact_reopens_as_typed_backtest_report(tmp_path) -> None:
     fresh_ir_store = _ensure_ir_artifact_store(fresh)
     assert ref.manifest_profile_sha256 is not None
     selected_manifest = fresh_ir_store.get_manifest(ref)
-    assert selected_manifest.canon == CoreCanonInfo.from_spec(
-        CoreCanonSpec(forbid_floats=False)
-    )
+    assert selected_manifest.canon == CoreCanonInfo.from_spec(CoreCanonSpec(forbid_floats=False))
 
     loaded = load_backtest_report(fresh_ir_store, ref)
 
@@ -1116,34 +1258,61 @@ def test_ir_reader_gets_raw_profile_from_cache_durable_owner(tmp_path, monkeypat
 
 
 @pytest.mark.parametrize(
-    ("payload", "exact_bytes"),
+    ("exact_bytes", "decoded_core_value"),
     [
-        (
-            {"_type": "float_hex", "value": "0x1.8p+1"},
-            b'{"_type":"float_hex","value":"0x1.8p+1"}',
-        ),
-        ({"_type": "bytes_hex", "value": "00ff"}, b'{"_type":"bytes_hex","value":"00ff"}'),
-        (
-            {"_type": "array_digest", "digest": "sha256:abc", "length": 2},
-            b'{"_type":"array_digest","digest":"sha256:abc","length":2}',
-        ),
+        (b'{"_type":"float_hex","value":"0x1.8p+1"}', 3.0),
+        (b'{"_type":"bytes_hex","value":"00ff"}', b"\x00\xff"),
     ],
+    ids=["float-hex-alias", "bytes-hex-alias"],
 )
-def test_current_core_only_tags_are_refused_by_fresh_ir_reader(
-    tmp_path, payload, exact_bytes
+def test_core_decoder_aliases_outside_ir_are_refused_for_fresh_profiled_view(
+    tmp_path, exact_bytes, decoded_core_value, monkeypatch
 ) -> None:
-    """Matching profile names do not widen the historical IR decoder's typed-tag ABI."""
+    """Core's alternate float/bytes spellings do not widen IR's selected-view tag law."""
     root = tmp_path / ".polisyos"
+    selected_ref = FileSystemCAS(root).put_bytes(
+        exact_bytes,
+        ArtifactWriteOptions(
+            kind="test.core-decoder-aliases-outside-ir",
+            media_type="application/json",
+            canon=CoreCanonInfo(),
+        ),
+        return_selected_profile=True,
+    )
+    assert selected_ref.manifest_profile_sha256 is not None
+    fresh = FileSystemCAS(root)
+    assert fresh.get_bytes(selected_ref) == exact_bytes
+    assert from_core_canonical_bytes(exact_bytes) == decoded_core_value
+    selected_manifest = fresh.get_manifest(selected_ref)
+    assert selected_manifest.canon is not None
+    assert selected_manifest.canon.name == IRCanonInfo().name
+    assert selected_manifest.canon.version == IRCanonInfo().version
+    ir_store, observed = _observe_selected_core_reads(fresh, monkeypatch)
+
+    with pytest.raises(IRCanonViolation, match="Unknown canonical _type"):
+        get_json_artifact(ir_store, selected_ref)
+
+    assert fresh.get_bytes(selected_ref) == exact_bytes
+    _assert_exact_selected_core_read_selectors(observed, selected_ref)
+
+
+def test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_it(
+    tmp_path,
+) -> None:
+    """Core preserves a caller-supplied typed mapping; IR keeps its narrower decoder law."""
+    root = tmp_path / ".polisyos"
+    payload = {"_type": "array_digest", "digest": "sha256:abc", "length": 2}
     ref = FileSystemCAS(root).put_json(
         payload,
-        ArtifactWriteOptions(kind="test.core-only-tags", media_type="application/json"),
+        ArtifactWriteOptions(
+            kind="test.core-array-digest-mapping",
+            media_type="application/json",
+        ),
     )
     fresh = FileSystemCAS(root)
+    exact_bytes = b'{"_type":"array_digest","digest":"sha256:abc","length":2}'
     assert fresh.get_bytes(ref) == exact_bytes
-    assert from_core_canonical_bytes(exact_bytes) is not None
-    manifest = fresh.get_manifest(ref).model_dump(mode="json")
-    assert manifest["canon"]["name"] == IRCanonInfo().name
-    assert manifest["canon"]["version"] == IRCanonInfo().version
+    assert from_core_canonical_bytes(exact_bytes) == payload
     reader = _RawManifestReader(fresh, fresh.get_manifest_bytes(ref))
 
     with pytest.raises(IRCanonViolation, match="Unknown canonical _type"):

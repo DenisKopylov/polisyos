@@ -43,6 +43,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.validation.policy_verified.models import (
     LegalCandidatePack,
+    LegalRetrievalStatus,
     LegalSourcePack,
     PolicyEvidenceLink,
     PolicyOption,
@@ -143,6 +144,13 @@ def assemble_legal_candidate_pack(
             request_id=frame.request_id,
             queries=[frame.policy_question],
             source_statuses={"legal": legal_status},
+            legal_retrieval_status=[
+                LegalRetrievalStatus(
+                    query=frame.policy_question,
+                    route="hybrid_facts",
+                    limitation_code=f"legal_graph_unavailable:{legal_status.status.value}",
+                )
+            ],
             notes=[f"legal_graph_unavailable:{legal_status.status.value}"],
         )
     queries = _plan_recall_queries(frame, state)
@@ -157,6 +165,7 @@ def assemble_legal_candidate_pack(
             domain=frame.policy_domain,
             as_of=frame.as_of,
         )
+        merged.legal_retrieval_status.extend(pack.legal_retrieval_status)
         for fact in pack.fact_hits:
             fact_map[fact.fact_id] = fact
             merged.hit_reasons.setdefault(fact.fact_id, "legal_recall")
@@ -366,6 +375,7 @@ def recover_source_gaps(
     anchor_coverage_hints = {
         key: list(values) for key, values in candidate_pack.anchor_coverage_hints.items()
     }
+    retry_retrieval_status = []
     for query in retry_queries:
         pack = toolkit.assemble_legal_candidate_pack(
             query,
@@ -374,6 +384,7 @@ def recover_source_gaps(
             as_of=frame.as_of,
         )
         retry_candidate_pack.queries.extend(pack.queries)
+        retry_retrieval_status.extend(pack.legal_retrieval_status)
         for fact in pack.fact_hits:
             fact_map[fact.fact_id] = fact
             hit_reasons[fact.fact_id] = "gap_recovery"
@@ -398,6 +409,10 @@ def recover_source_gaps(
             "hit_reasons": hit_reasons,
             "source_family_hints": source_family_hints,
             "anchor_coverage_hints": anchor_coverage_hints,
+            "legal_retrieval_status": [
+                *candidate_pack.legal_retrieval_status,
+                *retry_retrieval_status,
+            ],
             "notes": [*candidate_pack.notes, "gap_recovery_queries"],
         }
     )
@@ -597,6 +612,7 @@ def build_verified_policy_report(
 
 def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if raw_ref is None:
         return None
     try:
@@ -703,13 +719,12 @@ def _load_cross_graph_profile(
     state: ExperimentState,
 ) -> CrossGraphEvidenceProfile | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     raw_ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
     if raw_ref is None:
         return None
     try:
-        return CrossGraphEvidenceProfile.model_validate(
-            load_core_json_artifact(store, raw_ref)
-        )
+        return CrossGraphEvidenceProfile.model_validate(load_core_json_artifact(store, raw_ref))
     except (*_POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS, *_POLICY_VERIFIED_MODEL_ERRORS):
         return None
 

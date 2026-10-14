@@ -420,15 +420,21 @@ class SemanticEpochAdmissionResolutionError(RuntimeError):
 
 
 class _ArtifactStore(Protocol):
-    def has(self, artifact_id: ArtifactID) -> bool: ...
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool: ...
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
-    def get_manifest(self, artifact_id: ArtifactID) -> object: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> artifacts.ArtifactManifest: ...
 
-    def verify(self, artifact_id: ArtifactID) -> object: ...
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> artifacts.VerificationReport: ...
 
-    def put_bytes(self, data: bytes, opts: object) -> ArtifactRef: ...
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef: ...
 
 
 class _PreparedSemanticEpoch(Protocol):
@@ -1444,6 +1450,63 @@ def build_metadata_schema_profile(
     )
 
 
+def _persist_acquisition_semantic_candidate(
+    *,
+    artifact_store: _ArtifactStore,
+    statement: epoch_contract.AcquisitionSemanticBoundaryCandidateStatement,
+) -> epoch_contract.AcquisitionSemanticBoundaryCandidate:
+    """Persist and reread a candidate under the selected epoch frame profile.
+
+    Args:
+        artifact_store: Canonical artifact store used by the acquisition owner.
+        statement: Producer-owned candidate projection to persist.
+
+    Returns:
+        The candidate bound to the exact selected profile emitted by this write.
+
+    Raises:
+        LiveAcquisitionExecutionError: If the store does not return the declared epoch profile.
+        CanonicalProfileRefusalError: If the persisted bytes fail strict profile admission.
+    """
+    kind = "epoch.acquisition_semantic_boundary_candidate"
+    media_type = "application/vnd.polisyos.epoch+json"
+    expected_canon = epoch_contract.epoch_canon_info()
+    candidate_ref = artifact_store.put_bytes(
+        epoch_contract.acquisition_semantic_candidate_bytes(statement),
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type=media_type,
+            canon=expected_canon,
+        ),
+        return_selected_profile=True,
+    )
+    if candidate_ref.manifest_profile_sha256 is None:
+        raise LiveAcquisitionExecutionError("semantic_candidate_profile_selection_missing")
+    manifest = artifact_store.get_manifest(candidate_ref)
+    if (
+        getattr(manifest, "kind", None) != kind
+        or getattr(manifest, "media_type", None) != media_type
+        or getattr(manifest, "canon", None) != expected_canon
+    ):
+        raise LiveAcquisitionExecutionError("semantic_candidate_epoch_profile_readback_mismatch")
+    persisted = epoch_contract.load_verified_epoch_statement(
+        store=artifact_store,
+        ref=candidate_ref,
+        expected_kind=kind,
+    )
+    statement_model = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement
+    persisted_statement = statement_model.model_validate(persisted)
+    if persisted_statement != statement:
+        raise LiveAcquisitionExecutionError("semantic_candidate_statement_readback_mismatch")
+    return epoch_contract.AcquisitionSemanticBoundaryCandidate(
+        candidate_ref=candidate_ref,
+        candidate_content_hash=epoch_contract.acquisition_semantic_candidate_content_hash(
+            statement
+        ),
+        statement=statement,
+    )
+
+
 def _require_semantic_handshake(
     *,
     artifact_store: _ArtifactStore,
@@ -1798,21 +1861,11 @@ def admit_acquisition_with_semantic_epoch(
         purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
         requested_query_context_ref=native_query.requested_query_context_ref,
     )
-    candidate_bytes = epoch_contract.acquisition_semantic_candidate_bytes(statement)
-    candidate_ref = artifact_store.put_bytes(
-        candidate_bytes,
-        ArtifactWriteOptions(
-            kind="epoch.acquisition_semantic_boundary_candidate",
-            media_type="application/vnd.polisyos.epoch+json",
-        ),
-    )
-    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidate(
-        candidate_ref=candidate_ref,
-        candidate_content_hash=(
-            epoch_contract.acquisition_semantic_candidate_content_hash(statement)
-        ),
+    candidate = _persist_acquisition_semantic_candidate(
+        artifact_store=artifact_store,
         statement=statement,
     )
+    candidate_ref = candidate.candidate_ref
     prepared_ref = overlay.read_admitted_prepared_epoch_ref(
         epoch_id=epoch_id,
         boundary_candidate_ref=candidate_ref,
@@ -2114,6 +2167,7 @@ def resolve_activated_semantic_epoch_admission(
 
     def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
         from polisyos.core.artifacts import load_core_json_frame_records
+
         raw = artifact_store.get_bytes(ref)
         manifest = artifact_store.get_manifest(ref)
         if (

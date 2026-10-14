@@ -917,6 +917,8 @@
       "governanceErrorsPanel": "Панель помилок",
       "runErrorsLoading": "Завантаження помилок запуску...",
       "runErrorsLoadError": "Не вдалося завантажити помилки запуску",
+      "workflowTimelineFallback": "Записи вузлів і збої вузлів робочого процесу походять із часової шкали запуску, оскільки звіт недоступний.",
+      "workflowLimitationStatusNotReported": "Сервер не повідомив, чи використовувався резервний варіант із часової шкали.",
       "debugAliasesLoading": "Завантаження aliases вузлів...",
       "debugNodesLoadError": "Не вдалося завантажити nodes для debug",
       "debugLoading": "Завантаження node debug...",

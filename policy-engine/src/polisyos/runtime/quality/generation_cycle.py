@@ -5107,6 +5107,13 @@ class ValueOwnerGateway(Protocol):
         """Derive a selection diagram from the source-to-target world relationship."""
 
 
+class _ValueOwnerSourceProjectionRequestUnset:
+    """Sentinel distinguishing a legacy omitted request from explicit null."""
+
+
+_VALUE_OWNER_SOURCE_PROJECTION_REQUEST_UNSET = _ValueOwnerSourceProjectionRequestUnset()
+
+
 @dataclass(frozen=True)
 class RealValueOwnerGateway:
     """Production owner access for N8 value inputs."""
@@ -5120,6 +5127,9 @@ class RealValueOwnerGateway:
     activated_observation_projection: (
         data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
     ) = None
+    source_projection_request: (
+        ValueOwnerSourceProjectionRequestV1 | None | _ValueOwnerSourceProjectionRequestUnset
+    ) = _VALUE_OWNER_SOURCE_PROJECTION_REQUEST_UNSET
 
     def load_value_data_profile(
         self,
@@ -5131,9 +5141,16 @@ class RealValueOwnerGateway:
         """Load method-neutral rows through the real substrate owner."""
 
         del world_record
-        from polisyos.runtime.quality.substrate_registry import require_active_catalog_source
+        from polisyos.runtime.quality.substrate_registry import (
+            current_catalog_serving_source,
+            require_active_catalog_source,
+        )
 
         require_active_catalog_source(self.catalog_serving_source)
+        active_catalog_source = current_catalog_serving_source()
+        selected_overlay_path = self.catalog_overlay_path or (
+            active_catalog_source.overlay_path if active_catalog_source is not None else None
+        )
         outcome = _value_outcome_variable(candidate, problem)
         if outcome is None:
             raise ValueOwnerAccessError(
@@ -5150,7 +5167,7 @@ class RealValueOwnerGateway:
             availability = l1_dcat_variable_availability(
                 repo_root,
                 outcome,
-                overlay_path=self.catalog_overlay_path,
+                overlay_path=selected_overlay_path,
             )
         except Exception as exc:
             raise ValueOwnerAccessError(
@@ -5180,7 +5197,7 @@ class RealValueOwnerGateway:
             repo_root=repo_root,
             outcome=outcome,
             owner_access_ref=owner_access_ref,
-            overlay_path=self.catalog_overlay_path,
+            overlay_path=selected_overlay_path,
             scope_region=scope_region,
             artifact_store=self.artifact_store,
             activated_observation_projection=self.activated_observation_projection,
@@ -5202,13 +5219,30 @@ class RealValueOwnerGateway:
         profile: ValueDataProfile,
         selected_method_fqn: str,
     ) -> ValueOwnerMethodRunIntentV1 | None:
-        """Return no assignment until an owner supplies a verified binding.
+        """Build a candidate intent from explicit selected source roles.
 
-        The current substrate loader owns outcome rows only. Candidate exposure
-        fields and method selection do not establish a treatment assignment.
+        Treatment meaning and source-time status remain consumer asserted.
+        Malformed supplied requests fail closed without fixture/default fallback.
         """
-        del candidate, problem, world_record, profile, selected_method_fqn
-        return None
+        request = self.source_projection_request
+        if isinstance(request, _ValueOwnerSourceProjectionRequestUnset):
+            return None
+        if request is None:
+            raise ValueError("value_owner_source_request_explicit_null")
+        if not isinstance(request, ValueOwnerSourceProjectionRequestV1):
+            raise ValueError("value_owner_source_request_untyped")
+        request = ValueOwnerSourceProjectionRequestV1.model_validate(
+            request.model_dump(mode="python")
+        )
+        return _value_owner_source_projection_intent(
+            gateway=self,
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            outcome_profile=profile,
+            selected_method_fqn=selected_method_fqn,
+            request=request,
+        )
 
     def produce_forecast_inputs(
         self,
@@ -5912,6 +5946,13 @@ class FoundryValuePort:
                         run_basis_ref=run_basis_ref,
                         world_record=world_record,
                         data_trust=candidate_trust,
+                        source_gateway=(
+                            self._owner_gateway
+                            if isinstance(self._owner_gateway, RealValueOwnerGateway)
+                            else None
+                        ),
+                        candidate=candidate,
+                        problem=problem,
                     )
                     from polisyos.ir.artifacts import put_json_artifact
                     from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
@@ -11987,6 +12028,79 @@ def _candidate_target_world_slots(candidate: object) -> tuple[str, ...]:
     )
 
 
+def _read_canonical_active_source_projection(
+    *,
+    repo_root: Path,
+    overlay_path: Path | None,
+    artifact_store: ArtifactStore,
+    supplied_projection: data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
+) -> tuple[
+    data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
+    object,
+    str,
+]:
+    """Reopen a projection through its selected provision and active owner.
+
+    A valid projection digest proves internal consistency only. This intake
+    resolves the exact receipt and passport against the selected catalog
+    source, active overlay, and canonical source rows, then compares the full
+    owner-issued projection with the supplied projection.
+    """
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+        default_substrate_catalog_paths,
+    )
+
+    root = repo_root.resolve()
+    selected_source = current_catalog_serving_source()
+    if selected_source is not None:
+        if selected_source.repo_root.resolve() != root:
+            raise ValueError("value_owner_source_projection_repo_root_mismatch")
+        baseline_path = selected_source.substrate_paths.l1_dcat_path.resolve()
+        active_overlay_path = selected_source.overlay_path.resolve()
+        if overlay_path is not None and overlay_path.resolve() != active_overlay_path:
+            raise ValueError("value_owner_source_projection_overlay_mismatch")
+    else:
+        baseline_path = default_substrate_catalog_paths(root).l1_dcat_path.resolve()
+        active_overlay_path = (
+            overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(root)
+        ).resolve()
+
+    try:
+        passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=supplied_projection.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        from polisyos.fabric.data_plane import content_sha256
+        from polisyos.runtime.quality import acquisition_executor
+
+        passport = acquisition_executor.AdmissionPassport.model_validate(passport_payload)
+        passport_content_hash = content_sha256(passport_payload)
+        authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+            repo_root=root,
+            baseline_path=baseline_path,
+        )
+        overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+            baseline_path,
+            active_overlay_path,
+        )
+        owner_projection = overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=supplied_projection.receipt_ref,
+            artifact_store=artifact_store,
+            passport=passport,
+            authority=authority,
+        )
+    except Exception as exc:
+        raise ValueError("value_owner_source_projection_canonical_owner_unresolved") from exc
+    if (
+        passport_content_hash != supplied_projection.passport_content_sha256
+        or owner_projection.model_dump(mode="json") != supplied_projection.model_dump(mode="json")
+    ):
+        raise ValueError("value_owner_source_projection_canonical_owner_mismatch")
+    return owner_projection, passport, passport_content_hash
+
+
 def _load_value_data_profile_from_l1_dcat(
     *,
     repo_root: Path,
@@ -12028,21 +12142,21 @@ def _load_value_data_profile_from_l1_dcat(
                 owner_access_ref=f"{owner_access_ref}#active-passport",
             )
         try:
-            passport_payload = core_contracts.epoch.load_verified_epoch_statement(
-                store=artifact_store,
-                ref=observation_projection.passport_ref,
-                expected_kind="epoch.acquisition_passport_snapshot",
+            (
+                observation_projection,
+                passport,
+                passport_content_hash,
+            ) = _read_canonical_active_source_projection(
+                repo_root=repo_root,
+                overlay_path=overlay_path,
+                artifact_store=artifact_store,
+                supplied_projection=observation_projection,
             )
-            from polisyos.fabric.data_plane import content_sha256
-            from polisyos.runtime.quality import acquisition_executor
-
-            passport = acquisition_executor.AdmissionPassport.model_validate(passport_payload)
-            passport_content_hash = content_sha256(passport_payload)
         except Exception as exc:
             raise ValueOwnerAccessError(
-                "acquire_data:active_observation_passport_unresolved",
-                f"N8 could not verify the Data Forge active passport: {exc}",
-                owner_access_ref=f"{owner_access_ref}#active-passport",
+                "acquire_data:active_observation_owner_readback_failed",
+                f"N8 could not re-resolve the active Data Forge owner projection: {exc}",
+                owner_access_ref=f"{owner_access_ref}#active-owner-readback",
             ) from exc
         if (
             observation_projection.variable_id != outcome
@@ -12200,6 +12314,30 @@ def _load_value_data_profile_from_l1_dcat(
         )
     projected_rows_by_id: dict[str, tuple[object, ...]] = {}
     if observation_projection is not None:
+        projected_observation_ids = tuple(
+            projected.observation.observation_id
+            for projected in observation_projection.observations
+            if (
+                not normalized_scope_region
+                or projected.observation.country_code == normalized_scope_region
+                or projected.observation.observation_id in selected_wdi_observation_ids
+            )
+        )
+        physical_observation_ids = tuple(str(row[4]) for row in raw_rows)
+        if (
+            len(projected_observation_ids) != len(set(projected_observation_ids))
+            or len(physical_observation_ids) != len(set(physical_observation_ids))
+            or len(physical_observation_ids) != len(projected_observation_ids)
+            or set(physical_observation_ids) != set(projected_observation_ids)
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_rowset_mismatch",
+                (
+                    "N8 physical query rows do not equal the complete owner-projected "
+                    "observation set for the selected scope"
+                ),
+                owner_access_ref=(f"{owner_access_ref}#activated-observation-projection-rowset"),
+            )
         physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
         for raw_row in raw_rows:
             physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
@@ -12287,7 +12425,10 @@ def _load_value_data_profile_from_l1_dcat(
                 observation.observation_id,
                 observation.condition_json,
             )
-    raw_rows = [projected_rows_by_id.get(str(row[4]), tuple(row[:6])) for row in raw_rows]
+    if observation_projection is not None:
+        raw_rows = [projected_rows_by_id[str(row[4])] for row in raw_rows]
+    else:
+        raw_rows = [tuple(row[:6]) for row in raw_rows]
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
@@ -15918,6 +16059,8 @@ __all__ = [
     "StrangleReceipt",
     "ValueCalibrationReceipt",
     "ValueGateReceipt",
+    "ValueOwnerSourceProjectionRequestV1",
+    "ValueOwnerSourceVariableProjectionV1",
     "ValuePortObservation",
     "ValueTransportReceipt",
     "ValueTransportRunReceiptV1",
@@ -15975,6 +16118,179 @@ class ValueOwnerTreatmentAssignmentFixtureV1(_StrictModel):
         return self
 
 
+class ValueOwnerSourceVariableProjectionV1(_StrictModel):
+    """Explicit mapping from a selected Data Forge variable to one method role."""
+
+    role: Literal["outcome", "treatment", "covariate"]
+    variable_id: str = Field(min_length=1)
+    projection_payload: dict[str, Any]
+
+
+class ValueOwnerSourceProjectionRequestV1(_StrictModel):
+    """Candidate source request; role semantics and support remain caller asserted."""
+
+    schema_version: Literal["policyos.runtime.value_owner_source_projection_request.v1"] = (
+        "policyos.runtime.value_owner_source_projection_request.v1"
+    )
+    authority_scope: Literal["candidate_source_projection"] = "candidate_source_projection"
+    production_value_eligible: Literal[False] = False
+    selected_method_fqn: str = Field(min_length=1)
+    estimand_spec_json: str = Field(min_length=2)
+    variable_projections: tuple[ValueOwnerSourceVariableProjectionV1, ...] = Field(min_length=3)
+    outcome_lower: float = Field(strict=True)
+    outcome_upper: float = Field(strict=True)
+    outcome_bounds_unit: str = Field(min_length=1)
+    method_parameters_json: str = Field(min_length=2)
+    seed: int = Field(ge=0, strict=True)
+
+    @model_validator(mode="after")
+    def _verify_source_request(self) -> ValueOwnerSourceProjectionRequestV1:
+        if not math.isfinite(self.outcome_lower) or not math.isfinite(self.outcome_upper):
+            raise ValueError("value_owner_source_outcome_bounds_nonfinite")
+        if self.outcome_lower >= self.outcome_upper:
+            raise ValueError("value_owner_source_outcome_bounds_invalid")
+        roles: dict[str, list[str]] = {"outcome": [], "treatment": [], "covariate": []}
+        variable_ids: list[str] = []
+        for binding in self.variable_projections:
+            roles[binding.role].append(binding.variable_id)
+            variable_ids.append(binding.variable_id)
+            if not binding.variable_id.strip():
+                raise ValueError("value_owner_source_variable_id_missing")
+        if (
+            len(roles["outcome"]) != 1
+            or len(roles["treatment"]) != 1
+            or not roles["covariate"]
+            or len(variable_ids) != len(set(variable_ids))
+        ):
+            raise ValueError("value_owner_source_role_binding_invalid")
+        estimand = _value_estimand_spec_from_json(self.estimand_spec_json)
+        if (
+            estimand.estimand_id != "ATE"
+            or estimand.outcome != roles["outcome"][0]
+            or estimand.treatment_or_exposure != roles["treatment"][0]
+            or tuple(estimand.covariates_or_conditioning) != tuple(roles["covariate"])
+            or estimand.scale != "identity"
+            or estimand.transform is not None
+            or estimand.sample_filter is not None
+            or estimand.time_horizon is not None
+            or estimand.prediction_origin is not None
+            or estimand.population != "unspecified"
+            or estimand.target_role != "estimate"
+            or estimand.loss_or_utility_id is not None
+            or (
+                estimand.adjustment_set is not None
+                and tuple(estimand.adjustment_set) != tuple(roles["covariate"])
+            )
+            or self.outcome_bounds_unit != estimand.unit
+        ):
+            raise ValueError("value_owner_source_estimand_projection_mismatch")
+        if self.selected_method_fqn not in {
+            "causal.treatment_effects.aipw@1.0.0",
+            "causal.treatment_effects.tmle@1.0.0",
+        }:
+            raise ValueError("value_owner_source_method_unsupported")
+        _value_canonical_json_object(
+            self.method_parameters_json,
+            "value_owner_source_method_parameters_invalid",
+        )
+        return self
+
+
+class ValueOwnerSourceRoleProfileV1(_StrictModel):
+    """One role's selected profile and the exact projection used to reload it."""
+
+    role: Literal["outcome", "treatment", "covariate"]
+    variable_id: str = Field(min_length=1)
+    measurement_unit: str = Field(min_length=1)
+    profile_ref: ValueArtifactBindingRefV1
+    projection_ref: ValueArtifactBindingRefV1
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ValueOwnerSourceVariableAssignmentV1(_StrictModel):
+    """CAS binding for explicit source-variable roles, not a verified causal design."""
+
+    schema_version: Literal["policyos.runtime.value_owner_source_variable_assignment.v1"] = (
+        "policyos.runtime.value_owner_source_variable_assignment.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(min_length=1)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_method_fqn: Literal[
+        "causal.treatment_effects.aipw@1.0.0",
+        "causal.treatment_effects.tmle@1.0.0",
+    ]
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    outcome: str = Field(min_length=1)
+    measurement_unit: str = Field(min_length=1)
+    estimand_spec_json: str = Field(min_length=2)
+    outcome_lower: float = Field(strict=True)
+    outcome_upper: float = Field(strict=True)
+    outcome_bounds_unit: str = Field(min_length=1)
+    method_parameters_json: str = Field(min_length=2)
+    seed: int = Field(ge=0, strict=True)
+    role_profiles: tuple[ValueOwnerSourceRoleProfileV1, ...] = Field(min_length=3)
+    source_time_status: Literal["not_established"] = "not_established"
+    assignment_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_source_assignment(self) -> ValueOwnerSourceVariableAssignmentV1:
+        if (
+            not math.isfinite(self.outcome_lower)
+            or not math.isfinite(self.outcome_upper)
+            or self.outcome_lower >= self.outcome_upper
+        ):
+            raise ValueError("value_owner_source_assignment_bounds_invalid")
+        roles: dict[str, list[ValueOwnerSourceRoleProfileV1]] = {
+            "outcome": [],
+            "treatment": [],
+            "covariate": [],
+        }
+        for binding in self.role_profiles:
+            roles[binding.role].append(binding)
+            if (
+                binding.profile_ref.kind != "runtime.value_data_profile"
+                or binding.projection_ref.kind != "runtime.value_owner_source_projection"
+                or binding.profile_ref.manifest_profile_sha256 is None
+                or binding.projection_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("value_owner_source_selected_ref_unresolved")
+        variable_ids = [item.variable_id for item in self.role_profiles]
+        if (
+            len(roles["outcome"]) != 1
+            or len(roles["treatment"]) != 1
+            or not roles["covariate"]
+            or len(variable_ids) != len(set(variable_ids))
+            or roles["outcome"][0].variable_id != self.outcome
+            or roles["outcome"][0].profile_content_hash != self.profile_content_hash
+            or roles["outcome"][0].measurement_unit != self.measurement_unit
+            or roles["treatment"][0].measurement_unit != "binary"
+        ):
+            raise ValueError("value_owner_source_assignment_roles_invalid")
+        estimand = _value_estimand_spec_from_json(self.estimand_spec_json)
+        if (
+            estimand.outcome != self.outcome
+            or estimand.unit != self.measurement_unit
+            or self.outcome_bounds_unit != self.measurement_unit
+            or estimand.treatment_or_exposure != roles["treatment"][0].variable_id
+            or tuple(estimand.covariates_or_conditioning)
+            != tuple(item.variable_id for item in roles["covariate"])
+        ):
+            raise ValueError("value_owner_source_assignment_estimand_mismatch")
+        _value_canonical_json_object(
+            self.method_parameters_json,
+            "value_owner_source_method_parameters_invalid",
+        )
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_source_assignment_content_hash_mismatch")
+        return self
+
+
 class ValueOwnerMethodRunIntentV1(_StrictModel):
     """Immutable, candidate-grade request binding an owner profile and assignment."""
 
@@ -15994,7 +16310,10 @@ class ValueOwnerMethodRunIntentV1(_StrictModel):
     def _verify_run_intent(self) -> ValueOwnerMethodRunIntentV1:
         if self.profile_ref.kind != "runtime.value_data_profile":
             raise ValueError("value_owner_method_run_profile_kind_mismatch")
-        if self.assignment_ref.kind != "runtime.value_owner_treatment_assignment_fixture":
+        if self.assignment_ref.kind not in {
+            "runtime.value_owner_treatment_assignment_fixture",
+            "runtime.value_owner_source_variable_assignment",
+        }:
             raise ValueError("value_owner_method_run_assignment_kind_mismatch")
         if (
             self.profile_ref.manifest_profile_sha256 is None
@@ -16341,6 +16660,482 @@ def _value_manifest_has_exact_inputs(
     return observed_edges == expected_edges
 
 
+def _value_owner_source_projection_intent(
+    *,
+    gateway: RealValueOwnerGateway,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    outcome_profile: ValueDataProfile,
+    selected_method_fqn: str,
+    request: ValueOwnerSourceProjectionRequestV1,
+) -> ValueOwnerMethodRunIntentV1:
+    """Resolve, bind, and persist the explicit source-role profiles for N8."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.artifacts import put_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
+
+    if not isinstance(request, ValueOwnerSourceProjectionRequestV1):
+        raise ValueError("value_owner_source_request_untyped")
+    request = ValueOwnerSourceProjectionRequestV1.model_validate(request.model_dump(mode="python"))
+    if selected_method_fqn != request.selected_method_fqn:
+        raise ValueError("value_owner_source_selected_method_mismatch")
+    if gateway.artifact_store is None:
+        raise ValueError("value_owner_source_artifact_store_missing")
+    if request.selected_method_fqn not in {
+        "causal.treatment_effects.aipw@1.0.0",
+        "causal.treatment_effects.tmle@1.0.0",
+    }:
+        raise ValueError("value_owner_source_method_unsupported")
+    estimand = _value_estimand_spec_from_json(request.estimand_spec_json)
+    outcome = _value_outcome_variable(candidate, problem)
+    if outcome != estimand.outcome or outcome_profile.outcome != outcome:
+        raise ValueError("value_owner_source_outcome_binding_mismatch")
+    if estimand.unit != outcome_profile.measurement_unit:
+        raise ValueError("value_owner_source_outcome_unit_not_identity")
+    outcome_binding = next(item for item in request.variable_projections if item.role == "outcome")
+    if gateway.activated_observation_projection is None:
+        raise ValueError("value_owner_source_outcome_projection_missing")
+    live_outcome_projection = gateway.activated_observation_projection.model_dump(mode="json")
+    if gy_content_hash(live_outcome_projection) != gy_content_hash(
+        outcome_binding.projection_payload
+    ):
+        raise ValueError("value_owner_source_outcome_projection_conflict")
+
+    repo_root = (gateway.repo_root or Path.cwd()).resolve()
+    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+    active_catalog_source = current_catalog_serving_source()
+    selected_overlay_path = gateway.catalog_overlay_path or (
+        active_catalog_source.overlay_path if active_catalog_source is not None else None
+    )
+    jurisdiction_time = _object_get(problem, "jurisdiction_time")
+    scope_region = _resolve_owner_scope_region(
+        _object_get(jurisdiction_time, "region"),
+        owner_access_ref=outcome_profile.owner_access_ref,
+    )
+    ir_store = ensure_ir_artifact_store(gateway.artifact_store)
+    from polisyos import data_forge_read_api
+
+    projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+    role_profiles: list[ValueOwnerSourceRoleProfileV1] = []
+    selected_profile_refs: dict[str, ValueArtifactBindingRefV1] = {}
+    for binding in request.variable_projections:
+        try:
+            projection = projection_type.model_validate(binding.projection_payload)
+        except Exception as exc:
+            raise ValueError("value_owner_source_projection_invalid") from exc
+        if (
+            projection.variable_id != binding.variable_id
+            or projection.activation_state != "active"
+            or projection.predicate_provenance != "recomputed"
+            or projection.source_time_status != "not_established"
+        ):
+            raise ValueError("value_owner_source_projection_not_active")
+        if binding.role == "outcome":
+            profile = outcome_profile
+        else:
+            try:
+                availability = l1_dcat_variable_availability(
+                    repo_root,
+                    binding.variable_id,
+                    overlay_path=selected_overlay_path,
+                )
+            except Exception as exc:
+                raise ValueError("value_owner_source_variable_availability_unresolved") from exc
+            if availability.status != "available":
+                raise ValueError("value_owner_source_variable_unavailable")
+            profile = _load_value_data_profile_from_l1_dcat(
+                repo_root=repo_root,
+                outcome=binding.variable_id,
+                owner_access_ref=availability.coverage_ref,
+                overlay_path=selected_overlay_path,
+                scope_region=scope_region,
+                artifact_store=gateway.artifact_store,
+                activated_observation_projection=projection,
+            )
+            if profile is None:
+                raise ValueError("value_owner_source_variable_rows_missing")
+        if profile.outcome != binding.variable_id:
+            raise ValueError("value_owner_source_profile_variable_mismatch")
+        projection_ref_raw = put_json_artifact(
+            ir_store,
+            projection.model_dump(mode="json"),
+            kind="runtime.value_owner_source_projection",
+            schema_name="runtime.value_owner_source_projection.v1",
+            schema_version="1.0",
+            canon_spec=IRCanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        projection_ref = _value_artifact_ref(projection_ref_raw)
+        profile_ref_raw = put_json_artifact(
+            ir_store,
+            profile.model_dump(mode="json"),
+            kind="runtime.value_data_profile",
+            schema_name="runtime.value_data_profile.v2",
+            schema_version="2.0",
+            inputs=[_value_input_ref(projection_ref, role="activated_source_projection")],
+            canon_spec=IRCanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        profile_ref = _value_artifact_ref(profile_ref_raw)
+        selected_profile_refs[binding.variable_id] = profile_ref
+        role_profiles.append(
+            ValueOwnerSourceRoleProfileV1(
+                role=binding.role,
+                variable_id=binding.variable_id,
+                measurement_unit=profile.measurement_unit,
+                profile_ref=profile_ref,
+                projection_ref=projection_ref,
+                profile_content_hash=profile.content_hash,
+            )
+        )
+    selected_outcome_ref = selected_profile_refs[outcome]
+    assignment_payload = {
+        "schema_version": "policyos.runtime.value_owner_source_variable_assignment.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "candidate_id": _candidate_id(candidate),
+        "candidate_content_hash": _candidate_content_hash(candidate),
+        "design_problem_ref": _problem_ref(problem),
+        "world_model_record_content_hash": str(_object_get(world_record, "content_hash")),
+        "selected_method_fqn": request.selected_method_fqn,
+        "profile_content_hash": outcome_profile.content_hash,
+        "outcome": outcome,
+        "measurement_unit": outcome_profile.measurement_unit,
+        "estimand_spec_json": json.dumps(
+            json.loads(request.estimand_spec_json),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ),
+        "outcome_lower": request.outcome_lower,
+        "outcome_upper": request.outcome_upper,
+        "outcome_bounds_unit": request.outcome_bounds_unit,
+        "method_parameters_json": request.method_parameters_json,
+        "seed": request.seed,
+        "role_profiles": [item.model_dump(mode="json") for item in role_profiles],
+        "source_time_status": "not_established",
+        "assignment_provenance": "consumer_asserted",
+    }
+    assignment_payload["content_hash"] = gy_content_hash(assignment_payload)
+    assignment = ValueOwnerSourceVariableAssignmentV1.model_validate(assignment_payload)
+    assignment_inputs = [
+        edge
+        for role_profile in role_profiles
+        for edge in (
+            _value_input_ref(
+                role_profile.profile_ref,
+                role=f"selected_source_profile:{role_profile.role}:{role_profile.variable_id}",
+            ),
+            _value_input_ref(
+                role_profile.projection_ref,
+                role=f"selected_source_projection:{role_profile.role}:{role_profile.variable_id}",
+            ),
+        )
+    ]
+    assignment_ref_raw = put_json_artifact(
+        ir_store,
+        assignment.model_dump(mode="json"),
+        kind="runtime.value_owner_source_variable_assignment",
+        schema_name="runtime.value_owner_source_variable_assignment.v1",
+        schema_version="1.0",
+        inputs=assignment_inputs,
+        canon_spec=IRCanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assignment_ref = _value_artifact_ref(assignment_ref_raw)
+    intent_payload = {
+        "schema_version": "policyos.runtime.value_owner_method_run_intent.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "profile_content_hash": outcome_profile.content_hash,
+        "profile_ref": selected_outcome_ref.model_dump(mode="json"),
+        "assignment_ref": assignment_ref.model_dump(mode="json"),
+        "estimand_spec_json": assignment.estimand_spec_json,
+        "seed": request.seed,
+    }
+    intent_payload["content_hash"] = gy_content_hash(intent_payload)
+    return ValueOwnerMethodRunIntentV1.model_validate(intent_payload)
+
+
+def _value_source_profiles_from_store(
+    store: object,
+    assignment: ValueOwnerSourceVariableAssignmentV1,
+    assignment_ref: ValueArtifactBindingRefV1,
+) -> dict[str, ValueDataProfile]:
+    """Load role profiles while reconciling every selected profile edge."""
+    ir_store = store
+    expected_assignment_inputs: list[tuple[ValueArtifactBindingRefV1, str]] = []
+    profiles: dict[str, ValueDataProfile] = {}
+    for binding in assignment.role_profiles:
+        expected_assignment_inputs.extend(
+            (
+                (
+                    binding.profile_ref,
+                    f"selected_source_profile:{binding.role}:{binding.variable_id}",
+                ),
+                (
+                    binding.projection_ref,
+                    f"selected_source_projection:{binding.role}:{binding.variable_id}",
+                ),
+            )
+        )
+        profile = ValueDataProfile.model_validate(
+            _value_load_ref_payload(ir_store, binding.profile_ref)
+        )
+        projection_payload = _value_load_ref_payload(ir_store, binding.projection_ref)
+        from polisyos import data_forge_read_api
+
+        projection = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection.model_validate(
+                projection_payload
+            )
+        )
+        if (
+            profile.content_hash != binding.profile_content_hash
+            or profile.measurement_unit != binding.measurement_unit
+            or profile.outcome != binding.variable_id
+            or projection.variable_id != binding.variable_id
+            or not _value_manifest_has_exact_inputs(
+                ir_store,
+                binding.profile_ref,
+                ((binding.projection_ref, "activated_source_projection"),),
+            )
+        ):
+            raise ValueError("value_owner_source_profile_binding_mismatch")
+        profiles[binding.variable_id] = profile
+    expected_edges = [
+        edge
+        for binding in assignment.role_profiles
+        for edge in (
+            (binding.profile_ref, f"selected_source_profile:{binding.role}:{binding.variable_id}"),
+            (
+                binding.projection_ref,
+                f"selected_source_projection:{binding.role}:{binding.variable_id}",
+            ),
+        )
+    ]
+    if not _value_manifest_has_exact_inputs(ir_store, assignment_ref, expected_edges):
+        raise ValueError("value_owner_source_assignment_lineage_mismatch")
+    return profiles
+
+
+def _value_source_observational_data(
+    assignment: ValueOwnerSourceVariableAssignmentV1,
+    profiles: Mapping[str, ValueDataProfile],
+) -> object:
+    """Build exact complete-row HTE input from declared source-variable roles."""
+    import numpy as np
+
+    from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+
+    estimand = _value_estimand_spec_from_json(assignment.estimand_spec_json)
+    role_by_variable = {item.variable_id: item.role for item in assignment.role_profiles}
+    ordered_variables = (
+        estimand.outcome,
+        str(estimand.treatment_or_exposure),
+        *tuple(estimand.covariates_or_conditioning),
+    )
+    if set(ordered_variables) != set(profiles) or len(ordered_variables) != len(profiles):
+        raise ValueError("value_owner_source_profile_denominator_mismatch")
+    cell_values: dict[str, dict[tuple[str, int], float]] = {}
+    cell_sets: list[set[tuple[str, int]]] = []
+    if profiles[estimand.outcome].measurement_unit != assignment.measurement_unit:
+        raise ValueError("value_owner_source_outcome_unit_mismatch")
+    if profiles[str(estimand.treatment_or_exposure)].measurement_unit != "binary":
+        raise ValueError("value_owner_source_treatment_unit_mismatch")
+    for variable_id in ordered_variables:
+        profile = profiles[variable_id]
+        if any(row.measurement_unit != profile.measurement_unit for row in profile.rows):
+            raise ValueError("value_owner_source_profile_unit_mismatch")
+        values: dict[tuple[str, int], float] = {}
+        for row in profile.rows:
+            key = (row.unit_id, row.period_id)
+            if key in values or not math.isfinite(row.outcome_value):
+                raise ValueError("value_owner_source_profile_cell_invalid")
+            values[key] = row.outcome_value
+        cell_values[variable_id] = values
+        cell_sets.append(set(values))
+    if not cell_sets or any(cells != cell_sets[0] for cells in cell_sets[1:]):
+        raise ValueError("value_owner_source_profiles_do_not_share_complete_rows")
+    cells = tuple(sorted(cell_sets[0]))
+    outcome_values = np.asarray(
+        [cell_values[estimand.outcome][cell] for cell in cells], dtype=float
+    )
+    treatment_id = str(estimand.treatment_or_exposure)
+    treatment_values = np.asarray([cell_values[treatment_id][cell] for cell in cells], dtype=float)
+    if not np.isin(treatment_values, [0.0, 1.0]).all():
+        raise ValueError("value_owner_source_treatment_not_binary")
+    if (
+        not np.isfinite(outcome_values).all()
+        or np.any(outcome_values < assignment.outcome_lower)
+        or np.any(outcome_values > assignment.outcome_upper)
+    ):
+        raise ValueError("value_owner_source_outcome_outside_declared_support")
+    covariates = np.column_stack(
+        [
+            np.asarray([cell_values[name][cell] for cell in cells], dtype=float)
+            for name in estimand.covariates_or_conditioning
+        ]
+    )
+    if not np.isfinite(covariates).all():
+        raise ValueError("value_owner_source_covariate_nonfinite")
+    if any(
+        role_by_variable.get(name) != "covariate" for name in estimand.covariates_or_conditioning
+    ):
+        raise ValueError("value_owner_source_covariate_role_mismatch")
+    return HTEObservationalData.model_validate(
+        {
+            "outcome": outcome_values,
+            "treatment": treatment_values,
+            "covariates": covariates,
+            "feature_names": list(estimand.covariates_or_conditioning),
+            "sample_ids": np.asarray([f"{unit}:{period}" for unit, period in cells]),
+            "metadata": {
+                "input_basis": "selected_data_forge_profiles",
+                "authority_scope": "candidate_fixture_only",
+                "assignment_provenance": "consumer_asserted",
+                "source_time_status": "not_established",
+                "unit_conversion": "not_performed",
+                "estimand_coordinate": gy_content_hash(_value_estimand_payload(estimand)),
+            },
+        }
+    )
+
+
+def _value_source_bounds_bundle(
+    panel: object,
+    assignment: ValueOwnerSourceVariableAssignmentV1,
+) -> object:
+    """Run the existing BoundsEngine with caller-declared finite outcome support."""
+    from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+    from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle
+
+    outcome = panel.outcome if hasattr(panel, "outcome") else panel["outcome"]
+    treatment = panel.treatment if hasattr(panel, "treatment") else panel["treatment"]
+    output = BoundsEngineMethod.pure_step(
+        {"outcome": outcome, "treatment": treatment},
+        {
+            "y_lower": assignment.outcome_lower,
+            "y_upper": assignment.outcome_upper,
+            "use_auto_bounds": False,
+            "has_iv": False,
+            "has_selection": False,
+            "has_monotone": False,
+            "run_all": False,
+            "run_intersection": False,
+            "tighten_bounds": False,
+        },
+    )
+    raw = output.get("bounds_report") if isinstance(output, Mapping) else None
+    bundle = BoundsBundle.model_validate(raw)
+    if not any(item.method is BoundMethod.MANSKI for item in bundle.method_summaries):
+        raise ValueError("value_owner_source_manski_result_missing")
+    if any(item.soundness_level is not None for item in bundle.method_summaries):
+        raise ValueError("value_owner_source_bounds_soundness_not_established")
+    return bundle
+
+
+def _value_owner_reloaded_source_profiles(
+    *,
+    store: object,
+    gateway: RealValueOwnerGateway,
+    assignment: ValueOwnerSourceVariableAssignmentV1,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: object,
+) -> dict[str, ValueDataProfile]:
+    """Re-resolve the selected projection profiles from the live L1 owner."""
+    from polisyos import data_forge_read_api
+    from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
+
+    raw_request = gateway.source_projection_request
+    if not isinstance(raw_request, ValueOwnerSourceProjectionRequestV1):
+        raise ValueError("value_owner_source_fresh_request_missing")
+    try:
+        request = ValueOwnerSourceProjectionRequestV1.model_validate(
+            raw_request.model_dump(mode="python")
+        )
+    except Exception as exc:
+        raise ValueError("value_owner_source_fresh_request_invalid") from exc
+    if (
+        request.selected_method_fqn
+        not in {
+            "causal.treatment_effects.aipw@1.0.0",
+            "causal.treatment_effects.tmle@1.0.0",
+        }
+        or assignment.candidate_id != _candidate_id(candidate)
+        or assignment.candidate_content_hash != _candidate_content_hash(candidate)
+        or assignment.design_problem_ref != _problem_ref(problem)
+        or assignment.world_model_record_content_hash
+        != str(_object_get(world_record, "content_hash"))
+        or assignment.selected_method_fqn != request.selected_method_fqn
+        or assignment.estimand_spec_json != request.estimand_spec_json
+        or assignment.method_parameters_json != request.method_parameters_json
+        or assignment.seed != request.seed
+    ):
+        raise ValueError("value_owner_source_fresh_context_mismatch")
+    request_by_variable = {item.variable_id: item for item in request.variable_projections}
+    repo_root = (gateway.repo_root or Path.cwd()).resolve()
+    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+    active_catalog_source = current_catalog_serving_source()
+    selected_overlay_path = gateway.catalog_overlay_path or (
+        active_catalog_source.overlay_path if active_catalog_source is not None else None
+    )
+    jurisdiction_time = _object_get(problem, "jurisdiction_time")
+    projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+    refreshed: dict[str, ValueDataProfile] = {}
+    for role in assignment.role_profiles:
+        declared = request_by_variable.get(role.variable_id)
+        if declared is None or declared.role != role.role:
+            raise ValueError("value_owner_source_fresh_role_mismatch")
+        projection = projection_type.model_validate(declared.projection_payload)
+        stored_projection = projection_type.model_validate(
+            _value_load_ref_payload(store, role.projection_ref)
+        )
+        if stored_projection.model_dump(mode="json") != projection.model_dump(mode="json"):
+            raise ValueError("value_owner_source_projection_changed")
+        if role.role == "outcome":
+            current = gateway.activated_observation_projection
+            if current is None or current.model_dump(mode="json") != projection.model_dump(
+                mode="json"
+            ):
+                raise ValueError("value_owner_source_outcome_projection_changed")
+        availability = l1_dcat_variable_availability(
+            repo_root,
+            role.variable_id,
+            overlay_path=selected_overlay_path,
+        )
+        if availability.status != "available":
+            raise ValueError("value_owner_source_fresh_variable_unavailable")
+        current_scope_region = _resolve_owner_scope_region(
+            _object_get(jurisdiction_time, "region"),
+            owner_access_ref=availability.coverage_ref,
+        )
+        profile = _load_value_data_profile_from_l1_dcat(
+            repo_root=repo_root,
+            outcome=role.variable_id,
+            owner_access_ref=availability.coverage_ref,
+            overlay_path=selected_overlay_path,
+            scope_region=current_scope_region,
+            artifact_store=gateway.artifact_store,
+            activated_observation_projection=projection,
+        )
+        if profile is None:
+            raise ValueError("value_owner_source_fresh_rows_missing")
+        if (
+            profile.content_hash != role.profile_content_hash
+            or profile.measurement_unit != role.measurement_unit
+        ):
+            raise ValueError("value_owner_source_fresh_profile_changed")
+        refreshed[role.variable_id] = profile
+    return refreshed
+
+
 def _produce_value_owner_method_run_basis(
     *,
     store: object,
@@ -16351,10 +17146,10 @@ def _produce_value_owner_method_run_basis(
 ) -> ValueArtifactBindingRefV1:
     """Run a registry-selected real method on exact persisted owner-profile bytes.
 
-    This path intentionally produces candidate-fixture evidence only. The real
-    substrate gateway currently supplies no treatment assignment; callers must
-    provide a separate source-bound intent, and that intent cannot confer
-    production, calibration, or causal-identification authority.
+    The legacy fixture intent and explicit source-projection intent are both
+    candidate-only. The source route re-resolves selected Data Forge profiles,
+    executes the registered method and BoundsEngine, and persists their joined
+    basis; it does not establish assignment truth, calibration, or authority.
     """
     import hashlib
 
@@ -16384,7 +17179,30 @@ def _produce_value_owner_method_run_basis(
     if selected_profile != profile:
         raise ValueError("value_owner_method_selected_profile_mismatch")
     assignment_payload = _value_load_ref_payload(ir_store, assignment_ref)
-    assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(assignment_payload)
+    if assignment_ref.kind == "runtime.value_owner_source_variable_assignment":
+        assignment = ValueOwnerSourceVariableAssignmentV1.model_validate(assignment_payload)
+        if assignment.selected_method_fqn != selected_method_fqn:
+            raise ValueError("value_owner_source_selected_method_mismatch")
+        if (
+            assignment.method_parameters_json
+            != json.dumps(
+                dict(method_parameters),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            and method_parameters
+        ):
+            raise ValueError("value_owner_source_method_parameters_mismatch")
+        method_parameters = _value_canonical_json_object(
+            assignment.method_parameters_json,
+            "value_owner_source_method_parameters_invalid",
+        )
+        if intent.seed != assignment.seed:
+            raise ValueError("value_owner_source_seed_mismatch")
+    else:
+        assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(assignment_payload)
     estimand = _value_estimand_spec_from_json(intent.estimand_spec_json)
     if (
         estimand.outcome != profile.outcome
@@ -16408,7 +17226,13 @@ def _produce_value_owner_method_run_basis(
         return_selected_profile=True,
     )
     intent_ref = _value_artifact_ref(intent_ref_raw)
-    panel = _value_profile_panel(selected_profile, assignment)
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        source_profiles = _value_source_profiles_from_store(ir_store, assignment, assignment_ref)
+        if source_profiles.get(profile.outcome) != selected_profile:
+            raise ValueError("value_owner_source_outcome_profile_mismatch")
+        panel = _value_source_observational_data(assignment, source_profiles)
+    else:
+        panel = _value_profile_panel(selected_profile, assignment)
     panel_ref_raw = put_json_artifact(
         ir_store,
         panel.model_dump(mode="json"),
@@ -16433,9 +17257,16 @@ def _produce_value_owner_method_run_basis(
     input_sha256 = "sha256:" + hashlib.sha256(runner_input_bytes).hexdigest()
     if not isinstance(panel_payload, Mapping):
         raise ValueError("value_owner_method_runner_input_invalid")
-    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        runner_state = {
+            "outcome": panel_payload["outcome"],
+            "treatment": panel_payload["treatment"],
+            "X": panel_payload["covariates"],
+        }
+    else:
+        from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 
-    runner_state = PanelObservationalData.model_validate(panel_payload)
+        runner_state = PanelObservationalData.model_validate(panel_payload)
     native_binding = NativeValueEstimandBinding.from_estimand(
         estimand=estimand,
         native_contract_id="ir.causal_effect_report.v1",
@@ -16497,6 +17328,48 @@ def _produce_value_owner_method_run_basis(
         seed=intent.seed,
     )
     raw_report = result.output.get("report") if isinstance(result.output, Mapping) else None
+    bounds_ref = None
+    bounds_bundle = None
+    if not isinstance(raw_report, CausalEffectReport) and isinstance(
+        assignment, ValueOwnerSourceVariableAssignmentV1
+    ):
+        report_projector = getattr(method_class, "report_from_result", None)
+        native_result = result.output.get("result") if isinstance(result.output, Mapping) else None
+        if callable(report_projector) and isinstance(native_result, Mapping):
+            raw_report = report_projector(
+                data=runner_state,
+                params=json.loads(parameters_json),
+                result=native_result,
+            )
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        bounds_bundle = _value_source_bounds_bundle(runner_state, assignment)
+        bounds_ref_raw = put_json_artifact(
+            ir_store,
+            bounds_bundle.model_dump(mode="json"),
+            kind="ir.bounds_bundle",
+            schema_name="ir.bounds_bundle",
+            schema_version=bounds_bundle.schema_version,
+            inputs=[
+                _value_input_ref(profile_ref, role="selected_owner_profile"),
+                _value_input_ref(assignment_ref, role="owner_source_assignment"),
+                _value_input_ref(panel_ref, role="exact_method_input_bytes"),
+                _value_input_ref(request_ref, role="selected_method_runner_request"),
+            ],
+            canon_spec=IRCanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        bounds_ref = _value_artifact_ref(bounds_ref_raw)
+        if isinstance(raw_report, CausalEffectReport):
+            raw_report = raw_report.model_copy(
+                update={
+                    "metadata": {
+                        **dict(raw_report.metadata),
+                        "identification_bounds_ref": bounds_ref.model_dump(mode="json"),
+                        "identification_bounds_contract": "ir.bounds_bundle.v1",
+                        "identification_bounds_status": "candidate_only",
+                    }
+                }
+            )
     if not isinstance(raw_report, CausalEffectReport):
         raise ValueError("value_owner_method_runner_report_missing")
     if raw_report.status.value != "success" or raw_report.estimand != estimand.estimand_id:
@@ -16507,6 +17380,11 @@ def _produce_value_owner_method_run_basis(
         inputs=[
             _value_input_ref(panel_ref, role="exact_method_input_bytes"),
             _value_input_ref(request_ref, role="selected_method_runner_request"),
+            *(
+                [_value_input_ref(bounds_ref, role="candidate_identification_bounds")]
+                if bounds_ref is not None
+                else []
+            ),
         ],
         return_selected_profile=True,
     )
@@ -16622,12 +17500,15 @@ def _value_outer_set_from_owner_method_run_basis(
     run_basis_ref: object,
     world_record: object,
     data_trust: DataTrust,
+    source_gateway: RealValueOwnerGateway | None = None,
+    candidate: object | None = None,
+    problem: DesignProblem | None = None,
 ) -> ValueOuterSet:
     """Freshly resolve the producer basis and preserve native CI apart from ID bounds."""
     import hashlib
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.analytics.causal import load_causal_effect_report
+    from polisyos.ir.analytics.causal import CausalEffectReport, load_causal_effect_report
     from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
     from polisyos.ir.model_layer.canon import (
         CanonSpec as IRCanonSpec,
@@ -16646,9 +17527,18 @@ def _value_outer_set_from_owner_method_run_basis(
         raise ValueError("value_owner_method_selected_profile_unresolved")
     basis = ValueOwnerMethodRunBasisV2.model_validate(_value_load_ref_payload(ir_store, basis_ref))
     profile = ValueDataProfile.model_validate(_value_load_ref_payload(ir_store, basis.profile_ref))
-    assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(
-        _value_load_ref_payload(ir_store, basis.assignment_ref)
-    )
+    assignment_payload = _value_load_ref_payload(ir_store, basis.assignment_ref)
+    if basis.assignment_ref.kind == "runtime.value_owner_source_variable_assignment":
+        assignment = ValueOwnerSourceVariableAssignmentV1.model_validate(assignment_payload)
+        if (
+            source_gateway is None
+            or candidate is None
+            or problem is None
+            or source_gateway.artifact_store is None
+        ):
+            raise ValueError("value_owner_source_fresh_owner_context_missing")
+    else:
+        assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(assignment_payload)
     intent = ValueOwnerMethodRunIntentV1.model_validate(
         _value_load_ref_payload(ir_store, basis.intent_ref)
     )
@@ -16700,7 +17590,26 @@ def _value_outer_set_from_owner_method_run_basis(
         or basis.estimand_coordinate != _value_estimand_coordinate(estimand)
     ):
         raise ValueError("value_owner_method_estimand_binding_mismatch")
-    expected_panel = _value_profile_panel(profile, assignment)
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        source_profiles = _value_source_profiles_from_store(
+            ir_store, assignment, basis.assignment_ref
+        )
+        refreshed_profiles = _value_owner_reloaded_source_profiles(
+            store=ir_store,
+            gateway=source_gateway,
+            assignment=assignment,
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+        )
+        if (
+            refreshed_profiles != source_profiles
+            or refreshed_profiles.get(profile.outcome) != profile
+        ):
+            raise ValueError("value_owner_source_fresh_profile_mismatch")
+        expected_panel = _value_source_observational_data(assignment, refreshed_profiles)
+    else:
+        expected_panel = _value_profile_panel(profile, assignment)
     expected_bytes = to_ir_canonical_bytes(
         expected_panel.model_dump(mode="json"),
         IRCanonSpec(forbid_floats=False),
@@ -16743,6 +17652,21 @@ def _value_outer_set_from_owner_method_run_basis(
             (
                 (basis.panel_input_ref, "exact_method_input_bytes"),
                 (basis.runner_request_ref, "selected_method_runner_request"),
+                *(
+                    (
+                        (
+                            _value_artifact_ref(
+                                _value_load_ref_payload(ir_store, basis.report_ref)["metadata"][
+                                    "identification_bounds_ref"
+                                ],
+                                expected_kind="ir.bounds_bundle",
+                            ),
+                            "candidate_identification_bounds",
+                        ),
+                    )
+                    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1)
+                    else ()
+                ),
             ),
         )
         or report_sha256 != basis.report_sha256
@@ -16753,6 +17677,104 @@ def _value_outer_set_from_owner_method_run_basis(
         or gy_content_hash(report.confidence_interval) != basis.native_interval_content_hash
     ):
         raise ValueError("value_owner_method_report_method_mismatch")
+    execution_receipt = ValueOwnerMethodExecutionReceiptV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.execution_receipt_ref)
+    )
+    request_parameters = _value_canonical_json_object(
+        request.method_parameters_json,
+        "value_owner_method_parameters_invalid",
+    )
+    source_bounds_bundle = None
+    source_bounds_ref = None
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+        from polisyos.foundry.methods.selection.registry import MethodRegistry
+        from polisyos.ir.analytics.partial_identification import BoundsBundle
+
+        report_metadata = dict(report.metadata)
+        raw_bounds_ref = report_metadata.get("identification_bounds_ref")
+        source_bounds_ref = _value_artifact_ref(raw_bounds_ref, expected_kind="ir.bounds_bundle")
+        if source_bounds_ref.manifest_profile_sha256 is None:
+            raise ValueError("value_owner_source_bounds_selected_profile_unresolved")
+        source_bounds_bundle = BoundsBundle.model_validate(
+            _value_load_ref_payload(ir_store, source_bounds_ref)
+        )
+        if report_metadata.get("identification_bounds_contract") != "ir.bounds_bundle.v1":
+            raise ValueError("value_owner_source_bounds_contract_mismatch")
+        if report_metadata.get("identification_bounds_status") != "candidate_only":
+            raise ValueError("value_owner_source_bounds_scope_mismatch")
+        expected_bounds = _value_source_bounds_bundle(expected_panel, assignment)
+        if expected_bounds.model_dump(mode="json") != source_bounds_bundle.model_dump(mode="json"):
+            raise ValueError("value_owner_source_bounds_recomputation_mismatch")
+        if not _value_manifest_has_exact_inputs(
+            ir_store,
+            source_bounds_ref,
+            (
+                (basis.profile_ref, "selected_owner_profile"),
+                (basis.assignment_ref, "owner_source_assignment"),
+                (basis.panel_input_ref, "exact_method_input_bytes"),
+                (basis.runner_request_ref, "selected_method_runner_request"),
+            ),
+        ):
+            raise ValueError("value_owner_source_bounds_lineage_mismatch")
+        fresh_method_class = MethodRegistry.get_instance().get(basis.selected_method_fqn)
+        fresh_signature = getattr(fresh_method_class, "signature", None)
+        if getattr(fresh_signature, "fqn", None) != basis.selected_method_fqn:
+            raise ValueError("value_owner_source_registry_selection_mismatch")
+        fresh_result = NumpyRunner().execute(
+            method_class=fresh_method_class,
+            signature=fresh_signature,
+            state={
+                "outcome": expected_panel.outcome,
+                "treatment": expected_panel.treatment,
+                "X": expected_panel.covariates,
+            },
+            params=request_parameters,
+            seed=intent.seed,
+        )
+        fresh_report = (
+            fresh_result.output.get("report") if isinstance(fresh_result.output, Mapping) else None
+        )
+        if not isinstance(fresh_report, CausalEffectReport):
+            projector = getattr(fresh_method_class, "report_from_result", None)
+            native_result = (
+                fresh_result.output.get("result")
+                if isinstance(fresh_result.output, Mapping)
+                else None
+            )
+            if callable(projector) and isinstance(native_result, Mapping):
+                fresh_report = projector(
+                    data={
+                        "outcome": expected_panel.outcome,
+                        "treatment": expected_panel.treatment,
+                        "X": expected_panel.covariates,
+                    },
+                    params=request_parameters,
+                    result=native_result,
+                )
+        if not isinstance(fresh_report, CausalEffectReport):
+            raise ValueError("value_owner_source_fresh_report_missing")
+        fresh_report = fresh_report.model_copy(
+            update={
+                "metadata": {
+                    **dict(fresh_report.metadata),
+                    "identification_bounds_ref": source_bounds_ref.model_dump(mode="json"),
+                    "identification_bounds_contract": "ir.bounds_bundle.v1",
+                    "identification_bounds_status": "candidate_only",
+                }
+            }
+        )
+        if fresh_report.model_dump(mode="json") != report.model_dump(mode="json"):
+            raise ValueError("value_owner_source_report_recomputation_mismatch")
+        fresh_repro = getattr(fresh_result, "reproducibility", None)
+        if (
+            getattr(fresh_repro, "seed", None) != basis.runner_seed
+            or getattr(getattr(fresh_repro, "backend", None), "value", None)
+            != execution_receipt.runner_backend
+            or getattr(fresh_repro, "fingerprint", None) != execution_receipt.runner_fingerprint
+        ):
+            raise ValueError("value_owner_source_execution_recomputation_mismatch")
     execution_receipt = ValueOwnerMethodExecutionReceiptV1.model_validate(
         _value_load_ref_payload(ir_store, basis.execution_receipt_ref)
     )
@@ -16834,22 +17856,51 @@ def _value_outer_set_from_owner_method_run_basis(
     ):
         raise ValueError("value_owner_method_candidate_scope_mismatch")
     world_hash = str(_object_get(world_record, "content_hash"))
+    if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
+        from polisyos.ir.analytics.partial_identification import BoundMethod
+
+        manski = next(
+            (
+                item
+                for item in source_bounds_bundle.method_summaries
+                if item.method is BoundMethod.MANSKI
+            ),
+            None,
+        )
+        if manski is None or not (
+            math.isfinite(manski.lower_bound)
+            and math.isfinite(manski.upper_bound)
+            and manski.lower_bound <= manski.upper_bound
+        ):
+            raise ValueError("value_owner_source_manski_bounds_invalid")
+        lower, upper = manski.lower_bound, manski.upper_bound
+        assumptions = (
+            "candidate_source_projection",
+            "consumer_asserted_treatment_role",
+            "consumer_asserted_outcome_support",
+            "source_time_not_established",
+            "native_method_confidence_interval",
+        )
+        mode = "partial"
+        scope_unit = assignment.measurement_unit
+    else:
+        lower = assignment.fixture_identification_lower
+        upper = assignment.fixture_identification_upper
+        assumptions = ("candidate_fixture_owner_assignment", "native_method_confidence_interval")
+        mode = "point" if lower == upper else "partial"
+        scope_unit = profile.measurement_unit
     return ValueOuterSet.interval_box(
         coordinates=(basis.estimand_coordinate,),
-        lower=(assignment.fixture_identification_lower,),
-        upper=(assignment.fixture_identification_upper,),
+        lower=(lower,),
+        upper=(upper,),
         statistical_lower=(float(projected_interval.confidence_interval[0]),),
         statistical_upper=(float(projected_interval.confidence_interval[1]),),
-        identification_mode=(
-            "point"
-            if assignment.fixture_identification_lower == assignment.fixture_identification_upper
-            else "partial"
-        ),
-        assumptions=("candidate_fixture_owner_assignment", "native_method_confidence_interval"),
+        identification_mode=mode,
+        assumptions=assumptions,
         assumption_status="declared",
         calibration_scope={
             "authority_scope": "candidate_fixture_only",
-            "measurement_unit": profile.measurement_unit,
+            "measurement_unit": scope_unit,
             "native_method_fqn": basis.selected_method_fqn,
         },
         data_trust=data_trust,

@@ -229,6 +229,8 @@ def _build_embedding_generation_from_vectors(
     projection_rule_version: str,
     encoder: object | None = None,
     encoder_identity: GenerationIdentity | None = None,
+    include_live_model_state: bool = False,
+    require_zero_copy_identity: bool = False,
     legacy_embeddings_path: Path | None = None,
     legacy_index_path: Path | None = None,
 ) -> tuple[int, int]:
@@ -239,12 +241,18 @@ def _build_embedding_generation_from_vectors(
     staging, inventory, basis, selector, and compatibility-file publication.
     """
     normalized_rows = _normalize_rows(rows)
+    if require_zero_copy_identity and not include_live_model_state:
+        raise ValueError("zero-copy identity requires the live model state profile")
     if encoder is None:
         if encoder_identity is not None:
             raise ValueError("encoder identity requires the live encoder object")
     else:
         try:
-            derived_identity = derive_encoder_identity(encoder)
+            derived_identity = derive_encoder_identity(
+                encoder,
+                include_live_model_state=include_live_model_state,
+                require_zero_copy=require_zero_copy_identity,
+            )
         except (
             AttributeError,
             ImportError,
@@ -656,16 +664,30 @@ def _encoder_identity_from_basis(basis: object) -> str | None:
     return rule_version.rsplit(marker, 1)[1]
 
 
-def derive_encoder_identity(encoder: object) -> GenerationIdentity:
+def derive_encoder_identity(
+    encoder: object,
+    *,
+    include_live_model_state: bool = False,
+    require_zero_copy: bool = False,
+) -> GenerationIdentity:
     """Derive a candidate content identity from live encoder assets.
 
-    The digest covers a model's loaded state dictionary, module/configuration
-    and tokenizer material. It does not attest the executable behavior of an
-    arbitrary replacement for ``encode``; callers that use the identity for
-    admission must also obtain the encoder from their trusted local provider.
+    The default mode retains the existing state-dictionary identity for generic
+    producers. ``include_live_model_state`` explicitly measures named parameters,
+    buffers (including non-persistent buffers), module configuration/training
+    state, and tokenizer material. ``require_zero_copy`` is available only in
+    that mode and accepts only dense, contiguous CPU ``torch.Tensor`` values or
+    C-contiguous NumPy arrays. Other array-like values are refused without
+    materialization; accepted bytes stream from a view of the original storage.
+    This identity does not attest arbitrary replacement behavior for ``encode``;
+    controlled admission also requires an owner-issued runtime handle.
 
     Args:
         encoder: The loaded encoder whose assets produced the vectors.
+        include_live_model_state: Whether to use the strict live parameter/buffer
+            state instead of the compatibility state-dictionary profile.
+        require_zero_copy: Whether unrecognized or unsupported storage must be
+            refused without conversion.
 
     Returns:
         A typed SHA-256 identity derived from the encoder's loaded assets.
@@ -673,17 +695,46 @@ def derive_encoder_identity(encoder: object) -> GenerationIdentity:
     Raises:
         ValueError: If the encoder does not expose complete, supported assets.
     """
-    state_dict_method = getattr(encoder, "state_dict", None)
-    if not callable(state_dict_method):
-        raise ValueError("encoder does not expose a state dictionary")
-    state_dict = state_dict_method()
-    if not isinstance(state_dict, Mapping) or not state_dict:
-        raise ValueError("encoder state dictionary is empty or malformed")
+    state_entries: list[tuple[str, str, object]] = []
+    if include_live_model_state:
+        parameter_method = getattr(encoder, "named_parameters", None)
+        buffer_method = getattr(encoder, "named_buffers", None)
+        if not callable(parameter_method) or not callable(buffer_method):
+            raise ValueError("live model identity requires named parameters and buffers")
+        try:
+            for kind, method in (
+                ("parameter", parameter_method),
+                ("buffer", buffer_method),
+            ):
+                entries = method()
+                for entry in entries:
+                    if (
+                        not isinstance(entry, tuple)
+                        or len(entry) != 2
+                        or not isinstance(entry[0], str)
+                    ):
+                        raise ValueError("encoder named state is malformed")
+                    state_entries.append((kind, entry[0], entry[1]))
+        except (AttributeError, RuntimeError, TypeError) as exc:
+            raise ValueError("encoder named state is unavailable") from exc
+        if not state_entries:
+            raise ValueError("encoder named parameters and buffers are empty")
+    else:
+        if require_zero_copy:
+            raise ValueError("zero-copy identity requires live model state")
+        state_dict_method = getattr(encoder, "state_dict", None)
+        if not callable(state_dict_method):
+            raise ValueError("encoder does not expose a state dictionary")
+        state_dict = state_dict_method()
+        if not isinstance(state_dict, Mapping) or not state_dict:
+            raise ValueError("encoder state dictionary is empty or malformed")
+        state_entries = [("state", str(name), value) for name, value in state_dict.items()]
 
     digest = hashlib.sha256()
-    for raw_name, value in sorted(state_dict.items(), key=lambda item: str(item[0])):
-        name = str(raw_name)
-        raw, dtype, shape = _tensor_bytes(value)
+    for kind, name, value in sorted(state_entries, key=lambda item: (item[0], item[1])):
+        raw, dtype, shape = _tensor_bytes(value, require_zero_copy=require_zero_copy)
+        if include_live_model_state:
+            _hash_frame(digest, kind.encode("utf-8"))
         _hash_frame(digest, name.encode("utf-8"))
         _hash_frame(digest, dtype.encode("utf-8"))
         _hash_frame(digest, _canonical_json(list(shape)))
@@ -694,12 +745,13 @@ def derive_encoder_identity(encoder: object) -> GenerationIdentity:
     module_config: list[dict[str, object]] = []
     tokenizers: list[tuple[str, object, object]] = []
     for module_index, module in enumerate(modules):
-        module_config.append(
-            {
-                "class": f"{type(module).__module__}.{type(module).__qualname__}",
-                "config": _module_config(module),
-            }
-        )
+        module_record = {
+            "class": f"{type(module).__module__}.{type(module).__qualname__}",
+            "config": _module_config(module),
+        }
+        if include_live_model_state:
+            module_record["training"] = _jsonable(getattr(module, "training", None))
+        module_config.append(module_record)
         tokenizer = getattr(module, "tokenizer", None)
         if tokenizer is not None:
             tokenizers.append((str(module_index), tokenizer, module))
@@ -878,24 +930,64 @@ def _normalize_backend_request_state(
     return normalized
 
 
-def _tensor_bytes(value: object) -> tuple[bytes, str, tuple[int, ...]]:
-    detach = getattr(value, "detach", None)
-    if callable(detach):
-        tensor = detach().cpu().contiguous()
-        dtype = str(getattr(tensor, "dtype", ""))
-        shape_value = getattr(tensor, "shape", ())
-        shape = tuple(int(item) for item in shape_value)
-        view = getattr(tensor, "view", None)
-        if callable(view):
-            with suppress(ImportError, TypeError, RuntimeError):
-                tensor = view(__import__("torch").uint8)
-        numpy_value = tensor.numpy()
-    else:
-        numpy_value = np.asarray(value)
+def _tensor_bytes(
+    value: object, *, require_zero_copy: bool = False
+) -> tuple[bytes | memoryview, str, tuple[int, ...]]:
+    if require_zero_copy and isinstance(value, np.ndarray):
+        numpy_value = value
         dtype = str(numpy_value.dtype)
         shape = tuple(int(item) for item in numpy_value.shape)
+    elif require_zero_copy:
+        try:
+            import torch
+        except ImportError as exc:
+            raise ValueError(
+                "zero-copy identity requires a CPU torch tensor or NumPy array"
+            ) from exc
+        if not isinstance(value, torch.Tensor):
+            raise ValueError("zero-copy identity requires a CPU torch tensor or NumPy array")
+        tensor = value.detach()
+        device = getattr(tensor, "device", None)
+        layout = str(getattr(tensor, "layout", ""))
+        is_contiguous = getattr(tensor, "is_contiguous", None)
+        if (
+            getattr(device, "type", None) != "cpu"
+            or layout != "torch.strided"
+            or not callable(is_contiguous)
+            or not is_contiguous()
+        ):
+            raise ValueError("zero-copy identity requires contiguous dense CPU tensors")
+        dtype = str(tensor.dtype)
+        shape = tuple(int(item) for item in tensor.shape)
+        try:
+            numpy_value = tensor.view(torch.uint8).numpy()
+        except (TypeError, RuntimeError) as exc:
+            raise ValueError("zero-copy tensor byte view is unavailable") from exc
+    else:
+        detach = getattr(value, "detach", None)
+        if callable(detach):
+            tensor = detach().cpu().contiguous()
+            dtype = str(getattr(tensor, "dtype", ""))
+            shape_value = getattr(tensor, "shape", ())
+            shape = tuple(int(item) for item in shape_value)
+            view = getattr(tensor, "view", None)
+            if callable(view):
+                with suppress(ImportError, TypeError, RuntimeError):
+                    tensor = view(__import__("torch").uint8)
+            numpy_value = tensor.numpy()
+        else:
+            numpy_value = np.asarray(value)
+            dtype = str(numpy_value.dtype)
+            shape = tuple(int(item) for item in numpy_value.shape)
     if not hasattr(numpy_value, "tobytes") or numpy_value.dtype.hasobject:
         raise ValueError("encoder state dictionary contains an unsupported tensor")
+    if require_zero_copy:
+        if not numpy_value.flags.c_contiguous:
+            raise ValueError("zero-copy identity requires contiguous tensor bytes")
+        try:
+            return memoryview(numpy_value).cast("B"), dtype, shape
+        except (TypeError, ValueError) as exc:
+            raise ValueError("zero-copy tensor byte view is unavailable") from exc
     return numpy_value.tobytes(order="C"), dtype, shape
 
 
@@ -979,7 +1071,7 @@ def _jsonable(value: object) -> object:
     raise ValueError(f"encoder configuration contains unsupported value: {type(value)!r}")
 
 
-def _hash_frame(digest: hashlib._Hash, raw: bytes) -> None:
+def _hash_frame(digest: hashlib._Hash, raw: bytes | memoryview) -> None:
     digest.update(len(raw).to_bytes(8, "big"))
     digest.update(raw)
 

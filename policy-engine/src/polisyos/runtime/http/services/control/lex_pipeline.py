@@ -391,24 +391,19 @@ class LexPipelineMixin:
             from polisyos.lex import LegalKnowledgeGraph
 
             query_encoder: object | None = None
+            query_runtime_material_owner: object | None = None
             provider_error: LegalQueryProfileError | None = None
             provider = getattr(self, "_legal_query_encoder_provider", None)
             if profile_error is None and provider is not None:
-                from polisyos.runtime.http.container import (
-                    LegalQueryEncoderProvider,
-                    LegalQueryEncoderProviderError,
-                )
+                from polisyos.runtime.http.container import LegalQueryEncoderProvider
 
                 if type(provider) is not LegalQueryEncoderProvider:
                     provider_error = LegalQueryProfileError("query_encoder_provider_invalid")
                 else:
-                    try:
-                        query_encoder = provider.resolve_encoder()
-                    except LegalQueryEncoderProviderError as exc:
-                        provider_error = LegalQueryProfileError(exc.code)
-                        # The shared reader must compare current generation assets
-                        # before surfacing the typed runtime refusal.
-                        query_encoder = provider.encoder
+                    # Defer material resolution until the shared Legal reader
+                    # has checked current intent and projected members.
+                    query_encoder = provider.encoder
+                    query_runtime_material_owner = provider.runtime_material_owner
 
             graph = LegalKnowledgeGraph(
                 db_path=db_path,
@@ -416,22 +411,19 @@ class LexPipelineMixin:
                 query_encoder=query_encoder,
                 query_profile=query_profile,
                 query_encoder_refusal=provider_error,
+                query_runtime_material_owner=query_runtime_material_owner,
             )
             try:
                 if profile_error is None:
                     # Parsed intent always traverses fresh Legal admission so
                     # stale requests and member drift retain refusal precedence.
-                    raw_results = graph.hybrid_search(
+                    raw_results, query_status = graph.hybrid_search_with_status(
                         request.query,
                         top_k=request.top_k,
                         trust_tier=None,
                         include_candidates=False,
                     )
-                    refusal_code = (
-                        graph.query_profile_error.code
-                        if graph.query_profile_error is not None
-                        else None
-                    )
+                    refusal_code = query_status.code if query_status is not None else None
                     search_mode = "vector" if refusal_code is None else "text"
                 else:
                     raw_results = graph.text_search(

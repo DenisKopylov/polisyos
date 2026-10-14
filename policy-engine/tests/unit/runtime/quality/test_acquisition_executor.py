@@ -81,6 +81,7 @@ def _persist_fabricated_prepared(
         ArtifactWriteOptions(
             kind="epoch.prepared",
             media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
         ),
     )
     prepared_hash = epoch_contract.epoch_semantic_content_hash(
@@ -282,7 +283,12 @@ def test_prepared_owner_projection_replays_through_both_admission_consumers(
     )
     projection = scenario.prepared.statement_projection()
 
-    assert persisted["boundary_candidate_refs"][0]["manifest_profile_sha256"] is None
+    persisted_candidate_ref = persisted["boundary_candidate_refs"][0]
+    assert persisted_candidate_ref["manifest_profile_sha256"] is not None
+    assert (
+        persisted_candidate_ref["manifest_profile_sha256"]
+        == scenario.candidate.candidate_ref.manifest_profile_sha256
+    )
     assert (
         persisted["query"]["valid_effect_coordinate_evidence_ref"]["manifest_profile_sha256"]
         is None

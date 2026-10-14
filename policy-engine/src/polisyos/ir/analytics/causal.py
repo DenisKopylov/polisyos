@@ -100,6 +100,7 @@ class CausalMethod(str, Enum):
     FOREST_DR = "forest_dr"
     CAUSAL_BCF = "causal_bcf"
     DOUBLE_ML = "double_ml"
+    AIPW = "aipw"
     TMLE = "tmle"
     S_LEARNER = "s_learner"
     T_LEARNER = "t_learner"
@@ -397,7 +398,9 @@ def proof_bundle_from_transportability_result(
             metadata.setdefault(predicate, "not_established")
     assumptions = list(result.warnings)
     if grade is TransportabilityProofReviewGrade.REVIEW_REQUIRED and not assumptions:
-        assumptions.append("Source-data authority is unresolved; this is a mathematical candidate only.")
+        assumptions.append(
+            "Source-data authority is unresolved; this is a mathematical candidate only."
+        )
     elif grade is TransportabilityProofReviewGrade.UNKNOWN:
         assumptions.append("Producer scope is unknown; protected authority is not established.")
 
@@ -419,7 +422,9 @@ def proof_bundle_from_transportability_result(
         )
         implementation_coverage = "transportability_producer_unverified"
     else:
-        theorem_family = result.identification_engine or result.algorithm_version or "transportability"
+        theorem_family = (
+            result.identification_engine or result.algorithm_version or "transportability"
+        )
         implementation_coverage = "transportability_result_projection"
 
     proof_bundle = ProofBundle(

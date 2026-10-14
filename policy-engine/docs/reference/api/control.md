@@ -625,7 +625,19 @@ Search indexed Lex facts.
   refusal. A selected generation can be available while executable runtime
   material is not established; `query_encoder_runtime_material_not_established`
   keeps the real text results and explains why vector encoding did not run. An
-  empty result still carries these query-level diagnostics.
+  empty result still carries these query-level diagnostics. The owner rechecks
+  live named parameters/buffers, module mode/configuration, tokenizer state, and
+  effective installed runtime before and after every encode lease. The bounded
+  candidate assumes a trusted process with no concurrent external model/runtime
+  mutation during a lease or callable-global/closure mutation while the profile
+  is admitted. Its handle lock serializes owner leases but does not make checks
+  atomic against mutation and restoration; untrusted in-process plugins are out
+  of scope. Strict tensor identity
+  accepts only CPU dense contiguous Torch tensors and C-contiguous NumPy arrays.
+  Direct Scientist entity/fact/provision vector methods raise their typed refusal. The
+  policy-verified candidate producer retains the actual hybrid-fallback and
+  direct-route outcomes in each schema 1.1 candidate pack; schema 1.0 packs
+  remain readable with status `not_recorded`.
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/lex/search" \

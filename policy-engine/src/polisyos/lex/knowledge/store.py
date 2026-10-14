@@ -99,16 +99,17 @@ class LegalQueryProfile:
 
 @dataclass(frozen=True, slots=True)
 class LegalQueryInput:
-    """Query text, candidate encoder, immutable intent, and a deferred refusal.
+    """Query text, owner-controlled runtime material, intent, and deferred refusal.
 
-    A runtime refusal is carried to the shared reader so request and current
-    generation checks retain precedence over runtime-material fallback.
+    Runtime material is resolved only inside the shared reader after current
+    request, selected-generation, and projected-member checks.
     """
 
     text: str
     encoder: object | None
     profile: tuple[LegalQueryProfile, ...] | None = None
     runtime_refusal: LegalQueryProfileError | None = None
+    runtime_material_owner: object | None = None
 
 
 class LegalQueryProfileError(ValueError):
@@ -1218,16 +1219,33 @@ class LegalKnowledgeStore:
     @staticmethod
     def _require_query_runtime_material_binding(
         refusal: LegalQueryProfileError | None = None,
+        *,
+        runtime_material_owner: object | None = None,
+        runtime_material_handle: object | None = None,
+        persisted_binding: str | None = None,
+        asset_identity: legal_read_api.GenerationIdentity | None = None,
     ) -> None:
-        """Refuse only after fresh request and generation checks have completed.
+        """Admit only the same Legal-owned runtime material bound by generation.
 
-        Legal generation inventories bind model assets and projection inputs,
-        but this runtime has no source-owned profile for executable encoder
-        behavior. Equal weights/config/tokenizer do not prove equal encode calls.
+        This method is called by the one entity/fact/provision vector gate after
+        fresh intent and projected-member reconciliation. It never accepts an
+        encoder label or a caller-provided digest as proof.
         """
         if refusal is not None:
             raise refusal
-        raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+        if persisted_binding is None:
+            raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+        if (
+            type(runtime_material_owner) is not legal_read_api.LegalRuntimeMaterialOwner
+            or type(runtime_material_handle) is not legal_read_api.LegalRuntimeMaterialHandle
+            or asset_identity is None
+        ):
+            raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+        if (
+            persisted_binding != runtime_material_handle.binding_digest
+            or asset_identity != runtime_material_handle.asset_identity
+        ):
+            raise LegalQueryProfileError("query_encoder_runtime_material_changed")
 
     @staticmethod
     def _query_vector_for_generation(
@@ -1267,23 +1285,70 @@ class LegalKnowledgeStore:
         ):
             raise LegalQueryProfileError("generation_profile_unavailable")
 
-        if query.runtime_refusal is not None and (
-            query.runtime_refusal.code != "query_encoder_runtime_material_not_established"
-        ):
+        if query.runtime_refusal is not None:
             LegalKnowledgeStore._require_query_runtime_material_binding(query.runtime_refusal)
-        if query.encoder is None:
+
+        persisted_rule_version = basis.get("generator_rule_version")
+        if not isinstance(persisted_rule_version, str):
+            raise LegalQueryProfileError("generation_profile_unavailable")
+        projection_rule = persisted_rule_version.split("|model=", 1)[0]
+        runtime_marker = f"|{legal_read_api.LEGAL_RUNTIME_MATERIAL_RULE_VERSION}="
+        runtime_owner = query.runtime_material_owner
+        runtime_handle: object | None = None
+        persisted_binding: str | None = None
+        if runtime_owner is not None:
+            if query.encoder is not None:
+                raise LegalQueryProfileError("query_encoder_provider_invalid")
+            if type(runtime_owner) is not legal_read_api.LegalRuntimeMaterialOwner:
+                raise LegalQueryProfileError("query_encoder_provider_invalid")
+            if (
+                embedding_model != runtime_owner.embedding_model
+                or embedding_device != runtime_owner.embedding_device
+                or embedding_dimension != 1024
+            ):
+                raise LegalQueryProfileError("encoder_identity_mismatch")
+            if projection_rule.count(runtime_marker) != 1:
+                raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+            persisted_binding = projection_rule.split(runtime_marker, 1)[1]
+            if len(persisted_binding) != 64 or any(
+                character not in "0123456789abcdef" for character in persisted_binding
+            ):
+                raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+            try:
+                runtime_handle = runtime_owner.resolve_encoder()
+            except legal_read_api.LegalRuntimeMaterialError as exc:
+                raise LegalQueryProfileError(exc.code) from exc
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise LegalQueryProfileError(
+                    "query_encoder_runtime_material_not_established"
+                ) from exc
+            if type(runtime_handle) is not legal_read_api.LegalRuntimeMaterialHandle:
+                raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+            encoder = runtime_handle
+        else:
+            encoder = query.encoder
+        if encoder is None:
             refusal = query.runtime_refusal or LegalQueryProfileError(
                 "query_encoder_assets_unavailable"
             )
             LegalKnowledgeStore._require_query_runtime_material_binding(refusal)
 
-        dimension_method = getattr(query.encoder, "get_sentence_embedding_dimension", None)
-        encode_method = getattr(query.encoder, "encode", None)
+        dimension_method = getattr(encoder, "get_sentence_embedding_dimension", None)
+        encode_method = getattr(encoder, "encode", None)
         try:
-            actual_device = str(getattr(query.encoder, "device", ""))
+            actual_device = str(getattr(encoder, "device", ""))
             actual_dimension = int(dimension_method()) if callable(dimension_method) else -1
             identity_before: legal_read_api.GenerationIdentity = (
-                legal_read_api.derive_encoder_identity(query.encoder)
+                runtime_handle.asset_identity
+                if runtime_handle is not None
+                else legal_read_api.derive_encoder_identity(encoder)
             )
         except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise LegalQueryProfileError("query_encoder_assets_unavailable") from exc
@@ -1292,43 +1357,110 @@ class LegalKnowledgeStore:
         if not callable(encode_method):
             raise LegalQueryProfileError("query_encoder_call_unavailable")
 
-        expected_rule_version = legal_read_api.legal_embedding_generator_rule_version(
-            projection_rule_version=legal_read_api.LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
-            embedding_model=embedding_model,
-            embedding_device=embedding_device,
-            embedding_dimension=embedding_dimension,
-            encoder_identity=identity_before,
+        persisted_asset_identity = (
+            persisted_rule_version.rsplit("|encoder=", 1)[1]
+            if "|encoder=" in persisted_rule_version
+            else None
         )
-        persisted_rule_version = basis.get("generator_rule_version")
-        if persisted_rule_version != expected_rule_version:
-            raise LegalQueryProfileError("encoder_identity_mismatch")
-
-        # This is the shared admission point for entities, facts, and provisions.
-        # Matching asset fields alone cannot establish executable runtime material.
-        LegalKnowledgeStore._require_query_runtime_material_binding(query.runtime_refusal)
-        try:
-            encoded = np.asarray(
-                encode_method(
-                    [query.text],
-                    batch_size=1,
-                    show_progress_bar=False,
-                    normalize_embeddings=True,
-                ),
-                dtype=np.float32,
+        if persisted_asset_identity != identity_before.content_identity:
+            refusal_code = (
+                "query_encoder_runtime_material_changed"
+                if runtime_handle is not None
+                else "encoder_identity_mismatch"
             )
-            identity_after = legal_read_api.derive_encoder_identity(query.encoder)
-            device_after = str(getattr(query.encoder, "device", ""))
-            dimension_after = int(dimension_method()) if callable(dimension_method) else -1
-        except (
-            AttributeError,
-            ImportError,
-            OSError,
-            OverflowError,
-            RuntimeError,
-            TypeError,
-            ValueError,
-        ) as exc:
-            raise LegalQueryProfileError("query_encoder_call_failed") from exc
+            raise LegalQueryProfileError(refusal_code)
+
+        if runtime_handle is None:
+            if projection_rule.count(runtime_marker) > 1:
+                raise LegalQueryProfileError("generation_profile_unavailable")
+            if runtime_marker in projection_rule:
+                base_projection, persisted_binding = projection_rule.split(runtime_marker, 1)
+                if (
+                    base_projection != legal_read_api.LEGAL_EMBEDDING_PROJECTION_RULE_VERSION
+                    or len(persisted_binding) != 64
+                    or any(character not in "0123456789abcdef" for character in persisted_binding)
+                ):
+                    raise LegalQueryProfileError("generation_profile_unavailable")
+                expected_projection = f"{base_projection}{runtime_marker}{persisted_binding}"
+            else:
+                expected_projection = legal_read_api.LEGAL_EMBEDDING_PROJECTION_RULE_VERSION
+            expected_rule_version = legal_read_api.legal_embedding_generator_rule_version(
+                projection_rule_version=expected_projection,
+                embedding_model=embedding_model,
+                embedding_device=embedding_device,
+                embedding_dimension=embedding_dimension,
+                encoder_identity=identity_before,
+            )
+            if persisted_rule_version != expected_rule_version:
+                raise LegalQueryProfileError("encoder_identity_mismatch")
+            LegalKnowledgeStore._require_query_runtime_material_binding(query.runtime_refusal)
+            try:
+                encoded = np.asarray(
+                    encode_method(
+                        [query.text],
+                        batch_size=1,
+                        show_progress_bar=False,
+                        normalize_embeddings=True,
+                    ),
+                    dtype=np.float32,
+                )
+                identity_after = legal_read_api.derive_encoder_identity(encoder)
+                device_after = str(getattr(encoder, "device", ""))
+                dimension_after = int(dimension_method()) if callable(dimension_method) else -1
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise LegalQueryProfileError("query_encoder_call_failed") from exc
+        else:
+            assert runtime_owner is not None
+            assert persisted_binding is not None
+            expected_rule_version = legal_read_api.legal_embedding_generator_rule_version(
+                projection_rule_version=runtime_handle.projection_rule_version,
+                embedding_model=embedding_model,
+                embedding_device=embedding_device,
+                embedding_dimension=embedding_dimension,
+                encoder_identity=identity_before,
+            )
+            if persisted_rule_version != expected_rule_version:
+                if persisted_binding == runtime_handle.binding_digest:
+                    raise LegalQueryProfileError("encoder_identity_mismatch")
+                raise LegalQueryProfileError("query_encoder_runtime_material_changed")
+            LegalKnowledgeStore._require_query_runtime_material_binding(
+                runtime_material_owner=runtime_owner,
+                runtime_material_handle=runtime_handle,
+                persisted_binding=persisted_binding,
+                asset_identity=identity_before,
+            )
+            try:
+                encoded = np.asarray(
+                    runtime_handle.encode_for_query(
+                        [query.text],
+                        expected_binding=persisted_binding,
+                        expected_assets=identity_before,
+                    ),
+                    dtype=np.float32,
+                )
+                identity_after = runtime_handle.asset_identity
+                device_after = str(getattr(runtime_handle, "device", ""))
+                dimension_after = int(dimension_method()) if callable(dimension_method) else -1
+            except legal_read_api.LegalRuntimeMaterialError as exc:
+                raise LegalQueryProfileError(exc.code) from exc
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise LegalQueryProfileError("query_encoder_call_failed") from exc
         if (
             identity_after != identity_before
             or device_after != actual_device

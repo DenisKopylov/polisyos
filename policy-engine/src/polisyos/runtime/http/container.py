@@ -85,22 +85,33 @@ class LegalQueryEncoderProviderError(ValueError):
 
 @dataclass(frozen=True, slots=True, eq=False)
 class LegalQueryEncoderProvider:
-    """Check asset compatibility for a loaded Legal query encoder.
+    """Carry a legacy candidate or Legal-owned runtime profile to the reader.
 
-    This provider does not establish executable runtime provenance. The current
-    runtime has no owner-resolved bundle profile, so a matching asset digest is
-    insufficient to hand the object to a vector query.
+    Legacy encoder objects remain refused after their generation checks. An
+    exact Legal runtime-material owner is resolved only by the shared store gate.
     """
 
-    encoder: object = field(repr=False, compare=False)
+    encoder: object | None = field(default=None, repr=False, compare=False)
+    runtime_material_owner: object | None = field(default=None, repr=False, compare=False)
     _asset_identity: str = field(init=False, repr=False)
     _device: str = field(init=False, repr=False)
     _dimension: int = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        """Require a loaded encoder with recomputable assets and query methods."""
+        """Require a legacy candidate or exact Legal owner without loading it."""
         from polisyos.data_forge.read_api import legal as legal_read_api
 
+        if self.encoder is not None and self.runtime_material_owner is not None:
+            raise ValueError("legal_query_encoder_provider_source_conflict")
+        if self.runtime_material_owner is not None:
+            if type(self.runtime_material_owner) is not legal_read_api.LegalRuntimeMaterialOwner:
+                raise ValueError("legal_query_runtime_material_owner_invalid")
+            object.__setattr__(self, "_asset_identity", "")
+            object.__setattr__(self, "_device", "")
+            object.__setattr__(self, "_dimension", 0)
+            return
+        if self.encoder is None:
+            raise ValueError("legal_query_encoder_provider_source_required")
         dimension_method = getattr(self.encoder, "get_sentence_embedding_dimension", None)
         encode_method = getattr(self.encoder, "encode", None)
         device_value = getattr(self.encoder, "device", None)
@@ -117,7 +128,11 @@ class LegalQueryEncoderProvider:
         object.__setattr__(self, "_dimension", dimension)
 
     def resolve_encoder(self) -> object:
-        """Refuse an unbound runtime after checking loaded asset compatibility."""
+        """Refuse raw candidates; owned handles are invoked only by the shared store gate."""
+        if self.runtime_material_owner is not None:
+            raise LegalQueryEncoderProviderError("query_encoder_call_requires_shared_gate")
+        if self.encoder is None:
+            raise LegalQueryEncoderProviderError("query_encoder_assets_unavailable")
         from polisyos.data_forge.read_api import legal as legal_read_api
 
         dimension_method = getattr(self.encoder, "get_sentence_embedding_dimension", None)

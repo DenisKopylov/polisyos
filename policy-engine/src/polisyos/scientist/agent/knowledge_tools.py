@@ -15,11 +15,43 @@ Usage::
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.lex.knowledge.types import LegalFactResult
 
 logger = get_logger(__name__)
+
+
+class LegalFactSearchResponse(BaseModel):
+    """Strict Scientist tool envelope that preserves Legal retrieval status."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    results: list[LegalFactResult] = Field(default_factory=list)
+    search_mode: Literal["text", "vector"] | None = None
+    vector_refusal_code: str | None = None
+    limitation_code: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_status(self) -> LegalFactSearchResponse:
+        """Reject envelopes that omit or contradict the query-level outcome."""
+        if self.search_mode == "vector" and (
+            self.vector_refusal_code is not None or self.limitation_code is not None
+        ):
+            raise ValueError("vector_legal_search_cannot_carry_refusal")
+        if self.search_mode == "text" and (
+            not self.vector_refusal_code or self.limitation_code is not None
+        ):
+            raise ValueError("text_legal_search_requires_vector_refusal")
+        if self.search_mode is None and (
+            not self.limitation_code or self.vector_refusal_code is not None
+        ):
+            raise ValueError("unavailable_legal_search_requires_limitation")
+        return self
+
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import (
@@ -38,7 +70,6 @@ if TYPE_CHECKING:
     from polisyos.lex.knowledge.search import LegalKnowledgeGraph
     from polisyos.lex.knowledge.types import (
         LegalDocVersionResult,
-        LegalFactResult,
         LegalProvisionResult,
         LegalReferenceEdgeResult,
         LegalSourceAnchor,
@@ -294,6 +325,48 @@ class KnowledgeToolkit:
             include_candidates=include_candidates,
         )
 
+    def search_legal_facts_with_status(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        trust_tier: str | None = "grounded_fact",
+        jurisdiction: str | None = "UA",
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+    ) -> LegalFactSearchResponse:
+        """Return legal candidates with the actual vector/text outcome.
+
+        The legacy direct search_legal_facts method remains list-returning.
+        The tool adapter and Scientist diagnostic use this typed envelope so
+        text fallback cannot hide a vector limitation.
+        """
+        if self._legal_graph is None:
+            return LegalFactSearchResponse(limitation_code="legal_knowledge_graph_unavailable")
+        results, query_status = self._legal_graph.hybrid_search_with_status(
+            query,
+            top_k=top_k,
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            include_candidates=include_candidates,
+        )
+        if query_status is None:
+            return LegalFactSearchResponse(results=results, search_mode="vector")
+        refusal_code = getattr(query_status, "code", None)
+        if type(refusal_code) is not str or not refusal_code:
+            return LegalFactSearchResponse(
+                results=results,
+                limitation_code="legal_search_status_unavailable",
+            )
+        return LegalFactSearchResponse(
+            results=results,
+            search_mode="text",
+            vector_refusal_code=refusal_code,
+        )
+
     def search_legal_provisions(
         self,
         query: str,
@@ -452,9 +525,13 @@ class KnowledgeToolkit:
         top_k_facts: int = 25,
         top_k_provisions: int = 15,
     ) -> LegalCandidatePack:
-        from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack
+        from polisyos.lex.knowledge import LegalQueryProfileError
+        from polisyos.scientist.validation.policy_verified.models import (
+            LegalCandidatePack,
+            LegalRetrievalStatus,
+        )
 
-        fact_hits = self.search_legal_facts(
+        fact_search = self.search_legal_facts_with_status(
             query,
             top_k=top_k_facts,
             trust_tier="grounded_fact",
@@ -462,14 +539,78 @@ class KnowledgeToolkit:
             domain=domain,
             as_of=as_of,
         )
-        constraint_hits = self.find_legal_constraints(
-            query=query,
-            top_k=max(10, top_k_facts // 2),
-            jurisdiction=jurisdiction,
-            domain=domain,
-            as_of=as_of,
-        )
-        provision_hits = self.search_legal_provisions(query, top_k=top_k_provisions)
+        fact_hits = fact_search.results
+        retrieval_status = [
+            LegalRetrievalStatus(
+                query=query,
+                route="hybrid_facts",
+                search_mode=fact_search.search_mode,
+                vector_refusal_code=fact_search.vector_refusal_code,
+                limitation_code=fact_search.limitation_code,
+            )
+        ]
+        if self._legal_graph is None:
+            constraint_hits = []
+            provision_hits = []
+            retrieval_status.extend(
+                [
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="constraints",
+                        limitation_code="legal_knowledge_graph_unavailable",
+                    ),
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="provisions",
+                        limitation_code="legal_knowledge_graph_unavailable",
+                    ),
+                ]
+            )
+        else:
+            try:
+                constraint_hits = self.find_legal_constraints(
+                    query=query,
+                    top_k=max(10, top_k_facts // 2),
+                    jurisdiction=jurisdiction,
+                    domain=domain,
+                    as_of=as_of,
+                )
+            except LegalQueryProfileError as exc:
+                constraint_hits = []
+                retrieval_status.append(
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="constraints",
+                        limitation_code=exc.code,
+                    )
+                )
+            else:
+                retrieval_status.append(
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="constraints",
+                        search_mode="structured",
+                    )
+                )
+            try:
+                provision_hits = self.search_legal_provisions(query, top_k=top_k_provisions)
+            except LegalQueryProfileError as exc:
+                provision_hits = []
+                retrieval_status.append(
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="provisions",
+                        limitation_code=exc.code,
+                    )
+                )
+            else:
+                retrieval_status.append(
+                    LegalRetrievalStatus(
+                        query=query,
+                        route="provisions",
+                        search_mode="vector",
+                    )
+                )
         fact_map = {item.fact_id: item for item in [*fact_hits, *constraint_hits]}
         return LegalCandidatePack(
             request_id="toolkit",
@@ -486,6 +627,7 @@ class KnowledgeToolkit:
                 for item in fact_map.values()
                 if item.provision_anchor or item.provision_citation
             },
+            legal_retrieval_status=retrieval_status,
         )
 
     def expand_legal_source_pack(

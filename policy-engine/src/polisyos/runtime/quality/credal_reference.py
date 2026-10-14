@@ -20,12 +20,14 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from functools import lru_cache
+from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import contracts as core_contracts
 from polisyos.pdc import SkgCausalPriorRef, gy_content_hash
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
@@ -39,11 +41,11 @@ from polisyos.runtime.quality.intervention_substrate import (
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
     DEFAULT_L3_LEX_KG_PATH,
+    current_catalog_serving_source,
+    default_substrate_catalog_paths,
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from polisyos.data_forge.read_api import academic
     from polisyos.data_forge.read_api.academic import (
         PreparedSKGCredalSourceRows,
@@ -54,7 +56,28 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
-CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v2"
+CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v2"
+CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v3"
+_SUPPORTED_CREDAL_REFERENCE_SCHEMA_VERSIONS = frozenset(
+    {
+        "policyos.runtime.grounding_credal_reference.v1",
+        CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        CREDAL_REFERENCE_SCHEMA_VERSION,
+    }
+)
+
+
+def _credal_reference_schema_admission_error(schema_version: object) -> str | None:
+    """Return an admission error for unsupported K_ref schema versions."""
+
+    if (
+        not isinstance(schema_version, str)
+        or schema_version not in _SUPPORTED_CREDAL_REFERENCE_SCHEMA_VERSIONS
+    ):
+        return "credal_reference_schema_not_supported"
+    return None
+
+
 GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION = "policyos.runtime.grounding_backend_availability.v1"
 DEFAULT_REFERENCE_AS_OF = "2026-06-29"
 DEFAULT_DATA_FORGE_CATALOG_PATH = (
@@ -506,6 +529,90 @@ class CredalReferenceSourceProfile(BaseModel):
         return self
 
 
+def _data_forge_catalog_source_profile_content_hash(payload: Mapping[str, Any]) -> str:
+    """Hash the selected catalog basis while keeping read time as separate provenance."""
+
+    semantic_payload = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"content_hash", "source_read_prepared_at_utc"}
+    }
+    return gy_content_hash(semantic_payload)
+
+
+class CredalReferenceCatalogSourceProfile(BaseModel):
+    """Candidate-only profile of the exact catalog rows consumed by K_ref."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal[
+        "runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"
+    ] = "runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"
+    selection_owner: Literal[
+        "catalog_serving_source_paths",
+        "legacy.default_l1_catalog",
+    ]
+    source_repo_root: str = Field(min_length=1)
+    source_snapshot_root: str = Field(min_length=1)
+    source_database_path: str = Field(min_length=1)
+    catalog_run_profile: core_contracts.CatalogRunProfile | None = None
+    selection_basis: Literal[
+        "legacy_default_candidate_only",
+        "explicit_path_candidate_only",
+    ]
+    source_version: str = Field(min_length=1)
+    alignment_table: Literal["ds_variable_alignments"] = "ds_variable_alignments"
+    alignment_query_version: Literal["full_primary_key_order_v1"] = "full_primary_key_order_v1"
+    alignment_row_count: int = Field(ge=0)
+    alignment_rows_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_read_prepared_at_utc: str = Field(min_length=20)
+    authority_band: Literal["candidate"] = "candidate"
+    source_snapshot_authenticity: Literal["not_established"] = "not_established"
+    currentness_status: Literal["not_established"] = "not_established"
+    time_semantics: Literal["read_transaction_opened_at"] = "read_transaction_opened_at"
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_selected_catalog_basis(self) -> CredalReferenceCatalogSourceProfile:
+        if not all(
+            Path(value).is_absolute()
+            for value in (
+                self.source_repo_root,
+                self.source_snapshot_root,
+                self.source_database_path,
+            )
+        ):
+            raise ValueError("credal_reference_catalog_source_paths_must_be_absolute")
+        if self.selection_basis == "explicit_path_candidate_only":
+            if self.selection_owner != "catalog_serving_source_paths":
+                raise ValueError("credal_reference_catalog_source_selector_mismatch")
+            if self.catalog_run_profile is None:
+                raise ValueError("credal_reference_catalog_source_profile_missing")
+        elif self.selection_owner not in {
+            "catalog_serving_source_paths",
+            "legacy.default_l1_catalog",
+        }:
+            raise ValueError("credal_reference_catalog_source_selector_mismatch")
+        try:
+            prepared_at = datetime.fromisoformat(
+                self.source_read_prepared_at_utc.replace("Z", "+00:00")
+            )
+        except ValueError as exc:
+            raise ValueError("credal_reference_catalog_source_read_time_invalid") from exc
+        if (
+            prepared_at.tzinfo is None
+            or prepared_at.utcoffset() != UTC.utcoffset(prepared_at)
+            or not self.source_read_prepared_at_utc.endswith("Z")
+        ):
+            raise ValueError("credal_reference_catalog_source_read_time_unqualified")
+        expected = _data_forge_catalog_source_profile_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        )
+        if self.content_hash != expected:
+            raise ValueError("credal_reference_catalog_source_profile_hash_mismatch")
+        return self
+
+
 def credal_reference_l2_source_profile(
     reference: CredalReference,
 ) -> CredalReferenceSourceProfile | None:
@@ -548,6 +655,47 @@ def credal_reference_l2_source_profile(
     return unique_profiles[expected_hash]
 
 
+def credal_reference_data_forge_catalog_source_profile(
+    reference: CredalReference,
+) -> CredalReferenceCatalogSourceProfile | None:
+    """Resolve and verify the full selected Data Forge row basis retained by K_ref.
+
+    Historical v1/v2 references remain readable without a catalog profile. Their
+    missing source identity stays unknown; this reader never reconstructs it from
+    the current default path.
+    """
+
+    expected_hash = reference.component_versions.get("DATA_FORGE_CATALOG_SOURCE_PROFILE")
+    profile = reference.data_forge_catalog_source_profile
+    data_forge_edges = tuple(
+        edge
+        for edge in reference.essential_edges.values()
+        if edge.modality == "L2_DATA_FORGE_VARIABLE_ALIGNMENT"
+    )
+    edge_profile_hashes = tuple(
+        edge.provenance.get("selected_catalog_source_profile_hash") for edge in data_forge_edges
+    )
+    if expected_hash is None:
+        if profile is not None or any(
+            "selected_catalog_source_profile_hash" in edge.provenance for edge in data_forge_edges
+        ):
+            raise ValueError("credal_reference_catalog_source_profile_component_missing")
+        return None
+    if profile is None:
+        raise ValueError("credal_reference_catalog_source_profile_missing")
+    validated = CredalReferenceCatalogSourceProfile.model_validate(profile.model_dump(mode="json"))
+    if (
+        validated.content_hash != expected_hash
+        or validated.alignment_row_count != len(data_forge_edges)
+        or any(value != expected_hash for value in edge_profile_hashes)
+        or any(
+            edge.provenance.get("version") != validated.source_version for edge in data_forge_edges
+        )
+    ):
+        raise ValueError("credal_reference_catalog_source_profile_denominator_mismatch")
+    return validated
+
+
 @dataclass(frozen=True)
 class _PreparedL2Source:
     """One WMR-selected source and its owner-held, read-only transaction."""
@@ -555,6 +703,14 @@ class _PreparedL2Source:
     prepared_read: PreparedSKGRead
     profile: CredalReferenceSourceProfile
     version: str
+
+
+@dataclass(frozen=True)
+class _PreparedDataForgeCatalogSource:
+    """Exact rowset and selected profile read from one catalog candidate."""
+
+    profile: CredalReferenceCatalogSourceProfile
+    rows: tuple[tuple[Any, ...], ...]
 
 
 @dataclass(frozen=True)
@@ -643,6 +799,7 @@ class CredalReference:
     as_of: str
     component_versions: Mapping[str, str]
     essential_edges: Mapping[EdgeKey, CredalReferenceEdge]
+    data_forge_catalog_source_profile: CredalReferenceCatalogSourceProfile | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "schema_version", _freeze_reference_text(self.schema_version))
@@ -676,6 +833,33 @@ class CredalReference:
             self, "component_versions", _freeze_reference_payload(self.component_versions)
         )
         object.__setattr__(self, "essential_edges", MappingProxyType(captured_edges))
+        profile = self.data_forge_catalog_source_profile
+        if profile is not None and type(profile) is not CredalReferenceCatalogSourceProfile:
+            raise TypeError("credal_reference_catalog_source_profile_type_invalid")
+        has_catalog_profile = (
+            profile is not None
+            or "DATA_FORGE_CATALOG_SOURCE_PROFILE" in self.component_versions
+            or any(
+                "selected_catalog_source_profile_hash" in edge.provenance
+                for edge in captured_edges.values()
+            )
+        )
+        schema_admission_error = _credal_reference_schema_admission_error(self.schema_version)
+        if schema_admission_error is not None:
+            raise ValueError(schema_admission_error)
+        if self.schema_version == CREDAL_REFERENCE_SCHEMA_VERSION and not has_catalog_profile:
+            raise ValueError("credal_reference_catalog_source_profile_missing")
+        if (
+            self.schema_version
+            in {
+                "policyos.runtime.grounding_credal_reference.v1",
+                CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+            }
+            and has_catalog_profile
+        ):
+            raise ValueError("historical_credal_reference_catalog_profile_not_allowed")
+        if has_catalog_profile:
+            credal_reference_data_forge_catalog_source_profile(self)
 
     def reference_lift(
         self,
@@ -805,14 +989,30 @@ def build_credal_reference(
     root = repo_root.resolve()
     world_record = world_model_record or _production_world_model_record(root.as_posix())
     edge_index: dict[EdgeKey, CredalReferenceEdge] = {}
+    catalog_source = _read_data_forge_catalog_source(root)
+    if catalog_source is None:
+        raise ValueError("credal_reference_data_forge_catalog_source_missing")
+    data_forge_catalog_source_profile = catalog_source.profile
     with _prepared_l2_source(root, world_record) as selected_l2:
         if selected_l2 is not None:
-            selected_l2_edges = tuple(_iter_selected_l2_edges(root, selected_l2))
+            selected_l2_edges = tuple(
+                _iter_selected_l2_edges(root, selected_l2, catalog_source=catalog_source)
+            )
             if not selected_l2_edges:
                 raise ValueError("credal_reference_selected_l2_source_empty")
             edge_index.update({edge.key: edge for edge in selected_l2_edges})
             l2_source_profile_hash = selected_l2.profile.content_hash
         else:
+            # Keep the complete selected catalog denominator even without SKG owner rows.
+            # Every canonical endpoint is then explicitly incomplete relative to the absent L2.
+            catalog_edges = tuple(
+                _iter_data_forge_variable_alignment_edges(
+                    root,
+                    variable_names=set(),
+                    catalog_source=catalog_source,
+                )
+            )
+            edge_index.update({edge.key: edge for edge in catalog_edges})
             l2_source_profile_hash = None
     for edge in _iter_l3_edges(root, as_of=as_of):
         edge_index[edge.key] = edge
@@ -825,11 +1025,17 @@ def build_credal_reference(
         edge_index,
         world_model_record=world_record,
         l2_source_profile_hash=l2_source_profile_hash,
+        data_forge_catalog_profile_hash=(
+            data_forge_catalog_source_profile.content_hash
+            if data_forge_catalog_source_profile is not None
+            else None
+        ),
     )
     reference_hash = _reference_hash(
         component_versions=component_versions,
         edge_index=edge_index,
         as_of=as_of,
+        schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
     )
     return CredalReference(
         schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -838,6 +1044,7 @@ def build_credal_reference(
         as_of=as_of,
         component_versions=component_versions,
         essential_edges=edge_index,
+        data_forge_catalog_source_profile=data_forge_catalog_source_profile,
     )
 
 
@@ -917,6 +1124,9 @@ def replace_reference_edge(
         updated,
         world_model_record_hash=reference.component_versions["WMR"],
         l2_source_profile_hash=reference.component_versions.get("L2_SOURCE_PROFILE"),
+        data_forge_catalog_profile_hash=reference.component_versions.get(
+            "DATA_FORGE_CATALOG_SOURCE_PROFILE"
+        ),
     )
     reference_hash = _reference_hash(
         component_versions=component_versions,
@@ -931,6 +1141,7 @@ def replace_reference_edge(
         as_of=reference.as_of,
         component_versions=component_versions,
         essential_edges=updated,
+        data_forge_catalog_source_profile=reference.data_forge_catalog_source_profile,
     )
 
 
@@ -1290,6 +1501,8 @@ def _iter_l2_edges(
 def _iter_selected_l2_edges(
     repo_root: Path,
     selected: _PreparedL2Source,
+    *,
+    catalog_source: _PreparedDataForgeCatalogSource | None = None,
 ) -> Iterable[CredalReferenceEdge]:
     """Derive L2 edges from typed rows returned by the selected owner transaction."""
     rows = selected.prepared_read.read_credal_source_rows()
@@ -1300,10 +1513,13 @@ def _iter_selected_l2_edges(
     ):
         raise ValueError("credal_reference_skg_prepared_read_unbound")
     synthetic = any(value is True for value in rows.synthetic_values)
+    if catalog_source is None:
+        catalog_source = _read_data_forge_catalog_source(repo_root)
     for edge in _iter_l2_source_edges(
         repo_root,
         rows=rows,
         version=selected.version,
+        catalog_source=catalog_source,
     ):
         provenance = dict(edge.provenance)
         if provenance.get("owner") == "L2":
@@ -1323,6 +1539,7 @@ def _iter_l2_source_edges(
     *,
     rows: PreparedSKGCredalSourceRows,
     version: str,
+    catalog_source: _PreparedDataForgeCatalogSource | None = None,
 ) -> Iterable[CredalReferenceEdge]:
     """Derive the complete SKG-owned K_ref denominator from its typed source rows."""
     if str(rows.version_id) != version:
@@ -1361,6 +1578,7 @@ def _iter_l2_source_edges(
     yield from _iter_data_forge_variable_alignment_edges(
         repo_root,
         variable_names=variable_names,
+        catalog_source=catalog_source,
     )
 
     contested_edges, contested_claims = _l2_contested_memberships(rows.contested_edges)
@@ -1545,38 +1763,146 @@ def _iter_data_forge_variable_alignment_edges(
     repo_root: Path,
     *,
     variable_names: set[str],
+    catalog_source: _PreparedDataForgeCatalogSource | None = None,
 ) -> Iterable[CredalReferenceEdge]:
-    db_path = repo_root / DEFAULT_DATA_FORGE_CATALOG_PATH
-    if not db_path.is_file():
+    """Derive every catalog alignment row from the selected source context."""
+
+    selected = catalog_source or _read_data_forge_catalog_source(repo_root)
+    if selected is None:
         return
-    version = _data_forge_catalog_version(db_path)
-    con = duckdb.connect(str(db_path), read_only=True)
+    seen_keys: set[EdgeKey] = set()
+    for row in selected.rows:
+        edge = derive_data_forge_variable_alignment_edge(
+            {
+                "canonical_var": row[2],
+                "confidence": row[4],
+                "dataset_id": row[0],
+                "evidence": row[5],
+                "is_proxy": row[6],
+                "method": row[3],
+                "proxy_penalty": row[7],
+                "raw_variable": row[1],
+            },
+            variable_names=variable_names,
+            provenance_version=selected.profile.source_version,
+        )
+        if edge.key in seen_keys:
+            raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
+        seen_keys.add(edge.key)
+        provenance = dict(edge.provenance)
+        provenance["selected_catalog_source_profile_hash"] = selected.profile.content_hash
+        yield replace(edge, provenance=provenance, content_hash="").with_content_hash()
+
+
+def _read_data_forge_catalog_source(
+    repo_root: Path,
+) -> _PreparedDataForgeCatalogSource | None:
+    """Read all alignment rows from the active typed catalog source, read-only."""
+
+    root = repo_root.resolve()
+    active_source = current_catalog_serving_source()
+    paths = default_substrate_catalog_paths(root)
+    if active_source is None:
+        candidate_path = paths.l1_dcat_path
+        if not candidate_path.exists() and not candidate_path.is_symlink():
+            return None
+        if not candidate_path.is_file():
+            raise ValueError("credal_reference_data_forge_catalog_path_not_file")
+        selection_owner: Literal["catalog_serving_source_paths", "legacy.default_l1_catalog"] = (
+            "legacy.default_l1_catalog"
+        )
+        selection_basis: Literal[
+            "legacy_default_candidate_only", "explicit_path_candidate_only"
+        ] = "legacy_default_candidate_only"
+        snapshot_root = root
+        catalog_run_profile = None
+        try:
+            db_path = candidate_path.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("credal_reference_data_forge_catalog_source_missing") from exc
+    else:
+        if active_source.repo_root.resolve() != root:
+            raise ValueError("credal_reference_catalog_source_repo_root_mismatch")
+        try:
+            db_path = active_source.database_path.resolve(strict=True)
+            resolved_owner_path = paths.l1_dcat_path.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("credal_reference_data_forge_catalog_source_missing") from exc
+        if db_path != resolved_owner_path or not db_path.is_file():
+            raise ValueError("credal_reference_catalog_source_path_mismatch")
+        selection_owner = "catalog_serving_source_paths"
+        selection_basis = active_source.selection_basis
+        snapshot_root = active_source.snapshot_root
+        catalog_run_profile = active_source.catalog_run_profile
+
+    source_version = _data_forge_catalog_version(db_path)
+    connection = None
     try:
-        rows = con.execute(
-            """
-            SELECT dataset_id, raw_variable, canonical_var, method, confidence,
-                   evidence, is_proxy, proxy_penalty
-            FROM ds_variable_alignments
-            ORDER BY dataset_id, raw_variable, canonical_var
-            """
-        ).fetchall()
-        for row in rows:
-            yield derive_data_forge_variable_alignment_edge(
-                {
-                    "canonical_var": row[2],
-                    "confidence": row[4],
-                    "dataset_id": row[0],
-                    "evidence": row[5],
-                    "is_proxy": row[6],
-                    "method": row[3],
-                    "proxy_penalty": row[7],
-                    "raw_variable": row[1],
-                },
-                variable_names=variable_names,
-                provenance_version=version,
-            )
+        connection = duckdb.connect(str(db_path), read_only=True)
+        connection.execute("BEGIN TRANSACTION")
+        source_read_prepared_at_utc = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        rows = tuple(
+            tuple(row)
+            for row in connection.execute(
+                """
+                SELECT dataset_id, raw_variable, canonical_var, method, confidence,
+                       evidence, is_proxy, proxy_penalty
+                FROM ds_variable_alignments
+                ORDER BY dataset_id, raw_variable, canonical_var
+                """
+            ).fetchall()
+        )
+        connection.execute("COMMIT")
+    except Exception as exc:
+        raise ValueError("credal_reference_data_forge_catalog_read_failed") from exc
     finally:
-        con.close()
+        if connection is not None:
+            connection.close()
+
+    row_keys = tuple(tuple(row[:3]) for row in rows)
+    if len(set(row_keys)) != len(row_keys):
+        raise ValueError("credal_reference_data_forge_alignment_primary_key_duplicate")
+    rows_hash = gy_content_hash(
+        {
+            "columns": [
+                "dataset_id",
+                "raw_variable",
+                "canonical_var",
+                "method",
+                "confidence",
+                "evidence",
+                "is_proxy",
+                "proxy_penalty",
+            ],
+            "rows": rows,
+        }
+    )
+    profile_body = {
+        "schema_version": ("runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"),
+        "selection_owner": selection_owner,
+        "source_repo_root": str(root),
+        "source_snapshot_root": str(snapshot_root.resolve()),
+        "source_database_path": str(db_path),
+        "catalog_run_profile": catalog_run_profile,
+        "selection_basis": selection_basis,
+        "source_version": source_version,
+        "alignment_table": "ds_variable_alignments",
+        "alignment_query_version": "full_primary_key_order_v1",
+        "alignment_row_count": len(rows),
+        "alignment_rows_sha256": rows_hash,
+        "source_read_prepared_at_utc": source_read_prepared_at_utc,
+        "authority_band": "candidate",
+        "source_snapshot_authenticity": "not_established",
+        "currentness_status": "not_established",
+        "time_semantics": "read_transaction_opened_at",
+    }
+    profile = CredalReferenceCatalogSourceProfile.model_validate(
+        {
+            **profile_body,
+            "content_hash": _data_forge_catalog_source_profile_content_hash(profile_body),
+        }
+    )
+    return _PreparedDataForgeCatalogSource(profile=profile, rows=rows)
 
 
 def _derive_l2_causal_edge(
@@ -2739,6 +3065,7 @@ def _component_versions(
     world_model_record: WorldModelRecord | None = None,
     world_model_record_hash: str | None = None,
     l2_source_profile_hash: str | None = None,
+    data_forge_catalog_profile_hash: str | None = None,
 ) -> dict[str, str]:
     by_component: dict[str, list[str]] = defaultdict(list)
     for edge in edge_index.values():
@@ -2752,6 +3079,8 @@ def _component_versions(
         component_versions["WMR"] = world_model_record_hash
     if l2_source_profile_hash is not None:
         component_versions["L2_SOURCE_PROFILE"] = l2_source_profile_hash
+    if data_forge_catalog_profile_hash is not None:
+        component_versions["DATA_FORGE_CATALOG_SOURCE_PROFILE"] = data_forge_catalog_profile_hash
     return component_versions
 
 
@@ -2991,15 +3320,22 @@ def _date_text(value: date | None) -> str | None:
 
 def _data_forge_catalog_version(db_path: Path) -> str:
     manifest_path = db_path.parent / "manifest.json"
-    if manifest_path.is_file():
-        try:
-            manifest = _json_object(manifest_path.read_text(encoding="utf-8"))
-        except OSError:
-            manifest = {}
-        published_at = str(manifest.get("published_at") or "").strip()
-        if published_at:
-            return published_at
-    return db_path.parent.name
+    if not manifest_path.exists() and not manifest_path.is_symlink():
+        return db_path.parent.name
+    if not manifest_path.is_file():
+        raise ValueError("credal_reference_data_forge_manifest_invalid")
+    try:
+        parsed = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("credal_reference_data_forge_manifest_invalid") from exc
+    if not isinstance(parsed, Mapping):
+        raise ValueError("credal_reference_data_forge_manifest_invalid")
+    if "published_at" not in parsed:
+        return db_path.parent.name
+    published_at = parsed["published_at"]
+    if not isinstance(published_at, str) or not published_at.strip():
+        raise ValueError("credal_reference_data_forge_manifest_version_invalid")
+    return published_at.strip()
 
 
 def _json_object(value: object) -> dict[str, Any]:
@@ -3115,11 +3451,13 @@ def _knob_ids_from_lex_map(value: object) -> tuple[str, ...]:
 
 
 __all__ = [
+    "CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION",
     "CREDAL_REFERENCE_SCHEMA_VERSION",
     "GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION",
     "AdmissibleCompletion",
     "CertificateStalenessDecision",
     "CredalReference",
+    "CredalReferenceCatalogSourceProfile",
     "CredalReferenceEdge",
     "GroundingBackendAvailability",
     "GroundingCertificateReference",
@@ -3127,6 +3465,7 @@ __all__ = [
     "bind_grounding_certificate_reference",
     "build_credal_reference",
     "build_grounding_backend_availability",
+    "credal_reference_data_forge_catalog_source_profile",
     "derive_data_forge_variable_alignment_edge",
     "derive_variable_alignment_edge",
     "edge_payload_sample",

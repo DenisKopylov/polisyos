@@ -1,5 +1,9 @@
 # Trinity Contracts (ProblemFrame, PolicySpec, ModelSpec)
 
+Owner: `@ir-owners`
+Source of truth: `policy-engine/src/polisyos/ir/trinity/__init__.py`, `policy-engine/src/polisyos/core/contracts/trinity.py`, `policy-engine/src/polisyos/ir/loading/loaders.py`, `policy-engine/src/polisyos/ir/migrations/`, `policy-engine/src/polisyos/ir/linker/`
+Snapshot and evidence level: inspected at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; implementation and listed tests were read, but not executed for this documentation update.
+
 ## Rationale
 
 PolicySurfaceIR bundled the entire problem definition, policy actions, and model
@@ -33,15 +37,22 @@ ModelSpec (How)
 - Agent configuration and assumptions.
 - Environment parameters and fidelity level.
 
-Typed references are provided in `polisyos.core.contracts.trinity`:
+There are two different public types named `TrinityBundle`:
 
-- ProblemFrameRef
-- PolicySpecRef
-- ModelSpecRef
-- TrinityBundle
-- TrinityManifest
+- `polisyos.ir.trinity.TrinityBundle` (also exported as `polisyos.ir.TrinityBundle`) is the nested payload containing `ProblemFrame`, `PolicySpec`, and `ModelSpec`. Its current declared/default schema version is `1.0`.
+- `polisyos.core.contracts.trinity.TrinityBundle` is a Core container of `ProblemFrameRef`, `PolicySpecRef`, and `ModelSpecRef`. `TrinityBundleRef` points to one persisted nested IR bundle; `TrinityManifest` wraps the Core reference bundle with manifest metadata.
+
+Use the nested IR payload for authoring, loading, and linking. Use the Core reference container when a boundary needs references to the three separately persisted artifacts. The Core container's `compatible` field is caller-provided data; constructing it does not resolve the references or establish compatibility.
+
+These models validate their declared structure and field constraints. A successful DTO parse does not establish semantic adequacy, causal validity, admissibility, or publishability. `polisyos.ir.linker.link_trinity()` performs the separate registry-aware linking checks; downstream authority decisions require their own evidence and consumers.
+
+The current owners are `polisyos.ir.trinity` for the nested payload, `polisyos.core.contracts.trinity` for reference contracts, `polisyos.ir.loading` for payload loading, and `polisyos.ir.migrations` for versioned canonical-IR migration.
 
 ## Usage Examples
+
+The constructor examples are illustrative and were not executed for this
+documentation update. The reference example uses synthetic IDs to show the DTO
+shape; it does not create or resolve CAS artifacts.
 
 Minimal ProblemFrame:
 
@@ -116,58 +127,69 @@ from polisyos.core.contracts.trinity import (
     TrinityBundle,
 )
 
-artifact_id = ArtifactID.from_sha256_hex("0" * 64)
+problem_artifact_id = ArtifactID.from_sha256_hex("1" * 64)
+policy_artifact_id = ArtifactID.from_sha256_hex("2" * 64)
+model_artifact_id = ArtifactID.from_sha256_hex("3" * 64)
 bundle = TrinityBundle(
-    problem_frame_ref=ProblemFrameRef(artifact_id=artifact_id),
-    policy_spec_ref=PolicySpecRef(artifact_id=artifact_id),
-    model_spec_ref=ModelSpecRef(artifact_id=artifact_id),
+    problem_frame_ref=ProblemFrameRef(artifact_id=problem_artifact_id),
+    policy_spec_ref=PolicySpecRef(artifact_id=policy_artifact_id),
+    model_spec_ref=ModelSpecRef(artifact_id=model_artifact_id),
 )
 ```
 
-## Migration Path (Phase 2)
+## Loading and migration
 
-PolicySurfaceIR is deprecated but still supported for backward compatibility.
-Canonical migration utilities live under `polisyos.ir.legacy.migrations`:
+The current loader entrypoints are `polisyos.ir.loading.loaders.load_trinity_bundle()`,
+`load_trinity()`, and `load_policy()`. They parse mapping, JSON, YAML, or UTF-8
+bytes input and validate it as the nested IR `TrinityBundle`. The retained
+`auto_migrate` loader argument does not currently run a migration: malformed or
+non-Trinity payloads are rejected.
+
+The versioned migration owner is `polisyos.ir.migrations.migrate_policy_ir()`.
+It handles canonical Trinity-era `policy_ir` payloads; the current registered
+baseline is version `1.0`, and no schema-transition edge is registered at this
+source pin. The helper explicitly rejects legacy non-Trinity payloads,
+including `schema_version` values beginning with `2.` and payloads containing
+a `semantic` key. The package also provides `split_to_bundle()` and
+`is_trinity_migrated()` as Trinity validation helpers in
+`polisyos.ir.migrations.trinity_migration`.
+
+Older planning and contract documents refer to `PolicySurfaceIR` and
+`polisyos.ir.legacy.migrations`. Those are historical migration notes, not
+current runtime compatibility guarantees: the pinned source contains neither a
+`PolicySurfaceIR` implementation nor that migration package. Remaining source
+compatibility in this area consists of deprecated import aliases for moved IR
+modules; those aliases do not restore legacy surface payload support.
+
+The code-inspected entrypoints are:
 
 ```python
-from polisyos.ir.legacy.migrations.surface_to_trinity import (
-    migrate_surface_ir_to_trinity,
-    migrate_trinity_to_surface_ir,
-)
+from polisyos.ir.loading.loaders import load_policy, load_trinity_bundle
+from polisyos.ir.migrations import migrate_policy_ir
 
-bundle, report = migrate_surface_ir_to_trinity(surface_ir)
-surface_ir, report = migrate_trinity_to_surface_ir(bundle)
+bundle = load_policy(payload)
+bundle, migration_report = load_trinity_bundle(payload)
+payload = migrate_policy_ir(payload, target_version="1.0")
 ```
 
-## JSON Schema Snapshots
+These examples are code-inspected but were not executed for this documentation
+update. `migrate_policy_ir()` returns a payload mapping; the loaders return a
+validated IR `TrinityBundle` (and the bundle loader's optional report is
+currently `None`). A same-version migration validates the canonical bundle;
+the API does not promise conversion from `PolicySurfaceIR`.
 
-Schema snapshots are generated via `tools/quality/diagnostics/gen_schema.py` and stored under `schemas/snapshots/ir/`:
+## Generated schemas
 
-- `trinity_bundle.schema.json`
-- `problem_frame.schema.json`
-- `policy_spec.schema.json`
-- `model_spec.schema.json`
-
-Example schema fragment (ProblemFrame):
-
-```json
-{
-  "title": "ProblemFrame",
-  "type": "object",
-  "properties": {
-    "schema_version": { "type": "string" },
-    "problem_id": { "type": "string" },
-    "domain": { "type": "string" }
-  },
-  "required": ["problem_id", "domain"]
-}
-```
+The generated [IR Schema Catalog](../reference/ir/schema-catalog.md) and
+[JSON Schema Catalog](../reference/schemas.md) are the reference for current
+schema fields and snapshots. Regenerate or check them with
+`uv run --extra ml polisyos-tools diagnostics gen-schema --check` from
+`policy-engine/`; this page intentionally does not duplicate the schema inventory.
 
 ## D1-L4 Validation Links
 
-| Link type           | Current anchor                                                                                                                                                                                     |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source plan phase   | D1-L4 Phase 0 canon/CAS and registry/linker, Phase 1 schema compatibility                                                                                                                          |
-| Contract tests      | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/unit/ir/test_trinity_loaders.py`                       |
-| Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/problem_frame.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/model_spec.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                             |
+| Link type           | Current anchor                                                                                                                                                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 canonicalization, registry/linker, and Phase 1 schema compatibility                                                                                                                                                         |
+| Contract tests      | `policy-engine/tests/contract/test_trinity_contracts.py`, `policy-engine/tests/contract/test_trinity_migration.py`, `policy-engine/tests/contract/test_trinity_linker_contract.py`, `policy-engine/tests/unit/ir/test_trinity_loaders.py` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                    |

@@ -13,3 +13,16 @@ Plans move here only after durable behavior has a current home:
 New archive entries should preserve the original filename when moving a legacy
 plan. New closeout archives should use `YYYY-MM-DD-<slug>.md`, include status
 and owner, and link the ADR/reference/runbook surface that supersedes the plan.
+
+## 2026-10-14 disposition
+
+- [Documentation SOTA](DOCUMENTATION_SOTA_PLAN.md): historical D0–D6 program;
+  current source maps and verification scope are in the documentation handbook.
+- [Data Forge Phase 0](DATA_FORGE_CUTOVER_READINESS.md): bounded cutover sign-off,
+  with its named advisory benchmark failures retained.
+- [G5 conversion](G5-first-proving-ground-conversion.md): bounded plumbing
+  closeout with the recorded `unchanged_blocker` / `unsupported` result.
+
+These copies preserve their source bytes, including historical front matter.
+Their old paths are compatibility pointers; archive placement grants no current
+runtime authority. See the [disposition](../documentation-refresh-disposition-20261014.md).

@@ -1,23 +1,30 @@
 # Explanation
 
+> **Owner:** `team-architecture`
+>
+> **Source of truth:** the linked decision records, contracts, and references for each page.
+>
+> **Evidence caveat:** source and test references identify evidence locations, not fresh execution
+> receipts. The architecture page states its inspected source snapshot and verification scope.
+
 These pages explain why the current architecture is shaped the way it is and
 which contracts, ADRs, tests, and runbooks back the published claims.
 
 ## Reading Order
 
-| Page                                              | Use it for                                                              | Primary anchors                                                     |
-| ------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| [Architecture](architecture.md)                   | Whole-system boundaries, containers, and artifact lifecycles            | operations diagrams, generated artifacts, platform acceptance audit |
-| [Trinity](trinity.md)                             | ProblemFrame / PolicySpec / ModelSpec split and bundle lifecycle        | `TRINITY.md`, merge semantics, Foundry compile/execute              |
-| [IR Design](ir-design.md)                         | Why IR is the compatibility layer and how schema evolution works        | ADR-0104..0109, IR schema catalog, transport contracts              |
-| [Security Model](security-model.md)               | Runtime trust boundaries, authn/authz, tenant isolation, signing, audit | auth/tenant reference, security compliance, runtime runbooks        |
-| [Data Fabric](data-fabric.md)                     | Connector ingestion, lineage, schema governance, world/data plane       | Fabric reference set, Fabric runbooks                               |
-| [BERL method identity](berl-method-identity.md)                 | Requested and effective explainer identities, alias reuse, and explicit fallback semantics | `LA-036`, BER-01 identity and disagreement tests |
-| [Causal Engine](causal-engine.md)                 | Foundry compile/execute and Scientist causal orchestration              | Foundry and Scientist references, method tests, benchmarks          |
-| [Lex Pipeline](lex-pipeline.md)                   | Legal corpus to NormPack and intervention flows                         | Lex reference and Lex contracts                                     |
-| [Governance Model](governance-model.md)           | Workflow gating, governance artifacts, human review, accountability     | Scientist workflows, governance passes, accountability artifacts    |
-| [Observation Contracts](observation-contracts.md) | Data-to-method contracts, trust tiers, readiness bundles                | IR observation reference, Fabric quality, Scientist causal validity |
-| [Freeze Policy](freeze-policy.md)                 | Import gates, ratchets, and CI/docs quality-gate flow                   | ADR-0004, ADR-0053, quality gates, ratchet policy                   |
+| Page                                              | Use it for                                                         | Primary anchors                          |
+| ------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------- |
+| [Architecture](architecture.md)                   | Ratified boundary, target, package contracts, and selected bridges | operations, artifacts, acceptance audit  |
+| [End-to-End Data Flow](end-to-end-data-flow.md)   | One run-bound predictive diagnostic from input to readback         | producer, CAS, SQL association, S10, API |
+| [Trinity](trinity.md)                             | Trinity bundle and merge lifecycle                                 | TRINITY, Foundry compile/execute         |
+| [IR Design](ir-design.md)                         | IR compatibility and schema evolution                              | IR catalog, transport contracts          |
+| [Security Model](security-model.md)               | Runtime auth, tenants, signing, and audit                          | security references and runbooks         |
+| [Data Fabric](data-fabric.md)                     | Connectors, lineage, schemas, and data/world plane                 | Fabric references and runbooks           |
+| [Causal Engine](causal-engine.md)                 | Foundry compile/execute and Scientist orchestration                | method tests, benchmarks                 |
+| [Lex Pipeline](lex-pipeline.md)                   | Legal corpus to NormPack and intervention flows                    | Lex reference and contracts              |
+| [Governance Model](governance-model.md)           | Workflow gates, artifacts, review, and accountability              | Scientist governance references          |
+| [Observation Contracts](observation-contracts.md) | Data-to-method contracts, trust tiers, and readiness               | IR, Fabric, Scientist references         |
+| [Freeze Policy](freeze-policy.md)                 | Import gates, ratchets, and docs quality gates                     | ADRs 0004/0053 and quality gates         |
 
 ## Shared Evidence Policy
 
@@ -30,6 +37,9 @@ which contracts, ADRs, tests, and runbooks back the published claims.
 - Capability flags and non-default rollout paths stay linked to the relevant
   roadmap or acceptance page instead of being described as current default
   behavior.
+
+- A source path or test name is not a test-run receipt. Current-code claims
+  state the inspected snapshot and whether verification was run for that page.
 
 See also:
 

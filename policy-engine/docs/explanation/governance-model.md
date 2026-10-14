@@ -1,64 +1,64 @@
 # Governance Model
 
-Related reference: [Scientist workflows](../reference/scientist/workflows.md), [governance passes](../reference/scientist/governance-passes.md), [governance accountability](../reference/scientist/governance-accountability.md), [causal validity](../reference/scientist/causal-validity.md).
-Related ADRs: [ADR-0007](../adr/0007-human-gate-protocol.md), [ADR-0011](../adr/0011-scientist-checkpoint-resume.md), [ADR-0087](../adr/0087-llm-prior-calibration-ceiling.md), [ADR-0110](../adr/0110-ir-frontier-governance-and-causal-contracts.md).
-Evidence: `tests/unit/scientist/governance/test_pass_registry.py`, `tests/unit/scientist/governance/test_validation_pipeline.py`, `tests/unit/scientist/governance/test_accountability.py`, `tests/unit/scientist/nodes/test_build_policy_output_bundle.py`, [runtime graceful shutdown or stuck worker](../runbooks/runtime-graceful-shutdown-and-stuck-worker.md).
+Related: [PolicyOS identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md), [Stage-0 custody kernel](../system-design-decisions/stage0-custody-kernel-ratification.md), [custody time model](../system-design-decisions/policy-design-custody-time-model.md), [governance passes](../reference/scientist/governance-passes.md), [governance accountability](../reference/scientist/governance-accountability.md), and [failure and repair patterns](../reference/policy-design-case-failure-patterns.md).
 
-Governance is the layer that decides whether a workflow output is promotable,
-blocked, or requires human review. It is not an afterthought on top of a result;
-it is part of the workflow contract.
+Evidence basis: implementation and semantic-test paths below were inspected at repository pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`. This page distinguishes that observed behavior from ratified target rules; a contract, test fixture, or completed template alone does not establish a deployed capability.
 
-## Scientist Workflow Execution Flow
+## Purpose and authority boundary
 
-```mermaid
-flowchart LR
-    State["ExperimentState"] --> Select["resolve_workflow_id()"]
-    Select --> Spec["WorkflowSpec"]
-    Spec --> Nodes["Node execution and artifact publication"]
-    Nodes --> Readiness["Readiness and legal/policy checks"]
-    Readiness --> Governance["Validation pipeline and pass registry"]
-    Governance --> Verdict["approve / human_gate / reject"]
-```
+PolicyOS governance keeps the reasons for a recommendation, limitation, refusal, or publication admissible and honest over time. It is not one approval boolean or one workflow validator. Claim support, decision readiness, comparison completeness, publication eligibility, and post-publication validity answer different questions and have separate owners.
 
-## Governance Artifact Flow
+The ratified identity is the epistemic custodian of the claims PolicyOS signs. It consumes acts and evidence signed by institutions as typed inputs; it does not become their administrator, executor, court, case-management system, notification channel, payment system, or CRM. Apply the four-way scope test one plane at a time: own what prevents our claim from silently becoming false; integrate external outputs that change our claim validity; observe changes that only affect who answers for a claim; otherwise leave the function out of scope. The binding rulings are recorded in the [identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md) and `S0-K03`, `S0-K04`.
 
-```mermaid
-flowchart TB
-    Inputs["Trinity, registry, snapshot, legal and readiness refs"] --> Passes["Governance passes"]
-    Passes --> Trace["ValidationTrace and ComplianceIssue set"]
-    Trace --> Accountability["Governance accountability artifact"]
-    Trace --> Gate["Human gate request/decision when required"]
-    Accountability --> Output["Policy output bundle and decision packet"]
-    Gate --> Output
-```
+Fail-closed behavior attaches to protected authority actions, published claims, and custody facts. Candidate analysis may proceed under a declared unknown and carry that limitation forward; silently replacing an unknown scope with a concrete assumption is not allowed. This is the ratified band split in `S0-K06`. LLM-generated material stays a candidate until producer evidence grounds and validates it (`P05`, `P15`).
 
-## Runtime Model
+## Status is a set of local axes
 
-| Piece                   | Current responsibility                                                            |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| Workflow routing        | choose the default, discovery, causal-full, policy-verified, or policy-design DAG |
-| Pass registry           | load builtin and entry-point governance validators                                |
-| Validation pipeline     | order, execute, trace, and short-circuit pass execution                           |
-| Accountability artifact | package calibration, fairness, escalation, and missing-evidence disclosures       |
-| Human gate              | pause and resume promotion when the machine path is insufficient                  |
+The runtime has several status vocabularies. They are intentionally not synonyms and do not form one global ordered ladder. The behavior below is the implementation observed at the evidence pin.
 
-## Why This Is A Separate Architecture Package
+| Axis and owner | Observed values and effect | Do not infer |
+| --- | --- | --- |
+| Claim support in `src/polisyos/scientist/evidence/claims/models.py` | `unsupported`, `weakly_supported`, `supported`, `contested`, `refuted`, `not_evaluable` describe the evidence relationship to one claim. | Support alone does not establish publication, currentness, or authority to perform an external act. |
+| Claim publishability in `src/polisyos/scientist/evidence/claims/models.py` and `src/polisyos/scientist/evidence/claims/readiness.py` | `draft`, `internal_only`, `review_required`, `publishable`, `blocked` are computed by the claim-readiness helper from support, evidence, counterevidence, readiness level, and blockers. A refuted claim or explicit blocker is blocked; review conditions include contested or weak support, counterevidence, missing high-stakes evidence, and certain attribution gaps. A supported claim can become publishable only at or above analyst-advisory readiness and with evidence, except for source-quality claims; otherwise it stays internal-only or draft. | `publishable` is a claim-level release state; it does not mean a public signature has been issued or that the claim will remain current. |
+| Baseline comparison completeness in `src/polisyos/scientist/evidence/claims/models.py` | `complete`, `limited`, `contested`, `blocked` describe an individual comparison. Option-comparison status is another local vocabulary. | `limited` is not a universal claim or publication state. It does not automatically map to `review_required`, `blocked`, or `publishable`; any effect must pass through the claim/readiness owner. |
+| Workflow validation in `src/polisyos/scientist/governance/pipeline.py` | Validation issues distinguish warning from blocker; a blocker can stop the relevant validation path. | A generic workflow warning is not automatically a Claim publishability or monitor-lifecycle transition. |
+| Post-publication monitoring in `src/polisyos/scientist/governance/continuous/monitors.py` | Events have `info`, `warning`, or `block` severity and a typed event family. `DecisionValidityStatus` includes `valid`, `monitoring`, `stale`, `review_required`, `superseded`, `reissued`, and `withdrawn`. | A severity by itself has no universal meaning: the recommendation depends on event type and is not an external institution's decision. |
 
-Scientist is the only layer that sees the full cross-domain picture:
+Workflow governance also has a report/verdict distinction. `RunGovernanceNode.execute` in `src/polisyos/scientist/nodes/builtins/governance/run_governance.py` persists a `GovernanceReport` and returns `NodeOutcome(status="ok")` even when its report verdict is `reject` or `human_gate`. The verdict affects paths whose consumers inspect it: for example, the Level-5 policy funnel turns `reject` or `human_gate` into a critical promotion vulnerability, and decision-packet validation emits a human-review trigger for `human_gate`. A successful node outcome is not approval, and report persistence alone does not establish enforcement by every DAG consumer (`P01`, `P02`, `P05`). The negative witness `tests/unit/scientist/nodes/builtins/governance/test_run_governance_claims.py::test_governance_rejects_selected_workflow_with_decision_artifact_without_claims_ref` asserts that a `reject` report can coexist with an `ok` node outcome. Relevant consumers are `src/polisyos/scientist/nodes/builtins/decide/run_policy_funnel_level5.py` and `src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`.
 
-- which data and legal evidence entered the run;
-- which Foundry artifacts were compiled and executed;
-- which readiness and causal-validity checks were satisfied;
-- whether the result is allowed to become a decision-facing artifact.
+In particular, `contested` claim support composes to `review_required` in claim readiness. `warning` on a source-invalidation monitor recommends `stale`; warning-level calibration, fairness, or policy-context drift requires human review; warning-level incidents require triage. A blocking source invalidation or drift prompts review and possible reissue; a blocking incident prompts withdrawal review. These event-specific rules are implemented by `recommend_validity_action` and covered by `tests/unit/scientist/governance/continuous/test_monitors.py`. The lifecycle bridge in `src/polisyos/scientist/governance/continuous/lifecycle_bridge.py` also maps a verified `warning` target to `review_required`, `stale` to `stale`, `reissued` to `reissued`, `revoked` to `invalidated`, and `withdrawn` to `withdrawn`.
 
-That is why governance lives with Scientist orchestration instead of Foundry,
-Fabric, or Runtime.
+These distinctions address `P04` and `P09`: do not collapse local statuses, and do not treat every warning as a single soft gate. A system-wide cross-axis composition rule is not established by the presence of these individual enums.
 
-## Non-Default Capability Policy
+## Claim export, admission, and publication
 
-Continuous or experimental governance loops remain explicitly non-default until
-their rollout evidence is recorded on the relevant reference pages:
+Claim readiness is a prerequisite to public projection, not the public act itself. `src/polisyos/scientist/evidence/claims/export.py` enforces that a PUBLIC export only exposes publishable claims that are not limited by lifecycle actions or unresolved/pending Claim bridge effects. Other audiences can inspect more of the ledger, including review-required and blocked material with its status and reasons. The export validator rejects a public-visibility bypass.
 
-- [Scientist frontier runtime](../reference/scientist/frontier-runtime.md)
-- [Scientist phase 3 acceptance](../reference/scientist/phase3-acceptance.md)
-- [Scientist phase 4 acceptance](../reference/scientist/phase4-acceptance.md)
+`GovernedPublicRecordOwner.prepare` in `src/polisyos/scientist/governance/continuous/governed_public_record.py` resolves the exact current packet-bound Claim owner snapshot and can produce a private candidate. Eligibility checks the exact current claims and their public projection. `issue` then requires deployment-root custody, configured publisher and verifier authority, and a separately signed institution mandate bound to the exact packet, ledger, owner scope, digest, key, rule, and validity interval. It re-resolves the source before signing, then persists an immutable issuance record and verifies the readback. Candidate preparation is therefore distinct from authority-bearing issuance (`S0-K05`, `S0-K07`, `P05`, `P32`).
+
+At this pin, the production signing slot is empty by default, and public-read-root custody is not established outside the synthetic-test path. The production path refuses issuance when root custody, issuer configuration, or a mandate is missing. The setup contract is documented in [Configure bounded governed publication](../how-to/configure-governed-publication.md); the test keys and institution in its commissioning witness are synthetic and do not establish an actual institutional publication.
+
+The verification response treats publication dimensions separately. The current contract can establish issuer issuance and projection faithfulness. `public_history_establishment`, `durable_verifiability`, `current_authority`, `status_snapshot_selection`, and `public_evidence_obtainability` remain `not_established` in `GovernedPublicRecordDimensions` in `src/polisyos/scientist/governance/continuous/governed_public_record_contracts.py` (`PV-K01`). A valid signature or faithful projection must not be promoted into a claim about complete public history or continuing authority.
+
+## Custody, epochs, and revalidation
+
+A published claim can outlive the evidence state that supported it. The ratified target therefore requires append-only correction and distinct temporal roles: source occurrence, source validity, observation period, source publication/version, PolicyOS receipt, transaction visibility, verification, purpose-scoped admission, and PolicyOS claim/publication/lifecycle action. `S0-K08` and `S0-K09` bind this rule; the [custody time model](../system-design-decisions/policy-design-custody-time-model.md) is the accepted target profile. It explicitly rejects one overloaded `as_of` or one mandatory shared event envelope.
+
+Observed code implements parts of that custody loop. Monitor events are persisted; the epoch-to-Claim bridge requires owner-resolved dependency membership and a verified completed batch rather than treating a raw detector event or caller-shaped completion receipt as authority. It appends lifecycle events to the Claim owner and updates the public projection. The owner retains the prior claim history instead of editing a signed claim in place. `S0-K05`, `S0-K08`, `S0-K12`, `P07`, and `P08` explain why receipt, byte equality, or a detector observation alone cannot establish admission, currentness, or a correct replay.
+
+The implementation is not a universal temporal envelope. `semantic_epoch` and source/dependency epochs are owner-native evidence; they do not replace the Claim lifecycle status. Currentness is resolved by the relevant owner and purpose, not by a shared timestamp field.
+
+## What the evidence demonstrates and what remains open
+
+| Claim | Evidence at the pin | State or boundary |
+| --- | --- | --- |
+| Claim readiness and public audience projection have behavioral checks. | `tests/unit/scientist/evidence/claims/test_readiness.py`; `tests/unit/runtime/quality/test_public_export.py` | These tests establish the local claim rules and projection behavior, not an all-status universal lattice (`P04`, `P10`). |
+| A signed governed record can be exercised under an explicitly synthetic owner, key, mandate, and root-custody fixture. Missing production appointment refuses issuance. | `tests/unit/scientist/governance/continuous/test_governed_public_record.py::test_real_owner_signed_mandate_issuance_readback_and_custody`, `::test_empty_slot_prepares_private_candidate_without_public_index`, `::test_public_reader_keeps_root_custody_unestablished_by_default` | Production appointment and deployment custody are `not_established` by this fixture. |
+| Verified monitor and epoch-batch evidence can cause Claim lifecycle effects; fabricated batches, raw events, swapped references, and unscoped targets are rejected. | `tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py`; `tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py` | These semantic tests prove the exercised owner bridge, not every external source or every temporal role. |
+| A supplied, admitted public-signature population can be watched for stale records. An unappointed provider yields `not_established`, not an empty-population all-clear. | `tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness` | The controlled population does not establish outside publications; those remain `surface_out_of_scope` unless admitted through a typed integration. |
+
+A capability is complete only when its contract, producer, persisted artifact, orchestration bridge, consumer, verification, declared surface or `surface_out_of_scope`, and negative or end-to-end semantic test are connected (`P01`, `P02`, `P03`, `P29`, `P32`). A populated form, status field, or document template does not complete that chain. The local owners above have specific behavioral evidence; a universal status lattice and complete custody over all outside publications are not established.
+
+## Evidence and limitations
+
+Implementation references are code paths under `policy-engine/src/polisyos/`, named inline above. The key semantic witnesses are the unit and integration tests listed above. Ratified identity and custody rules are cited by their finding IDs rather than inferred from adjacent narrative. The evidence pin is `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page makes no claim about later branch changes or actual institution configuration.

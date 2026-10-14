@@ -116,3 +116,8 @@ not_in_nav: |
   reference/scientist/proof-trace-composability.md
   reference/scientist/system-pipeline-architecture.md
   runbooks/lex-production-140k.md
+  system-design-decisions/universal-policy-design-target-architecture-and-gap.md
+  system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
+  system-design-decisions/policy-design-custody-time-model.md
+  how-to/configure-governed-publication.md
+  runbooks/local-production-debugging.md

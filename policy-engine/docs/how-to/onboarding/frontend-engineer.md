@@ -11,7 +11,8 @@ contract fixtures и operator-facing UX.
 ## Inputs
 
 - `workspace bootstrap --profile runtime` уже выполнен;
-- `apps/runtime-dashboard` dependencies установлены;
+- `apps/runtime-dashboard` dependencies установлены через Corepack/pnpm;
+- используется Node `22.x` и pnpm `10.33.2`, закрепленный в `package.json`;
 - вы понимаете, меняете ли вы dashboard UI, generated API types или сам runtime
   contract.
 
@@ -27,8 +28,8 @@ contract fixtures и operator-facing UX.
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap --profile runtime
-python3 -m tools.cli workspace verify --frontend-only --skip-doctor
+uv run polisyos-tools workspace bootstrap --profile runtime
+uv run polisyos-tools workspace verify --frontend-only --skip-doctor
 cd apps/runtime-dashboard
 corepack pnpm run generate:api
 corepack pnpm run contracts:verify
@@ -39,7 +40,7 @@ corepack pnpm run typecheck
 
 | Task                                                    | Primary doc                                                                             | Why it matters                                         |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Contract-first overview of frontend surfaces            | [REST API](../../reference/api/index.md) plus `apps/runtime-dashboard/README.md`    | dashboard, generated API client, and validation chain  |
+| Contract-first overview of frontend surfaces            | [REST API](../../reference/api/index.md) plus `apps/runtime-dashboard/README.md`        | dashboard, generated API client, and validation chain  |
 | Обновить generated dashboard types после runtime change | [REST API](../../reference/api/index.md) plus `packages/runtime-api-client/README.md`   | OpenAPI -> generated client -> dashboard type sync     |
 | Понять operator UX и runtime boundaries                 | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
 

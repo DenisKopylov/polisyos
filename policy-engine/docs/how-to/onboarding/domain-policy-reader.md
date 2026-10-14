@@ -27,9 +27,12 @@ artifacts без глубокого погружения в implementation detai
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap --profile runtime --skip-frontend --skip-playwright
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
 uv run polisyos --version
 ```
+
+Этот путь не устанавливает Node workspace и пропускает workstation `doctor`; полный baseline
+и профиль `runtime` описаны в [Installation](../install.md).
 
 Если нужен живой runtime/control-plane read path:
 

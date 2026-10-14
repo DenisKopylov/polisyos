@@ -19,11 +19,11 @@ imports succeed.
 
 ## Phase Coverage
 
-| Source phase | Calibration meaning                                                                                                                                                         |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 1      | Missing targets, inconsistent alignment, and invalid constraints fail explicitly instead of silently producing a fit.                                                       |
-| Phase 3      | Measurement-aware loss and bijectors are checked for finite gradients, stable transforms, and NaN/Inf fail-closed behavior.                                                 |
-| Phase 5      | Hessian/Laplace and uncertainty-envelope adapters are the current UQ bridge; Bayesian calibration remains research-gated until a production posterior sampler is available. |
+| Source phase | Calibration meaning                                                                                                                                                                                                                                                                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1      | Missing targets, inconsistent alignment, and invalid constraints fail explicitly instead of silently producing a fit.                                                                                                                                                                                                                                    |
+| Phase 3      | Measurement-aware loss and bijectors are checked for finite gradients, stable transforms, and NaN/Inf fail-closed behavior.                                                                                                                                                                                                                              |
+| Phase 5      | Hessian/Laplace and uncertainty-envelope adapters provide calibration diagnostics. The earlier production-posterior-sampler gap is distinct from current caller-input Bayesian posterior-summary helpers, which can persist/reopen candidate-only summaries but do not provide a production sampler or establish workflow readiness or gate eligibility. |
 
 ## Boundary Model
 
@@ -43,18 +43,18 @@ imports succeed.
 
 ## Key APIs
 
-| API                               | Role                                                                                   |
-| --------------------------------- | -------------------------------------------------------------------------------------- |
-| `Calibrator`                      | JAX-backed optimization loop when calibration extras import successfully.              |
-| `Calibrator.run_and_persist(store)` | Persists one run with its exact config artifact edge and returns the report ref.      |
-| `CalibratorInputs`                | Bundles graph, exec plan, registries, targets, and optional measurement bundle inputs. |
-| `CalibrationReport`               | Persisted fit result with metrics, history, and fit quality.                           |
-| `MeasurementAwareTarget`          | Observation-aware target contract.                                                     |
-| `MeasurementAwareLossConfig`      | Discounting configuration for weak or noisy anchors.                                   |
-| `compute_effective_weight()`      | Combines trust, coverage, lag, censoring, and shock discounts.                         |
-| `AuxLossComponent`                | Protocol for auxiliary loss terms.                                                     |
-| `InterferenceLossComponent`       | Spillover-aware auxiliary penalty.                                                     |
-| `calibration.uncertainty_adapter` | Converts fit diagnostics into governance-ready uncertainty envelopes.                  |
+| API                                 | Role                                                                                   |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| `Calibrator`                        | JAX-backed optimization loop when calibration extras import successfully.              |
+| `Calibrator.run_and_persist(store)` | Persists one run with its exact config artifact edge and returns the report ref.       |
+| `CalibratorInputs`                  | Bundles graph, exec plan, registries, targets, and optional measurement bundle inputs. |
+| `CalibrationReport`                 | Persisted fit result with metrics, history, and fit quality.                           |
+| `MeasurementAwareTarget`            | Observation-aware target contract.                                                     |
+| `MeasurementAwareLossConfig`        | Discounting configuration for weak or noisy anchors.                                   |
+| `compute_effective_weight()`        | Combines trust, coverage, lag, censoring, and shock discounts.                         |
+| `AuxLossComponent`                  | Protocol for auxiliary loss terms.                                                     |
+| `InterferenceLossComponent`         | Spillover-aware auxiliary penalty.                                                     |
+| `calibration.uncertainty_adapter`   | Converts fit diagnostics into governance-ready uncertainty envelopes.                  |
 
 `Calibrator.run_and_persist(store)` executes one copied configuration snapshot, persists
 that config, and writes the v2 report with a manifest input edge preserving the exact

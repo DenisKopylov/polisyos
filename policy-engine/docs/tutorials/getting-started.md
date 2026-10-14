@@ -1,24 +1,35 @@
 # Быстрый старт
 
-> За 15-20 минут подготовьте первое рабочее окружение, проверьте import surface
-> и выполните минимальный `compile -> execute` smoke path.
+Freshness: 2026-10-14
+Owner: `@docs-owners`
+Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, `package.json`,
+`tools/devx/workspace/{_common,bootstrap,doctor}.py`, `src/polisyos/foundry/_quickstart.py`,
+`src/polisyos/ir/__init__.py`, `src/polisyos/foundry/__init__.py`,
+`docs/reference/policy-design-case-failure-patterns.md`.
 
-!!! info "Verified with"
-Проверено 2026-04-17 на локальном macOS workstation (Apple Silicon):
-Python 3.14.0, Node 22.22.2, `uv 0.9.21`.
-Реально выполнены команды `uv run polisyos --version`,
-`uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"`,
-и `python3 -m tools.cli workspace doctor --list-surfaces`.
+> Подготовьте рабочее окружение, проверьте import surface и выполните минимальный
+> `compile -> execute` smoke path.
+
+!!! info "Historical workstation receipt (2026-04-17)"
+    На локальном macOS workstation (Apple Silicon) использовались Python 3.14.0,
+    Node 22.22.2 и `uv 0.9.21`. Тогда реально выполнили `uv run polisyos --version`,
+    `uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"`
+    и `python3 -m tools.cli workspace doctor --list-surfaces`. Это датированный receipt
+    конкретной машины, не повторный запуск при обновлении страницы.
+
+Текущие command entrypoints читаются из `pyproject.toml` и `tools/registry.py`; их наличие в
+source не подтверждает успешный запуск. Только callout выше содержит исторический execution
+receipt, а ожидаемые и иллюстративные результаты ниже не являются новыми receipts.
 
 ## Что понадобится
 
 - чистый checkout `polisyos/policy-engine`;
 - Python `3.14.x`;
-- Node `22.x`;
-- `uv`;
-- примерно 2 ГБ свободного места.
+- `uv 0.9.21`.
 
-Поддерживаемая матрица описана в [Environment Matrix](../reference/environment-matrix.md).
+Этот walkthrough использует backend-only bootstrap и не требует Node workspace. Для полного
+runtime/frontend profile нужны Node `22.x`, Corepack и pnpm `10.33.2`; поддерживаемая матрица
+описана в [Environment Matrix](../reference/environment-matrix.md).
 
 ## Что вы получите
 
@@ -32,11 +43,13 @@ Python 3.14.0, Node 22.22.2, `uv 0.9.21`.
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git
 cd polisyos/policy-engine
-python3 -m tools.cli workspace bootstrap --profile runtime --skip-frontend --skip-playwright
-python3 -m tools.cli workspace doctor --skip-playwright
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
 ```
 
-Этот tutorial намеренно использует backend-only path. Полный install matrix,
+Профиль `runtime` синхронизирует extras `lint + test + runtime`; `--skip-frontend` убирает
+проверку Node и установку JS workspace. `--skip-doctor` также предотвращает автоматический
+doctor, который независимо проверил бы Node, Playwright, lockfiles и generated contracts.
+В этом walkthrough намеренно используется backend-only path. Полный install matrix,
 frontend bootstrap и troubleshooting собраны в [Installation](../how-to/install.md).
 
 ## 2. Проверьте CLI и import surface
@@ -66,49 +79,59 @@ ProblemFrame True
 
 ## 3. Выполните минимальный compile-and-execute пример
 
-Самый короткий проверенный путь в текущем дереве использует
-`run_trivial_compile_execute`.
+В текущем source tree helper `run_trivial_compile_execute` показывает короткий
+compile-and-execute путь с файловым CAS. Более широкий workflow описан в
+[Foundry Compile/Execute reference](../reference/foundry/compile-execute.md) и tutorial
+[First Policy Analysis](first-policy-analysis.md).
 
 ```python
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 from polisyos.foundry._quickstart import run_trivial_compile_execute
 
-with TemporaryDirectory(prefix="polisyos-quickstart-") as tmp:
-    result = run_trivial_compile_execute(cas_root=Path(tmp))
-    print("compile_ok:", result.compile_ok)
-    print("execute_ok:", result.execute_ok)
-    print("exec_plan_artifact:", result.exec_plan_artifact_id)
-    print("simulation_result_artifact:", result.simulation_result_artifact_id)
-    print("cas_root:", tmp)
+cas_root = Path(".polisyos/quickstart-cas")
+result = run_trivial_compile_execute(cas_root=cas_root)
+print("compile_ok:", result.compile_ok)
+print("execute_ok:", result.execute_ok)
+print("exec_plan_artifact:", result.exec_plan_artifact_id)
+print("simulation_result_artifact:", result.simulation_result_artifact_id)
+print("cas_root:", cas_root)
 ```
 
-Helper принудительно использует CPU-first JAX path:
+Helper задает CPU-first JAX defaults, если соответствующие environment variables еще не заданы:
 
 - `JAX_PLATFORM_NAME=cpu`
 - `JAX_PLATFORMS=cpu`
 
-Это стабилизирует первый запуск на Apple Silicon и не мешает later-on перейти
-на opt-in Metal extras.
+Это помогает первому запуску на Apple Silicon; явные значения в окружении сохраняются, а
+Metal остается opt-in через `apple-metal` extra.
 
-Репрезентативный вывод:
+Иллюстративный вывод; это не fresh-run receipt:
 
 ```text
 compile_ok: True
 execute_ok: True
 exec_plan_artifact: sha256:...
 simulation_result_artifact: sha256:...
-cas_root: /var/folders/.../polisyos-quickstart-...
+cas_root: .polisyos/quickstart-cas
 ```
+
+!!! note "P02 / E02 F: граница этого smoke path"
+    Import check и вызов quickstart helper не доказывают, что нейтральный установленный
+    consumer читает curated defaults из упакованного артефакта и не закрывают E02 F.
+    Installed-default проверка требует такого consumer и привязки всех конечных catalog
+    resources от tracked source bytes через sdist и wheel; подробности задает
+    [P02 installed-default consumer discriminator](../reference/policy-design-case-failure-patterns.md).
 
 ## 4. Посмотрите, какие артефакты были созданы
 
-После успешного запуска quickstart напечатает `cas_root`.
+После запуска quickstart напечатает `cas_root`; пример выше сохраняет его в локальном,
+gitignored каталоге `.polisyos/quickstart-cas`, чтобы следующий шаг мог прочитать манифесты.
 
 Посмотреть манифесты:
 
 ```bash
+CAS_ROOT=.polisyos/quickstart-cas
 find "$CAS_ROOT/artifacts" -name '*.manifest.json' | head
 ```
 
@@ -118,7 +141,7 @@ find "$CAS_ROOT/artifacts" -name '*.manifest.json' | head
 import json
 from pathlib import Path
 
-cas_root = Path("/path/to/your/cas")
+cas_root = Path(".polisyos/quickstart-cas")
 
 for manifest_path in sorted(cas_root.glob("artifacts/**/*.manifest.json")):
     manifest = json.loads(manifest_path.read_text())
@@ -135,7 +158,7 @@ for manifest_path in sorted(cas_root.glob("artifacts/**/*.manifest.json")):
 ## 5. Прогоните быстрый локальный gate
 
 ```bash
-python3 -m tools.cli workspace verify --backend-only --skip-doctor
+uv run polisyos-tools workspace verify --backend-only --skip-doctor
 ```
 
 Это не обязательный шаг для smoke tutorial, но он хороший marker, что рабочая

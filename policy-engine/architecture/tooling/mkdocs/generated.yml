@@ -218,6 +218,11 @@ not_in_nav: |
   reference/scientist/proof-trace-composability.md
   reference/scientist/system-pipeline-architecture.md
   runbooks/lex-production-140k.md
+  system-design-decisions/universal-policy-design-target-architecture-and-gap.md
+  system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
+  system-design-decisions/policy-design-custody-time-model.md
+  how-to/configure-governed-publication.md
+  runbooks/local-production-debugging.md
 
 nav:
 
@@ -289,6 +294,7 @@ nav:
           - Causal Statistical Validity: reference/foundry/causal-statistical-validity.md
       - Scientist:
           - reference/scientist/index.md
+          - Current Workflows: reference/scientist/current-workflows.md
           - reference/scientist/workflows.md
           - reference/scientist/governance-passes.md
           - reference/scientist/nodes.md
@@ -351,6 +357,10 @@ nav:
           - reference/fabric/processing-guarantees.md
           - reference/fabric/discovery-intelligence.md
           - reference/fabric/product-api-integration.md
+      - Data Forge:
+          - reference/data-forge/index.md
+          - Current Data Paths: reference/data-forge/current-data-paths.md
+          - Catalog Default Resources: reference/data-forge/catalog-default-resources.md
       - REST API:
           - reference/api/index.md
           - reference/api/runs.md
@@ -361,6 +371,8 @@ nav:
           - reference/api/versioning.md
           - reference/api/migration-guide.md
       - Runtime:
+          - reference/runtime/index.md
+          - Request Lifecycle: reference/runtime/current-request-lifecycle.md
           - Quality Scorecard: reference/runtime/quality-scorecard.md
           - Production Quality Approval: reference/runtime/production-quality-approval.md
           - Production Canary Matrix: reference/runtime/production-canary-matrix.md
@@ -375,6 +387,7 @@ nav:
           - Run-Cost Proportionality Ledger: reference/runtime/run-cost-proportionality-ledger.md
       - Frontend:
           - reference/frontend/index.md
+          - Current Surface Map: reference/frontend/current-surface-map.md
           - Workspace Contract: reference/frontend/workspace-contract.md
       - Brand:
           - brand/README.md
@@ -404,6 +417,8 @@ nav:
       - Data Lake Policy: reference/data-lake-policy.md
       - Local Runtime State: reference/local-runtime-state.md
       - Documentation Inventory: reference/documentation-inventory.md
+      - Documentation Verification: reference/documentation-verification.md
+      - E02 Source Snapshot: reference/e02-documentation-snapshot.md
       - Contributor Start Here: reference/contributor-start-here.md
       - Dependency Platform: reference/dependency-platform.md
       - Environment Matrix: reference/environment-matrix.md
@@ -435,6 +450,10 @@ nav:
   - Explanation:
       - explanation/index.md
       - Architecture: explanation/architecture.md
+      - End-to-End Data Flow: explanation/end-to-end-data-flow.md
+      - Identity and Custody Boundary (Ratified): system-design-decisions/policyos-identity-and-custody-boundary.md
+      - North Star (Proposed): system-design-decisions/policy-design-causal-operating-system-north-star.md
+      - Stage 0 Custody Ratification: system-design-decisions/stage0-custody-kernel-ratification.md
       - Trinity: explanation/trinity.md
       - Causal Engine: explanation/causal-engine.md
       - Governance Model: explanation/governance-model.md

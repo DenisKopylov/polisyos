@@ -1,70 +1,147 @@
 # IR Design
 
-Related reference: [IR index](../reference/ir/index.md), [IR schema catalog](../reference/ir/schema-catalog.md), [IR interoperability](../reference/ir/interoperability.md).
-Related contracts: [E1.3 norms/citations/linker](../contracts/E1_3_IR_NORMS_CITATIONS_LINKER.md), [E2.11 transport and streaming](../contracts/E2_11_IR_TRANSPORT_STREAMING_V1_0.md), [TRINITY](../contracts/TRINITY.md).
-Related ADRs: [ADR-0104](../adr/0104-ir-canonical-cas-policy.md), [ADR-0105](../adr/0105-trinity-linking-validation-policy.md), [ADR-0106](../adr/0106-ir-shared-validation-and-id-policy.md), [ADR-0107](../adr/0107-ir-analytics-normalization-and-schema-compatibility.md), [ADR-0108](../adr/0108-ir-schema-catalog-and-reflection.md), [ADR-0109](../adr/0109-ir-transport-and-interoperability-bridges.md).
-Evidence: `tests/unit/ir/test_schema_catalog.py`, `tests/contract/test_ir_migrations.py`, `tests/unit/ir/test_interoperability_bridges.py`, `tools/quality/diagnostics/generate_ir_reference_catalog.py --check`.
+Related reference:
 
-IR exists so the rest of the platform can exchange durable meaning without
-sharing implementation details. It is the compatibility and reflection layer,
-not the place where runtime delivery or simulation logic lives.
+- [IR index](../reference/ir/index.md)
+- [IR schema catalog](../reference/ir/schema-catalog.md)
+- [IR public surface](../reference/ir/public-surface.md)
+- Generated [shared schema reference](../reference/schemas.md)
 
-## Design Rule
+Related architecture:
 
-If a payload can outlive one process, cross one subsystem boundary, or be stored
-in CAS for replay, IR should define the contract vocabulary for it.
+- [Causal operating-system north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
+- [Universal policy-design target](../system-design-decisions/universal-policy-design-target-architecture-and-gap.md)
+- [Identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md)
 
-## Schema Evolution Flow
+- Owner: `@ir-owners`
+- Source of truth: `src/polisyos/ir/`, `src/polisyos/core/`,
+  `src/polisyos/common/`, generated schema and public-surface references, and
+  the tests listed below.
+- Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+- Evidence level: source and test inspection at the pin; tests were not rerun for this documentation update.
 
-```mermaid
-flowchart LR
-    Model["IR model"] --> Catalog["Schema catalog and reflection metadata"]
-    Catalog --> Snapshot["Committed schema snapshots"]
-    Snapshot --> Compat["Compatibility registry and migration edges"]
-    Compat --> Canon["Canonical JSON / CAS manifest policy"]
-    Canon --> Transport["JSON-first transport and optional bridge formats"]
-    Transport --> Consumer["Runtime, Fabric, Foundry, Scientist, external tools"]
-```
+---
 
-## What IR Owns
+IR gives PolicyOS a shared vocabulary for policy inputs, model assumptions,
+observations, analytics, and artifact references. It lets producers and
+consumers exchange versioned contracts without importing each other's
+implementation. It is a contract and reflection layer; a valid IR object is not
+by itself a runtime result, evidence finding, or authority decision.
 
-| Concern                    | Current IR role                                                     |
-| -------------------------- | ------------------------------------------------------------------- |
-| Contract vocabulary        | Trinity, analytics, governance, observation, world, refs, transport |
-| Compatibility              | schema versions, migration registry, additive-vs-breaking decisions |
-| Reflection                 | schema catalog, public-surface inventory, bridge metadata           |
-| Canonical storage boundary | JSON-first canonical form and manifest linkage                      |
-| Interoperability           | transport manifests, ecosystem bridges, PROV-O mapping              |
+## Present package boundaries
 
-## What IR Does Not Own
+| Package | Current responsibility | Boundary |
+| --- | --- | --- |
+| `polisyos.common` | Bootstrap-safe shared helpers, serialization, timestamps, logging, and async utilities. | Shared mechanics, without policy-domain ownership. Its root facade exports helper modules. |
+| `polisyos.ir` | Policy, observation, analytics, world, schema, migration, and typed-reference contracts. | Declares and checks payload structure and selected local invariants; it does not execute interventions or grant claim authority. |
+| `polisyos.core` | Cross-layer contracts, artifact/CAS infrastructure, component discovery, registries, security, and observability. | Stores and connects artifacts and services; a typed reference or manifest field still requires the relevant consumer-side admission checks. |
 
-- connector IO and world materialization details;
-- simulation kernels and execution loops;
-- runtime middleware and operator delivery surfaces;
-- workflow routing and publication-time governance.
+The package facades are lazy import boundaries. Use their `__all__` exports and
+the generated [public-surface reference](../reference/public-surface.md) to
+identify supported names; a file's presence under `src/` does not make it a
+stable package-level API. The IR root is the broad compatibility facade, while
+`polisyos.ir.analytics`, `polisyos.ir.kernel`, and `polisyos.ir.world` expose
+their declared subpackage surfaces. Core exposes selected subpackages and
+contract exports. Common's root exposes its helper modules.
 
-Those consumers depend on IR so they can evolve independently.
+The package roles do not imply one global import direction. Common provides
+shared mechanics; IR owns most policy-facing contracts but selected modules
+also consume Core artifact protocols; Core consumes IR contracts in registries,
+compiler reports, and cross-layer DTOs. The allowed module-level edges are
+owned by `architecture/imports/policy.toml`.
 
-## Compatibility Posture
+## From payload to linked contract
 
-The current default posture is fail closed:
+The current Trinity path has distinct checks at each boundary:
 
-- unknown types or unsupported versions do not silently coerce;
-- compatibility requires either direct support or a registered migration edge;
-- binary or streaming transport must preserve JSON-manifest compatibility
-  anchors instead of replacing them.
+1. `polisyos.ir.trinity.loaders.load_trinity_bundle()` parses a mapping, JSON,
+   YAML, or UTF-8 bytes and checks the requested bundle schema version. Its
+   default target is `1.0`.
+2. `TrinityBundle` and its nested models validate field types, allowed fields,
+   identifiers, bounds, and local relationships. The common `KernelModel`
+   base forbids extra fields and freezes instantiated models.
+3. `polisyos.ir.linker.link_trinity()` resolves the bundle against the supplied
+   registries. It returns a `LinkedTrinityBundle` and a typed `LinkReport` for
+   mechanism, parameter, selector, slot, metric, constraint, and schedule
+   checks covered by the linker.
+4. Downstream compilers and workflows consume the linked contract. Core owns
+   the separate artifact and persistence machinery when a payload crosses a
+   storage boundary.
 
-That policy comes from ADR-0104 through ADR-0109 and is surfaced operationally
-through the [schema catalog](../reference/ir/schema-catalog.md) and
-[interoperability](../reference/ir/interoperability.md) reference pages.
+The loader and model validators establish that a payload conforms to the
+declared DTO contract and its implemented local rules. Linker success means
+that the checks represented by that registry input produced no error-level
+issues. Neither result establishes causal adequacy, legal validity, factual
+grounding, calibrated performance, or publishability. Those claims need their
+own evidence, producer, consumer, and authority checks.
 
-## Why This Matters To The Rest Of The Stack
+## Schema and compatibility boundaries
 
-- Fabric can publish connector and world artifacts without baking its own
-  compatibility rules into downstream consumers.
+The generated [IR schema catalog](../reference/ir/schema-catalog.md) describes
+IR models and fields. The generated [shared schema reference](../reference/schemas.md)
+maps committed JSON Schema snapshots to their owners and compatibility
+metadata. These pages are the field inventories; this explanation does not
+duplicate them.
 
-- Foundry can compile Trinity and analytics contracts without inventing
-  consumer-local schema policy.
+Schema reflection, serialized snapshots, and compatibility policy answer
+different questions. A reflected type describes the model surface; a committed
+snapshot pins a wire shape; the migration registry decides which declared
+versions a reader can accept or migrate. Compatibility is explicit and
+versioned. It does not imply that an old payload regains authority or that a
+consumer's present-day evidence requirements are met.
 
-- Scientist can publish governance and decision artifacts that stay readable
-  across workflow and runtime revisions.
+## Authority, status, and time
+
+Authority is not inferred from a schema version, content digest, typed
+reference, `LinkReport.ok`, or a field such as `calibrated`. These values carry
+contract identity or local validation results. For Trinity payloads, the
+authority boundary is downstream: a proposal remains a candidate until the
+evidence and custody path that owns the relevant claim admits it. This follows
+the [identity and custody boundary](../system-design-decisions/policyos-identity-and-custody-boundary.md)
+and the north star's candidate-to-authority firewall.
+
+Statuses also stay local to their contracts. For example, `ConstraintType`
+distinguishes hard constraints from soft penalties, and `FidelityLevel`
+selects a requested simulation detail. Neither is a lifecycle status such as
+admissible, limited, contested, blocked, or publishable. A local flag or
+warning must not be projected into a broader decision without an explicit
+composition rule and consumer.
+
+`ModelSpec.time_semantics` and intervention schedules describe simulation
+time: frequency, start, horizon, and step behavior. They do not by themselves
+represent legal effective time, observation time, transaction time, freshness,
+or the validity epoch of a published claim. The custody and runtime layers
+must preserve those time roles where their claims depend on them.
+
+## Current implementation and design target
+
+The current IR provides many typed contracts and a registry-aware Trinity
+linker. That is useful substrate for the product's causal operating-system
+direction, but it is not the universal policy designer itself.
+
+The [universal policy-design target](../system-design-decisions/universal-policy-design-target-architecture-and-gap.md)
+describes a broader grammar, facet algebra, design-composition algebra, and
+obligation/admissibility calculus. Those are target architecture and identified
+gaps; do not treat today's Trinity DTOs, schema catalog, or linker as proof
+that the universal grammar or complete admissibility calculus is implemented.
+The [north star](../system-design-decisions/policy-design-causal-operating-system-north-star.md)
+explains how this present contract substrate fits the longer-term causal
+world-model and custody vision.
+
+## Evidence and tests
+
+The tests establish different parts of the current boundary:
+
+- `test_trinity_contracts.py` covers the payload models, serialization, local
+  validation, and the separate reference bundle.
+- `test_trinity_loaders.py` and `test_ir_migrations.py` cover supported loading
+  and explicit schema compatibility behavior.
+- `test_trinity_linker_contract.py` exercises registry resolution and typed
+  linker failures, including unknown mechanisms, parameters, selectors, and
+  slots.
+- `test_schema_catalog.py` checks the reflected catalog and generated
+  reference freshness; `test_public_surface.py` checks lazy facade behavior.
+
+These tests do not claim that the current IR layer proves a recommendation's
+substantive or public admissibility. That remains a separate end-to-end
+property of the relevant evidence and custody path.

@@ -2,208 +2,102 @@
 
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-The compile/execute surface is the narrow public entry point into Foundry.
-`compile()` turns a Trinity-backed policy bundle into replayable CAS artifacts,
-while `execute()` replays the compiled plan from a bound `GlobalState` snapshot
-and persists simulation evidence.
+This page describes the current `polisyos.foundry.compile()`,
+`build_input_bindings()`, and `polisyos.foundry.execute()` boundaries. A successful
+execution records what the compiled program produced from its bound model state
+and inputs. It is a model-conditioned simulation result, not an observed policy
+effect or causal-validity decision.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/__init__.py`, `src/polisyos/foundry/compile/api.py`, `src/polisyos/foundry/execute/api.py`, `src/polisyos/foundry/data_plane/bindings.py`, `src/polisyos/foundry/quickstart.py`
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/compile/**`, `src/polisyos/foundry/data_plane/bindings.py`, `src/polisyos/foundry/execute/**`, `src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`, and the linked tests.
+Evidence level: implementation and linked test sources were inspected at the pinned revision; tests were not run for this docs-only update.
 
-## Phase Coverage
+Historical freshness receipt: 2026-04-17 (an earlier documentation pass; not a
+current verification receipt). Code inspection for this refresh is pinned to
+[`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`](https://github.com/DenisKopylov/polisyos/tree/bafca83bff9ff49eef1466bc491a8420b5cd1dbb).
 
-| Source phase | Compile/execute meaning                                                                                                                                               |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 0      | Non-critical runtime expansion is frozen behind the Trinity-only facade and default registry bundle.                                                                  |
-| Phase 1      | Facade failures return structured `CompileResult` or `ExecuteResult` envelopes where the contract says they should; malformed requests still raise validation errors. |
-| Phase 2      | ProgramGraph, ExecPlan, state delta, and snapshot hand-offs are the hardened kernel boundary.                                                                         |
-| Phase 3      | Execution posture carries NaN guard and determinism metadata; numeric claims are verified through the numeric/JAX tests linked below.                                 |
-| Phase 4      | Identical CAS inputs, registry bundle, seed, and execution config are the replay unit for reproducibility checks.                                                     |
+## Runtime path
 
-## When to Call Which API
+`compile()` accepts `policy_ref.kind == "ir.trinity_bundle"`. It resolves the
+registry bundle, links and lowers the Trinity bundle, then persists lowered IR,
+the `ProgramGraph`, `ExecPlan`, slot layout, TreasuryPlan, link report, and
+`CompileReport` in CAS. Unsupported or malformed compilation returns a failed
+`CompileResult` with a persisted failure report.
 
-- Call `compile()` when a Scientist or Trinity workflow has produced a new
-  `ir.trinity_bundle` and you need an `ExecPlanRef`.
+`build_input_bindings()` reads a Fabric `DataSnapshot` and registry slot
+definitions. It validates explicit rules, or infers mappings from matching
+payload paths when rules are omitted, then persists `FoundryInputBindings`, an
+input-binding report, and the bound state snapshot consumed by `execute()`.
+Unknown slots, duplicate binding IDs, or unavailable required values fail
+binding.
 
-- Call `build_input_bindings()` after structure is fixed and a data snapshot is
-  ready to bind into concrete `GlobalState` inputs.
+`execute()` requires an `ExecPlanRef`, `FoundryInputBindingsRef`, and registry
+bundle. It resolves the bound state snapshot. On success, it executes the
+program graph, applies its state delta, and persists metrics, the state delta,
+the post-step snapshot, and a `SimulationResult` with input/provenance edges.
+Max-step, unsupported-mechanism, hard-constraint, or welfare-bound rejection
+returns `ExecuteResult(ok=False)` before the post-step snapshot and
+`SimulationResult` are persisted. Some failure results can retain intermediate
+`derived_refs` emitted before validation; the rejected result has no
+`simulation_result_ref`. A missing registry reference or unreadable input is an
+invalid request and raises an error.
 
-- Call `execute()` once both `exec_plan_ref` and `input_bindings_ref` exist and
-  you need durable evidence: simulation result, metrics, state delta, constraint
-  diagnostics, and optional environment metadata.
-
-- Call `execute(..., feedback_config_ref=...)` when the run must solve a
-  compact feedback fixed point before producing the final `SimulationResult`.
-  In that mode the facade emits additional derived artifacts:
-  `feedback_trace`, `feedback_convergence_certificate`,
-  optional `feedback_jacobian_diagnostics`, and `feedback_result`.
-
-- Set `FeedbackSolverConfig.detect_multiplicity=True` when a feedback solve
-  should also produce a structured equilibrium multiplicity report. The report
-  is persisted as `foundry.equilibrium_multiplicity_report`, attached to
-  `FeedbackSolveResult.multiplicity_report_ref`, and exposed through the
-  runtime debug endpoint `/api/v1/debug/runs/{run_id}/equilibria`.
-
-## Runtime Contract
-
-- `compile()` accepts `input_kind="trinity"` or `input_kind="auto"` for
-  `policy_ref.kind == "ir.trinity_bundle"`.
-
-- Unsupported compile requests produce `CompileResult(ok=False,
-exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
-  boundary.
-
-- `execute()` requires `ExecuteRequest.input_bindings_ref`; this is validated by
-  `tests/unit/foundry/runtime/test_execute_requires_input_bindings_ref.py`.
-
-- `execute()` requires `registry_bundle_ref` and raises `ValueError` when it is
-  absent, because runtime mechanism resolution must be explicit.
-
-- `ExecuteRequest.feedback_config_ref` is optional and opt-in. When omitted,
-  `execute()` replays exactly one static run as before.
-
-- Fixed-point feedback mode returns solver failures as `ExecuteResult(ok=False)`
-  with durable feedback artifacts whenever possible. Non-convergence does not
-  erase the residual trace or convergence certificate.
-
-- Multiplicity discovery is additive. Existing feedback runs are unchanged
-  unless `detect_multiplicity=True` or `multiplicity_mode != "off"`. The first
-  production path runs bounded multi-start exploration, clusters fixed points,
-  classifies local stability from the Jacobian, flags fold/flip/loss-of-stability
-  candidates, and optionally estimates basin shares with Wilson intervals.
-  Research callers can provide a continuation map factory to
-  `discover_equilibria(...)`; the explorer then walks `continuation_grid` with
-  pseudo-arclength predictors and records nearest-neighbor branch metadata in
-  `EquilibriumMultiplicityReport.branches`.
-
-- Unsupported runtime mechanisms and hard constraint failures return
-  `ExecuteResult(ok=False, notes=[...])` envelopes.
-
-### Selected-profile execution-source capture
-
-`CompileRequest.return_selected_profile`, `build_input_bindings(...,
-return_selected_profile=True)`, and `ExecuteRequest.return_selected_profile` are
-opt-in. With the option enabled, source writers return the exact selected CAS
-profiles and Foundry writes a `FoundryExecutionInputBasis` from the current
-request, candidate and compiled source graph, selected DataSnapshot and
-bindings, registry payload members, overrides, and recomputed effective
-posture. The basis is attached to the successful single-step `SimulationResult`
-(schema 1.4), its metrics and state delta, and downstream welfare artifacts.
-The default remains `False`; it does not rewrite or reinterpret old output.
-
-Schema 1.4 uses `execution_source_status="single_step_basis"` when this exact
-source boundary was captured. A fixed-point call uses
-`execution_source_status="feedback_uncomposed"` with no single-step basis.
-Consumers must not attach the single-step basis to the feedback result. A B161
-welfare consumer withholds feedback and profileless historical results from
-source-bound candidate observation.
-
-This capture records source identity and effective call inputs only. A matching
-selected ref, artifact ID, or manifest profile does not establish the meaning
-of the welfare quantity, its unit or valid time, a refinement relation,
-currentness, or authority.
-
-The Ukraine CAN runtime bundle carries the exact `DataSnapshotRef` returned by
-its CAS write alongside the legacy artifact ID. Intake preserves that selected
-profile in its result, receipt content, and receipt lineage edge; ID-only legacy
-manifests remain profileless and cannot enter a source-bound basis by inference.
-The fresh B161 consumer validates every typed Core JSON member in the execution
-source basis against that exact selected profile before recomputing its content.
-
-## Artifact Flow
-
-| Step                  | API                                                                                        | Primary output                                         |
-| --------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
-| Compile               | `polisyos.foundry.compile(store, request)`                                                 | `CompileResult.exec_plan_ref`                          |
-| Bind data             | `build_input_bindings(store, data_snapshot_ref=..., registry_bundle_ref=...)`              | `FoundryInputBindingsRef` and bound `StateSnapshotRef` |
-| Execute               | `polisyos.foundry.execute(store, request)`                                                 | `ExecuteResult.simulation_result_ref`                  |
-| Execute with feedback | `polisyos.foundry.execute(store, request.model_copy(update={"feedback_config_ref": ...}))` | `SimulationResult` plus `feedback_*` derived artifacts |
-| Multiplicity report   | `FeedbackSolverConfig.detect_multiplicity=True`                                           | `foundry.equilibrium_multiplicity_report`              |
-
-The downstream contract is refs, not in-memory objects. Consumers should persist
-`CompileResult.exec_plan_ref`, `FoundryInputBindingsRef`, and
-`ExecuteResult.simulation_result_ref` rather than rebuilding graphs from local
-process state.
-
-## Runnable Quickstart
-
-This quickstart is verified against the current code path and is not
-conceptual:
-
-```bash
-uv run python - <<'PY'
-from tempfile import TemporaryDirectory
-from polisyos.foundry._quickstart import run_trivial_compile_execute
-
-with TemporaryDirectory(prefix="foundry-docs-") as tmp:
-    result = run_trivial_compile_execute(cas_root=tmp)
-    print(result)
-    assert result.compile_ok is True
-    assert result.execute_ok is True
-    assert result.exec_plan_artifact_id is not None
-    assert result.simulation_result_artifact_id is not None
-PY
+```mermaid
+flowchart LR
+    Trinity["Trinity bundle + registry"] --> Compile["compile()"]
+    Compile --> Artifacts["lowered IR + ProgramGraph + ExecPlan + reports"]
+    Snapshot["Fabric DataSnapshot + slot rules"] --> Bind["build_input_bindings()"]
+    Bind --> Bound["FoundryInputBindings + StateSnapshot"]
+    Artifacts --> Execute["execute()"]
+    Bound --> Execute
+    Execute --> Result["metrics + StateDelta + post-step snapshot + SimulationResult"]
 ```
 
-`run_trivial_compile_execute()` pins the docs path to CPU by default via
-`JAX_PLATFORMS=cpu` and `JAX_PLATFORM_NAME=cpu` unless the caller already set
-those variables.
+The downstream boundary is the persisted artifact refs, not in-memory objects.
+The Foundry reference facade exposes the same compile/bind/execute sequence to
+Scientist nodes. `CompileFoundryNode` stores the compile report and derived refs
+in `ExperimentState`; `RunSimulationNode` requires the exec-plan and input-
+binding refs, records the simulation outputs, and materializes proof-bridge
+artifacts. The basic bridge case covered by its behavior test is `SCENARIO`;
+other inputs can produce `BOUNDED` or `BLOCKED`. The current bridge validator
+rejects `IDENTIFIED` certification without an admitted producer/verifier. None
+of these projections turns a Foundry run into an observed effect. See [Causal
+Engine](../../explanation/causal-engine.md) for the separate design-composition
+simulator and effect-grounding boundary.
 
-Expected shape:
+## Optional feedback and source capture
 
-```text
-QuickstartRunResult(...) with `compile_ok=True`, `execute_ok=True`, and
-non-null `exec_plan_artifact_id` / `simulation_result_artifact_id`.
-```
+An optional fixed-point `FeedbackConfig` asks Foundry to iterate the compiled
+program's model mapping and persist a `FeedbackResult`, iteration trace, and
+convergence certificate; configured runs may also persist Jacobian diagnostics
+and an equilibrium-multiplicity report. A multiplicity report characterizes
+solutions under its declared start/search protocol. It does not turn a model
+equilibrium into observed causal evidence.
 
-The same helper is covered by
-`tests/unit/foundry/facade/test_quickstart.py`.
+When `return_selected_profile=True`, compile, binding, and single-step execute
+can retain the exact selected CAS manifest profiles. Foundry then writes a
+`FoundryExecutionInputBasis`; the `SimulationResult` reports
+`execution_source_status="single_step_basis"`. A feedback result has no
+composed single-step basis and reports `feedback_uncomposed`. This source capture
+binds the selected inputs and effective execution request; it does not establish
+the source's scientific meaning, causal refinement, currentness, or authority.
+Downstream source-bound consumers may impose stricter acceptance rules than the
+Foundry execution API.
 
-Feedback-enabled quickstart:
+The compile/execute facade does not itself compose a design-wide individual,
+pairwise, and joint run set. That path is owned by
+`polisyos.runtime.quality.joint_simulation_horizon`; its trajectories are also
+model predictions and remain subject to separate grounding checks.
 
-```bash
-uv run python - <<'PY'
-from tempfile import TemporaryDirectory
-from polisyos.foundry._quickstart import run_feedback_compile_execute
-
-with TemporaryDirectory(prefix="foundry-feedback-docs-") as tmp:
-    result = run_feedback_compile_execute(cas_root=tmp)
-    print(result)
-    assert result.compile_ok is True
-    assert result.execute_ok is True
-    assert result.feedback_result_artifact_id is not None
-    assert result.feedback_convergence_certificate_artifact_id is not None
-PY
-```
-
-Feedback multiplicity quickstart:
-
-```bash
-uv run python - <<'PY'
-from tempfile import TemporaryDirectory
-from polisyos.foundry._quickstart import run_feedback_multiplicity_demo
-
-with TemporaryDirectory(prefix="foundry-multiplicity-docs-") as tmp:
-    result = run_feedback_multiplicity_demo(cas_root=tmp)
-    print(result)
-    assert result.compile_ok is True
-    assert result.execute_ok is True
-    assert result.feedback_result_artifact_id is not None
-    assert result.equilibrium_multiplicity_report_artifact_id is not None
-PY
-```
-
-## Minimal Programmatic Flow
+## Minimal flow
 
 ```python
 from polisyos.foundry import compile, execute
 from polisyos.foundry.data_plane.bindings import build_input_bindings
 
-compile_result = compile(store, compile_request)
-if not compile_result.ok:
-    raise RuntimeError(compile_result.notes)
+compiled = compile(store, compile_request)
+if not compiled.ok:
+    raise RuntimeError(compiled.notes)
 
 bindings = build_input_bindings(
     store,
@@ -211,11 +105,11 @@ bindings = build_input_bindings(
     registry_bundle_ref=registry_bundle_ref,
 )
 
-execute_result = execute(
+result = execute(
     store,
     execute_request.model_copy(
         update={
-            "exec_plan_ref": compile_result.exec_plan_ref,
+            "exec_plan_ref": compiled.exec_plan_ref,
             "input_bindings_ref": bindings.input_bindings_ref,
             "registry_bundle_ref": registry_bundle_ref,
         }
@@ -223,83 +117,12 @@ execute_result = execute(
 )
 ```
 
-Feedback mode follows the same contract but adds one more CAS-backed artifact:
+## Source and behavioral evidence
 
-```python
-from polisyos.foundry._quickstart import prepare_trivial_feedback_config
-
-feedback_config_ref = prepare_trivial_feedback_config(
-    store,
-    exec_plan_ref=compile_result.exec_plan_ref,
-)
-
-feedback_result = execute(
-    store,
-    execute_request.model_copy(
-        update={
-            "exec_plan_ref": compile_result.exec_plan_ref,
-            "input_bindings_ref": bindings.input_bindings_ref,
-            "registry_bundle_ref": registry_bundle_ref,
-            "feedback_config_ref": feedback_config_ref,
-        }
-    ),
-)
-```
-
-`FeedbackSolveResult` records `status`, `converged`, `failure_reason`,
-`trace_ref`, `convergence_certificate_ref`, optional
-`jacobian_diagnostics_ref`, final diagnostics, and any deduplicated
-`alternative_fixed_points` found by multi-start solving. If
-`FeedbackSolverConfig.budget_diagnostic_id` and `budget_tolerance` are set, the
-solver requires both numeric fixed-point convergence and fiscal closure before
-marking the run converged.
-
-When multiplicity discovery is enabled, `FeedbackSolveResult` also carries
-`multiplicity_report_ref`. The report contains `search_protocol`, clustered
-`equilibria`, continuation `branches`, `bifurcation_candidates`,
-`basin_estimates`, `unresolved_starts`, and `global_diagnostics`. Basin shares
-are properties of the declared start distribution and should not be read as
-model-invariant probabilities.
-
-## Evidence Links
-
-- Compile determinism:
-  `tests/unit/foundry/compile/test_compile_determinism.py`
-
-- Compile facade:
-  `tests/unit/foundry/facade/test_compile_facade.py`
-
-- Execute facade smoke:
-  `tests/unit/foundry/facade/test_execute_facade_smoke.py`
-
-- Execute feedback fixed point:
-  `tests/unit/foundry/runtime/test_execute_feedback.py`
-
-- Feedback multiplicity explorer:
-  `tests/unit/foundry/analysis/test_feedback_fixed_point.py`
-
-- Runtime equilibria endpoint:
-  `tests/unit/runtime/http/test_debug_api.py`
-
-- Input bindings:
-  `tests/unit/foundry/runtime/test_execute_input_bindings.py`
-
-- Fail-closed executor semantics:
-  `tests/unit/foundry/runtime/test_executor_fail_semantics.py`
-
-## Reference
-
-::: polisyos.foundry
-
-::: polisyos.foundry.compile.api
-
-::: polisyos.foundry.execute.api
-
-::: polisyos.foundry.data_plane.bindings
-
-::: polisyos.foundry._quickstart
-
-
-The source reader also checks the exact owner-declared `artifact_schema` after resolving the selected profile and verifying CAS bytes, before typed JSON validation. A different schema name or version is refused even when the artifact ID, kind, media type, canonical bytes, source edges, and payload shape are unchanged. Supported legacy producer variants are not widened by the reader: source-bound `SimulationResult` requires 1.4, while 1.3 remains legacy and cannot be promoted into a captured source basis. Serialization schema identity is not an authority or scientific refinement claim.
-
-The source reader checks owner-declared artifact kind, media type, and schema for every typed source ref and for parent edges whose owner model is known. In particular, a `WelfareBundle.simulation_result` edge must resolve as the `SimulationResult` owner and a `SimulationResult.state_delta` edge as the `StateDelta` owner; a valid selected manifest cannot self-define its expected type. Same-byte, same-schema aliases with preserved source lineage but wrong owner kind or media type are withheld by the fresh candidate consumer. Serialization identity still proves no scientific meaning or refinement.
+| Behavior described | Code and test evidence at the pinned revision |
+| --- | --- |
+| Trinity-only compile emits CAS artifacts or a persisted failure report. | [Public compile API](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/compile/api.py#L18-L64), [artifact persistence](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/compile/trinity_compiler.py#L208-L335), [artifact consumer and malformed-input tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py#L118-L166). |
+| Snapshot and slot rules produce the binding artifacts consumed by execute. | [Binding producer](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/data_plane/bindings.py#L582-L775), [execute binding test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/runtime/test_execute_input_bindings.py#L76-L115), [required-ref test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/runtime/test_execute_requires_input_bindings_ref.py#L1-L20). |
+| Execute writes result artifacts and returns failure for unsupported mechanisms or hard constraints. | [Execute API and result persistence](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/execute/api.py#L303-L357), [simulation execution path](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/execute/api.py#L422-L540), [quickstart behavior tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/facade/test_quickstart.py#L40-L67). |
+| Scientist passes refs into compile/execute and materializes a typed simulation proof bridge. | [Compile node](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py#L102-L180), [simulation node bridge path](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py#L402-L452), [basic `SCENARIO` bridge test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py#L218-L267), [status composition and non-`IDENTIFIED` validator](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py#L170-L183). |
+| Fixed-point and multiplicity artifacts are opt-in; feedback execution remains uncomposed for selected-profile capture. | [Feedback result and report producers](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/execute/api.py#L710-L735), [feedback source status](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/execute/api.py#L968-L988), [facade quickstart tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/facade/test_quickstart.py#L49-L67), [source-bound consumer tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py#L721-L730). |

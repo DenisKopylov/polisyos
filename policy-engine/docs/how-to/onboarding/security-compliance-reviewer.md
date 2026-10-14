@@ -29,7 +29,8 @@ evidence, а не из устных объяснений.
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace doctor --surface runtime-signing --surface runtime-oidc
+uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks \
+  --surface runtime-signing --surface runtime-oidc
 uv run pytest -q \
   tests/unit/core/phase0/test_cli_signing.py \
   tests/unit/core/phase0/test_store_signing.py \

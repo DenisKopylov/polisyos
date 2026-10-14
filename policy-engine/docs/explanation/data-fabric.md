@@ -1,60 +1,99 @@
 # Data Fabric
 
-Related reference: [Fabric index](../reference/fabric/index.md), [data plane](../reference/fabric/data-plane.md), [schema compatibility](../reference/fabric/schema-compatibility.md), [lineage](../reference/fabric/lineage.md), [quality](../reference/fabric/quality.md), [time travel](../reference/fabric/time-travel.md).
-Related contracts: [E2.2 world store and world event](../contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md), [E2.3 world DuckDB materialization](../contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md), [E2.5 docs pipeline](../contracts/E2_5_FABRIC_DOCS_PIPELINE_V1_0.md), [E2.6 claims pipeline](../contracts/E2_6_FABRIC_CLAIMS_PIPELINE_V1_0.md).
-Related ADRs: [ADR-0021](../adr/0021-connector-schema-contracts-and-storage-port.md), [ADR-0056](../adr/0056-wgi-wdi-fabric-connector-wvs-new.md), [ADR-0107](../adr/0107-ir-analytics-normalization-and-schema-compatibility.md).
-Evidence: `tests/unit/fabric/data_plane/test_orchestrator.py`, `tests/unit/fabric/data_plane/test_streaming_runtime.py`, `tests/unit/fabric/test_lineage.py`, `tests/repo_quality/tools/test_fabric_schema_governance.py`, [cache rebuild storm runbook](../runbooks/cache-rebuild-storm.md), [Fabric quarantine/DLQ runbook](../runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md).
+Related reference: [Fabric index](../reference/fabric/index.md), [connectors](../reference/fabric/connectors.md), [data plane](../reference/fabric/data-plane.md), [lineage](../reference/fabric/lineage.md), [time travel](../reference/fabric/time-travel.md).
 
-Fabric is the platform's evidence and world-state layer. It turns heterogeneous
-external sources into governed artifacts, lineage graphs, world facts, and
-queryable snapshots that other layers can trust.
+`polisyos.fabric` is PolicyOS's runtime package for connector-backed acquisition,
+retrieval custody, document and claim processing, CAS evidence, provenance helpers,
+and world-store reads and writes. These are related capabilities with explicit
+artifacts between them; they do not form one automatic path from every source
+response to a world fact or policy decision.
 
-## Connector Ingestion Flow
+## Fabric and Data Forge
+
+| Responsibility | Owner and boundary |
+| --- | --- |
+| Runtime source access and world-store operations | Fabric owns connector protocols and profiles, fetch orchestration, its evidence and lineage artifacts, document/claim pipelines, and the world-store API. |
+| Prepared asset builds and publication | Data Forge owns offline, asset-centric acquisition, normalization, and publication. Fabric is intended to consume selected assets through `polisyos.data_forge.read_api`; the retrieval service has an observed direct import from a catalog batch module, documented below. |
+
+`architecture/packages/boundaries.toml` declares that Fabric may use the Data
+Forge read API and forbids `data_forge.kernel` or `data_forge.domains`;
+`architecture/imports/policy.toml` allows the broader `data_forge` root. The
+Data Forge README describes its runtime-safe entrypoint as
+`polisyos.data_forge.read_api`. These are intended boundaries; the Fabric
+reference records an observed catalog-domain import exception and domain batch
+execution exports through `read_api`, so they should not be read as proof of a
+fully enforced narrow runtime matrix.
+
+## The concrete paths
+
+Connector-backed acquisition starts with a `ConnectorManifestSpec` containing
+`DatasetFetchSpec` entries. A profile and execution policy configure the source
+connector; each request produces a typed `FetchResult` with a payload, schema
+and version fields, fetch time, optional source-update time, and declared
+quality metadata. Fabric applies the configured transform and sanitization
+stages, routes rejected records to quarantine where applicable, and can persist
+payloads, a provenance graph, and an `EvidenceBundle` in CAS. The data-plane
+orchestrator can then create a `DataSnapshot` that references the evidence
+bundle and a primary data artifact.
 
 ```mermaid
 flowchart LR
-    Profile["SourceProfile and connector contract"] --> Resolve["Connection config and execution policy"]
-    Resolve --> Fetch["Connector fetch / record / replay / streaming window"]
-    Fetch --> Validate["Schema, transform, quality, and quarantine checks"]
-    Validate --> Persist["CAS artifacts and data-plane state"]
-    Persist --> World["World facts, materializations, and snapshots"]
-    World --> Downstream["Foundry bindings, Scientist workflows, runtime queries"]
+    Manifest["Connector manifest + profile"] --> Request["FetchRequest"]
+    Request --> Connector["Source connector"]
+    Connector --> Result["FetchResult"]
+    Result --> Process["Transforms, PII handling, sanitization"]
+    Process --> CAS["With CAS: payloads + provenance graph + EvidenceBundle"]
+    CAS --> Snapshot["Optional DataSnapshot"]
+
+    Bytes["Raw document bytes"] --> Doc["DocMeta and document stages"]
+    Doc --> Facts["World facts/events + fact-log segments"]
+    Facts --> Materialize["World materialization and query"]
+
+    Assets["Data Forge asset build"] --> ReadAPI["Data Forge read_api"]
 ```
 
-The contract boundary starts before a request is sent. Profiles, connector
-contracts, and execution policy decide transport, concurrency, cache behavior,
-and compatibility posture up front.
+The document path is a separate producer: raw bytes become `DocMeta`, then
+normalization, structure, and chunk artifacts; those stages append document
+facts and events to world fact-log segments for later materialization. The claim
+path likewise persists claim artifacts and writes its own world segment. A
+connector `EvidenceBundleRef` or `DataSnapshotRef` is not itself a world fact.
 
-## Lineage And Schema Compatibility Flow
+`run_orchestrated_ingestion` uses the first source artifact in the evidence
+bundle as `DataSnapshot.data_ref`. Its `fabric.quality_report` records the
+ingestion source, dataset count, and evidence notes; this wrapper does not
+compute a full content-quality assessment. Use the quality modules and their
+own contracts for those checks.
 
-```mermaid
-flowchart TB
-    Contract["Connector contract and schema snapshot"] --> Gate["Schema governance gate"]
-    Gate --> Ingest["Ingestion and transform pipeline"]
-    Ingest --> Lineage["FabricLineageTracker"]
-    Lineage --> Materialize["World tables / claims / facts / query outputs"]
-    Materialize --> Impact["Impact analysis, OpenLineage export, replay and recovery"]
-```
+## Provenance, time, and trust
 
-This is why schema drift and lineage are documented together: contract changes
-are not local to connectors once downstream world tables and decision flows
-depend on them.
+Fabric stores references and provenance at several boundaries. Connector
+ingestion can persist a `ProvenanceCoreGraph` and link it from an
+`EvidenceBundle`. Document and claim persistence records typed CAS inputs, while
+world fact emission accepts provenance, evidence references, and valid time.
+`FabricLineageTracker` can represent source-field, transform, materialization,
+claim, fact, and query-result relationships. A lineage helper or persisted ref
+proves only the relationships it actually records; it does not prove that all
+producer and consumer paths share one complete graph.
 
-## Fabric Subsystems
+Keep time roles separate. `FetchResult.fetched_at` is the connector fetch time;
+`source_updated_at` is a separate optional source-update value. `DocMeta` carries
+`retrieved_at`. World queries accept both `as_of_valid_time` and
+`as_of_tx_time`. A fetch timestamp does not supply either world-query time.
 
-| Subsystem               | Job                                                                | Default consumer                      |
-| ----------------------- | ------------------------------------------------------------------ | ------------------------------------- |
-| Connectors and profiles | normalize source access and fetch semantics                        | Fabric ingestion/runtime              |
-| Data plane              | record, replay, streaming, quarantine, cursor state, semantic diff | operators and workflow automation     |
-| Lineage and quality     | trace source-to-world relationships and data fitness               | Scientist, audits, runbooks           |
-| World and time travel   | materialize facts and query snapshots over time                    | runtime read paths and recovery flows |
+CAS custody and validation do not make source content scientifically true. A
+`FabricFetchReceipt` is explicitly scoped to catalog selection and custody of the
+returned result. `resolve_persisted_fetch` reloads the payload, rebinds the plan
+to the catalog, and compares it with a current connector replay; its contract
+says this does not establish the historical transport occurrence or scientific
+truth. Connector-supplied quality, version, and update fields remain typed
+source results, not independent measurements.
 
-## Why Fabric Is Separate
+## When to use this model
 
-- Runtime needs a governed read surface, not direct connector-specific logic.
-- Foundry needs stable input bindings and snapshot refs, not transport code.
-- Scientist needs replayable evidence, lineage, and readiness inputs, not raw
-  source responses.
-
-The result is a data layer that treats ingestion, compatibility, lineage, and
-recovery as first-class contracts instead of hidden implementation details.
+Use the [Fabric reference](../reference/fabric/index.md) to find the producer,
+artifact, and consumer for a specific path. Use the
+[Data Forge consolidation boundary](../reference/fabric/index.md#fabric-and-data-forge)
+when the input is a prepared asset rather than a runtime connector fetch. Treat
+each workflow's returned artifact refs and admissibility checks as explicit
+bindings; do not infer a generic source-to-world or source-to-policy bridge from
+the fact that both endpoints exist.

@@ -1,24 +1,41 @@
 # Установка
 
-> Канонические contributor paths для текущего дерева после refactor: выберите
-> профиль, выполните bootstrap, затем `doctor` и `verify`.
+Freshness: 2026-10-14
+Owner: `@platform-owners`
+Source of truth: `CONTRIBUTING.md`, `docs/reference/environment-matrix.md`, `pyproject.toml`,
+`.python-version`, `.nvmrc`, `package.json`, `tools/devx/workspace/_common.py`,
+`tools/devx/workspace/bootstrap.py`, `tools/devx/workspace/doctor.py`, `tools/registry.py`,
+`.pre-commit-config.yaml`.
 
-!!! info "Validated against current command surface"
-2026-04-17 на локальном macOS workstation были проверены
+!!! info "Historical command-surface receipt (2026-04-17)"
+На локальном macOS workstation были проверены
 `uv run polisyos-tools workspace bootstrap --help`,
 `uv run polisyos-tools workspace doctor --help`,
 `uv run polisyos-tools workspace verify --help`,
 `uv run polisyos-tools workspace ci-parity --help`,
-а также `uv run polisyos-tools workspace doctor --list-surfaces`.
-Сами install-команды ниже mutating и остаются manual/conceptual steps.
+а также `uv run polisyos-tools workspace doctor --list-surfaces`. Это историческое
+наблюдение доступности команд в конкретной среде, а не результат запуска текущего
+bootstrap или проверки на свежем checkout. Команды установки ниже меняют локальное
+окружение.
+
+Команды ниже перечислены по текущим source entrypoints в `pyproject.toml` и
+`tools/registry.py`; эта доступность не является receipt успешного запуска. Успешное
+выполнение на машине утверждает только датированная историческая запись выше.
 
 ## Inputs
 
 - checkout `policy-engine/`;
 - Python `3.14.x`;
-- Node `22.x`;
-- `uv`;
+- `uv 0.9.21`;
+- Node `22.x` для `docs-style` и frontend workflows;
+- для frontend workflow и стандартных `doctor` lockfile/contract checks — Corepack и pnpm
+  `10.33.2` (версию pnpm задает `package.json`);
 - решение, нужен ли вам frontend и Playwright на этой машине.
+
+Профили bootstrap задают только Python extras: `minimal` = `lint + test`, `docs` =
+`lint + docs`, `runtime` = `lint + test + runtime`, `research` = `lint + test + runtime +
+research`. Bootstrap по умолчанию также устанавливает pre-commit hooks, frontend workspace
+и Playwright browsers, затем запускает `doctor`; флаги ниже позволяют пропустить эти шаги.
 
 ## Outputs
 
@@ -28,23 +45,31 @@
 
 ## Commands
 
+Полный runtime-путь устанавливает зависимости и запускает `doctor` в конце bootstrap;
+`verify --skip-doctor` запускает fast contributor gate без повторного workstation preflight.
+
 ```bash
 cd policy-engine
 uv run polisyos-tools workspace bootstrap --profile runtime
-uv run polisyos-tools workspace doctor
-uv run polisyos-tools workspace verify
+uv run polisyos-tools workspace verify --skip-doctor
 ```
 
 ## Канонический выбор профиля
 
 | Профиль    | Когда брать                                    | Команда                                                                                      |
 | ---------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `minimal`  | core Python, lint, быстрые unit/property tests | `uv run polisyos-tools workspace bootstrap --profile minimal --skip-frontend`                |
-| `docs`     | MkDocs, docs accuracy, docstring quality       | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright` |
+| `minimal`  | core Python, lint, быстрые unit/property tests | `uv run polisyos-tools workspace bootstrap --profile minimal --skip-frontend --skip-doctor`  |
+| `docs`     | MkDocs и authored-document checks              | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-doctor`     |
 | `runtime`  | backend/runtime/API work, default path         | `uv run polisyos-tools workspace bootstrap --profile runtime`                                |
-| `research` | causal, Foundry, Scientist heavy workflows     | `uv run polisyos-tools workspace bootstrap --profile research --skip-frontend`               |
+| `research` | causal, Foundry, Scientist heavy workflows     | `uv run polisyos-tools workspace bootstrap --profile research --skip-frontend --skip-doctor` |
 
 Если вы не уверены, начинайте с `runtime`.
+
+У `--skip-frontend` есть два эффекта: bootstrap пропускает проверку Node и установку pnpm
+workspace. Без `--skip-doctor` последующий `doctor` все равно проверяет Python, Node, `uv`,
+Playwright, lockfiles и generated contracts. Флаг bootstrap `--skip-playwright` пропускает
+установку браузеров, но не передается автоматически в `doctor`; для browserless bootstrap
+используйте `--skip-doctor`, затем запускайте нужные проверки отдельно.
 
 ## Рекомендуемый install path
 
@@ -52,8 +77,7 @@ uv run polisyos-tools workspace verify
 
 ```bash
 uv run polisyos-tools workspace bootstrap --profile runtime
-uv run polisyos-tools workspace doctor
-uv run polisyos-tools workspace verify
+uv run polisyos-tools workspace verify --skip-doctor
 ```
 
 Что делает этот путь:
@@ -62,26 +86,44 @@ uv run polisyos-tools workspace verify
   [Environment Matrix](../reference/environment-matrix.md);
 
 - использует `uv` как canonical Python environment manager;
-- проверяет lockfiles, generated-contract surfaces и optional env surfaces;
-- подготавливает backend и, если вы не отключили frontend, dashboard toolchain.
+- синхронизирует extras выбранного профиля и по умолчанию устанавливает pre-commit hooks;
+- подготавливает frontend и Playwright browsers, если их не отключить;
+- запускает `doctor`, если не указан `--skip-doctor`; этот шаг проверяет Node `22.x`, `uv`
+  `0.9.21`, Playwright smoke, lockfiles и generated contracts, если проверки не отключены.
 
 ## Быстрые варианты
 
 ### Backend-only onboarding
 
 ```bash
-uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-playwright
-uv run polisyos-tools workspace doctor --skip-playwright
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
 uv run polisyos-tools workspace verify --backend-only --skip-doctor
 ```
+
+Backend-only профиль не устанавливает Node workspace. Если нужен только базовый workstation
+preflight без browser, pnpm lockfile и generated-contract checks, запускайте `doctor` отдельно:
+
+```bash
+uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks
+```
+
+Даже с этими флагами `doctor` проверяет Python `3.14.x`, Node `22.x` и `uv 0.9.21`.
 
 ### Docs-only onboarding
 
 ```bash
-uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright
-uv run polisyos-tools workspace doctor --skip-playwright --skip-contract-checks
-uv run polisyos-tools workspace ci-parity --skip-browser
+uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-doctor
+uv run polisyos-tools workspace docs-style docs/
+uv run --extra docs python -m mkdocs build --strict
+uv run polisyos-tools validation check-docs-accuracy --repo-root .
 ```
+
+Этот профиль ставит только Python extras `lint + docs`; Node/Corepack/pnpm и browser stack
+не устанавливаются автоматически. Для `docs-style` нужен Node `22.x`, так как authored
+Markdown проверяет Node-based `markdownlint-cli2` hook; Corepack/pnpm и browser stack для
+этого targeted docs path не нужны. Если отдельно запускаете полный `doctor`, он снова проверит
+Node, lockfiles и generated contracts; browser smoke можно отключить флагом `--skip-playwright`,
+а остальные поверхности — соответствующими `--skip-*` флагами.
 
 ### Frontend onboarding
 
@@ -115,13 +157,18 @@ pip install -e "."
 | `.[research]`                    | causal / Scientist / Foundry heavy workflows             |
 | `.[all]`                         | curated umbrella для широкого локального feature surface |
 
-Для frontend после manual path все равно нужен pnpm через Corepack:
+Для frontend после manual path нужен Node `22.x` и Corepack с pnpm `10.33.2`:
 
 ```bash
-corepack pnpm install --frozen-lockfile --ignore-scripts
+corepack pnpm install --frozen-lockfile
 cd apps/runtime-dashboard
 corepack pnpm run playwright:install
 ```
+
+В свежем checkout выполните `corepack pnpm install --frozen-lockfile` перед TypeScript
+scanner: отсутствие workspace links может дать ложные findings. Bootstrap использует
+`--ignore-scripts` при своей установке; эта команда выполняет предписанную fresh-checkout
+установку для scanner workflows.
 
 ## Проверка результата
 
@@ -170,7 +217,7 @@ uv run --extra docs python -m mkdocs build --strict
 uv run polisyos-tools workspace doctor --list-surfaces
 ```
 
-На 2026-04-17 доступны:
+Historical list, captured on 2026-04-17:
 
 - `datasets-unpd`
 - `frontend-sentry-build`
@@ -202,4 +249,6 @@ uv run polisyos-tools workspace doctor --list-surfaces
 uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks
 ```
 
-Но перед PR вернитесь к полному `doctor` или `ci-parity`.
+Это оставляет проверки Python, Node и `uv`; перед PR запускайте подходящий scope-specific gate.
+`ci-parity --skip-browser` — широкая CI-parity проверка, а не короткая проверка для docs-only
+изменений.

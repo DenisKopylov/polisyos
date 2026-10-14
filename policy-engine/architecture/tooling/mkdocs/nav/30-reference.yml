@@ -24,6 +24,7 @@
           - Causal Statistical Validity: reference/foundry/causal-statistical-validity.md
       - Scientist:
           - reference/scientist/index.md
+          - Current Workflows: reference/scientist/current-workflows.md
           - reference/scientist/workflows.md
           - reference/scientist/governance-passes.md
           - reference/scientist/nodes.md
@@ -86,6 +87,10 @@
           - reference/fabric/processing-guarantees.md
           - reference/fabric/discovery-intelligence.md
           - reference/fabric/product-api-integration.md
+      - Data Forge:
+          - reference/data-forge/index.md
+          - Current Data Paths: reference/data-forge/current-data-paths.md
+          - Catalog Default Resources: reference/data-forge/catalog-default-resources.md
       - REST API:
           - reference/api/index.md
           - reference/api/runs.md
@@ -96,6 +101,8 @@
           - reference/api/versioning.md
           - reference/api/migration-guide.md
       - Runtime:
+          - reference/runtime/index.md
+          - Request Lifecycle: reference/runtime/current-request-lifecycle.md
           - Quality Scorecard: reference/runtime/quality-scorecard.md
           - Production Quality Approval: reference/runtime/production-quality-approval.md
           - Production Canary Matrix: reference/runtime/production-canary-matrix.md
@@ -110,6 +117,7 @@
           - Run-Cost Proportionality Ledger: reference/runtime/run-cost-proportionality-ledger.md
       - Frontend:
           - reference/frontend/index.md
+          - Current Surface Map: reference/frontend/current-surface-map.md
           - Workspace Contract: reference/frontend/workspace-contract.md
       - Brand:
           - brand/README.md
@@ -139,6 +147,8 @@
       - Data Lake Policy: reference/data-lake-policy.md
       - Local Runtime State: reference/local-runtime-state.md
       - Documentation Inventory: reference/documentation-inventory.md
+      - Documentation Verification: reference/documentation-verification.md
+      - E02 Source Snapshot: reference/e02-documentation-snapshot.md
       - Contributor Start Here: reference/contributor-start-here.md
       - Dependency Platform: reference/dependency-platform.md
       - Environment Matrix: reference/environment-matrix.md

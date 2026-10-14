@@ -1,16 +1,30 @@
-# Lex Production 140K Runbook — Google Cloud Edition
+# Historical Lex 140K Production Plan — Google Cloud Edition
 
-> Updated: April 8, 2026.
-> Target deployment: `6` GCE Spot VMs (europe-west1), `6` Gonka accounts × `5` API keys each, full `ЄДРНПА` corpus.
-> Data source: fresh ЄДРНПА dump from 2026-03-24.
-> Budget: $300 GCP free credits.
-> Execution posture: current code path (each worker streams the XML corpus itself) with safe per-pass shard outputs and an explicit local merge before finalize. Optional pre-shard acceleration is documented in Section 2.1 and is not assumed by the scripts below.
+> Plan snapshot: April 8, 2026. This is an archived plan, not a current production runbook.
+> Planned topology at that date: `6` GCE Spot VMs (europe-west1), `6` Gonka accounts × `5` API keys each, full `ЄДРНПА` corpus; no current resources or credentials are established.
+> Corpus snapshot named by the plan: ЄДРНПА dump dated 2026-03-24; availability, completeness, and checksums have not been rechecked.
+> Budget assumption recorded by the plan: $300 GCP free credits; current billing, credits, quotas, and prices are unknown.
+> Implementation assumption recorded by the plan: each worker streamed the XML corpus and used per-pass shard outputs plus an explicit local merge. This does not describe the current source scripts without revalidation.
+
+Owner: Not established by this historical plan; identify the current authorized Lex and cloud operator before any reuse.
+Source of truth: `policy-engine/src/polisyos/data_forge/domains/legal/batch/cli.py`, `policy-engine/ops/cloud/gcp/`, `policy-engine/pyproject.toml`, and live project/billing/quota/secret/object state.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on `2026-10-14`.
+
+> **Archive and revalidation boundary.** This page preserves dated estimates, logs, and command examples. Its GCP commands can change project billing, IAM, secrets, storage, and VM state; its pipeline commands can upload a corpus, spend provider budget, and delete or replace output. No cloud, quota, billing, corpus, provider, or credential state was queried, and no deployment, upload, copy, or service was run for this review. Do not treat code or documentation presence as a readiness result.
+
+## Revalidation Prerequisites
+
+Before considering this plan, re-pin the repository and reconcile every inline script against the tracked source under `policy-engine/ops/cloud/gcp/`. At the reviewed source pin, `create_workers.sh` requires `PROJECT_ID`, `BUCKET_NAME`, `WORKER_SA_EMAIL`, and `REPO_BUNDLE_URI`; despite its default `WORKER_MODE=preflight`, it calls `gcloud compute instances create`, so that mode is not a dry run. The tracked `startup.sh` expects the pre-sharded snapshot summary and shard manifests; the inline 2026-04-08 startup sample instead downloads raw XML. The sample also runs `pip install -e ".[batch]"`, but `policy-engine/pyproject.toml` declares no `batch` extra at this source pin. Resolve the actual dependency set from the current project metadata and compare the current batch CLI in `policy-engine/src/polisyos/data_forge/domains/legal/batch/cli.py` before adapting any command.
+
+Re-establish current cloud identity, project ownership, billing authorization, regional quota/capacity, worker IAM, secret access, bucket policy, input snapshot manifest/checksums, and output-retention/cleanup ownership independently. Confirm provider authorization and budget separately before any live batch. The repository scripts and this archived plan do not establish those external prerequisites.
 
 ---
 
-## 0. GCP Infrastructure
+## 0. Historical GCP Infrastructure Plan (2026-04-08)
 
-### 0.1 VM Spec: `t2d-standard-2` Spot
+The following machine, quota, IP, pricing, and cost rows reproduce assumptions from the plan date; they are not current cloud facts or recommendations.
+
+### 0.1 VM Spec In The Historical Plan: `t2d-standard-2` Spot
 
 | Spec         | Value                                                              |
 | ------------ | ------------------------------------------------------------------ |
@@ -22,25 +36,25 @@
 | Image        | Ubuntu 24.04 LTS (`ubuntu-2404-lts-amd64`)                         |
 | Zone         | `europe-west1-b` (Belgium — low latency to Gonka 138-node network) |
 
-**Important quota note:** in the fresh `polisyos-lex` project, `europe-west1` exposes `E2_CPUS=8`, so `6 x e2-standard-2` will fail quota checks. `T2D_CPUS=16` in the same region, so `t2d-standard-2` is the safe default for six 2-vCPU workers unless Google raises the E2 quota later.
+**Quota snapshot recorded by the 2026-04-08 plan:** it stated that `polisyos-lex` had `E2_CPUS=8` and `T2D_CPUS=16` in `europe-west1`. Those values and the resulting machine-type recommendation are historical; query the currently authorized project and region before any capacity decision.
 
-Spot pricing stays in the same rough band as the original plan and comfortably fits the $300 budget for setup, calibration, and the production run.
+The plan estimated Spot pricing in the same rough band as its earlier estimate and expected it to fit its $300 credit assumption. Current prices, discounts, billing, and credit balances were not verified.
 
 ### 0.2 Why `t2d-standard-2` (not larger)
 
-| Option               | vCPU  | RAM      | Spot $/hr           | Verdict                                                                     |
-| -------------------- | ----: | -------: | ------------------: | --------------------------------------------------------------------------- |
-| `e2-small`           | 2     | 2 GB     | $0.007              | **Too tight** — 2 GB marginal for async LLM dispatch + DuckDB               |
-| `e2-standard-2`      | 2     | 8 GB     | $0.014              | Good shape, but blocked by the initial `E2_CPUS=8` quota in `europe-west1`  |
-| **`t2d-standard-2`** | **2** | **8 GB** | **roughly similar** | **Quota-safe default** — same worker shape, enough regional quota for 6 VMs |
-| `n2-standard-2`      | 2     | 8 GB     | $0.020              | Safe fallback if T2D capacity is unavailable in the chosen zone             |
-| `e2-standard-4`      | 4     | 16 GB    | $0.027              | Overkill — extra CPU/RAM unused; doubles cost for no gain                   |
+| Option               | vCPU  | RAM      | Spot $/hr                           | Verdict                                                                  |
+| -------------------- | ----: | -------: | ----------------------------------: | ------------------------------------------------------------------------ |
+| `e2-small`           | 2     | 2 GB     | $0.007                              | **Too tight** — 2 GB marginal for async LLM dispatch + DuckDB            |
+| `e2-standard-2`      | 2     | 8 GB     | $0.014 (plan estimate)              | Plan's historical concern: its then-recorded `E2_CPUS=8` quota           |
+| **`t2d-standard-2`** | **2** | **8 GB** | **roughly similar (plan estimate)** | Plan's historical recommendation; regional quota and capacity unverified |
+| `n2-standard-2`      | 2     | 8 GB     | $0.020                              | Safe fallback if T2D capacity is unavailable in the chosen zone          |
+| `e2-standard-4`      | 4     | 16 GB    | $0.027                              | Overkill — extra CPU/RAM unused; doubles cost for no gain                |
 
-### 0.3 IP isolation
+### 0.3 IP-Isolation Assumption In The Historical Plan
 
-Each VM gets a unique external IP automatically. One account per IP — no overlap on key-level, account-level, or IP-level limits.
+The plan assumed each VM would get a unique external IP and mapped one account to each IP. No address allocation, provider limit, or current topology was checked.
 
-### 0.4 Cost budget breakdown
+### 0.4 Historical Cost Estimate (2026-04-08; Not A Current Quote)
 
 | Resource                           | Unit cost                                        | Total     |
 | ---------------------------------- | ------------------------------------------------ | --------- |
@@ -56,7 +70,7 @@ Realistic pipeline completion: 5-10 days → actual spend **$25-60**.
 
 ---
 
-## 1. Calibration Plan
+## 1. Archived Calibration Plan
 
 ### 1.1 Why calibrate on GCP specifically
 
@@ -70,7 +84,7 @@ Local smoke results (March 28) are useful as a **floor estimate**, not a ceiling
 
 ### 1.2 Calibration philosophy
 
-**Every run produces useful artifacts.** All calibration runs process real corpus documents with `--resume` on shared GCS output. Subsequent runs skip already-completed docs via `progress.jsonl`. Nothing is thrown away — calibration and production form one continuous pipeline.
+**Artifact-continuity assumption in the 2026-04-08 plan.** It expected calibration runs to process real documents with `--resume` on shared GCS output and later runs to skip completed docs through `progress.jsonl`. Current checkpoint, output, and resume semantics were not verified.
 
 **Calibrate on the `current` pass first.** `Чинний` / `Не набрав чинності` is the slower and more LLM-heavy pass. Once its safe ceiling is known, apply the locked config to the `historical` pass with the same or lower pressure. A good default is: keep the same `rps` / `parallel-llm`, but start `historical` with `parallel-llm-global` lowered by `10-20%` for the first `~200` docs per shard, then raise it back if `429` stays low.
 
@@ -80,7 +94,7 @@ Local smoke results (March 28) are useful as a **floor estimate**, not a ceiling
 
 **Reduce per-VM pressure before reducing VM count.** The provider sees aggregate pressure from `30` keys. If `429` / `transfer_agent_capacity_reached` rises across all shards, first lower `rps` or `parallel-llm-global` while keeping all 6 VMs active and producing docs.
 
-**Test code-aware knobs, not only raw batch size.** The Lex pipeline already downshifts large/outlier documents internally, so Phase 1 should spend real budget on `--parallel-llm-global` and `--spo-verify-mode`, not just neighboring `batch-chars` values.
+**Calibration recommendation recorded in the plan.** It assumed the Lex pipeline downshifted large/outlier documents and recommended testing `--parallel-llm-global` and `--spo-verify-mode`. Recheck current CLI behavior before any tuning; no provider spend was authorized or incurred for this documentation review.
 
 ### 1.3 Phase 1 — Parallel hypothesis sweep (1-2 hours, ~$0.17)
 
@@ -182,11 +196,11 @@ All 6 VMs run the locked configuration. Remove `--max-docs` — each VM resumes 
 ./create_workers.sh production
 ```
 
-**Artifacts from Phase 1-2 (~1500 docs total) are already committed** to `progress.jsonl` and GCS output. Phase 3 skips them automatically.
+The plan assumed Phase 1-2 outputs (about `1500` documents) would already be committed to `progress.jsonl` and GCS and that Phase 3 would skip them. No such current artifacts, counts, or resume behavior were checked.
 
 ---
 
-## 2. Corpus & Goal
+## 2. Historical Corpus Scope And Goal
 
 Process the full `~140K`-document corpus with a mixed policy:
 
@@ -204,16 +218,16 @@ Process the full `~140K`-document corpus with a mixed policy:
 | `Дію призупинено`           | ~35           | Primary only      |
 | **Total**                   | **~140,000+** | mixed             |
 
-### Fresh data — ЄДРНПА dump 2026-03-24
+### Corpus Snapshot Named By The Plan — ЄДРНПА dump dated 2026-03-24 (Not Rechecked)
 
 - Cards: `https://nais.gov.ua/files/general/2026/03/24/20260324092127-31.zip`
 - Texts: `https://nais.gov.ua/files/general/2026/03/24/20260324092508-20.zip`
 
-### 2.1 Optional fast path — pre-materialize per-pass shard inputs locally
+### 2.1 Optional Fast-Path Proposal Recorded In The Plan
 
-The scripts in this runbook assume the **current code path**: each VM parses the XML dump itself and filters to its shard in-process. That is safe, but not optimal: with `6` workers we still pay for `6` full scans of the texts XML.
+The 2026-04-08 plan proposed a helper to pre-materialize per-pass shard inputs locally; no implementation or authorization is established by this page. The plan also assumed each VM would parse the XML dump itself and filter its shard in-process. That assumption is stale against the reviewed `policy-engine/ops/cloud/gcp/startup.sh`, which fetches a pre-sharded snapshot summary and shard manifest. Reconcile the archived plan with the current source before any reuse.
 
-If you are willing to add a small helper before production, the best acceleration is:
+The archived proposal described this possible acceleration:
 
 1. Stream `cards.xml` + `texts.xml` **once** on your Mac or one staging VM.
 2. Build `NPADocument` rows using the same `doc_id` logic as `polisyos.data_forge.domains.legal.batch.xml_parser._stable_doc_id(...)`.
@@ -232,7 +246,7 @@ Important:
 
 ---
 
-## 3. Local smoke baseline (March 28, for reference)
+## 3. Historical Local Smoke Baseline (March 28, 2026; Reference Only)
 
 > These numbers are from a local Mac run, 5 keys, 1 IP. GCP results will differ.
 
@@ -251,7 +265,7 @@ Important:
 
 ---
 
-## 4. Sharding Topology
+## 4. Historical Sharding Topology
 
 6 shards — one per VM, one per Gonka account, one per IP.
 
@@ -275,7 +289,7 @@ Operational rules:
 
 ---
 
-## 5. GCP Setup (from zero)
+## 5. Archived GCP Setup Transcript (Mutating Commands; 2026-04-08)
 
 ### 5.1 Install gcloud CLI (on your Mac)
 
@@ -400,8 +414,8 @@ mkdir -p /mnt/work/{input,output}
 mkdir -p /mnt/work/output/manifests
 
 # ---------- Download corpus from GCS ----------
-# Current executable plan still uses the raw XML input path.
-# Optional pre-sharded manifests are documented in Section 2.1 but are not assumed here.
+# The 2026-04-08 inline startup sample uses raw XML inputs.
+# The reviewed repository startup script instead expects pre-sharded snapshot artifacts.
 gcloud storage cp gs://polisyos-lex-data/input/raw/edrnpa_cards_2026-03-24.xml /mnt/work/input/
 gcloud storage cp gs://polisyos-lex-data/input/raw/edrnpa_texts_2026-03-24.xml /mnt/work/input/
 
@@ -839,7 +853,7 @@ done
 
 ---
 
-## 6. Tuned LLM Parameters
+## 6. Historical LLM Parameter Plan
 
 ### 6.1 Starting parameters (Phase 1 baseline — VM-0)
 
@@ -893,7 +907,7 @@ All other parameters remain at baseline defaults.
 
 ---
 
-## 7. Monitoring
+## 7. Historical Monitoring Examples
 
 ### 7.1 From your Mac
 
@@ -964,7 +978,7 @@ print(f'Last 60s: {ok} successful requests = {ok/60:.1f} RPS')
 
 ---
 
-## 8. Collecting Results & Finalize Pass
+## 8. Historical Result Collection And Finalize Procedure
 
 ### 8.1 Sync results from GCS after all shards complete
 
@@ -1248,7 +1262,7 @@ python3 -m polisyos.data_forge.domains.legal.batch run \
 
 ---
 
-## 9. Temporal Requirement
+## 9. Temporal Requirement Recorded In The Historical Plan
 
 Production policy for this `140k` run:
 
@@ -1261,7 +1275,7 @@ Production policy for this `140k` run:
 
 ---
 
-## 10. Post-Run Validation Checklist
+## 10. Post-Run Checks Recorded In The Historical Plan
 
 After finalize pass completes:
 
@@ -1281,7 +1295,7 @@ After finalize pass completes:
 
 ---
 
-## 11. Cleanup
+## 11. Historical Cleanup Examples (Current Resource State Unverified)
 
 ```bash
 # Delete all VMs
@@ -1301,7 +1315,7 @@ done
 
 ---
 
-## 12. Calibration Log
+## 12. Historical Calibration Log
 
 > Fill in after each phase. This section is the running record of actual measurements.
 
@@ -1366,16 +1380,16 @@ done
 
 ---
 
-## Notes
+## Historical Plan Notes
 
 - The exact XML status string is `Не набрав чинності`, not `Не набув чинності`.
 - Rare statuses are routed conservatively to `Primary only`.
 - API keys are stored in GCP Secret Manager, never in git or VM metadata.
-- Spot VMs may be preempted — `--resume` + GCS sync ensures no work is lost.
-- Each VM auto-shuts-down after completion to stop billing.
-- GCS output is the source of truth — VM local disk is ephemeral.
-- If a Spot VM is preempted mid-run, just restart it: startup script restores output from GCS and resumes.
+- The plan expected Spot VM preemption handling through `--resume` and GCS sync; verify the current startup/restore behavior before relying on it.
+- The plan expected each VM to auto-shutdown after completion; current worker behavior was not checked.
+- The plan treated GCS output as its source of truth and VM local disk as ephemeral; current retention, integrity, and recovery contracts must be verified.
+- The plan expected a restarted worker to restore output from GCS and resume. Current startup, checkpoint, and data consistency behavior was not tested.
 - Keep `current` and `historical` outputs in separate remote prefixes until the explicit local merge step.
 - The safe finalize path depends on aggregated `doc_metadata.json`, `llm_gate.json`, and `llm_gate_audit.jsonl`; raw overwrite-based shard sync is not sufficient.
-- Phase 1 and Phase 2 calibration docs are not wasted — they are real production artifacts counted toward the 140K total.
+- The plan intended Phase 1 and Phase 2 calibration output to count toward the corpus total; no current run artifacts or document accounting were checked.
 - This runbook replaces the Hetzner-based version (March 30). Previous Hetzner smoke results are kept as reference in Section 3.

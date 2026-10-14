@@ -1,27 +1,53 @@
 # How-to Guides
 
-> Практические рецепты для решения конкретных задач.
+Практические рецепты для конкретных задач. Если вы только подключаетесь к
+репозиторию, начните с [Contributor Start Here](../reference/contributor-start-here.md).
+Для общего понимания продукта и его границ используйте архитектурные документы,
+связанные на странице для contributors; здесь собраны шаги для уже выбранной задачи.
 
-| Guide                                                                         | Описание                                                                                              |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [Installation](install.md)                                                    | Source installs, extras, and troubleshooting                                                          |
-| [Post-Refactor Migration](post-refactor-migration.md)                         | Как переводить legacy/stale branches onto current Trinity, public-surface, and runtime-contract paths |
-| [Add Runtime Route](add-runtime-route.md)                                     | Новый runtime endpoint: scaffold, app wiring, OpenAPI/client checks                                   |
-| [Add Public Facade](add-public-facade.md)                                     | Поддерживаемый import surface через `__all__` и guardrails                                            |
-| [Add Schema-Backed IR Type](add-schema-backed-ir-type.md)                     | IR model/enum, schema catalog, ABI snapshots                                                          |
-| [Add Data Source](add-data-source.md)                                         | Регистрация нового Fabric connector и profile                                                         |
-| [Update Runtime Dashboard API Client](update-runtime-dashboard-api-client.md) | OpenAPI -> generated client -> dashboard types                                                        |
-| [Write Governance Pass](write-governance-pass.md)                             | Создание governance pass для Scientist                                                                |
-| [Run Benchmarks](run-benchmarks.md)                                           | Запуск benchmark registry и чтение report artifacts                                                   |
-| [Deploy Runtime](deploy-runtime.md)                                           | Runtime API app factory, config, dashboard, production notes                                          |
-| [Run Causal Analysis](run-causal-analysis.md)                                 | Discovery, identification, bounds, sensitivity, strategic response                                    |
-| [Configure Lex Pipeline](configure-lex-pipeline.md)                           | Настройка stage-level и control-plane сценариев Lex                                                   |
-| [Use Control Plane](use-control-plane.md)                                     | Запуск run/ingest/Lex операций и операционный обзор jobs/workers/outbox                               |
-| [Debug Failed Run](debug-failed-run.md)                                       | Диагностика run/job failures через timeline, lineage и control-plane state                            |
-| [Manage Schemas](manage-schemas.md)                                           | ABI snapshot flow, OpenAPI export и drift checks                                                      |
-| [Operate the CI/CD Platform](operate-ci-cd-platform.md)                       | Canonical workflows, required checks, release and supply-chain policy                                 |
-| [Review Migrations and Rollouts](review-rollouts.md)                          | Migration classes, rollout checklist, rollback stance, migration owner                                |
-| [Manage Generated Artifacts](manage-generated-artifacts.md)                   | Public lifecycle map for committed generated outputs, regeneration commands, and approval owners      |
-| [Release, Versioning, and Deprecation Policy](release-policy.md)              | Канонические version namespaces, deprecation windows, and migration-guide rules                       |
-| [Apply GitHub Governance](apply-github-governance.md)                         | Пошаговое применение labels и default-branch ruleset в GitHub UI                                      |
-| [Onboarding Tracks](onboarding/index.md)                                      | Role-based entry paths для non-authors и новых владельцев surface-ов                                  |
+## Подготовить окружение и выбрать путь
+
+| Задача | Guide | Что покрывает |
+| --- | --- | --- |
+| Установка Python, docs или frontend toolchain | [Installation](install.md) | Профили bootstrap, prerequisites и troubleshooting |
+| Выбрать путь для своей роли | [Onboarding Tracks](onboarding/index.md) | Backend, frontend, platform, security и domain/policy tracks |
+| Перенести старую ветку на текущие контракты | [Post-Refactor Migration](post-refactor-migration.md) | Trinity, public surface, runtime contracts и path-aware docs checks |
+
+## Добавить или изменить поверхность продукта
+
+| Задача | Guide | Что покрывает |
+| --- | --- | --- |
+| Добавить runtime endpoint | [Add Runtime Route](add-runtime-route.md) | Scaffold, app wiring, OpenAPI и client checks |
+| Добавить поддерживаемый Python import path | [Add Public Facade](add-public-facade.md) | `__all__`, facade ownership и public-surface guardrails |
+| Добавить IR type с schema lifecycle | [Add Schema-Backed IR Type](add-schema-backed-ir-type.md) | Model/enum, schema catalog и ABI snapshot |
+| Подключить data source или Fabric connector | [Add Data Source](add-data-source.md) | Connector registration и profile |
+| Обновить dashboard API client | [Update Runtime Dashboard API Client](update-runtime-dashboard-api-client.md) | OpenAPI → generated client → dashboard types |
+| Добавить Scientist governance pass | [Write Governance Pass](write-governance-pass.md) | Pass registration и blocker/warning semantics |
+| Обновить схемы и API snapshots | [Manage Schemas](manage-schemas.md) | ABI snapshots, OpenAPI export и drift checks |
+
+## Запустить и сопровождать систему
+
+| Задача | Guide | Что покрывает |
+| --- | --- | --- |
+| Развернуть Runtime API | [Deploy Runtime](deploy-runtime.md) | App factory, config, dashboard и production notes |
+| Выполнить run или ingestion через control plane | [Use Control Plane](use-control-plane.md) | Run/ingest/Lex операции, jobs, workers и outbox |
+| Диагностировать неудачный run | [Debug Failed Run](debug-failed-run.md) | Timeline, lineage и control-plane state |
+| Выполнить causal analysis | [Run Causal Analysis](run-causal-analysis.md) | Discovery, identification, bounds, sensitivity и strategic response |
+| Настроить Lex pipeline | [Configure Lex Pipeline](configure-lex-pipeline.md) | Stage-level и control-plane сценарии |
+| Запустить benchmarks | [Run Benchmarks](run-benchmarks.md) | Benchmark registry и report artifacts |
+
+## Проверить и выпустить изменение
+
+| Задача | Guide | Что покрывает |
+| --- | --- | --- |
+| Изменить CI/CD или release workflow | [Operate the CI/CD Platform](operate-ci-cd-platform.md) | Canonical workflows, required checks и supply-chain policy |
+| Проверить migration или rollout | [Review Migrations and Rollouts](review-rollouts.md) | Migration class, rollout checklist, rollback и owner |
+| Изменить committed generated output | [Manage Generated Artifacts](manage-generated-artifacts.md) | Lifecycle map, regeneration и approval owners |
+| Изменить version/deprecation policy | [Release, Versioning, and Deprecation Policy](release-policy.md) | Version namespaces, deprecation windows и migration guides |
+| Применить GitHub labels и branch rules | [Apply GitHub Governance](apply-github-governance.md) | Ручной UI checklist для tracked governance |
+
+Для документации используйте [Documentation Style Guide](../style-guide.md) и
+docs-only workflow на странице [Contributor Start Here](../reference/contributor-start-here.md).
+Там же указаны профиль `docs`, targeted Markdown lint, strict MkDocs build и
+docs-accuracy check; path-aware `check-docs-gate` выбирает дополнительные проверки
+по изменённым путям.

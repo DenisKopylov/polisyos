@@ -27,12 +27,16 @@ frontend и without breaking contract surfaces.
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap --profile runtime --skip-playwright
-python3 -m tools.cli workspace verify --backend-only --skip-doctor
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
+uv run polisyos-tools workspace verify --backend-only --skip-doctor
 uv run polisyos-tools architecture guardrails check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
+
+Backend-only bootstrap skips the Node workspace and automatic `doctor`. If you run a separate
+preflight, `doctor` still requires Node `22.x` even with Playwright, lockfile, and contract checks
+skipped; see [Installation](../install.md#backend-only-onboarding) for the narrower invocation.
 
 ## Start Here By Task
 

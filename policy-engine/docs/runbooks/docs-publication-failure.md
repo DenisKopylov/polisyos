@@ -7,7 +7,7 @@ the repository documentation program plan.
 > провести publication-ready validation через repo-tracked documentation gate.
 
 Owner: `@docs-owners`
-Last tested: `2026-04-17` against the strict MkDocs build, docs-accuracy check, and published QA ledger.
+Historical validation receipt: `2026-04-17` — at that time, the strict MkDocs build, docs-accuracy check, and published QA ledger were used. This is not a fresh validation.
 Evidence path: `docs/reference/documentation-inventory.md`; `docs/reference/quality-gates.md`; `.github/workflows/abi.yml`; `.github/workflows/docs-pages.yml`
 Rollback path: revert or minimally fix the docs/nav/config change that broke publish, restore a strict green build, and only then republish.
 

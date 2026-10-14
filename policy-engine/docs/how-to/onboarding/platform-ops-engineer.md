@@ -28,16 +28,22 @@ observability, release gates и replay/restore workflows.
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace doctor --list-surfaces
-python3 -m tools.cli workspace doctor --surface runtime-research-postgres --surface runtime-signing
-python3 -m tools.cli workspace verify
-python3 -m tools.cli workspace ci-parity --skip-browser
+uv run polisyos-tools workspace doctor --list-surfaces
+uv run polisyos-tools workspace doctor --surface runtime-research-postgres --surface runtime-signing
+uv run polisyos-tools workspace verify
+uv run polisyos-tools workspace ci-parity --skip-browser
 ```
+
+`doctor --surface runtime-research-postgres` and `runtime-signing` only check that
+their required environment values are non-empty. They do not connect to Postgres,
+check a signing-key file or parse a key, or perform signing and verification; a
+pass confirms presence only. Verify connectivity and signing behavior with the
+task-specific check before relying on either surface.
 
 Локальный observability stack:
 
 ```bash
-cd ops
+cd policy-engine
 docker compose -f ops/docker/observability.compose.yml up
 ```
 

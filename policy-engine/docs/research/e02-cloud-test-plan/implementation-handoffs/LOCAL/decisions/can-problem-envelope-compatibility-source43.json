@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.g_decision.v1",
+  "decision_id": "can-problem-envelope-compatibility-source43",
+  "status": "proposed_pending_G",
+  "source_candidate_sha": "f5ac9d875acfe75f0024cd235d1c88d0f004254f",
+  "source_tree": "5dc5e1b19df25d571b34a10b7a98c114dd406f4b",
+  "source_parents": [
+    "50080f98e5234076a319df1b9c91ebec48be7389"
+  ],
+  "property": "One strict problem envelope keeps outer HTTP/status/code distinct from runtime diagnostics; producer, schema and consumers agree on JSON values and field locations",
+  "pattern_pass": [
+    "P03",
+    "P05",
+    "P29",
+    "P32",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "current_prototype": "Option B local candidate: typedcontext and extensionsJsonValue map, one serializer for4emissionpaths, strictouter/nested names data only; bounded23-name legacyclientadapter; public acceptance withheld",
+  "historical_design_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-shared-problem-envelope-g-decision-r2-20261014/decision-packet.md",
+    "sha256": "8a1f4805e7cad5405d67de62783e74439592dfe5fe36d8806655642d2f7c1a07",
+    "bytes": 14877,
+    "availability": "local_retained_ignored_raw"
+  },
+  "historical_census_boundary": "R2 inventory exactqualifiedsuppliers; 23-name union is boundedcurrentcaptured inventory, not arbitrary external/futureclientdenominator",
+  "alternatives": [
+    {
+      "option": "A",
+      "choice": "Preserve flat diagnostic paths as supportedv1, declare optional typedfields",
+      "recommendation": "leastdisruptive ifexistingobserved paths are supportedcontract",
+      "impact": "single serializer validates declaredrootvalues; bounded/specifictypes whereexisting; retain currentconsumerlocations",
+      "migration": "additivev1minor and generated/OpenAPI companions; exact version owner/frozenversion mustdecide",
+      "authority": "G compatibilityowner ruling required; no diagnostic authoritygrant"
+    },
+    {
+      "option": "B",
+      "choice": "Direct namespaced relocation afterexplicitunsupported-old-pathruling",
+      "recommendation": "implementedlocalprototype only; do not shipv1 beforeG ruling",
+      "impact": "old directreaders losefieldlocations; externalclientsnot_established; nestedkeys cannotreplaceouterfields",
+      "migration": "v1minor only ifGclassifiesoldrootpaths unsupported; otherwisebreaking",
+      "authority": "G mustclassify old observedv1rootkeys"
+    },
+    {
+      "option": "C",
+      "choice": "Dualemission+deprecation transition",
+      "recommendation": "narrow transition ifnormalizedshape desiredandoldpathsupportnotdenied",
+      "impact": "declareoldrootoptionalfieldsplusnewextensions; duplicates mustequal orrefuse; currentprototype duplicate-refusal rule needsdifferenttestedtransition",
+      "migration": "applyregistereddeprecationwindow and v1/v2migration policy; no authorinventeddeadline",
+      "authority": "G version/compatibilityowner chooses scope/window"
+    },
+    {
+      "option": "D",
+      "choice": "Newmajorv2 withv1migration retention",
+      "recommendation": "explicitbreakingboundary ifrootrelocationclassifiedbreaking",
+      "impact": "retainv1behavior; typednamespacev2",
+      "migration": "followexisting documentedmigrationguide/deprecation/Sunset/operator/clientrelease/runbook requirements; actual datesowned byissuer",
+      "authority": "G publication/versionauthority"
+    }
+  ],
+  "falsifiers": [
+    "Outer code/status remain unchanged whenextensions containsnamescode/status/context",
+    "Unknownouterkeyrefused; nestedfiniteJSON accepted withoutflattening",
+    "Legacyknown23rootfields bridged; root/nestedduplicatesrefused forB prototype",
+    "Originalpublicrouteprofilecorruption causesreason-specific409 andnoissuedrecord"
+  ],
+  "evidence_status": "Native precommit PASS. R1808 mixed136-case replay before companions and exactfailureclasses in source43 handoff; post-companion native replay and canonical generated/drift remain UNRUN.",
+  "mandatory_companions": [
+    "3canonicalgeneratedfamilies/5outputs",
+    "publicsurfaceexportregeneration",
+    "structuredreleasecompatibility entry afterruling",
+    "migration/runtimeclient/defaultdashboardtests"
+  ],
+  "protected_semantics": "context/extensions are runtime diagnostics, not issuer/evidence/currentness/publication approval. G formalclosure separate",
+  "closure_ids": []
+}

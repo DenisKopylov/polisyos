@@ -777,29 +777,27 @@ def build_runtime_api_env(
         secret_boundary,
         producer_version="secret-lineage-refusal-v1",
     )
-    secret_ref = profile_bound_ref(
-        store,
-        store.put_bytes(
-            secret_payload_bytes,
-            PutOptions(
-                kind="security.secret_bundle",
-                media_type="application/json",
-                schema=SchemaInfo(name="security.secret_bundle", version="1.0"),
-                producer=ProducerInfo(
-                    component="polisyos.tests.runtime_api_env",
-                    version="secret-bundle-v1",
+    secret_ref = store.put_json(
+        secret_payload,
+        PutOptions(
+            kind="security.secret_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="security.secret_bundle", version="1.0"),
+            producer=ProducerInfo(
+                component="polisyos.tests.runtime_api_env",
+                version="secret-bundle-v1",
+            ),
+            authority=ArtifactAuthorityInfo(
+                authority_envelope_ref=str(secret_authority_ref.artifact_id),
+                authority_envelope_manifest_profile_sha256=(
+                    secret_authority_ref.manifest_profile_sha256
                 ),
-                authority=ArtifactAuthorityInfo(
-                    authority_envelope_ref=str(secret_authority_ref.artifact_id),
-                    authority_envelope_manifest_profile_sha256=(
-                        secret_authority_ref.manifest_profile_sha256
-                    ),
-                    diagnostic_event_ref="event://tests/runtime-api/secret-authority",
-                    manifest_ref=f"cas-manifest://{secret_payload_sha256}",
-                    payload_sha256=secret_payload_sha256,
-                ),
+                diagnostic_event_ref="event://tests/runtime-api/secret-authority",
+                manifest_ref=f"cas-manifest://{secret_payload_sha256}",
+                payload_sha256=secret_payload_sha256,
             ),
         ),
+        return_selected_profile=True,
     )
 
     core_run_id = "R_core_api_001"

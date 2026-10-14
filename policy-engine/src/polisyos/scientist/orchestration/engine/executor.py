@@ -1535,15 +1535,23 @@ class WorkflowExecutor:
                         )
                         outcome = NodeOutcome.model_validate(raw_outcome)
                     except NodeTimeoutError as exc:
-                        self._ctx.logger.error("Node %s timed out", alias)
-                        outcome = NodeOutcome(
-                            status="fail",
-                            state=state,
-                            error=NodeError.for_timeout(
+                        if exc.code == "node.timeout_worker_unsupported":
+                            self._ctx.logger.error(
+                                "Node %s refused before timeout worker start", alias
+                            )
+                            error = NodeError(
+                                code=exc.code,
+                                message=str(exc),
+                                details=dict(exc.details),
+                            )
+                        else:
+                            self._ctx.logger.error("Node %s timed out", alias)
+                            error = NodeError.for_timeout(
                                 message=str(exc),
                                 timeout_s=inv.timeout_s,
-                            ),
-                        )
+                            )
+                            error.details.update(exc.details)
+                        outcome = NodeOutcome(status="fail", state=state, error=error)
                     except RetryExhaustedError as exc:
                         self._ctx.logger.error("Node %s exhausted retries", alias)
                         state = _preserve_retry_spend(state, node_state)

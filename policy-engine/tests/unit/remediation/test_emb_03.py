@@ -38,6 +38,7 @@ from polisyos.lex.knowledge.store import (
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import (
     LegalQueryEncoderProvider,
+    LegalQueryEncoderProviderError,
     RuntimeContainerOverrides,
 )
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
@@ -645,6 +646,25 @@ def test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode(
             graph.close()
     assert query_encoder.encoded_texts == []
 
+    # A valid current intent reaches the common downstream gate for every
+    # vector family; the inventory/profile markers alone cannot authorize encode.
+    current_encoder = _FakeSentenceTransformer("model-a", device="cpu")
+    current = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=current_encoder,
+        query_profile=current_profiles,
+    )
+    try:
+        for table in ("entities", "facts", "provisions"):
+            with pytest.raises(LegalQueryProfileError) as caught:
+                _search_legal_table(current, table)
+            assert caught.value.code == "query_encoder_runtime_material_not_established"
+            assert current.query_profile_error is caught.value
+        assert current_encoder.encoded_texts == []
+    finally:
+        current.close()
+
 
 class _CountingIndex:
     def __init__(self, index: object) -> None:
@@ -659,7 +679,7 @@ class _CountingIndex:
         return getattr(self._index, name)
 
 
-def test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader(
+def test_fresh_intent_still_requires_runtime_material_before_vector_search(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -699,17 +719,18 @@ def test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader(
         counted_index = _CountingIndex(stale._store._entity_index)
         stale._store._entity_index = counted_index
         with monkeypatch.context() as patcher:
+            # Remove only the runtime-material gate to show the independent
+            # request-intent gate still rejects an old selected generation.
             patcher.setattr(
                 LegalKnowledgeStore,
-                "_require_query_profile",
+                "_require_query_runtime_material_binding",
                 staticmethod(lambda *_args, **_kwargs: None),
             )
-            # Removing only the request gate leaves the producer-built matrix,
-            # live encoder checks, and native HNSW query in the exercised path.
-            unguarded_results = stale.search_entities("target", top_k=1, min_similarity=0.0)
-        assert unguarded_results
-        assert stale_encoder.encoded_texts == ["target"]
-        assert counted_index.knn_calls == 1
+            with pytest.raises(LegalQueryProfileError) as stale_after_runtime_gate_removed:
+                stale.search_entities("target", top_k=1, min_similarity=0.0)
+        assert stale_after_runtime_gate_removed.value.code == "query_profile_stale_or_mismatched"
+        assert stale_encoder.encoded_texts == []
+        assert counted_index.knn_calls == 0
     finally:
         stale.close()
 
@@ -721,7 +742,16 @@ def test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader(
         query_profile=current_profiles,
     )
     try:
-        results = fresh.search_entities("target", top_k=1, min_similarity=0.0)
+        with monkeypatch.context() as patcher:
+            # The current generation and request profile are a controlled
+            # positive for the pre-existing reader path; this bypass is a
+            # remove-the-property witness, not a production runtime binding.
+            patcher.setattr(
+                LegalKnowledgeStore,
+                "_require_query_runtime_material_binding",
+                staticmethod(lambda *_args, **_kwargs: None),
+            )
+            results = fresh.search_entities("target", top_k=1, min_similarity=0.0)
         assert [result.entity_id for result in results] == ["entity-target"]
         assert fresh_encoder.encoded_texts == ["target"]
     finally:
@@ -763,7 +793,7 @@ def test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallbac
     assert [result.fact_id for result in response.results] == ["fact-1"]
 
 
-def test_producer_generation_reaches_native_http_with_typed_vector_modes(
+def test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -779,80 +809,141 @@ def test_producer_generation_reaches_native_http_with_typed_vector_modes(
         con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
         con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
 
-    # This exact loaded encoder produces every persisted generation and is
-    # composed into the runtime-owned query provider; the request supplies only
-    # immutable selected-generation intent.
-    encoder = _DirectionalLegalEncoder()
-    _build_legal_vectors(db_path, tmp_path, encoder, embedding_model=encoder.model_name)
-    profiles = _legal_query_profiles(tmp_path)
-    request_intent = tuple(
-        LegalQueryGenerationIntentV1(
-            basis_kind=profile.basis_kind,
-            generation_id=profile.generation_id,
-            inventory_json=profile.inventory_bytes.decode("utf-8"),
-        )
-        for profile in profiles
-    )
-    provider = LegalQueryEncoderProvider(encoder=encoder)
+    # The real Legal producer persists the selected generation. A second object
+    # has identical assets but a replacement callable whose execution must be blocked.
+    producer = _DirectionalLegalEncoder()
+    _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    producer_encode_history = tuple(producer.encoded_texts)
+    query_encoder = _DirectionalLegalEncoder()
+    assert derive_encoder_identity(producer) == derive_encoder_identity(query_encoder)
+    decoy_calls: list[str] = []
+
+    def _decoy_encode(
+        texts: list[str],
+        batch_size: int = 32,
+        show_progress_bar: bool = False,
+        normalize_embeddings: bool = True,
+    ) -> np.ndarray:
+        del batch_size, show_progress_bar, normalize_embeddings
+        decoy_calls.extend(texts)
+        return np.tile(np.asarray([[0.0, 1.0, 0.0, 0.0]], dtype=np.float32), (len(texts), 1))
+
+    query_encoder.encode = _decoy_encode  # type: ignore[method-assign]
+    provider = LegalQueryEncoderProvider(encoder=query_encoder)
+    counted_indexes: list[_CountingIndex] = []
+    original_load_fact_index = LegalKnowledgeStore._load_fact_index
+
+    def _load_counted_fact_index(
+        store: LegalKnowledgeStore,
+    ) -> tuple[object, list[str], object]:
+        index, fact_ids, generation = original_load_fact_index(store)
+        counted = _CountingIndex(index)
+        store._fact_index = counted
+        counted_indexes.append(counted)
+        return counted, fact_ids, generation
+
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_fact_index", _load_counted_fact_index)
     app = create_runtime_api_app(
         cas_root=tmp_path / "runtime-cas",
         allow_fixture_identity=True,
         enable_security_middlewares=False,
-        container_overrides=RuntimeContainerOverrides(
-            legal_query_encoder_provider=provider,
-        ),
+        container_overrides=RuntimeContainerOverrides(legal_query_encoder_provider=provider),
     )
-    payload = {
-        "query": "budget",
-        "top_k": 3,
-        "output_dir": str(tmp_path),
-        "query_generation_intent": [item.model_dump(mode="json") for item in request_intent],
-    }
 
     with TestClient(app) as client:
-        response = client.post(
-            "/api/v1/control/lex/search",
-            json=payload,
+        profile_response = client.get(
+            "/api/v1/control/lex/search-profile",
+            params={"output_dir": str(tmp_path)},
         )
+        assert profile_response.status_code == 200, profile_response.text
+        profile = profile_response.json()
+        assert profile["status"] == "available"
+        intent = profile["query_generation_intent"]
+        assert len(intent) == 1
+        payload = {
+            "query": "budget",
+            "top_k": 3,
+            "output_dir": str(tmp_path),
+            "query_generation_intent": intent,
+        }
+        response = client.post("/api/v1/control/lex/search", json=payload)
+
+        stale_intent = [dict(item) for item in intent]
+        original_inventory = stale_intent[0]["inventory_json"]
+        generation_id = stale_intent[0]["generation_id"]
+        stale_intent[0]["generation_id"] = "e" * 32 if generation_id == "f" * 32 else "f" * 32
+        assert stale_intent[0]["inventory_json"] == original_inventory
+        stale_response = client.post(
+            "/api/v1/control/lex/search",
+            json={**payload, "query_generation_intent": stale_intent},
+        )
+
+        query_encoder.revision += 1
+        changed_encoder_response = client.post("/api/v1/control/lex/search", json=payload)
+        query_encoder.revision -= 1
         empty_intent_response = client.post(
             "/api/v1/control/lex/search",
             json={**payload, "query_generation_intent": []},
         )
-        encoder.revision += 1
-        changed_encoder_response = client.post("/api/v1/control/lex/search", json=payload)
+
+        default_app = create_runtime_api_app(
+            cas_root=tmp_path / "default-runtime-cas",
+            allow_fixture_identity=True,
+            enable_security_middlewares=False,
+        )
+        with TestClient(default_app) as default_client:
+            fallback_response = default_client.post("/api/v1/control/lex/search", json=payload)
+
+        # Mutate a projected current member after GET; the same GET intent must
+        # produce a membership refusal before the runtime-material refusal.
+        with duckdb.connect(str(db_path)) as con:
+            con.execute(
+                "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+                ["changed current legal text", "fact-1"],
+            )
+        member_response = client.post("/api/v1/control/lex/search", json=payload)
 
     assert response.status_code == 200, response.text
     body = response.json()
-    assert body["search_mode"] == "vector"
-    assert body["vector_refusal_code"] is None
+    assert body["search_mode"] == "text"
+    assert body["vector_refusal_code"] == "query_encoder_runtime_material_not_established"
     assert [item["fact_id"] for item in body["results"]] == ["fact-1"]
-    assert encoder.encoded_texts[-1] == "budget"
+    assert tuple(producer.encoded_texts) == producer_encode_history
+    assert decoy_calls == []
     assert app.state.runtime_container.legal_query_encoder_provider is provider
-    assert empty_intent_response.status_code == 200, empty_intent_response.text
-    empty_intent_body = empty_intent_response.json()
-    assert empty_intent_body["search_mode"] == "text"
-    assert empty_intent_body["vector_refusal_code"] == "query_profile_malformed"
-    assert [item["fact_id"] for item in empty_intent_body["results"]] == ["fact-1"]
+
+    assert stale_response.status_code == 200, stale_response.text
+    stale_body = stale_response.json()
+    assert stale_body["search_mode"] == "text"
+    assert stale_body["vector_refusal_code"] == "query_profile_stale_or_mismatched"
+    assert [item["fact_id"] for item in stale_body["results"]] == ["fact-1"]
+
     assert changed_encoder_response.status_code == 200, changed_encoder_response.text
     changed_body = changed_encoder_response.json()
     assert changed_body["search_mode"] == "text"
     assert changed_body["vector_refusal_code"] == "query_encoder_assets_changed"
     assert [item["fact_id"] for item in changed_body["results"]] == ["fact-1"]
 
-    default_app = create_runtime_api_app(
-        cas_root=tmp_path / "default-runtime-cas",
-        allow_fixture_identity=True,
-        enable_security_middlewares=False,
-    )
-    with TestClient(default_app) as client:
-        fallback_response = client.post("/api/v1/control/lex/search", json=payload)
+    assert empty_intent_response.status_code == 200, empty_intent_response.text
+    empty_body = empty_intent_response.json()
+    assert empty_body["search_mode"] == "text"
+    assert empty_body["vector_refusal_code"] == "query_profile_malformed"
+    assert [item["fact_id"] for item in empty_body["results"]] == ["fact-1"]
 
+    assert default_app.state.runtime_container.legal_query_encoder_provider is None
     assert fallback_response.status_code == 200, fallback_response.text
     fallback_body = fallback_response.json()
-    assert default_app.state.runtime_container.legal_query_encoder_provider is None
     assert fallback_body["search_mode"] == "text"
     assert fallback_body["vector_refusal_code"] == "query_encoder_assets_unavailable"
     assert [item["fact_id"] for item in fallback_body["results"]] == ["fact-1"]
+
+    assert member_response.status_code == 200, member_response.text
+    member_body = member_response.json()
+    assert member_body["search_mode"] == "text"
+    assert member_body["vector_refusal_code"] == "selected_generation_membership_mismatch"
+    assert [item["fact_id"] for item in member_body["results"]] == ["fact-1"]
+    assert decoy_calls == []
+    assert all(index.knn_calls == 0 for index in counted_indexes)
 
 
 def test_current_generation_refuses_changed_projected_members_before_encode(
@@ -905,7 +996,8 @@ def test_query_encoder_assets_must_match_before_encoding(
         graph.close()
 
 
-def test_runtime_asset_provider_cannot_detect_same_asset_query_callable_swap(
+def test_runtime_and_graph_refuse_same_asset_query_callable_swap(
+    monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     db_path = tmp_path / "lex.duckdb"
@@ -915,6 +1007,7 @@ def test_runtime_asset_provider_cannot_detect_same_asset_query_callable_swap(
     )
     producer = _DirectionalLegalEncoder()
     _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    profiles = _legal_query_profiles(tmp_path)
 
     swapped = _DirectionalLegalEncoder()
 
@@ -929,20 +1022,54 @@ def test_runtime_asset_provider_cannot_detect_same_asset_query_callable_swap(
         return np.tile(np.asarray([[0.0, 1.0, 0.0, 0.0]], dtype=np.float32), (len(texts), 1))
 
     swapped.encode = _replaced_encode  # type: ignore[method-assign]
+    assert derive_encoder_identity(producer) == derive_encoder_identity(swapped)
+    counted_indexes: list[_CountingIndex] = []
+    original_load_entity_index = LegalKnowledgeStore._load_entity_index
+
+    def _load_counted_entity_index(
+        store: LegalKnowledgeStore,
+    ) -> tuple[object, list[str], object]:
+        index, entity_ids, generation = original_load_entity_index(store)
+        counted = _CountingIndex(index)
+        store._entity_index = counted
+        counted_indexes.append(counted)
+        return counted, entity_ids, generation
+
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_entity_index", _load_counted_entity_index)
     provider = LegalQueryEncoderProvider(encoder=swapped)
-    # The provider recomputes loaded assets, but those assets do not bind the
-    # executable behavior of a replaced method. This is the declared residual.
-    assert provider.resolve_encoder() is swapped
+    with pytest.raises(LegalQueryEncoderProviderError) as provider_refusal:
+        provider.resolve_encoder()
+    assert provider_refusal.value.code == "query_encoder_runtime_material_not_established"
+    assert swapped.encoded_texts == []
+
+    # Direct graph callers bypass the HTTP provider. The same source-owned store
+    # gate must still block every raw encoder before its executable method runs.
     graph = LegalKnowledgeGraph(
         db_path,
         tmp_path,
-        query_encoder=provider.resolve_encoder(),
-        query_profile=_legal_query_profiles(tmp_path),
+        query_encoder=swapped,
+        query_profile=profiles,
     )
     try:
-        results = graph.search_entities("target", top_k=1, min_similarity=0.0)
+        with pytest.raises(LegalQueryProfileError) as graph_refusal:
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+        assert graph_refusal.value.code == "query_encoder_runtime_material_not_established"
+        assert swapped.encoded_texts == []
+        assert all(index.knn_calls == 0 for index in counted_indexes)
+
+        with monkeypatch.context() as patcher:
+            # Remove the property gate while preserving generation/profile
+            # markers: the actual decoy callable then wins, proving the gate is
+            # behavioral and distinguishes the same-assets sibling case.
+            patcher.setattr(
+                LegalKnowledgeStore,
+                "_require_query_runtime_material_binding",
+                staticmethod(lambda *_args, **_kwargs: None),
+            )
+            results = graph.search_entities("target", top_k=1, min_similarity=0.0)
         assert [result.entity_id for result in results] == ["entity-decoy"]
         assert swapped.encoded_texts == ["target"]
+        assert any(index.knn_calls > 0 for index in counted_indexes)
     finally:
         graph.close()
 

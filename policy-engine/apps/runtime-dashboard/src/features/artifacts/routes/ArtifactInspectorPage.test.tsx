@@ -1,6 +1,8 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import type { components } from "@/api/types";
+import { artifactContentSchema } from "@/api/validators";
 import {
   evidenceArtifactRefKey,
   type EvidenceArtifactRef,
@@ -90,6 +92,74 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
 
 import ArtifactInspectorPage from "@/features/artifacts/routes/ArtifactInspectorPage";
 
+const predictiveCoverageApiResponseFixture = {
+  meta: {
+    generated_at: "2026-02-11T12:00:00Z",
+    request_id: "req_0123456789abcdef",
+    source_kinds: [],
+  },
+  artifact: {
+    artifact_id:
+      "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
+    canon_read_status: "declared_bytes_conformant",
+    kind: "ir.backtest_report",
+    manifest_profile_sha256:
+      "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
+    max_bytes: 4096,
+    media_type: "application/json",
+    mode: "json",
+    predictive_coverage_diagnostic: {
+      assessment: "limited",
+      canon_read_status: "declared_bytes_conformant",
+      causal_effect_status: "not_established",
+      counterfactual_credibility_status: "not_established",
+      effective_time_status: "not_established",
+      issuer_status: "not_established",
+      may_not_use_for: [
+        "promotion",
+        "publication",
+        "policy_selection",
+        "causal_effect_claim",
+      ],
+      measurement_status: "not_measured",
+      metric: "predictive_interval_coverage",
+      producer_attestation_status: "not_established",
+      reason_code: "no_evaluated_intervals",
+      s10_metric_mapping_status: "not_established",
+      s10_threshold_status: "not_established",
+      scenarios: [
+        {
+          interval_available_count: 0,
+          interval_evaluated_count: 0,
+          interval_hit_count: 0,
+          interval_requested_count: 1,
+          interval_type: "prediction",
+          metric_name: "outcome",
+          nominal_confidence_level: 0.9,
+          observed_hit_rate: null,
+          scenario_id: "openapi-no-intervals",
+        },
+      ],
+      source_artifact_id:
+        "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
+      source_manifest_profile_sha256:
+        "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
+      source_materialization: "reader_materialized",
+      source_schema_version: "1.0",
+    },
+    preview: { schema_version: "1.0" },
+    size_bytes: 1024,
+    truncated: false,
+  },
+} satisfies components["schemas"]["ArtifactContentResponse"];
+
+function mutableRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("expected mutable fixture record");
+  }
+  return value as Record<string, unknown>;
+}
+
 function renderArtifactPage(
   initialEntry = "/artifacts/artifact-1?tab=content",
 ) {
@@ -162,7 +232,8 @@ describe("ArtifactInspectorPage", () => {
             kind: "decision_packet",
             max_bytes: options?.maxBytes ?? 65536,
             media_type: "application/json",
-            mode: "preview",
+            mode: "json",
+            canon_read_status: "not_evaluated",
             decision_packet_preview: {
               document_outline: [
                 {
@@ -190,6 +261,7 @@ describe("ArtifactInspectorPage", () => {
           artifact_id: "artifact-1",
           kind: "decision_packet",
           media_type: "application/json",
+          canon_read_status: "not_evaluated",
           manifest_profile_sha256: DEFAULT_PROFILE,
           schema_name: "decision",
           schema_version: "1.0.0",
@@ -241,6 +313,9 @@ describe("ArtifactInspectorPage", () => {
     expect(screen.getByTestId("artifact-page")).toBeInTheDocument();
     expect(screen.getByText("pages.artifacts.title")).toBeInTheDocument();
     expect(screen.getByTestId("artifact-viewer")).toBeInTheDocument();
+    expect(screen.getByTestId("artifact-canon-read-status")).toHaveTextContent(
+      "not_evaluated",
+    );
     expect(screen.getByRole("link", { name: "input" })).toHaveAttribute(
       "href",
       `/artifacts/related-1?tab=content&artifactRefKey=${encodeURIComponent(
@@ -281,12 +356,143 @@ describe("ArtifactInspectorPage", () => {
     });
   });
 
+  it("shows validated reader and producer status from a predictive content response", () => {
+    const parsedResponse = artifactContentSchema.parse(
+      predictiveCoverageApiResponseFixture,
+    );
+    const artifactId = parsedResponse.artifact.artifact_id;
+    const profile = parsedResponse.artifact.manifest_profile_sha256;
+    useArtifactManifestMock.mockReturnValue({
+      data: {
+        artifact: {
+          artifact_id: artifactId,
+          byte_size: parsedResponse.artifact.size_bytes,
+          created_at: "2026-02-11T12:00:00Z",
+          kind: parsedResponse.artifact.kind,
+          manifest_profile_sha256: profile,
+          media_type: parsedResponse.artifact.media_type,
+          producer_component: "artifact-inspector",
+          schema_name: "ir.backtest_report",
+          schema_version: "1.0",
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useArtifactContentMock.mockReturnValue({
+      data: parsedResponse,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage(`/artifacts/${artifactId}?tab=content`);
+
+    expect(screen.getByTestId("artifact-canon-read-status")).toHaveTextContent(
+      "declared_bytes_conformant",
+    );
+    const diagnostic = screen.getByTestId(
+      "artifact-predictive-coverage-diagnostic",
+    );
+    expect(diagnostic).toHaveTextContent("limited");
+    expect(diagnostic).toHaveTextContent("reader_materialized");
+    expect(diagnostic).toHaveTextContent("not_established");
+    expect(diagnostic).toHaveTextContent(
+      "promotion, publication, policy_selection, causal_effect_claim",
+    );
+    expect(renderArtifactViewerMock).toHaveBeenCalledWith(
+      expect.objectContaining({ preview: parsedResponse.artifact.preview }),
+    );
+  });
+
+  it.each([
+    ["mode", "text", "application/json"],
+    ["media type", "json", "text/plain"],
+  ] as const)(
+    "withholds predictive previews when the selected source %s is not JSON",
+    (_label, mode, mediaType) => {
+      const parsed = artifactContentSchema.parse(
+        predictiveCoverageApiResponseFixture,
+      );
+      const content = structuredClone(parsed.artifact);
+      const contentRecord = mutableRecord(content);
+      contentRecord.mode = mode;
+      contentRecord.media_type = mediaType;
+      const manifest = {
+        artifact_id: content.artifact_id,
+        byte_size: content.size_bytes,
+        created_at: "2026-02-11T12:00:00Z",
+        kind: content.kind,
+        manifest_profile_sha256: content.manifest_profile_sha256,
+        media_type: mediaType,
+        producer_component: "artifact-inspector",
+        schema_name: "ir.backtest_report",
+        schema_version: "1.0",
+      };
+
+      useArtifactManifestMock.mockReturnValue({
+        data: { artifact: manifest },
+        error: null,
+        isError: false,
+        isLoading: false,
+      });
+      useArtifactContentMock.mockReturnValue({
+        data: { artifact: content },
+        error: null,
+        isError: false,
+        isLoading: false,
+      });
+
+      renderArtifactPage(`/artifacts/${content.artifact_id}?tab=content`);
+
+      expect(
+        screen.getByTestId("artifact-profile-mismatch-content"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("artifact-predictive-coverage-diagnostic"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("artifact-viewer")).not.toBeInTheDocument();
+    },
+  );
+
+  it("withholds a schema response whose schema version differs from the manifest", () => {
+    const schema = {
+      artifact_id: "artifact-1",
+      canon_read_status: "not_evaluated",
+      kind: "decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: DEFAULT_PROFILE,
+      schema_name: "decision",
+      schema_version: "2.0.0",
+      top_level_keys: ["summary", "verdict"],
+    };
+    useArtifactSchemaMock.mockReturnValue({
+      data: { schema },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage("/artifacts/artifact-1?tab=schema");
+
+    expect(
+      screen.getByTestId("artifact-profile-mismatch-schema"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("artifact-schema-canon-read-status"),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders schema keys and lineage warnings across tabs", async () => {
     const user = userEvent.setup();
     renderArtifactPage("/artifacts/artifact-1?tab=schema");
 
     expect(screen.getByText("summary")).toBeInTheDocument();
     expect(screen.getByText("verdict")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("artifact-schema-canon-read-status"),
+    ).toHaveTextContent("not_evaluated");
 
     await user.click(
       screen.getByRole("button", { name: "pages.artifacts.lineage" }),
@@ -471,7 +677,8 @@ describe("ArtifactInspectorPage", () => {
           kind: "decision_packet",
           max_bytes: 65536,
           media_type: "application/json",
-          mode: "preview",
+          mode: "json",
+          canon_read_status: "not_evaluated",
           decision_packet_preview: { verdict: "APPROVE" },
           preview: { verdict: "APPROVE" },
           size_bytes: 2048,
@@ -505,6 +712,46 @@ describe("ArtifactInspectorPage", () => {
     expect(screen.getByTestId("artifact-viewer")).toBeInTheDocument();
   });
 
+  it("withholds predictive diagnostics whose schema differs from the selected manifest", () => {
+    const parsedResponse = artifactContentSchema.parse(
+      predictiveCoverageApiResponseFixture,
+    );
+    const artifact = parsedResponse.artifact;
+    useArtifactManifestMock.mockReturnValue({
+      data: {
+        artifact: {
+          artifact_id: artifact.artifact_id,
+          byte_size: artifact.size_bytes,
+          created_at: "2026-02-11T12:00:00Z",
+          kind: artifact.kind,
+          manifest_profile_sha256: artifact.manifest_profile_sha256,
+          media_type: artifact.media_type,
+          producer_component: "artifact-inspector",
+          schema_name: "different_schema",
+          schema_version: "1.0",
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useArtifactContentMock.mockReturnValue({
+      data: parsedResponse,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage(`/artifacts/${artifact.artifact_id}?tab=content`);
+
+    expect(
+      screen.getByTestId("artifact-profile-mismatch-content"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("pages.artifacts.predictiveCoverage.limitedNotice"),
+    ).not.toBeInTheDocument();
+  });
+
   it("withholds a same-profile response whose kind differs from the full ref", () => {
     const expectedRef = {
       artifact_id: "artifact-1",
@@ -513,19 +760,25 @@ describe("ArtifactInspectorPage", () => {
       manifest_profile_sha256: DEFAULT_PROFILE,
     };
     useArtifactContentMock.mockReturnValue({
-      data: {
+      data: artifactContentSchema.parse({
+        meta: {
+          generated_at: "2026-03-10T09:00:00Z",
+          request_id: "req-artifact-kind-mismatch",
+          source_kinds: [],
+        },
         artifact: {
           artifact_id: "artifact-1",
+          canon_read_status: "not_evaluated",
           manifest_profile_sha256: DEFAULT_PROFILE,
           kind: "different.kind",
           max_bytes: 65536,
           media_type: "application/json",
-          mode: "preview",
+          mode: "json",
           preview: { verdict: "APPROVE" },
           size_bytes: 2048,
           truncated: false,
         },
-      },
+      }),
       error: null,
       isError: false,
       isLoading: false,

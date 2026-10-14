@@ -16,6 +16,8 @@ import stat
 import subprocess
 import sys
 import time as _time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -39,7 +41,13 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.data_forge.read_api.academic import (
     ParameterSelector,
     PreparedSKGRead,
@@ -543,8 +551,19 @@ def test_materialized_corruption_is_refused_without_overwriting_it(tmp_path: Pat
     assert path.read_bytes() == damaged
 
 
+@contextmanager
+def _access_scope_context(access_scope: AccessScope | None) -> Iterator[None]:
+    token = set_current_access_scope(access_scope)
+    try:
+        yield
+    finally:
+        reset_current_access_scope(token)
+
+
 def _workflow_fixture(
     tmp_path: Path,
+    *,
+    access_scope: AccessScope | None = None,
 ) -> tuple[Path, FileSystemCAS, RunContext, ExecutionContext, ExperimentState, ArtifactRef]:
     source = tmp_path / "live.duckdb"
     _seed(source, 1.25)
@@ -556,6 +575,7 @@ def _workflow_fixture(
         run_id="R_retained_skg",
         tenant_id="retained-tenant",
         cell_id="retained-cell",
+        access_scope=access_scope,
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retained-skg"))
     graph_ref = persist_causal_graph_model(
@@ -679,6 +699,144 @@ async def test_shared_worker_intake_reads_selected_cas_source_before_retry(
         assert input_roles["skg_source_snapshot"] == input_ref_from_artifact_ref(
             selected_ref, role="skg_source_snapshot"
         )
+
+
+def test_timeout_worker_v2_roundtrips_persisted_access_scope_and_owner_ref(
+    tmp_path: Path,
+) -> None:
+    scope = AccessScope.for_service(
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+        spiffe_id="spiffe://polisyos.test/cell/retained-cell/svc/timeout-worker",
+    )
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        with _access_scope_context(scope):
+            _source, _store, run, ctx, state, _selected_ref = _workflow_fixture(
+                tmp_path, access_scope=scope
+            )
+            worker_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
+        assert worker_meta["schema"] == "polisyos.scientist.timeout_context.v2"
+        assert worker_meta["run"]["access_scope"] == scope.to_dict()
+        assert run._owner_snapshot_ref is not None
+        assert worker_meta["run"]["owner_snapshot_ref"] == run._owner_snapshot_ref.model_dump(
+            mode="json", by_alias=True, exclude_none=False
+        )
+        worker_ctx = _build_timeout_worker_context(worker_meta)
+        assert worker_ctx.run.access_scope == scope
+        assert worker_ctx.run._owner_snapshot_ref == run._owner_snapshot_ref
+
+
+def test_timeout_worker_v2_rejects_scope_and_owner_tampering_before_effects(
+    tmp_path: Path,
+) -> None:
+    scope = AccessScope.for_service(
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+        spiffe_id="spiffe://polisyos.test/cell/retained-cell/svc/timeout-worker",
+    )
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        with _access_scope_context(scope):
+            _source, store, _run, ctx, state, _selected_ref = _workflow_fixture(
+                tmp_path, access_scope=scope
+            )
+            original_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
+        assert ctx.run.trace_path is not None
+        trace_before = ctx.run.trace_path.read_bytes()
+        before = {
+            path.relative_to(store.root): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in store.root.rglob("*")
+            if path.is_file()
+        }
+        mutations = (
+            ("missing_scope", "timeout_worker_run_context_invalid"),
+            ("missing_owner_ref", "timeout_worker_run_context_invalid"),
+            ("extra_scope_field", "timeout_worker_access_scope_shape_invalid"),
+            ("tenant", "timeout_worker_access_scope_owner_mismatch"),
+            ("cell", "timeout_worker_access_scope_owner_mismatch"),
+            ("spiffe", "timeout_worker_owner_inputs_mismatch"),
+            ("scope_absent", "timeout_worker_owner_inputs_mismatch"),
+            ("roles_type", "timeout_worker_access_scope_invalid"),
+            ("mfa_type", "timeout_worker_access_scope_invalid"),
+            ("owner_profile", "timeout_worker_owner_snapshot_invalid"),
+        )
+        for mutation, expected_reason in mutations:
+            worker_meta = json.loads(json.dumps(original_meta))
+            run_meta = worker_meta["run"]
+            if mutation == "missing_scope":
+                del run_meta["access_scope"]
+            elif mutation == "missing_owner_ref":
+                del run_meta["owner_snapshot_ref"]
+            elif mutation == "extra_scope_field":
+                run_meta["access_scope"]["untyped_extra"] = "present"
+            elif mutation == "tenant":
+                run_meta["access_scope"]["tenant_id"] = "other-tenant"
+            elif mutation == "cell":
+                run_meta["access_scope"]["cell_id"] = "other-cell"
+            elif mutation == "spiffe":
+                run_meta["access_scope"]["spiffe_id"] = "spiffe://other/identity"
+            elif mutation == "scope_absent":
+                run_meta["access_scope"] = None
+            elif mutation == "roles_type":
+                run_meta["access_scope"]["roles"] = "service"
+            elif mutation == "mfa_type":
+                run_meta["access_scope"]["mfa_verified"] = 1
+            elif mutation == "owner_profile":
+                run_meta["owner_snapshot_ref"]["manifest_profile_sha256"] = "sha256:" + "0" * 64
+            else:
+                raise AssertionError(f"unrecognized mutation: {mutation}")
+
+            with pytest.raises(ValueError, match=expected_reason):
+                _build_timeout_worker_context(worker_meta)
+            after = {
+                path.relative_to(store.root): hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in store.root.rglob("*")
+                if path.is_file()
+            }
+            assert after == before
+            assert ctx.run.trace_path.read_bytes() == trace_before
+
+
+@pytest.mark.asyncio
+async def test_timeout_worker_installs_persisted_scope_for_node_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    scope = AccessScope.for_service(
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+        spiffe_id="spiffe://polisyos.test/cell/retained-cell/svc/timeout-worker",
+    )
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        with _access_scope_context(scope):
+            _source, _store, _run, ctx, state, _selected_ref = _workflow_fixture(
+                tmp_path, access_scope=scope
+            )
+            context_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
+        observations: list[tuple[AccessScope | None, AccessScope | None]] = []
+
+        async def inspect_scope(_node, worker_ctx, worker_state, **_kwargs):
+            observations.append((worker_ctx.run.access_scope, get_current_access_scope_or_none()))
+            return NodeOutcome(status="ok", state=worker_state)
+
+        monkeypatch.setattr(retry_module, "execute_with_retry_async", inspect_scope)
+        payload = {
+            "node_id": "scientist.node_resolve_parameters@1.0.0",
+            "alias": "resolve",
+            "params": {},
+            "state_bytes": serialize_state(ExperimentState(run_id=state.run_id)),
+            "trace_carrier": {},
+            "timeout_s": None,
+            "max_retries": 0,
+            "context_meta": context_meta,
+        }
+        with _access_scope_context(None):
+            outcome_bytes = await run_node_in_worker(
+                payload,
+                timeout_authority=(None, _time.monotonic() + 30.0),
+            )
+            assert get_current_access_scope_or_none() is None
+        assert deserialize_outcome(outcome_bytes).status == "ok"
+        assert observations == [(scope, scope)]
 
 
 def test_timeout_worker_rejects_store_run_owner_mismatch_before_reconstruction(
@@ -1471,6 +1629,48 @@ def test_selected_snapshot_ref_cannot_be_reused_as_absent_source(
             match="retained_skg_selected_path_required",
         ):
             ResolveParametersNode().execute(ctx, selected_without_path)
+
+
+@pytest.mark.parametrize("executor_mode", ["sync", "async"])
+def test_timeout_worker_admission_refusal_is_not_reported_as_elapsed_timeout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    executor_mode: Literal["sync", "async"],
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, _store, _run, ctx, state, _selected_ref = _workflow_fixture(tmp_path)
+        prepared_read = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        ctx = replace(ctx, prepared_skg_read=prepared_read)
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        workflow = WorkflowSpec(
+            workflow_id="timeout_worker_admission_refusal",
+            nodes=[
+                NodeInvocation(
+                    alias="resolve",
+                    node_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
+                    timeout_s=30.0,
+                )
+            ],
+        )
+        monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: "spawn")
+        try:
+            if executor_mode == "sync":
+                result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+            else:
+                result = asyncio.run(
+                    AsyncWorkflowExecutor(ctx, registry, workflow_timeout_s=30.0).execute(
+                        workflow, state
+                    )
+                )
+        finally:
+            prepared_read.close()
+
+        error = result.report.nodes[0].error
+        assert error is not None
+        assert error.code == "node.timeout_worker_unsupported"
+        assert error.details["reason"] == "timeout_worker_optional_context_port_unsupported"
+        assert "timeout_seconds_binary64_hex" not in error.details
 
 
 def test_spawn_timeout_reaps_worker_and_reports_unresolved_group_truthfully(

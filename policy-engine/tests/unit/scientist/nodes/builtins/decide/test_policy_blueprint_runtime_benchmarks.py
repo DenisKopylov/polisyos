@@ -3,10 +3,17 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+import pytest
+
 from polisyos.core.artifacts import artifact_manifest_profile_sha256, load_core_json_artifact
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.security import (
+    AccessScope,
+    reset_current_access_scope,
+    set_current_access_scope,
+)
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
@@ -25,9 +32,18 @@ from polisyos.scientist.methods.autotune.models import (
     persist_benchmark_evaluation,
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
+    TransferTenantScopeStatus,
+    anonymize_tenant_id,
+    resolve_transfer_context,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_benchmarks import (
     _maybe_register_benchmark_evaluation,
     _resolve_policy_runtime_source_statuses,
+    _resolve_runtime_transfer_context,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     ensure_policy_candidate_ref,
@@ -69,6 +85,151 @@ def _context(tmp_path: Path, run_id: str) -> ExecutionContext:
         run=run,
         logger=logging.getLogger(f"test.{run_id}"),
     )
+
+
+def test_runtime_transfer_context_resolves_absence_for_search_consumer() -> None:
+    run_id = "run_benchmark_transfer_scope"
+    candidate = _candidate()
+    emitted = _resolve_runtime_transfer_context(ExperimentState(run_id=run_id), candidate)
+
+    assert emitted["task_family"] == "policy"
+    assert emitted["domain"] == "fiscal"
+    assert emitted["run_id"] == run_id
+    assert emitted["tenant_hash"] is None
+    assert emitted["tenant_scope_status"] == "unknown"
+
+    consumed = resolve_transfer_context(
+        candidate=candidate,
+        context={"transfer_context": emitted},
+    )
+    assert consumed.domain == "fiscal"
+    assert consumed.run_id == run_id
+    assert consumed.tenant_hash is None
+    assert consumed.tenant_scope_status.value == "unknown"
+
+
+@pytest.mark.parametrize(
+    ("params", "candidate_metadata"),
+    [
+        (
+            {
+                "transfer_context": {
+                    "task_family": "policy",
+                    "domain": "fiscal",
+                    "run_id": "run_benchmark_transfer_scope",
+                    "tenant_hash": "",
+                }
+            },
+            {},
+        ),
+        ({"transfer_context": {}}, {}),
+        (
+            {
+                "policy_request_domain": "fiscal",
+                "transfer_context": {
+                    "task_family": "policy",
+                    "domain": "labor",
+                    "run_id": "run_benchmark_transfer_scope",
+                },
+            },
+            {},
+        ),
+        ({}, {"tenant_hash": ""}),
+        ({"source_run_id": "origin_run"}, {}),
+        (
+            {
+                "transfer_context": {
+                    "task_family": "policy",
+                    "domain": "fiscal",
+                    "run_id": "other_runtime_run",
+                }
+            },
+            {},
+        ),
+    ],
+)
+def test_runtime_transfer_context_refuses_present_empty_or_conflicting_scope(
+    params: dict[str, object],
+    candidate_metadata: dict[str, object],
+) -> None:
+    run_id = "run_benchmark_transfer_scope"
+    candidate = _candidate().model_copy(update={"metadata": candidate_metadata})
+
+    with pytest.raises(TransferScopeRefusedError) as captured:
+        _resolve_runtime_transfer_context(
+            ExperimentState(run_id=run_id, params=params),
+            candidate,
+        )
+
+    assert captured.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
+
+
+def test_runtime_transfer_context_refuses_sibling_scope_from_another_run() -> None:
+    sibling_context = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="sibling_producer_run",
+        tenant_scope_status=TransferTenantScopeStatus.UNKNOWN,
+    )
+
+    with pytest.raises(TransferScopeRefusedError):
+        _resolve_runtime_transfer_context(
+            ExperimentState(
+                run_id="runtime_run",
+                params={"transfer_context": sibling_context},
+            ),
+            _candidate(),
+        )
+
+
+def test_runtime_transfer_context_uses_live_access_scope_and_rejects_candidate_mismatch() -> None:
+    access = AccessScope.for_service(
+        tenant_id="benchmark-tenant-a",
+        cell_id=None,
+        spiffe_id="spiffe://test/policy-runtime",
+    )
+    token = set_current_access_scope(access)
+    try:
+        run_id = "run_benchmark_transfer_scope"
+        emitted = _resolve_runtime_transfer_context(
+            ExperimentState(run_id=run_id),
+            _candidate(),
+        )
+        assert emitted["tenant_hash"] == anonymize_tenant_id("benchmark-tenant-a")
+        assert emitted["tenant_scope_status"] == "authenticated"
+
+        mismatched = _candidate().model_copy(
+            update={"metadata": {"tenant_hash": anonymize_tenant_id("benchmark-tenant-b")}}
+        )
+        with pytest.raises(TransferScopeRefusedError) as captured:
+            _resolve_runtime_transfer_context(ExperimentState(run_id=run_id), mismatched)
+        assert (
+            captured.value.refusals[0].reason
+            is TransferScopeRefusalReason.AUTHENTICATED_SCOPE_MISMATCH
+        )
+    finally:
+        reset_current_access_scope(token)
+
+
+def test_runtime_transfer_context_preserves_explicit_declared_unscoped_status() -> None:
+    run_id = "run_benchmark_transfer_scope"
+    emitted = _resolve_runtime_transfer_context(
+        ExperimentState(
+            run_id=run_id,
+            params={
+                "transfer_context": {
+                    "task_family": "policy",
+                    "domain": "fiscal",
+                    "run_id": run_id,
+                    "tenant_scope_status": "declared_unscoped",
+                }
+            },
+        ),
+        _candidate(),
+    )
+
+    assert emitted["tenant_hash"] is None
+    assert emitted["tenant_scope_status"] == "declared_unscoped"
 
 
 def test_runtime_candidate_bridge_writes_selected_owner_schema_and_body(tmp_path: Path) -> None:

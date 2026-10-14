@@ -227,9 +227,7 @@ def _run_owner_snapshot_write_options(
         InputRef(
             artifact_id=snapshot.run_manifest.registry_bundle.artifact_id,
             role="registry_bundle",
-            manifest_profile_sha256=(
-                snapshot.run_manifest.registry_bundle.manifest_profile_sha256
-            ),
+            manifest_profile_sha256=(snapshot.run_manifest.registry_bundle.manifest_profile_sha256),
         )
     ]
     if snapshot.previous_snapshot_ref is not None:
@@ -237,9 +235,7 @@ def _run_owner_snapshot_write_options(
             InputRef(
                 artifact_id=snapshot.previous_snapshot_ref.artifact_id,
                 role="previous_owner_snapshot",
-                manifest_profile_sha256=(
-                    snapshot.previous_snapshot_ref.manifest_profile_sha256
-                ),
+                manifest_profile_sha256=(snapshot.previous_snapshot_ref.manifest_profile_sha256),
             )
         )
     canon = _RUN_OWNER_SNAPSHOT_CANON
@@ -389,9 +385,7 @@ def _read_incomplete_run_trace(
     except (TypeError, ValueError) as exc:
         raise _FinalizeRecoveryError("run_resume_trace_record_invalid") from exc
     starts = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_STARTED"
+        record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
     ]
     if (
         len(starts) != 1
@@ -465,8 +459,16 @@ def _run_owner_snapshot_chain(
             before = snapshot.run_manifest
             after = next_snapshot.run_manifest
             immutable_fields = (
-                "run_id", "started_at", "producer", "env", "registry_bundle",
-                "tenant_id", "cell_id", "seed", "parent_run_id", "replay_source_ref",
+                "run_id",
+                "started_at",
+                "producer",
+                "env",
+                "registry_bundle",
+                "tenant_id",
+                "cell_id",
+                "seed",
+                "parent_run_id",
+                "replay_source_ref",
             )
             if (
                 any(getattr(before, name) != getattr(after, name) for name in immutable_fields)
@@ -551,9 +553,7 @@ def _trace_terminal_run_finalized_ref(
         raise _FinalizeRecoveryError("run_finalize_trace_empty")
 
     starts = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_STARTED"
+        record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
     ]
     if (
         len(starts) != 1
@@ -570,9 +570,7 @@ def _trace_terminal_run_finalized_ref(
             raise _FinalizeRecoveryError("run_finalize_trace_owner_scope_mismatch")
 
     finalized = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_FINALIZED"
+        record for record in records if record.phase == "core" and record.event == "RUN_FINALIZED"
     ]
     if not finalized:
         if any(record.run_terminality is RunTerminality.TERMINAL for record in records):
@@ -589,10 +587,7 @@ def _trace_terminal_run_finalized_ref(
     manifest_outputs = [
         output for output in terminal.refs.outputs if output.kind == "core.run_manifest"
     ]
-    if (
-        len(manifest_outputs) != 1
-        or manifest_outputs[0].media_type != "application/json"
-    ):
+    if len(manifest_outputs) != 1 or manifest_outputs[0].media_type != "application/json":
         raise _FinalizeRecoveryError("run_finalize_trace_manifest_ref_invalid")
     return manifest_outputs[0]
 
@@ -639,9 +634,7 @@ def _validate_terminal_run_manifest_ref(
             opts=profile_options,
         )
     except ValueError as exc:
-        raise _FinalizeRecoveryError(
-            "run_finalize_manifest_write_profile_mismatch"
-        ) from exc
+        raise _FinalizeRecoveryError("run_finalize_manifest_write_profile_mismatch") from exc
 
 
 def _trace_run_started_identity(trace_path: Path) -> _RunOwnerIdentity | None:
@@ -699,10 +692,7 @@ def _finalize_request_matches(
         return False
     if not errors:
         return True
-    return (
-        len(errors) <= len(run_manifest.errors)
-        and run_manifest.errors[-len(errors) :] == errors
-    )
+    return len(errors) <= len(run_manifest.errors) and run_manifest.errors[-len(errors) :] == errors
 
 
 def _append_run_finalized_event(
@@ -832,6 +822,63 @@ class RunContext:
     @property
     def trace_path(self) -> Path | None:
         return self._trace_path
+
+    def _validate_timeout_worker_owner_binding(self) -> None:
+        """Prove the timeout worker's scope against this run's selected owner snapshot."""
+        owner_ref = self._owner_snapshot_ref
+        if (
+            type(owner_ref) is not ArtifactRef
+            or owner_ref.kind != _RUN_OWNER_SNAPSHOT_KIND
+            or owner_ref.media_type != "application/json"
+            or owner_ref.manifest_profile_sha256 is None
+        ):
+            raise _FinalizeRecoveryError("timeout_worker_owner_snapshot_ref_required")
+        try:
+            snapshot = _validate_run_owner_snapshot_ref(
+                self.store,
+                owner_ref,
+                require_registry_profile=False,
+            )
+            scope_digest = _access_scope_sha256(self.access_scope)
+        except _FinalizeRecoveryError as exc:
+            raise _FinalizeRecoveryError("timeout_worker_owner_snapshot_invalid") from exc
+
+        persisted = snapshot.run_manifest
+        current = self.run_manifest
+        identity_fields = (
+            "run_id",
+            "started_at",
+            "producer",
+            "env",
+            "registry_bundle",
+            "status",
+            "finished_at",
+            "trace_ref",
+            "tenant_id",
+            "cell_id",
+            "seed",
+            "parent_run_id",
+            "replay_source_ref",
+            "execution_profile",
+            "control_job_id",
+            "capability_manifest_ref",
+            "environment_manifest_ref",
+            "sbom_ref",
+            "tee_attestation_ref",
+        )
+        if (
+            snapshot.access_scope_sha256 != scope_digest
+            or any(getattr(persisted, name) != getattr(current, name) for name in identity_fields)
+            or (self.tenant_id, self.cell_id) != (current.tenant_id, current.cell_id)
+            or (getattr(self.store, "_tenant_id", None), getattr(self.store, "_cell_id", None))
+            != (self.tenant_id, self.cell_id)
+            or (
+                self.access_scope is not None
+                and (self.access_scope.tenant_id, self.access_scope.cell_id)
+                != (self.tenant_id, self.cell_id)
+            )
+        ):
+            raise _FinalizeRecoveryError("timeout_worker_owner_inputs_mismatch")
 
     @classmethod
     def start(
@@ -1148,9 +1195,7 @@ class RunContext:
         """Perform finalization while holding the run's exclusive lease."""
         if run_dir is not None:
             journal_path = _finalize_journal_path(run_dir)
-            pending_manifest = (
-                _load_finalize_journal(run_dir) if journal_path.exists() else None
-            )
+            pending_manifest = _load_finalize_journal(run_dir) if journal_path.exists() else None
             if pending_manifest is not None and not _finalize_request_matches(
                 pending_manifest,
                 status=status,

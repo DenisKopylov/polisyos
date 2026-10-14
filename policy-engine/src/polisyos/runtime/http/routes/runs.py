@@ -672,12 +672,28 @@ def _candidate_acquisition_history_projection(
 
         for _head, route_receipt_ref, route_receipt in matching_receipts:
             if route_receipt.terminal_outcome == "quarantined_no_growth":
+                observed_origin_source_ref = None
+                if compiled.n4_recursive_source_ref is not None:
+                    observed_origin_source_ref = ArtifactRef.model_validate(
+                        compiled.n4_recursive_source_ref.model_dump(mode="json")
+                    )
                 history_entries.append(
                     RunCandidateSimulationAcquisitionHistoryEntry(
                         route_receipt_ref=route_receipt_ref,
                         route_id=route_receipt.route_id,
                         action_generation=route_receipt.action_generation,
                         terminal_outcome="quarantined_no_growth",
+                        origin_source_ref=observed_origin_source_ref,
+                        schema_version=(
+                            "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+                        ),
+                        reentry_receipt_schema_version=None,
+                        continuation_join_status="not_applicable",
+                        origin_source_binding_status=(
+                            "observed_only"
+                            if observed_origin_source_ref is not None
+                            else "not_supplied"
+                        ),
                     )
                 )
                 continue
@@ -789,6 +805,7 @@ def _candidate_acquisition_history_projection(
                 reentry_receipt.source_candidate_ref
                 == reentry_receipt.new_cycle.selected_candidate_ref
             )
+            expected_origin_source_ref = None
             if same_candidate:
                 if old_source is None or old_source_ref is None:
                     raise ValueError("acquisition_reentry_same_candidate_source_missing")
@@ -805,6 +822,9 @@ def _candidate_acquisition_history_projection(
                     profile=new_source.profile,
                 )
                 expected_origin_ref = old_source.origin_source_ref or old_source_ref
+                expected_origin_source_ref = ArtifactRef.model_validate(
+                    expected_origin_ref.model_dump(mode="json")
+                )
                 if (
                     old_semantic_identity != old_source.semantic_identity_hash
                     or new_semantic_identity != new_source.semantic_identity_hash
@@ -948,6 +968,26 @@ def _candidate_acquisition_history_projection(
                     new_candidate_id=reentry_receipt.new_cycle.selected_candidate_ref,
                     new_candidate_source_ref=new_source_ref,
                     origin_source_ref=new_source.origin_source_ref,
+                    expected_origin_source_ref=expected_origin_source_ref,
+                    schema_version=(
+                        "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+                    ),
+                    reentry_receipt_schema_version=reentry_receipt.schema_version,
+                    continuation_join_status=(
+                        "v3_occurrence_joined"
+                        if reentry_receipt.schema_version
+                        == "policyos.runtime.acquisition_overlay_reentry.v3"
+                        else "legacy_occurrence_unbound"
+                    ),
+                    origin_source_binding_status=(
+                        "verified_same_candidate_root"
+                        if same_candidate
+                        else (
+                            "observed_only"
+                            if new_source.origin_source_ref is not None
+                            else "not_supplied"
+                        )
+                    ),
                     continuation=continuation_projection,
                 )
             )

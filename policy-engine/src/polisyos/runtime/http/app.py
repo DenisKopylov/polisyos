@@ -175,10 +175,7 @@ def create_runtime_api_app(
         raise RuntimeBootstrapError(
             "Contract-testing Credal source attempts require a boolean server setting."
         )
-    if (
-        enable_contract_testing_credal_source_attempts
-        and policy_resolver.default_profile != "dev"
-    ):
+    if enable_contract_testing_credal_source_attempts and policy_resolver.default_profile != "dev":
         raise RuntimeBootstrapError(
             "Contract-testing Credal source attempts are restricted to the dev profile."
         )
@@ -320,7 +317,7 @@ def create_runtime_api_app(
 
     app = FastAPI(
         title="PolicyOS Runtime API",
-        version="1.0.0",
+        version="1.1.0",
         description=(
             "Runtime API v1: run explorer, debug, and artifact inspector surfaces for PolicyOS."
         ),
@@ -572,9 +569,8 @@ def _install_request_telemetry_middleware(
         request_method = str(getattr(request, "method", "")).upper()
         if request_path.startswith("/api/v1/"):
             set_versioning_headers(response)
-        if (
-            request_method == "GET"
-            and request_path.startswith("/api/v1/control/admission-attempts/")
+        if request_method == "GET" and request_path.startswith(
+            "/api/v1/control/admission-attempts/"
         ):
             response.headers["Cache-Control"] = "no-store"
         attempt_id = getattr(request.state, "control_pre_admission_attempt_id", None)

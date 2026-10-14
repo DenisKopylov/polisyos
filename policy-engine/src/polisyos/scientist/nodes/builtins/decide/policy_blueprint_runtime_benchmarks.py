@@ -38,6 +38,7 @@ from polisyos.scientist.methods.doe.stress_report import (
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
 )
@@ -679,6 +680,28 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
     session.evidence_ref = evidence_ref
 
 
+def _resolve_runtime_transfer_context(
+    state: ExperimentState,
+    candidate: PolicyCandidateSchema,
+) -> dict[str, Any]:
+    """Resolve producer declarations against the runtime run and live access scope.
+
+    Candidate metadata can carry a tenant declaration for compatibility, but it
+    never authenticates that identity. Only pass it as a declaration when the
+    key is present: an absent label is not an empty tenant identity, and a
+    present malformed label must remain a refusal.
+    """
+    metadata = candidate.metadata
+    resolved = resolve_transfer_context(
+        candidate=candidate,
+        context=state.params,
+        run_id=state.run_id,
+        tenant_hash=metadata.get("tenant_hash"),
+        tenant_hash_is_explicit="tenant_hash" in metadata,
+    )
+    return resolved.model_dump(mode="json", exclude_none=False)
+
+
 def build_runtime_funnel_context(session: _RuntimeSession) -> None:
     """Build the existing promotion context and attach the scheduler's current projection."""
     owner = session.owner
@@ -690,16 +713,7 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
     calibration_report = session.calibration_report
     assert evidence_bundle is not None
     assert evidence_ref is not None
-    transfer_context = state.params.get("transfer_context") or {
-        "task_family": "policy",
-        "domain": str(
-            candidate.metadata.get("domain")
-            or state.params.get("policy_request_domain")
-            or state.run_id
-        ),
-        "run_id": state.run_id,
-        "tenant_hash": str(candidate.metadata.get("tenant_hash") or ""),
-    }
+    transfer_context = _resolve_runtime_transfer_context(state, candidate)
     funnel_context = {
         "store": owner.resolve_actionable_store(store=ctx.store),
         "transfer_context": transfer_context,

@@ -528,6 +528,10 @@
         "acquisitionNewCandidate": "Кандидат повторного запуска: {candidate}",
         "acquisitionSource": "Источник кандидата: {ref}",
         "acquisitionOrigin": "Исходный источник: {ref}",
+        "acquisitionOriginObserved": "Наблюдаемое исходное хранилище (только для расследования): {ref}",
+        "acquisitionOriginVerified": "Проверенный производителем корень кандидата: {ref}",
+        "acquisitionJoinStatus": "Связь с появлением кандидата: {status}",
+        "acquisitionHistoryLimited": "Метаданные происхождения отсутствуют или устарели; эта история имеет ограниченный статус.",
         "acquisitionOriginUnlinked": "не связан в этой записи",
         "acquisitionReceipt": "Квитанция маршрута: {ref}",
         "acquisitionReentryReceipt": "Квитанция повторного запуска: {ref}"
@@ -1063,11 +1067,21 @@
         "mediaType": "Media type",
         "artifactSize": "Artifact size",
         "previewLimit": "Preview limit",
-        "truncated": "Truncated"
+        "truncated": "Truncated",
+        "canonReadStatus": "Статус канонического чтения"
+      },
+      "predictiveCoverage": {
+        "title": "Диагностика прогнозного покрытия",
+        "limitedNotice": "Ограниченная диагностика, сформированная читателем. Подтверждение производителя не установлено; перечисленные способы использования запрещены.",
+        "assessment": "Оценка",
+        "sourceMaterialization": "Способ формирования",
+        "producerAttestationStatus": "Подтверждение производителя",
+        "mayNotUseFor": "Запрещённое использование"
       },
       "schemaFields": {
         "name": "Schema name",
-        "version": "Schema version"
+        "version": "Schema version",
+        "canonReadStatus": "Статус канонического чтения"
       },
       "lineageFields": {
         "nodes": "Nodes",

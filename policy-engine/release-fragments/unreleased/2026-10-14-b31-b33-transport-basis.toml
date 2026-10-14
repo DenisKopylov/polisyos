@@ -1,0 +1,40 @@
+id = "2026-10-14-b31-b33-transport-basis"
+title = "Persist candidate N8 transport runs from selected causal graphs"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "N8 transport execution binds a selected causal graph, explicit solver mode, solver result, and fresh-read CAS run basis while remaining candidate-only."
+evidence = [
+  "tests/unit/runtime/quality/test_cycle_substrate.py",
+  "tests/unit/runtime/quality/test_value_gate.py",
+]
+compatibility = "Additive Python API under the public_experimental polisyos.runtime.quality package facade; optional RealValueOwnerGateway solver_mode defaults to auto, and existing receipt schemas and cycle-history serialization stay unchanged."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Call RealValueOwnerGateway.run_transport only with an existing selected CausalGraphModelRef. Its optional solver_mode defaults to auto; explicit existing modes remain candidate-only and are bound into the run request/basis. Graphless contexts continue to produce typed refusal."
+api = "Exports RealValueOwnerGateway and ValueTransportRunReceiptV1 from the polisyos.runtime.quality facade; run_transport accepts an optional existing solver_mode, the immutable request/run basis records it, the receipt reports the actual backend, and persist_transportability_result supports same-write selected-profile opt-in."
+limitations = "An explicit simplified_legacy result is a candidate software witness only; auto remains the production gateway default. A replayable candidate solver result does not establish graph truth, a genuine Y0 surrogate profile, empirical causal authority, calibration, B31 partial-identification bounds, unit conversion, or value promotion."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+source_flip_evidence = "The source-flip validator verifies the supplied exact Foundry source freeze before probes or source mutations and retains full baseline/mutant stdout and stderr with path, SHA-256, and byte count under ignored LOCAL/raw. This does not close B31 or B33 and does not establish production authority."
+
+[[compatibility_change]]
+id = "runtime-quality-selected-graph-transport-run"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "N8 candidate transport runs preserve the selected graph, requested solver mode, and CAS profile through producer and fresh-consumer replay; auto remains the default."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[status]
+production_authority = "not_established"
+value_promotion = "not_established"
+open_findings = ["B31", "B33"]

@@ -622,7 +622,10 @@ Search indexed Lex facts.
   - Optional: `top_k`, `query_generation_intent`
 - Response always includes `search_mode` and nullable `vector_refusal_code`.
   Missing or incompatible vector intent produces text fallback with a named
-  refusal. An empty result still carries these query-level diagnostics.
+  refusal. A selected generation can be available while executable runtime
+  material is not established; `query_encoder_runtime_material_not_established`
+  keeps the real text results and explains why vector encoding did not run. An
+  empty result still carries these query-level diagnostics.
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/control/lex/search" \

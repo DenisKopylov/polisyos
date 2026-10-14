@@ -45,7 +45,8 @@ class LegalQueryProfile:
 
     This snapshot asks for a specific generation. It does not grant model,
     evidence, or legal authority; the reader verifies the selected artifact,
-    current projected members, and live encoder independently.
+    current projected members, and live encoder asset compatibility. The
+    executable runtime remains not established without an owner-resolved bundle.
     """
 
     basis_kind: str
@@ -98,11 +99,16 @@ class LegalQueryProfile:
 
 @dataclass(frozen=True, slots=True)
 class LegalQueryInput:
-    """Query text, live local encoder, and immutable generation request intent."""
+    """Query text, candidate encoder, immutable intent, and a deferred refusal.
+
+    A runtime refusal is carried to the shared reader so request and current
+    generation checks retain precedence over runtime-material fallback.
+    """
 
     text: str
-    encoder: object
+    encoder: object | None
     profile: tuple[LegalQueryProfile, ...] | None = None
+    runtime_refusal: LegalQueryProfileError | None = None
 
 
 class LegalQueryProfileError(ValueError):
@@ -1210,6 +1216,20 @@ class LegalKnowledgeStore:
             raise LegalQueryProfileError("query_profile_stale_or_mismatched")
 
     @staticmethod
+    def _require_query_runtime_material_binding(
+        refusal: LegalQueryProfileError | None = None,
+    ) -> None:
+        """Refuse only after fresh request and generation checks have completed.
+
+        Legal generation inventories bind model assets and projection inputs,
+        but this runtime has no source-owned profile for executable encoder
+        behavior. Equal weights/config/tokenizer do not prove equal encode calls.
+        """
+        if refusal is not None:
+            raise refusal
+        raise LegalQueryProfileError("query_encoder_runtime_material_not_established")
+
+    @staticmethod
     def _query_vector_for_generation(
         query: LegalQueryInput,
         generation: legal_read_api.EmbeddingGenerationRef | None,
@@ -1247,6 +1267,16 @@ class LegalKnowledgeStore:
         ):
             raise LegalQueryProfileError("generation_profile_unavailable")
 
+        if query.runtime_refusal is not None and (
+            query.runtime_refusal.code != "query_encoder_runtime_material_not_established"
+        ):
+            LegalKnowledgeStore._require_query_runtime_material_binding(query.runtime_refusal)
+        if query.encoder is None:
+            refusal = query.runtime_refusal or LegalQueryProfileError(
+                "query_encoder_assets_unavailable"
+            )
+            LegalKnowledgeStore._require_query_runtime_material_binding(refusal)
+
         dimension_method = getattr(query.encoder, "get_sentence_embedding_dimension", None)
         encode_method = getattr(query.encoder, "encode", None)
         try:
@@ -1273,6 +1303,9 @@ class LegalKnowledgeStore:
         if persisted_rule_version != expected_rule_version:
             raise LegalQueryProfileError("encoder_identity_mismatch")
 
+        # This is the shared admission point for entities, facts, and provisions.
+        # Matching asset fields alone cannot establish executable runtime material.
+        LegalKnowledgeStore._require_query_runtime_material_binding(query.runtime_refusal)
         try:
             encoded = np.asarray(
                 encode_method(

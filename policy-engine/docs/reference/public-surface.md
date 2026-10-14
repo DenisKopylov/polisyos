@@ -130,7 +130,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 - Source: `src/polisyos/common/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose side-effect-sensitive common helpers behind a lazy package facade.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (7; native exports unproved)</summary>
 
@@ -151,7 +151,7 @@ timestamps
 - Source: `src/polisyos/common/config.py`
 - Facade: `unresolved_exports`
 - Summary: Explicit process bootstrap helpers for env defaults, validation, and logging.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (8; native exports unproved)</summary>
 
@@ -172,7 +172,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -186,6 +186,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -197,7 +198,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/core/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable Core platform surface with lazy package imports.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (134; native exports unproved)</summary>
 
@@ -345,9 +346,9 @@ security
 - Source: `src/polisyos/core/artifacts/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
-<details><summary>Source-declared candidates (67; native exports unproved)</summary>
+<details><summary>Source-declared candidates (77; native exports unproved)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -369,6 +370,7 @@ ArtifactWriteOptions
 AsyncArtifactStore
 AsyncArtifactStoreAdapter
 AsyncFileSystemArtifactStore
+AsyncRawManifestBytesReader
 AtomicFileDurabilityError
 BulkSigningReport
 BulkVerificationReport
@@ -391,6 +393,7 @@ KeyPair
 NodeStatus
 ProducerInfo
 PutOptions
+RawManifestBytesReader
 RegistryBundle
 SchemaInfo
 SignatureStatement
@@ -400,8 +403,10 @@ SignatureVerifyingArtifactStore
 SigningConfig
 VerificationReport
 WarningRecord
+aload_core_json_artifact
 artifact_manifest_profile_projection
 artifact_manifest_profile_sha256
+artifact_ref_for_manifest
 artifact_ref_identity_key
 build_artifact_store
 build_cas_integrity_report
@@ -413,10 +418,40 @@ ensure_private_key_permissions
 expected_artifact_manifest_for_write
 fsync_directory
 input_ref_from_artifact_ref
+load_core_json_artifact
+load_core_json_frame_records
 profile_bound_ref
+read_core_json_artifact
+read_core_json_artifact_bytes
+read_core_manifest_profile
 resolve_authority_envelope_ref
 resolve_dependency_graph
 resolve_manifest_by_profile
+validate_core_model_json_artifact
+```
+
+</details>
+
+#### `polisyos.core.canon`
+
+- Source: `src/polisyos/core/canon/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Exports canonical JSON helpers and hashing utilities for stable artifact identities.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (10; native exports unproved)</summary>
+
+```text
+CanonSpec
+CanonViolation
+DeprecatedHashAlgorithm
+content_hash
+fingerprint
+from_canonical_bytes
+from_canonical_obj
+streaming_hash
+to_canonical_bytes
+truncated_hash
 ```
 
 </details>
@@ -426,7 +461,7 @@ resolve_manifest_by_profile
 - Source: `src/polisyos/core/components/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable component discovery, metadata, compliance, and registry API.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (61; native exports unproved)</summary>
 
@@ -501,14 +536,676 @@ validate_metadata
 - Source: `src/polisyos/core/contracts/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
-- Export resolution incomplete: Unresolved export expression: src/polisyos/core/contracts/__init__.py:[*_CHRONOLOGY_EXPORTS, 'BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION', 'C4_PERSISTED_PROFILE_SPECS', 'CAPABILITY_DISCOVERY_SCHEMA_VERSION', 'OPTIONAL_ANALYTIC_NODE_KINDS', 'POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION', 'PRODUCER_SPINE_CONSUMER_COMPONENTS', 'PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION', 'RECOURSE_POINTER_SCHEMA_VERSION', 'REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_AUTHORITY_PURPOSE', 'SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_PROHIBITED_USES', 'SERIOUS_SKIP_BLOCKER_PROFILES', 'SKIP_BLOCKER_REQUIRED_FIELDS', 'SKIP_BLOCKER_SURFACES', 'ActiveDisambiguationPlanRef', 'ActivityType', 'AgentPipelineAttempt', 'AgentPipelineCostEvent', 'AgentPipelineResponse', 'AgentPipelineStep', 'AgentPipelineView', 'AgentType', 'ApiMeta', 'ArtifactContentPreview', 'ArtifactContentResponse', 'ArtifactLineageEdge', 'ArtifactLineageNode', 'ArtifactLineageResponse', 'ArtifactLineageView', 'ArtifactManifestResponse', 'ArtifactManifestView', 'ArtifactSchemaResponse', 'ArtifactSchemaView', 'AttractorAnalysisProvenance', 'AttractorAnalysisRequest', 'AttractorAnalysisResponse', 'AttractorAnalysisResult', 'AttractorAnalysisResultRef', 'AttractorBasinEstimate', 'AttractorCertificate', 'AttractorObservableSummary', 'AttractorParameterPoint', 'AttractorSpectralValue', 'AttractorStability', 'AttractorStateProjection', 'AttractorStateRepresentation', 'AttractorSummary', 'AttractorUncertainty', 'AttractorUncertaintySummary', 'AuthorityPosture', 'BacktestReportRef', 'BasinEstimate', 'BasinMap', 'BasinMapRef', 'BasinMapSample', 'BifurcationCandidate', 'BifurcationEvent', 'BootstrapStabilityReportRef', 'BoundedLivenessConfig', 'BoundedLivenessResolution', 'BudgetSpec', 'BudgetsV1', 'C4PersistedProfileSpec', 'CacheEntryInfo', 'CacheStatusResponse', 'CalibrationReportRef', 'CalibrationValidationBundleRef', 'CapabilityAuthorityPostureResult', 'CapabilityAuthorityState', 'CapabilityBindingLike', 'CapabilityDiscoveryAudience', 'CapabilityDiscoveryItem', 'CapabilityDiscoveryPostureResult', 'CapabilityDiscoveryRequest', 'CapabilityDiscoveryResponse', 'CapabilityDiscoveryState', 'CapabilityExecutionPostureResult', 'CapabilityExecutionState', 'CapabilityFreshness', 'CapabilityResolverPort', 'CapabilityResourceKind', 'CapabilityTimeSemantics', 'CatalogRunProfile', 'CausalAssumptionCardRef', 'CausalDiscoveryReportRef', 'CausalEffectReportRef', 'CausalFrontierAreaRecord', 'CausalFrontierEdgeRecord', 'CausalFrontierExposureRecord', 'CausalFrontierOutputRefs', 'CausalFrontierSAEEstimate', 'CausalFrontierSAERequest', 'CausalFrontierSAEResponse', 'CausalGraphModelRef', 'CausalModelEnsembleRef', 'CausalQueryResultRef', 'CausalSensitivityResultRef', 'ChangeProposal', 'ChangeProposalRef', 'CheckpointRef', 'CompileReportRef', 'CompileRequest', 'CompileResult', 'ComplianceIssue', 'ConnectorInfo', 'ConnectorsListResponse', 'ContinuationBranch', 'ContinuationBranchPoint', 'ContinuationBranchRef', 'ControlFailureEnvelope', 'ControlJobResponse', 'ControlOutboxEventInfo', 'ControlOutboxEventsResponse', 'ControlWorkerLeaseInfo', 'ControlWorkersResponse', 'CritiqueRef', 'CursorPage', 'DataSnapshot', 'DataSnapshotRef', 'DataSourceBinding', 'DataTrust', 'DataViewRequestRef', 'DatasetFetchSpecRequest', 'DecisionBasisSection', 'DecisionCardRef', 'DecisionDependencyKind', 'DecisionDependencyRef', 'DecisionPacketAuthoredBlock', 'DecisionPacketEffectSize', 'DecisionPacketMetricComparisonRow', 'DecisionPacketMetricSignificance', 'DecisionPacketOutlineEntry', 'DecisionPacketPreview', 'DecisionPacketRef', 'DecisionTriggerRecord', 'DecisionTriggerSpec', 'DecisionTriggerType', 'DecisionValidityEnvelope', 'DecisionValidityEpochImpactOwnerRow', 'DecisionValidityEpochImpactSnapshot', 'DecisionValidityEpochImpactSnapshotHandle', 'DecisionValidityEpochImpactTarget', 'DecisionValidityEvaluation', 'DecisionValidityLifecycleSummary', 'DecisionValidityPendingReview', 'DecisionValidityStatus', 'DecisionValiditySummaryResponse', 'DerivedArtifact', 'DiscoveryArtifactBundleRef', 'DiscoveryAuditBundleRef', 'DiscoveryPosture', 'DiscoveryTaskProfileRef', 'DistributionalBoundsBundleRef', 'DistributionalDualCertificateRef', 'DistributionalEffectBundleRef', 'DistributionalProofArtifactRef', 'DistributionalReportRef', 'DownstreamUtilityReportRef', 'DriftReadinessRef', 'EdgeConfidenceMatrixRef', 'EngineeringCapabilityAbsenceView', 'EntityType', 'EnvironmentManifestRef', 'EpochBoundaryLineageView', 'EpochCertificateStalenessView', 'EpochDenominatorReconciliationAdmissionBinding', 'EpochDependencyStalenessView', 'EpochDerivedRecomputeView', 'EpochOpenWorldRiskComponentView', 'EpochOpenWorldRiskView', 'EpochPerturbationClass', 'EpochPerturbationView', 'EpochProjectionDenominatorView', 'EpochProjectionStatus', 'EpochStalenessProjectionView', 'EpochTransitionDenominatorMappingRow', 'EpochTransitionDenominatorReconciliationHandle', 'EpochTransitionDenominatorReconciliationReader', 'EpochTransitionDenominatorReconciliationReceipt', 'EpochTransitionVerificationReceipt', 'EpochTransitionVerifier', 'EpochValidityAuthorityGate', 'EpochValidityBatchCompletionStatement', 'EpochValidityBatchReceipt', 'EpochValidityBatchRequest', 'EpochValidityBatchResponse', 'EpochValidityBatchTarget', 'EpochValidityCompletedBatchEvidenceDenominator', 'EpochValidityCompletedBatchEvidenceResolver', 'EpochValidityGateNonReceipt', 'EpochValidityGateReceipt', 'EpochValidityN9EvidenceResolver', 'EpochValidityN9Projection', 'EpochValidityPendingBatch', 'EpochValidityPreN9SubjectAuthority', 'EquilibriumBasinInterval', 'EquilibriumBranch', 'EquilibriumBranchPoint', 'EquilibriumCandidate', 'EquilibriumCandidateJacobian', 'EquilibriumMultiplicityDiagnostics', 'EquilibriumMultiplicityProvenance', 'EquilibriumMultiplicityReport', 'EquilibriumMultiplicityReportRef', 'EquilibriumSearchProtocol', 'EvaluatorReport', 'EvaluatorReportRef', 'EvaluatorScores', 'EvaluatorVerdict', 'EvidenceBundle', 'EvidenceBundleRef', 'ExecConfig', 'ExecConfigRef', 'ExecPlan', 'ExecPlanRef', 'ExecuteRequest', 'ExecuteResult', 'ExecutionPlan', 'ExecutionPlanRef', 'ExecutionProfile', 'ExpectedOutputSpec', 'ExperimentStateRef', 'ExplanationBundleRef', 'FabricResult', 'FabricResultRef', 'FailureCardRef', 'ForecastingUncertaintyBundleRef', 'FoundryCompileConfig', 'FoundryExecConfig', 'FoundryInputBindingReportRef', 'FoundryInputBindingRule', 'FoundryInputBindingTransform', 'FoundryInputBindings', 'FoundryInputBindingsRef', 'FoundryValidationFlags', 'FreshnessMetadata', 'FreshnessStatus', 'GovernanceConstraint', 'GovernanceDebugResponse', 'GovernanceDebugView', 'GovernanceReportRef', 'GraphHypothesisRef', 'GraphHypothesisSetRef', 'GraphPriorBundleRef', 'HTEResultRef', 'ICBackendHint', 'ICCertificateScope', 'ICConformanceVerdict', 'ICImplementationConformanceReport', 'ICImplementationConformanceReportRef', 'ICImplementationConformanceRequest', 'ICImplementationConformanceResult', 'ICNegativeCertificate', 'ICNegativeCertificateRef', 'ICProofAttachmentRef', 'ICProperty', 'ICVerificationCertificateRef', 'ICVerificationMode', 'ICVerificationReport', 'ICVerificationReportRef', 'ICVerificationRequest', 'ICVerificationResult', 'IdentifiabilityDiagnosticRef', 'IncentiveCompatibilityCertificate', 'IngestRequest', 'IngestResponse', 'InstitutionalAuthorityAbsenceView', 'IssueSeverity', 'IterationLifecycleState', 'IterationState', 'IterationStateRef', 'JudgeVerdictRef', 'KnowledgeBundle', 'KnowledgeBundleRef', 'LegalContext', 'LegalEvaluationRequest', 'LegalQueryGenerationBasisKind', 'LegalQueryGenerationIntentV1', 'LegalReport', 'LegalReportRef', 'LexSearchRequest', 'LexSearchResponse', 'LexSearchResultItem', 'LinkReportRef', 'LiteratureCausalPriorRef', 'LoweredIR', 'LoweredIRRef', 'MethodCatalogEntry', 'MethodCatalogSnapshot', 'MethodCatalogSnapshotRef', 'MethodDagEdge', 'MethodDagNode', 'MetricObservationBundle', 'MetricObservationBundleRef', 'MetricValidationReportRef', 'Metrics', 'MetricsRef', 'MobilityBoundsRequest', 'MobilityBoundsResponse', 'MobilityDiagnosticsResponse', 'MobilityEstimateRequest', 'MobilityEstimateResponse', 'MobilityReportResponse', 'ModelOutputs', 'ModelSpecRef', 'NaturalLanguageRunRequest', 'NodeDebugResponse', 'NodeDebugView', 'NodeStatus', 'PredictiveCoverageDiagnosticPreview', 'PredictiveCoverageScenarioPreview', 'NormDiffRef', 'NormImpactReportRef', 'NormPack', 'NormRef', 'NormRule', 'OrdinalPovertyReportRef', 'PeriodicOrbitDiagnostics', 'PeriodicOrbitDiagnosticsRef', 'PersistedDecisionValidityEpochImpactSnapshot', 'PersistedEpochTransitionDenominatorReconciliation', 'PersistedEpochValidityBatchEvidence', 'PersistedEpochValidityGateEvidence', 'PersistedPreN9AdmittedCandidateBatch', 'PersistedPreN9EpochValiditySubject', 'PlanDataNeed', 'PlatformMetaEvaluationReportRef', 'PolicyDesignCaseAudience', 'PolicyDesignCaseCloseoutTruth', 'PolicyDesignCaseContestedRecord', 'PolicyDesignCaseDeficitProjection', 'PolicyDesignCaseInvariantSummary', 'PolicyDesignCaseParticipationRequirementProjection', 'PolicyDesignCaseProjection', 'PolicyDesignCaseProjectionBlocker', 'PolicyDesignCaseProjectionConsumerContract', 'PolicyDesignCaseProjectionGap', 'PolicyDesignCaseProjectionLabel', 'PolicyDesignCaseProjectionOmission', 'PolicyDesignCaseRecoursePointer', 'PolicyPortfolioRef', 'PolicyRecommendationRef', 'PolicySpecRef', 'PreN9AdmittedCandidate', 'PreN9EpochValiditySubjectStatement', 'PreflightDiagnostic', 'PreflightReport', 'PreflightReportRef', 'PreviewMode', 'PriorKnowledgeBundleRef', 'PrivacyAwareTransportCertificateRef', 'ProblemFrameRef', 'ProducerSpineBindingFields', 'ProducerSpineReadContext', 'ProductionApprovalCurrentnessReceipt', 'ProgramGraph', 'ProgramGraphRef', 'ProvenanceActivity', 'ProvenanceAgent', 'ProvenanceCoreGraph', 'ProvenanceCoreRef', 'ProvenanceEdge', 'ProvenanceEntity', 'QueryPlan', 'QueryPlanRef', 'RefutationReportRef', 'RegimeShiftForecastBundleRef', 'RelationType', 'ReproducibilityManifest', 'ReproducibilityManifestRef', 'ReproducibilityReportRef', 'RequirementTimeWindow', 'RequirementToCapabilityQuery', 'ResearchIntent', 'ResearchIntentRef', 'RuleBackend', 'RuleType', 'RunCandidateSimulationAcquisitionHistoryEntry', 'RunCandidateSimulationN5Observation', 'RunCandidateSimulationProjection', 'RunDetails', 'RunDetailsResponse', 'RunErrorView', 'RunErrorsResponse', 'RunLaunchResponse', 'RunLineageResponse', 'RunNodeRecord', 'RunNodesResponse', 'RunRecordV1', 'RunRecursiveCycleBranchFailure', 'RunRecursiveCycleCheckpoint', 'RunSummary', 'RunTimelineEvent', 'RunTimelineResponse', 'RunTimelineSummary', 'RunTimelineView', 'RunsListResponse', 'RuntimeApiError', 'RuntimeApiProblem', 'ScenarioFamilyConstructRow', 'ScenarioFamilyConstructRows', 'ScopeAdjudicationCandidate', 'ScopeAdjudicationPlane', 'ScopeAdjudicationPredicate', 'ScopeAdjudicationRuling', 'ScopePredicateObservation', 'SearchCompletenessStatus', 'SearchFrontier', 'SensitivityAnalysisBundleRef', 'SensitivityResultRef', 'ShiftDiagnosticReportRef', 'SimulationResult', 'SimulationResultRef', 'SkipBlockerContractError', 'SkipBlockerPolicyDecision', 'SkippedNodeBlocker', 'SourceKind', 'SourceSpec', 'StateDelta', 'StateDeltaRef', 'StateSnapshot', 'StateSnapshotRef', 'StopCriteria', 'StopReason', 'StressTestReportRef', 'StructuralCausalModelSpecRef', 'TemporalScope', 'ThresholdsV1', 'TimelineRef', 'TraceSliceRef', 'TransportabilityResultRef', 'TreasurySeed', 'TreasurySeedRef', 'TrinityBundle', 'TrinityBundleRef', 'TrinityIRRef', 'TrinityManifest', 'UncertaintyBounds', 'UncertaintyBoundsRef', 'UncertaintyEnvelopeRef', 'UniversalAuthorityProfile', 'UniversalGeographyPredicate', 'UniversalPolicyAuthorityPurpose', 'UniversalPolicyAuthorityTypeFacet', 'UniversalPolicyCapabilityRealityLabel', 'UniversalPolicyDeliveryChannel', 'UniversalPolicyDeliveryChannelFacet', 'UniversalPolicyDesignCase', 'UniversalPolicyDesignCaseAuditSurface', 'UniversalPolicyFacetName', 'UniversalPolicyFacets', 'UniversalPolicyFundingChannel', 'UniversalPolicyFundingChannelFacet', 'UniversalPolicyGeographyPredicateFacet', 'UniversalPolicyGrammarAuthorityEnvelope', 'UniversalPolicyGrammarBlocker', 'UniversalPolicyGrammarSourceClassification', 'UniversalPolicyGrammarStatus', 'UniversalPolicyInstrumentType', 'UniversalPolicyInstrumentTypeFacet', 'UniversalPolicyMethodNeedFacet', 'UniversalPolicyOutcomeChannelFacet', 'UniversalPolicyPopulationPredicateFacet', 'UniversalPolicyRiskFacet', 'UniversalPolicyRiskFacetRecord', 'UniversalPolicyTargetingType', 'UniversalPolicyTargetingTypeFacet', 'UniversalPolicyTimePredicateFacet', 'UniversalPopulationPredicate', 'UniversalTimePredicate', 'UnresolvedEquilibriumStart', 'ValidationReportRef', 'ValueOuterSet', 'ValueOuterSetAssumptionStatus', 'ValueOuterSetComparison', 'ValueOuterSetIdentificationStatus', 'ValueOuterSetRepresentation', 'ValueOuterSetRepresentationStatus', 'ValuePromotionDecision', 'ValuePromotionDecisionGrade', 'ValuePromotionDecisionReason', 'WarningsBundle', 'WarningsRef', 'WorkflowRunRequest', 'bounded_liveness_config_from_mapping', 'build_producer_spine_binding_fields', 'build_scope_adjudication_candidate', 'build_skip_blocker_record', 'c4_canonical_bytes', 'c4_canonical_mapping', 'c4_profile', 'c4_profile_manifest_is_exact', 'c4_semantic_digest', 'chronology', 'classify_optional_analytic_node', 'construct_for_legacy_family', 'deserialize_skip_blocker_record', 'epoch', 'epoch_staleness_semantic_hash', 'evaluate_skip_blocker_policy', 'legacy_family_for_construct', 'require_production_approval_currentness_receipt', 'scope_adjudication_candidate_digest', 'serialize_skip_blocker_record', 'verify_scope_adjudication_candidate'].
+- Export resolution incomplete: Unresolved export binding consumer: src/polisyos/core/contracts/__init__.py:_CHRONOLOGY_EXPORTS.
+
+<details><summary>Source-declared candidates (655; native exports unproved)</summary>
+
+```text
+AcceptanceNonReceipt
+AcceptanceOutcome
+AcceptanceRejectedNonReceipt
+AcceptanceUnavailableNonReceipt
+ApplicablePredicateDenominatorArtifactFailure
+ApplicablePredicateDenominatorStatement
+AnchorAcceptanceAppendSuccessStatement
+AnchorAcceptanceEvidenceBundle
+AnchorAcceptanceLineageKey
+AnchorAcceptanceLineageRepository
+AnchorAcceptanceLineageStateStatement
+AnchorAcceptanceReceipt
+AnchorAcceptanceReceiptStatement
+AnchorAcceptanceRecord
+AnchorAcceptanceRequest
+AnchorAcceptanceStatement
+AnchorCustodyReceiptStatement
+AnchorCustodyVerification
+AnchorReadbackChallengeRepository
+AnchorReadbackChallengeStatement
+AnchorRetentionObjectGraph
+AnchorRetentionPackage
+AnchorRetentionStatement
+ChronologyApplicablePredicateDenominatorArtifacts
+ChronologyBundleHeader
+ChronologyBundleRequest
+ChronologyMemberInput
+ChronologyPersistenceFailure
+ChronologyPersistenceManifestMismatch
+ChronologyPersistenceNotEstablished
+ChronologyPersistenceStoreIntegrityMismatch
+ChronologyPersistenceVerificationMismatch
+ChronologyPredicatePolicyArtifacts
+ChronologyProofDomain
+ChronologyProofPersistenceFailed
+ChronologyProofPersistenceResult
+Digest
+EncodedChronologyBundle
+EpochAnchorAppointmentResolution
+EpochAnchorAppointmentResolver
+EpochAnchorAuthorityRegistry
+EpochAnchorCustodyProvider
+ExpectedCommitmentPrefix
+FULL_PREFIX_EVALUATION_TABLE
+FULL_PREFIX_FAILURE_DESCRIPTORS
+FULL_PREFIX_TERMINAL_BY_RESULT_KIND
+FullPrefixBuildFailureCode
+FullPrefixBuildRejected
+FullPrefixBuildResult
+FullPrefixCheckState
+FullPrefixEnvelopeFailureCode
+FullPrefixEnvelopeRejected
+FullPrefixEvaluationKey
+FullPrefixEvaluationState
+FullPrefixExpectedPrefixFailureCode
+FullPrefixExpectedPrefixRejected
+FullPrefixFailureDescriptor
+FullPrefixInputMode
+FullPrefixInternalConsistencyFailureCode
+FullPrefixInternalConsistencyRejected
+FullPrefixInvocationFailureCode
+FullPrefixInvocationRejected
+FullPrefixMemberFailureCode
+FullPrefixMemberRejected
+FullPrefixRejected
+FullPrefixTerminalCheck
+FullPrefixVerificationResult
+FullPrefixVerificationStatement
+FullPrefixVerified
+MemberPredicateDisposition
+NativeApplicablePredicateDenominatorPersistenceFailed
+NativeAuthorityHeadNotEstablished
+NativeChronologyCandidate
+NativeChronologyCandidateRejected
+NativeChronologyOwnerContext
+NativeChronologyPersistenceFailed
+NativeChronologyPolicyResolutionFailed
+NativeChronologyQualificationResult
+NativeChronologyQualified
+NativeChronologyQuery
+NativeChronologyReconciliation
+NativeExteriorAndAuthorityHeadNotEstablished
+NativeExteriorNotEstablished
+NativeFullPrefixBuildRejected
+NativeFullPrefixProofRejected
+NativePredicateRejected
+NativeProjectionCustodyGap
+NativeSchemaProfileRejected
+OwnerQualifiedNativeCandidate
+PersistedSignedArtifactEvidence
+PersistedApplicablePredicateDenominator
+PersistedChronologyProof
+PersistedPredicateAdmissionPolicy
+PersistedPredicatePolicyAdmission
+PolicyAdmissionAmbiguousFailure
+PolicyAdmissionMissingFailure
+PolicyBindingMismatchFailure
+PolicyBytesMissingFailure
+PolicyOwnerDenominatorMismatchFailure
+PolicyOwnerRelationNotEstablished
+PolicyOwnerRelationRejected
+PolicyQueryBindingMismatchFailure
+PredicateAdmissionPolicyStatement
+PredicateAdmissionRule
+PredicateClass
+PredicateDisposition
+PredicatePolicyAdmissionIndex
+PredicatePolicyAdmissionStatement
+PredicatePolicyOwnerProvenanceVerifier
+PredicatePolicyOwnerRelationFailure
+PredicatePolicyResolutionContext
+PredicatePolicyResolutionFailure
+PredicatePolicySelectionKey
+QueryPredicateDisposition
+RejectedAcceptanceOutcome
+RejectedRetentionOutcome
+RetentionNonReceipt
+RetentionOutcome
+RetentionRejectedNonReceipt
+RetentionUnavailableNonReceipt
+ResolvedPredicatePolicyAdmission
+SignedArtifactEvidence
+SignedArtifactEvidenceRepository
+UnavailableAcceptanceAppointment
+UnavailableAcceptanceOutcome
+UnavailableHolderAppointment
+UnavailableRetentionOutcome
+VerifiedAcceptanceVerifierAppointment
+VerifiedAcceptanceOutcome
+VerifiedAnchorAcceptance
+VerifiedAnchorRetention
+VerifiedHolderVerifierAppointment
+VerifiedNativeMemberIdentity
+VerifiedNativeSubjectIdentity
+VerifiedOwnerPredicateEvidence
+VerifiedPolicyOwnerProvenance
+VerifiedPredicatePolicyOwnerRelation
+VerifiedRetentionOutcome
+chronology_bundle_content_hash
+BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
+C4_PERSISTED_PROFILE_SPECS
+CAPABILITY_DISCOVERY_SCHEMA_VERSION
+OPTIONAL_ANALYTIC_NODE_KINDS
+POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
+PRODUCER_SPINE_CONSUMER_COMPONENTS
+PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
+RECOURSE_POINTER_SCHEMA_VERSION
+REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
+SCOPE_ADJUDICATION_AUTHORITY_PURPOSE
+SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION
+SCOPE_ADJUDICATION_PROHIBITED_USES
+SERIOUS_SKIP_BLOCKER_PROFILES
+SKIP_BLOCKER_REQUIRED_FIELDS
+SKIP_BLOCKER_SURFACES
+ActiveDisambiguationPlanRef
+ActivityType
+AgentPipelineAttempt
+AgentPipelineCostEvent
+AgentPipelineResponse
+AgentPipelineStep
+AgentPipelineView
+AgentType
+ApiMeta
+ArtifactContentPreview
+ArtifactContentResponse
+ArtifactLineageEdge
+ArtifactLineageNode
+ArtifactLineageResponse
+ArtifactLineageView
+ArtifactManifestResponse
+ArtifactManifestView
+ArtifactSchemaResponse
+ArtifactSchemaView
+AttractorAnalysisProvenance
+AttractorAnalysisRequest
+AttractorAnalysisResponse
+AttractorAnalysisResult
+AttractorAnalysisResultRef
+AttractorBasinEstimate
+AttractorCertificate
+AttractorObservableSummary
+AttractorParameterPoint
+AttractorSpectralValue
+AttractorStability
+AttractorStateProjection
+AttractorStateRepresentation
+AttractorSummary
+AttractorUncertainty
+AttractorUncertaintySummary
+AuthorityPosture
+BacktestReportRef
+BasinEstimate
+BasinMap
+BasinMapRef
+BasinMapSample
+BifurcationCandidate
+BifurcationEvent
+BootstrapStabilityReportRef
+BoundedLivenessConfig
+BoundedLivenessResolution
+BudgetSpec
+BudgetsV1
+C4PersistedProfileSpec
+CacheEntryInfo
+CacheStatusResponse
+CalibrationReportRef
+CalibrationValidationBundleRef
+CapabilityAuthorityPostureResult
+CapabilityAuthorityState
+CapabilityBindingLike
+CapabilityDiscoveryAudience
+CapabilityDiscoveryItem
+CapabilityDiscoveryPostureResult
+CapabilityDiscoveryRequest
+CapabilityDiscoveryResponse
+CapabilityDiscoveryState
+CapabilityExecutionPostureResult
+CapabilityExecutionState
+CapabilityFreshness
+CapabilityResolverPort
+CapabilityResourceKind
+CapabilityTimeSemantics
+CatalogRunProfile
+CausalAssumptionCardRef
+CausalDiscoveryReportRef
+CausalEffectReportRef
+CausalFrontierAreaRecord
+CausalFrontierEdgeRecord
+CausalFrontierExposureRecord
+CausalFrontierOutputRefs
+CausalFrontierSAEEstimate
+CausalFrontierSAERequest
+CausalFrontierSAEResponse
+CausalGraphModelRef
+CausalModelEnsembleRef
+CausalQueryResultRef
+CausalSensitivityResultRef
+ChangeProposal
+ChangeProposalRef
+CheckpointRef
+CompileReportRef
+CompileRequest
+CompileResult
+ComplianceIssue
+ConnectorInfo
+ConnectorsListResponse
+ContinuationBranch
+ContinuationBranchPoint
+ContinuationBranchRef
+ControlFailureEnvelope
+ControlJobResponse
+ControlPreAdmissionAttemptEventInfo
+ControlPreAdmissionAttemptResponse
+ControlPreAdmissionOwnerBinding
+ControlPreAdmissionAttemptStatus
+ControlPreAdmissionEventObservation
+NoCallReason
+ProducerCallState
+ControlOutboxEventInfo
+ControlOutboxEventsResponse
+ControlWorkerLeaseInfo
+ControlWorkersResponse
+CritiqueRef
+CursorPage
+DataSnapshot
+DataSnapshotRef
+DataSourceBinding
+WorkflowDataSourceBinding
+DataTrust
+DataViewRequestRef
+DatasetFetchSpecRequest
+DecisionBasisSection
+DecisionCardRef
+DecisionDependencyKind
+DecisionDependencyRef
+DecisionPacketAuthoredBlock
+DecisionPacketEffectSize
+DecisionPacketMetricComparisonRow
+DecisionPacketMetricSignificance
+DecisionPacketOutlineEntry
+DecisionPacketPreview
+DecisionPacketRef
+DecisionTriggerRecord
+DecisionTriggerSpec
+DecisionTriggerType
+DecisionValidityEnvelope
+DecisionValidityEpochImpactOwnerRow
+DecisionValidityEpochImpactSnapshot
+DecisionValidityEpochImpactSnapshotHandle
+DecisionValidityEpochImpactTarget
+DecisionValidityEvaluation
+DecisionValidityLifecycleSummary
+DecisionValidityPendingReview
+DecisionValidityStatus
+DecisionValiditySummaryResponse
+DerivedArtifact
+DiscoveryArtifactBundleRef
+DiscoveryAuditBundleRef
+DiscoveryPosture
+DiscoveryTaskProfileRef
+DistributionalBoundsBundleRef
+DistributionalDualCertificateRef
+DistributionalEffectBundleRef
+DistributionalProofArtifactRef
+DistributionalReportRef
+DownstreamUtilityReportRef
+DriftReadinessRef
+EdgeConfidenceMatrixRef
+EngineeringCapabilityAbsenceView
+EntityType
+EnvironmentManifestRef
+EpochBoundaryLineageView
+EpochCertificateStalenessView
+EpochDenominatorReconciliationAdmissionBinding
+EpochDependencyStalenessView
+EpochDerivedRecomputeView
+EpochOpenWorldRiskComponentView
+EpochOpenWorldRiskView
+EpochPerturbationClass
+EpochPerturbationView
+EpochProjectionDenominatorView
+EpochProjectionStatus
+EpochStalenessProjectionView
+EpochTransitionDenominatorMappingRow
+EpochTransitionDenominatorReconciliationHandle
+EpochTransitionDenominatorReconciliationReader
+EpochTransitionDenominatorReconciliationReceipt
+EpochTransitionVerificationReceipt
+EpochTransitionVerifier
+EpochValidityAuthorityGate
+EpochValidityBatchCompletionStatement
+EpochValidityBatchReceipt
+EpochValidityBatchRequest
+EpochValidityBatchResponse
+EpochValidityBatchTarget
+EpochValidityCompletedBatchEvidenceDenominator
+EpochValidityCompletedBatchEvidenceResolver
+EpochValidityGateNonReceipt
+EpochValidityGateReceipt
+EpochValidityN9EvidenceResolver
+EpochValidityN9Projection
+EpochValidityPendingBatch
+EpochValidityPreN9SubjectAuthority
+EquilibriumBasinInterval
+EquilibriumBranch
+EquilibriumBranchPoint
+EquilibriumCandidate
+EquilibriumCandidateJacobian
+EquilibriumMultiplicityDiagnostics
+EquilibriumMultiplicityProvenance
+EquilibriumMultiplicityReport
+EquilibriumMultiplicityReportRef
+EquilibriumSearchProtocol
+EvaluatorReport
+EvaluatorReportRef
+EvaluatorScores
+EvaluatorVerdict
+EvidenceBundle
+EvidenceBundleRef
+ExecConfig
+ExecConfigRef
+ExecPlan
+ExecPlanRef
+ExecuteRequest
+ExecuteResult
+ExecutionPlan
+ExecutionPlanRef
+ExecutionProfile
+ExpectedOutputSpec
+ExperimentStateRef
+ExplanationBundleRef
+FabricResult
+FabricResultRef
+FailureCardRef
+ForecastingUncertaintyBundleRef
+FoundryCompileConfig
+FoundryExecConfig
+FoundryExecutionInputBasis
+FoundryExecutionInputBasisRef
+FoundryInputBindingReportRef
+FoundryInputBindingRule
+FoundryInputBindingTransform
+FoundryInputBindings
+FoundryInputBindingsRef
+FoundryValidationFlags
+FreshnessMetadata
+FreshnessStatus
+GovernanceConstraint
+GovernanceDebugResponse
+GovernanceDebugView
+GovernanceReportRef
+GraphHypothesisRef
+GraphHypothesisSetRef
+GraphPriorBundleRef
+HTEResultRef
+ICBackendHint
+ICCertificateScope
+ICConformanceVerdict
+ICImplementationConformanceReport
+ICImplementationConformanceReportRef
+ICImplementationConformanceRequest
+ICImplementationConformanceResult
+ICNegativeCertificate
+ICNegativeCertificateRef
+ICProofAttachmentRef
+ICProperty
+ICVerificationCertificateRef
+ICVerificationMode
+ICVerificationReport
+ICVerificationReportRef
+ICVerificationRequest
+ICVerificationResult
+IdentifiabilityDiagnosticRef
+IncentiveCompatibilityCertificate
+IngestRequest
+IngestResponse
+InstitutionalAuthorityAbsenceView
+IssueSeverity
+IterationLifecycleState
+IterationState
+IterationStateRef
+JudgeVerdictRef
+KnowledgeBundle
+KnowledgeBundleRef
+LegalContext
+LegalEvaluationRequest
+LegalQueryGenerationBasisKind
+LegalQueryGenerationIntentV1
+LegalReport
+LegalReportRef
+LexSearchRequest
+LexSearchResponse
+LexSearchResultItem
+LinkReportRef
+LiteratureCausalPriorRef
+LoweredIR
+LoweredIRRef
+MethodCatalogEntry
+MethodCatalogSnapshot
+MethodCatalogSnapshotRef
+MethodDagEdge
+MethodDagNode
+MetricObservationBundle
+MetricObservationBundleRef
+MetricValidationReportRef
+Metrics
+MetricsRef
+MobilityBoundsRequest
+MobilityBoundsResponse
+MobilityDiagnosticsResponse
+MobilityEstimateRequest
+MobilityEstimateResponse
+MobilityReportResponse
+ModelOutputs
+ModelSpecRef
+NaturalLanguageRunRequest
+NodeDebugResponse
+NodeDebugView
+NodeStatus
+PredictiveCoverageDiagnosticPreview
+PredictiveCoverageScenarioPreview
+NormDiffRef
+NormImpactReportRef
+NormPack
+NormRef
+NormRule
+OrdinalPovertyReportRef
+PeriodicOrbitDiagnostics
+PeriodicOrbitDiagnosticsRef
+PersistedDecisionValidityEpochImpactSnapshot
+PersistedEpochTransitionDenominatorReconciliation
+PersistedEpochValidityBatchEvidence
+PersistedEpochValidityGateEvidence
+PersistedPreN9AdmittedCandidateBatch
+PersistedPreN9EpochValiditySubject
+PlanDataNeed
+PlatformMetaEvaluationReportRef
+PolicyDesignCaseAudience
+PolicyDesignCaseCloseoutTruth
+PolicyDesignCaseContestedRecord
+PolicyDesignCaseDeficitProjection
+PolicyDesignCaseInvariantSummary
+PolicyDesignCaseParticipationRequirementProjection
+PolicyDesignCaseProjection
+PolicyDesignCaseProjectionBlocker
+PolicyDesignCaseProjectionConsumerContract
+PolicyDesignCaseProjectionGap
+PolicyDesignCaseProjectionLabel
+PolicyDesignCaseProjectionOmission
+PolicyDesignCaseRecoursePointer
+PolicyPortfolioRef
+PolicyRecommendationRef
+PolicySpecRef
+PreN9AdmittedCandidate
+PreN9EpochValiditySubjectStatement
+PreflightDiagnostic
+PreflightReport
+PreflightReportRef
+PreviewMode
+PriorKnowledgeBundleRef
+PrivacyAwareTransportCertificateRef
+ProblemFrameRef
+ProducerSpineBindingFields
+ProducerSpineReadContext
+ProductionApprovalCurrentnessReceipt
+ProgramGraph
+ProgramGraphRef
+ProvenanceActivity
+ProvenanceAgent
+ProvenanceCoreGraph
+ProvenanceCoreRef
+ProvenanceEdge
+ProvenanceEntity
+QueryPlan
+QueryPlanRef
+RefutationReportRef
+RegimeShiftForecastBundleRef
+RelationType
+ReproducibilityManifest
+ReproducibilityManifestRef
+ReproducibilityReportRef
+RequirementTimeWindow
+RequirementToCapabilityQuery
+ResearchIntent
+ResearchIntentRef
+RuleBackend
+RuleType
+RunCandidateSimulationAcquisitionHistoryEntry
+RunCandidateSimulationN5Observation
+RunCandidateSimulationProjection
+RunDetails
+RunDetailsResponse
+RunErrorView
+RunErrorsResponse
+RunLaunchResponse
+RunLineageResponse
+RunNodeRecord
+RunNodesResponse
+RunRecordV1
+RunRecursiveCycleBranchFailure
+RunRecursiveCycleCheckpoint
+RunSummary
+RunTimelineEvent
+RunTimelineResponse
+RunTimelineSummary
+RunTimelineView
+RunsListResponse
+RuntimeApiError
+RuntimeApiProblem
+ScenarioFamilyConstructRow
+ScenarioFamilyConstructRows
+ScopeAdjudicationCandidate
+ScopeAdjudicationPlane
+ScopeAdjudicationPredicate
+ScopeAdjudicationRuling
+ScopePredicateObservation
+SearchCompletenessStatus
+SearchFrontier
+SensitivityAnalysisBundleRef
+SensitivityResultRef
+ShiftDiagnosticReportRef
+SimulationResult
+SimulationResultRef
+SkipBlockerContractError
+SkipBlockerPolicyDecision
+SkippedNodeBlocker
+SourceKind
+SourceSpec
+StateDelta
+StateDeltaRef
+StateSnapshot
+StateSnapshotRef
+StopCriteria
+StopReason
+StressTestReportRef
+StructuralCausalModelSpecRef
+TemporalScope
+ThresholdsV1
+TimelineRef
+TraceSliceRef
+TransportabilityResultRef
+TreasurySeed
+TreasurySeedRef
+TrinityBundle
+TrinityBundleRef
+TrinityIRRef
+TrinityManifest
+UncertaintyBounds
+UncertaintyBoundsRef
+UncertaintyEnvelopeRef
+UniversalAuthorityProfile
+UniversalGeographyPredicate
+UniversalPolicyAuthorityPurpose
+UniversalPolicyAuthorityTypeFacet
+UniversalPolicyCapabilityRealityLabel
+UniversalPolicyDeliveryChannel
+UniversalPolicyDeliveryChannelFacet
+UniversalPolicyDesignCase
+UniversalPolicyDesignCaseAuditSurface
+UniversalPolicyFacetName
+UniversalPolicyFacets
+UniversalPolicyFundingChannel
+UniversalPolicyFundingChannelFacet
+UniversalPolicyGeographyPredicateFacet
+UniversalPolicyGrammarAuthorityEnvelope
+UniversalPolicyGrammarBlocker
+UniversalPolicyGrammarSourceClassification
+UniversalPolicyGrammarStatus
+UniversalPolicyInstrumentType
+UniversalPolicyInstrumentTypeFacet
+UniversalPolicyMethodNeedFacet
+UniversalPolicyOutcomeChannelFacet
+UniversalPolicyPopulationPredicateFacet
+UniversalPolicyRiskFacet
+UniversalPolicyRiskFacetRecord
+UniversalPolicyTargetingType
+UniversalPolicyTargetingTypeFacet
+UniversalPolicyTimePredicateFacet
+UniversalPopulationPredicate
+UniversalTimePredicate
+UnresolvedEquilibriumStart
+ValidationReportRef
+ValueOuterSet
+ValueOuterSetAssumptionStatus
+ValueOuterSetComparison
+ValueOuterSetIdentificationStatus
+ValueOuterSetRepresentation
+ValueOuterSetRepresentationStatus
+ValuePromotionDecision
+ValuePromotionDecisionGrade
+ValuePromotionDecisionReason
+WarningsBundle
+WarningsRef
+WorkflowRunRequest
+bounded_liveness_config_from_mapping
+build_producer_spine_binding_fields
+build_scope_adjudication_candidate
+build_skip_blocker_record
+c4_canonical_bytes
+c4_canonical_mapping
+c4_profile
+c4_profile_manifest_is_exact
+c4_semantic_digest
+chronology
+classify_optional_analytic_node
+construct_for_legacy_family
+deserialize_skip_blocker_record
+epoch
+epoch_staleness_semantic_hash
+evaluate_skip_blocker_policy
+legacy_family_for_construct
+require_production_approval_currentness_receipt
+scope_adjudication_candidate_digest
+serialize_skip_blocker_record
+verify_scope_adjudication_candidate
+```
+
+</details>
 
 #### `polisyos.core.observability`
 
 - Source: `src/polisyos/core/observability/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: PolicyOS Observability Module — Production-grade telemetry.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -547,7 +1244,7 @@ with_trace_context
 - Source: `src/polisyos/core/security/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (106; native exports unproved)</summary>
 
@@ -667,7 +1364,7 @@ verify_signed_evidence
 - Source: `src/polisyos/core/trace/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Exports trace records and sinks used to persist run-level execution telemetry.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (5; native exports unproved)</summary>
 
@@ -685,7 +1382,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.ir`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.ir`, `polisyos.ir.analytics`, `polisyos.ir.api`
+- Supported entrypoints: `polisyos.ir`, `polisyos.ir.analytics`, `polisyos.ir.analytics.calibration_diagnostics`, `polisyos.ir.api`, `polisyos.ir.governance`, `polisyos.ir.observation`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/ir/README.md`
@@ -699,16 +1396,19 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.ir` | `src/polisyos/ir/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.ir.governance` | `src/polisyos/ir/governance/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.ir.observation` | `src/polisyos/ir/observation/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.ir`
 
 - Source: `src/polisyos/ir/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
 
-<details><summary>Source-declared candidates (292; native exports unproved)</summary>
+<details><summary>Source-declared candidates (293; native exports unproved)</summary>
 
 ```text
 ABMBifurcationReport
@@ -863,6 +1563,7 @@ MeasurementTrustTier
 MechanismBinding
 MechanismFamily
 MechanismSource
+MetricBiasDiagnostic
 MetricUnit
 MicrosimCalibrationReport
 MicrosimCalibrationReportRef
@@ -1012,9 +1713,9 @@ persist_dependent_sensitivity_result
 - Source: `src/polisyos/ir/analytics/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Curated lazy facade for analytics IR contracts.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
 
-<details><summary>Source-declared candidates (284; native exports unproved)</summary>
+<details><summary>Source-declared candidates (285; native exports unproved)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1154,6 +1855,7 @@ MeanFieldMacroSimulationConfig
 MeanFieldPerturbationSpec
 MechanismFamily
 MechanismSource
+MetricBiasDiagnostic
 MetricUnit
 MetricValidationReport
 MicrosimCalibrationReport
@@ -1305,12 +2007,32 @@ validate_truthfulness_receipt
 
 </details>
 
+#### `polisyos.ir.analytics.calibration_diagnostics`
+
+- Source: `src/polisyos/ir/analytics/calibration_diagnostics.py`
+- Facade: `unresolved_exports`
+- Summary: Typed IR contracts for probabilistic calibration diagnostics.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (6; native exports unproved)</summary>
+
+```text
+CalibrationCurveBin
+CalibrationDiagnosticIssue
+CalibrationDiagnosticsReport
+CalibrationMetricInterval
+CalibrationMetrics
+CalibrationTestResult
+```
+
+</details>
+
 #### `polisyos.ir.api`
 
 - Source: `src/polisyos/ir/api.py`
 - Facade: `unresolved_exports`
 - Summary: Machine-readable manifest for the documented IR package facades.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (11; native exports unproved)</summary>
 
@@ -1326,6 +2048,306 @@ RegistryItemId
 facade_export_names
 lazy_dir
 resolve_lazy_export
+```
+
+</details>
+
+#### `polisyos.ir.governance`
+
+- Source: `src/polisyos/ir/governance/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Expose the governance-side IR contracts for Trinity policy authoring.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (105; native exports unproved)</summary>
+
+```text
+BayesianTypeSpec
+CompiledLexIntervention
+ConstraintSpec
+ConstraintType
+ExactJointPriorEntry
+ExactPlayerPriorSpec
+ExtensiveFormNode
+FiniteOutcomeRuleEntry
+FiniteOutcomeSpec
+FiniteUtilityTableEntry
+FiniteValueTableEntry
+GateContext
+GateDecision
+GateEvent
+GateEventType
+GatePriority
+GateRequest
+GateVerdict
+InterventionSpec
+KPISpec
+MechanismBinding
+MechanismConstraintType
+MechanismDesignConstraint
+MechanismDesignSpec
+MechanismGameRepresentation
+MechanismOutcomeMode
+MechanismPriorKind
+MechanismPriorSpec
+MechanismRevelationMode
+MechanismSemanticsSpec
+MechanismUtilityModelKind
+MechanismUtilityModelSpec
+NormativeArbitrationPolicy
+NormativeComparisonMode
+NormativeComparisonTarget
+NormativeFrame
+NormativeOutcomeChannel
+ObjectiveSpec
+ParameterSpec
+Phase1GateSummary
+Phase5GateComponent
+Phase5GateWaiver
+PolicyCompatibilityConstraint
+PolicyCompatibilityMode
+PolicyCompositionPlan
+PolicyLayerLevel
+PolicyLayerSpec
+PolicyOverrideMode
+PolicyOverrideRule
+PolicySpec
+PolicyVersioningMode
+ProblemDomain
+ProblemFrame
+RepeatedGameHorizon
+RepeatedGameMetadata
+ScheduleSpec
+SelectorAggregate
+SelectorAggregationFunction
+SelectorAll
+SelectorAny
+SelectorExpr
+SelectorNot
+SelectorPredicate
+SelectorQuantifier
+SelectorQuantifierKind
+SelectorScalar
+SelectorTemporalOperator
+SelectorTemporalPredicate
+SelectorValue
+StakeholderOutcomeBinding
+StakeholderRightSpec
+StakeholderSpec
+StakeholderUtilityTerm
+SuccessCriterion
+TemporalAll
+TemporalAny
+TemporalAtom
+TemporalBinaryFormula
+TemporalBinaryOperator
+TemporalBoundedFormula
+TemporalEvaluationScope
+TemporalExecutionSemantics
+TemporalInterventionSequence
+TemporalInterventionStep
+TemporalLogicExpr
+TemporalLogicFamily
+TemporalNot
+TemporalPathFormula
+TemporalPathQuantifier
+TemporalPolicyConstraint
+TemporalTimeDomain
+TemporalUnaryFormula
+TemporalUnaryOperator
+UtilityDirection
+ValidationIssue
+ValidationReport
+build_phase1_gate_summary
+build_validation_report
+diff_payloads
+issues_from_validation_error
+load_phase1_flagship_dataset_ids
+load_validation_report
+persist_validation_report
+schedule_range
+summarize_issues
+```
+
+</details>
+
+#### `polisyos.ir.observation`
+
+- Source: `src/polisyos/ir/observation/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Expose the observation contract stack through a lazy package facade.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (167; native exports unproved)</summary>
+
+```text
+BACKTEST_PLAN_TARGET
+DEFAULT_GOVERNANCE_PASS_ALIAS_REGISTRY
+DEFAULT_GOVERNANCE_PASS_MAPPING_REGISTRY
+DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY
+DYNAMIC_TREATMENT_TARGET
+LESSON_CARD_TARGET
+MULTIPLEX_NETWORK_TARGET
+NETWORK_ANALYSIS_TARGET
+NETWORK_DATA_TARGET
+OBSERVATION_METHOD_INPUT_KIND
+PANEL_ECONOMETRIC_TARGET
+PANEL_OBSERVATIONAL_TARGET
+PROXY_MEASUREMENT_TARGET
+SECTION_15_7_BUNDLE_MODELS
+SURVEY_MICRODATA_TARGET
+SURVIVAL_DATA_TARGET
+AgentFactorEmbeddingsBundleManifest
+BacktestPlanBundle
+BilevelProblemBundle
+BoundsChannelSpec
+BoundsEstimationBundle
+BoundsEstimationCompileSpec
+BoundsEstimationEntry
+BoundsEstimationInput
+BoundsEstimationTask
+BoundsInputCompiler
+BundleAxisSemantic
+BundleLineageRef
+CalibrationSplitLabel
+CalibrationSplitPlan
+CalibrationSplitWindow
+CalibrationSplitter
+CalibrationTargetBundleManifest
+CausalExecutionBundle
+CausalPanelBundleManifest
+CausalReadinessBundle
+CdiscDatasetBridge
+CellPrototypeEmbeddingsBundleManifest
+CompiledObservationArtifact
+ContractCompatibilityTarget
+CounterfactualCheckBundle
+CounterfactualCheckEntry
+CounterfactualCheckSpec
+DTRTreatmentSequenceBundleManifest
+DdiVariableBridge
+DynamicTreatmentCompileSpec
+DynamicTreatmentCompiler
+EntityScope
+FhirObservationBridge
+FhirQuantityBridge
+FirmEventRecord
+FirmEvents
+FirmPanelRow
+FirmPanels
+GovernancePassAlias
+GovernancePassAliasRegistry
+GovernancePassAliasStatus
+GovernancePassMappingBundle
+GovernancePassMappingRegistry
+GraphArtifacts
+GraphBipartiteEdge
+GraphEdge
+HeckmanCorrectionBundle
+HistoricalValidationCompilation
+HistoricalValidationCompileSpec
+HistoricalValidationPlanCompiler
+IdentificationMode
+IdentificationModeRouter
+IdentificationRoute
+InterferenceLossSpecBundle
+InterferenceLossTargetSpec
+InterferenceReadinessEntry
+LeontiefIOBundle
+LeontiefIOCompileSpec
+LeontiefIOCompiler
+LeontiefIOInput
+LessonRegistrySeedBundle
+LessonRegistrySeedEntry
+MeasurementRegistry
+MeasurementTierRule
+MeasurementTrustTier
+MicrosimSurveyContractBundle
+MultiplexGraphLayerId
+NegativeControlSpec
+NetworkCausalCompileSpec
+NetworkCausalContractBundle
+NetworkCausalDataCompiler
+NetworkContractBundle
+NetworkContractCompileSpec
+NetworkContractCompiler
+ObservationBridgeStandard
+ObservationCompilerContext
+ObservationContractArtifact
+ObservationContractCompileError
+ObservationContractCompilerSuite
+ObservationContractRoute
+ObservationContractSuiteResult
+ObservationFamily
+ObservationFamilyPolicy
+ObservationFamilyPolicyRegistry
+ObservationMethodInputEnvelope
+ObservationPanel
+ObservationRecord
+ObservationToContractManifest
+PanelEconometricBundleManifest
+PanelEconometricCompileSpec
+PanelEconometricCompiler
+PanelObservationalCompileSpec
+PanelObservationalCompiler
+ProxyChannelSpec
+ProxyIdentificationBundle
+ProxyIdentificationEntry
+ProxyMap
+ProxyMappingRule
+ProxyMeasurementCompileSpec
+ProxyMeasurementCompiler
+RegimeCalendar
+RegimeCalendarEntry
+RegionSectorFlowRow
+RegionSectorPanels
+RequiredArraySpec
+RequiredColumnSpec
+SchemaChangepoint
+SchemaRegimeRegistry
+SchemaRegimeSpec
+SdmxObservationBridge
+ShockCalendar
+ShockCalendarEntry
+SobolDiagnosticsBundle
+SourceConfidenceTier
+SparseDenseBridge
+SpecificationCurveBundle
+SpecificationCurveCompileSpec
+SpecificationCurveCompiler
+SpecificationCurveDiagnosticsBundle
+SpecificationCurveInput
+SpecificationCurveSource
+SpecificationCurveSourceSpec
+StrategicResponseChannel
+StrategicResponseEntry
+StrategicResponseSpec
+StrategicResponseSpecsBundle
+SurveyMicroDataCompileSpec
+SurveyMicroDataCompiler
+SurvivalCompileSpec
+SurvivalDataBundleManifest
+SurvivalDataCompiler
+SurvivalHazardBundle
+TemporalDTRExecutionEntry
+TemporalDTRTask
+TransportabilityCheckBundle
+TransportabilityCheckEntry
+TransportabilityCheckSpec
+bridge_observation_panel_to_cdisc
+bridge_observation_record_to_ddi
+bridge_observation_record_to_fhir
+bridge_observation_record_to_sdmx
+load_causal_execution_bundle
+load_causal_readiness_bundle
+load_json_bundle
+load_npz_payload
+load_parquet_rows
+persist_causal_execution_bundle
+persist_causal_readiness_bundle
+write_json_bundle
+write_npz_payload
+write_parquet_rows
 ```
 
 </details>
@@ -1440,7 +2462,13 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/obligation_graph/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: W6.C obligation graph compiler and ledger contracts.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/obligation_graph/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_graph/_impl/compiler.py:class ObligationGraphCompileError(ValueError):
+    """Raised when the obligation graph cannot be compiled truthfully."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(f'{code}: {message}')
+        self.code = code
+        self.message = message.
 
 <details><summary>Source-declared candidates (20; native exports unproved)</summary>
 
@@ -1560,7 +2588,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/participation_requirement/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Participation provenance requirement compiler and consumer enforcement.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:import hashlib.
 
 <details><summary>Source-declared candidates (23; native exports unproved)</summary>
 
@@ -1596,7 +2624,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.fabric`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`, `polisyos.fabric.world`
+- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`, `polisyos.fabric.connectors`, `polisyos.fabric.data_plane`, `polisyos.fabric.world`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/fabric/README.md`
@@ -1610,6 +2638,8 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.fabric`
@@ -1617,7 +2647,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/fabric/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (41; native exports unproved)</summary>
 
@@ -1672,7 +2702,7 @@ world
 - Source: `src/polisyos/fabric/api.py`
 - Facade: `unresolved_exports`
 - Summary: Explicit public Fabric API facade and connector bridge.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/fabric/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (41; native exports unproved)</summary>
 
@@ -1718,6 +2748,214 @@ resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
 world
+```
+
+</details>
+
+#### `polisyos.fabric.connectors`
+
+- Source: `src/polisyos/fabric/connectors/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Data Fabric Connectors - Protocol Foundation & Registry Architecture.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (127; native exports unproved)</summary>
+
+```text
+API_PROTOCOL_CONNECTOR_CONTRACT
+CAPABILITY_METHOD_REQUIREMENTS
+CONNECTOR_FAMILY_CONTRACTS
+DATABASE_CONNECTOR_CONTRACT
+FILE_CONNECTOR_CONTRACT
+OBJECT_STORAGE_CONNECTOR_CONTRACT
+REQUIRED_ATTRIBUTES
+REQUIRED_METHODS
+SPATIAL_CONNECTOR_CONTRACT
+STREAM_CONNECTOR_CONTRACT
+AdaptiveRateLimiter
+AmbiguousConnectorError
+AsyncFetchLease
+BaseConnector
+CacheFallback
+CacheMetadata
+CachePolicy
+CacheStats
+CachedFetchResult
+CachingConnectorProxy
+CapabilityError
+CircuitBreaker
+CircuitBreakerConfig
+CircuitOpenError
+CircuitState
+ConfigurationError
+ConnectionConfig
+ConnectionError
+ConnectionHandle
+ConnectionPool
+ConnectorAlreadyRegisteredError
+ConnectorCacheStore
+ConnectorCapability
+ConnectorConfigError
+ConnectorDiscovery
+ConnectorEntry
+ConnectorError
+ConnectorFamilyContract
+ConnectorGovernanceMetadataIssue
+ConnectorGovernanceMetadataReport
+ConnectorMetadataSpec
+ConnectorNotFoundError
+ConnectorPreferences
+ConnectorRegistry
+DataChunk
+DataVersion
+DatasetCapabilitySnapshot
+DatasetDescriptor
+DiscoveryError
+DiscoveryResult
+FallbackChain
+FallbackStrategy
+FetchError
+FetchRequest
+FetchResult
+FreshnessResult
+FreshnessStatus
+HealthStatus
+InvalidationEvent
+InvalidationOrchestrator
+InvalidationStrategy
+InvalidationTrigger
+LRUPolicy
+MockFallback
+PolicyRegistry
+PoolClosedError
+PoolConfig
+PoolExhaustedError
+PoolStats
+PooledConnection
+PrefetchJob
+PrefetchScheduler
+QualityTier
+RaiseFallback
+RateLimitError
+RateLimitStatus
+RateLimiter
+RateLimiterConfig
+RawHTTPResponseObserver
+RegistryError
+RegistryMetrics
+RegistryStats
+ResilienceConfig
+ResultSerializer
+RetryExhaustedError
+RetryPolicy
+SchemaChangeInvalidationTrigger
+SchemaError
+SizeBoundedPolicy
+SmartExpiryPolicy
+SourceConnector
+SourceProfileRegistry
+StaticDataPolicy
+TTLPolicy
+TrustLevel
+ValidationIssue
+ValidationResult
+ValidationSeverity
+VersionStrategy
+VolatileDataPolicy
+apply_resilience
+capabilities_from_flags
+capabilities_summary
+check_capability_at_runtime
+coerce_fetch_result_against_schema
+contract_for_family
+describe_capabilities
+discover_connectors
+discover_connectors_from_modules
+flags_from_capabilities
+get_discovery_errors
+get_missing_capabilities
+get_registry
+is_retryable_error
+make_schema_hash_provider
+normalize_worldbank_records
+requires_any_capability
+requires_capability
+resolve_connection_config
+resolve_resilience_config
+validate_connector_governance_metadata
+validate_fetch_result_against_schema
+validate_protocol_compliance
+with_circuit_breaker
+with_fallback
+with_rate_limit
+with_retry
+```
+
+</details>
+
+#### `polisyos.fabric.data_plane`
+
+- Source: `src/polisyos/fabric/data_plane/__init__.py`
+- Facade: `unresolved_exports`
+- Summary: Data Plane facade for orchestration, quarantine, snapshots, shape, and time.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (53; native exports unproved)</summary>
+
+```text
+AppendOnlyEvidenceJournal
+EvidenceJournalError
+FabricBenchmarkReport
+HarnessAuthorizationEvidence
+JournalEventRef
+LiveAttemptTerminal
+LiveExecutionAuthorization
+LiveHttpBudget
+LiveMetadataExecutionAuthorization
+LiveMetadataHarnessReceipt
+LiveTransportTrace
+QuarantineRecord
+QuarantineReport
+QuarantineReprocessResult
+StreamDatasetRunResult
+StreamRuntimeOptions
+StreamingSourceSession
+benchmark_partitioned_ingestion
+benchmark_query_execution
+benchmark_stream_processing
+benchmark_world_materialization
+build_live_execution_authorization
+build_live_metadata_execution_authorization
+build_quarantine_report
+canonical_json_bytes
+compare_historical_rows
+content_sha256
+derive_harness_authorization_evidence
+derive_live_http_budget
+iter_record_batches
+list_quarantine_records
+load_quarantine_payload
+load_quarantine_record
+payload_to_dataframe
+persist_cdc_schema_change_event
+persist_fabric_benchmark_report
+persist_historical_semantic_diff_report
+persist_quarantine_record
+process_stream_dataset
+quarantine_index_path
+query_world_table
+register_quarantine_reprocessor
+reprocess_quarantine_records
+require_authorized_execution
+require_dataframe
+resolve_journal_event_ref
+resolve_linked_request_event
+resolve_live_attempt_terminal
+resolve_live_attempt_terminals
+resolve_live_transport_trace
+resolve_raw_response_body
+run_orchestrated_ingestion
+verify_journal_event_ref
 ```
 
 </details>
@@ -1804,7 +3042,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/foundry/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (31; native exports unproved)</summary>
 
@@ -1849,7 +3087,7 @@ validate_source_bound_gcm_spec
 - Source: `src/polisyos/foundry/api.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Foundry public facade for compile and execute entrypoints.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (3; native exports unproved)</summary>
 
@@ -1866,7 +3104,7 @@ execute
 - Source: `src/polisyos/foundry/compile/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (1; native exports unproved)</summary>
 
@@ -1881,7 +3119,7 @@ compile
 - Source: `src/polisyos/foundry/execute/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable execute facade for compiled Foundry plans.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (4; native exports unproved)</summary>
 
@@ -1899,7 +3137,7 @@ resolve_execution_posture
 - Source: `src/polisyos/foundry/uncertainty/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (18; native exports unproved)</summary>
 
@@ -1930,7 +3168,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.replay`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.replay`, `polisyos.scientist.replay.deterministic`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
@@ -1946,13 +3184,14 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.scientist`
 
 - Source: `src/polisyos/scientist/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (39; native exports unproved)</summary>
 
@@ -2005,7 +3244,7 @@ tool_contract_default_blockers
 - Source: `src/polisyos/scientist/governance/continuous/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Continuous governance and reissue loop for Scientist decision artifacts.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (87; native exports unproved)</summary>
 
@@ -2106,7 +3345,7 @@ persist_published_signature_custody_scan
 - Source: `src/polisyos/scientist/methods/research_dag/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Research DAG public API for Scientist best-in-class Phase 1.2.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (44; native exports unproved)</summary>
 
@@ -2164,7 +3403,7 @@ validate_source_invalidation_event
 - Source: `src/polisyos/scientist/replay/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Scientist replay hub for dead-letter, diff, and verification helpers.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scientist/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -2197,6 +3436,40 @@ verify_and_persist_replay_bundle
 ```
 
 </details>
+
+#### `polisyos.scientist.replay.deterministic`
+
+- Source: `src/polisyos/scientist/replay/deterministic.py`
+- Facade: `unresolved_exports`
+- Summary: Plan, measure, and verify deterministic replay from CAS decision packets.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+
+<details><summary>Source-declared candidates (20; native exports unproved)</summary>
+
+```text
+CompletenessLevel
+CompletenessReport
+MissingArtifact
+ReplayBundleMeasurement
+ReplayPlan
+ReplayStrategy
+SeedResolution
+VerificationConfig
+VerificationMode
+VerificationResult
+build_replay_plan
+compare_current_environment
+completeness_check
+determine_replay_strategy
+measure_replayable_audit_bundle
+normalize_artifact_id
+resolve_effective_seed
+set_global_seeds
+try_parse_artifact_id
+verify_replay
+```
+
+</details>
 Export total is unknown; the static reader cannot resolve the extension.
 
 ## `polisyos.evidence`
@@ -2221,7 +3494,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/evidence/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Cross-producer evidence graph artifacts for PolicyOS.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/evidence/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Subscript outside pure-declaration grammar: src/polisyos/evidence/claims/claim_registry.py:dict[str, Any].
 
 <details><summary>Source-declared candidates (19; native exports unproved)</summary>
 
@@ -2272,7 +3545,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/runtime/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose replay/runtime contracts without importing heavy implementations eagerly.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (10; native exports unproved)</summary>
 
@@ -2314,9 +3587,9 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/runtime/quality/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Runtime quality evaluation helpers.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/runtime/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib.
 
-<details><summary>Source-declared candidates (966; native exports unproved)</summary>
+<details><summary>Source-declared candidates (968; native exports unproved)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -2852,6 +4125,7 @@ ProxyValidityRecord
 PublicExportRedactionError
 QualityScore
 RankingMode
+RealValueOwnerGateway
 ReconciledConcept
 RecordFamilyMaturity
 RecursiveDesignGraph
@@ -2921,6 +4195,7 @@ ValueOfInformationAllocation
 ValueScheduleReviewStatus
 ValueSourceClass
 ValueTradeoffDisclosureRecord
+ValueTransportRunReceiptV1
 VoiAllocationRow
 VoiSite
 WelfareComparisonRecord
@@ -3313,7 +4588,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/lex/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (51; native exports unproved)</summary>
 
@@ -3378,7 +4653,7 @@ run_legal_benchmark
 - Source: `src/polisyos/lex/knowledge/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Legal knowledge graph: SPO entities, facts, and semantic search.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
@@ -3424,7 +4699,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/scholar/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose Scholar enrichment entrypoints and contracts via lazy imports.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/scholar/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scholar/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -3462,12 +4737,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.data_forge`
 
 - Classification: `public_experimental`
-- Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`
+- Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`, `polisyos.data_forge.read_api.academic`, `polisyos.data_forge.read_api.catalog`, `polisyos.data_forge.read_api.ukraine`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-data-forge`
 - README: `src/polisyos/data_forge/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface.
+- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Ukraine demographic reader facade.
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
 
 ### Resolved supported entrypoints
@@ -3476,13 +4751,16 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.data_forge`
 
 - Source: `src/polisyos/data_forge/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
 
 <details><summary>Source-declared candidates (49; native exports unproved)</summary>
 
@@ -3545,7 +4823,7 @@ write_snapshot_provenance_manifest
 - Source: `src/polisyos/data_forge/read_api/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable runtime-safe Data Forge read APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
 
 <details><summary>Source-declared candidates (16; native exports unproved)</summary>
 
@@ -3569,6 +4847,127 @@ ukraine
 ```
 
 </details>
+
+#### `polisyos.data_forge.read_api.academic`
+
+- Source: `src/polisyos/data_forge/read_api/academic.py`
+- Facade: `unresolved_exports`
+- Summary: Runtime-safe read API for academic Data Forge artifacts.
+- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
+
+<details><summary>Source-declared candidates (93; native exports unproved)</summary>
+
+```text
+ACADEMIC_ASSET_GROUP
+ACADEMIC_ASSET_SCHEMA_CONTRACTS
+ACADEMIC_BATCH_SCHEMA_CONTRACTS
+ACADEMIC_BATCH_STAGE_DEPENDENCIES
+ACADEMIC_BATCH_STAGE_ID_PATTERN
+ACADEMIC_BATCH_STAGE_ORDER
+ACADEMIC_CLAIMS_KEY
+ACADEMIC_EXTRACTED_CLAIMS_KEY
+ACADEMIC_FULLTEXT_KEY
+ACADEMIC_NORMALIZED_WORKS_KEY
+ACADEMIC_PUBLISHED_CLAIMS_KEY
+ACADEMIC_RAW_WORKS_KEY
+ACADEMIC_READINESS_KEY
+ACADEMIC_SCHEMA_CONTRACTS
+ACADEMIC_SKG_KEY
+AcademicBatchConfig
+AcademicBatchRunProfile
+AcademicBatchStagePlan
+AcademicBatchStageSpec
+AcademicBenchmarkReport
+AcademicQCReport
+AcademicReadinessPackage
+AcademicReadinessSummary
+AcademicSKGSummary
+AcademicSKGTableSummary
+AcademicShadowArtifact
+AcademicShadowBundle
+AcademicShadowDiff
+AcademicStageManifest
+CANONICAL_VARIABLES
+CORE_ACADEMIC_BATCH_STAGES
+CanonicalVariableResolver
+CausalClaimResult
+CausalClaimResultV1
+CausalClaimResultV2
+ClaimAdjudicationRules
+ClaimAdjudicationVerifier
+ClaimConsensusRule
+ClaimLineageAuditPage
+ClaimLineageAuditRecord
+ClaimLineageCursorError
+ClaimTableSchemaError
+ClaimVocabularyLimitation
+ClaimVocabularyProjectionBinding
+ClaimVocabularySourceRowBinding
+EstimateCandidate
+GonkaMultiKeyPool
+ParameterCandidate
+ParameterPrior
+ParameterSelector
+PreparedSKGCredalSourceRows
+PreparedSKGRead
+PreparedSKGReadReceipt
+RUNTIME_CANONICAL_REGISTRY
+RUNTIME_CANONICAL_REGISTRY_VERSION
+SKGQuery
+STRONG_DESIGN_FAMILIES
+ScholarKnowledgeGraph
+SourceIdentityBundle
+SourceIdentitySelection
+SourceReferencePopulation
+SourceSnapshot
+WorkRecord
+WorkSearchResult
+aggregate_claim_rows
+audit_academic_claim_lineage
+build_academic_batch_asset_group
+build_academic_schema_registry
+claim_guardrails
+claim_metrics
+claim_policy_publishable
+claim_promotion_policy
+compare_academic_shadow_bundles
+iter_causal_claim_results_v2
+load_academic_benchmark_report
+load_academic_qc_report
+load_academic_readiness_package
+load_academic_shadow_bundle
+load_academic_skg_summary
+load_causal_claim_results_v2
+materialize_claim_adjudication_result
+metric_is_improved
+plan_academic_batch_stages
+produce_claim_adjudication_input
+produce_source_identity_bundle
+read_claim_promotion_predecessor
+read_source_reference_population
+replay_source_identity_bundle
+run_edge_synthesize
+runtime_approved_synonyms
+runtime_canonical_entries
+runtime_canonical_names
+select_academic_batch_stages
+```
+
+</details>
+
+#### `polisyos.data_forge.read_api.catalog`
+
+- Source: `src/polisyos/data_forge/read_api/catalog.py`
+- Facade: `unresolved_exports`
+- Summary: Runtime-safe read API for catalog Data Forge artifacts.
+- Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/catalog.py.
+
+#### `polisyos.data_forge.read_api.ukraine`
+
+- Source: `src/polisyos/data_forge/read_api/ukraine.py`
+- Facade: `unresolved_exports`
+- Summary: Runtime-safe read API for Ukraine demographic static-aging artifacts.
+- Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/ukraine.py.
 Export total is unknown; the static reader cannot resolve the extension.
 
 ## `polisyos.berl`
@@ -3593,7 +4992,23 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/berl/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Bounded Explanation Reliability Layer public API.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/berl/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/berl/contracts/explanation_bundle.py:class ExplanationBundle(StrictModel):
+    """Audited explanation artifact that prevents assumption-free bar charts."""
+    schema_version: str = Field(default=EXPLANATION_BUNDLE_SCHEMA_VERSION, pattern='^\\d+\\.\\d+\\.\\d+$')
+    bundle_id: str = Field(min_length=1)
+    created_at: AwareDatetime
+    faithfulness_claim: Literal['bounded', 'unbounded'] = 'bounded'
+    display_policy: Literal['analyst_display', 'limited', 'diagnostic_only'] = 'limited'
+    analyst_warning: str | None = None
+    model: ModelContext
+    prediction: PredictionContext
+    feature_context: FeatureContext
+    assumptions: ExplanationAssumptions
+    redundancy: RedundancyContext = Field(default_factory=RedundancyContext)
+    methods: list[MethodExplanation] = Field(default_factory=list)
+    disagreement: DisagreementReport | None = None
+    validity: ValidityReport = Field(default_factory=ValidityReport)
+    audit: AuditReport.
 
 <details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
@@ -3639,7 +5054,29 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/calibration/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Calibration diagnostics public entrypoints.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/calibration/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/ir/governance/validation.py:class ValidationReport(BaseModel):
+    """Bundle issue summaries, optional repair notes, and diffs for a failed validation pass."""
+    contract_id: ClassVar[str] = 'scientist.validation_report.v2'
+    schema_version: str = '2.0'
+    error_summary: str
+    issues: list[ValidationIssue]
+    fairness_audit: dict[str, Any] | None = None
+    repair_attempt: str | None = None
+    diff_before_after: str | None = None
+    normalized_payload: dict[str, Any] | None = None
+    verdict: Phase5ValidationVerdict = 'pass'
+    readiness: Phase5Readiness = 'ready'
+    artifact_ref: str | None = None
+    artifact_kind: str | None = None
+    phase5_components: list[Phase5GateComponent] = Field(default_factory=list)
+    gate_failures: list[str] = Field(default_factory=list)
+    evidence_refs: list[str] = Field(default_factory=list)
+    judge_verdict_ref: str | None = None
+    advisor_consensus: dict[str, Any] | None = None
+    waivers: list[Phase5GateWaiver] = Field(default_factory=list)
+    generated_for: str | None = None
+    generated_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
+    model_config = ConfigDict(extra='forbid').
 
 <details><summary>Source-declared candidates (10; native exports unproved)</summary>
 
@@ -3681,7 +5118,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/ddm/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Drift-and-Degradation Monitor for Phase 5 Problem 15.7.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from importlib import import_module.
 
 <details><summary>Source-declared candidates (17; native exports unproved)</summary>
 
@@ -3730,7 +5167,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/foundry/agent_sim/world/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Synthetic-world family with truth-centric generation and evaluation.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
+- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
 
 <details><summary>Source-declared candidates (23; native exports unproved)</summary>
 

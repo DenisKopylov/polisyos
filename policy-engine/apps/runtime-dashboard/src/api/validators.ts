@@ -170,6 +170,21 @@ const coreArtifactRefSchema = z
   })
   .strict();
 
+function sameCoreArtifactRefView(
+  left: z.infer<typeof coreArtifactRefSchema> | null | undefined,
+  right: z.infer<typeof coreArtifactRefSchema> | null | undefined,
+): boolean {
+  return (
+    left != null &&
+    right != null &&
+    left.artifact_id === right.artifact_id &&
+    left.kind === right.kind &&
+    left.media_type === right.media_type &&
+    (left.manifest_profile_sha256 ?? null) ===
+      (right.manifest_profile_sha256 ?? null)
+  );
+}
+
 const controlPreAdmissionAttemptStatusSchema = z.enum([
   "started",
   "settled",
@@ -1463,6 +1478,33 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
     new_candidate_id: z.string().min(1).nullable().optional(),
     new_candidate_source_ref: coreArtifactRefSchema.nullable().optional(),
     origin_source_ref: coreArtifactRefSchema.nullable().optional(),
+    expected_origin_source_ref: coreArtifactRefSchema.nullable().optional(),
+    schema_version: z
+      .literal(
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+      )
+      .nullable()
+      .optional(),
+    reentry_receipt_schema_version: z
+      .enum([
+        "policyos.runtime.acquisition_overlay_reentry.v1",
+        "policyos.runtime.acquisition_overlay_reentry.v2",
+        "policyos.runtime.acquisition_overlay_reentry.v3",
+      ])
+      .nullable()
+      .optional(),
+    continuation_join_status: z
+      .enum([
+        "not_applicable",
+        "legacy_occurrence_unbound",
+        "v3_occurrence_joined",
+      ])
+      .nullable()
+      .optional(),
+    origin_source_binding_status: z
+      .enum(["not_supplied", "observed_only", "verified_same_candidate_root"])
+      .nullable()
+      .optional(),
     continuation: runCandidateSimulationAcquisitionContinuationProjectionSchema
       .nullable()
       .optional(),
@@ -1505,6 +1547,11 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
           !hasRef(
             entry.origin_source_ref,
             "runtime.quality.n4_candidate_scenario_source",
+          )) ||
+        (entry.expected_origin_source_ref != null &&
+          !hasRef(
+            entry.expected_origin_source_ref,
+            "runtime.quality.n4_candidate_scenario_source",
           )))
     ) {
       context.addIssue({
@@ -1513,13 +1560,72 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
         message: "candidate_acquisition_reentry_receipt_invalid",
       });
     }
+    const sameCandidate =
+      entry.old_candidate_id != null &&
+      entry.old_candidate_id === entry.new_candidate_id;
+    const metadataPresent = [
+      entry.schema_version,
+      entry.reentry_receipt_schema_version,
+      entry.continuation_join_status,
+      entry.origin_source_binding_status,
+    ].some((value) => value != null);
+    if (
+      metadataPresent &&
+      (entry.schema_version !==
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v2" ||
+        entry.continuation_join_status == null ||
+        entry.origin_source_binding_status == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_lineage_metadata_incomplete",
+      });
+    }
+    if (!metadataPresent && entry.expected_origin_source_ref != null) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_expected_origin_without_metadata",
+      });
+    }
+    if (
+      entry.origin_source_ref != null &&
+      !hasRef(
+        entry.origin_source_ref,
+        "runtime.quality.n4_candidate_scenario_source",
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["origin_source_ref"],
+        message: "candidate_acquisition_origin_source_invalid",
+      });
+    }
+    if (
+      entry.expected_origin_source_ref != null &&
+      !hasRef(
+        entry.expected_origin_source_ref,
+        "runtime.quality.n4_candidate_scenario_source",
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["expected_origin_source_ref"],
+        message: "candidate_acquisition_expected_origin_source_invalid",
+      });
+    }
+    if (!sameCandidate && entry.expected_origin_source_ref != null) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_expected_origin_without_same_candidate",
+      });
+    }
     if (
       entry.terminal_outcome === "quarantined_no_growth" &&
       (entry.reentry_receipt_ref != null ||
         entry.old_candidate_id != null ||
         entry.new_candidate_id != null ||
         entry.new_candidate_source_ref != null ||
-        entry.origin_source_ref != null ||
+        entry.expected_origin_source_ref != null ||
         entry.continuation != null)
     ) {
       context.addIssue({
@@ -1527,7 +1633,89 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
         message: "candidate_acquisition_quarantine_has_continuation",
       });
     }
+    if (entry.terminal_outcome === "quarantined_no_growth") {
+      const expectedOriginStatus =
+        entry.origin_source_ref != null ? "observed_only" : "not_supplied";
+      if (
+        (metadataPresent &&
+          (entry.reentry_receipt_schema_version != null ||
+            entry.continuation_join_status !== "not_applicable" ||
+            entry.origin_source_binding_status !== expectedOriginStatus)) ||
+        (!metadataPresent &&
+          (entry.continuation_join_status != null ||
+            entry.origin_source_binding_status != null))
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "candidate_acquisition_quarantine_lineage_status_invalid",
+        });
+      }
+    } else if (metadataPresent) {
+      const expectedJoinStatus =
+        entry.reentry_receipt_schema_version ===
+        "policyos.runtime.acquisition_overlay_reentry.v3"
+          ? "v3_occurrence_joined"
+          : "legacy_occurrence_unbound";
+      const expectedOriginStatus = sameCandidate
+        ? "verified_same_candidate_root"
+        : entry.origin_source_ref != null
+          ? "observed_only"
+          : "not_supplied";
+      if (
+        entry.reentry_receipt_schema_version == null ||
+        entry.continuation_join_status !== expectedJoinStatus ||
+        entry.origin_source_binding_status !== expectedOriginStatus ||
+        (entry.reentry_receipt_schema_version ===
+          "policyos.runtime.acquisition_overlay_reentry.v3") !==
+          (entry.continuation != null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "candidate_acquisition_receipt_join_status_invalid",
+        });
+      }
+    }
+    if (
+      entry.terminal_outcome === "reentry_completed" &&
+      metadataPresent &&
+      sameCandidate &&
+      !sameCoreArtifactRefView(
+        entry.origin_source_ref,
+        entry.expected_origin_source_ref,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_same_candidate_origin_binding_invalid",
+      });
+    }
     const projection = entry.continuation;
+    if (
+      projection != null &&
+      !sameCoreArtifactRefView(
+        entry.new_candidate_source_ref,
+        projection.selected_n4_source_ref,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_continuation_source_binding_invalid",
+      });
+    }
+    if (
+      projection != null &&
+      (entry.new_candidate_id == null ||
+        !projection.current_candidate_occurrences.some(
+          (row) =>
+            row.candidate_id === entry.new_candidate_id &&
+            row.cycle_index === projection.continued_cycle_index,
+        ))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_continuation_candidate_missing",
+      });
+    }
     if (
       projection != null &&
       entry.old_candidate_id === entry.new_candidate_id
@@ -1544,10 +1732,14 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
         projection.selected_target_baseline_hash == null ||
         projection.previous_selected_target_baseline_hash ===
           projection.selected_target_baseline_hash ||
-        projection.previous_n4_source_ref.artifact_id ===
-          projection.selected_n4_source_ref.artifact_id ||
-        projection.previous_n5_input_ref.artifact_id ===
-          projection.selected_n5_input_ref.artifact_id
+        sameCoreArtifactRefView(
+          projection.previous_n4_source_ref,
+          projection.selected_n4_source_ref,
+        ) ||
+        sameCoreArtifactRefView(
+          projection.previous_n5_input_ref,
+          projection.selected_n5_input_ref,
+        )
       ) {
         context.addIssue({
           code: "custom",
@@ -3202,6 +3394,76 @@ const decisionPacketPreviewSchema = z
   })
   .loose();
 
+const canonReadStatusSchema = z.enum([
+  "not_applicable",
+  "not_evaluated",
+  "declared_bytes_conformant",
+  "profile_absent_unqualified_candidate",
+  "declared_unknown_candidate",
+]);
+
+// Older v1 servers omit this additive field; absence conveys no qualification.
+const optionalCanonReadStatusSchema = canonReadStatusSchema
+  .optional()
+  .transform((status) => status ?? "not_evaluated");
+
+const predictiveCoverageProhibitedUses = [
+  "promotion",
+  "publication",
+  "policy_selection",
+  "causal_effect_claim",
+] as const;
+const predictiveCoverageMayNotUseSchema = z
+  .array(z.enum(predictiveCoverageProhibitedUses))
+  .refine(
+    (uses) =>
+      uses.length === predictiveCoverageProhibitedUses.length &&
+      new Set(uses).size === predictiveCoverageProhibitedUses.length &&
+      predictiveCoverageProhibitedUses.every((use) => uses.includes(use)),
+    "predictive coverage diagnostic must retain every prohibited use",
+  );
+
+const predictiveCoverageScenarioPreviewSchema = z.object({
+  scenario_id: z.string(),
+  metric_name: z.string(),
+  interval_requested_count: z.number().int().nonnegative(),
+  interval_available_count: z.number().int().nonnegative(),
+  interval_evaluated_count: z.number().int().nonnegative(),
+  interval_hit_count: z.number().int().nonnegative(),
+  nominal_confidence_level: z.number().gt(0).lt(1).nullable().optional(),
+  interval_type: z.string().nullable().optional(),
+  observed_hit_rate: z.number().min(0).max(1).nullable().optional(),
+});
+
+const predictiveCoverageDiagnosticPreviewSchema = z.object({
+  source_artifact_id: z.string(),
+  source_manifest_profile_sha256: z.string(),
+  source_schema_version: z.literal("1.0"),
+  metric: z.literal("predictive_interval_coverage"),
+  measurement_status: z.enum(["measured", "not_measured", "invalid_source"]),
+  reason_code: z.enum([
+    "none",
+    "no_evaluated_intervals",
+    "predictive_scope_not_established",
+    "unsupported_report_scope",
+    "malformed_report_shape",
+    "malformed_interval_counts",
+    "stored_hit_rate_mismatch",
+  ]),
+  assessment: z.literal("limited"),
+  source_materialization: z.literal("reader_materialized"),
+  canon_read_status: optionalCanonReadStatusSchema,
+  producer_attestation_status: z.literal("not_established"),
+  s10_metric_mapping_status: z.literal("not_established"),
+  s10_threshold_status: z.literal("not_established"),
+  issuer_status: z.literal("not_established"),
+  effective_time_status: z.literal("not_established"),
+  counterfactual_credibility_status: z.literal("not_established"),
+  causal_effect_status: z.literal("not_established"),
+  may_not_use_for: predictiveCoverageMayNotUseSchema,
+  scenarios: z.array(predictiveCoverageScenarioPreviewSchema),
+});
+
 const artifactContentPreviewSchema = z.object({
   artifact_id: z.string(),
   manifest_profile_sha256: z
@@ -3212,11 +3474,15 @@ const artifactContentPreviewSchema = z.object({
   kind: z.string(),
   media_type: z.string(),
   mode: z.enum(["json", "text", "binary"]),
-  size_bytes: z.number(),
-  max_bytes: z.number(),
-  truncated: z.boolean(),
+  canon_read_status: optionalCanonReadStatusSchema,
+  size_bytes: z.number().int().nonnegative(),
+  max_bytes: z.number().int().positive(),
+  truncated: z.boolean().default(false),
   preview: z.unknown().optional(),
   decision_packet_preview: decisionPacketPreviewSchema.nullable().optional(),
+  predictive_coverage_diagnostic: predictiveCoverageDiagnosticPreviewSchema
+    .nullable()
+    .optional(),
 });
 
 const artifactSchemaViewSchema = z.object({
@@ -3228,10 +3494,192 @@ const artifactSchemaViewSchema = z.object({
     .optional(),
   kind: z.string(),
   media_type: z.string(),
+  canon_read_status: optionalCanonReadStatusSchema,
   schema_name: z.string().nullable().optional(),
   schema_version: z.string().nullable().optional(),
-  top_level_keys: z.array(z.string()).optional(),
+  top_level_keys: z.array(z.string()).default([]),
 });
+
+const artifactManifestJoinViewSchema = artifactManifestViewSchema.pick({
+  artifact_id: true,
+  manifest_profile_sha256: true,
+  kind: true,
+  media_type: true,
+  schema_name: true,
+  schema_version: true,
+});
+
+/** Validate that inspector previews describe the exact selected manifest. */
+export const artifactInspectorIntakeSchema = z
+  .object({
+    manifest: artifactManifestJoinViewSchema,
+    content: artifactContentPreviewSchema.optional(),
+    schema: artifactSchemaViewSchema.optional(),
+  })
+  .strict()
+  .superRefine((intake, context) => {
+    const { manifest, content, schema } = intake;
+    if (!content && !schema) {
+      context.addIssue({
+        code: "custom",
+        path: [],
+        message: "artifact_inspector_intake_preview_required",
+      });
+      return;
+    }
+
+    for (const [viewName, view] of [
+      ["content", content],
+      ["schema", schema],
+    ] as const) {
+      if (!view) continue;
+      if (view.artifact_id !== manifest.artifact_id) {
+        context.addIssue({
+          code: "custom",
+          path: [viewName, "artifact_id"],
+          message: "artifact_inspector_intake_artifact_id_mismatch",
+        });
+      }
+      if (
+        (view.manifest_profile_sha256 ?? null) !==
+        (manifest.manifest_profile_sha256 ?? null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [viewName, "manifest_profile_sha256"],
+          message: "artifact_inspector_intake_profile_mismatch",
+        });
+      }
+      if (view.kind !== manifest.kind) {
+        context.addIssue({
+          code: "custom",
+          path: [viewName, "kind"],
+          message: "artifact_inspector_intake_kind_mismatch",
+        });
+      }
+      if (view.media_type !== manifest.media_type) {
+        context.addIssue({
+          code: "custom",
+          path: [viewName, "media_type"],
+          message: "artifact_inspector_intake_media_type_mismatch",
+        });
+      }
+    }
+
+    if (schema) {
+      if ((schema.schema_name ?? null) !== (manifest.schema_name ?? null)) {
+        context.addIssue({
+          code: "custom",
+          path: ["schema", "schema_name"],
+          message: "artifact_inspector_intake_schema_name_mismatch",
+        });
+      }
+      if (
+        (schema.schema_version ?? null) !== (manifest.schema_version ?? null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["schema", "schema_version"],
+          message: "artifact_inspector_intake_schema_version_mismatch",
+        });
+      }
+    }
+
+    if (
+      content &&
+      schema &&
+      content.canon_read_status !== schema.canon_read_status
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schema", "canon_read_status"],
+        message: "artifact_inspector_intake_status_mismatch",
+      });
+    }
+
+    const diagnostic = content?.predictive_coverage_diagnostic;
+    if (!content || !diagnostic) return;
+
+    if (diagnostic.source_artifact_id !== content.artifact_id) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "content",
+          "predictive_coverage_diagnostic",
+          "source_artifact_id",
+        ],
+        message: "artifact_inspector_intake_diagnostic_artifact_id_mismatch",
+      });
+    }
+    if (
+      diagnostic.source_manifest_profile_sha256 !==
+      (content.manifest_profile_sha256 ?? null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "content",
+          "predictive_coverage_diagnostic",
+          "source_manifest_profile_sha256",
+        ],
+        message: "artifact_inspector_intake_diagnostic_profile_mismatch",
+      });
+    }
+    if (diagnostic.canon_read_status !== content.canon_read_status) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "content",
+          "predictive_coverage_diagnostic",
+          "canon_read_status",
+        ],
+        message: "artifact_inspector_intake_diagnostic_status_mismatch",
+      });
+    }
+    if (
+      content.kind !== "ir.backtest_report" ||
+      manifest.kind !== "ir.backtest_report"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["content", "kind"],
+        message: "artifact_inspector_intake_diagnostic_kind_mismatch",
+      });
+    }
+    if (manifest.schema_name !== "ir.backtest_report") {
+      context.addIssue({
+        code: "custom",
+        path: ["manifest", "schema_name"],
+        message: "artifact_inspector_intake_diagnostic_schema_name_mismatch",
+      });
+    }
+    if (
+      (manifest.schema_version ?? null) !== diagnostic.source_schema_version
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["manifest", "schema_version"],
+        message: "artifact_inspector_intake_diagnostic_schema_version_mismatch",
+      });
+    }
+    if (content.mode !== "json") {
+      context.addIssue({
+        code: "custom",
+        path: ["content", "mode"],
+        message: "artifact_inspector_intake_diagnostic_mode_mismatch",
+      });
+    }
+    if (
+      content.media_type !== "application/json" ||
+      manifest.media_type !== "application/json"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["content", "media_type"],
+        message: "artifact_inspector_intake_diagnostic_media_type_mismatch",
+      });
+    }
+  });
 
 const bureaucraticGenreSchema = z.enum([
   "postanova_kmu",

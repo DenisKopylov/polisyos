@@ -54,6 +54,7 @@ class LegalKnowledgeGraph:
         embedding_model: str = "text-embedding-3-large",
         query_encoder: object | None = None,
         query_profile: tuple[LegalQueryProfile, ...] | None = None,
+        query_encoder_refusal: LegalQueryProfileError | None = None,
     ) -> None:
         """Open the graph with optional local encoder and frozen query intent.
 
@@ -62,22 +63,29 @@ class LegalKnowledgeGraph:
             index_dir: Directory containing selected Legal embedding generations.
             openai_api_key: Deprecated compatibility label; it does not authorize vectors.
             embedding_model: Deprecated compatibility label retained for callers.
-            query_encoder: Live local encoder whose assets must match the selected generation.
+            query_encoder: Legacy loaded encoder; asset compatibility is checked, but the
+                current runtime refuses vectors without an owner-resolved runtime bundle.
             query_profile: Immutable snapshots captured when this query was requested.
+            query_encoder_refusal: Provider refusal deferred until the fresh reader admission.
         """
         self._store = LegalKnowledgeStore(db_path, index_dir)
         self._openai_api_key = openai_api_key
         self._embedding_model = embedding_model
+        if query_encoder_refusal is not None and not isinstance(
+            query_encoder_refusal, LegalQueryProfileError
+        ):
+            raise TypeError("query_encoder_refusal_invalid")
         self._query_encoder = query_encoder
         self._query_profile = query_profile
+        self._query_encoder_refusal = query_encoder_refusal
+        if self._query_encoder_refusal is None and query_encoder is None:
+            self._query_encoder_refusal = LegalQueryProfileError("query_encoder_assets_unavailable")
         if query_encoder is None:
-            self._query_profile_error: LegalQueryProfileError | None = LegalQueryProfileError(
-                "query_encoder_assets_unavailable"
-            )
+            self._query_profile_error: LegalQueryProfileError | None = self._query_encoder_refusal
         elif query_profile is None:
             self._query_profile_error = LegalQueryProfileError("query_profile_unavailable")
         else:
-            self._query_profile_error = None
+            self._query_profile_error = self._query_encoder_refusal
         if openai_api_key is not None and query_encoder is None:
             logger.warning(
                 "legal_query_profile_unsupported: OpenAI model labels do not bind the "
@@ -94,20 +102,23 @@ class LegalKnowledgeGraph:
     # ------------------------------------------------------------------
 
     def _get_query_input(self, query: str) -> LegalQueryInput:
-        """Bind raw query text to the configured local encoder and intent."""
-        if self._query_encoder is None:
-            error = LegalQueryProfileError("query_encoder_assets_unavailable")
+        """Bind raw query text to the configured encoder candidate and intent."""
+        if self._query_encoder is None and self._query_profile is None:
+            error = self._query_encoder_refusal or LegalQueryProfileError(
+                "query_encoder_assets_unavailable"
+            )
             self._query_profile_error = error
             raise error
         if self._query_profile is None:
             error = LegalQueryProfileError("query_profile_unavailable")
             self._query_profile_error = error
             raise error
-        self._query_profile_error = None
+        self._query_profile_error = self._query_encoder_refusal
         return LegalQueryInput(
             text=query,
             encoder=self._query_encoder,
             profile=self._query_profile,
+            runtime_refusal=self._query_encoder_refusal,
         )
 
     def _record_query_profile_error(self, error: LegalQueryProfileError) -> None:

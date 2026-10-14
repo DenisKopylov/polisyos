@@ -492,9 +492,7 @@ class NaturalLanguageRunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     request: str = Field(..., min_length=1, max_length=10_000)
-    joint_interaction_candidate_intent: Literal[
-        "n4_unique_parent_source_members.v1"
-    ] | None = None
+    joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = None
     context: dict[str, Any] = Field(default_factory=dict)
     domain_hint: str | None = None
     data_source: DataSourceBinding | None = None
@@ -1176,7 +1174,7 @@ class CapabilityManifestResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
-    runtime_api_version: str = "1.0.0"
+    runtime_api_version: str = "1.1.0"
     shell_flavor: str = "atlas"
     default_locale: Literal["en", "uk"] = "en"
     supported_locales: list[Literal["en", "uk"]] = Field(default_factory=_default_supported_locales)

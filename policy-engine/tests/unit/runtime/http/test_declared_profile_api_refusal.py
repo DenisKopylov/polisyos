@@ -143,8 +143,9 @@ def test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserve
     )
     assert export.status_code == 200, export.text
     assert export.json()["metadata"]["canon_read_status"] == "declared_bytes_conformant"
-    assert 'name="polisyos:canon-read-status" content="declared_bytes_conformant"' in (
-        export.json()["content"]
+    assert (
+        'name="polisyos:canon-read-status" content="declared_bytes_conformant"'
+        in (export.json()["content"])
     )
 
     # Same bytes and content ID, different selected CanonInfo: removing the byte/profile
@@ -227,9 +228,7 @@ def test_quantity_and_fabric_routes_refuse_the_selected_packet_profile(
                     producer=selected_manifest.producer,
                     env=selected_manifest.env,
                     inputs=selected_manifest.inputs,
-                    canon=selected_manifest.canon.model_copy(
-                        update={"forbid_floats": True}
-                    ),
+                    canon=selected_manifest.canon.model_copy(update={"forbid_floats": True}),
                     governance=selected_manifest.governance,
                     tenant_context=selected_manifest.tenant_context,
                     same_input_closure=selected_manifest.same_input_closure,
@@ -283,17 +282,17 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
             store.put_bytes(
                 decision_bytes,
                 PutOptions(
-                kind=selected_manifest.kind,
-                media_type=selected_manifest.media_type,
-                schema=selected_manifest.artifact_schema,
-                producer=selected_manifest.producer,
-                env=selected_manifest.env,
-                inputs=selected_manifest.inputs,
-                canon=selected_manifest.canon.model_copy(update={"forbid_floats": True}),
-                governance=selected_manifest.governance,
-                tenant_context=selected_manifest.tenant_context,
-                same_input_closure=selected_manifest.same_input_closure,
-                authority=selected_manifest.authority,
+                    kind=selected_manifest.kind,
+                    media_type=selected_manifest.media_type,
+                    schema=selected_manifest.artifact_schema,
+                    producer=selected_manifest.producer,
+                    env=selected_manifest.env,
+                    inputs=selected_manifest.inputs,
+                    canon=selected_manifest.canon.model_copy(update={"forbid_floats": True}),
+                    governance=selected_manifest.governance,
+                    tenant_context=selected_manifest.tenant_context,
+                    same_input_closure=selected_manifest.same_input_closure,
+                    authority=selected_manifest.authority,
                     warnings=selected_manifest.warnings,
                 ),
             ),
@@ -358,9 +357,7 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
 
     with (
         tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id),
-        pytest.raises(
-            CanonicalProfileRefusalError, match="canon_profile_payload_nonconformant"
-        ),
+        pytest.raises(CanonicalProfileRefusalError, match="canon_profile_payload_nonconformant"),
     ):
         read_core_json_artifact(admin_context.store, bad_decision_ref)
     with admin_client:
@@ -397,13 +394,19 @@ def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
     )
 
 
-
-def _remove_one_required_canon_field(store, artifact_id: str) -> None:
+def _remove_one_required_canon_field(
+    store,
+    artifact_id: str,
+    manifest_profile_sha256: str | None = None,
+) -> None:
     import json
 
     from polisyos.core.artifacts import ArtifactID
 
-    path = store._manifest_path_for_ref(ArtifactID.model_validate(artifact_id), None)
+    path = store._manifest_path_for_ref(
+        ArtifactID.model_validate(artifact_id),
+        manifest_profile_sha256,
+    )
     manifest = json.loads(path.read_bytes())
     manifest["canon"].pop("separators")
     path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
@@ -562,6 +565,7 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
     app = runtime_api_env["app"]
     context = app.state.runtime_api_ctx
     client = runtime_api_env["client"]
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
     report_bytes = to_canonical_bytes({"schema_version": "1.0"})
     absent = _put_inspector_profile_fixture(
         runtime_api_env,
@@ -606,9 +610,9 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
         )
         assert raw.status_code == 200, raw.text
         assert raw.content == (
-            report_bytes if ref is absent else to_canonical_bytes(
-                {"schema_version": "1.0", "marker": "unknown"}
-            )
+            report_bytes
+            if ref is absent
+            else to_canonical_bytes({"schema_version": "1.0", "marker": "unknown"})
         )
 
     app.state.runtime_api_ctx = replace(
@@ -625,26 +629,116 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
     assert diagnostic.headers["content-type"].startswith("application/problem+json")
     assert diagnostic.json()["code"] == "canon_profile_not_verified"
 
-    binary_payload = b'{"valid_utf8":"still_binary"}'
+    binary_payload = b"\x00\xff\x10opaque-binary"
     binary = _put_inspector_profile_fixture(
         runtime_api_env,
         kind="test.opaque_binary_preview",
         media_type="application/octet-stream",
         payload_bytes=binary_payload,
         schema=SchemaInfo(name="test.opaque_binary_preview", version="1"),
-        canon=CanonInfo(),
+        canon=None,
     )
-    binary_view = _runtime_api_request(
+    assert binary.manifest_profile_sha256 is not None
+    assert store.get_manifest(binary).canon is None
+    base_path = f"/api/v1/artifacts/{binary.artifact_id}"
+    for params in ({}, {"manifest_profile_sha256": binary.manifest_profile_sha256}):
+        manifest_view = _runtime_api_request(runtime_api_env, client.get, base_path, params=params)
+        assert manifest_view.status_code == 200, manifest_view.text
+        assert manifest_view.json()["artifact"]["manifest_profile_sha256"] == (
+            binary.manifest_profile_sha256
+        )
+
+        binary_view = _runtime_api_request(
+            runtime_api_env,
+            client.get,
+            f"{base_path}/content",
+            params=params,
+        )
+        schema_view = _runtime_api_request(
+            runtime_api_env,
+            client.get,
+            f"{base_path}/schema",
+            params=params,
+        )
+        assert binary_view.status_code == 200, binary_view.text
+        assert schema_view.status_code == 200, schema_view.text
+        binary_artifact = binary_view.json()["artifact"]
+        assert binary_artifact["mode"] == "binary"
+        assert binary_artifact["manifest_profile_sha256"] == binary.manifest_profile_sha256
+        assert binary_artifact["canon_read_status"] == "not_applicable"
+        assert binary_artifact["preview"] == binary_payload.hex()
+        assert schema_view.json()["schema"]["manifest_profile_sha256"] == (
+            binary.manifest_profile_sha256
+        )
+        assert schema_view.json()["schema"]["canon_read_status"] == "not_applicable"
+        assert schema_view.json()["schema"]["top_level_keys"] == []
+
+    json_looking_bytes = b'{"valid_utf8":"still_binary"}'
+    json_looking_binary = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.opaque_json_looking_binary_preview",
+        media_type="application/octet-stream",
+        payload_bytes=json_looking_bytes,
+        schema=SchemaInfo(name="test.opaque_json_looking_binary_preview", version="1"),
+        canon=None,
+    )
+    json_looking_view = _runtime_api_request(
         runtime_api_env,
         client.get,
-        f"/api/v1/artifacts/{binary.artifact_id}/content",
-        params={"manifest_profile_sha256": binary.manifest_profile_sha256},
+        f"/api/v1/artifacts/{json_looking_binary.artifact_id}/content",
+        params={"manifest_profile_sha256": json_looking_binary.manifest_profile_sha256},
     )
-    assert binary_view.status_code == 200, binary_view.text
-    binary_artifact = binary_view.json()["artifact"]
-    assert binary_artifact["mode"] == "binary"
-    assert binary_artifact["canon_read_status"] == "not_applicable"
-    assert binary_artifact["preview"] == binary_payload.hex()
+    assert json_looking_view.status_code == 200, json_looking_view.text
+    json_looking_artifact = json_looking_view.json()["artifact"]
+    assert json_looking_artifact["mode"] == "text"
+    assert json_looking_artifact["canon_read_status"] == "not_applicable"
+    assert json_looking_artifact["preview"] == json_looking_bytes.decode("utf-8")
+    assert isinstance(json_looking_artifact["preview"], str)
+
+    json_suffix = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.profileless_vendor_json",
+        media_type="application/vnd.policyos.fixture+json",
+        payload_bytes=to_canonical_bytes({"profile": "required"}),
+        schema=SchemaInfo(name="test.profileless_vendor_json", version="1"),
+        canon=None,
+    )
+    assert json_suffix.manifest_profile_sha256 is not None
+    suffix_path = f"/api/v1/artifacts/{json_suffix.artifact_id}"
+    for params in ({}, {"manifest_profile_sha256": json_suffix.manifest_profile_sha256}):
+        for suffix in ("", "/content", "/schema"):
+            response = _runtime_api_request(
+                runtime_api_env,
+                client.get,
+                f"{suffix_path}{suffix}",
+                params=params,
+            )
+            assert response.status_code == 409, response.text
+            assert response.json()["code"] == "canon_profile_absent"
+
+    malformed = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.malformed_selected_profile",
+        media_type="application/json",
+        payload_bytes=to_canonical_bytes({"malformed": "present"}),
+        schema=SchemaInfo(name="test.malformed_selected_profile", version="1"),
+        canon=CanonInfo(),
+    )
+    assert malformed.manifest_profile_sha256 is not None
+    _remove_one_required_canon_field(
+        store,
+        str(malformed.artifact_id),
+        malformed.manifest_profile_sha256,
+    )
+    for suffix in ("content", "schema"):
+        response = _runtime_api_request(
+            runtime_api_env,
+            client.get,
+            f"/api/v1/artifacts/{malformed.artifact_id}/{suffix}",
+            params={"manifest_profile_sha256": malformed.manifest_profile_sha256},
+        )
+        assert response.status_code == 409, response.text
+        assert response.json()["code"] == "canon_profile_incomplete"
 
     text_payload = b"ordinary UTF-8 text"
     text_ref = _put_inspector_profile_fixture(
@@ -653,7 +747,7 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
         media_type="text/plain",
         payload_bytes=text_payload,
         schema=SchemaInfo(name="test.text_preview", version="1"),
-        canon=CanonInfo(),
+        canon=None,
     )
     text_view = _runtime_api_request(
         runtime_api_env,
@@ -668,7 +762,9 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(runtime_a
     assert text_artifact["preview"] == text_payload.decode("utf-8")
 
 
-def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(runtime_api_env, monkeypatch) -> None:
+def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(
+    runtime_api_env, monkeypatch
+) -> None:
     """The cap checks exact payload bytes before Core canonical decoding."""
     import json
 
@@ -724,7 +820,9 @@ def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(runtime_a
                 manifest = self.get_manifest(artifact_id)
             else:
                 manifest = self.get_manifest_by_profile(artifact_id, manifest_profile_sha256)
-            raw = json.dumps(manifest.model_dump(mode="json", by_alias=True), sort_keys=True).encode("utf-8")
+            raw = json.dumps(
+                manifest.model_dump(mode="json", by_alias=True), sort_keys=True
+            ).encode("utf-8")
             return raw
 
         def get_bytes(self, selector):
@@ -748,7 +846,9 @@ def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(runtime_a
     assert len(payload) == _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES + 1
 
 
-def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(runtime_api_env, monkeypatch) -> None:
+def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
+    runtime_api_env, monkeypatch
+) -> None:
     """The capped path retains a conformant in-limit decode and round trip."""
     from polisyos.core.artifacts import canonical_profile as core_profile
 
@@ -787,7 +887,9 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(runtime_api
     assert encode_calls
 
 
-def test_content_preview_caps_actual_selected_bytes_before_codec(runtime_api_env, monkeypatch) -> None:
+def test_content_preview_caps_actual_selected_bytes_before_codec(
+    runtime_api_env, monkeypatch
+) -> None:
     """Actual truncated bytes never reach the shared decoder or encoder."""
     import json
 
@@ -878,7 +980,9 @@ def test_content_preview_caps_actual_selected_bytes_before_codec(runtime_api_env
 
     bounded_store = UnderreportedManifestStore(wrapped_store)
     monkeypatch.setattr(service, "_store", bounded_store)
-    monkeypatch.setattr(service, "_assert_surface_admission_allowed", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        service, "_assert_surface_admission_allowed", lambda *_args, **_kwargs: None
+    )
 
     core_decode = core_profile.from_canonical_bytes
     core_encode = core_profile.to_canonical_bytes

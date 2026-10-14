@@ -91,9 +91,7 @@ def _hash(value: str) -> str:
 
 
 @contextmanager
-def _authenticated_tenant_scope(
-    *, tenant_id: str, cell_id: str
-) -> Iterator[None]:
+def _authenticated_tenant_scope(*, tenant_id: str, cell_id: str) -> Iterator[None]:
     scope = AccessScope.for_service(
         tenant_id=tenant_id,
         cell_id=cell_id,
@@ -137,9 +135,7 @@ def _design_problem() -> DesignProblem:
                     "metric_id": "learning_outcomes",
                 }
             ],
-            "stakeholders": [
-                {"stakeholder_id": "students", "name": "Students"}
-            ],
+            "stakeholders": [{"stakeholder_id": "students", "name": "Students"}],
             "outcome_of_interest": {
                 "target_variable": "learning_outcomes",
                 "metric_id": "learning_outcomes",
@@ -199,9 +195,7 @@ def test_current_cycle_job_refs_preserve_plain_v3_projection_and_support_qualifi
     payload["schema_version"] = DESIGN_PROBLEM_V3_SCHEMA_VERSION
     plain_v3 = DesignProblem.model_validate(payload)
     assert type(plain_v3.outcome_of_interest) is OutcomeOfInterest
-    assert cycle_job_design_problem_ref(plain_v3) == (
-        _cycle_job_v1_design_problem_ref(plain_v3)
-    )
+    assert cycle_job_design_problem_ref(plain_v3) == (_cycle_job_v1_design_problem_ref(plain_v3))
     assert cycle_job_profile_selection_ref(plain_v3) == (
         _cycle_job_v1_profile_selection_ref(plain_v3)
     )
@@ -302,9 +296,7 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-owner", "run-context-owner"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner"),
     )
 
     with _authenticated_tenant_scope(
@@ -406,9 +398,7 @@ def test_cycle_substrate_context_job_v2_roundtrips_qualified_v3_and_removal_turn
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-v2-owner", "run-context-v2-owner"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-v2-owner", "run-context-v2-owner"),
     )
 
     with _authenticated_tenant_scope(
@@ -516,12 +506,8 @@ def test_cycle_substrate_context_job_v2_roundtrips_qualified_v3_and_removal_turn
     )
     foreign_outcome = foreign_outcome_type()
     assert type(foreign_outcome) is not _QualifiedOutcomeOfInterestV3
-    assert type(foreign_outcome).__module__ == (
-        _QualifiedOutcomeOfInterestV3.__module__
-    )
-    assert type(foreign_outcome).__qualname__ == (
-        _QualifiedOutcomeOfInterestV3.__qualname__
-    )
+    assert type(foreign_outcome).__module__ == (_QualifiedOutcomeOfInterestV3.__module__)
+    assert type(foreign_outcome).__qualname__ == (_QualifiedOutcomeOfInterestV3.__qualname__)
     with pytest.raises(
         CycleSubstrateContextOwnerError,
         match="cycle_substrate_context_job_v2_serializer_model_unregistered",
@@ -550,19 +536,13 @@ def test_cycle_substrate_context_job_v2_roundtrips_qualified_v3_and_removal_turn
     )
     foreign_outer = foreign_outer_type()
     assert type(foreign_outer) is not CycleSubstrateContextJobArtifactV2
-    assert type(foreign_outer).__module__ == (
-        CycleSubstrateContextJobArtifactV2.__module__
-    )
-    assert type(foreign_outer).__qualname__ == (
-        CycleSubstrateContextJobArtifactV2.__qualname__
-    )
+    assert type(foreign_outer).__module__ == (CycleSubstrateContextJobArtifactV2.__module__)
+    assert type(foreign_outer).__qualname__ == (CycleSubstrateContextJobArtifactV2.__qualname__)
     with pytest.raises(
         CycleSubstrateContextOwnerError,
         match="cycle_substrate_context_job_v2_serializer_model_unregistered",
     ):
-        cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
-            foreign_outer
-        )
+        cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(foreign_outer)
 
 
 def test_cycle_substrate_context_job_v2_keeps_plain_v3_candidate_work_available(
@@ -603,9 +583,7 @@ def test_cycle_substrate_context_job_v2_keeps_plain_v3_candidate_work_available(
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-v2-plain", "run-context-v2-plain"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-v2-plain", "run-context-v2-plain"),
     )
 
     with _authenticated_tenant_scope(
@@ -644,9 +622,7 @@ def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(tmp_path: An
         ownership_enforced=True,
         ownership_requires_scope=True,
     )
-    current_job = _TestCurrentJobExecutionOwner(
-        "job-context-owner", "run-context-owner"
-    )
+    current_job = _TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner")
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
         control_store=current_job,
@@ -699,9 +675,7 @@ def test_cycle_substrate_context_owner_refuses_foreign_tenant_and_cell(
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-owner", "run-context-owner"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner"),
     )
 
     with _authenticated_tenant_scope(
@@ -709,9 +683,10 @@ def test_cycle_substrate_context_owner_refuses_foreign_tenant_and_cell(
     ):
         ref = owner.persist_for_current_job(context, problem=problem)
 
-    with _authenticated_tenant_scope(
-        tenant_id="tenant-foreign", cell_id="cell-foreign"
-    ), pytest.raises(ArtifactOwnershipError):
+    with (
+        _authenticated_tenant_scope(tenant_id="tenant-foreign", cell_id="cell-foreign"),
+        pytest.raises(ArtifactOwnershipError),
+    ):
         owner.resolve_for_current_job(ref, problem=problem)
 
 
@@ -740,9 +715,7 @@ def test_cycle_substrate_context_job_artifact_detects_removed_job_binding(
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-owner", "run-context-owner"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner"),
     )
     with _authenticated_tenant_scope(
         tenant_id="tenant-context-owner", cell_id="cell-context-owner"
@@ -822,16 +795,12 @@ def _world_record(
         data_version=entry.data_version,
         snapshot_id=entry.snapshot_id,
         source_snapshot_id=entry.source_snapshot_id,
-        entry_content_hash=(
-            resolved_entry_content_hash or entry.entry_content_hash
-        ),
+        entry_content_hash=(resolved_entry_content_hash or entry.entry_content_hash),
     )
     resolved_entries = (resolved_entry,)
     if duplicate_resolved_family_id is not None:
         resolved_entries = (
-            resolved_entry.model_copy(
-                update={"family_id": duplicate_resolved_family_id}
-            ),
+            resolved_entry.model_copy(update={"family_id": duplicate_resolved_family_id}),
             resolved_entry,
         )
     registry_ref = SubstrateRegistryRef(
@@ -1089,9 +1058,7 @@ def _cycle_context(
         ),
     )
     if transport_graph_ref is not None:
-        transport = transport.model_copy(
-            update={"causal_graph_ref": transport_graph_ref}
-        )
+        transport = transport.model_copy(update={"causal_graph_ref": transport_graph_ref})
     return build_cycle_substrate_context(
         design_problem_ref=design_problem_ref,
         domain=domain,
@@ -1319,9 +1286,7 @@ def test_cycle_substrate_context_rejects_wmr_id_not_derived_from_content() -> No
 def test_cycle_substrate_context_binds_wmr_authority_status() -> None:
     registry = _registry("education")
     limited_world = _world_record("education", registry)
-    publishable_world = limited_world.model_copy(
-        update={"authority_status": "publishable"}
-    )
+    publishable_world = limited_world.model_copy(update={"authority_status": "publishable"})
 
     limited = _cycle_context(registry=registry, world_model_record=limited_world)
     publishable = _cycle_context(
@@ -1362,9 +1327,7 @@ def _intervention_bundle() -> InterventionSubstrateBundle:
         "lex_intervention_map": {},
         "observation_manifest": {},
         "source_refs": {"intervention_knob_dictionary": "lane0://l6/knobs"},
-        "source_content_hashes": {
-            "intervention_knob_dictionary": _hash("lane0:l6:knobs")
-        },
+        "source_content_hashes": {"intervention_knob_dictionary": _hash("lane0:l6:knobs")},
     }
     return InterventionSubstrateBundle(
         **fields,
@@ -1587,8 +1550,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         ),
     )
     slots = tuple(
-        slot.model_copy(update={"unit": "synthetic_score"})
-        for slot in base_world.policy_slot_map
+        slot.model_copy(update={"unit": "synthetic_score"}) for slot in base_world.policy_slot_map
     )
     world = _rehash_world_record_fixture(base_world, policy_slot_map=slots)
     source_world_ref = persist_world_model_record(store, world)
@@ -1604,14 +1566,10 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         world_model_record=world,
         intervention_substrate=context.intervention_substrate,
         candidate_levers=(
-            context.candidate_levers
-            if refresh_case in {"candidate_levers", "both"}
-            else ()
+            context.candidate_levers if refresh_case in {"candidate_levers", "both"} else ()
         ),
         transport_context=(
-            context.transport_context
-            if refresh_case in {"transport_context", "both"}
-            else None
+            context.transport_context if refresh_case in {"transport_context", "both"} else None
         ),
         source_pack_content_hash=context.source_pack_content_hash,
         substrate_input_content_hash=context.substrate_input_content_hash,
@@ -1663,9 +1621,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         }
     )
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
@@ -1719,9 +1675,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         )
         acquired_draft = world.model_copy(
             update={
-                "limitations": WorldModelLimitations(
-                    admissibility_blockers=required_blockers
-                ),
+                "limitations": WorldModelLimitations(admissibility_blockers=required_blockers),
                 "world_model_record_id": "world_model_record_" + "0" * 16,
                 "content_hash": "sha256:" + "0" * 64,
             }
@@ -1758,9 +1712,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
             pytrace=False,
         )
     if removal == "1" and refresh_case == "none_missing_registry_locator":
-        original_derive = (
-            world_model_record_owner.derive_candidate_scenario_world_model_record
-        )
+        original_derive = world_model_record_owner.derive_candidate_scenario_world_model_record
 
         def derive_without_registry_handoff(
             base_record: WorldModelRecord,
@@ -1773,9 +1725,9 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
 
             assert type(substrate_registry_view_ref) is ArtifactRef
             assert store.verify(substrate_registry_view_ref).ok
-            assert load_substrate_registry(
-                store, substrate_registry_view_ref
-            ).model_dump(mode="json") == registry.model_dump(mode="json")
+            assert load_substrate_registry(store, substrate_registry_view_ref).model_dump(
+                mode="json"
+            ) == registry.model_dump(mode="json")
             return original_derive(
                 base_record,
                 ncm_artifact_ref=ncm_artifact_ref,
@@ -1890,19 +1842,11 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
             context_inputs: CandidateSimulationContextInputs,
         ) -> ConfiguredCandidateSimulationContextAdmissionOwner:
             bad_profile_payload = profile.model_dump(mode="json")
-            bad_profile_payload["context_inputs"] = context_inputs.model_dump(
-                mode="json"
-            )
+            bad_profile_payload["context_inputs"] = context_inputs.model_dump(mode="json")
             bad_profile_payload["content_hash"] = gy_content_hash(
-                {
-                    key: value
-                    for key, value in bad_profile_payload.items()
-                    if key != "content_hash"
-                }
+                {key: value for key, value in bad_profile_payload.items() if key != "content_hash"}
             )
-            bad_profile = CandidateSimulationScenarioProfile.model_validate(
-                bad_profile_payload
-            )
+            bad_profile = CandidateSimulationScenarioProfile.model_validate(bad_profile_payload)
             bad_declaration_payload = declaration.model_dump(mode="json")
             bad_declaration_payload.update(
                 {
@@ -1917,10 +1861,8 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
                     if key != "content_hash"
                 }
             )
-            bad_declaration = (
-                CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-                    bad_declaration_payload
-                )
+            bad_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+                bad_declaration_payload
             )
             return ConfiguredCandidateSimulationContextAdmissionOwner(
                 profiles=(bad_profile,),
@@ -1978,9 +1920,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
                 assert error.value.code == expected_code
                 assert ncm_writes == []
 
-    profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
-        profiles=(profile,)
-    )
+    profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(profiles=(profile,))
     profile_only = profile_only_owner.admit_context(
         problem=problem,
         job_id="job-profile-only",
@@ -1994,16 +1934,17 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     assert profile_only.ncm_ref is None
     assert profile_only.context.world_model_record == world
 
-    changed_time = problem.jurisdiction_time.model_copy(
-        update={"as_of": "2026-06-30"}
+    changed_time = problem.jurisdiction_time.model_copy(update={"as_of": "2026-06-30"})
+    assert (
+        owner.admit_context(
+            problem=problem.model_copy(update={"jurisdiction_time": changed_time}),
+            job_id="job-declared-candidate",
+            run_id="run-declared-candidate",
+            tenant_id="tenant-declared-candidate",
+            cell_id="cell-declared-candidate",
+        )
+        is None
     )
-    assert owner.admit_context(
-        problem=problem.model_copy(update={"jurisdiction_time": changed_time}),
-        job_id="job-declared-candidate",
-        run_id="run-declared-candidate",
-        tenant_id="tenant-declared-candidate",
-        cell_id="cell-declared-candidate",
-    ) is None
 
 
 def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
@@ -2047,9 +1988,7 @@ def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
     assert sibling_ref.manifest_profile_sha256 is not None
     assert tuple(sibling_manifest.inputs) == sibling_inputs
     assert store.verify(sibling_ref).ok
-    assert load_substrate_registry(
-        store, sibling_ref, expected_inputs=sibling_inputs
-    ) == registry
+    assert load_substrate_registry(store, sibling_ref, expected_inputs=sibling_inputs) == registry
 
     sibling_base = _rehash_world_record_fixture(
         bound_world,
@@ -2081,9 +2020,7 @@ def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
     assert reused_ref == sibling_ref
     assert reused_ref.manifest_profile_sha256 == sibling_ref.manifest_profile_sha256
     assert store.verify(reused_ref).ok
-    assert load_substrate_registry(
-        store, reused_ref, expected_inputs=sibling_inputs
-    ) == registry
+    assert load_substrate_registry(store, reused_ref, expected_inputs=sibling_inputs) == registry
 
 
 def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
@@ -2145,9 +2082,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-v3-owner", "run-context-v3-owner"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-v3-owner", "run-context-v3-owner"),
     )
 
     with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
@@ -2180,10 +2115,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     )
     artifact_views = resolved.context.world_model_record.artifact_views
     assert artifact_views is not None
-    assert (
-        artifact_views.program_graph_refs[0].manifest_profile_sha256
-        == _hash("selected-view")
-    )
+    assert artifact_views.program_graph_refs[0].manifest_profile_sha256 == _hash("selected-view")
     assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
     assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
     selected_ref = artifact_views.program_graph_refs[0]
@@ -2213,9 +2145,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
         "context": sibling_context,
         "content_hash": "sha256:" + "0" * 64,
     }
-    assert cycle_substrate_context_job_content_hash(sibling_payload) != (
-        resolved.content_hash
-    )
+    assert cycle_substrate_context_job_content_hash(sibling_payload) != (resolved.content_hash)
 
 
 def test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness() -> None:
@@ -2322,9 +2252,7 @@ def test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref(
                 declared_world,
             )
         )
-        unselected_graph_ref = persist_causal_graph_model(
-            ensure_ir_artifact_store(store), graph
-        )
+        unselected_graph_ref = persist_causal_graph_model(ensure_ir_artifact_store(store), graph)
         selected_graph_ref = profile_bound_ref(store, unselected_graph_ref)
     world = _world_record_with_selected_views(
         declared_world,
@@ -2339,9 +2267,7 @@ def test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref(
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
-        control_store=_TestCurrentJobExecutionOwner(
-            "job-context-v4-graph", "run-context-v4-graph"
-        ),
+        control_store=_TestCurrentJobExecutionOwner("job-context-v4-graph", "run-context-v4-graph"),
     )
 
     with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
@@ -2368,9 +2294,7 @@ def test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref(
     assert resolved.context.transport_context.causal_graph_ref == selected_graph_ref
     serialized_ref = payload["context"]["transport_context"]["causal_graph_ref"]
     assert serialized_ref["artifact_id"] == str(selected_graph_ref.artifact_id)
-    assert serialized_ref["manifest_profile_sha256"] == (
-        selected_graph_ref.manifest_profile_sha256
-    )
+    assert serialized_ref["manifest_profile_sha256"] == (selected_graph_ref.manifest_profile_sha256)
     assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
     assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
     assert parse_cycle_substrate_context_job_artifact(payload) == resolved
@@ -2485,9 +2409,7 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     )
     assert selected_state_ref.artifact_id == default_state_ref.artifact_id
     assert selected_state_ref.manifest_profile_sha256 is not None
-    assert selected_state_ref.manifest_profile_sha256 != (
-        default_state_ref.manifest_profile_sha256
-    )
+    assert selected_state_ref.manifest_profile_sha256 != (default_state_ref.manifest_profile_sha256)
 
     base_world = _world_record(
         "education",
@@ -2495,8 +2417,8 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
-    substrate_registry_artifact_ref, base_world = (
-        _fixture_world_with_persisted_substrate_registry(store, registry, base_world)
+    substrate_registry_artifact_ref, base_world = _fixture_world_with_persisted_substrate_registry(
+        store, registry, base_world
     )
     slots = tuple(
         binding.model_copy(
@@ -2528,11 +2450,7 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
             update={"bound_state_snapshot_ref": str(state_view.artifact_id)}
         ),
         schema_version=schema_version,
-        artifact_views=(
-            views
-            if schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
-            else None
-        ),
+        artifact_views=(views if schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION else None),
     )
     context = _cycle_context(
         registry=registry,
@@ -2596,9 +2514,7 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         }
     )
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
@@ -2636,13 +2552,9 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     )
     acquired_world = _rehash_world_record_fixture(
         world,
-        limitations=WorldModelLimitations(
-            admissibility_blockers=required_blockers
-        ),
+        limitations=WorldModelLimitations(admissibility_blockers=required_blockers),
     )
-    expected_manifest_profile = ManifestLifecycle.profile_sha256(
-        store.get_manifest(state_view)
-    )
+    expected_manifest_profile = ManifestLifecycle.profile_sha256(store.get_manifest(state_view))
     state_reads: list[str] = []
     verify = store.verify
 
@@ -2650,9 +2562,7 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         ref: ArtifactID | ArtifactRef | str,
     ) -> VerificationReport:
         if str(getattr(ref, "artifact_id", ref)) == str(state_view.artifact_id):
-            state_reads.append(
-                ManifestLifecycle.profile_sha256(store.get_manifest(ref))
-            )
+            state_reads.append(ManifestLifecycle.profile_sha256(store.get_manifest(ref)))
         return verify(ref)
 
     monkeypatch.setattr(store, "verify", record_state_view)
@@ -2675,10 +2585,7 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         "promotion_authority",
     }.issubset(offer.context.may_not_use_for)
     assert offer.context.world_model_record.artifact_views is not None
-    assert (
-        offer.context.world_model_record.artifact_views.bound_state_snapshot_ref
-        == state_view
-    )
+    assert offer.context.world_model_record.artifact_views.bound_state_snapshot_ref == state_view
 
 
 def _fixture_world_with_persisted_substrate_registry(
@@ -2694,9 +2601,7 @@ def _fixture_world_with_persisted_substrate_registry(
         raise ValueError("fixture_world_model_record_must_remain_limited")
     if world.substrate_registry_ref.content_hash != registry.content_hash:
         raise ValueError("fixture_world_substrate_registry_content_mismatch")
-    registry_ref = ArtifactRef.model_validate(
-        persist_substrate_registry(store, registry)
-    )
+    registry_ref = ArtifactRef.model_validate(persist_substrate_registry(store, registry))
     manifest = store.get_manifest(registry_ref)
     persisted_registry = load_substrate_registry(store, registry_ref)
     if (
@@ -2720,9 +2625,7 @@ def _fixture_world_with_persisted_substrate_registry(
     return registry_ref, bound_world
 
 
-def _rehash_world_record_fixture(
-    world: WorldModelRecord, **updates: object
-) -> WorldModelRecord:
+def _rehash_world_record_fixture(world: WorldModelRecord, **updates: object) -> WorldModelRecord:
     """Recompute the fixture WMR identity after a test-only view mutation."""
 
     values = world.model_dump(mode="python")
@@ -2748,6 +2651,7 @@ def _rehash_world_record_fixture(
 
 def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     tmp_path: Any,
+    monkeypatch: Any,
 ) -> None:
     """The N8 gateway preserves loaded topology and refuses unselected substitutes."""
 
@@ -2763,11 +2667,21 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         GraphType,
         persist_causal_graph_model,
     )
+    from polisyos.runtime.quality import (
+        RealValueOwnerGateway as PublicRealValueOwnerGateway,
+    )
+    from polisyos.runtime.quality import (
+        ValueTransportRunReceiptV1 as PublicValueTransportRunReceiptV1,
+    )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.generation_cycle import (
         RealValueOwnerGateway,
         ValueOwnerAccessError,
+        _resolve_value_transport_run_basis,
+        _run_value_transport,
     )
+
+    assert PublicRealValueOwnerGateway is RealValueOwnerGateway
 
     problem = _design_problem()
     problem_ref = cycle_job_design_problem_ref(problem)
@@ -2835,10 +2749,9 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     diagrams = []
     selected_refs = []
     contexts = []
+    gateways = []
     for graph in graphs:
-        producer_ref = persist_causal_graph_model(
-            ensure_ir_artifact_store(store), graph
-        )
+        producer_ref = persist_causal_graph_model(ensure_ir_artifact_store(store), graph)
         selected_ref = profile_bound_ref(store, producer_ref)
         selected_refs.append(selected_ref)
         context = _cycle_context(
@@ -2857,6 +2770,8 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
             problem=problem,
             world_record=world,
         )
+        assert result["transport_solver_mode"] == "auto"
+        gateways.append(gateway)
         diagrams.append(result["selection_diagram"])
 
     assert diagrams[0].base_graph == graphs[0]
@@ -2874,6 +2789,248 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         assert s_node.target_ref == _hash("education:school_quality:target")
         assert context.transport_context is not None
         assert context.transport_context.causal_graph_ref in selected_refs
+
+    for diagram in diagrams:
+        assert tuple(
+            (node.target_variable, node.source_value, node.target_value) for node in diagram.s_nodes
+        ) == (("school_quality", 1.0, 2.0),)
+
+    receipts = []
+    for gateway in gateways:
+        receipt, error = gateway.run_transport(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+            solver_mode="simplified",
+        )
+        assert error is None
+        assert receipt is not None
+        assert isinstance(receipt, PublicValueTransportRunReceiptV1)
+        assert receipt.status == "transported_limited"
+        assert receipt.identification_engine == "simplified_legacy"
+        assert receipt.transport_run_basis_ref is not None
+        assert receipt.transport_run_basis_ref.manifest_profile_sha256 is not None
+        receipts.append(receipt)
+    assert receipts[0].transport_run_basis_ref != receipts[1].transport_run_basis_ref
+
+    first_basis = receipts[0].transport_run_basis_ref
+    second_basis = receipts[1].transport_run_basis_ref
+    assert first_basis is not None
+    assert second_basis is not None
+    first_basis_model, first_request, first_stored_diagram, first_solver_result = (
+        _resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=contexts[0],
+            world_record=world,
+        )
+    )
+    second_basis_model, second_request, second_stored_diagram, second_solver_result = (
+        _resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=second_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=contexts[1],
+            world_record=world,
+        )
+    )
+    assert first_basis_model.selected_graph_ref == selected_refs[0]
+    assert second_basis_model.selected_graph_ref == selected_refs[1]
+    assert receipts[0].transport_result_ref == first_basis_model.transport_result_ref.artifact_id
+    assert receipts[1].transport_result_ref == second_basis_model.transport_result_ref.artifact_id
+    assert first_stored_diagram.base_graph.edges != second_stored_diagram.base_graph.edges
+    assert first_basis_model.content_hash != second_basis_model.content_hash
+    assert first_request.solver_mode == second_request.solver_mode == "simplified"
+    assert first_basis_model.solver_mode == second_basis_model.solver_mode == "simplified"
+
+    for solver_result in (first_solver_result, second_solver_result):
+        assert "solver_mode:simplified" in solver_result.identification_trace
+        assert "allow_degraded_transport:false" in solver_result.identification_trace
+
+    def semantic_solver_fields(result: Any) -> tuple[object, ...]:
+        formula = result.transport_formula
+        return (
+            result.status.value,
+            result.transport_mode.value,
+            None if formula is None else formula.formula_str,
+            () if formula is None else tuple(formula.stratification_variables),
+            () if formula is None else tuple(formula.source_quantities),
+            () if formula is None else tuple(formula.target_quantities),
+            tuple(result.required_target_data),
+            tuple(result.unsupported_cases),
+            result.unsupported_reason,
+            result.identified_region,
+        )
+
+    assert semantic_solver_fields(first_solver_result) != semantic_solver_fields(
+        second_solver_result
+    )
+    assert first_solver_result.status.value == "identified"
+    assert second_solver_result.status.value == "identified"
+    assert first_solver_result.transport_mode.value == "transport_formula"
+    assert second_solver_result.transport_mode.value == "transport_formula"
+    assert first_solver_result.transport_formula is not None
+    assert second_solver_result.transport_formula is not None
+    assert first_solver_result.transport_formula.stratification_variables == []
+    assert second_solver_result.transport_formula.stratification_variables == ["school_quality"]
+    assert second_solver_result.transport_formula.stratification_details[0].requires_conditional
+    assert (
+        second_solver_result.transport_formula.stratification_details[0].condition_on_treatment
+        == second_basis_model.query_treatment
+    )
+    assert receipts[0].transport_status == first_solver_result.status.value
+    assert receipts[0].transport_mode == first_solver_result.transport_mode.value
+    assert receipts[0].required_target_data == tuple(first_solver_result.required_target_data)
+    assert receipts[1].transport_status == second_solver_result.status.value
+    assert receipts[1].transport_mode == second_solver_result.transport_mode.value
+    assert receipts[1].required_target_data == tuple(second_solver_result.required_target_data)
+
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        _resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=contexts[1],
+            world_record=world,
+        )
+
+    graphless_context = _cycle_context(
+        registry=registry,
+        world_model_record=world,
+        design_problem_ref=problem_ref,
+    )
+    assert graphless_context.transport_context is not None
+    assert graphless_context.transport_context.causal_graph_ref is None
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        _resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=graphless_context,
+            world_record=world,
+        )
+
+    original_get_bytes = store.get_bytes
+    selected_graph_id = selected_refs[0].artifact_id
+
+    def get_bytes_without_selected_graph(selector: object) -> bytes:
+        artifact_id = getattr(selector, "artifact_id", None)
+        if artifact_id is None and isinstance(selector, dict):
+            artifact_id = selector.get("artifact_id")
+        if artifact_id == selected_graph_id:
+            raise FileNotFoundError("selected_graph_payload_removed_after_run")
+        return original_get_bytes(selector)
+
+    with monkeypatch.context() as graph_payload_removed:
+        graph_payload_removed.setattr(store, "get_bytes", get_bytes_without_selected_graph)
+        with pytest.raises(ValueOwnerAccessError) as graph_read_error:
+            _resolve_value_transport_run_basis(
+                store=store,
+                run_basis_ref=first_basis,
+                candidate=candidate,
+                problem=problem,
+                cycle_substrate_context=contexts[0],
+                world_record=world,
+            )
+    assert graph_read_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    invalid_mode_inputs = dict(
+        gateways[0].build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    )
+    invalid_mode_inputs["transport_solver_mode"] = "y0_profileless_fallback"
+    invalid_receipt, invalid_mode_error = _run_value_transport(
+        inputs=invalid_mode_inputs,
+        world_record=world,
+        store=store,
+    )
+    assert invalid_receipt is None
+    assert invalid_mode_error == (
+        "untransportable_forecast_minted_value:transport_solver_mode_invalid"
+    )
+
+    wrong_context_gateway = RealValueOwnerGateway(
+        cycle_substrate_context=contexts[1],
+        artifact_store=store,
+    )
+    wrong_context_diagram = wrong_context_gateway.build_transport_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )["selection_diagram"]
+    wrong_context_inputs = gateways[0].build_transport_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
+    wrong_context_inputs["selection_diagram"] = wrong_context_diagram
+    receipt, error = _run_value_transport(
+        inputs=wrong_context_inputs,
+        world_record=world,
+        store=store,
+    )
+    assert receipt is None
+    assert error is not None
+    assert "transport_selection_diagram_not_recomputed_from_selected_graph" in error
+
+    def assert_selected_payload_rejected(artifact_id: str, *, corrupt: bool) -> None:
+        reached = False
+
+        def get_bytes_with_selected_payload_unavailable(selector: object) -> bytes:
+            nonlocal reached
+            selected_id = getattr(selector, "artifact_id", None)
+            if selected_id is None and isinstance(selector, dict):
+                selected_id = selector.get("artifact_id")
+            if selected_id == artifact_id:
+                reached = True
+                if corrupt:
+                    return b"{}"
+                raise FileNotFoundError("selected_transport_payload_removed_after_run")
+            return original_get_bytes(selector)
+
+        with monkeypatch.context() as selected_payload_unavailable:
+            selected_payload_unavailable.setattr(
+                store, "get_bytes", get_bytes_with_selected_payload_unavailable
+            )
+            if corrupt:
+                with pytest.raises(ValueError, match="ir_artifact_payload_identity_mismatch"):
+                    _resolve_value_transport_run_basis(
+                        store=store,
+                        run_basis_ref=first_basis,
+                        candidate=candidate,
+                        problem=problem,
+                        cycle_substrate_context=contexts[0],
+                        world_record=world,
+                    )
+            else:
+                with pytest.raises(
+                    FileNotFoundError, match="selected_transport_payload_removed_after_run"
+                ):
+                    _resolve_value_transport_run_basis(
+                        store=store,
+                        run_basis_ref=first_basis,
+                        candidate=candidate,
+                        problem=problem,
+                        cycle_substrate_context=contexts[0],
+                        world_record=world,
+                    )
+        assert reached
+
+    assert first_basis.artifact_id != first_basis_model.transport_result_ref.artifact_id
+    for selected_artifact_id in (
+        first_basis.artifact_id,
+        first_basis_model.transport_result_ref.artifact_id,
+    ):
+        assert_selected_payload_rejected(selected_artifact_id, corrupt=False)
+        assert_selected_payload_rejected(selected_artifact_id, corrupt=True)
 
     with pytest.raises(ValueOwnerAccessError) as store_error:
         RealValueOwnerGateway(
@@ -2956,9 +3113,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         )
     assert profile_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
-    profileless_ref = persist_causal_graph_model(
-        ensure_ir_artifact_store(store), graphs[0]
-    )
+    profileless_ref = persist_causal_graph_model(ensure_ir_artifact_store(store), graphs[0])
     profileless_context = _cycle_context(
         design_problem_ref=problem_ref,
         registry=registry,
@@ -3051,3 +3206,27 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
             world_record=world,
         )
     assert raw_hint_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    from polisyos.ir.analytics import transportability as transportability_module
+
+    persist_transportability_result = transportability_module.persist_transportability_result
+
+    def persist_without_selected_profile(
+        store_arg: object, result_arg: object, **kwargs: Any
+    ) -> object:
+        kwargs.pop("return_selected_profile", None)
+        return persist_transportability_result(store_arg, result_arg, **kwargs)
+
+    monkeypatch.setattr(
+        transportability_module,
+        "persist_transportability_result",
+        persist_without_selected_profile,
+    )
+    receipt, error = gateways[0].run_transport(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
+    assert receipt is None
+    assert error is not None
+    assert "transport_run_basis_selected_profile_unresolved" in error

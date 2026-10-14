@@ -2103,10 +2103,10 @@ export interface components {
       run_id: string;
       /**
        * World Growth
-       * @default no_growth
+       * @default not_established
        * @constant
        */
-      world_growth: "no_growth";
+      world_growth: "not_established";
     };
     /**
      * AcquisitionExecutionResponse
@@ -2135,10 +2135,10 @@ export interface components {
       status: "accepted";
       /**
        * World Growth
-       * @default no_growth
+       * @default not_established
        * @constant
        */
-      world_growth: "no_growth";
+      world_growth: "not_established";
     };
     /**
      * AcquisitionGrowthPayload
@@ -2283,11 +2283,8 @@ export interface components {
      * @description Read-only current route with independent execution and authority postures.
      */
     AcquisitionRouteProjection: {
-      /**
-       * Admitted Observation Delta
-       * @default 0
-       */
-      admitted_observation_delta: number;
+      /** Admitted Observation Delta */
+      admitted_observation_delta?: number | null;
       /**
        * Authority Badge
        * @default behavioral_fixture_not_production
@@ -2363,18 +2360,18 @@ export interface components {
       run_id: string;
       /**
        * Schema Version
-       * @default AcquisitionRouteProjection@1.0
+       * @default AcquisitionRouteProjection@1.1
        * @constant
        */
-      schema_version: "AcquisitionRouteProjection@1.0";
+      schema_version: "AcquisitionRouteProjection@1.1";
       /** Tenant Id */
       tenant_id: string;
       /**
        * World Growth
-       * @default no_growth
+       * @default not_established
        * @enum {string}
        */
-      world_growth: "no_growth" | "admitted_delta";
+      world_growth: "not_established" | "no_growth" | "admitted_delta";
     };
     /**
      * AcquisitionRouteReplayPins
@@ -2692,6 +2689,17 @@ export interface components {
     ArtifactContentPreview: {
       /** Artifact Id */
       artifact_id: string;
+      /**
+       * Canon Read Status
+       * @default not_evaluated
+       * @enum {string}
+       */
+      canon_read_status:
+        | "not_applicable"
+        | "not_evaluated"
+        | "declared_bytes_conformant"
+        | "profile_absent_unqualified_candidate"
+        | "declared_unknown_candidate";
       decision_packet_preview?:
         | components["schemas"]["DecisionPacketPreview"]
         | null;
@@ -3086,6 +3094,17 @@ export interface components {
     ArtifactSchemaView: {
       /** Artifact Id */
       artifact_id: string;
+      /**
+       * Canon Read Status
+       * @default not_evaluated
+       * @enum {string}
+       */
+      canon_read_status:
+        | "not_applicable"
+        | "not_evaluated"
+        | "declared_bytes_conformant"
+        | "profile_absent_unqualified_candidate"
+        | "declared_unknown_candidate";
       /** Kind */
       kind: string;
       /** Manifest Profile Sha256 */
@@ -4810,7 +4829,7 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /**
        * Runtime Api Version
-       * @default 1.0.0
+       * @default 1.1.0
        */
       runtime_api_version: string;
       /** Security Posture */
@@ -10058,6 +10077,27 @@ export interface components {
       transport_floor_rule: string;
     };
     /**
+     * FoundryExecutionInputBasisRef
+     * @description Selected CAS reference for the exact inputs passed to one Foundry step.
+     */
+    FoundryExecutionInputBasisRef: {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default foundry.execution_input_basis
+       * @constant
+       */
+      kind: "foundry.execution_input_basis";
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       * @constant
+       */
+      media_type: "application/json";
+    };
+    /**
      * GapClass
      * @description Classify a route only from reconciled owner evidence.
      * @enum {string}
@@ -14577,6 +14617,17 @@ export interface components {
        */
       assessment: "limited";
       /**
+       * Canon Read Status
+       * @default not_evaluated
+       * @enum {string}
+       */
+      canon_read_status:
+        | "not_applicable"
+        | "not_evaluated"
+        | "declared_bytes_conformant"
+        | "profile_absent_unqualified_candidate"
+        | "declared_unknown_candidate";
+      /**
        * Causal Effect Status
        * @constant
        */
@@ -15989,12 +16040,23 @@ export interface components {
       continuation?:
         | components["schemas"]["RunCandidateSimulationAcquisitionContinuationProjection"]
         | null;
+      /** Continuation Join Status */
+      continuation_join_status?:
+        | (
+            | "not_applicable"
+            | "legacy_occurrence_unbound"
+            | "v3_occurrence_joined"
+          )
+        | null;
       /**
        * Currentness Status
        * @default not_established
        * @constant
        */
       currentness_status: "not_established";
+      expected_origin_source_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** New Candidate Id */
       new_candidate_id?: string | null;
       new_candidate_source_ref?:
@@ -16002,6 +16064,10 @@ export interface components {
         | null;
       /** Old Candidate Id */
       old_candidate_id?: string | null;
+      /** Origin Source Binding Status */
+      origin_source_binding_status?:
+        | ("not_supplied" | "observed_only" | "verified_same_candidate_root")
+        | null;
       origin_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /**
        * Publication Authority
@@ -16010,9 +16076,21 @@ export interface components {
        */
       publication_authority: false;
       reentry_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Reentry Receipt Schema Version */
+      reentry_receipt_schema_version?:
+        | (
+            | "policyos.runtime.acquisition_overlay_reentry.v1"
+            | "policyos.runtime.acquisition_overlay_reentry.v2"
+            | "policyos.runtime.acquisition_overlay_reentry.v3"
+          )
+        | null;
       /** Route Id */
       route_id: string;
       route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Schema Version */
+      schema_version?:
+        | "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+        | null;
       /**
        * Terminal Outcome
        * @enum {string}
@@ -18786,6 +18864,18 @@ export interface components {
       environment_fingerprint?: string | null;
       environment_ref?: components["schemas"]["EnvironmentManifestRef"] | null;
       exec_plan_ref: components["schemas"]["ExecPlanRef-Output"];
+      execution_input_basis_ref?:
+        | components["schemas"]["FoundryExecutionInputBasisRef"]
+        | null;
+      /**
+       * Execution Source Status
+       * @default not_recorded
+       * @enum {string}
+       */
+      execution_source_status:
+        | "not_recorded"
+        | "single_step_basis"
+        | "feedback_uncomposed";
       fairness_audit_report_ref?:
         | components["schemas"]["FairnessAuditReportRef"]
         | null;
@@ -20395,6 +20485,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -20482,6 +20581,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -20562,6 +20670,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -24813,6 +24930,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -24892,6 +25018,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -25071,6 +25206,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -25150,6 +25294,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -25244,6 +25397,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -25326,6 +25488,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -27635,6 +27806,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -28083,6 +28263,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -28253,6 +28442,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -28447,6 +28645,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -28533,6 +28740,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -29098,6 +29314,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -29185,6 +29410,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -29285,6 +29519,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -29369,6 +29612,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -29743,6 +29995,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -29829,6 +30090,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -29930,6 +30200,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -30021,6 +30300,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -30214,6 +30502,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -30299,6 +30596,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -30392,6 +30698,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+      409: {
         headers: {
           [name: string]: unknown;
         };

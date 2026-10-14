@@ -315,14 +315,32 @@ def test_source_history_heads_are_exactly_scoped_across_route_ids(generation_own
         )
 
 
-@pytest.mark.parametrize("terminal_outcome", [None, "reentry_completed"])
-def test_new_action_generation_refuses_pending_or_positive_owner(
-    generation_owner, terminal_outcome
-):
+def test_new_action_generation_refuses_pending_owner(generation_owner):
     sink, _store, _cas = generation_owner
-    _persist_generation(sink, generation=1, job_id="first-job", terminal_outcome=terminal_outcome)
+    _persist_generation(sink, generation=1, job_id="first-job")
     with pytest.raises(ValueError, match="acquisition_action_generation_not_reopenable"):
         sink.resolve_action_generation(**_generation_identity(), job_id="second-job")
+
+
+def test_reentry_terminal_head_allows_successor_generation(generation_owner):
+    sink, _store, _cas = generation_owner
+    # Route resolution verifies the persisted growth and v3 continuation before
+    # this lifecycle step can advance to the next generation.
+    _persist_generation(
+        sink, generation=1, job_id="first-job", terminal_outcome="reentry_completed"
+    )
+    assert sink.resolve_action_generation(**_generation_identity(), job_id="second-job") == 2
+    outcomes = sink.action_outcomes(**_generation_identity())
+    assert len(outcomes) == 1
+    assert outcomes[0].latest_receipt.terminal_outcome == "reentry_completed"
+
+
+def test_action_outcomes_refuse_nonterminal_predecessor(generation_owner):
+    sink, _store, _cas = generation_owner
+    _persist_generation(sink, generation=1, job_id="first-job")
+    _persist_generation(sink, generation=2, job_id="second-job")
+    with pytest.raises(ValueError, match="acquisition_action_generation_predecessor_not_terminal"):
+        sink.action_outcomes(**_generation_identity())
 
 
 def test_action_generation_refuses_row_marker_without_terminal_custody(generation_owner):
@@ -377,50 +395,11 @@ def test_current_action_outcome_uses_latest_generation_after_store_reopen(
         event_log=RuntimeDiagnosticEventLog(store=store, artifact_store=cas),
         control_store=store,
     )
-    requested = sink.persist_phase(
-        _receipt(
-            receipt_phase="requested",
-            coarse_phase="requested",
-            recovery_state="none",
-            predecessor_receipt_ref=None,
-        )
+    scope = _generation_identity()
+    first = _persist_generation(
+        sink, generation=1, job_id="job-acquisition-one", terminal_outcome="quarantined_no_growth"
     )
-    executing = sink.persist_phase(
-        _receipt(
-            receipt_phase="executing",
-            coarse_phase="executing",
-            recovery_state="none",
-            predecessor_receipt_ref=requested.receipt_ref,
-        )
-    )
-    scope = {
-        "tenant_id": "tenant-a",
-        "cell_id": "cell-a",
-        "run_id": "run-a",
-        "source_job_id": "job-source",
-        "route_id": "sha256:" + "a" * 64,
-    }
-    active = sink.current_action_outcome(**scope)
-    assert active is not None
-    assert active.head.action_generation == 1
-    assert active.latest_receipt.receipt_phase == "executing"
-    assert active.executing_phase_ref == executing.receipt_ref
-    assert active.executing_phase == _receipt(
-        receipt_phase="executing",
-        coarse_phase="executing",
-        recovery_state="none",
-        predecessor_receipt_ref=requested.receipt_ref,
-    )
-    assert tuple(item.receipt.receipt_phase for item in active.phase_chain) == (
-        "requested",
-        "executing",
-    )
-    assert tuple(item.durable_event_id for item in active.phase_chain) == (
-        requested.durable_event_id,
-        executing.durable_event_id,
-    )
-
-    next_generation = _receipt(
+    requested = _receipt(
         receipt_phase="requested",
         coarse_phase="requested",
         recovery_state="none",
@@ -432,8 +411,28 @@ def test_current_action_outcome_uses_latest_generation_after_store_reopen(
             "action_generation": 2,
         }
     )
-    sink.persist_phase(next_generation)
-    unrelated_source = next_generation.model_copy(
+    requested_head = sink.persist_phase(requested)
+    executing = requested.model_copy(
+        update={
+            "receipt_id": "receipt-generation-two-executing",
+            "receipt_phase": "executing",
+            "coarse_phase": "executing",
+            "predecessor_receipt_ref": requested_head.receipt_ref,
+        }
+    )
+    executing_head = sink.persist_phase(executing)
+    active = sink.current_action_outcome(**scope)
+    assert active is not None
+    assert active.head.action_generation == 2
+    assert active.latest_receipt.receipt_phase == "executing"
+    assert active.executing_phase_ref == executing_head.receipt_ref
+    assert active.executing_phase == executing
+    assert tuple(item.receipt.receipt_phase for item in active.phase_chain) == (
+        "requested",
+        "executing",
+    )
+
+    unrelated_source = requested.model_copy(
         update={
             "receipt_id": "receipt-other-source-requested",
             "job_id": "job-other-source",
@@ -442,24 +441,16 @@ def test_current_action_outcome_uses_latest_generation_after_store_reopen(
         }
     )
     sink.persist_phase(unrelated_source)
-
-    latest = sink.current_action_outcome(**scope)
-    assert latest is not None
-    assert latest.head.action_generation == 2
-    assert latest.latest_receipt == next_generation
-    assert latest.executing_phase_ref is None
-    assert latest.executing_phase is None
+    assert sink.action_outcomes(**scope)[0].head == first
 
     reopened_store = ControlPlaneStore(backend="sqlite", sqlite_path=control_path)
     reopened_sink = AcquisitionRouteLoopAuthoritySink(
         artifact_store=cas,
-        event_log=RuntimeDiagnosticEventLog(
-            store=reopened_store, artifact_store=cas
-        ),
+        event_log=RuntimeDiagnosticEventLog(store=reopened_store, artifact_store=cas),
         control_store=reopened_store,
     )
     reopened = reopened_sink.current_action_outcome(**scope)
-    assert reopened == latest
+    assert reopened == active
 
 
 def test_current_action_outcome_rejects_a_missing_requested_ancestor(
@@ -496,9 +487,9 @@ def test_current_action_outcome_rejects_a_missing_requested_ancestor(
     monkeypatch.setattr(cas, "get_bytes", missing_requested)
     with pytest.raises(OSError, match="requested ancestor unavailable"):
         sink.current_action_outcome(**_generation_identity())
-    assert store.get_acquisition_action_head(
-        **_generation_identity(), action_generation=1
-    ) == current
+    assert (
+        store.get_acquisition_action_head(**_generation_identity(), action_generation=1) == current
+    )
 
 
 def test_current_action_outcome_rejects_forged_event_input_refs(
@@ -516,9 +507,7 @@ def test_current_action_outcome_rejects_forged_event_input_refs(
         return [
             replace(
                 record,
-                event=record.event.model_copy(
-                    update={"input_refs": ("sha256:" + "f" * 64,)}
-                ),
+                event=record.event.model_copy(update={"input_refs": ("sha256:" + "f" * 64,)}),
             )
             if record.event.event_id == current.durable_event_id
             else record
@@ -528,4 +517,3 @@ def test_current_action_outcome_rejects_forged_event_input_refs(
     monkeypatch.setattr(event_log, "list_events", forged_inputs)
     with pytest.raises(ValueError):
         sink.current_action_outcome(**_generation_identity())
-

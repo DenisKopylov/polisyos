@@ -859,6 +859,9 @@ export type ForecastTemporalRoles =
 export type ForkBRelationCensusPayload =
   RuntimeApiComponents["schemas"]["ForkBRelationCensusPayload"];
 
+export type FoundryExecutionInputBasisRef =
+  RuntimeApiComponents["schemas"]["FoundryExecutionInputBasisRef"];
+
 export type GapClass = RuntimeApiComponents["schemas"]["GapClass"];
 
 export type GenerationCycleDispositionPayload =

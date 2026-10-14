@@ -1571,21 +1571,26 @@ def _normative_evidence_transport_examples() -> dict[str, Any]:
     }
 
 
-
 def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
-    """Build the limited no-interval example through the real artifact projector."""
-    from polisyos.core.artifacts import ArtifactID, ArtifactManifest, IntegrityInfo, SchemaInfo
+    """Build the limited no-interval example through the canonical reader and projector."""
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        ArtifactManifest,
+        ArtifactWriteOptions,
+        CanonInfo,
+        ManifestLifecycle,
+        SchemaInfo,
+        expected_artifact_manifest_for_write,
+    )
+    from polisyos.core.artifacts.canonical_profile import (
+        artifact_ref_for_manifest,
+        read_core_json_artifact,
+    )
+    from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
     from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
     from polisyos.runtime.http.services.artifact_inspector import _predictive_coverage_preview
 
-    fixture_manifest = ArtifactManifest(
-        artifact_id=ArtifactID(_ARTIFACT_ID_SAMPLE),
-        kind="ir.backtest_report",
-        media_type="application/json",
-        byte_size=1,
-        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
-        integrity=IntegrityInfo(sha256="b" * 64),
-    )
+    fixture_canon_spec = CanonSpec(forbid_floats=False)
     fixture_payload = {
         "schema_version": "1.0",
         "metadata": {
@@ -1625,7 +1630,57 @@ def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
             }
         ],
     }
-    projected = _predictive_coverage_preview(fixture_payload, fixture_manifest)
+    fixture_payload_bytes = to_canonical_bytes(fixture_payload, fixture_canon_spec)
+    fixture_digest = content_hash(fixture_payload_bytes)
+    fixture_manifest = expected_artifact_manifest_for_write(
+        artifact_id=ArtifactID.from_sha256_hex(fixture_digest),
+        data=fixture_payload_bytes,
+        opts=ArtifactWriteOptions(
+            kind="ir.backtest_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+            canon=CanonInfo.from_spec(fixture_canon_spec),
+        ),
+        created_at=datetime(2026, 2, 11, 12, tzinfo=UTC),
+    )
+    fixture_ref = artifact_ref_for_manifest(fixture_manifest)
+    fixture_manifest_bytes = ManifestLifecycle.to_bytes(fixture_manifest)
+
+    class _InMemoryFixtureStore:
+        """Expose only the content-bound fixture required by the canonical reader."""
+
+        def _require_selected(self, selector: object, profile_sha256: str | None = None) -> None:
+            if selector != fixture_ref or (
+                profile_sha256 is not None and profile_sha256 != fixture_ref.manifest_profile_sha256
+            ):
+                raise FileNotFoundError("OpenAPI example fixture selection did not match")
+
+        def get_bytes(self, selector: object) -> bytes:
+            self._require_selected(selector)
+            return fixture_payload_bytes
+
+        def get_manifest(self, selector: object) -> ArtifactManifest:
+            self._require_selected(selector)
+            return fixture_manifest
+
+        def get_raw_manifest_bytes(
+            self,
+            selector: object,
+            *,
+            manifest_profile_sha256: str | None = None,
+        ) -> bytes:
+            self._require_selected(selector, manifest_profile_sha256)
+            return fixture_manifest_bytes
+
+    profiled = read_core_json_artifact(_InMemoryFixtureStore(), fixture_ref)
+    if profiled.status != "declared_bytes_conformant":
+        raise ValueError("Controlled predictive fixture did not pass canonical byte reading")
+    fixture_payload = profiled.value
+    projected = _predictive_coverage_preview(
+        fixture_payload,
+        fixture_manifest,
+        canon_read_status=profiled.status,
+    )
     if projected is None:
         raise ValueError("Controlled predictive diagnostic fixture was not admitted")
     candidate = TypeAdapter(PredictiveCoverageDiagnosticPreview).validate_python(
@@ -1644,10 +1699,11 @@ def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
         "limited_not_measured_candidate": {
             "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
             "description": (
-                "Generated through the actual predictive-coverage projector from a controlled "
-                "in-memory report fixture. The artifact ID is illustrative; this is not a stored "
-                "source, production measurement, authority, issuer, publication, or currentness "
-                "claim."
+                "Generated through the canonical Core byte/manifest reader and predictive-coverage "
+                "projector from a controlled in-memory report fixture. Its digest is "
+                "content-derived; "
+                "the fixture is not stored production source, measurement, authority, issuer, "
+                "publication, or currentness evidence."
             ),
             "value": candidate.model_dump(mode="json"),
         }
@@ -1686,6 +1742,336 @@ def _lex_search_profile_success_examples() -> dict[str, Any]:
             "value": candidate.model_dump(mode="json"),
         }
     }
+
+
+@lru_cache(maxsize=1)
+def _pre_admission_attempt_response_examples() -> dict[str, dict[str, Any]]:
+    """Read a source-produced no-call refusal from a controlled in-memory owner."""
+    import hashlib
+    import sqlite3
+    import threading
+    from collections.abc import Iterator  # noqa: TC003 - contextmanager generator signature
+    from contextlib import contextmanager
+    from contextvars import ContextVar
+
+    from polisyos.core.contracts.control_admission_attempt import (
+        ControlPreAdmissionAttemptResponse,
+    )
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+    class _OpenAPIInMemoryControlPlaneStore(ControlPlaneStore):
+        """Reuse the owner schema and producers over one private memory connection."""
+
+        def __init__(self) -> None:
+            self.backend = "sqlite"
+            self._sqlite_path = Path(":memory:")
+            self._postgres_dsn = None
+            self._lock = threading.RLock()
+            self._human_decision_transaction = threading.local()
+            self._job_execution_fence = ContextVar(
+                "openapi_control_job_execution_fence", default=None
+            )
+            self._sqlite_timeout_seconds = 0.5
+            self._connection = sqlite3.connect(":memory:", timeout=self._sqlite_timeout_seconds)
+            self._connection.row_factory = sqlite3.Row
+            self._connection.execute("PRAGMA foreign_keys=ON")
+            self._ensure_sqlite_schema()
+
+        @contextmanager
+        def _sqlite_connection(self) -> Iterator[sqlite3.Connection]:
+            yield self._connection
+
+        def close(self) -> None:
+            self._connection.close()
+
+    tenant_id = "tenant-openapi-fixture"
+    cell_id = "cell-openapi-fixture"
+    actor_subject = "subject-openapi-fixture"
+    run_id = "R_openapi_pre_admission_fixture"
+    candidate_job_id = "job_openapi_pre_admission_fixture"
+    effective_profile = "research"
+    request_id = _REQUEST_ID_SAMPLE
+    idempotency_key = "openapi-controlled-pre-admission-example"
+    idempotency_digest = hashlib.sha256(idempotency_key.encode("ascii")).hexdigest()
+    attempt_id = hashlib.sha256(
+        "\0".join(
+            (
+                "control.nl_pre_admission.v1",
+                "control.runs.nl",
+                tenant_id,
+                cell_id,
+                actor_subject,
+                idempotency_digest,
+            )
+        ).encode("utf-8")
+    ).hexdigest()[:32]
+    intent_binding = {
+        "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+        "request_content_sha256": "sha256:"
+        + hashlib.sha256(b"controlled OpenAPI fixture request; no provider call").hexdigest(),
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "actor_subject": actor_subject,
+        "effective_execution_profile": effective_profile,
+        "authorization_permission": "runs.launch",
+        "authorization_resource_sha256": "sha256:"
+        + hashlib.sha256(b"control.runs.nl fixture resource").hexdigest(),
+    }
+    fixed_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
+    store = _OpenAPIInMemoryControlPlaneStore()
+    try:
+        store.start_pre_admission_attempt(
+            attempt_id=attempt_id,
+            request_id=request_id,
+            run_id=run_id,
+            candidate_job_id=candidate_job_id,
+            effective_execution_profile=effective_profile,
+            intent_binding=intent_binding,
+            producer_run_binding=None,
+            idempotency_key_sha256=idempotency_digest,
+        )
+        store.observe_pre_admission_attempt(
+            attempt_id=attempt_id,
+            event_type="refused",
+            producer_event_observation="no_call",
+            producer_no_call_reason="provider_preflight_not_started",
+            failure_code="provider_preflight_not_started",
+        )
+        service = object.__new__(ControlPlaneService)
+        service._control_store = store
+        principal = RuntimePrincipal(
+            subject=actor_subject,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            authenticated=True,
+        )
+        by_key = ControlPlaneService.get_pre_admission_attempt_status_by_idempotency_key(
+            service,
+            idempotency_key,
+            request_id=request_id,
+            principal=principal,
+        )
+        by_attempt = ControlPlaneService.get_pre_admission_attempt_status(
+            service, attempt_id, request_id=request_id, principal=principal
+        )
+
+        def fixed_documentation_times(
+            response: ControlPreAdmissionAttemptResponse,
+        ) -> ControlPreAdmissionAttemptResponse:
+            return response.model_copy(
+                update={
+                    "meta": response.meta.model_copy(update={"generated_at": fixed_time}),
+                    "created_at": fixed_time,
+                    "updated_at": fixed_time,
+                    "history": [
+                        event.model_copy(update={"observed_at": fixed_time})
+                        for event in response.history
+                    ],
+                }
+            )
+
+        by_key_wire = json.dumps(
+            fixed_documentation_times(by_key).model_dump(mode="json"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        by_key = TypeAdapter(ControlPreAdmissionAttemptResponse).validate_json(
+            by_key_wire, strict=True
+        )
+        by_attempt_wire = json.dumps(
+            fixed_documentation_times(by_attempt).model_dump(mode="json"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        by_attempt = TypeAdapter(ControlPreAdmissionAttemptResponse).validate_json(
+            by_attempt_wire, strict=True
+        )
+        for candidate in (by_key, by_attempt):
+            if (
+                candidate.status != "refused"
+                or candidate.producer_event_observation != "no_call"
+                or candidate.producer_no_call_reason != "provider_preflight_not_started"
+                or candidate.failure_code != candidate.producer_no_call_reason
+                or candidate.producer_event_ids
+                or candidate.owner_binding.purpose != "control.nl_pre_admission.v1"
+                or candidate.owner_binding.scope_id != "control.runs.nl"
+                or [event.event_type for event in candidate.history] != ["started", "refused"]
+                or candidate.history[-1].producer_no_call_reason
+                != candidate.producer_no_call_reason
+            ):
+                raise ValueError("Controlled pre-admission example changed owner refusal semantics")
+        if by_key.model_dump(mode="json") != by_attempt.model_dump(mode="json"):
+            raise ValueError("Pre-admission recovery routes disagree on owner readback")
+        return {
+            "by_idempotency_key": by_key.model_dump(mode="json"),
+            "by_attempt_id": by_attempt.model_dump(mode="json"),
+        }
+    finally:
+        store.close()
+
+
+def _pre_admission_by_idempotency_success_examples() -> dict[str, Any]:
+    """Return the producer-built actor-scoped recovery example."""
+    return {
+        "controlled_no_call_refusal": {
+            "summary": "Actor-scoped attempt refused before provider preflight",
+            "description": (
+                "Projected from the durable pre-admission owner after its actual start and "
+                "refused/no-call transitions in an in-memory controlled fixture. The actor, "
+                "tenant, cell, run, request, and timestamps are documentation fixtures; no "
+                "provider call, production attempt, authorization grant, or reusable evidence "
+                "is asserted."
+            ),
+            "value": _pre_admission_attempt_response_examples()["by_idempotency_key"],
+        }
+    }
+
+
+def _pre_admission_by_attempt_id_success_examples() -> dict[str, Any]:
+    """Return the producer-built actor-scoped history example."""
+    return {
+        "controlled_no_call_refusal": {
+            "summary": "Actor-scoped history after provider preflight was not started",
+            "description": (
+                "Projected from the durable pre-admission owner after its actual start and "
+                "refused/no-call transitions in an in-memory controlled fixture. The actor, "
+                "tenant, cell, run, request, and timestamps are documentation fixtures; no "
+                "provider call, production attempt, authorization grant, or reusable evidence "
+                "is asserted."
+            ),
+            "value": _pre_admission_attempt_response_examples()["by_attempt_id"],
+        }
+    }
+
+
+def _predictive_calibration_success_examples() -> dict[str, Any]:
+    """Build the typed limited abstention example without claiming stored calibration."""
+    import hashlib
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
+    from polisyos.core.contracts.runtime import ApiMeta
+    from polisyos.runtime.http.services.predictive_calibration import (
+        _ASSOCIATION_KIND,
+        PredictiveCalibrationAssociation,
+        PredictiveCalibrationResponse,
+        PredictiveCalibrationS10Summary,
+        _calibration_status,
+    )
+
+    fixture_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
+
+    def fixture_ref(role: str, kind: str) -> ArtifactRef:
+        digest = hashlib.sha256(f"openapi-predictive-calibration:{role}".encode()).hexdigest()
+        return ArtifactRef(
+            artifact_id=f"sha256:{digest}",
+            kind=kind,
+            media_type="application/json",
+        )
+
+    association = PredictiveCalibrationAssociation(
+        event_id="evt_predictive_calibration_openapi_fixture",
+        intent_id="openapi-calibration-fixture",
+        request_sha256=hashlib.sha256(b"openapi calibration fixture request").hexdigest(),
+        run_id="R_openapi_predictive_calibration_fixture",
+        control_run_id="control_openapi_predictive_calibration_fixture",
+        job_id="job_openapi_predictive_calibration_fixture",
+        tenant_id="tenant-openapi-fixture",
+        cell_id="cell-openapi-fixture",
+        run_manifest_ref=fixture_ref("run_manifest", "ir.run_manifest"),
+        candidate_source_ref=fixture_ref(
+            "candidate_source", "runtime.quality.n4_candidate_scenario_source"
+        ),
+        observed_source_ref=fixture_ref("observed_source", "fabric.data_snapshot"),
+        model_spec_ref=fixture_ref("model_spec", "ir.model_spec"),
+        policy_spec_ref=fixture_ref("policy_spec", "ir.policy_spec"),
+        calibration_rule_ref=fixture_ref("calibration_rule", "ir.forecast_calibration_rule"),
+        backtest_report_ref=fixture_ref("backtest_report", "ir.backtest_report"),
+        empirical_evidence_ref=fixture_ref(
+            "empirical_evidence", "runtime.empirical_calibration_evidence"
+        ),
+        uncertainty_bundle_ref=fixture_ref("uncertainty_bundle", "ir.uncertainty_bundle"),
+        observed_numerator=0,
+        observed_denominator=1,
+        observed_hit_rate=0.0,
+        owner_suitability="limited",
+        s10=PredictiveCalibrationS10Summary(
+            calibration_status=_calibration_status("insufficient_history"),
+            forecast_tier="insufficient_history",
+            counterfactual_credibility="not_established",
+            numerator=0,
+            denominator=0,
+            observed_pass_rate=0.0,
+        ),
+        evidence_reason_codes=("explicit_context_missing",),
+        created_at=fixture_time,
+    )
+    association_bytes = to_canonical_bytes(
+        association.model_dump(mode="json"), CanonSpec(forbid_floats=False)
+    )
+    association_ref = ArtifactRef(
+        artifact_id=f"sha256:{content_hash(association_bytes)}",
+        kind=_ASSOCIATION_KIND,
+        media_type="application/json",
+    )
+    response = PredictiveCalibrationResponse(
+        meta=ApiMeta(
+            request_id=_REQUEST_ID_SAMPLE,
+            generated_at=fixture_time,
+            source_kinds=[],
+        ),
+        association_ref=association_ref,
+        association=association,
+    )
+    response_wire = json.dumps(
+        response.model_dump(mode="json"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    candidate = TypeAdapter(PredictiveCalibrationResponse).validate_json(response_wire, strict=True)
+    if (
+        candidate.association.assessment != "limited"
+        or candidate.association.owner_suitability != "limited"
+        or candidate.association.s10.calibration_status != "insufficient_history"
+        or candidate.association.issuer_status != "not_established"
+        or candidate.association.source_time_status != "not_established"
+        or candidate.association.population_scope_status != "not_established"
+        or candidate.association.counterfactual_credibility_status != "not_established"
+        or candidate.association.authority_scope != "predictive_only"
+        or candidate.association_ref.manifest_profile_sha256 is not None
+        or any(
+            getattr(candidate.association, field).manifest_profile_sha256 is not None
+            for field in (
+                "run_manifest_ref",
+                "candidate_source_ref",
+                "observed_source_ref",
+                "model_spec_ref",
+                "policy_spec_ref",
+                "calibration_rule_ref",
+                "backtest_report_ref",
+                "empirical_evidence_ref",
+                "uncertainty_bundle_ref",
+            )
+        )
+    ):
+        raise ValueError("Predictive calibration example exceeded its limited fixture scope")
+    return {
+        "controlled_insufficient_history_candidate": {
+            "summary": "Limited candidate with insufficient history",
+            "description": (
+                "Typed through the current predictive-calibration response and status owner. "
+                "All artifact identifiers are deterministic example handles without selected "
+                "manifest profiles; the response is not persisted or reopenable evidence. "
+                "The required 0/1 and S10 0/0 count slots are structural fixture values, not "
+                "observations. This example asserts no POST outcome, currentness, issuer, "
+                "population, causal, publication, or policy-selection authority."
+            ),
+            "value": candidate.model_dump(mode="json"),
+        }
+    }
+
 
 _SUCCESS_SCHEMA_ANNOTATIONS = frozenset({"title", "description", "examples", "example"})
 _INVALID_SCHEMA_REFERENCE = object
@@ -1758,8 +2144,13 @@ def _resolve_json_schema_pointer(document: object, reference: str) -> object | N
     for part in tokens:
         if isinstance(target, dict) and part in target:
             target = target[part]
-        elif (isinstance(target, list) and part and all("0" <= c <= "9" for c in part)
-              and (part == "0" or not part.startswith("0")) and int(part) < len(target)):
+        elif (
+            isinstance(target, list)
+            and part
+            and all("0" <= c <= "9" for c in part)
+            and (part == "0" or not part.startswith("0"))
+            and int(part) < len(target)
+        ):
             target = target[int(part)]
         else:
             return None
@@ -1767,7 +2158,10 @@ def _resolve_json_schema_pointer(document: object, reference: str) -> object | N
 
 
 def _success_json_schema_reference_projection(
-    reference: str, *, document: object, active_refs: frozenset[tuple[str, ...]],
+    reference: str,
+    *,
+    document: object,
+    active_refs: frozenset[tuple[str, ...]],
     memo: dict[tuple[str, ...], object],
 ) -> object:
     """Resolve and project a local schema target; unsupported references fail closed."""
@@ -1841,9 +2235,7 @@ def _success_schema_explicitly_allows_null_default(schema: object) -> bool:
         return False
     if "const" in schema and schema["const"] is not None:
         return False
-    if "enum" in schema and (
-        not isinstance(schema["enum"], list) or None not in schema["enum"]
-    ):
+    if "enum" in schema and (not isinstance(schema["enum"], list) or None not in schema["enum"]):
         return False
 
     schema_type = schema.get("type")
@@ -1884,9 +2276,7 @@ def _success_schema_explicitly_allows_null_default(schema: object) -> bool:
             for branch in one_of
         ):
             return False
-        if sum(
-            _success_schema_explicitly_allows_null_default(branch) for branch in one_of
-        ) != 1:
+        if sum(_success_schema_explicitly_allows_null_default(branch) for branch in one_of) != 1:
             return False
         positive_null = True
 
@@ -1894,7 +2284,9 @@ def _success_schema_explicitly_allows_null_default(schema: object) -> bool:
 
 
 def _success_json_schema_projection(
-    schema: object, *, document: object,
+    schema: object,
+    *,
+    document: object,
     active_refs: frozenset[tuple[str, ...]] = frozenset(),
     memo: dict[tuple[str, ...], object] | None = None,
 ) -> object:
@@ -1902,8 +2294,12 @@ def _success_json_schema_projection(
     if memo is None:
         memo = {}
     if isinstance(schema, list):
-        return [_success_json_schema_projection(item, document=document,
-                active_refs=active_refs, memo=memo) for item in schema]
+        return [
+            _success_json_schema_projection(
+                item, document=document, active_refs=active_refs, memo=memo
+            )
+            for item in schema
+        ]
     if not isinstance(schema, dict):
         return schema
     if "$dynamicRef" in schema or "$recursiveRef" in schema:
@@ -1915,11 +2311,20 @@ def _success_json_schema_projection(
         resolved = _success_json_schema_reference_projection(
             reference, document=document, active_refs=active_refs, memo=memo
         )
-        siblings = {key: value for key, value in schema.items()
-                    if key not in {"$ref", "$defs"} and key not in _SUCCESS_SCHEMA_ANNOTATIONS}
+        siblings = {
+            key: value
+            for key, value in schema.items()
+            if key not in {"$ref", "$defs"} and key not in _SUCCESS_SCHEMA_ANNOTATIONS
+        }
         if siblings:
-            return {"allOf": [resolved, _success_json_schema_projection(
-                siblings, document=document, active_refs=active_refs, memo=memo)]}
+            return {
+                "allOf": [
+                    resolved,
+                    _success_json_schema_projection(
+                        siblings, document=document, active_refs=active_refs, memo=memo
+                    ),
+                ]
+            }
         return resolved
     projection: dict[str, object] = {}
     for key, value in schema.items():
@@ -1941,9 +2346,13 @@ def _success_json_schema_projection(
                         discriminator[subkey] = _INVALID_SCHEMA_REFERENCE()
                     else:
                         discriminator[subkey] = {
-                            tag: {"$schema_target": _success_json_schema_reference_projection(
-                                target, document=document, active_refs=active_refs, memo=memo
-                            ) if isinstance(target, str) else _INVALID_SCHEMA_REFERENCE()}
+                            tag: {
+                                "$schema_target": _success_json_schema_reference_projection(
+                                    target, document=document, active_refs=active_refs, memo=memo
+                                )
+                                if isinstance(target, str)
+                                else _INVALID_SCHEMA_REFERENCE()
+                            }
                             for tag, target in subvalue.items()
                         }
                 else:
@@ -1977,18 +2386,36 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
     },
     "get_predictive_coverage_diagnostic": _predictive_coverage_diagnostic_success_examples,
     "get_lex_search_profile": _lex_search_profile_success_examples,
+    "get_control_pre_admission_attempt_by_idempotency_key": (
+        _pre_admission_by_idempotency_success_examples
+    ),
+    "get_control_pre_admission_attempt_status": _pre_admission_by_attempt_id_success_examples,
+    "create_run_predictive_calibration": _predictive_calibration_success_examples,
+    "get_run_predictive_calibration": _predictive_calibration_success_examples,
 }
 
 
 @lru_cache(maxsize=1)
 def _success_example_response_models() -> dict[str, Any]:
     """Return response DTOs that govern model-dispatched success examples."""
+    from polisyos.core.contracts.control_admission_attempt import (
+        ControlPreAdmissionAttemptResponse,
+    )
     from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
     from polisyos.runtime.http.services.control.lex_search_profile import LexSearchProfileResponse
+    from polisyos.runtime.http.services.predictive_calibration import (
+        PredictiveCalibrationResponse,
+    )
 
     return {
         "get_predictive_coverage_diagnostic": PredictiveCoverageDiagnosticPreview,
         "get_lex_search_profile": LexSearchProfileResponse,
+        "get_control_pre_admission_attempt_by_idempotency_key": (
+            ControlPreAdmissionAttemptResponse
+        ),
+        "get_control_pre_admission_attempt_status": ControlPreAdmissionAttemptResponse,
+        "create_run_predictive_calibration": PredictiveCalibrationResponse,
+        "get_run_predictive_calibration": PredictiveCalibrationResponse,
     }
 
 
@@ -4333,7 +4760,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
     },
     "get_control_capabilities": {
         "meta": _META_NO_SOURCE,
-        "runtime_api_version": "1.0.0",
+        "runtime_api_version": "1.1.0",
         "shell_flavor": "atlas",
         "default_locale": "en",
         "supported_locales": ["en", "uk"],
@@ -5047,9 +5474,10 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
     expected_schema = RuntimeApiProblem.model_json_schema(
         ref_template="#/components/schemas/{model}"
     )
-    if not isinstance(component_schemas, dict) or component_schemas.get(
-        "RuntimeApiProblem"
-    ) != expected_schema:
+    if (
+        not isinstance(component_schemas, dict)
+        or component_schemas.get("RuntimeApiProblem") != expected_schema
+    ):
         violations.append(
             "components.schemas.RuntimeApiProblem differs from the RuntimeApiProblem model"
         )
@@ -5157,7 +5585,8 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                 continue
             has_media = _RUNTIME_PROBLEM_MEDIA_TYPE in content
             ref_media = [
-                media for media, payload in content.items()
+                media
+                for media, payload in content.items()
                 if isinstance(payload, dict)
                 and _schema_references_runtime_api_problem(payload.get("schema"))
             ]
@@ -5220,6 +5649,7 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                             "has mismatched problem status fields"
                         )
     return violations
+
 
 __all__ = [
     "augment_runtime_openapi",

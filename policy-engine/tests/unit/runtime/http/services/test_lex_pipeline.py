@@ -13,7 +13,7 @@ from polisyos.core.contracts.control import (
     LegalQueryGenerationIntentV1,
     LexSearchRequest,
 )
-from polisyos.lex.knowledge import LegalFactResult
+from polisyos.lex.knowledge import LegalFactResult, LegalQueryProfileError
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
@@ -126,6 +126,7 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.db_path = db_path
             self.index_dir = index_dir
@@ -203,13 +204,14 @@ def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.query_profile = query_profile
             self.close_count = 0
-            self.query_profile_error = type(
-                "Refusal", (), {"code": "query_encoder_assets_unavailable"}
-            )()
+            self.query_profile_error = query_encoder_refusal or LegalQueryProfileError(
+                "query_encoder_assets_unavailable"
+            )
             self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
             instances.append(self)
 
@@ -300,6 +302,7 @@ def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.query_profile = query_profile
@@ -354,6 +357,7 @@ def test_search_lex_graph_treats_empty_present_intent_as_malformed(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.query_profile = query_profile
             self.close_count = 0
@@ -417,6 +421,7 @@ def test_search_lex_graph_degrades_known_error_and_closes_graph(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.close_count = 0
@@ -460,6 +465,7 @@ def test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally(
             index_dir: Path,
             query_encoder: object | None = None,
             query_profile: tuple[object, ...] | None = None,
+            query_encoder_refusal: LegalQueryProfileError | None = None,
         ) -> None:
             self.query_encoder = query_encoder
             self.close_count = 0

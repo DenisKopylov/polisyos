@@ -85,12 +85,11 @@ class LegalQueryEncoderProviderError(ValueError):
 
 @dataclass(frozen=True, slots=True, eq=False)
 class LegalQueryEncoderProvider:
-    """Runtime-owned access to one already-loaded local Legal query encoder.
+    """Check asset compatibility for a loaded Legal query encoder.
 
-    The provider derives its own asset identity; callers cannot supply an identity
-    label. It is an execution seam for a loaded encoder, not a claim of legal or
-    production authority. The request profile and Legal store independently bind
-    that encoder to the selected generation before a vector result is returned.
+    This provider does not establish executable runtime provenance. The current
+    runtime has no owner-resolved bundle profile, so a matching asset digest is
+    insufficient to hand the object to a vector query.
     """
 
     encoder: object = field(repr=False, compare=False)
@@ -118,7 +117,7 @@ class LegalQueryEncoderProvider:
         object.__setattr__(self, "_dimension", dimension)
 
     def resolve_encoder(self) -> object:
-        """Return the loaded encoder only while its declared assets stay stable."""
+        """Refuse an unbound runtime after checking loaded asset compatibility."""
         from polisyos.data_forge.read_api import legal as legal_read_api
 
         dimension_method = getattr(self.encoder, "get_sentence_embedding_dimension", None)
@@ -137,7 +136,10 @@ class LegalQueryEncoderProvider:
             or dimension != self._dimension
         ):
             raise LegalQueryEncoderProviderError("query_encoder_assets_changed")
-        return self.encoder
+        # The selected generation records model-asset identity, not the
+        # executable runtime that implements encode. No canonical owner-issued
+        # runtime bundle is composed here, so do not return this arbitrary object.
+        raise LegalQueryEncoderProviderError("query_encoder_runtime_material_not_established")
 
 
 @dataclass(frozen=True)
@@ -421,7 +423,8 @@ class RuntimeServiceContainer:
         else:
             if config.catalog_run_profile is not None:
                 if control_registry_providers.catalog_run_profile not in (
-                    None, config.catalog_run_profile
+                    None,
+                    config.catalog_run_profile,
                 ):
                     raise ValueError("catalog_run_profile_runtime_configuration_mismatch")
                 if control_registry_providers.catalog_run_profile is None:

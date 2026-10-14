@@ -46,24 +46,24 @@ set, the saved matrix, and HNSW vectors. Exactly one profile must match the quer
 table. A new selector requires a fresh request profile, even when the corpus and
 encoder assets are unchanged.
 
-`derive_encoder_identity` binds loaded weights, configuration, and tokenizer assets.
-It cannot attest an arbitrary replacement of the encoder's `encode` callable. A
-runtime-composed `LegalQueryEncoderProvider` derives and rechecks that asset identity
-for one already-loaded encoder; the provider does not accept a caller-supplied identity
-label, and the store still verifies the selected generation before encoding. It does
-not attest executable identity: replacing `encode` while retaining weights, config, and
-tokenizer can change query behavior while the asset identity stays the same. Closing
-that bounded residual requires a trusted executable identity bound to the loaded model;
-this runtime has no such code-provenance owner. The exercised callable-swap counterexample
-remains a compatibility limitation, and the HTTP test makes no production or legal
-authority claim.
-The control-plane `POST /api/v1/control/lex/search` accepts immutable selected
-generation snapshots and reports `search_mode` plus a typed `vector_refusal_code`.
-Without a provider, served requests return actual text-search results with the typed
-refusal preserved. A controlled native HTTP test composes the same asset-identified
-encoder used by the real producer into a fresh served reader and verifies the vector
-path and native HNSW consumer; this is a compatibility witness, not production
-authority or a claim about corpus quality.
+`derive_encoder_identity` recomputes loaded weights, configuration, and tokenizer assets. It
+cannot attest an arbitrary replacement of the encoder's `encode` callable. The current
+`LegalQueryEncoderProvider` checks those assets but does not resolve an owner-controlled executable
+runtime bundle. The shared store therefore refuses every loaded object with
+`query_encoder_runtime_material_not_established` before calling `encode`, after it revalidates the
+selected generation, request intent, projected members, and asset identity. The guard covers entity,
+fact, and provision vector searches;
+`hybrid_search()` returns text results while retaining the typed refusal, and direct vector methods
+raise `LegalQueryProfileError`.
+
+The selected-generation GET remains available for immutable request intent; it does not claim that a
+runtime encoder is available. POST `/api/v1/control/lex/search` reports `search_mode` and
+`vector_refusal_code`; a selected generation with no source-resolved runtime profile returns actual
+text-search results with `query_encoder_runtime_material_not_established`. Historical generations
+remain readable and are not rewritten. Restoring vector execution requires an owner-resolved runtime
+material binding shared by the producer and fresh reader; asset hashes or object labels alone do not
+supply that binding. The controlled same-assets callable-swap test is a falsifier for the refusal
+property, not a production or legal-authority claim.
 
 ## Current State
 

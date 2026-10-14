@@ -213,6 +213,7 @@ class AcquisitionMovementService:
         self, value: BaseModel | dict[str, object], kind: str, *, owner_input: bool = False
     ) -> artifacts.ArtifactRef:
         from polisyos.core.artifacts import load_core_json_artifact
+
         payload = value.model_dump(mode="json") if isinstance(value, BaseModel) else value
         ref = self._store.put_json(
             payload,
@@ -237,9 +238,7 @@ class AcquisitionMovementService:
             if manifest.kind != kind:
                 raise ValueError("movement_source_kind_mismatch")
             try:
-                artifacts.read_core_json_artifact_bytes(
-                    self._store, ref, raw_payload_bytes=raw
-                )
+                artifacts.read_core_json_artifact_bytes(self._store, ref, raw_payload_bytes=raw)
             except CanonicalProfileRefusalError as exc:
                 raise ValueError("movement_source_profile_unverified") from exc
         return raw
@@ -318,7 +317,14 @@ class AcquisitionMovementService:
             core_source_resolver=core_source_resolver,
             tenant_id=supplier.tenant_id,
             cell_id=supplier.cell_id,
-        ).resolve_current_route(run_id=supplier.run_id)
+            action_outcome_reader=AcquisitionRouteLoopAuthoritySink(
+                artifact_store=self._store,
+                event_log=self._events,
+                control_store=self._control_store,
+            ),
+        ).resolve_current_route(
+            run_id=supplier.run_id, before_action_generation=supplier.action_generation
+        )
         if (
             supplier.route_id != closure.route_id
             or supplier.source_job_id != closure.source_job_id

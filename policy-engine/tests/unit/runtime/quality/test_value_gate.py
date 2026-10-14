@@ -1837,35 +1837,23 @@ def test_n8_transport_component_proofs_are_live_and_data_derived() -> None:
 
     for role in ("education", "unseen_pack_shape"):
         proof = proofs[role]
-        assert proof["outcome_kind"] == "transport_receipt"
-        assert proof["typed_refusal"] is None
-        assert proof["selection_diagram_content_hash"].startswith("sha256:")
+        assert proof["outcome_kind"] == "typed_refusal"
+        assert proof["transport_receipt"] is None
+        assert proof["transport_result_content_hash"] is None
+        assert proof["typed_refusal"]["code"] == ("acquire_data:causal_graph_artifact_unresolved")
         assert proof["transport_covariates"]
-        receipt = proof["transport_receipt"]
-        assert receipt["transport_status"]
-        assert receipt["transport_mode"]
-        assert receipt["identification_engine"]
-        assert proof["transport_result_content_hash"] == value_contract.gy_content_hash(receipt)
+        assert proof["selection_diagram_content_hash"] is None
 
     water = proofs["unseen_pack_shape"]
     assert water["domain"] == "water_quality"
     assert water["query_treatment"] == "riparian_buffer_width"
     assert water["query_outcome"] == "nitrate_load"
-    assert water["transport_covariates"] == [
-        {
-            "canonical_var": "watershed_slope",
-            "source_value": 0.15,
-            "target_value": 0.63,
-            "source_row_content_hash": water["selection_nodes"][0]["source_ref"],
-            "target_row_content_hash": water["selection_nodes"][0]["target_ref"],
-        }
-    ]
 
 
 def test_n8_transport_component_validator_rejects_static_or_malformed_receipts() -> None:
     proofs = value_contract._transport_component_proofs()
     malformed = copy.deepcopy(proofs)
-    malformed["education"]["transport_receipt"]["transport_status"] = ""
+    malformed["education"]["typed_refusal"]["code"] = ""
     malformed["education"]["proof_content_hash"] = value_contract.gy_content_hash(
         {key: value for key, value in malformed["education"].items() if key != "proof_content_hash"}
     )
@@ -1902,16 +1890,28 @@ def test_n8_source_flip_runner_requires_semantic_red_and_restores_bytes(
         probe_command=(
             sys.executable,
             "-c",
-            "print('MUTATION_RED:source_flip_unit_semantic_red'); raise SystemExit(1)",
+            "print('MUTATION_RED:source_flip_unit_semantic_red'); "
+            "print('retained stderr', file=sys.stderr); raise SystemExit(1)",
         ),
         expected_red_patterns=("MUTATION_RED:source_flip_unit_semantic_red",),
     )
 
-    result = value_contract._run_source_flip_case(tmp_path, case)
+    retention_root = (
+        tmp_path / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/run"
+    )
+    retention_root.mkdir(parents=True)
+    result = value_contract._run_source_flip_case(tmp_path, case, retention_root=retention_root)
 
     assert result["result"] == "RED"
     assert source.read_text(encoding="utf-8") == "guard = True\n"
     assert result["source_restored_sha256"]["owner.py"] == original_hash
+    captured = result["captured_output"]
+    stdout_path = tmp_path / captured["stdout"]["path"]
+    stderr_path = tmp_path / captured["stderr"]["path"]
+    assert stdout_path.read_bytes() == b"MUTATION_RED:source_flip_unit_semantic_red\n"
+    assert stderr_path.read_bytes() == b"retained stderr\n"
+    assert captured["stdout"]["sha256"] == hashlib.sha256(stdout_path.read_bytes()).hexdigest()
+    assert captured["stderr"]["sha256"] == hashlib.sha256(stderr_path.read_bytes()).hexdigest()
 
 
 def test_n8_source_flip_runner_rejects_probe_errors_as_harness_failures(
@@ -2248,8 +2248,8 @@ def _pack_shaped_transport_context(
     )
 
 
-def test_education_selection_diagram_uses_only_pack_covariates() -> None:
-    """The education pack, not an engine tuple, owns the transport vocabulary."""
+def test_education_selection_diagram_requires_selected_graph_artifact() -> None:
+    """Measured pack covariates cannot supply the missing graph topology."""
 
     bundle = second_domain_pack._load_frozen_bundle(Path.cwd())
     problem = DesignProblem.model_validate(bundle["smoke_problem"]["design_problem"])
@@ -2258,33 +2258,24 @@ def test_education_selection_diagram_uses_only_pack_covariates() -> None:
         bundle=bundle,
         design_problem=problem,
     )
+    assert context.transport_context is not None
+    assert context.transport_context.covariates
+    assert context.transport_context.causal_graph_ref is None
 
-    diagram = _build_candidate_selection_diagram(
-        candidate=SimpleNamespace(candidate_id="education_candidate"),
-        problem=problem,
-        world_record=context.world_model_record,
-        query_treatment="education_teaching_method",
-        query_outcome="years_of_schooling",
-        cycle_substrate_context=context,
-    )
-
-    assert {node.target_variable for node in diagram.s_nodes} == {
-        "education_spending",
-        "school_quality",
-    }
-    assert "state_capacity" not in diagram.base_graph.nodes
-    assert "institutional_quality" not in diagram.base_graph.nodes
-    assert {(node.source_ref, node.target_ref) for node in diagram.s_nodes} == {
-        (
-            row.source_row_content_hash,
-            row.target_row_content_hash,
+    with pytest.raises(ValueOwnerAccessError) as exc_info:
+        _build_candidate_selection_diagram(
+            candidate=SimpleNamespace(candidate_id="education_candidate"),
+            problem=problem,
+            world_record=context.world_model_record,
+            query_treatment="education_teaching_method",
+            query_outcome="years_of_schooling",
+            cycle_substrate_context=context,
         )
-        for row in context.transport_context.covariates
-    }
+    assert exc_info.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
 
-def test_third_pack_transport_vocabulary_flows_without_engine_change() -> None:
-    """A structurally unrelated pack-shaped vocabulary needs no code branch."""
+def test_third_pack_transport_context_without_graph_is_typed_refusal() -> None:
+    """Pack-shaped covariates do not imply a causal graph or its edge direction."""
 
     problem = _problem("water_transport_u2").model_copy(
         update={
@@ -2300,44 +2291,37 @@ def test_third_pack_transport_vocabulary_flows_without_engine_change() -> None:
         problem=problem,
         covariates=(("watershed_slope", 0.15, 0.63),),
     )
+    assert context.transport_context is not None
+    assert context.transport_context.causal_graph_ref is None
 
-    diagram = _build_candidate_selection_diagram(
-        candidate=SimpleNamespace(candidate_id="riparian_buffer_candidate"),
-        problem=problem,
-        world_record=context.world_model_record,
-        query_treatment="riparian_buffer_width",
-        query_outcome="nitrate_load",
-        cycle_substrate_context=context,
-    )
-
-    assert {node.target_variable for node in diagram.s_nodes} == {"watershed_slope"}
-    assert diagram.s_nodes[0].source_value == 0.15
-    assert diagram.s_nodes[0].target_value == 0.63
+    with pytest.raises(ValueOwnerAccessError) as exc_info:
+        _build_candidate_selection_diagram(
+            candidate=SimpleNamespace(candidate_id="riparian_buffer_candidate"),
+            problem=problem,
+            world_record=context.world_model_record,
+            query_treatment="riparian_buffer_width",
+            query_outcome="nitrate_load",
+            cycle_substrate_context=context,
+        )
+    assert exc_info.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
 
-def test_unseen_transport_receipt_uses_real_solver_contract() -> None:
+def test_unseen_transport_context_without_selected_graph_is_refused() -> None:
+    """The solver is not reached from names and measured covariates alone."""
+
     problem, candidate, context = value_contract._unseen_transport_lane()
-    inputs = RealValueOwnerGateway(
-        repo_root=Path.cwd(),
-        cycle_substrate_context=context,
-    ).build_transport_inputs(
-        candidate=candidate,
-        problem=problem,
-        world_record=context.world_model_record,
-    )
-
-    receipt, error = _run_value_transport(
-        inputs=inputs,
-        world_record=context.world_model_record,
-    )
-
-    assert error is None
-    assert receipt is not None
-    assert receipt.status == "transported_limited"
-    assert receipt.transport_status
-    assert receipt.transport_mode
-    assert receipt.identification_engine
-    assert receipt.world_model_record_content_hash == context.world_model_record.content_hash
+    assert context.transport_context is not None
+    assert context.transport_context.causal_graph_ref is None
+    with pytest.raises(ValueOwnerAccessError) as exc_info:
+        RealValueOwnerGateway(
+            repo_root=Path.cwd(),
+            cycle_substrate_context=context,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=context.world_model_record,
+        )
+    assert exc_info.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
 
 def test_missing_measured_transport_context_blocks_without_defaults() -> None:
@@ -5947,3 +5931,73 @@ def test_n8_dependency_discriminant_model_bypass_is_revalidated(
         finding.get("code") == "dependency_discriminant_diagnostic_not_received"
         for finding in result.ambient_findings
     )
+
+
+def test_n8_source_flip_rejects_stale_freeze_before_cases_or_output(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    repo_root = value_contract._repo_root()
+
+    def unexpected_cases() -> tuple[object, ...]:
+        pytest.fail("source-flip cases were enumerated before the freeze was admitted")
+
+    monkeypatch.setattr(value_contract, "_source_flip_cases", unexpected_cases)
+    with pytest.raises(ValueError, match="dependency discriminant source freeze mismatch"):
+        value_contract.run_source_flip_mutations(
+            repo_root,
+            expected_source_freeze="0" * 40,
+            output_root=tmp_path,
+        )
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_source_flip_retention_is_exact_immutable_and_under_local_raw(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    raw_root = repo_root / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw"
+    run_root = raw_root / "source-flip-test-run"
+    run_root.mkdir(parents=True)
+    stdout = b"complete stdout\nwith trailing evidence\n"
+    stderr = b"complete stderr\n"
+
+    retained = value_contract._retain_source_flip_outputs(
+        repo_root,
+        run_root,
+        probe_id="mutation-one",
+        command=(sys.executable, "-c", "print('probe')"),
+        exit_code=1,
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+    assert (repo_root / retained["stdout"]["path"]).read_bytes() == stdout
+    assert retained["stdout"]["sha256"] == hashlib.sha256(stdout).hexdigest()
+    assert retained["stdout"]["bytes"] == len(stdout)
+    assert (repo_root / retained["stderr"]["path"]).read_bytes() == stderr
+    assert retained["stderr"]["sha256"] == hashlib.sha256(stderr).hexdigest()
+    assert json.loads((repo_root / retained["probe_receipt"]["path"]).read_text()) == {
+        "command": [sys.executable, "-c", "print('probe')"],
+        "exit_code": 1,
+        "probe_id": "mutation-one",
+        "capture_complete": True,
+        "timeout_seconds": None,
+        "streams": {key: retained[key] for key in ("stdout", "stderr")},
+    }
+    with pytest.raises(FileExistsError):
+        value_contract._retain_source_flip_outputs(
+            repo_root,
+            run_root,
+            probe_id="mutation-one",
+            command=(sys.executable, "-c", "print('changed')"),
+            exit_code=1,
+            stdout=b"changed\n",
+            stderr=stderr,
+        )
+    assert (repo_root / retained["stdout"]["path"]).read_bytes() == stdout
+
+
+def test_source_flip_output_root_rejects_paths_outside_local_raw(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    monkeypatch.delenv(value_contract._SOURCE_FLIP_OUTPUT_ROOT_ENV, raising=False)
+    with pytest.raises(ValueError, match="must remain under canonical LOCAL/raw"):
+        value_contract._source_flip_output_base(tmp_path.resolve(), tmp_path.resolve() / "outside")

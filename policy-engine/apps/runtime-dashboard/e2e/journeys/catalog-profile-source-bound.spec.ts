@@ -16,6 +16,78 @@ function asRecord(value: unknown): JsonRecord | null {
     : null;
 }
 
+function artifactRefIdentity(value: unknown): string | null {
+  const ref = asRecord(value);
+  if (
+    ref === null ||
+    typeof ref.artifact_id !== "string" ||
+    typeof ref.kind !== "string" ||
+    typeof ref.media_type !== "string"
+  )
+    return null;
+  const profile = ref.manifest_profile_sha256;
+  if (profile != null && typeof profile !== "string") return null;
+  return JSON.stringify([
+    ref.artifact_id,
+    ref.kind,
+    ref.media_type,
+    profile ?? null,
+  ]);
+}
+
+function assertSameCandidateHistory(payload: unknown, candidateId: string) {
+  const run = asRecord(asRecord(payload)?.run);
+  const projection = asRecord(run?.candidate_simulation);
+  expect(projection?.artifact_status).toBe("resolved");
+  expect(projection?.authority_purpose).toBe("candidate_observation_only");
+  expect(projection?.publication_authority).toBe(false);
+  const rows = Array.isArray(projection?.acquisition_history)
+    ? projection.acquisition_history.map(asRecord)
+    : [];
+  const row = rows.find(
+    (candidate) =>
+      candidate?.terminal_outcome === "reentry_completed" &&
+      candidate.old_candidate_id === candidateId &&
+      candidate.new_candidate_id === candidateId,
+  );
+  expect(row).toBeTruthy();
+  expect(row?.currentness_status).toBe("not_established");
+  expect(row?.schema_version).toBe(
+    "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+  );
+  expect(row?.reentry_receipt_schema_version).toBe(
+    "policyos.runtime.acquisition_overlay_reentry.v3",
+  );
+  expect(row?.continuation_join_status).toBe("v3_occurrence_joined");
+  expect(row?.origin_source_binding_status).toBe(
+    "verified_same_candidate_root",
+  );
+  expect(artifactRefIdentity(row?.expected_origin_source_ref)).not.toBeNull();
+  expect(artifactRefIdentity(row?.expected_origin_source_ref)).toBe(
+    artifactRefIdentity(row?.origin_source_ref),
+  );
+  const continuation = asRecord(row?.continuation);
+  expect(continuation?.currentness_status).toBe("not_established");
+  expect(continuation?.continuation_currentness_status).toBe("not_established");
+  expect(continuation?.publication_authority).toBe(false);
+  expect(continuation?.n9_certified_candidate_ids).toEqual([]);
+  expect(artifactRefIdentity(row?.new_candidate_source_ref)).not.toBeNull();
+  expect(artifactRefIdentity(row?.new_candidate_source_ref)).toBe(
+    artifactRefIdentity(continuation?.selected_n4_source_ref),
+  );
+  const occurrences = Array.isArray(continuation?.current_candidate_occurrences)
+    ? continuation.current_candidate_occurrences.map(asRecord)
+    : [];
+  expect(
+    occurrences.some(
+      (occurrence) =>
+        occurrence?.candidate_id === candidateId &&
+        occurrence.cycle_index === continuation?.continued_cycle_index,
+    ),
+  ).toBe(true);
+  return row;
+}
+
 async function freshGet(page: import("@playwright/test").Page, path: string) {
   return page.evaluate(async (requestPath) => {
     const response = await fetch(requestPath, { cache: "no-store" });
@@ -940,4 +1012,53 @@ test("keeps a caller-selected DataViewRequest profile through ordinary POST, wor
   expect(JSON.stringify(malformedPost.body)).toContain(
     "workflow_data_view_request_profile_explicit_null",
   );
+});
+
+test("serves same-candidate root lineage through a fresh API read and overview", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    process.env.POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE !== "1",
+    "requires the opt-in source-bound runtime fixture",
+  );
+  test.skip(
+    testInfo.project.name !== "chromium",
+    "controlled producer witness runs in Chromium",
+  );
+  await installDashboardTestState(page);
+  const metadata = readFixtureMetadata();
+  const runId = metadata.source_bound_same_candidate_run_id;
+  const candidateId = metadata.source_bound_same_candidate_candidate_id;
+  expect(runId).toBeTruthy();
+  expect(candidateId).toBeTruthy();
+  expect(metadata.source_bound_same_candidate_fixture_boundary).toContain(
+    "test-only",
+  );
+  const apiResponse = await freshGet(
+    page,
+    "/api/v1/runs/" + encodeURIComponent(runId!),
+  );
+  expect(apiResponse.status).toBe(200);
+  const row = assertSameCandidateHistory(apiResponse.payload, candidateId!);
+  const uiRunResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname ===
+        "/api/v1/runs/" + encodeURIComponent(runId!),
+  );
+  await page.goto("/runs/" + encodeURIComponent(runId!) + "/overview");
+  expect((await uiRunResponse).status()).toBe(200);
+  await waitForDashboardSurface(page, "run-overview");
+  const history = page.getByTestId("overview-acquisition-history");
+  await expect(history).toContainText(candidateId!);
+  await expect(history).toContainText(
+    String(asRecord(row?.origin_source_ref)?.artifact_id),
+  );
+  await expect(history).toContainText("Observed origin source (forensic only)");
+  await expect(history).toContainText("Producer-verified candidate root");
+  await expect(history).toContainText(
+    "Occurrence binding: v3_occurrence_joined",
+  );
+  await expect(history).toContainText("not_established");
+  expect(row?.old_candidate_id).toBe(row?.new_candidate_id);
 });

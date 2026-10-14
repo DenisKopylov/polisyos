@@ -139,7 +139,7 @@ def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str,
         _runtime_fixture_authority_boundary,
     )
 
-    from polisyos.core.artifacts import PutOptions, SchemaInfo, profile_bound_ref
+    from polisyos.core.artifacts import PutOptions, SchemaInfo
     from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ProducerInfo
     from polisyos.core.canon import to_canonical_bytes
     from polisyos.core.security.tenant_context import tenant_scope
@@ -179,8 +179,8 @@ def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str,
                 boundary,
                 producer_version="profile-qualified-inspector-v1",
             )
-            ref = store.put_bytes(
-                payload_bytes,
+            ref = store.put_json(
+                payload,
                 PutOptions(
                     kind=kind,
                     media_type="application/json",
@@ -199,8 +199,9 @@ def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str,
                         payload_sha256=payload_sha256,
                     ),
                 ),
+                return_selected_profile=True,
             )
-            refs.append(profile_bound_ref(store, ref))
+            refs.append(ref)
             envelope_refs.append(envelope_ref)
 
     primary, sibling = refs
@@ -435,12 +436,10 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
             selected_skg_snapshot_sha256 = selected_skg_source.sha256
             source_profile_content_hash = selected_source_profile.content_hash
             if (
-                selected_source_profile.skg_causal_prior_ref
-                != prepared_v6.selected_source_ref
+                selected_source_profile.skg_causal_prior_ref != prepared_v6.selected_source_ref
                 or selected_source_profile.source_snapshot_ref != selected_skg_snapshot_ref
                 or prepared_v6.selected_source_ref.skg_snapshot_ref != selected_skg_snapshot_ref
-                or selected_source_profile.source_snapshot_sha256
-                != selected_skg_snapshot_sha256
+                or selected_source_profile.source_snapshot_sha256 != selected_skg_snapshot_sha256
                 or not source_profile_content_hash
             ):
                 raise RuntimeError("source_bound_v6_selected_source_identity_mismatch")
@@ -476,6 +475,19 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         serving_runtime_api_context.run_index.refresh(force=True)
         if serving_runtime_api_context.run_index.get_run(v7_receipt.run_id) is None:
             raise RuntimeError("source_bound_v7_reopened_run_index_missing")
+        from tests._helpers.same_candidate_history_fixture import (
+            build_same_candidate_history_fixture,
+        )
+
+        same_candidate_history = build_same_candidate_history_fixture(
+            fixture_root=tmp_root / "same-candidate-history",
+            cas_root=cas_root,
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+        )
+        serving_runtime_api_context.run_index.refresh(force=True)
+        if serving_runtime_api_context.run_index.get_run(same_candidate_history["run_id"]) is None:
+            raise RuntimeError("source_bound_same_candidate_reopened_run_index_missing")
         gateway.set_fixture(controlled_recording, problem=recorded_problem)
         profile, declaration = _configured_procurement_profile(
             recorded_problem=recorded_problem,
@@ -495,21 +507,23 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         ):
             raise RuntimeError("source_bound_v6_served_projection_incomplete")
         v6_observations = v6_projection.get("n5_observations")
-        successful_v6_observation = next(
-            (
-                row
-                for row in v6_observations
-                if isinstance(row, dict) and row.get("status") == "joint_simulated"
-            ),
-            None,
-        ) if isinstance(v6_observations, list) else None
+        successful_v6_observation = (
+            next(
+                (
+                    row
+                    for row in v6_observations
+                    if isinstance(row, dict) and row.get("status") == "joint_simulated"
+                ),
+                None,
+            )
+            if isinstance(v6_observations, list)
+            else None
+        )
         if not isinstance(successful_v6_observation, dict):
             raise RuntimeError("source_bound_v6_n5_observation_missing")
         successful_v6_ref = successful_v6_observation.get("simulation_result_ref")
-        if (
-            not isinstance(successful_v6_ref, dict)
-            or successful_v6_ref.get("artifact_id")
-            != str(v6_receipt.n5_result_ref.artifact_id)
+        if not isinstance(successful_v6_ref, dict) or successful_v6_ref.get("artifact_id") != str(
+            v6_receipt.n5_result_ref.artifact_id
         ):
             raise RuntimeError("source_bound_v6_n5_reference_mismatch")
         if (
@@ -625,9 +639,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                 "source_bound_v6_control_job_status": v6_receipt.job_state,
                 "source_bound_v6_failure_code": v6_receipt.failure_code,
                 "source_bound_v6_failure_message": v6_receipt.failure_message,
-                "source_bound_v6_success_result_ref": str(
-                    v6_receipt.n5_result_ref.artifact_id
-                ),
+                "source_bound_v6_success_result_ref": str(v6_receipt.n5_result_ref.artifact_id),
                 "source_bound_v6_source_profile_content_hash": source_profile_content_hash,
                 "source_bound_v6_selected_skg_snapshot_ref": selected_skg_snapshot_ref,
                 "source_bound_v6_selected_skg_snapshot_sha256": selected_skg_snapshot_sha256,
@@ -642,6 +654,19 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                 "source_bound_v6_fixture_boundary": (
                     "controlled local ordinary POST, worker, CAS and fresh GET; "
                     "candidate-only with no production currentness or authority claim"
+                ),
+                "source_bound_same_candidate_run_id": same_candidate_history["run_id"],
+                "source_bound_same_candidate_candidate_id": same_candidate_history["candidate_id"],
+                "source_bound_same_candidate_source_test": (
+                    "tests/integration/core_runtime/test_acquisition_authority_served.py::"
+                    "test_served_acquisition_selects_committed_human_authority_and_reopens_worker"
+                ),
+                "source_bound_same_candidate_fixture_boundary": (
+                    "controlled local ordinary request and worker; existing local test issuer "
+                    "signs the test receipt and the test verifier reconciles it; same admitted "
+                    "source and root profile persist in the shared CAS and are read by fresh GET; "
+                    "test-only, with no external issuer, production authority, currentness, "
+                    "or publication claim"
                 ),
                 "source_bound_v7_run_id": v7_receipt.run_id,
                 "source_bound_v7_control_job_id": v7_receipt.job_id,

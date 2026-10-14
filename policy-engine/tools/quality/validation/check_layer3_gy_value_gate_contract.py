@@ -81,9 +81,9 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from tools.lib.timing import run_timed_entrypoint
 
-OUTPUT_PATH: Literal[
+OUTPUT_PATH: Literal["architecture/policy_design_case/layer3_gy_value_gate_contract.json"] = (
     "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
-] = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+)
 DEPENDENCY_DISCRIMINANT_OUTPUT_PATH = (
     "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
 )
@@ -94,19 +94,13 @@ SCHEMA_VERSION: Literal["policyos.policy_design_case.layer3_gy.value_gate_contra
 VALUE_GATE_RULE_VERSION: Literal["policyos.layer3.gy.n8.value_gate.v2"] = (
     "policyos.layer3.gy.n8.value_gate.v2"
 )
-DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION = (
-    "polisyos.foundry.n8_dependency_discriminant.v1"
-)
-DEPENDENCY_DISCRIMINANT_RULE_VERSION = (
-    "polisyos.foundry.dependency_discriminant.v1"
-)
-DEPENDENCY_DISCRIMINANT_PRODUCER = (
-    "tools.quality.validation.check_layer3_gy_value_gate_contract"
-)
+DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION = "polisyos.foundry.n8_dependency_discriminant.v1"
+DEPENDENCY_DISCRIMINANT_RULE_VERSION = "polisyos.foundry.dependency_discriminant.v1"
+DEPENDENCY_DISCRIMINANT_PRODUCER = "tools.quality.validation.check_layer3_gy_value_gate_contract"
 DEPENDENCY_DISCRIMINANT_AUTHORITY_OWNER = "polisyos.foundry.methods.catalog"
-DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE: Literal[
+DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE: Literal["n8_method_catalog_reconstruction"] = (
     "n8_method_catalog_reconstruction"
-] = "n8_method_catalog_reconstruction"
+)
 DEPENDENCY_DISCRIMINANT_DENIED_USES = (
     "n8_admission",
     "n10a_stage_gap_closure",
@@ -165,6 +159,7 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_calibration_report_driven_refusal",
     "source_flip_width_tracks_real_did_ci",
     "source_flip_transport_real_solver_required",
+    "source_flip_transport_selected_graph_recomputed_for_live_consumer",
     "source_flip_transport_tuple_reintroduced",
     "source_flip_transport_measured_values_removed",
     "source_flip_treatment_candidate_atom_binding_required",
@@ -193,13 +188,17 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_world_identity_target_slot_binding_required",
 )
 
+_SOURCE_FLIP_OUTPUT_ROOT_ENV = "POLISYOS_VALUE_GATE_SOURCE_FLIP_OUTPUT_ROOT"
+_SOURCE_FLIP_RAW_RELATIVE_PATH = Path(
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw"
+)
+_SOURCE_FLIP_DEFAULT_OUTPUT_DIRECTORY = "value-gate-source-flip"
+
 
 def _dependency_discriminant_artifact_hash(payload: Mapping[str, Any]) -> str:
     """Hash the canonical companion statement, excluding only its self hash."""
 
-    material = {
-        key: value for key, value in payload.items() if key != "artifact_content_hash"
-    }
+    material = {key: value for key, value in payload.items() if key != "artifact_content_hash"}
     encoded = json.dumps(
         material,
         ensure_ascii=True,
@@ -250,9 +249,7 @@ class FoundryDependencyDiscriminantCompanion(FoundryAuthorityModel):
 
     schema_version: Literal["polisyos.foundry.n8_dependency_discriminant.v1"]
     rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
-    produced_by: Literal[
-        "tools.quality.validation.check_layer3_gy_value_gate_contract"
-    ]
+    produced_by: Literal["tools.quality.validation.check_layer3_gy_value_gate_contract"]
     authority_owner: Literal["polisyos.foundry.methods.catalog"]
     authority_purpose: Literal["n8_method_catalog_reconstruction"]
     source_freeze: GitCommitId
@@ -466,9 +463,9 @@ class _GitProductRootAppointment:
 
 
 _APPOINTED_GIT_ENVIRONMENT_LOCK = threading.RLock()
-_ACTIVE_APPOINTED_GIT_STATE: ContextVar[
-    tuple[_GitProductRootAppointment, str] | None
-] = ContextVar("active_n8_appointed_git_state", default=None)
+_ACTIVE_APPOINTED_GIT_STATE: ContextVar[tuple[_GitProductRootAppointment, str] | None] = ContextVar(
+    "active_n8_appointed_git_state", default=None
+)
 
 
 def _filesystem_identity(path: Path) -> tuple[int, int]:
@@ -559,9 +556,7 @@ def _require_absent_git_semantics(
         except FileNotFoundError:
             continue
         except OSError as exc:
-            raise ValueError(
-                "dependency discriminant Git semantic posture unavailable"
-            ) from exc
+            raise ValueError("dependency discriminant Git semantic posture unavailable") from exc
         raise ValueError("dependency discriminant unsupported Git repository semantics")
 
 
@@ -571,28 +566,30 @@ def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
     canonical_root = _repo_root().resolve()
     supplied_root = repo_root.resolve()
     if supplied_root != canonical_root:
-        raise ValueError(
-            "dependency discriminant product root is not the appointed product root"
+        raise ValueError("dependency discriminant product root is not the appointed product root")
+    coordinates = (
+        _invoke_git(
+            supplied_root,
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+            "--show-prefix",
+            "--absolute-git-dir",
+            "--git-common-dir",
+            "--git-path",
+            "objects",
+            "--git-path",
+            "index",
+            "--git-path",
+            "objects/info/alternates",
+            "--git-path",
+            "info/grafts",
+            "--git-path",
+            "shallow",
         )
-    coordinates = _invoke_git(
-        supplied_root,
-        "rev-parse",
-        "--path-format=absolute",
-        "--show-toplevel",
-        "--show-prefix",
-        "--absolute-git-dir",
-        "--git-common-dir",
-        "--git-path",
-        "objects",
-        "--git-path",
-        "index",
-        "--git-path",
-        "objects/info/alternates",
-        "--git-path",
-        "info/grafts",
-        "--git-path",
-        "shallow",
-    ).stdout.decode("utf-8").splitlines()
+        .stdout.decode("utf-8")
+        .splitlines()
+    )
     if len(coordinates) != 9:
         raise ValueError("dependency discriminant Git appointment is incomplete")
     git_toplevel = Path(coordinates[0]).resolve()
@@ -692,9 +689,7 @@ def _appointed_git_process_environment(
             return
         caller_environment = dict(os.environ)
         appointed_environment = _appointed_git_environment(appointment)
-        token = _ACTIVE_APPOINTED_GIT_STATE.set(
-            (appointment, authority_state_token)
-        )
+        token = _ACTIVE_APPOINTED_GIT_STATE.set((appointment, authority_state_token))
         try:
             os.environ.clear()
             os.environ.update(appointed_environment)
@@ -753,14 +748,9 @@ def _foundry_authority_source_paths() -> tuple[Path, ...]:
     if not raw_paths or any(type(value) is not str for value in raw_paths):
         raise RuntimeError("Foundry dependency authority source closure drifted")
     paths = tuple(Path(value) for value in raw_paths)
-    if (
-        len(paths) != len(set(paths))
-        or any(
-            path.is_absolute()
-            or ".." in path.parts
-            or path.as_posix() != raw
-            for path, raw in zip(paths, raw_paths, strict=True)
-        )
+    if len(paths) != len(set(paths)) or any(
+        path.is_absolute() or ".." in path.parts or path.as_posix() != raw
+        for path, raw in zip(paths, raw_paths, strict=True)
     ):
         raise RuntimeError("Foundry dependency authority source closure drifted")
     return paths
@@ -933,9 +923,7 @@ def _require_current_foundry_source_freeze(
 
 def _owner_source_path(filename: str) -> str:
     matches = tuple(
-        path.as_posix()
-        for path in _foundry_dependency_source_paths()
-        if path.name == filename
+        path.as_posix() for path in _foundry_dependency_source_paths() if path.name == filename
     )
     if len(matches) != 1:
         raise RuntimeError(f"Foundry owner source is not unique: {filename}")
@@ -952,9 +940,7 @@ def _resolve_frozen_foundry_dependency_discriminant(
 
     frozen_sources = _require_current_foundry_source_freeze(appointment, source_freeze)
     profile_bytes = frozen_sources[_owner_source_path("method_catalog_dependency_profiles.toml")]
-    authority_bytes = frozen_sources[
-        _owner_source_path("method_catalog_dependency_authority.toml")
-    ]
+    authority_bytes = frozen_sources[_owner_source_path("method_catalog_dependency_authority.toml")]
     digest_registry = decode_digest_domain_registry_toml(
         frozen_sources[_owner_source_path("method_catalog_dependency_digest_domains.toml")]
     )
@@ -980,8 +966,7 @@ def _resolve_frozen_foundry_dependency_discriminant(
     )
     if not isinstance(resolved, DependencyProfileDiscriminant):
         raise ValueError(
-            "Foundry dependency discriminant resolution failed: "
-            f"{type(resolved).__name__}"
+            f"Foundry dependency discriminant resolution failed: {type(resolved).__name__}"
         )
     return resolved
 
@@ -1017,9 +1002,7 @@ def _build_dependency_discriminant_companion(
     """Build the strict shared discriminant through one Git appointment."""
 
     root = appointment.product_root
-    marker_environment = {
-        key: str(value) for key, value in default_environment().items()
-    }
+    marker_environment = {key: str(value) for key, value in default_environment().items()}
     marker_environment["extra"] = ""
     profile = _resolve_frozen_foundry_dependency_discriminant(
         appointment=appointment,
@@ -1624,10 +1607,7 @@ def _catalog_denominator_evidence_cached(
     active = _ACTIVE_APPOINTED_GIT_STATE.get()
     if active is not None:
         appointment, active_state_token = active
-        if (
-            appointment.product_root != resolved_root
-            or active_state_token != authority_state_token
-        ):
+        if appointment.product_root != resolved_root or active_state_token != authority_state_token:
             raise ValueError("catalog dependency authority left its appointed state")
         return _build_catalog_denominator_evidence_transport(
             expected_source_freeze,
@@ -2863,13 +2843,144 @@ class _SourceFlipCase:
     expected_red_patterns: tuple[str, ...]
 
 
-def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
-    """Temporarily remove runtime guards and require the targeted probe to go RED."""
+def _timeout_output_bytes(output: str | bytes | None) -> bytes:
+    if output is None:
+        return b""
+    if isinstance(output, bytes):
+        return output
+    return output.encode("utf-8")
 
+
+def _source_flip_output_base(repo_root: Path, output_root: Path | None) -> Path:
+    """Resolve a configured source-flip output directory under ignored LOCAL/raw."""
+
+    product_root = repo_root.resolve()
+    raw_root_path = product_root / _SOURCE_FLIP_RAW_RELATIVE_PATH
+    raw_root = raw_root_path.resolve()
+    if raw_root != raw_root_path:
+        raise ValueError("canonical LOCAL/raw path resolves through a symlink")
+    configured: Path
+    if output_root is not None:
+        configured = output_root.expanduser()
+    else:
+        environment_value = os.environ.get(_SOURCE_FLIP_OUTPUT_ROOT_ENV)
+        if environment_value is None:
+            configured = raw_root / _SOURCE_FLIP_DEFAULT_OUTPUT_DIRECTORY
+        elif not environment_value.strip():
+            raise ValueError("source-flip output root is empty")
+        else:
+            configured = Path(environment_value).expanduser()
+    if not configured.is_absolute():
+        configured = product_root / configured
+    resolved = configured.resolve()
+    try:
+        resolved.relative_to(raw_root)
+    except ValueError as exc:
+        raise ValueError("source-flip output root must remain under canonical LOCAL/raw") from exc
+    return resolved
+
+
+def _new_source_flip_run_root(
+    repo_root: Path,
+    *,
+    source_freeze: str,
+    output_root: Path | None,
+) -> Path:
+    base = _source_flip_output_base(repo_root, output_root)
+    base.mkdir(parents=True, exist_ok=True)
+    run_root = base / f"source-flip-{source_freeze[:12]}-{time.time_ns()}-{os.getpid()}"
+    run_root.mkdir(exist_ok=False)
+    return run_root
+
+
+def _write_source_flip_json_record(
+    repo_root: Path, path: Path, payload: Mapping[str, Any]
+) -> dict[str, Any]:
+    data = (json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode(
+        "utf-8"
+    )
+    with path.open("xb") as stream:
+        stream.write(data)
+    return {
+        "path": path.resolve().relative_to(repo_root.resolve()).as_posix(),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    }
+
+
+def _retain_source_flip_outputs(
+    repo_root: Path,
+    run_root: Path,
+    *,
+    probe_id: str,
+    command: Sequence[str],
+    exit_code: int | None,
+    stdout: bytes,
+    stderr: bytes,
+    capture_complete: bool = True,
+    timeout_seconds: float | None = None,
+) -> dict[str, Any]:
+    """Retain exact deciding streams and an immutable per-probe receipt."""
+
+    if re.fullmatch(r"[A-Za-z0-9._-]+", probe_id) is None:
+        raise ValueError("source-flip probe identifier is invalid")
+    if not isinstance(stdout, bytes) or not isinstance(stderr, bytes):
+        raise TypeError("source-flip subprocess streams must be bytes")
+    probe_root = run_root / "probes" / probe_id
+    probe_root.mkdir(parents=True, exist_ok=False)
+    stream_refs: dict[str, dict[str, Any]] = {}
+    for stream_name, data in (("stdout", stdout), ("stderr", stderr)):
+        path = probe_root / f"{stream_name}.bin"
+        with path.open("xb") as stream:
+            stream.write(data)
+        stream_refs[stream_name] = {
+            "path": path.resolve().relative_to(repo_root.resolve()).as_posix(),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "bytes": len(data),
+            "availability": "retained" if capture_complete else "partial_timeout_capture",
+            "capture_complete": capture_complete,
+        }
+    probe_receipt = _write_source_flip_json_record(
+        repo_root,
+        probe_root / "probe.json",
+        {
+            "command": list(command),
+            "exit_code": exit_code,
+            "probe_id": probe_id,
+            "capture_complete": capture_complete,
+            "timeout_seconds": timeout_seconds,
+            "streams": stream_refs,
+        },
+    )
+    return {**stream_refs, "probe_receipt": probe_receipt}
+
+
+def _decode_source_flip_output(output: str | bytes) -> str:
+    if isinstance(output, bytes):
+        return output.decode("utf-8", errors="replace")
+    return output
+
+
+def run_source_flip_mutations(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str,
+    output_root: Path | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Require a current source freeze, then prove mutations go RED with retained output."""
+
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    _require_current_foundry_source_freeze(appointment, expected_source_freeze)
     _ensure_src_path(repo_root)
+    run_root = _new_source_flip_run_root(
+        repo_root,
+        source_freeze=expected_source_freeze,
+        output_root=output_root,
+    )
     cases = _source_flip_cases()
     observed_ids = tuple(case.mutation_id for case in cases)
     results: list[dict[str, Any]] = []
+    baseline_by_command: dict[tuple[str, ...], dict[str, Any]] = {}
     if observed_ids != SOURCE_FLIP_MUTATION_IDS:
         results.append(
             {
@@ -2881,80 +2992,166 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
                 },
             }
         )
-        return tuple(results)
-    touched_paths = tuple(
-        sorted(
-            {
-                repo_root / replacement.relative_path
-                for case in cases
-                for replacement in case.replacements
-            },
-            key=lambda path: path.as_posix(),
-        )
-    )
-    suite_hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths}
-    baseline_by_command: dict[tuple[str, ...], dict[str, Any]] = {}
-    for case in cases:
-        if case.probe_command in baseline_by_command:
-            continue
-        completed = subprocess.run(
-            case.probe_command,
-            cwd=repo_root,
-            text=True,
-            capture_output=True,
-            timeout=900,
-            check=False,
-        )
-        baseline_by_command[case.probe_command] = {
-            "exit_code": completed.returncode,
-            "stdout_tail": _output_tail(completed.stdout),
-            "stderr_tail": _output_tail(completed.stderr),
-        }
-        if completed.returncode != 0:
-            return (
+    else:
+        touched_paths = tuple(
+            sorted(
                 {
-                    "mutation_id": case.mutation_id,
-                    "result": "BASELINE_ERROR",
-                    "guard": case.guard,
-                    "proof": {
-                        "command": list(case.probe_command),
-                        **baseline_by_command[case.probe_command],
-                    },
+                    repo_root / replacement.relative_path
+                    for case in cases
+                    for replacement in case.replacements
                 },
+                key=lambda path: path.as_posix(),
             )
-    for case in cases:
-        result = _run_source_flip_case(repo_root, case)
-        restored_suite_hashes = {
+        )
+        suite_hashes = {
             path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths
         }
-        mismatches = [
-            path.relative_to(repo_root).as_posix()
-            for path in touched_paths
-            if restored_suite_hashes[path] != suite_hashes[path]
-        ]
-        if mismatches:
-            result = {
-                "mutation_id": case.mutation_id,
-                "result": "RESTORE_ERROR",
-                "guard": case.guard,
-                "proof": {"suite_restoration_mismatch": mismatches},
-            }
-        else:
-            result["baseline"] = baseline_by_command[case.probe_command]
-            result["suite_source_restored_sha256"] = {
-                path.relative_to(repo_root).as_posix(): restored_suite_hashes[path]
-                for path in touched_paths
-            }
-        results.append(result)
-        if result.get("result") != "RED":
-            break
+        for case in cases:
+            if case.probe_command in baseline_by_command:
+                continue
+            baseline_id = (
+                "baseline-"
+                + hashlib.sha256("\0".join(case.probe_command).encode("utf-8")).hexdigest()[:16]
+            )
+            try:
+                completed = subprocess.run(
+                    case.probe_command,
+                    cwd=repo_root,
+                    text=False,
+                    capture_output=True,
+                    timeout=900,
+                    check=False,
+                )
+                captured_output = _retain_source_flip_outputs(
+                    repo_root,
+                    run_root,
+                    probe_id=baseline_id,
+                    command=case.probe_command,
+                    exit_code=completed.returncode,
+                    stdout=completed.stdout,
+                    stderr=completed.stderr,
+                )
+                baseline_by_command[case.probe_command] = {
+                    "exit_code": completed.returncode,
+                    "stdout_tail": _output_tail(completed.stdout),
+                    "stderr_tail": _output_tail(completed.stderr),
+                    "captured_output": captured_output,
+                }
+            except subprocess.TimeoutExpired as exc:
+                captured_output = _retain_source_flip_outputs(
+                    repo_root,
+                    run_root,
+                    probe_id=baseline_id,
+                    command=case.probe_command,
+                    exit_code=None,
+                    stdout=_timeout_output_bytes(exc.stdout),
+                    stderr=_timeout_output_bytes(exc.stderr),
+                    capture_complete=False,
+                    timeout_seconds=exc.timeout,
+                )
+                baseline_by_command[case.probe_command] = {
+                    "exit_code": None,
+                    "timeout_seconds": exc.timeout,
+                    "captured_output": captured_output,
+                }
+                results.append(
+                    {
+                        "mutation_id": case.mutation_id,
+                        "result": "BASELINE_ERROR",
+                        "guard": case.guard,
+                        "proof": {
+                            "command": list(case.probe_command),
+                            "error": "source-flip baseline timed out",
+                            **baseline_by_command[case.probe_command],
+                        },
+                    }
+                )
+                break
+            except Exception as exc:  # pragma: no cover - emitted as harness data.
+                results.append(
+                    {
+                        "mutation_id": case.mutation_id,
+                        "result": "BASELINE_ERROR",
+                        "guard": case.guard,
+                        "proof": {"command": list(case.probe_command), "error": str(exc)},
+                    }
+                )
+                break
+            if completed.returncode != 0:
+                results.append(
+                    {
+                        "mutation_id": case.mutation_id,
+                        "result": "BASELINE_ERROR",
+                        "guard": case.guard,
+                        "proof": {
+                            "command": list(case.probe_command),
+                            **baseline_by_command[case.probe_command],
+                        },
+                    }
+                )
+                break
+        if not results:
+            for case in cases:
+                result = _run_source_flip_case(
+                    repo_root,
+                    case,
+                    retention_root=run_root,
+                )
+                restored_suite_hashes = {
+                    path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths
+                }
+                mismatches = [
+                    path.relative_to(repo_root).as_posix()
+                    for path in touched_paths
+                    if restored_suite_hashes[path] != suite_hashes[path]
+                ]
+                if mismatches:
+                    result = {
+                        "mutation_id": case.mutation_id,
+                        "result": "RESTORE_ERROR",
+                        "guard": case.guard,
+                        "proof": {"suite_restoration_mismatch": mismatches},
+                    }
+                else:
+                    result["baseline"] = baseline_by_command[case.probe_command]
+                    result["suite_source_restored_sha256"] = {
+                        path.relative_to(repo_root).as_posix(): restored_suite_hashes[path]
+                        for path in touched_paths
+                    }
+                results.append(result)
+                if result.get("result") != "RED":
+                    break
+    baselines = [
+        {"command": list(command), **payload} for command, payload in baseline_by_command.items()
+    ]
+    for result in results:
+        result["source_freeze"] = expected_source_freeze
+        result["retention_root"] = run_root.resolve().relative_to(repo_root.resolve()).as_posix()
+    receipt_ref = _write_source_flip_json_record(
+        repo_root,
+        run_root / "run.json",
+        {
+            "baselines": baselines,
+            "case_count": len(cases),
+            "results": results,
+            "source_freeze": expected_source_freeze,
+        },
+    )
+    for result in results:
+        result["run_receipt"] = receipt_ref
     return tuple(results)
 
 
-def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, Any]:
+def _run_source_flip_case(
+    repo_root: Path,
+    case: _SourceFlipCase,
+    *,
+    retention_root: Path | None = None,
+) -> dict[str, Any]:
     originals: dict[Path, bytes] = {}
     original_hashes: dict[Path, str] = {}
     result: dict[str, Any]
+    captured_output: dict[str, Any] | None = None
     try:
         for replacement in case.replacements:
             path = repo_root / replacement.relative_path
@@ -2984,12 +3181,25 @@ def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, A
             completed = subprocess.run(
                 case.probe_command,
                 cwd=repo_root,
-                text=True,
+                text=False,
                 capture_output=True,
                 timeout=900,
                 check=False,
             )
-            combined_output = f"{completed.stdout}\n{completed.stderr}"
+            if retention_root is not None:
+                captured_output = _retain_source_flip_outputs(
+                    repo_root,
+                    retention_root,
+                    probe_id=case.mutation_id,
+                    command=case.probe_command,
+                    exit_code=completed.returncode,
+                    stdout=completed.stdout,
+                    stderr=completed.stderr,
+                )
+            combined_output = (
+                f"{_decode_source_flip_output(completed.stdout)}\n"
+                f"{_decode_source_flip_output(completed.stderr)}"
+            )
             if completed.returncode == 0:
                 result = {
                     "mutation_id": case.mutation_id,
@@ -3029,12 +3239,34 @@ def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, A
                         "stderr_tail": _output_tail(completed.stderr),
                     },
                 }
+    except subprocess.TimeoutExpired as exc:
+        if retention_root is not None:
+            captured_output = _retain_source_flip_outputs(
+                repo_root,
+                retention_root,
+                probe_id=case.mutation_id,
+                command=case.probe_command,
+                exit_code=None,
+                stdout=_timeout_output_bytes(exc.stdout),
+                stderr=_timeout_output_bytes(exc.stderr),
+                capture_complete=False,
+                timeout_seconds=exc.timeout,
+            )
+        result = {
+            "mutation_id": case.mutation_id,
+            "result": "PROBE_ERROR",
+            "guard": case.guard,
+            "proof": {
+                "error": "source-flip probe timed out",
+                "timeout_seconds": exc.timeout,
+            },
+        }
     except Exception as exc:  # pragma: no cover - reported as harness data.
         result = {
             "mutation_id": case.mutation_id,
             "result": "PROBE_ERROR",
             "guard": case.guard,
-            "proof": str(exc),
+            "proof": {"error": str(exc)},
         }
     finally:
         for path, original in originals.items():
@@ -3059,11 +3291,14 @@ def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, A
             },
         }
     result["source_restored_sha256"] = restored_hashes
+    if captured_output is not None:
+        result["captured_output"] = captured_output
     return result
 
 
-def _output_tail(output: str, *, max_lines: int = 20) -> str:
-    lines = [line for line in output.splitlines() if line.strip()]
+def _output_tail(output: str | bytes, *, max_lines: int = 20) -> str:
+    decoded = _decode_source_flip_output(output)
+    lines = [line for line in decoded.splitlines() if line.strip()]
     return "\n".join(lines[-max_lines:])
 
 
@@ -3094,6 +3329,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
     cycle_substrate = "src/polisyos/runtime/quality/cycle_substrate.py"
     world_model_record = "src/polisyos/runtime/quality/world_model_record.py"
     test_value_gate = "tests/unit/runtime/quality/test_value_gate.py"
+    test_cycle_substrate = "tests/unit/runtime/quality/test_cycle_substrate.py"
     test_generation_cycle = "tests/unit/runtime/quality/test_generation_cycle.py"
 
     def pytest_case(
@@ -3258,7 +3494,35 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     ),
                 ),
             ),
-            node_id=f"{test_value_gate}::test_unseen_transport_receipt_uses_real_solver_contract",
+            node_id=(
+                f"{test_cycle_substrate}::"
+                "test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows"
+            ),
+        ),
+        pytest_case(
+            mutation_id="source_flip_transport_selected_graph_recomputed_for_live_consumer",
+            guard="fresh transport consumers require the selected graph bytes still to resolve",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "    fresh_diagram = _build_candidate_selection_diagram(\n"
+                        "        candidate=candidate,\n"
+                        "        problem=problem,\n"
+                        "        world_record=world_record,\n"
+                        "        query_treatment=request.query_treatment,\n"
+                        "        query_outcome=request.query_outcome,\n"
+                        "        cycle_substrate_context=context,\n"
+                        "        artifact_store=ir_store,\n"
+                        "    )\n"
+                    ),
+                    ("    fresh_diagram = diagram\n"),
+                ),
+            ),
+            node_id=(
+                f"{test_cycle_substrate}::"
+                "test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows"
+            ),
         ),
         pytest_case(
             mutation_id="source_flip_transport_tuple_reintroduced",
@@ -3275,7 +3539,10 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     ('    transport_covariates = ("state_capacity", "institutional_quality")\n'),
                 ),
             ),
-            node_id=f"{test_value_gate}::test_education_selection_diagram_uses_only_pack_covariates",
+            node_id=(
+                f"{test_cycle_substrate}::"
+                "test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows"
+            ),
         ),
         pytest_case(
             mutation_id="source_flip_transport_measured_values_removed",
@@ -3287,7 +3554,10 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     "            source_value=0.0,\n",
                 ),
             ),
-            node_id=f"{test_value_gate}::test_third_pack_transport_vocabulary_flows_without_engine_change",
+            node_id=(
+                f"{test_cycle_substrate}::"
+                "test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows"
+            ),
         ),
         pytest_case(
             mutation_id="source_flip_treatment_candidate_atom_binding_required",
@@ -6144,9 +6414,7 @@ def _nearest_existing_ancestor(path: Path) -> Path:
             candidate = parent
             continue
         except OSError as exc:
-            raise ValueError(
-                "dependency discriminant destination ancestry is unavailable"
-            ) from exc
+            raise ValueError("dependency discriminant destination ancestry is unavailable") from exc
         return candidate
 
 
@@ -6337,6 +6605,11 @@ def main(argv: list[str] | None = None) -> int:
         help="legacy write mode or explicit authorization for an in-repository companion write",
     )
     parser.add_argument("--expected-source-freeze", required=True)
+    parser.add_argument(
+        "--source-flip-output-root",
+        type=Path,
+        help="retained source-flip output directory under ignored LOCAL/raw",
+    )
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
@@ -6396,8 +6669,7 @@ def main(argv: list[str] | None = None) -> int:
             companion_issues = tuple(
                 finding
                 for finding in result.ambient_findings
-                if finding.get("code")
-                == "dependency_discriminant_diagnostic_not_received"
+                if finding.get("code") == "dependency_discriminant_diagnostic_not_received"
             )
             report = _semantic_envelope(
                 mode=mode,
@@ -6451,7 +6723,11 @@ def main(argv: list[str] | None = None) -> int:
             )
             exit_code = 1 if result.governing_issues else 0
         elif args.source_flip_mutations:
-            results = run_source_flip_mutations(repo_root)
+            results = run_source_flip_mutations(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+                output_root=args.source_flip_output_root,
+            )
             failures = tuple(row for row in results if row.get("result") != "RED")
             report = _semantic_envelope(
                 mode=mode,

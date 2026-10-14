@@ -117,6 +117,72 @@ function parsedRun(candidateSimulation?: unknown): Record<string, unknown> {
   return { ...run };
 }
 
+function sameCandidateAcquisitionHistoryProjection() {
+  const n4 = (d: string, p: string) => ({
+    artifact_id: "sha256:" + d.repeat(64),
+    kind: "runtime.quality.n4_candidate_scenario_source",
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + p.repeat(64),
+  });
+  const source = n4("a", "b"),
+    root = n4("c", "d"),
+    candidateId = "candidate-same";
+  return {
+    schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+    run_id: "run-1",
+    artifact_status: "resolved",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+    source_ref: {
+      artifact_id: "sha256:" + "e".repeat(64),
+      kind: "runtime.compiled_recursive_generation_cycle",
+      media_type: "application/json",
+    },
+    source_content_hash: "sha256:" + "f".repeat(64),
+    limitation_code: null,
+    n5_observations: [],
+    acquisition_history_limitation_code: null,
+    acquisition_history: [
+      {
+        route_receipt_ref: {
+          artifact_id: "sha256:" + "1".repeat(64),
+          kind: "runtime_quality.acquisition_route_loop_receipt",
+          media_type: "application/json",
+        },
+        reentry_receipt_ref: {
+          artifact_id: "sha256:" + "2".repeat(64),
+          kind: "runtime_quality.acquisition_overlay_reentry_receipt",
+          media_type: "application/json",
+        },
+        route_id: "sha256:" + "3".repeat(64),
+        action_generation: 1,
+        terminal_outcome: "reentry_completed",
+        old_candidate_id: candidateId,
+        new_candidate_id: candidateId,
+        new_candidate_source_ref: source,
+        origin_source_ref: root,
+        expected_origin_source_ref: { ...root },
+        schema_version:
+          "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+        reentry_receipt_schema_version:
+          "policyos.runtime.acquisition_overlay_reentry.v3",
+        continuation_join_status: "v3_occurrence_joined",
+        origin_source_binding_status: "verified_same_candidate_root",
+        continuation: {
+          selected_n4_source_ref: { ...source },
+          continued_cycle_index: 2,
+          current_candidate_occurrences: [
+            { candidate_id: candidateId, cycle_index: 2 },
+          ],
+        },
+        currentness_status: "not_established",
+        authority_purpose: "candidate_observation_only",
+        publication_authority: false,
+      },
+    ],
+  };
+}
+
 function genericCycleSimulationProjection(runId: string) {
   const ref = (kind: string, suffix: string) => ({
     artifact_id: "sha256:" + suffix.repeat(64),
@@ -741,65 +807,101 @@ describe("OverviewTab", () => {
     ).toHaveTextContent("Publication authority is not established.");
   });
 
-  it("renders acquisition history as observed candidate lineage with unknown currentness", () => {
-    overviewState.run.candidate_simulation = {
-      schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
-      run_id: "run-1",
-      artifact_status: "resolved",
-      authority_purpose: "candidate_observation_only",
-      publication_authority: false,
-      source_ref: {
-        artifact_id: `sha256:${"b".repeat(64)}`,
-        kind: "runtime.compiled_recursive_generation_cycle",
-        media_type: "application/json",
-      },
-      source_content_hash: `sha256:${"c".repeat(64)}`,
-      limitation_code: null,
-      n5_observations: [],
-      acquisition_history_limitation_code: null,
-      acquisition_history: [
-        {
-          route_receipt_ref: {
-            artifact_id: `sha256:${"d".repeat(64)}`,
-            kind: "runtime_quality.acquisition_route_loop_receipt",
-            media_type: "application/json",
-          },
-          reentry_receipt_ref: {
-            artifact_id: `sha256:${"e".repeat(64)}`,
-            kind: "runtime_quality.acquisition_overlay_reentry_receipt",
-            media_type: "application/json",
-          },
-          route_id: `sha256:${"f".repeat(64)}`,
-          action_generation: 1,
-          terminal_outcome: "reentry_completed",
-          old_candidate_id: "candidate-before",
-          new_candidate_id: "candidate-after",
-          new_candidate_source_ref: {
-            artifact_id: `sha256:${"a".repeat(64)}`,
-            kind: "runtime.quality.n4_candidate_scenario_source",
-            media_type: "application/json",
-          },
-          origin_source_ref: null,
-          currentness_status: "not_established",
-          authority_purpose: "candidate_observation_only",
-          publication_authority: false,
-        },
-      ],
-    };
-
+  it("renders same-candidate history only with a joined source and root origin", () => {
+    overviewState.run.candidate_simulation =
+      sameCandidateAcquisitionHistoryProjection();
     renderWithProviders(<OverviewTab />);
-
     const history = screen.getByTestId("overview-acquisition-history");
-    expect(history).toHaveTextContent("Prior candidate: candidate-before");
-    expect(history).toHaveTextContent("Re-entry candidate: candidate-after");
+    expect(history).toHaveTextContent("Prior candidate: candidate-same");
+    expect(history).toHaveTextContent("Re-entry candidate: candidate-same");
     expect(history).toHaveTextContent("Currentness: not_established");
-    expect(history).toHaveTextContent(
-      "Origin source: not linked in this record",
-    );
+    expect(history).toHaveTextContent("sha256:" + "a".repeat(64));
+    expect(history).toHaveTextContent("sha256:" + "c".repeat(64));
     expect(history).toHaveTextContent(
       "Currentness and publication authority are not established.",
     );
-    expect(history).toHaveTextContent(`sha256:${"a".repeat(64)}`);
+  });
+
+  it("labels metadata-missing legacy history as limited and keeps its origin observational", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    const row = projection.acquisition_history[0]! as unknown as Record<
+      string,
+      unknown
+    >;
+    delete row.expected_origin_source_ref;
+    delete row.schema_version;
+    delete row.reentry_receipt_schema_version;
+    delete row.continuation_join_status;
+    delete row.origin_source_binding_status;
+    overviewState.run.candidate_simulation = projection;
+    renderWithProviders(<OverviewTab />);
+    const history = screen.getByTestId("overview-acquisition-history");
+    expect(history).toHaveTextContent("Lineage metadata is missing or legacy");
+    expect(history).toHaveTextContent("Observed origin source");
+    expect(history).not.toHaveTextContent("Verified root origin");
+  });
+
+  it("keeps a quarantined source ref forensic without claiming a verified root", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    const row = projection.acquisition_history[0]! as unknown as Record<
+      string,
+      unknown
+    >;
+    row.terminal_outcome = "quarantined_no_growth";
+    delete row.reentry_receipt_ref;
+    delete row.old_candidate_id;
+    delete row.new_candidate_id;
+    delete row.new_candidate_source_ref;
+    delete row.expected_origin_source_ref;
+    delete row.continuation;
+    row.reentry_receipt_schema_version = null;
+    row.continuation_join_status = "not_applicable";
+    row.origin_source_binding_status = "observed_only";
+    overviewState.run.candidate_simulation = projection;
+    renderWithProviders(<OverviewTab />);
+    const history = screen.getByTestId("overview-acquisition-history");
+    expect(history).toHaveTextContent("Observed origin source");
+    expect(history).toHaveTextContent("sha256:" + "c".repeat(64));
+    expect(history).not.toHaveTextContent("Verified root origin");
+  });
+
+  it("marks metadata-free quarantine history as limited", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    const row = projection.acquisition_history[0]! as unknown as Record<
+      string,
+      unknown
+    >;
+    row.terminal_outcome = "quarantined_no_growth";
+    delete row.reentry_receipt_ref;
+    delete row.old_candidate_id;
+    delete row.new_candidate_id;
+    delete row.new_candidate_source_ref;
+    delete row.expected_origin_source_ref;
+    delete row.continuation;
+    delete row.schema_version;
+    delete row.reentry_receipt_schema_version;
+    delete row.continuation_join_status;
+    delete row.origin_source_binding_status;
+    overviewState.run.candidate_simulation = projection;
+    renderWithProviders(<OverviewTab />);
+    const history = screen.getByTestId("overview-acquisition-history");
+    expect(history).toHaveTextContent("Lineage metadata is missing or legacy");
+    expect(history).toHaveTextContent("Observed origin source");
+    expect(history).not.toHaveTextContent("Verified root origin");
+  });
+
+  it("refuses same-candidate UI history when the origin profile differs", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    projection.acquisition_history[0]!.origin_source_ref.manifest_profile_sha256 =
+      "sha256:" + "e".repeat(64);
+    overviewState.run.candidate_simulation = projection;
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-acquisition-history-refused"),
+    ).toBeVisible();
+    expect(
+      screen.queryByText("Prior candidate: candidate-same"),
+    ).not.toBeInTheDocument();
   });
 
   it("rejects malformed acquisition lineage before dashboard candidate rendering", () => {

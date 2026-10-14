@@ -1,0 +1,21 @@
+id = "2026-10-14-e02-acquisition-history-lineage-join"
+title = "Join same-candidate acquisition history to persisted v3 continuation"
+type = "changed"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "The run acquisition-history projection distinguishes forensic observed source refs from producer-verified same-candidate roots, marks v1/v2 or metadata-free history as occurrence-unbound, and requires a persisted selected-source and candidate-occurrence join for v3."
+evidence = [
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+  "tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py",
+  "apps/runtime-dashboard/src/api/validators.test.ts",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+  "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+]
+compatibility = "The run-details endpoint and acquisition-history route remain unchanged. History version and join metadata are optional on read for older responses; absent metadata remains limited, malformed supplied metadata is rejected, and current v3 output carries the explicit persisted continuation join."
+change_class = "public-projection-additive"
+surface_classification = "public: run-details candidate_simulation.acquisition_history; additive optional response metadata"
+migration = "No stored artifacts are rewritten. Existing v1/v2 receipts remain readable with legacy_occurrence_unbound semantics; responses without lineage metadata remain limited and cannot claim a verified expected root."
+api = "The existing run-details GET adds optional schema, receipt-version, occurrence-join, and origin-binding fields. The dashboard displays observed origin refs as forensic and producer-verified expected roots separately. Quarantine rows may retain an observed source ref, but never a verified expected root or continuation."
+limitations = "The projection is candidate_observation_only; route currentness and publication authority remain unestablished. A v3 occurrence join proves only the persisted continuation binding and does not establish currentness, admissibility, or publication authority."
+generated_client_compatibility = "optional nullable fields preserve compatibility for consumers of older run-details responses"
+public_surface_inventory_reviewed = true

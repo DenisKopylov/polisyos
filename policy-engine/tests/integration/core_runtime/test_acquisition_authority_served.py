@@ -635,9 +635,14 @@ def _key_config(tmp_path, trust):
     return signers, identities
 
 
-def test_served_acquisition_selects_committed_human_authority_and_reopens_worker(
-    tmp_path, monkeypatch, served_recorded_candidate_gateway
-):
+def _produce_served_acquisition_history(
+    tmp_path,
+    monkeypatch,
+    served_recorded_candidate_gateway,
+    *,
+    fixture_cas_root: Path | None = None,
+    stop_after_fresh_get: bool = False,
+) -> dict[str, str] | None:
     import os
 
     from polisyos.core.artifacts.manifest import artifact_ref_identity_key
@@ -713,7 +718,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     trust = _ExternalTrust(tmp_path)
     port_patch = pytest.MonkeyPatch()
     signers, identities = _key_config(tmp_path, trust)
-    cas_root = tmp_path / "cas"
+    cas_root = fixture_cas_root or (tmp_path / "cas")
     candidate_profiles = []
     candidate_model_declarations = []
     # Seed the first and re-entry N4 actions from the same recorded candidate.
@@ -1028,11 +1033,16 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     },
                     "execution_profile": "dev",
                 },
-                headers={**({
-                    "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
-                    "X-Tenant-ID": TENANT,
-                    "Content-Type": "application/json",
-                }), "Idempotency-Key": "test-r216-192b38ae25f6425ebe45b42d7f7539e1"},
+                headers={
+                    **(
+                        {
+                            "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
+                            "X-Tenant-ID": TENANT,
+                            "Content-Type": "application/json",
+                        }
+                    ),
+                    "Idempotency-Key": "test-r216-192b38ae25f6425ebe45b42d7f7539e1",
+                },
             )
             assert launch_response.status_code == 200, launch_response.text
             launch = launch_response.json()
@@ -1524,8 +1534,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert reentry.source_generation_run_content_hash == generation_cycle_run_content_hash(
                 closure.generation_run
             )
-            assert reentry.continued_generation_run_content_hash == generation_cycle_run_content_hash(
-                continued_run
+            assert (
+                reentry.continued_generation_run_content_hash
+                == generation_cycle_run_content_hash(continued_run)
             )
             assert continued_run.cycles[:-1] == closure.generation_run.cycles
             assert continued_run.cycles[-1] == reentry.new_cycle
@@ -1541,7 +1552,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             removed_occurrence_receipt = reentry.model_copy(
                 update={"continued_generation_run": removed_occurrence_run}
             )
-            with pytest.raises(ValueError, match="acquisition_reentry_continued_run_binding_mismatch"):
+            with pytest.raises(
+                ValueError, match="acquisition_reentry_continued_run_binding_mismatch"
+            ):
                 validate_acquisition_overlay_continuation(
                     closure.generation_run, removed_occurrence_receipt
                 )
@@ -1554,14 +1567,20 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     "candidate_simulation_n5_input_ref": source_n5_ref,
                 }
             )
-            swapped_cycle = reentry.new_cycle.model_copy(
-                update={"simulation": swapped_simulation}
-            )
+            swapped_cycle = reentry.new_cycle.model_copy(update={"simulation": swapped_simulation})
             swapped_receipt = reentry.model_copy(update={"new_cycle": swapped_cycle})
             assert swapped_receipt.source_candidate_ref == reentry.source_candidate_ref
-            assert swapped_receipt.new_cycle.selected_candidate_ref == reentry.new_cycle.selected_candidate_ref
-            assert swapped_receipt.source_candidate_ref == swapped_receipt.new_cycle.selected_candidate_ref
-            with pytest.raises(ValueError, match="acquisition_reentry_continued_run_binding_mismatch"):
+            assert (
+                swapped_receipt.new_cycle.selected_candidate_ref
+                == reentry.new_cycle.selected_candidate_ref
+            )
+            assert (
+                swapped_receipt.source_candidate_ref
+                == swapped_receipt.new_cycle.selected_candidate_ref
+            )
+            with pytest.raises(
+                ValueError, match="acquisition_reentry_continued_run_binding_mismatch"
+            ):
                 validate_acquisition_overlay_continuation(closure.generation_run, swapped_receipt)
             cycle = reentry.new_cycle
             assert cycle.simulation.status == "joint_simulated", cycle.simulation
@@ -1798,6 +1817,15 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert quarantined_history.get("reentry_receipt_ref") is None
             assert quarantined_history.get("old_candidate_id") is None
             assert quarantined_history.get("new_candidate_id") is None
+            assert quarantined_history.get("origin_source_ref") is not None
+            assert quarantined_history.get("expected_origin_source_ref") is None
+            assert quarantined_history["schema_version"] == (
+                "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+            )
+            assert quarantined_history["reentry_receipt_schema_version"] is None
+            assert quarantined_history["continuation_join_status"] == "not_applicable"
+            assert quarantined_history["origin_source_binding_status"] == "observed_only"
+            assert quarantined_history.get("continuation") is None
 
             acquisition_history = history_by_generation[2]
             assert acquisition_history["terminal_outcome"] == "reentry_completed"
@@ -1808,17 +1836,33 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert acquisition_history["reentry_receipt_ref"]["artifact_id"] == reentry_ref
             assert acquisition_history["old_candidate_id"] == reentry.source_candidate_ref
             assert acquisition_history["new_candidate_id"] == cycle.selected_candidate_ref
+            assert acquisition_history["schema_version"] == (
+                "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+            )
+            assert acquisition_history["reentry_receipt_schema_version"] == (
+                "policyos.runtime.acquisition_overlay_reentry.v3"
+            )
+            assert acquisition_history["continuation_join_status"] == ("v3_occurrence_joined")
+            assert acquisition_history["origin_source_binding_status"] == (
+                "verified_same_candidate_root"
+            )
             history_source_ref = ArtifactRef.model_validate(
                 acquisition_history["new_candidate_source_ref"]
             )
             history_origin_ref = ArtifactRef.model_validate(
                 acquisition_history["origin_source_ref"]
             )
+            history_expected_origin_ref = ArtifactRef.model_validate(
+                acquisition_history["expected_origin_source_ref"]
+            )
             assert artifact_ref_identity_key(history_source_ref) == artifact_ref_identity_key(
                 n5_input.n4_source_ref
             )
             assert artifact_ref_identity_key(history_origin_ref) == artifact_ref_identity_key(
                 origin_source_ref
+            )
+            assert artifact_ref_identity_key(history_expected_origin_ref) == (
+                artifact_ref_identity_key(origin_source_ref)
             )
             assert (
                 acquisition_history["old_candidate_id"] == acquisition_history["new_candidate_id"]
@@ -1827,12 +1871,21 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert acquisition_history["authority_purpose"] == "candidate_observation_only"
             assert acquisition_history["publication_authority"] is False
             continuation = acquisition_history["continuation"]
-            assert continuation["source_generation_run_content_hash"] == reentry.source_generation_run_content_hash
-            assert continuation["continued_generation_run_content_hash"] == reentry.continued_generation_run_content_hash
+            assert (
+                continuation["source_generation_run_content_hash"]
+                == reentry.source_generation_run_content_hash
+            )
+            assert (
+                continuation["continued_generation_run_content_hash"]
+                == reentry.continued_generation_run_content_hash
+            )
             assert continuation["source_cycle_index"] == reentry.source_cycle_index
             assert continuation["continued_cycle_index"] == cycle.cycle_index
-            assert continuation["selected_n4_source_ref"]["artifact_id"] == str(
-                n5_input.n4_source_ref.artifact_id
+            continuation_selected_n4_ref = ArtifactRef.model_validate(
+                continuation["selected_n4_source_ref"]
+            )
+            assert artifact_ref_identity_key(history_source_ref) == (
+                artifact_ref_identity_key(continuation_selected_n4_ref)
             )
             assert continuation["selected_n5_input_ref"]["artifact_id"] == str(
                 n5_input_ref.artifact_id
@@ -1846,19 +1899,23 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert continuation["previous_profile_selection_ref"] == (
                 seed_n5_input.profile.profile_selection_ref
             )
-            assert continuation["previous_profile_content_hash"] == seed_n5_input.profile.content_hash
+            assert (
+                continuation["previous_profile_content_hash"] == seed_n5_input.profile.content_hash
+            )
             assert continuation["selected_profile_selection_ref"] == (
                 n5_input.profile.profile_selection_ref
             )
             assert continuation["selected_profile_content_hash"] == n5_input.profile.content_hash
-            assert continuation["previous_profile_selection_ref"] == (
-                continuation["selected_profile_selection_ref"]
+            assert (
+                continuation["previous_profile_selection_ref"]
+                == (continuation["selected_profile_selection_ref"])
             )
             assert continuation["selected_target_world_slot"] == "government.balance"
             assert continuation["previous_selected_target_baseline_hash"] is not None
             assert continuation["selected_target_baseline_hash"] is not None
-            assert continuation["previous_selected_target_baseline_hash"] != (
-                continuation["selected_target_baseline_hash"]
+            assert (
+                continuation["previous_selected_target_baseline_hash"]
+                != (continuation["selected_target_baseline_hash"])
             )
             assert continuation["n9_status"] == continued_run.promotion_port.status
             assert continuation["n9_reason"] == continued_run.promotion_port.reason
@@ -1880,7 +1937,46 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 and row.cycle_index == cycle.cycle_index
             )
             projected_fronts = continuation["current_fronts"]
-            assert cycle.selected_candidate_ref in projected_fronts[current_occurrence["front"] + "_candidate_ids"]
+            assert (
+                cycle.selected_candidate_ref
+                in projected_fronts[current_occurrence["front"] + "_candidate_ids"]
+            )
+
+            # Fresh route resolution consumes the persisted owner-verified v3
+            # continuation. The route/cost identity stays anchored to the
+            # immutable compiled route while the selected N4 source advances.
+            action_service = client.app.state.runtime_container.acquisition_action_service
+            assert action_service is not None
+            fresh_closure = action_service._resolve(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=run_id,
+            )
+            assert reentry.continued_generation_run is not None
+            assert fresh_closure.generation_run == reentry.continued_generation_run
+            assert fresh_closure.source_cycle == cycle
+            assert fresh_closure.route_source_cycle == closure.source_cycle
+            assert fresh_closure.route_id == closure.route_id
+            assert fresh_closure.source_cycle.cycle_index == cycle.cycle_index
+            # Replaying the same growth receipt still resolves its existing
+            # pointer; this is distinct from advancing to a new growth ref.
+            replayed_reentry_ref = _within_fixture_owner(
+                cases[-1].bridge.resume,
+                closure,
+                (growth_refs[0],),
+            )
+            assert replayed_reentry_ref == reentry_ref
+            # This fixture has no independently admitted second observation.
+            # The latest source is selected, but absence of a new growth owner
+            # remains a typed refusal rather than replaying the prior receipt.
+            with pytest.raises(ValueError, match="acquisition_live_evidence_not_admitted"):
+                _within_fixture_owner(cases[-1].bridge.resume, fresh_closure, ())
+
+            if stop_after_fresh_get:
+                return {
+                    "run_id": core_run_id,
+                    "candidate_id": cycle.selected_candidate_ref,
+                }
             n4_selected_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_n4_source_selected_ref"]
             )
@@ -2215,23 +2311,17 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     )
                 }
             )
-            unselected_only_input = seed_n5_input.model_copy(
-                update={"profile": unselected_profile}
-            )
+            unselected_only_input = seed_n5_input.model_copy(update={"profile": unselected_profile})
             from polisyos.runtime.http.routes.runs import _selected_target_baseline_hashes
 
-            assert _selected_target_baseline_hashes(
-                seed_n5_input, unselected_only_input
-            ) is None
+            assert _selected_target_baseline_hashes(seed_n5_input, unselected_only_input) is None
             id_time_only_input = seed_n5_input.model_copy(
                 update={
                     "run_id": seed_n5_input.run_id + "-later",
                     "job_id": seed_n5_input.job_id + "-later",
                 }
             )
-            assert _selected_target_baseline_hashes(
-                seed_n5_input, id_time_only_input
-            ) is None
+            assert _selected_target_baseline_hashes(seed_n5_input, id_time_only_input) is None
 
             execution_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_execution_selected_ref"]
@@ -2362,9 +2452,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 cell_id=closure.cell_id,
                 run_id=run_id,
             )
-            action_generation = action_service._action_generation(
-                third_closure, third_job_id
-            )
+            action_generation = action_service._action_generation(third_closure, third_job_id)
             requested_phase = action_service._phase_receipt(
                 action_generation=action_generation,
                 closure=third_closure,
@@ -2450,12 +2538,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert all(response.status_code == 200 for response in stale_pointer_reads), [
                 response.text for response in stale_pointer_reads
             ]
-            assert stale_pointer_reads[0].json()["routes"][0]["world_growth"] == (
-                "not_established"
-            )
-            assert stale_pointer_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] is None
+            assert stale_pointer_reads[0].json()["routes"][0]["world_growth"] == ("not_established")
+            assert stale_pointer_reads[0].json()["routes"][0]["admitted_observation_delta"] is None
             assert stale_pointer_reads[1].json()["world_growth"] == "not_established"
             assert stale_pointer_reads[1].json()["admitted_observation_delta"] is None
             assert bridge._has_verified_admission_basis(third_closure)
@@ -2498,9 +2582,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert selector_before_forgery["state"] == "prepared"
             state_only_forgery = dict(selector_before_forgery)
             state_only_forgery["state"] = "selected"
-            assert {
-                key: value for key, value in state_only_forgery.items() if key != "state"
-            } == {
+            assert {key: value for key, value in state_only_forgery.items() if key != "state"} == {
                 key: value for key, value in selector_before_forgery.items() if key != "state"
             }
             try:
@@ -2518,9 +2600,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 "not_established"
             )
             assert state_only_forgery_reads[1].json()["world_growth"] == "not_established"
-            assert state_only_forgery_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] is None
+            assert (
+                state_only_forgery_reads[0].json()["routes"][0]["admitted_observation_delta"]
+                is None
+            )
             assert state_only_forgery_reads[1].json()["admitted_observation_delta"] is None
             assert bridge._has_verified_admission_basis(third_closure)
 
@@ -2535,34 +2618,27 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 assert all(response.status_code == 200 for response in reopened_reads), [
                     response.text for response in reopened_reads
                 ]
-                assert reopened_reads[0].json()["routes"][0]["world_growth"] == (
-                    "not_established"
-                )
+                assert reopened_reads[0].json()["routes"][0]["world_growth"] == ("not_established")
                 assert reopened_reads[1].json()["world_growth"] == "not_established"
 
             with ThreadPoolExecutor(max_workers=2) as readers:
                 concurrent_reads = tuple(
                     readers.map(
-                        lambda route_path: client.get(
-                            route_path, headers=route_read_headers
-                        ),
+                        lambda route_path: client.get(route_path, headers=route_read_headers),
                         (route_collection_path, path),
                     )
                 )
             assert all(response.status_code == 200 for response in concurrent_reads), [
                 response.text for response in concurrent_reads
             ]
-            assert concurrent_reads[0].json()["routes"][0]["world_growth"] == (
-                "not_established"
-            )
+            assert concurrent_reads[0].json()["routes"][0]["world_growth"] == ("not_established")
             assert concurrent_reads[1].json()["world_growth"] == "not_established"
 
             # The producer commits selection through the existing ActionHead and event
             # chain. A durable event without its ActionHead transition remains unknown.
-            recovered_current = bridge.recover_admission(
-                third_closure, executing_head.receipt_ref
-            )
+            recovered_current = bridge.recover_admission(third_closure, executing_head.receipt_ref)
             with monkeypatch.context() as selection_crash:
+
                 def fail_action_head_advance(**_kwargs):
                     raise OSError("simulated_loss_after_selection_event")
 
@@ -2586,9 +2662,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 "not_established"
             )
             assert orphan_selection_reads[1].json()["world_growth"] == "not_established"
-            assert orphan_selection_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] is None
+            assert (
+                orphan_selection_reads[0].json()["routes"][0]["admitted_observation_delta"] is None
+            )
             assert orphan_selection_reads[1].json()["admitted_observation_delta"] is None
 
             # Reopen the exact event-before-head gap from the existing owner event.
@@ -2652,9 +2728,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert selected_before_terminal_reads[0].json()["routes"][0]["world_growth"] == (
                 "no_growth"
             )
-            assert selected_before_terminal_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] == 0
+            assert (
+                selected_before_terminal_reads[0].json()["routes"][0]["admitted_observation_delta"]
+                == 0
+            )
             assert selected_before_terminal_reads[1].json()["world_growth"] == "no_growth"
             assert selected_before_terminal_reads[1].json()["admitted_observation_delta"] == 0
 
@@ -2689,12 +2766,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert all(response.status_code == 200 for response in no_head_reads), [
                 response.text for response in no_head_reads
             ]
-            assert no_head_reads[0].json()["routes"][0]["world_growth"] == (
-                "not_established"
-            )
-            assert no_head_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] is None
+            assert no_head_reads[0].json()["routes"][0]["world_growth"] == ("not_established")
+            assert no_head_reads[0].json()["routes"][0]["admitted_observation_delta"] is None
             assert no_head_reads[1].json()["world_growth"] == "not_established"
             assert no_head_reads[1].json()["admitted_observation_delta"] is None
             assert bridge._read_outcome_pointer(selected_pointer) == selected_pointer_value
@@ -2731,9 +2804,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert legacy_no_head_reads[0].json()["routes"][0]["world_growth"] == (
                 "not_established"
             )
-            assert legacy_no_head_reads[0].json()["routes"][0][
-                "admitted_observation_delta"
-            ] is None
+            assert legacy_no_head_reads[0].json()["routes"][0]["admitted_observation_delta"] is None
             assert legacy_no_head_reads[1].json()["world_growth"] == "not_established"
             assert legacy_no_head_reads[1].json()["admitted_observation_delta"] is None
             assert bridge._read_outcome_pointer(selected_pointer) == selected_pointer_value
@@ -2878,17 +2949,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             assert no_growth_scope.durable_event_id is not None
 
-            route_growth_response = client.get(
-                route_collection_path, headers=route_read_headers
-            )
+            route_growth_response = client.get(route_collection_path, headers=route_read_headers)
             assert route_growth_response.status_code == 200, route_growth_response.text
             selected_growth = route_growth_response.json()["routes"][0]
             assert selected_growth["world_growth"] == "no_growth"
             assert selected_growth["admitted_observation_delta"] == 0
 
-            growth_pointer = cases[-1].bridge._growth_pointer(
-                no_growth.selection, create=False
-            )
+            growth_pointer = cases[-1].bridge._growth_pointer(no_growth.selection, create=False)
             original_growth_pointer = growth_pointer.read_bytes()
             attempt_pointer = growth_pointer.with_suffix(".attempt.json")
             assert attempt_pointer.exists()
@@ -2904,9 +2971,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     )
                     + "\n"
                 )
-                forged_no_growth = client.get(
-                    route_collection_path, headers=route_read_headers
-                )
+                forged_no_growth = client.get(route_collection_path, headers=route_read_headers)
                 assert forged_no_growth.status_code == 200, forged_no_growth.text
                 assert forged_no_growth.json()["routes"][0]["world_growth"] == "no_growth"
                 assert forged_no_growth.json()["routes"][0]["admitted_observation_delta"] == 0
@@ -2916,12 +2981,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             try:
                 growth_pointer.unlink()
                 assert attempt_pointer.exists()
-                assert _within_fixture_owner(
-                    control._artifact_store.get_bytes, no_growth_ref
-                )
-                unknown_growth = client.get(
-                    route_collection_path, headers=route_read_headers
-                )
+                assert _within_fixture_owner(control._artifact_store.get_bytes, no_growth_ref)
+                unknown_growth = client.get(route_collection_path, headers=route_read_headers)
                 assert unknown_growth.status_code == 200, unknown_growth.text
                 unknown_route = unknown_growth.json()["routes"][0]
                 assert unknown_route["world_growth"] == "no_growth"
@@ -2930,9 +2991,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             finally:
                 growth_pointer.write_bytes(original_growth_pointer)
 
-            restored_growth = client.get(
-                route_collection_path, headers=route_read_headers
-            )
+            restored_growth = client.get(route_collection_path, headers=route_read_headers)
             assert restored_growth.status_code == 200, restored_growth.text
             assert restored_growth.json()["routes"][0]["world_growth"] == "no_growth"
             assert restored_growth.json()["routes"][0]["admitted_observation_delta"] == 0
@@ -2963,7 +3022,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert third_history_row.get("old_candidate_id") is None
             assert third_history_row.get("new_candidate_id") is None
             assert third_history_row.get("new_candidate_source_ref") is None
-            assert third_history_row.get("origin_source_ref") is None
+            assert third_history_row.get("origin_source_ref") is not None
+            assert third_history_row.get("expected_origin_source_ref") is None
+            assert third_history_row["origin_source_binding_status"] == "observed_only"
+            assert third_history_row["continuation_join_status"] == "not_applicable"
+            assert sum(row.get("reentry_receipt_ref") is not None for row in third_history) == 1
             assert history_by_generation[2]["terminal_outcome"] == "reentry_completed"
             assert history_by_generation[2]["old_candidate_id"] == reentry.source_candidate_ref
             assert history_by_generation[2]["new_candidate_id"] == cycle.selected_candidate_ref
@@ -3010,3 +3073,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     finally:
         port_patch.undo()
         trust.close()
+
+
+def test_served_acquisition_selects_committed_human_authority_and_reopens_worker(
+    tmp_path, monkeypatch, served_recorded_candidate_gateway
+):
+    _produce_served_acquisition_history(
+        tmp_path,
+        monkeypatch,
+        served_recorded_candidate_gateway,
+    )

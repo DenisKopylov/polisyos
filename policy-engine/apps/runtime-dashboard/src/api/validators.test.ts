@@ -4,6 +4,9 @@ import type { z } from "zod";
 import type { components } from "./types";
 import { runN5InteractionEvidenceFixture as n5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import {
+  artifactContentSchema,
+  artifactInspectorIntakeSchema,
+  artifactSchemaSchema,
   humanDecisionGateResponseSchema,
   humanDecisionReviewEffectivenessSchema,
   lexSearchRequestSchema,
@@ -622,8 +625,26 @@ describe("runtime API validators", () => {
             artifact_id: `sha256:${"e".repeat(64)}`,
             kind: "runtime.quality.n4_candidate_scenario_source",
             media_type: "application/json",
+            manifest_profile_sha256: "sha256:" + "a".repeat(64),
           },
-          origin_source_ref: null,
+          origin_source_ref: {
+            artifact_id: "sha256:" + "f".repeat(64),
+            kind: "runtime.quality.n4_candidate_scenario_source",
+            media_type: "application/json",
+            manifest_profile_sha256: "sha256:" + "b".repeat(64),
+          },
+          expected_origin_source_ref: {
+            artifact_id: "sha256:" + "f".repeat(64),
+            kind: "runtime.quality.n4_candidate_scenario_source",
+            media_type: "application/json",
+            manifest_profile_sha256: "sha256:" + "b".repeat(64),
+          },
+          schema_version:
+            "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+          reentry_receipt_schema_version:
+            "policyos.runtime.acquisition_overlay_reentry.v3",
+          continuation_join_status: "v3_occurrence_joined",
+          origin_source_binding_status: "verified_same_candidate_root",
           currentness_status: "not_established",
           authority_purpose: "candidate_observation_only",
           publication_authority: false,
@@ -646,6 +667,7 @@ describe("runtime API validators", () => {
               artifact_id: `sha256:${"e".repeat(64)}`,
               kind: "runtime.quality.n4_candidate_scenario_source",
               media_type: "application/json",
+              manifest_profile_sha256: "sha256:" + "a".repeat(64),
             },
             selected_n5_input_ref: {
               artifact_id: `sha256:${"8".repeat(64)}`,
@@ -697,13 +719,124 @@ describe("runtime API validators", () => {
     );
     expect(
       parsed.run.candidate_simulation?.acquisition_history?.[0]
-        ?.origin_source_ref,
-    ).toBeNull();
+        ?.expected_origin_source_ref,
+    ).toMatchObject({
+      artifact_id: "sha256:" + "f".repeat(64),
+      manifest_profile_sha256: "sha256:" + "b".repeat(64),
+    });
     expect(
       parsed.run.candidate_simulation?.acquisition_history?.[0]
         ?.currentness_status,
     ).toBe("not_established");
 
+    const malformedJoin = structuredClone(payload);
+    const malformedJoinEntry = firstMutableRecord(
+      mutableRecord(mutableRecord(malformedJoin.run).candidate_simulation)
+        .acquisition_history,
+      "acquisition_history",
+    );
+    malformedJoinEntry.continuation_join_status = "legacy_occurrence_unbound";
+    expect(() => runDetailsSchema.parse(malformedJoin)).toThrow(
+      "candidate_acquisition_receipt_join_status_invalid",
+    );
+    const callerLabeledRoot = structuredClone(payload);
+    const callerLabeledEntry = firstMutableRecord(
+      mutableRecord(mutableRecord(callerLabeledRoot.run).candidate_simulation)
+        .acquisition_history,
+      "acquisition_history",
+    );
+    callerLabeledEntry.origin_source_binding_status = "observed_only";
+    expect(() => runDetailsSchema.parse(callerLabeledRoot)).toThrow(
+      "candidate_acquisition_receipt_join_status_invalid",
+    );
+    const missingV3Continuation = structuredClone(payload);
+    const missingContinuationEntry = firstMutableRecord(
+      mutableRecord(
+        mutableRecord(missingV3Continuation.run).candidate_simulation,
+      ).acquisition_history,
+      "acquisition_history",
+    );
+    delete missingContinuationEntry.continuation;
+    expect(() => runDetailsSchema.parse(missingV3Continuation)).toThrow(
+      "candidate_acquisition_receipt_join_status_invalid",
+    );
+
+    const legacyMissingMetadata = structuredClone(payload);
+    const legacyEntry = firstMutableRecord(
+      mutableRecord(
+        mutableRecord(legacyMissingMetadata.run).candidate_simulation,
+      ).acquisition_history,
+      "acquisition_history",
+    );
+    delete legacyEntry.expected_origin_source_ref;
+    delete legacyEntry.schema_version;
+    delete legacyEntry.reentry_receipt_schema_version;
+    delete legacyEntry.continuation_join_status;
+    delete legacyEntry.origin_source_binding_status;
+    const parsedLegacy = runDetailsSchema.parse(legacyMissingMetadata);
+    expect(
+      parsedLegacy.run.candidate_simulation?.acquisition_history?.[0]
+        ?.schema_version,
+    ).toBeUndefined();
+
+    const missingExpectedOrigin = structuredClone(payload);
+    const missingExpectedEntry = firstMutableRecord(
+      mutableRecord(
+        mutableRecord(missingExpectedOrigin.run).candidate_simulation,
+      ).acquisition_history,
+      "acquisition_history",
+    );
+    delete missingExpectedEntry.expected_origin_source_ref;
+    expect(() => runDetailsSchema.parse(missingExpectedOrigin)).toThrow(
+      "candidate_acquisition_same_candidate_origin_binding_invalid",
+    );
+    const wrongOriginProfile = structuredClone(payload);
+    const wrongOriginEntry = firstMutableRecord(
+      mutableRecord(mutableRecord(wrongOriginProfile.run).candidate_simulation)
+        .acquisition_history,
+      "acquisition_history",
+    );
+    mutableRecord(wrongOriginEntry.origin_source_ref).manifest_profile_sha256 =
+      "sha256:" + "c".repeat(64);
+    expect(() => runDetailsSchema.parse(wrongOriginProfile)).toThrow(
+      "candidate_acquisition_same_candidate_origin_binding_invalid",
+    );
+    const wrongSelectedN4Profile = structuredClone(payload);
+    const wrongSelectedEntry = firstMutableRecord(
+      mutableRecord(
+        mutableRecord(wrongSelectedN4Profile.run).candidate_simulation,
+      ).acquisition_history,
+      "acquisition_history",
+    );
+    mutableRecord(
+      mutableRecord(wrongSelectedEntry.continuation).selected_n4_source_ref,
+    ).manifest_profile_sha256 = "sha256:" + "c".repeat(64);
+    expect(() => runDetailsSchema.parse(wrongSelectedN4Profile)).toThrow(
+      "candidate_acquisition_continuation_source_binding_invalid",
+    );
+    const unjoinedCandidate = structuredClone(payload);
+    const unjoinedEntry = firstMutableRecord(
+      mutableRecord(mutableRecord(unjoinedCandidate.run).candidate_simulation)
+        .acquisition_history,
+      "acquisition_history",
+    );
+    unjoinedEntry.old_candidate_id = "candidate-not-in-continuation";
+    unjoinedEntry.new_candidate_id = "candidate-not-in-continuation";
+    expect(() => runDetailsSchema.parse(unjoinedCandidate)).toThrow(
+      "candidate_acquisition_continuation_candidate_missing",
+    );
+    const differentCandidateWithExpectedOrigin = structuredClone(payload);
+    const differentCandidateEntry = firstMutableRecord(
+      mutableRecord(
+        mutableRecord(differentCandidateWithExpectedOrigin.run)
+          .candidate_simulation,
+      ).acquisition_history,
+      "acquisition_history",
+    );
+    differentCandidateEntry.old_candidate_id = "candidate-before";
+    expect(() =>
+      runDetailsSchema.parse(differentCandidateWithExpectedOrigin),
+    ).toThrow("candidate_acquisition_expected_origin_without_same_candidate");
     const targetNoOp = structuredClone(payload);
     const targetNoOpRun = mutableRecord(targetNoOp.run);
     const targetNoOpCandidate = mutableRecord(
@@ -2734,5 +2867,543 @@ describe("predictive calibration response custody", () => {
         responseWithUnknownMetaAuthority(),
       ).success,
     ).toBe(false);
+  });
+});
+
+// Values follow the Core inspector response and the canonical limited-diagnostic example.
+const artifactContentApiPreviewFixture = {
+  meta: {
+    generated_at: "2026-02-11T12:00:00Z",
+    request_id: "req_0123456789abcdef",
+    source_kinds: [],
+  },
+  artifact: {
+    artifact_id:
+      "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
+    canon_read_status: "declared_bytes_conformant",
+    kind: "ir.backtest_report",
+    manifest_profile_sha256:
+      "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
+    max_bytes: 4096,
+    media_type: "application/json",
+    mode: "json",
+    predictive_coverage_diagnostic: {
+      assessment: "limited",
+      canon_read_status: "declared_bytes_conformant",
+      causal_effect_status: "not_established",
+      counterfactual_credibility_status: "not_established",
+      effective_time_status: "not_established",
+      issuer_status: "not_established",
+      may_not_use_for: [
+        "promotion",
+        "publication",
+        "policy_selection",
+        "causal_effect_claim",
+      ],
+      measurement_status: "not_measured",
+      metric: "predictive_interval_coverage",
+      producer_attestation_status: "not_established",
+      reason_code: "no_evaluated_intervals",
+      s10_metric_mapping_status: "not_established",
+      s10_threshold_status: "not_established",
+      scenarios: [
+        {
+          interval_available_count: 0,
+          interval_evaluated_count: 0,
+          interval_hit_count: 0,
+          interval_requested_count: 1,
+          interval_type: "prediction",
+          metric_name: "outcome",
+          nominal_confidence_level: 0.9,
+          observed_hit_rate: null,
+          scenario_id: "openapi-no-intervals",
+        },
+      ],
+      source_artifact_id:
+        "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
+      source_manifest_profile_sha256:
+        "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
+      source_materialization: "reader_materialized",
+      source_schema_version: "1.0",
+    },
+    preview: { schema_version: "1.0" },
+    size_bytes: 1024,
+    truncated: false,
+  },
+} satisfies components["schemas"]["ArtifactContentResponse"];
+
+const decisionPacketContentApiResponseFixture = {
+  meta: {
+    generated_at: "2026-02-11T12:00:00Z",
+    request_id: "req_0123456789abcdef",
+    source_kinds: [],
+  },
+  artifact: {
+    artifact_id:
+      "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    canon_read_status: "declared_bytes_conformant",
+    decision_packet_preview: {
+      document_outline: [
+        {
+          section_id: "policy_answer",
+          section_type: "policy",
+          title: "Recommendation",
+        },
+      ],
+    },
+    kind: "scientist.decision_packet",
+    manifest_profile_sha256:
+      "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    max_bytes: 4096,
+    media_type: "application/json",
+    mode: "json",
+    preview: { policy_answer: "Approve the targeted support package." },
+    size_bytes: 1024,
+    truncated: false,
+  },
+} satisfies components["schemas"]["ArtifactContentResponse"];
+
+const artifactSchemaApiResponseFixture = {
+  meta: {
+    generated_at: "2026-02-11T12:00:00Z",
+    request_id: "req_0123456789abcdef",
+    source_kinds: [],
+  },
+  schema: {
+    artifact_id:
+      "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
+    canon_read_status: "declared_bytes_conformant",
+    kind: "ir.backtest_report",
+    manifest_profile_sha256:
+      "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
+    media_type: "application/json",
+    schema_name: "ir.backtest_report",
+    schema_version: "1.0",
+    top_level_keys: ["schema_version", "scenarios"],
+  },
+} satisfies components["schemas"]["ArtifactSchemaResponse"];
+
+function artifactInspectorIntakeFixture() {
+  return {
+    manifest: {
+      artifact_id: artifactContentApiPreviewFixture.artifact.artifact_id,
+      manifest_profile_sha256:
+        artifactContentApiPreviewFixture.artifact.manifest_profile_sha256,
+      kind: "ir.backtest_report",
+      media_type: "application/json",
+      schema_name: "ir.backtest_report",
+      schema_version: "1.0",
+    },
+    content: structuredClone(artifactContentApiPreviewFixture.artifact),
+  };
+}
+
+const coreCanonReadStatuses = [
+  "not_applicable",
+  "not_evaluated",
+  "declared_bytes_conformant",
+  "profile_absent_unqualified_candidate",
+  "declared_unknown_candidate",
+] as const;
+
+describe("artifact preview canonical read status custody", () => {
+  it("preserves typed API content and predictive fields without qualification upgrades", () => {
+    const parsed = artifactContentSchema.parse(
+      artifactContentApiPreviewFixture,
+    );
+    const diagnostic = parsed.artifact.predictive_coverage_diagnostic;
+
+    expect(parsed.artifact).toEqual(artifactContentApiPreviewFixture.artifact);
+    expect(parsed.artifact.canon_read_status).toBe("declared_bytes_conformant");
+    expect(diagnostic).toEqual(
+      artifactContentApiPreviewFixture.artifact.predictive_coverage_diagnostic,
+    );
+    expect(diagnostic?.assessment).toBe("limited");
+    expect(diagnostic?.source_materialization).toBe("reader_materialized");
+    expect(diagnostic?.producer_attestation_status).toBe("not_established");
+    expect(diagnostic?.may_not_use_for).toEqual([
+      "promotion",
+      "publication",
+      "policy_selection",
+      "causal_effect_claim",
+    ]);
+
+    const decisionPacket = artifactContentSchema.parse(
+      decisionPacketContentApiResponseFixture,
+    );
+    expect(decisionPacket.artifact).toEqual(
+      decisionPacketContentApiResponseFixture.artifact,
+    );
+    expect(decisionPacket.artifact.decision_packet_preview).toEqual(
+      decisionPacketContentApiResponseFixture.artifact.decision_packet_preview,
+    );
+
+    const schema = artifactSchemaSchema.parse(artifactSchemaApiResponseFixture);
+    expect(schema.schema).toEqual(artifactSchemaApiResponseFixture.schema);
+  });
+
+  it.each(coreCanonReadStatuses)(
+    "accepts and preserves the Core status %s in all three preview contracts",
+    (status) => {
+      const content = structuredClone(artifactContentApiPreviewFixture);
+      const contentArtifact = mutableRecord(content.artifact);
+      contentArtifact.canon_read_status = status;
+      mutableRecord(
+        contentArtifact.predictive_coverage_diagnostic,
+      ).canon_read_status = status;
+      expect(
+        artifactContentSchema.parse(content).artifact.canon_read_status,
+      ).toBe(status);
+      expect(
+        artifactContentSchema.parse(content).artifact
+          .predictive_coverage_diagnostic?.canon_read_status,
+      ).toBe(status);
+
+      const schema = structuredClone(artifactSchemaApiResponseFixture);
+      mutableRecord(schema.schema).canon_read_status = status;
+      expect(artifactSchemaSchema.parse(schema).schema.canon_read_status).toBe(
+        status,
+      );
+    },
+  );
+
+  it("maps legacy omissions to not_evaluated and rejects explicit null", () => {
+    const missingContentStatus = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    delete mutableRecord(missingContentStatus.artifact).canon_read_status;
+    const parsedMissingContentStatus =
+      artifactContentSchema.parse(missingContentStatus);
+    expect(parsedMissingContentStatus.artifact.canon_read_status).toBe(
+      "not_evaluated",
+    );
+
+    const missingDiagnosticStatus = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    const missingDiagnosticStatusArtifact = mutableRecord(
+      missingDiagnosticStatus.artifact,
+    );
+    delete missingDiagnosticStatusArtifact.canon_read_status;
+    delete mutableRecord(
+      missingDiagnosticStatusArtifact.predictive_coverage_diagnostic,
+    ).canon_read_status;
+    const parsedMissingDiagnosticStatus = artifactContentSchema.parse(
+      missingDiagnosticStatus,
+    );
+    expect(parsedMissingDiagnosticStatus.artifact.canon_read_status).toBe(
+      "not_evaluated",
+    );
+    expect(
+      parsedMissingDiagnosticStatus.artifact.predictive_coverage_diagnostic
+        ?.canon_read_status,
+    ).toBe("not_evaluated");
+
+    const missingSchemaStatus = structuredClone(
+      artifactSchemaApiResponseFixture,
+    );
+    delete mutableRecord(missingSchemaStatus.schema).canon_read_status;
+    expect(
+      artifactSchemaSchema.parse(missingSchemaStatus).schema.canon_read_status,
+    ).toBe("not_evaluated");
+
+    const nullContentStatus = structuredClone(artifactContentApiPreviewFixture);
+    mutableRecord(nullContentStatus.artifact).canon_read_status = null;
+    expect(artifactContentSchema.safeParse(nullContentStatus).success).toBe(
+      false,
+    );
+
+    const nullDiagnosticStatus = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    mutableRecord(
+      mutableRecord(nullDiagnosticStatus.artifact)
+        .predictive_coverage_diagnostic,
+    ).canon_read_status = null;
+    expect(artifactContentSchema.safeParse(nullDiagnosticStatus).success).toBe(
+      false,
+    );
+
+    const nullSchemaStatus = structuredClone(artifactSchemaApiResponseFixture);
+    mutableRecord(nullSchemaStatus.schema).canon_read_status = null;
+    expect(artifactSchemaSchema.safeParse(nullSchemaStatus).success).toBe(
+      false,
+    );
+  });
+
+  it("joins predictive diagnostics to the exact JSON manifest with each status marker held fixed", () => {
+    const mutations = [
+      [
+        "diagnostic artifact ID",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(
+            mutableRecord(intake.content).predictive_coverage_diagnostic,
+          ).source_artifact_id = "sha256:" + "c".repeat(64);
+        },
+      ],
+      [
+        "manifest artifact ID",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          intake.manifest.artifact_id = "sha256:" + "c".repeat(64);
+        },
+      ],
+      [
+        "diagnostic profile",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(
+            mutableRecord(intake.content).predictive_coverage_diagnostic,
+          ).source_manifest_profile_sha256 = "sha256:" + "c".repeat(64);
+        },
+      ],
+      [
+        "manifest profile",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          intake.manifest.manifest_profile_sha256 = "sha256:" + "c".repeat(64);
+        },
+      ],
+      [
+        "diagnostic status",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(
+            mutableRecord(intake.content).predictive_coverage_diagnostic,
+          ).canon_read_status = "not_evaluated";
+        },
+      ],
+      [
+        "diagnostic kind",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(intake.content).kind = "other.report";
+          intake.manifest.kind = "other.report";
+        },
+      ],
+      [
+        "diagnostic schema name",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          intake.manifest.schema_name = "other.report";
+        },
+      ],
+      [
+        "diagnostic schema version",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          intake.manifest.schema_version = "2.0";
+        },
+      ],
+      [
+        "JSON mode",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(intake.content).mode = "text";
+        },
+      ],
+      [
+        "JSON media type",
+        (intake: ReturnType<typeof artifactInspectorIntakeFixture>) => {
+          mutableRecord(intake.content).media_type = "text/plain";
+          intake.manifest.media_type = "text/plain";
+        },
+      ],
+    ] as const;
+
+    for (const [label, mutate] of mutations) {
+      const intake = artifactInspectorIntakeFixture();
+      mutate(intake);
+      const diagnostic = mutableRecord(
+        mutableRecord(intake.content).predictive_coverage_diagnostic,
+      );
+      expect({ label, value: diagnostic.assessment }).toEqual({
+        label,
+        value: "limited",
+      });
+      expect({ label, value: diagnostic.source_materialization }).toEqual({
+        label,
+        value: "reader_materialized",
+      });
+      expect({ label, value: diagnostic.producer_attestation_status }).toEqual({
+        label,
+        value: "not_established",
+      });
+      expect({ label, value: diagnostic.may_not_use_for }).toEqual({
+        label,
+        value: [
+          "promotion",
+          "publication",
+          "policy_selection",
+          "causal_effect_claim",
+        ],
+      });
+      expect({
+        label,
+        success: artifactInspectorIntakeSchema.safeParse(intake).success,
+      }).toEqual({ label, success: false });
+    }
+  });
+
+  it("joins schema views to the same manifest schema name and version", () => {
+    const manifest = {
+      artifact_id: artifactSchemaApiResponseFixture.schema.artifact_id,
+      manifest_profile_sha256:
+        artifactSchemaApiResponseFixture.schema.manifest_profile_sha256,
+      kind: artifactSchemaApiResponseFixture.schema.kind,
+      media_type: artifactSchemaApiResponseFixture.schema.media_type,
+      schema_name: artifactSchemaApiResponseFixture.schema.schema_name,
+      schema_version: artifactSchemaApiResponseFixture.schema.schema_version,
+    };
+    const valid = {
+      manifest,
+      schema: structuredClone(artifactSchemaApiResponseFixture.schema),
+    };
+    expect(artifactInspectorIntakeSchema.safeParse(valid).success).toBe(true);
+
+    const wrongName = structuredClone(valid);
+    mutableRecord(wrongName.schema).schema_name = "other.schema";
+    expect(artifactInspectorIntakeSchema.safeParse(wrongName).success).toBe(
+      false,
+    );
+
+    const wrongVersion = structuredClone(valid);
+    mutableRecord(wrongVersion.schema).schema_version = "2.0";
+    expect(artifactInspectorIntakeSchema.safeParse(wrongVersion).success).toBe(
+      false,
+    );
+  });
+
+  it("strips future unconsumed response fields without changing limited status", () => {
+    const futureContent = structuredClone(artifactContentApiPreviewFixture);
+    const artifact = mutableRecord(futureContent.artifact);
+    artifact.future_reader_annotation = { status: "publishable" };
+    const diagnostic = mutableRecord(artifact.predictive_coverage_diagnostic);
+    diagnostic.future_authority_label = "publishable";
+    mutableRecord((diagnostic.scenarios as unknown[])[0]).future_metric_label =
+      "conformant";
+
+    const parsed = artifactContentSchema.parse(futureContent);
+    expect(mutableRecord(parsed.artifact)).not.toHaveProperty(
+      "future_reader_annotation",
+    );
+    expect(
+      mutableRecord(parsed.artifact.predictive_coverage_diagnostic)
+        .future_authority_label,
+    ).toBeUndefined();
+    expect(parsed.artifact.canon_read_status).toBe("declared_bytes_conformant");
+    expect(parsed.artifact.predictive_coverage_diagnostic?.assessment).toBe(
+      "limited",
+    );
+    expect(
+      parsed.artifact.predictive_coverage_diagnostic
+        ?.producer_attestation_status,
+    ).toBe("not_established");
+
+    const futureSchema = structuredClone(artifactSchemaApiResponseFixture);
+    mutableRecord(futureSchema.schema).future_schema_flag = "established";
+    const parsedSchema = artifactSchemaSchema.parse(futureSchema);
+    expect(mutableRecord(parsedSchema.schema)).not.toHaveProperty(
+      "future_schema_flag",
+    );
+    expect(parsedSchema.schema.canon_read_status).toBe(
+      "declared_bytes_conformant",
+    );
+  });
+
+  it("rejects authority upgrades while canonical status markers remain intact", () => {
+    const mutations = [
+      { label: "assessment", field: "assessment", value: "publishable" },
+      {
+        label: "source materialization",
+        field: "source_materialization",
+        value: "producer_materialized",
+      },
+      {
+        label: "producer attestation",
+        field: "producer_attestation_status",
+        value: "verified",
+      },
+      {
+        label: "S10 mapping",
+        field: "s10_metric_mapping_status",
+        value: "established",
+      },
+      {
+        label: "S10 threshold",
+        field: "s10_threshold_status",
+        value: "established",
+      },
+      { label: "issuer", field: "issuer_status", value: "verified" },
+      {
+        label: "effective time",
+        field: "effective_time_status",
+        value: "current",
+      },
+      {
+        label: "counterfactual credibility",
+        field: "counterfactual_credibility_status",
+        value: "established",
+      },
+      {
+        label: "causal effect",
+        field: "causal_effect_status",
+        value: "established",
+      },
+    ] as const;
+    for (const { label, field, value } of mutations) {
+      const upgraded = structuredClone(artifactContentApiPreviewFixture);
+      const artifact = mutableRecord(upgraded.artifact);
+      const diagnostic = mutableRecord(artifact.predictive_coverage_diagnostic);
+      artifact.canon_read_status = "declared_bytes_conformant";
+      diagnostic.canon_read_status = "declared_bytes_conformant";
+      diagnostic[field] = value;
+      expect({
+        label,
+        success: artifactContentSchema.safeParse(upgraded).success,
+      }).toEqual({ label, success: false });
+    }
+
+    const missingRestriction = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    mutableRecord(
+      mutableRecord(missingRestriction.artifact).predictive_coverage_diagnostic,
+    ).may_not_use_for = ["promotion"];
+    expect(artifactContentSchema.safeParse(missingRestriction).success).toBe(
+      false,
+    );
+  });
+
+  it("rejects unknown statuses and malformed present nested values", () => {
+    const unknownContentStatus = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    mutableRecord(unknownContentStatus.artifact).canon_read_status =
+      "conformant";
+    expect(artifactContentSchema.safeParse(unknownContentStatus).success).toBe(
+      false,
+    );
+
+    const unknownDiagnosticStatus = structuredClone(
+      artifactContentApiPreviewFixture,
+    );
+    mutableRecord(
+      mutableRecord(unknownDiagnosticStatus.artifact)
+        .predictive_coverage_diagnostic,
+    ).canon_read_status = "conformant";
+    expect(
+      artifactContentSchema.safeParse(unknownDiagnosticStatus).success,
+    ).toBe(false);
+
+    const unknownSchemaStatus = structuredClone(
+      artifactSchemaApiResponseFixture,
+    );
+    mutableRecord(unknownSchemaStatus.schema).canon_read_status = "conformant";
+    expect(artifactSchemaSchema.safeParse(unknownSchemaStatus).success).toBe(
+      false,
+    );
+
+    const malformedScenario = structuredClone(artifactContentApiPreviewFixture);
+    const diagnostic = mutableRecord(
+      mutableRecord(malformedScenario.artifact).predictive_coverage_diagnostic,
+    );
+    const scenarios = diagnostic.scenarios as unknown[];
+    mutableRecord(scenarios[0]).interval_evaluated_count = "0";
+    expect(artifactContentSchema.safeParse(malformedScenario).success).toBe(
+      false,
+    );
   });
 });

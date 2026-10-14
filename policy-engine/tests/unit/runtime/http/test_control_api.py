@@ -393,6 +393,10 @@ class TestCapabilities:
         resp = client.get("/api/v1/control/capabilities")
         assert resp.status_code == 200
         body = resp.json()
+        assert body["runtime_api_version"] == "1.1.0"
+        openapi = client.get("/openapi.json")
+        assert openapi.status_code == 200
+        assert openapi.json()["info"]["version"] == body["runtime_api_version"]
         assert body["shell_flavor"] == "atlas"
         assert body["default_locale"] == "en"
         assert body["default_execution_profile"] == "dev"
@@ -1498,7 +1502,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_without_model_is_typed_refusal(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7b1f5dd274c646eb8399c8a3e4c6ea10"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-7b1f5dd274c646eb8399c8a3e4c6ea10"},
             json={
                 "request": "Analyze minimum wage impact on small businesses",
                 "domain_hint": "fiscal",
@@ -1512,7 +1517,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_with_llm_model(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-699bbbda47674e4da9b7986d59b6c7ed"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-699bbbda47674e4da9b7986d59b6c7ed"},
             json={
                 "request": "Study healthcare policy effects",
                 "llm_model": "claude-sonnet-4-5-20250929",
@@ -1527,7 +1533,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_with_llm_models(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-e1ebfd9a50d6462fb2d6d25a126d805f"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-e1ebfd9a50d6462fb2d6d25a126d805f"},
             json={
                 "request": "Compare multiple model variants on the same task",
                 "llm_models": ["gpt-5-mini", "claude-sonnet-4-5-20250929"],
@@ -1545,7 +1552,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_accepts_execution_plan_payload(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-0a2c7df77cc64143b51e1a4fecaf27aa"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-0a2c7df77cc64143b51e1a4fecaf27aa"},
             json={
                 "request": "Plan-first NL cycle",
                 "llm_model": "simulated-qwen",
@@ -1577,7 +1585,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_invalid_parallel_models_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-20e864dbd3cc407e97353994cab351ef"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-20e864dbd3cc407e97353994cab351ef"},
             json={
                 "request": "Invalid max_parallel_models value",
                 "llm_models": ["gpt-5-mini", "claude-sonnet-4-5-20250929"],
@@ -1589,7 +1598,8 @@ class TestLaunchNlRun:
     def test_launch_nl_run_empty_request_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-c20360dbce0b4389a786a947e0c61a31"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-c20360dbce0b4389a786a947e0c61a31"},
             json={"request": ""},
         )
         assert resp.status_code == 422
@@ -1811,7 +1821,10 @@ class TestLaunchNlRun:
             assert attempt_status.producer_event_ids == []
             assert attempt_status.producer_event_observation == "no_call"
             assert attempt_status.producer_no_call_reason == "provider_preflight_not_started"
-            assert attempt_status.history[-1].producer_no_call_reason == "provider_preflight_not_started"
+            assert (
+                attempt_status.history[-1].producer_no_call_reason
+                == "provider_preflight_not_started"
+            )
             assert attempt_status.failure_code == "provider_preflight_not_started"
         else:
             assert response is None and replay_response is None
@@ -1822,9 +1835,12 @@ class TestLaunchNlRun:
             assert attempt_status.failure_code == "provider_preflight_settlement_unavailable"
             if preflight_status == "complete_without_event":
                 # A producer self-label without the exact durable event is unresolved.
-                assert preflight_calls[0]["producer_settlement_store"].list_producer_events_for_run_safe(
-                    preflight_calls[0]["producer_run_binding"]
-                ) == []
+                assert (
+                    preflight_calls[0][
+                        "producer_settlement_store"
+                    ].list_producer_events_for_run_safe(preflight_calls[0]["producer_run_binding"])
+                    == []
+                )
         assert execute_called is False
         binding = preflight_inputs["producer_run_binding"]
         assert binding.run_id == attempt_status.run_id
@@ -1932,13 +1948,14 @@ class TestLaunchNlRun:
         attempt_history = attempt_response.json()
         assert attempt_history["attempt_id"] == attempt_id
         assert attempt_history["status"] == "refused"
-        assert [item["event_type"] for item in attempt_history["history"]] == [
-            "started", "refused"
-        ]
+        assert [item["event_type"] for item in attempt_history["history"]] == ["started", "refused"]
         assert attempt_history["producer_event_observation"] == "no_call"
         assert attempt_history["producer_no_call_reason"] == "provider_preflight_not_started"
         assert attempt_history["history"][-1]["producer_event_observation"] == "no_call"
-        assert attempt_history["history"][-1]["producer_no_call_reason"] == "provider_preflight_not_started"
+        assert (
+            attempt_history["history"][-1]["producer_no_call_reason"]
+            == "provider_preflight_not_started"
+        )
         assert attempt_history["history"][-1]["failure_code"] == "provider_preflight_not_started"
         assert replay_response.status_code == 200
         assert replay_response.json()["job_id"] == launch["job_id"]
@@ -2822,8 +2839,8 @@ def test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong
     )
     assert matched_response.status_code == 200
     matched = matched_response.json()
-    assert matched["search_mode"] == "vector"
-    assert matched["vector_refusal_code"] is None
+    assert matched["search_mode"] == "text"
+    assert matched["vector_refusal_code"] == "query_encoder_runtime_material_not_established"
     assert matched["results"][0]["fact_id"] == "fact-annual-leave"
     assert {"search_mode", "vector_refusal_code"} <= set(
         LexSearchResponse.model_json_schema()["required"]

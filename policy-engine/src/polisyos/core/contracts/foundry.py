@@ -21,8 +21,8 @@ from .uncertainty import UncertaintyEnvelopeRef
 class FoundryExecutionInputBasisRef(ArtifactRef):
     """Selected CAS reference for the exact inputs passed to one Foundry step."""
 
-    kind: str = "foundry.execution_input_basis"
-    media_type: str = "application/json"
+    kind: Literal["foundry.execution_input_basis"] = "foundry.execution_input_basis"
+    media_type: Literal["application/json"] = "application/json"
 
 
 class ProgramGraphRef(ArtifactRef):

@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Mapping
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferTenantScopeStatus,
+    resolve_transfer_context,
+)
 from polisyos.scientist.methods.search.voi_scheduler import (
     PredictiveVOIScheduler,
     VOIModelSnapshot,
@@ -55,17 +62,30 @@ def policy_runtime_input_signature(
 def predictive_voi_snapshot_path(
     ctx: ExecutionContext,
     *,
-    transfer_context: dict[str, object],
-) -> Path:
-    """Return the persisted VOI snapshot location for one policy runtime scope."""
+    transfer_context: Mapping[str, object] | TransferContext,
+) -> Path | None:
+    """Return the persisted VOI path for an authenticated or run-local scope.
+
+    Authenticated tenant paths retain their existing location. Unknown and
+    declared-unscoped scopes use a status-separated, run-bound candidate cache;
+    an absent/sentinel run identity has no reusable cache path. Legacy global
+    snapshots are never read or migrated into candidate scope.
+    """
     store_root = getattr(ctx.store, "root", None)
     if store_root is None:
         raise ValueError("policy runtime VOI persistence requires a filesystem-backed store root")
-    task_family = str(transfer_context.get("task_family") or "policy").strip() or "policy"
-    domain = str(transfer_context.get("domain") or "unknown").strip() or "unknown"
-    tenant_scope = str(transfer_context.get("tenant_hash") or "global").strip() or "global"
+    scope = resolve_transfer_context(context={"transfer_context": transfer_context})
+    if scope.tenant_scope_status is TransferTenantScopeStatus.AUTHENTICATED:
+        assert scope.tenant_hash is not None
+        tenant_scope = scope.tenant_hash
+    else:
+        run_id = scope.run_id.strip()
+        if not run_id or run_id.casefold() == "unknown":
+            return None
+        run_digest = hashlib.sha256(run_id.encode("utf-8")).hexdigest()
+        tenant_scope = f"candidate-{scope.tenant_scope_status.value}-{run_digest}"
     safe_name = (
-        f"{task_family}::{domain}::{tenant_scope}".replace("/", "_")
+        f"{scope.task_family}::{scope.domain}::{tenant_scope}".replace("/", "_")
         .replace("\\", "_")
         .replace(":", "_")
     )
@@ -79,7 +99,7 @@ def load_predictive_voi_scheduler(
 ) -> PredictiveVOIScheduler:
     """Load a bounded VOI snapshot when present, otherwise create a cold scheduler."""
     path = predictive_voi_snapshot_path(ctx, transfer_context=transfer_context)
-    if not path.exists():
+    if path is None or not path.exists():
         return PredictiveVOIScheduler(training_config=VOITrainingConfig(cross_domain_weight=0.0))
     snapshot = VOIModelSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
     return PredictiveVOIScheduler.from_snapshot(snapshot)
@@ -93,6 +113,8 @@ def persist_predictive_voi_scheduler(
 ) -> None:
     """Persist VOI scheduler state atomically to the registry snapshot path."""
     path = predictive_voi_snapshot_path(ctx, transfer_context=transfer_context)
+    if path is None:
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = scheduler.snapshot().model_dump_json(indent=2)
     with NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:

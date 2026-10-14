@@ -38,6 +38,7 @@ from polisyos.scientist.methods.search.funnel.level5_refutation_governance impor
 )
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
@@ -624,6 +625,17 @@ def _funnel_projection_refusal(
     )
 
 
+def _project_voi_scope(transfer_context: Mapping[str, Any]) -> dict[str, str]:
+    """Project the producer-resolved typed scope into promotion evidence metadata."""
+    scope = TransferContext.model_validate(transfer_context)
+    return {
+        "task_family": scope.task_family,
+        "domain": scope.domain,
+        "tenant_scope": scope.tenant_hash or "",
+        "tenant_scope_status": scope.tenant_scope_status.value,
+    }
+
+
 def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     """Persist final evidence, branch state, and emit the node's existing events."""
     owner = session.owner
@@ -669,11 +681,7 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
                 "voi_model_status": [
                     status.model_dump(mode="json") for status in predictive_voi.model_status()
                 ],
-                "voi_scope": {
-                    "task_family": str(transfer_context.get("task_family") or "policy"),
-                    "domain": str(transfer_context.get("domain") or ""),
-                    "tenant_scope": str(transfer_context.get("tenant_hash") or ""),
-                },
+                "voi_scope": _project_voi_scope(transfer_context),
                 "promotion_grade_fidelity": (
                     "full" if outcome.stage_results.get(4) is not None else "selection_only"
                 ),

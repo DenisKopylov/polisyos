@@ -23,13 +23,16 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+
+if TYPE_CHECKING:
+    from polisyos.core.security.access_scope import AccessScope
 
 try:
     import orjson
@@ -59,7 +62,7 @@ _HASH_LENGTH = 32  # SHA-256 digest length in bytes
 _WIRE_MAX_DEPTH = 128
 _STATE_WIRE_SCHEMA = "polisyos.scientist.state_wire.v2"
 _OUTCOME_WIRE_SCHEMA = "polisyos.scientist.outcome_wire.v2"
-_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v1"
+_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v2"
 
 
 _WIRE_TYPE_KEY = "_type"
@@ -837,6 +840,89 @@ def serialize_context_meta(
     return meta
 
 
+_TIMEOUT_ACCESS_SCOPE_FIELDS = frozenset(
+    {
+        "tenant_id",
+        "cell_id",
+        "principal_type",
+        "user_sub",
+        "roles",
+        "max_pii_tier",
+        "mfa_verified",
+        "spiffe_id",
+        "delegation_jti",
+        "jwt_jti",
+    }
+)
+
+
+def _timeout_access_scope_from_wire(raw: Any) -> AccessScope | None:
+    """Decode one exact canonical AccessScope object or explicit absence."""
+    if raw is None:
+        return None
+    if type(raw) is not dict or set(raw) != _TIMEOUT_ACCESS_SCOPE_FIELDS:
+        raise ValueError("timeout_worker_access_scope_shape_invalid")
+
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
+
+    string_fields = (
+        "tenant_id",
+        "principal_type",
+        "user_sub",
+        "max_pii_tier",
+        "spiffe_id",
+        "delegation_jti",
+        "jwt_jti",
+    )
+    if any(type(raw[name]) is not str for name in string_fields):
+        raise ValueError("timeout_worker_access_scope_invalid")
+    if type(raw["cell_id"]) is not str and raw["cell_id"] is not None:
+        raise ValueError("timeout_worker_access_scope_invalid")
+    if not raw["tenant_id"].strip() or type(raw["mfa_verified"]) is not bool:
+        raise ValueError("timeout_worker_access_scope_invalid")
+    roles_raw = raw["roles"]
+    if type(roles_raw) is not list or any(type(role) is not str for role in roles_raw):
+        raise ValueError("timeout_worker_access_scope_invalid")
+    try:
+        roles = frozenset(PolicyOSRole(role) for role in roles_raw)
+        max_pii_tier = PIIAccessLevel(raw["max_pii_tier"])
+    except ValueError as exc:
+        raise ValueError("timeout_worker_access_scope_invalid") from exc
+    canonical_roles = [role.value for role in sorted(roles, key=lambda role: role.value)]
+    if canonical_roles != roles_raw:
+        raise ValueError("timeout_worker_access_scope_invalid")
+    scope = AccessScope(
+        tenant_id=raw["tenant_id"],
+        cell_id=raw["cell_id"],
+        principal_type=raw["principal_type"],
+        user_sub=raw["user_sub"],
+        roles=roles,
+        max_pii_tier=max_pii_tier,
+        mfa_verified=raw["mfa_verified"],
+        spiffe_id=raw["spiffe_id"],
+        delegation_jti=raw["delegation_jti"],
+        jwt_jti=raw["jwt_jti"],
+    )
+    if scope.to_dict() != raw:
+        raise ValueError("timeout_worker_access_scope_noncanonical")
+    return scope
+
+
+def _timeout_access_scope_to_wire(scope: AccessScope | None) -> dict[str, Any] | None:
+    """Encode only an exact AccessScope whose full canonical form round-trips."""
+    if scope is None:
+        return None
+    from polisyos.core.security.access_scope import AccessScope
+
+    if type(scope) is not AccessScope:
+        raise ValueError("timeout_worker_access_scope_type_invalid")
+    payload = scope.to_dict()
+    if _timeout_access_scope_from_wire(payload) != scope:
+        raise ValueError("timeout_worker_access_scope_noncanonical")
+    return payload
+
+
 def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, Any]:
     """Encode the closed local context profile admitted by spawn timeout workers.
 
@@ -849,6 +935,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     from pathlib import Path
 
     from polisyos.core.artifacts import SigningConfig
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
@@ -857,6 +944,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         get_current_cell_id,
         get_current_tenant_id_or_none,
     )
+    from polisyos.core.security.tenant_context import get_current_access_scope_or_none
     from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -872,8 +960,10 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         raise ValueError("timeout_worker_run_manifest_required")
     if type(run.trace) is not JsonlTraceSink or run._audit_sink is not None:
         raise ValueError("timeout_worker_jsonl_trace_profile_required")
-    if run.access_scope is not None:
-        raise ValueError("timeout_worker_access_scope_not_serializable")
+    access_scope_wire = _timeout_access_scope_to_wire(run.access_scope)
+    ambient_access_scope = get_current_access_scope_or_none()
+    if ambient_access_scope is not None and ambient_access_scope != run.access_scope:
+        raise ValueError("timeout_worker_ambient_access_scope_mismatch")
     if run.store is not store:
         raise ValueError("timeout_worker_run_store_mismatch")
     if not isinstance(ctx.logger, logging.Logger):
@@ -922,6 +1012,12 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         raise ValueError("timeout_worker_run_id_mismatch")
     if run.run_manifest.tenant_id != run.tenant_id or run.run_manifest.cell_id != run.cell_id:
         raise ValueError("timeout_worker_manifest_owner_mismatch")
+    if (store._tenant_id, store._cell_id) != (run.tenant_id, run.cell_id):
+        raise ValueError("timeout_worker_store_run_owner_mismatch")
+    owner_snapshot_ref = run._owner_snapshot_ref
+    if type(owner_snapshot_ref) is not ArtifactRef:
+        raise ValueError("timeout_worker_owner_snapshot_ref_required")
+    run._validate_timeout_worker_owner_binding()
     ambient_tenant = get_current_tenant_id_or_none()
     ambient_cell = get_current_cell_id()
     for owner_tenant, owner_cell in (
@@ -957,6 +1053,10 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
             "trace_path": str(trace_path),
             "tenant_id": run.tenant_id,
             "cell_id": run.cell_id,
+            "owner_snapshot_ref": owner_snapshot_ref.model_dump(
+                mode="json", by_alias=True, exclude_none=False
+            ),
+            "access_scope": access_scope_wire,
         },
         "tenant_scope": {"tenant_id": ambient_tenant, "cell_id": ambient_cell},
     }

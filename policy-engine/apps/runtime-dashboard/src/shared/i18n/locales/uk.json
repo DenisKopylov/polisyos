@@ -823,6 +823,10 @@
         "acquisitionNewCandidate": "Кандидат повторного запуску: {candidate}",
         "acquisitionSource": "Джерело кандидата: {ref}",
         "acquisitionOrigin": "Початкове джерело: {ref}",
+        "acquisitionOriginObserved": "Спостережене початкове джерело (лише для розслідування): {ref}",
+        "acquisitionOriginVerified": "Перевірений виробником корінь кандидата: {ref}",
+        "acquisitionJoinStatus": "Прив’язка появи кандидата: {status}",
+        "acquisitionHistoryLimited": "Метадані походження відсутні або застарілі; ця історія має обмежений статус.",
         "acquisitionOriginUnlinked": "не пов’язане в цьому записі",
         "acquisitionReceipt": "Квитанція маршруту: {ref}",
         "acquisitionReentryReceipt": "Квитанція повторного запуску: {ref}"
@@ -1500,11 +1504,21 @@
         "mediaType": "Media type",
         "artifactSize": "Розмір артефакту",
         "previewLimit": "Ліміт preview",
-        "truncated": "Обрізано"
+        "truncated": "Обрізано",
+        "canonReadStatus": "Статус канонічного читання"
+      },
+      "predictiveCoverage": {
+        "title": "Діагностика прогнозного покриття",
+        "limitedNotice": "Обмежена діагностика, сформована засобом читання. Атестацію виробника не встановлено; перелічені способи використання заборонені.",
+        "assessment": "Оцінка",
+        "sourceMaterialization": "Спосіб формування",
+        "producerAttestationStatus": "Атестація виробника",
+        "mayNotUseFor": "Заборонено використовувати для"
       },
       "schemaFields": {
         "name": "Назва схеми",
-        "version": "Версія схеми"
+        "version": "Версія схеми",
+        "canonReadStatus": "Статус канонічного читання"
       },
       "lineageFields": {
         "nodes": "Nodes",

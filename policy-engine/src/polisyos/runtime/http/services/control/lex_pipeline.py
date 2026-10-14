@@ -406,15 +406,21 @@ class LexPipelineMixin:
                         query_encoder = provider.resolve_encoder()
                     except LegalQueryEncoderProviderError as exc:
                         provider_error = LegalQueryProfileError(exc.code)
+                        # The shared reader must compare current generation assets
+                        # before surfacing the typed runtime refusal.
+                        query_encoder = provider.encoder
 
             graph = LegalKnowledgeGraph(
                 db_path=db_path,
                 index_dir=Path(request.output_dir),
                 query_encoder=query_encoder,
                 query_profile=query_profile,
+                query_encoder_refusal=provider_error,
             )
             try:
-                if profile_error is None and provider_error is None:
+                if profile_error is None:
+                    # Parsed intent always traverses fresh Legal admission so
+                    # stale requests and member drift retain refusal precedence.
                     raw_results = graph.hybrid_search(
                         request.query,
                         top_k=request.top_k,
@@ -434,9 +440,7 @@ class LexPipelineMixin:
                         trust_tier=None,
                         include_candidates=False,
                     )
-                    refusal_code = (
-                        profile_error.code if profile_error is not None else provider_error.code
-                    )
+                    refusal_code = profile_error.code
                     search_mode = "text"
             finally:
                 graph.close()

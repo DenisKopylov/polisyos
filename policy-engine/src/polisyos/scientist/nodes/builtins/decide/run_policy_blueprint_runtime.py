@@ -214,6 +214,7 @@ _SPEC = NodeSpec(
     state_reads=[
         "run_id",
         "last_checkpoint_ref",
+        "params",
         "params.workflow_id",
         "params.policy_mode",
         "params.policy_candidate_schema",

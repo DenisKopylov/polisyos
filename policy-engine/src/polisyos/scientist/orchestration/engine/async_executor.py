@@ -1952,9 +1952,17 @@ class AsyncWorkflowExecutor:
                 outcome = NodeOutcome.model_validate(raw_outcome)
                 self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
             except NodeTimeoutError as exc:
-                self._ctx.logger.error("Node %s timed out", alias)
-                error = NodeError.for_timeout(message=str(exc), timeout_s=node_timeout_s)
-                error.details.update(exc.details)
+                if exc.code == "node.timeout_worker_unsupported":
+                    self._ctx.logger.error("Node %s refused before timeout worker start", alias)
+                    error = NodeError(
+                        code=exc.code,
+                        message=str(exc),
+                        details=dict(exc.details),
+                    )
+                else:
+                    self._ctx.logger.error("Node %s timed out", alias)
+                    error = NodeError.for_timeout(message=str(exc), timeout_s=node_timeout_s)
+                    error.details.update(exc.details)
                 outcome = NodeOutcome(
                     status="fail",
                     state=node_state,

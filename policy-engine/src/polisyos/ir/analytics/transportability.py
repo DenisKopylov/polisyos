@@ -596,9 +596,7 @@ class TransportabilityResult(BaseModel):
     @model_validator(mode="after")
     def _validate_contract(self) -> TransportabilityResult:
         if (self.source_graph_type is None) != (self.source_graph_sha256 is None):
-            raise ValueError(
-                "source graph type and content digest must be supplied together"
-            )
+            raise ValueError("source graph type and content digest must be supplied together")
         if (
             self.pag_dag_sample_size is not None
             and self.pag_transportable_count is not None
@@ -764,8 +762,15 @@ def persist_transportability_result(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.transportability_result",
     schema_version: str = "1.0",
+    return_selected_profile: bool = False,
 ) -> TransportabilityResultRef:
-    """Persist transportability result helper."""
+    """Persist transportability result helper.
+
+    ``return_selected_profile`` asks the generic CAS writer to return the exact
+    profile selected by this same write; legacy callers retain the old default.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile_must_be_bool")
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -774,6 +779,7 @@ def persist_transportability_result(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return TransportabilityResultRef.model_validate(ref)
 

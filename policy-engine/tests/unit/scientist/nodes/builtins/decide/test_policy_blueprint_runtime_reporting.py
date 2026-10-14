@@ -26,12 +26,17 @@ from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
     persist_promotion_evidence_bundle,
 )
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferTenantScopeStatus,
+)
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+    _project_voi_scope,
     _serialize_funnel_outcome,
     finalize_runtime_session,
 )
@@ -137,6 +142,26 @@ def test_reporting_finite_projection_roundtrips_nested_evidence_without_loss() -
     assert restored["stage_results"]["4"]["compute_cost_origin"] == "estimated"
     assert restored["uncertainty_current"] is None
     assert restored["final_action"] == "advance"
+
+
+def test_reporting_voi_scope_preserves_unknown_and_declared_unscoped_status() -> None:
+    for status in (
+        TransferTenantScopeStatus.UNKNOWN,
+        TransferTenantScopeStatus.DECLARED_UNSCOPED,
+    ):
+        typed_scope = TransferContext(
+            task_family="policy",
+            domain="fiscal",
+            run_id="runtime-reporting-scope",
+            tenant_hash=None,
+            tenant_scope_status=status,
+        )
+        projected = _project_voi_scope(typed_scope.model_dump(mode="json"))
+
+        assert projected["task_family"] == "policy"
+        assert projected["domain"] == "fiscal"
+        assert projected["tenant_scope"] == ""
+        assert projected["tenant_scope_status"] == status.value
 
 
 def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path: Path) -> None:

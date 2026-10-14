@@ -823,6 +823,10 @@
         "acquisitionNewCandidate": "Re-entry candidate: {candidate}",
         "acquisitionSource": "Candidate source: {ref}",
         "acquisitionOrigin": "Origin source: {ref}",
+        "acquisitionOriginObserved": "Observed origin source (forensic only): {ref}",
+        "acquisitionOriginVerified": "Producer-verified candidate root: {ref}",
+        "acquisitionJoinStatus": "Occurrence binding: {status}",
+        "acquisitionHistoryLimited": "Lineage metadata is missing or legacy; this history remains limited.",
         "acquisitionOriginUnlinked": "not linked in this record",
         "acquisitionReceipt": "Route receipt: {ref}",
         "acquisitionReentryReceipt": "Re-entry receipt: {ref}"
@@ -1500,11 +1504,21 @@
         "mediaType": "Media type",
         "artifactSize": "Artifact size",
         "previewLimit": "Preview limit",
-        "truncated": "Truncated"
+        "truncated": "Truncated",
+        "canonReadStatus": "Canonical read status"
+      },
+      "predictiveCoverage": {
+        "title": "Predictive coverage diagnostic",
+        "limitedNotice": "Limited reader-materialized diagnostic. Producer attestation is not established; the listed uses remain disallowed.",
+        "assessment": "Assessment",
+        "sourceMaterialization": "Source materialization",
+        "producerAttestationStatus": "Producer attestation",
+        "mayNotUseFor": "May not use for"
       },
       "schemaFields": {
         "name": "Schema name",
-        "version": "Schema version"
+        "version": "Schema version",
+        "canonReadStatus": "Canonical read status"
       },
       "lineageFields": {
         "nodes": "Nodes",

@@ -345,18 +345,22 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay
 
 On macOS, a timed synchronous node uses a spawned process only when its node is
 the canonical `ResolveParametersNode` and its execution context can be encoded
-by the strict filesystem-CAS, run, and tenant wire. The child reconstructs that
-exact context and receives an absolute monotonic deadline plus the parent's
-revocable attempt authority. The parent owns timeout reporting and process-group
-cleanup. A delayed canonical-node control proves that CAS output can be written
-while authority is live and that the same write is refused after parent
-revocation. This covers the named context-owned write boundary; it is not a
-sandbox for arbitrary Python effects or raw filesystem access.
+by the strict filesystem-CAS, run-owner-snapshot, AccessScope, and tenant wire
+(profile v2). The producer and child both verify the selected owner snapshot in
+CAS and recompute its persisted scope digest; the child installs the admitted
+scope for node execution. Scope absence is encoded explicitly. The worker also
+receives an absolute monotonic deadline plus the parent's revocable attempt
+authority. The parent owns timeout reporting and process-group cleanup. A delayed
+canonical-node control proves that CAS output can be written while authority is
+live and that the same write is refused after parent revocation. This covers the
+named context-owned write boundary; it is not a sandbox for arbitrary Python
+effects or raw filesystem access.
 
 Other custom nodes and contexts are refused before node entry with
-`node.timeout_worker_unsupported`; macOS does not fall back to a thread that
-cannot be physically stopped. This narrows the former arbitrary-node timed
-behavior. Callers that accept unbounded execution may omit the timeout. A
+`node.timeout_worker_unsupported`; workflow reports preserve that admission
+code without attaching an elapsed-time threshold. macOS does not fall back to a
+thread that cannot be physically stopped. This narrows the former arbitrary-node
+timed behavior. Callers that accept unbounded execution may omit the timeout. A
 bounded custom node needs its own admitted canonical task and strict context
 profile before it can join the spawn allowlist. Linux continues to use the
 existing owned fork supervisor. Platforms without one of the supported process

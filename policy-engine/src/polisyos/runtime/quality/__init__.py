@@ -833,6 +833,7 @@ from .external_audit import (
     build_public_audit_archive_record,
     validate_public_audit_archive_record,
 )
+from .generation_cycle import RealValueOwnerGateway, ValueTransportRunReceiptV1
 from .graded_outcomes import (
     S1_GRADED_OUTCOME_SCHEMA_VERSION,
     GradedOutcomeDecision,
@@ -1646,6 +1647,7 @@ __all__ = [
     "PublicExportRedactionError",
     "QualityScore",
     "RankingMode",
+    "RealValueOwnerGateway",
     "ReconciledConcept",
     "RecordFamilyMaturity",
     "RecursiveDesignGraph",
@@ -1715,6 +1717,7 @@ __all__ = [
     "ValueScheduleReviewStatus",
     "ValueSourceClass",
     "ValueTradeoffDisclosureRecord",
+    "ValueTransportRunReceiptV1",
     "VoiAllocationRow",
     "VoiSite",
     "WelfareComparisonRecord",

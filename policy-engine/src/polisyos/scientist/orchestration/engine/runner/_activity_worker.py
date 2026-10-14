@@ -16,6 +16,7 @@ from pydantic import ValidationError
 
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    _timeout_access_scope_from_wire,
     deserialize_outcome,
     deserialize_state,
     serialize_outcome,
@@ -28,7 +29,7 @@ _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
 _TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
 _REGISTRY_REF_ERRORS = (ValidationError, TypeError, ValueError)
 _METRICS_INIT_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
-_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v1"
+_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v2"
 
 
 async def run_node_in_worker(
@@ -63,6 +64,7 @@ async def run_node_in_worker(
     state = deserialize_state(state_bytes)
 
     # Restore parent trace context from carrier
+    access_scope_token = None
     _token = _restore_parent_trace_context(
         trace_carrier,
         context_meta=context_meta,
@@ -77,6 +79,9 @@ async def run_node_in_worker(
             ctx = _build_worker_context(context_meta)
         else:
             ctx = _build_timeout_worker_context(context_meta)
+            from polisyos.core.security.tenant_context import set_current_access_scope
+
+            access_scope_token = set_current_access_scope(ctx.run.access_scope)
             if ctx.run.run_manifest.run_id != state.run_id:
                 raise ValueError("timeout_worker_run_id_mismatch")
             from polisyos.scientist.orchestration.engine.retry import (
@@ -188,6 +193,10 @@ async def run_node_in_worker(
         )
         return cast("bytes", serialize_outcome(completed))
     finally:
+        if access_scope_token is not None:
+            from polisyos.core.security.tenant_context import reset_current_access_scope
+
+            reset_current_access_scope(access_scope_token)
         if _token is not None:
             _detach_parent_trace_context(
                 _token,
@@ -541,6 +550,7 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
 def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     """Reconstruct only the exact filesystem/run context admitted for timeout work."""
     from polisyos.core.artifacts import FileSystemCAS, SigningConfig
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
     from polisyos.core.run.manifest import RunManifest
@@ -583,8 +593,32 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
         "trace_path",
         "tenant_id",
         "cell_id",
+        "owner_snapshot_ref",
+        "access_scope",
     }:
         raise ValueError("timeout_worker_run_context_invalid")
+    access_scope = _timeout_access_scope_from_wire(run_meta["access_scope"])
+    owner_ref_payload = run_meta["owner_snapshot_ref"]
+    owner_ref_fields = {
+        "artifact_id",
+        "kind",
+        "media_type",
+        "manifest_profile_sha256",
+    }
+    if type(owner_ref_payload) is not dict or set(owner_ref_payload) != owner_ref_fields:
+        raise ValueError("timeout_worker_owner_snapshot_ref_invalid")
+    try:
+        owner_snapshot_ref = ArtifactRef.model_validate(owner_ref_payload)
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise ValueError("timeout_worker_owner_snapshot_ref_invalid") from exc
+    if (
+        owner_snapshot_ref.kind != "core.run_owner_snapshot"
+        or owner_snapshot_ref.media_type != "application/json"
+        or owner_snapshot_ref.manifest_profile_sha256 is None
+        or owner_snapshot_ref.model_dump(mode="json", by_alias=True, exclude_none=False)
+        != owner_ref_payload
+    ):
+        raise ValueError("timeout_worker_owner_snapshot_ref_invalid")
     if not isinstance(tenant_scope_meta, dict) or set(tenant_scope_meta) != {
         "tenant_id",
         "cell_id",
@@ -611,6 +645,11 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     cell_id = store_meta.get("cell_id")
     if (tenant_id, cell_id) != (run_meta.get("tenant_id"), run_meta.get("cell_id")):
         raise ValueError("timeout_worker_store_run_owner_mismatch")
+    if access_scope is not None and (access_scope.tenant_id, access_scope.cell_id) != (
+        tenant_id,
+        cell_id,
+    ):
+        raise ValueError("timeout_worker_access_scope_owner_mismatch")
     ambient_tenant = tenant_scope_meta.get("tenant_id")
     ambient_cell = tenant_scope_meta.get("cell_id")
     if not isinstance(ambient_tenant, str) or not ambient_tenant.strip():
@@ -644,6 +683,11 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
         "cell_id"
     ):
         raise ValueError("timeout_worker_manifest_owner_mismatch")
+    if access_scope is not None and (access_scope.tenant_id, access_scope.cell_id) != (
+        run_manifest.tenant_id,
+        run_manifest.cell_id,
+    ):
+        raise ValueError("timeout_worker_access_scope_owner_mismatch")
     if not isinstance(meta.get("run_id"), str) or meta["run_id"] != run_manifest.run_id:
         raise ValueError("timeout_worker_run_id_required")
     if not isinstance(meta.get("workflow_id"), str):
@@ -667,8 +711,10 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
         _audit_sink=None,
         tenant_id=tenant_id,
         cell_id=cell_id,
-        access_scope=None,
+        access_scope=access_scope,
+        _owner_snapshot_ref=owner_snapshot_ref,
     )
+    run._validate_timeout_worker_owner_binding()
     return ExecutionContext(
         store=store,
         run=run,

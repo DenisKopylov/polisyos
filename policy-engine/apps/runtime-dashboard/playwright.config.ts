@@ -14,6 +14,8 @@ const fixtureMetadataPath = path.resolve(
   ".tmp/fixture-runtime.json",
 );
 const includeQuarantine = process.env.PLAYWRIGHT_INCLUDE_QUARANTINE === "1";
+const sourceBoundProfileFixture =
+  process.env.POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE === "1";
 const configuredRetries = Number.parseInt(
   process.env.PLAYWRIGHT_RETRIES ?? "0",
   10,
@@ -77,7 +79,7 @@ export default defineConfig({
       url: "http://127.0.0.1:8000/health",
       cwd: policyEngineRoot,
       reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
+      timeout: sourceBoundProfileFixture ? 600_000 : 120_000,
       env: {
         POLISYOS_LLM_SIMULATION_MODE: "1",
       },

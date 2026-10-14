@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
@@ -117,9 +118,7 @@ class AcquisitionRouteProjection(BaseModel):
     qualification_reason: Literal["policy_admission_missing", "native_owner_readback"] = (
         "policy_admission_missing"
     )
-    world_growth: Literal["not_established", "no_growth", "admitted_delta"] = (
-        "not_established"
-    )
+    world_growth: Literal["not_established", "no_growth", "admitted_delta"] = "not_established"
     admitted_observation_delta: int | None = Field(default=None, ge=0)
     authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
         "behavioral_fixture_not_production"
@@ -193,6 +192,14 @@ class AcquisitionExecutionResponse(BaseModel):
     status: Literal["accepted"] = "accepted"
     receipt_phase: Literal["requested"] = "requested"
     world_growth: Literal["not_established"] = "not_established"
+
+
+@dataclass(frozen=True, slots=True)
+class _ValidatedAcquisitionMutation:
+    """One route closure bound to the server-derived action identity."""
+
+    closure: VerifiedAcquisitionRouteClosure
+    job_id: str
 
 
 class AcquisitionOwnerExecutionResult(BaseModel):
@@ -396,16 +403,17 @@ class AcquisitionActionService:
     ) -> AcquisitionDecisionRequestResponse:
         """Persist the PA2 decision/request without consuming or invoking the effect."""
 
-        closure = self._validated_mutation(
+        admission = self._validated_mutation(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
             route_id=route_id,
             request=request,
         )
+        closure = admission.closure
         provider = self._require_authority_provider()
         operation, invocation, intent = self._action_tuple(closure, request)
-        job_id = self._job_id(closure, request)
+        job_id = admission.job_id
 
         def _no_effect(_invocation: OperationInvocationRecord) -> object:
             raise RuntimeError("decision request cannot invoke an acquisition effect")
@@ -453,18 +461,19 @@ class AcquisitionActionService:
     ) -> AcquisitionExecutionResponse:
         """Reserve a durable allow, persist requested phase, and enqueue without effect."""
 
-        closure = self._validated_mutation(
+        admission = self._validated_mutation(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
             route_id=route_id,
             request=request,
         )
+        closure = admission.closure
         provider = self._require_authority_provider()
         self._require_production_execution_bridge(closure)
         self._require_execution_port()
         operation, invocation, intent = self._action_tuple(closure, request)
-        job_id = self._job_id(closure, request)
+        job_id = admission.job_id
         action_generation = self._action_generation(closure, job_id)
 
         def _no_http_effect(_invocation: OperationInvocationRecord) -> object:
@@ -554,13 +563,16 @@ class AcquisitionActionService:
         ):
             raise AcquisitionActionServiceError("acquisition_job_payload_owner_scope_mismatch")
         request = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
-        closure = self._validated_mutation(
+        admission = self._validated_mutation(
             tenant_id=execution_scope.tenant_id,
             cell_id=execution_scope.cell_id,
             run_id=job.run_id,
             route_id=str(payload.get("route_id") or ""),
             request=request,
         )
+        if job.job_id != admission.job_id:
+            raise AcquisitionActionServiceError("acquisition_job_identity_mismatch")
+        closure = admission.closure
         operation = OperationContract.model_validate(payload.get("operation"))
         invocation = OperationInvocationRecord.model_validate(payload.get("invocation"))
         intent = AgentActionIntent.model_validate(payload.get("intent"))
@@ -649,9 +661,7 @@ class AcquisitionActionService:
                 result.action_phase_ref != action_phase_ref
                 or action_phase_ref not in result.owner_receipt_refs
             ):
-                raise AcquisitionActionServiceError(
-                    "acquisition_owner_recovery_scope_mismatch"
-                )
+                raise AcquisitionActionServiceError("acquisition_owner_recovery_scope_mismatch")
             still_current = sink.current_action_outcome(
                 tenant_id=closure.tenant_id,
                 cell_id=closure.cell_id,
@@ -714,9 +724,7 @@ class AcquisitionActionService:
         def _effect(_invocation: OperationInvocationRecord) -> object:
             if self._production_execution_bridge_installed():
                 result = AcquisitionOwnerExecutionResult.model_validate(
-                    port.execute(
-                        closure, action_phase_ref=executing_head.receipt_ref
-                    )
+                    port.execute(closure, action_phase_ref=executing_head.receipt_ref)
                 )
                 if (
                     result.action_phase_ref != executing_head.receipt_ref
@@ -753,9 +761,7 @@ class AcquisitionActionService:
                 result.action_phase_ref != executing_head.receipt_ref
                 or executing_head.receipt_ref not in result.owner_receipt_refs
             ):
-                raise AcquisitionActionServiceError(
-                    "acquisition_owner_execution_scope_mismatch"
-                )
+                raise AcquisitionActionServiceError("acquisition_owner_execution_scope_mismatch")
             selected_head = sink.persist_action_outcome_selection(
                 executing_head.receipt_ref, result.owner_receipt_refs
             )
@@ -804,6 +810,7 @@ class AcquisitionActionService:
         tenant_id: str,
         cell_id: str,
         run_id: str,
+        action_job_id: str | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
         if not tenant_id or not cell_id or not run_id:
             raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
@@ -816,9 +823,10 @@ class AcquisitionActionService:
             ),
             tenant_id=tenant_id,
             cell_id=cell_id,
+            action_outcome_reader=self.control_service.acquisition_route_sink,
         )
         try:
-            return loop.resolve_current_route(run_id=run_id)
+            return loop.resolve_current_route(run_id=run_id, action_job_id=action_job_id)
         except AcquisitionRouteClosureError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
 
@@ -828,9 +836,7 @@ class AcquisitionActionService:
         )
 
         execution_bridge_installed = self._production_execution_bridge_installed()
-        growth_status: Literal["not_established", "no_growth", "admitted_delta"] = (
-            "not_established"
-        )
+        growth_status: Literal["not_established", "no_growth", "admitted_delta"] = "not_established"
         growth = None
         try:
             execution_ready = self._production_execution_bridge_ready(closure)
@@ -877,11 +883,7 @@ class AcquisitionActionService:
             admitted_observation_delta=(
                 None
                 if growth_status == "not_established"
-                else (
-                    0
-                    if growth_status == "no_growth"
-                    else growth.admitted_observation_delta
-                )
+                else (0 if growth_status == "no_growth" else growth.admitted_observation_delta)
             ),
             authority_badge="native_owner_verified"
             if growth is not None
@@ -910,8 +912,21 @@ class AcquisitionActionService:
         run_id: str,
         route_id: str,
         request: AcquisitionRouteMutationRequest,
-    ) -> VerifiedAcquisitionRouteClosure:
-        closure = self._resolve(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+    ) -> _ValidatedAcquisitionMutation:
+        """Bind the deterministic action identity before folding route history."""
+        job_id = self._job_id_for_request(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=request,
+        )
+        closure = self._resolve(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            action_job_id=job_id,
+        )
         if (
             closure.route_id != route_id
             or request.route_projection_hash != closure.route_id
@@ -919,7 +934,7 @@ class AcquisitionActionService:
             or request.replay_pins != self._pins(closure)
         ):
             raise AcquisitionActionServiceError("acquisition_route_revalidation_required")
-        return closure
+        return _ValidatedAcquisitionMutation(closure=closure, job_id=job_id)
 
     @staticmethod
     def _pins(closure: VerifiedAcquisitionRouteClosure) -> AcquisitionRouteReplayPins:
@@ -997,8 +1012,25 @@ class AcquisitionActionService:
         closure: VerifiedAcquisitionRouteClosure,
         request: AcquisitionRouteMutationRequest,
     ) -> str:
+        return AcquisitionActionService._job_id_for_request(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            route_id=closure.route_id,
+            request=request,
+        )
+
+    @staticmethod
+    def _job_id_for_request(
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: AcquisitionRouteMutationRequest,
+    ) -> str:
         payload = (
-            f"{closure.tenant_id}\0{closure.cell_id}\0{closure.run_id}\0{closure.route_id}\0"
+            f"{tenant_id}\0{cell_id}\0{run_id}\0{route_id}\0"
             f"{request.planner_report_hash}\0{request.idempotency_key}\0"
             f"{request.human_decision_record_ref or ''}"
         ).encode()

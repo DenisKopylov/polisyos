@@ -5,6 +5,7 @@ import { useArtifactContent } from "@/api/hooks/useArtifactContent";
 import { useArtifactLineage } from "@/api/hooks/useArtifactLineage";
 import { useArtifactManifest } from "@/api/hooks/useArtifactManifest";
 import { useArtifactSchema } from "@/api/hooks/useArtifactSchema";
+import { artifactInspectorIntakeSchema } from "@/api/validators";
 import {
   ARTIFACT_TABS,
   buildArtifactHref,
@@ -131,23 +132,41 @@ export default function ArtifactInspector() {
   }
 
   const contentResponse = contentQuery.data?.artifact;
+  const contentIntakeMatches = Boolean(
+    contentResponse &&
+    manifestResponse &&
+    artifactInspectorIntakeSchema.safeParse({
+      manifest: manifestResponse,
+      content: contentResponse,
+    }).success,
+  );
   const contentReferenceMatches = Boolean(
     !invalidReferenceSelection &&
     expectedRef &&
     contentResponse &&
     artifactRefMatchesResolvedView(expectedRef, contentResponse) &&
     manifestResponse &&
-    sameResolvedArtifactView(manifestResponse, contentResponse),
+    sameResolvedArtifactView(manifestResponse, contentResponse) &&
+    contentIntakeMatches,
   );
   const content = contentReferenceMatches ? contentResponse : undefined;
   const schemaResponse = schemaQuery.data?.schema;
+  const schemaIntakeMatches = Boolean(
+    schemaResponse &&
+    manifestResponse &&
+    artifactInspectorIntakeSchema.safeParse({
+      manifest: manifestResponse,
+      schema: schemaResponse,
+    }).success,
+  );
   const schemaReferenceMatches = Boolean(
     !invalidReferenceSelection &&
     expectedRef &&
     schemaResponse &&
     artifactRefMatchesResolvedView(expectedRef, schemaResponse) &&
     manifestResponse &&
-    sameResolvedArtifactView(manifestResponse, schemaResponse),
+    sameResolvedArtifactView(manifestResponse, schemaResponse) &&
+    schemaIntakeMatches,
   );
   const schemaView = schemaReferenceMatches ? schemaResponse : undefined;
   const lineageResponse = lineageQuery.data?.lineage;
@@ -335,6 +354,16 @@ export default function ArtifactInspector() {
                   </div>
                 </div>
 
+                <div
+                  className="border-line rounded-xl border p-2 text-sm"
+                  data-testid="artifact-canon-read-status"
+                >
+                  <p className="text-muted text-xs uppercase">
+                    {t("pages.artifacts.contentFields.canonReadStatus")}
+                  </p>
+                  <p className="font-semibold">{content.canon_read_status}</p>
+                </div>
+
                 {content.truncated ? (
                   <div className="border-warning/30 bg-warning/5 text-warning flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm">
                     <span>{t("pages.artifacts.previewTruncated")}</span>
@@ -376,6 +405,77 @@ export default function ArtifactInspector() {
                       ))}
                     </div>
                   </div>
+                ) : null}
+
+                {content.predictive_coverage_diagnostic ? (
+                  <section
+                    className="border-line rounded-xl border p-3"
+                    data-testid="artifact-predictive-coverage-diagnostic"
+                  >
+                    <h3 className="mb-1 text-sm font-semibold">
+                      {t("pages.artifacts.predictiveCoverage.title")}
+                    </h3>
+                    <p className="text-muted mb-3 text-sm">
+                      {t("pages.artifacts.predictiveCoverage.limitedNotice")}
+                    </p>
+                    <dl className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2 lg:grid-cols-3">
+                      <div>
+                        <dt className="text-muted">
+                          {t("pages.artifacts.predictiveCoverage.assessment")}
+                        </dt>
+                        <dd>
+                          {content.predictive_coverage_diagnostic.assessment}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted">
+                          {t(
+                            "pages.artifacts.predictiveCoverage.sourceMaterialization",
+                          )}
+                        </dt>
+                        <dd>
+                          {
+                            content.predictive_coverage_diagnostic
+                              .source_materialization
+                          }
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted">
+                          {t("pages.artifacts.contentFields.canonReadStatus")}
+                        </dt>
+                        <dd>
+                          {
+                            content.predictive_coverage_diagnostic
+                              .canon_read_status
+                          }
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted">
+                          {t(
+                            "pages.artifacts.predictiveCoverage.producerAttestationStatus",
+                          )}
+                        </dt>
+                        <dd>
+                          {
+                            content.predictive_coverage_diagnostic
+                              .producer_attestation_status
+                          }
+                        </dd>
+                      </div>
+                      <div className="md:col-span-2 lg:col-span-3">
+                        <dt className="text-muted">
+                          {t("pages.artifacts.predictiveCoverage.mayNotUseFor")}
+                        </dt>
+                        <dd>
+                          {content.predictive_coverage_diagnostic.may_not_use_for.join(
+                            ", ",
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
                 ) : null}
 
                 {renderArtifactViewer({
@@ -430,6 +530,12 @@ export default function ArtifactInspector() {
                       {t("pages.artifacts.schemaFields.version")}
                     </dt>
                     <dd>{schemaView.schema_version ?? "-"}</dd>
+                  </div>
+                  <div data-testid="artifact-schema-canon-read-status">
+                    <dt className="text-muted">
+                      {t("pages.artifacts.schemaFields.canonReadStatus")}
+                    </dt>
+                    <dd>{schemaView.canon_read_status}</dd>
                   </div>
                 </dl>
 

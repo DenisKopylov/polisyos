@@ -715,35 +715,79 @@ class AcquisitionRouteLoopAuthoritySink:
         route_id: str,
         job_id: str,
     ) -> int:
-        """Reuse one job's generation or select a successor to verified quarantine.
+        """Reuse one job's generation or select a successor to a verified terminal."""
 
-        This read does not reserve a generation. The existing unique predecessor
-        insert fences competing requests before either can execute an effect.
-        """
-
-        heads = self._control_store.list_acquisition_action_heads(
+        outcomes = self.action_outcomes(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
             source_job_id=source_job_id,
             route_id=route_id,
         )
-        same_job = tuple(head for head in heads if head.job_id == job_id)
+        same_job = tuple(outcome for outcome in outcomes if outcome.head.job_id == job_id)
         if len(same_job) > 1:
             raise ValueError("acquisition_action_job_generation_ambiguous")
         if same_job:
-            self._verified_generation_head(same_job[0])
-            return same_job[0].action_generation
-        if not heads:
+            return same_job[0].head.action_generation
+        if not outcomes:
             return 1
-        latest = max(heads, key=lambda head: head.action_generation)
-        receipt = self._verified_generation_head(latest)
-        if (
-            not isinstance(receipt, AcquisitionRouteLoopReceipt)
-            or receipt.terminal_outcome != "quarantined_no_growth"
-        ):
+        latest = outcomes[-1]
+        receipt = latest.latest_receipt
+        if not isinstance(receipt, AcquisitionRouteLoopReceipt) or receipt.terminal_outcome not in {
+            "quarantined_no_growth",
+            "reentry_completed",
+        }:
             raise ValueError("acquisition_action_generation_not_reopenable")
-        return latest.action_generation + 1
+        return latest.head.action_generation + 1
+
+    def action_outcomes(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+    ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        """Resolve the contiguous, current owner-verified action history for one route."""
+
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": source_job_id,
+            "route_id": route_id,
+        }
+        heads = tuple(
+            sorted(
+                self._control_store.list_acquisition_action_heads(**scope),
+                key=lambda head: head.action_generation,
+            )
+        )
+        if not heads:
+            return ()
+        generations = tuple(head.action_generation for head in heads)
+        if generations != tuple(range(1, len(heads) + 1)):
+            raise ValueError("acquisition_action_generation_history_not_contiguous")
+        if any(
+            (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+            != (tenant_id, cell_id, run_id, source_job_id, route_id)
+            for head in heads
+        ):
+            raise ValueError("acquisition_action_scope_mismatch")
+        outcomes = tuple(self.verify_action_head(head) for head in heads)
+        for outcome in outcomes[:-1]:
+            if not isinstance(outcome.latest_receipt, AcquisitionRouteLoopReceipt):
+                raise ValueError("acquisition_action_generation_predecessor_not_terminal")
+        current_heads = tuple(
+            sorted(
+                self._control_store.list_acquisition_action_heads(**scope),
+                key=lambda head: head.action_generation,
+            )
+        )
+        if current_heads != heads:
+            raise ValueError("acquisition_action_current_history_changed")
+        return outcomes
 
     def current_action_outcome(
         self,
@@ -754,39 +798,16 @@ class AcquisitionRouteLoopAuthoritySink:
         source_job_id: str,
         route_id: str,
     ) -> VerifiedAcquisitionActionOutcome | None:
-        """Read one newest action only while its complete durable chain remains current."""
-        scope = {
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "run_id": run_id,
-            "source_job_id": source_job_id,
-            "route_id": route_id,
-        }
-        heads = self._control_store.list_acquisition_action_heads(**scope)
-        if not heads:
-            return None
-        generations = tuple(head.action_generation for head in heads)
-        if len(generations) != len(set(generations)):
-            raise ValueError("acquisition_action_generation_ambiguous")
-        latest = max(heads, key=lambda head: head.action_generation)
-        if (
-            latest.tenant_id,
-            latest.cell_id,
-            latest.run_id,
-            latest.source_job_id,
-            latest.route_id,
-        ) != (tenant_id, cell_id, run_id, source_job_id, route_id):
-            raise ValueError("acquisition_action_scope_mismatch")
-        snapshot = self.verify_action_head(latest)
-        current_heads = self._control_store.list_acquisition_action_heads(**scope)
-        current_generations = tuple(head.action_generation for head in current_heads)
-        if (
-            not current_heads
-            or len(current_generations) != len(set(current_generations))
-            or max(current_heads, key=lambda head: head.action_generation) != latest
-        ):
-            raise ValueError("acquisition_action_current_head_changed")
-        return snapshot
+        """Read the newest action only while its complete durable history remains current."""
+
+        outcomes = self.action_outcomes(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+        )
+        return outcomes[-1] if outcomes else None
 
     @staticmethod
     def _allowed_predecessor_phases(

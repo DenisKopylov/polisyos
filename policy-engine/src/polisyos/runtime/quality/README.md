@@ -806,3 +806,40 @@ index establishes those fields from inserted rows; no-lexical bounded wrappers
 report zero rows and incomplete retrieval. Exact full atom-ID reconciliation stays
 a separate candidate-coverage path and does not upgrade a bounded index or add
 bind/admit/promote authority.
+
+
+N8 transport is candidate-only and requires a profile-selected `CausalGraphModelRef` from the
+cycle-substrate context. Measured source/target covariates can add selection nodes to that graph,
+but cannot create graph edges. The transport producer persists its exact request, selected-graph
+diagram, solver result, and run basis with selected CAS profiles; its fresh consumer reloads and
+recomputes the diagram/result before returning a receipt. Graphless contexts and unpersisted direct
+solver calls remain typed refusals. The owner gateway accepts an optional explicit existing
+`solver_mode`; `auto` remains the default. The selected mode is captured in the immutable
+request and run basis and is used again by the fresh consumer. The candidate's explicit
+`simplified` run remains `transported_limited` and reports `simplified_legacy`; it does not
+claim graph truth, a Y0 surrogate profile, external data authority, calibration, or value
+promotion. This establishes reproducible candidate transport execution, not
+causal-graph truth, external data authority, calibration, or value promotion. B31 remains held: the
+current value-data profile is outcome-only. The inspected DID/SCM outputs report ATT while available
+Manski/TMLE bounds use ATE; the original B31 criterion is estimator-agnostic and does not require
+that method pair. The current N8 runner does not provide a consumer proving same-estimand/unit
+partial-identification bounds plus the native uncertainty channel and conversion lineage.
+
+
+The candidate-only `RealValueOwnerGateway` and `ValueTransportRunReceiptV1` are exported from
+both `polisyos.runtime.quality.generation_cycle` and the `polisyos.runtime.quality` package facade.
+The source-flip validator targets the full live graph/solver/CAS/fresh-reader test, including a
+post-run graph-payload removal control.
+
+### Source-flip validator evidence retention
+
+The N8 source-flip lane requires `--expected-source-freeze` to match the latest
+Foundry dependency-source commit and every current byte in that source closure
+before it enumerates probes, starts a test command, or mutates a source file.
+It retains complete baseline and mutated-probe stdout/stderr under the ignored
+`LOCAL/raw` tree, with per-stream path, SHA-256, byte count, and immutable probe
+receipts; the run receipt indexes those outputs. A timeout retains its available
+partial streams with `capture_complete=false`, not as a completed probe.
+`--source-flip-output-root` or `POLISYOS_VALUE_GATE_SOURCE_FLIP_OUTPUT_ROOT` can
+select a different directory only beneath that same ignored `LOCAL/raw` tree.
+Runs use unique directories and are never removed automatically.

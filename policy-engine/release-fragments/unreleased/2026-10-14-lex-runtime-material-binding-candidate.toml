@@ -1,0 +1,20 @@
+id = "2026-10-14-lex-runtime-material-binding-candidate"
+title = "Refuse unbound Legal query encoder runtime material"
+type = "changed"
+component = "lex"
+owner = "team-polisyos"
+summary = "HTTP/hybrid Legal search keeps its existing text fallback with a typed refusal when executable runtime material is not established; direct entity, fact, and provision vector methods raise the typed refusal."
+evidence = [
+  "tests/unit/remediation/test_emb_03.py",
+  "tests/unit/runtime/http/test_control_api.py",
+]
+compatibility = "The request and response DTOs are unchanged. Existing selected-generation intent remains readable. On the existing HTTP/hybrid Lex route, a served request without a source-resolved runtime-material binding returns the existing text results with search_mode=text and vector_refusal_code=query_encoder_runtime_material_not_established. Direct entity, fact, and provision vector methods raise the corresponding typed refusal; those direct calls do not fall back to text."
+change_class = "internal-runtime-behavior"
+surface_classification = "internal: Legal query runtime admission; HTTP response uses the existing search_mode and vector_refusal_code fields"
+migration = "Historical embedding generations remain readable and are not rewritten. Until G selects a runtime-material contract and an owner supplies the binding, the existing HTTP/hybrid route keeps text fallback; direct entity, fact, and provision vector calls continue to raise the typed refusal."
+api = "No public export or DTO field changes. The existing nullable vector_refusal_code carries query_encoder_runtime_material_not_established."
+limitations = "Model asset identity does not establish executable encode behavior, loaded-runtime provenance, deployment currentness, or legal authority. This candidate intentionally provides no positive vector route and does not adjudicate the G status/authority choice."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/api/control.md", "src/polisyos/lex/knowledge/README.md"]
+runbook_docs = []

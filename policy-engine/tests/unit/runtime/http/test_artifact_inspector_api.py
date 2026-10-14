@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from collections import Counter
 from datetime import UTC, datetime
 from typing import Any
@@ -80,8 +79,8 @@ def _put_controlled_authority_profile_view(
             manifest_ref=f"cas-manifest://{payload_ref}",
             payload_sha256=payload_sha256,
         )
-        ref = store.put_bytes(
-            payload_bytes,
+        ref = store.put_json(
+            payload,
             PutOptions(
                 kind=kind,
                 media_type="application/json",
@@ -90,6 +89,7 @@ def _put_controlled_authority_profile_view(
                 inputs=list(inputs),
                 authority=authority,
             ),
+            return_selected_profile=True,
         )
         assert str(ref.artifact_id) == payload_ref
         return profile_bound_ref(store, ref), envelope_ref
@@ -247,12 +247,32 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     assert secret_decision["reason"] == "authority_purpose_forbidden"
     assert any(
         contributor["basis"] == "selected_manifest"
-        and contributor["authority_boundary_ref"]
-        == "boundary-runtime-api-secret-lineage-refusal"
+        and contributor["authority_boundary_ref"] == "boundary-runtime-api-secret-lineage-refusal"
         and contributor["reason"] == "authority_purpose_forbidden"
         and contributor["visible_downgrade"]
         for contributor in secret_decision["authority_contributors"]
     )
+
+
+def test_current_inspector_emits_computed_status_for_content_and_schema(runtime_api_env) -> None:
+    client = runtime_api_env["client"]
+    artifact_id = runtime_api_env["binary_artifact_id"]
+
+    content = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{artifact_id}/content",
+    )
+    schema = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{artifact_id}/schema",
+    )
+
+    assert content.status_code == 200, content.text
+    assert schema.status_code == 200, schema.text
+    assert content.json()["artifact"]["canon_read_status"] == "not_applicable"
+    assert schema.json()["schema"]["canon_read_status"] == "not_applicable"
 
 
 def test_artifact_lineage_and_schema_endpoints(runtime_api_env) -> None:
@@ -964,23 +984,21 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
                 "rule_version_refs": ["rule://s3-profile-surface-test"],
             },
         }
-        return profile_bound_ref(
-            store,
-            store.put_bytes(
-                json.dumps(payload, sort_keys=True, separators=(",", ":")).encode(),
-                PutOptions(
-                    kind=kind,
-                    media_type="application/json",
-                    schema=SchemaInfo(
-                        name="runtime_quality.evidence_authority_envelope",
-                        version="1.0.0",
-                    ),
-                    producer=ProducerInfo(
-                        component="polisyos.tests.s3-profile-authority",
-                        version=label,
-                    ),
+        return store.put_json(
+            payload,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="runtime_quality.evidence_authority_envelope",
+                    version="1.0.0",
+                ),
+                producer=ProducerInfo(
+                    component="polisyos.tests.s3-profile-authority",
+                    version=label,
                 ),
             ),
+            return_selected_profile=True,
         )
 
     def authority_link(ref: ArtifactRef) -> ArtifactAuthorityInfo:
@@ -1024,7 +1042,6 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
                     },
                 }
             )
-        raw = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
         default_envelope = envelope_ref(f"{label}-default", denied=default_denied)
         selected_envelope = envelope_ref(
             f"{label}-selected",
@@ -1044,12 +1061,15 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
                 authority=authority_override or authority_link(ref),
             )
 
-        default_ref = profile_bound_ref(
-            store, store.put_bytes(raw, write_options(default_envelope))
+        default_ref = store.put_json(
+            payload,
+            write_options(default_envelope),
+            return_selected_profile=True,
         )
-        selected_ref = store.put_bytes(
-            raw,
+        selected_ref = store.put_json(
+            payload,
             write_options(selected_envelope, selected_authority_link),
+            return_selected_profile=True,
         )
         assert default_ref.artifact_id == selected_ref.artifact_id
         assert selected_ref.manifest_profile_sha256 is not None

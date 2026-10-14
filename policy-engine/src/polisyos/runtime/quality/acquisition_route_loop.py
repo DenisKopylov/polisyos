@@ -19,10 +19,13 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
+    AcquisitionOverlayReentryReceipt,
     GenerationCycleRecord,
     GenerationCycleRun,
     _cycle_basis_ref,
     _problem_ref,
+    generation_cycle_run_content_hash,
+    validate_acquisition_overlay_continuation,
 )
 
 if TYPE_CHECKING:
@@ -41,9 +44,14 @@ class _ArtifactSchema(Protocol):
     version: str
 
 
+class _ArtifactProducer(Protocol):
+    component: str
+
+
 class _ArtifactManifest(Protocol):
     kind: str
     artifact_schema: _ArtifactSchema | None
+    producer: _ArtifactProducer | None
 
 
 class _ArtifactStore(Protocol):
@@ -259,7 +267,7 @@ class CompletedControlJobCoreSourceResolver(Protocol):
 
 
 class VerifiedAcquisitionRouteClosure(BaseModel):
-    """Content-bound source job, problem, planner, and cost closure."""
+    """Content-bound route origin and latest verified continuation closure."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -276,11 +284,25 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     design_problem: DesignProblem
     generation_run: GenerationCycleRun
     source_cycle: GenerationCycleRecord
+    route_source_cycle_index: int = Field(ge=0)
     planner_report: AcquisitionPlannerReport
     planner_record: AcquisitionActionRecord
     cost_basis_record: AcquisitionCostBasisRecord
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @property
+    def route_source_cycle(self) -> GenerationCycleRecord:
+        """Resolve the immutable compiled cycle that anchors route and cost identity."""
+
+        matches = tuple(
+            cycle
+            for cycle in self.generation_run.cycles
+            if cycle.cycle_index == self.route_source_cycle_index
+        )
+        if len(matches) != 1:
+            raise AcquisitionRouteClosureError("route_origin_cycle_not_in_continuation")
+        return matches[0]
 
     @property
     def design_problem_basis(self) -> DesignProblem:
@@ -300,6 +322,46 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
         return _problem_ref(self.design_problem_basis)
 
 
+class _ActionHead(Protocol):
+    """Structural view of the persisted action-generation owner."""
+
+    action_generation: int
+    job_id: str
+
+
+class _VerifiedActionOutcome(Protocol):
+    """Exact verified head and its latest persisted phase or terminal receipt."""
+
+    head: _ActionHead
+    latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    executing_phase_ref: str | None
+
+
+class _ActionOutcomeReader(Protocol):
+    """Read every owner-verified generation for one exact route identity."""
+
+    def action_outcomes(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+    ) -> tuple[_VerifiedActionOutcome, ...]: ...
+
+    def resolve_action_generation(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        job_id: str,
+    ) -> int: ...
+
+
 class AcquisitionRouteLoop:
     """Resolve verified closures and own acquisition phase orchestration."""
 
@@ -312,6 +374,7 @@ class AcquisitionRouteLoop:
         core_source_resolver: CompletedControlJobCoreSourceResolver,
         tenant_id: str,
         cell_id: str,
+        action_outcome_reader: _ActionOutcomeReader | None = None,
     ) -> None:
         if not tenant_id.strip() or not cell_id.strip():
             raise ValueError("acquisition route loop requires tenant and cell")
@@ -324,8 +387,15 @@ class AcquisitionRouteLoop:
         self._core_source_resolver = core_source_resolver
         self._tenant_id = tenant_id
         self._cell_id = cell_id
+        self._action_outcome_reader = action_outcome_reader
 
-    def resolve_current_route(self, *, run_id: str) -> VerifiedAcquisitionRouteClosure:
+    def resolve_current_route(
+        self,
+        *,
+        run_id: str,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
+    ) -> VerifiedAcquisitionRouteClosure:
         """Resolve the sole completed natural-language costed source closure."""
 
         try:
@@ -354,7 +424,7 @@ class AcquisitionRouteLoop:
             or payload.get("run_id") != run_id
         ):
             raise AcquisitionRouteClosureError("source_job_actor_scope_mismatch")
-        if not self._artifact_store.has(manifest_ref):
+        if not self._artifact_store.has(ArtifactID.model_validate(manifest_ref)):
             raise AcquisitionRouteClosureError("source_manifest_missing")
         progress = job.progress
         compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
@@ -449,6 +519,7 @@ class AcquisitionRouteLoop:
             or cost.schedule_content_hash != schedule.schedule_content_hash
         ):
             raise AcquisitionRouteClosureError("cost_basis_revalidation_required")
+        route_source_cycle = source_cycle
         route_id = _content_hash(
             {
                 "tenant_id": self._tenant_id,
@@ -461,6 +532,26 @@ class AcquisitionRouteLoop:
                 "planner_record_id": planner_record.acquisition_id,
                 "cost_basis_hash": cost.record_content_hash,
             }
+        )
+        generation_run, source_cycle = self._latest_verified_source(
+            run_id=run_id,
+            source_job_id=job.job_id,
+            route_id=route_id,
+            compiled_ref=compiled_ref,
+            planner_report_hash=_content_hash(report.model_dump(mode="json")),
+            cost_basis_hash=cost.record_content_hash,
+            design_problem=compiled.design_problem,
+            design_problem_ref=compiled.design_problem_ref,
+            generation_run=generation_run,
+            source_cycle=source_cycle,
+            before_action_generation=before_action_generation,
+            action_job_id=action_job_id,
+        )
+        _resolve_source_cycle_problem_basis(
+            generation_run=generation_run,
+            source_cycle=source_cycle,
+            design_problem=compiled.design_problem,
+            design_problem_ref=compiled.design_problem_ref,
         )
         return VerifiedAcquisitionRouteClosure(
             tenant_id=self._tenant_id,
@@ -476,12 +567,307 @@ class AcquisitionRouteLoop:
             design_problem=compiled.design_problem,
             generation_run=generation_run,
             source_cycle=source_cycle,
+            route_source_cycle_index=route_source_cycle.cycle_index,
             planner_report=report,
             planner_record=planner_record,
             cost_basis_record=cost,
             cost_basis_hash=cost.record_content_hash,
             route_id=route_id,
         )
+
+    def _latest_verified_source(
+        self,
+        *,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        compiled_ref: str,
+        planner_report_hash: str,
+        cost_basis_hash: str,
+        design_problem: DesignProblem,
+        design_problem_ref: str,
+        generation_run: GenerationCycleRun,
+        source_cycle: GenerationCycleRecord,
+        before_action_generation: int | None,
+        action_job_id: str | None,
+    ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
+        """Fold only verified terminal re-entry receipts over the compiled source."""
+
+        if before_action_generation is not None and before_action_generation < 1:
+            raise AcquisitionRouteClosureError("continuation_action_generation_invalid")
+        if before_action_generation is not None and action_job_id is not None:
+            raise AcquisitionRouteClosureError("continuation_action_cutoff_ambiguous")
+        reader = self._action_outcome_reader
+        if reader is None:
+            list_heads = getattr(self._control_store, "list_acquisition_action_heads", None)
+            if not callable(list_heads):
+                raise AcquisitionRouteClosureError("continuation_selector_not_composed")
+            heads = list_heads(
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
+                run_id=run_id,
+                source_job_id=source_job_id,
+                route_id=route_id,
+            )
+            if heads:
+                raise AcquisitionRouteClosureError("continuation_selector_not_composed")
+            outcomes: tuple[_VerifiedActionOutcome, ...] = ()
+        else:
+            try:
+                outcomes = reader.action_outcomes(
+                    tenant_id=self._tenant_id,
+                    cell_id=self._cell_id,
+                    run_id=run_id,
+                    source_job_id=source_job_id,
+                    route_id=route_id,
+                )
+            except (AttributeError, TypeError, ValueError, OSError) as exc:
+                raise AcquisitionRouteClosureError(
+                    "acquisition_action_history_not_verified"
+                ) from exc
+            if not isinstance(outcomes, tuple):
+                raise AcquisitionRouteClosureError("acquisition_action_history_not_verified")
+            if action_job_id is not None:
+                same_job = tuple(item for item in outcomes if item.head.job_id == action_job_id)
+                if len(same_job) > 1:
+                    raise AcquisitionRouteClosureError(
+                        "acquisition_action_job_generation_ambiguous"
+                    )
+                if same_job:
+                    before_action_generation = same_job[0].head.action_generation
+                elif outcomes:
+                    latest = outcomes[-1].latest_receipt
+                    if not isinstance(
+                        latest, AcquisitionRouteLoopReceipt
+                    ) or latest.terminal_outcome not in {
+                        "quarantined_no_growth",
+                        "reentry_completed",
+                    }:
+                        raise AcquisitionRouteClosureError(
+                            "acquisition_action_generation_not_resolvable"
+                        )
+                    before_action_generation = outcomes[-1].head.action_generation + 1
+                else:
+                    before_action_generation = 1
+
+        selected_run = generation_run
+        selected_cycle = source_cycle
+        for snapshot in outcomes:
+            receipt = snapshot.latest_receipt
+            if (
+                receipt.action_generation != snapshot.head.action_generation
+                or receipt.action_generation < 1
+            ):
+                raise AcquisitionRouteClosureError("acquisition_action_history_not_verified")
+            if (
+                before_action_generation is not None
+                and snapshot.head.action_generation >= before_action_generation
+            ):
+                continue
+            if not isinstance(receipt, AcquisitionRouteLoopReceipt):
+                raise AcquisitionRouteClosureError("acquisition_action_outcome_not_terminal")
+            if (
+                receipt.tenant_id != self._tenant_id
+                or receipt.cell_id != self._cell_id
+                or receipt.run_id != run_id
+                or receipt.source_job_id != source_job_id
+                or receipt.route_id != route_id
+                or receipt.compiled_ref != compiled_ref
+                or receipt.planner_report_hash != planner_report_hash
+                or receipt.cost_basis_hash != cost_basis_hash
+            ):
+                raise AcquisitionRouteClosureError("acquisition_action_source_identity_mismatch")
+            if receipt.terminal_outcome == "quarantined_no_growth":
+                continue
+            selected_run, selected_cycle = self._verified_reentry_source(
+                snapshot=snapshot,
+                terminal=receipt,
+                source_run=selected_run,
+                source_cycle=selected_cycle,
+                design_problem=design_problem,
+                design_problem_ref=design_problem_ref,
+                route_id=route_id,
+                source_job_id=source_job_id,
+            )
+        return selected_run, selected_cycle
+
+    def _verified_reentry_source(
+        self,
+        *,
+        snapshot: object,
+        terminal: AcquisitionRouteLoopReceipt,
+        source_run: GenerationCycleRun,
+        source_cycle: GenerationCycleRecord,
+        design_problem: DesignProblem,
+        design_problem_ref: str,
+        route_id: str,
+        source_job_id: str,
+    ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
+        """Verify owner persistence, event scope, growth binding, and append-only N4 history."""
+
+        if terminal.reentry_receipt_ref is None or not source_run.cycles:
+            raise AcquisitionRouteClosureError("continuation_reentry_ref_missing")
+        action_phase_ref = getattr(snapshot, "executing_phase_ref", None)
+        if not isinstance(action_phase_ref, str):
+            raise AcquisitionRouteClosureError("continuation_action_phase_missing")
+        owner_refs = tuple(terminal.owner_receipt_refs)
+        try:
+            growth_refs = tuple(
+                ref
+                for ref in owner_refs
+                if self._artifact_store.get_manifest(ArtifactID.model_validate(ref)).kind
+                == "runtime_quality.acquisition_world_growth_receipt"
+            )
+        except Exception as exc:
+            raise AcquisitionRouteClosureError("continuation_growth_owner_unverified") from exc
+        if len(growth_refs) != 1:
+            raise AcquisitionRouteClosureError("continuation_growth_owner_ambiguous")
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthReceipt,
+        )
+        from polisyos.runtime.quality.authority_reconciliation import (
+            reconcile_authority_ref,
+        )
+
+        growth_ref = growth_refs[0]
+        try:
+            growth_payload = self._read_json_artifact(
+                growth_ref,
+                expected_kind="runtime_quality.acquisition_world_growth_receipt",
+                expected_schema_name="polisyos.runtime.AcquisitionWorldGrowthReceipt",
+                expected_schema_versions=("1.1",),
+            )
+            if (
+                not isinstance(growth_payload, dict)
+                or growth_payload.get("schema_version") != "AcquisitionWorldGrowthReceipt@1.1"
+                or "action_phase_ref" not in growth_payload
+            ):
+                raise ValueError("growth schema or action phase absent")
+            growth = AcquisitionWorldGrowthReceipt.model_validate(growth_payload)
+            growth_report = reconcile_authority_ref(
+                artifact_store=self._artifact_store,
+                event_log=self._event_log,
+                cas_ref=growth_ref,
+                expected_tenant_id=self._tenant_id,
+                expected_cell_id=self._cell_id,
+                expected_run_id=terminal.run_id,
+                expected_job_id=source_job_id,
+            )
+            growth_manifest = self._artifact_store.get_manifest(
+                ArtifactID.model_validate(growth_ref)
+            )
+            if (
+                growth_manifest.producer is None
+                or growth_manifest.producer.component != "polisyos.runtime.acquisition_world_growth"
+                or growth_report.durable_event_id is None
+                or growth.action_phase_ref != action_phase_ref
+                or growth.selection.key
+                != (self._tenant_id, self._cell_id, terminal.run_id, route_id)
+                or growth.selection.design_problem_ref != design_problem_ref
+            ):
+                raise ValueError("growth reentry binding mismatch")
+        except Exception as exc:
+            raise AcquisitionRouteClosureError("continuation_growth_owner_unverified") from exc
+
+        reentry_ref = terminal.reentry_receipt_ref
+        try:
+            reentry_payload = self._read_json_artifact(
+                reentry_ref,
+                expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
+                expected_schema_name="polisyos.runtime.AcquisitionOverlayReentryReceipt",
+                expected_schema_versions=("1.0", "2.0"),
+            )
+            if not isinstance(reentry_payload, dict) or "schema_version" not in reentry_payload:
+                raise AcquisitionRouteClosureError("continuation_schema_version_missing")
+            if reentry_payload["schema_version"] in {
+                "policyos.runtime.acquisition_overlay_reentry.v1",
+                "policyos.runtime.acquisition_overlay_reentry.v2",
+            }:
+                raise AcquisitionRouteClosureError("legacy_occurrence_unbound")
+            if (
+                reentry_payload["schema_version"]
+                != "policyos.runtime.acquisition_overlay_reentry.v3"
+            ):
+                raise AcquisitionRouteClosureError("continuation_schema_version_invalid")
+            reentry = AcquisitionOverlayReentryReceipt.model_validate(reentry_payload)
+            reentry_manifest = self._artifact_store.get_manifest(
+                ArtifactID.model_validate(reentry_ref)
+            )
+            if (
+                reentry_manifest.producer is None
+                or reentry_manifest.producer.component
+                != "polisyos.runtime.acquisition_world_growth"
+            ):
+                raise ValueError("reentry producer mismatch")
+            if not reentry.schema_version.endswith(".v3"):
+                raise AcquisitionRouteClosureError("legacy_occurrence_unbound")
+            if (
+                reentry_manifest.artifact_schema is None
+                or reentry_manifest.artifact_schema.version != "2.0"
+            ):
+                raise ValueError("v3 reentry schema version mismatch")
+            reentry_event_id = "evt_acquisition_reentry_" + growth_ref.removeprefix("sha256:")
+            reentry_report = reconcile_authority_ref(
+                artifact_store=self._artifact_store,
+                event_log=self._event_log,
+                cas_ref=reentry_ref,
+                expected_tenant_id=self._tenant_id,
+                expected_cell_id=self._cell_id,
+                expected_run_id=terminal.run_id,
+                expected_job_id=source_job_id,
+            )
+            rows = self._event_log.list_events(event_id=reentry_event_id, limit=2)
+            if (
+                reentry_report.durable_event_id != reentry_event_id
+                or len(rows) != 1
+                or rows[0].event.event_source != "polisyos.runtime.acquisition_world_growth"
+                or rows[0].event.producer_component != "polisyos.runtime.acquisition_world_growth"
+                or rows[0].event.phase != "reentry_terminal"
+                or rows[0].event.state_after != "reentry_terminal"
+                or rows[0].event.tenant_id != self._tenant_id
+                or rows[0].event.cell_id != self._cell_id
+                or rows[0].event.run_id != terminal.run_id
+                or rows[0].event.job_id != source_job_id
+                or reentry_ref not in rows[0].event.artifact_refs
+            ):
+                raise ValueError("reentry event binding mismatch")
+            if (
+                reentry.source_run_id != source_run.run_id
+                or reentry.design_problem_ref != design_problem_ref
+                or reentry.source_cycle_index != source_cycle.cycle_index
+                or reentry.source_candidate_ref != source_cycle.selected_candidate_ref
+                or reentry.new_cycle.cycle_index != source_cycle.cycle_index + 1
+                or reentry.new_cycle.design_problem_ref != design_problem_ref
+                or reentry.new_cycle.design_problem_basis_ref
+                != _problem_ref(
+                    _resolve_source_cycle_problem_basis(
+                        generation_run=source_run,
+                        source_cycle=source_cycle,
+                        design_problem=design_problem,
+                        design_problem_ref=design_problem_ref,
+                    )
+                )
+                or reentry.overlay_receipt_ref
+                != str(growth.activation.overlay_admission_receipt_ref.artifact_id)
+                or reentry.semantic_epoch_production_receipt_ref
+                != str(growth.activation.semantic_epoch_production_receipt_ref.artifact_id)
+                or reentry.admitted_observation_count
+                != growth.previously_active_observations + growth.admitted_observation_delta
+            ):
+                raise ValueError("reentry source or growth binding mismatch")
+            validate_acquisition_overlay_continuation(source_run, reentry)
+        except AcquisitionRouteClosureError:
+            raise
+        except Exception as exc:
+            raise AcquisitionRouteClosureError("continuation_reentry_unverified") from exc
+        continued = reentry.continued_generation_run
+        if (
+            continued is None
+            or generation_cycle_run_content_hash(continued)
+            != reentry.continued_generation_run_content_hash
+        ):
+            raise AcquisitionRouteClosureError("continuation_run_missing")
+        return continued, reentry.new_cycle
 
     def _resolve_terminal_event(
         self,
@@ -515,8 +901,10 @@ class AcquisitionRouteLoop:
         *,
         expected_kind: str,
         expected_schema_name: str,
+        expected_schema_versions: tuple[str, ...] = ("1.0",),
     ) -> object:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             selected_ref = ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
             artifact_id = (
@@ -534,7 +922,7 @@ class AcquisitionRouteLoop:
                 manifest.kind != expected_kind
                 or schema is None
                 or schema.name != expected_schema_name
-                or schema.version != "1.0"
+                or schema.version not in expected_schema_versions
             ):
                 raise ValueError("artifact manifest mismatch")
             return load_core_json_artifact(

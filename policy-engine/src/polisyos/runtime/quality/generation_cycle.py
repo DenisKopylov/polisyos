@@ -1254,6 +1254,98 @@ def load_joint_simulation_result(
     return result
 
 
+class ValueArtifactBindingRefV1(_StrictModel):
+    """One exact CAS object view selected by its content and manifest profile."""
+
+    artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    kind: str = Field(min_length=1)
+    media_type: Literal["application/json"] = "application/json"
+    manifest_profile_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _ValueTransportRunRequestV1(_StrictModel):
+    """Candidate-only immutable query and selected graph for a transport run."""
+
+    schema_version: Literal["policyos.runtime.value_transport_run_request.v1"] = (
+        "policyos.runtime.value_transport_run_request.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_substrate_context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_binding_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_id: str = Field(min_length=1)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_graph_ref: ValueArtifactBindingRefV1
+    query_treatment: str = Field(min_length=1)
+    query_outcome: str = Field(min_length=1)
+    solver_mode: Literal["auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"]
+    selection_diagram_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_transport_request(self) -> _ValueTransportRunRequestV1:
+        if (
+            self.selected_graph_ref.kind != "ir.causal_graph_model"
+            or self.selected_graph_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("transport_request_selected_graph_unresolved")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("transport_request_content_hash_mismatch")
+        return self
+
+
+class _ValueTransportRunBasisV1(_StrictModel):
+    """Exact selected-profile CAS join for a candidate transport execution."""
+
+    schema_version: Literal["policyos.runtime.value_transport_run_basis.v1"] = (
+        "policyos.runtime.value_transport_run_basis.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    request_ref: ValueArtifactBindingRefV1
+    selected_graph_ref: ValueArtifactBindingRefV1
+    selection_diagram_ref: ValueArtifactBindingRefV1
+    transport_result_ref: ValueArtifactBindingRefV1
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_substrate_context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_binding_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_id: str = Field(min_length=1)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    query_treatment: str = Field(min_length=1)
+    query_outcome: str = Field(min_length=1)
+    solver_mode: Literal["auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"]
+    selection_diagram_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    transport_result_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_transport_run_basis(self) -> _ValueTransportRunBasisV1:
+        refs = (
+            self.request_ref,
+            self.selected_graph_ref,
+            self.selection_diagram_ref,
+            self.transport_result_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("transport_run_basis_selected_profile_unresolved")
+        if (
+            self.selected_graph_ref.kind != "ir.causal_graph_model"
+            or self.selection_diagram_ref.kind != "runtime.value_transport_selection_diagram"
+            or self.transport_result_ref.kind != "ir.transportability_result"
+        ):
+            raise ValueError("transport_run_basis_artifact_kind_mismatch")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("transport_run_basis_content_hash_mismatch")
+        return self
+
+
 class ValueTransportReceipt(_StrictModel):
     """N8 transport receipt bound to the WMR version that produced value."""
 
@@ -1266,6 +1358,24 @@ class ValueTransportReceipt(_StrictModel):
     identification_engine: str = Field(..., min_length=1)
     required_target_data: tuple[str, ...] = ()
     limitation_refs: tuple[str, ...] = ()
+
+
+class ValueTransportRunReceiptV1(ValueTransportReceipt):
+    """Transport summary plus its exact selected-profile execution basis."""
+
+    schema_version: Literal["policyos.runtime.value_transport_run_receipt.v1"] = (
+        "policyos.runtime.value_transport_run_receipt.v1"
+    )
+    transport_run_basis_ref: ValueArtifactBindingRefV1
+
+    @model_validator(mode="after")
+    def _verify_selected_run_basis(self) -> ValueTransportRunReceiptV1:
+        if (
+            self.transport_run_basis_ref.kind != "runtime.value_transport_run_basis"
+            or self.transport_run_basis_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("value_transport_selected_run_basis_unresolved")
+        return self
 
 
 class ValueCalibrationReceipt(_StrictModel):
@@ -5126,8 +5236,11 @@ class RealValueOwnerGateway:
         candidate: object,
         problem: DesignProblem,
         world_record: WorldModelRecord,
+        solver_mode: Literal[
+            "auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"
+        ] = "auto",
     ) -> Mapping[str, Any]:
-        """Derive transport inputs through the selection-diagram owner."""
+        """Derive transport inputs and preserve the selected solver mode."""
 
         treatment = _candidate_transport_treatment_variable(candidate)
         outcome = _candidate_transport_outcome_variable(candidate, problem)
@@ -5141,9 +5254,36 @@ class RealValueOwnerGateway:
                 cycle_substrate_context=self.cycle_substrate_context,
                 artifact_store=self.artifact_store,
             ),
+            "candidate": candidate,
+            "problem": problem,
+            "cycle_substrate_context": self.cycle_substrate_context,
             "query_treatment": treatment,
             "query_outcome": outcome,
+            "transport_solver_mode": solver_mode,
         }
+
+    def run_transport(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        solver_mode: Literal[
+            "auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"
+        ] = "auto",
+    ) -> tuple[ValueTransportRunReceiptV1 | None, str | None]:
+        """Run and freshly replay a candidate transport query."""
+        inputs = self.build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            solver_mode=solver_mode,
+        )
+        return _run_value_transport(
+            inputs=inputs,
+            world_record=world_record,
+            store=self.artifact_store,
+        )
 
 
 FOUNDRY_VALUE_PORT_EVALUATOR_ID = core_components.ComponentId(
@@ -13714,54 +13854,428 @@ def _run_value_transport(
     *,
     inputs: Mapping[str, Any],
     world_record: object,
-) -> tuple[ValueTransportReceipt | None, str | None]:
-    raw_diagram = inputs.get("selection_diagram")
-    if raw_diagram is None:
-        return None, "transport_selection_diagram_missing"
-    try:
-        from polisyos.foundry.methods.catalog.causal.transport_engine import (
-            solve_transportability,
-        )
-        from polisyos.ir.analytics.transportability import (
-            SelectionDiagram,
-            TransportabilityStatus,
-        )
+    store: ArtifactStore | None = None,
+) -> tuple[ValueTransportRunReceiptV1 | None, str | None]:
+    """Persist a selected-graph solver result and admit it only after fresh replay.
 
+    A transport result remains candidate-only. The receipt binds a selected-profile
+    CAS run basis, while a fresh consumer re-resolves the exact request, graph,
+    diagram, solver result, problem, candidate, context, and WMR before returning it.
+    """
+    try:
+        from polisyos.ir.analytics.transportability import SelectionDiagram
+
+        raw_diagram = inputs.get("selection_diagram")
+        if raw_diagram is None:
+            return None, "transport_selection_diagram_missing"
         diagram = (
             raw_diagram
             if isinstance(raw_diagram, SelectionDiagram)
             else SelectionDiagram.model_validate(raw_diagram)
         )
+    except Exception as exc:
+        return None, f"untransportable_forecast_minted_value:{exc}"
+
+    if store is None:
+        return None, "transport_artifact_store_unavailable"
+    try:
+        candidate = inputs.get("candidate")
+        problem = inputs.get("problem")
+        context = inputs.get("cycle_substrate_context")
+        query_treatment = inputs.get("query_treatment")
+        query_outcome = inputs.get("query_outcome")
+        solver_mode = inputs.get("transport_solver_mode")
+        if not isinstance(problem, DesignProblem):
+            raise ValueError("transport_design_problem_untyped")
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+
+        if not isinstance(context, CycleSubstrateContext):
+            raise ValueError("transport_cycle_substrate_context_untyped")
+        if not isinstance(query_treatment, str) or not query_treatment.strip():
+            raise ValueError("transport_query_treatment_missing")
+        if not isinstance(query_outcome, str) or not query_outcome.strip():
+            raise ValueError("transport_query_outcome_missing")
+        if not isinstance(solver_mode, str) or solver_mode not in {
+            "auto",
+            "simplified",
+            "symbolic",
+            "symbolic_y0",
+            "symbolic_r",
+            "full_auto",
+        }:
+            raise ValueError("transport_solver_mode_invalid")
+        expected_treatment = _candidate_transport_treatment_variable(candidate)
+        expected_outcome = _candidate_transport_outcome_variable(candidate, problem)
+        if (query_treatment, query_outcome) != (expected_treatment, expected_outcome):
+            raise ValueError("transport_query_not_candidate_derived")
+        if not isinstance(world_record, WorldModelRecord):
+            raise ValueError("transport_world_model_record_untyped")
+        verified_context = CycleSubstrateContext.model_validate(context.model_dump(mode="python"))
+        if (
+            verified_context.world_model_record_content_hash != world_record.content_hash
+            or verified_context.world_model_record.world_model_record_id
+            != world_record.world_model_record_id
+        ):
+            raise ValueError("transport_context_world_binding_mismatch")
+        fresh_diagram = _build_candidate_selection_diagram(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            cycle_substrate_context=verified_context,
+            artifact_store=store,
+        )
+        if diagram.model_dump(mode="json") != fresh_diagram.model_dump(mode="json"):
+            raise ValueError("transport_selection_diagram_not_recomputed_from_selected_graph")
+        from polisyos.foundry.methods.catalog.causal.transport_engine import (
+            solve_transportability,
+        )
+        from polisyos.ir.analytics.transportability import TransportabilityStatus
+
         result = solve_transportability(
-            selection_diagram=diagram,
-            query_treatment=str(inputs.get("query_treatment") or "X"),
-            query_outcome=str(inputs.get("query_outcome") or "Y"),
-            solver_mode=str(inputs.get("transport_solver_mode") or "auto"),
+            selection_diagram=fresh_diagram,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            solver_mode=solver_mode,
             allow_degraded_transport=False,
         )
         if result.status is TransportabilityStatus.UNSUPPORTED:
-            return None, "untransportable_forecast_minted_value"
-        world_hash = str(_object_get(world_record, "content_hash"))
-        transport_ref = gy_content_hash(result.model_dump(mode="json"))
+            return None, "untransportable_forecast_minted_value:solver_unsupported"
+        basis_ref = _produce_value_transport_run_basis(
+            store=store,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=verified_context,
+            world_record=world_record,
+            graph_diagram=fresh_diagram,
+            result=result,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            solver_mode=solver_mode,
+        )
+        basis, _, stored_diagram, fresh_result = _resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=basis_ref,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=verified_context,
+            world_record=world_record,
+        )
+        if stored_diagram.model_dump(mode="json") != fresh_diagram.model_dump(
+            mode="json"
+        ) or fresh_result.model_dump(mode="json") != result.model_dump(mode="json"):
+            raise ValueError("transport_fresh_consumer_payload_mismatch")
         status: Literal["transported_limited", "direct", "blocked"] = (
-            "direct" if not diagram.s_nodes else "transported_limited"
+            "direct" if not fresh_diagram.s_nodes else "transported_limited"
         )
         return (
-            ValueTransportReceipt(
+            ValueTransportRunReceiptV1(
                 status=status,
-                world_model_record_id=str(_object_get(world_record, "world_model_record_id")),
-                world_model_record_content_hash=world_hash,
-                transport_result_ref=transport_ref,
-                transport_status=str(result.status.value),
-                transport_mode=str(result.transport_mode.value),
-                identification_engine=result.identification_engine,
-                required_target_data=tuple(str(item) for item in result.required_target_data),
-                limitation_refs=tuple(str(item) for item in result.warnings),
+                world_model_record_id=world_record.world_model_record_id,
+                world_model_record_content_hash=world_record.content_hash,
+                transport_result_ref=basis.transport_result_ref.artifact_id,
+                transport_run_basis_ref=basis_ref,
+                transport_status=str(fresh_result.status.value),
+                transport_mode=str(fresh_result.transport_mode.value),
+                identification_engine=fresh_result.identification_engine,
+                required_target_data=tuple(str(item) for item in fresh_result.required_target_data),
+                limitation_refs=tuple(str(item) for item in fresh_result.warnings),
             ),
             None,
         )
     except Exception as exc:
         return None, f"untransportable_forecast_minted_value:{exc}"
+
+
+def _produce_value_transport_run_basis(
+    *,
+    store: object,
+    candidate: object,
+    problem: DesignProblem,
+    cycle_substrate_context: object,
+    world_record: WorldModelRecord,
+    graph_diagram: object,
+    result: object,
+    query_treatment: str,
+    query_outcome: str,
+    solver_mode: str,
+) -> ValueArtifactBindingRefV1:
+    """Persist the actual graph, request, diagram, and solver result as one run."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+    from polisyos.ir.analytics.transportability import persist_transportability_result
+    from polisyos.ir.artifacts import put_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+
+    if not isinstance(cycle_substrate_context, CycleSubstrateContext):
+        raise ValueError("transport_cycle_substrate_context_untyped")
+    context = CycleSubstrateContext.model_validate(
+        cycle_substrate_context.model_dump(mode="python")
+    )
+    transport_context = context.transport_context
+    if transport_context is None or transport_context.causal_graph_ref is None:
+        raise ValueError("acquire_data:causal_graph_artifact_unresolved")
+    ir_store = ensure_ir_artifact_store(store)
+    graph_ref = _value_artifact_ref(
+        profile_bound_ref(ir_store, transport_context.causal_graph_ref),
+        expected_kind="ir.causal_graph_model",
+    )
+    if graph_ref.manifest_profile_sha256 is None:
+        raise ValueError("transport_causal_graph_profile_unselected")
+    expected_treatment = _candidate_transport_treatment_variable(candidate)
+    expected_outcome = _candidate_transport_outcome_variable(candidate, problem)
+    if (query_treatment, query_outcome) != (expected_treatment, expected_outcome):
+        raise ValueError("transport_query_not_candidate_derived")
+    if (
+        context.world_model_record_content_hash,
+        context.world_model_record.world_model_record_id,
+    ) != (
+        world_record.content_hash,
+        world_record.world_model_record_id,
+    ):
+        raise ValueError("transport_context_world_binding_mismatch")
+    diagram_hash = gy_content_hash(graph_diagram.model_dump(mode="json"))
+    request_payload = {
+        "schema_version": "policyos.runtime.value_transport_run_request.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "candidate_id": _candidate_id(candidate),
+        "candidate_content_hash": _candidate_content_hash(candidate),
+        "design_problem_content_hash": _problem_ref(problem),
+        "cycle_substrate_context_content_hash": context.content_hash,
+        "context_binding_hash": context.context_binding_hash,
+        "world_model_record_id": world_record.world_model_record_id,
+        "world_model_record_content_hash": world_record.content_hash,
+        "selected_graph_ref": graph_ref.model_dump(mode="json"),
+        "query_treatment": query_treatment,
+        "query_outcome": query_outcome,
+        "solver_mode": solver_mode,
+        "selection_diagram_content_hash": diagram_hash,
+    }
+    request = _ValueTransportRunRequestV1.model_validate(
+        {**request_payload, "content_hash": gy_content_hash(request_payload)}
+    )
+    request_ref_raw = put_json_artifact(
+        ir_store,
+        request.model_dump(mode="json"),
+        kind="runtime.value_transport_run_request",
+        schema_name="runtime.value_transport_run_request.v1",
+        schema_version="1.0",
+        inputs=[_value_input_ref(graph_ref, role="selected_causal_graph")],
+        canon_spec=IRCanonSpec(forbid_floats=True),
+        return_selected_profile=True,
+    )
+    request_ref = _value_artifact_ref(request_ref_raw)
+    diagram_ref = _value_artifact_ref(
+        put_json_artifact(
+            ir_store,
+            graph_diagram.model_dump(mode="json"),
+            kind="runtime.value_transport_selection_diagram",
+            schema_name="runtime.value_transport_selection_diagram.v1",
+            schema_version="1.0",
+            inputs=[
+                _value_input_ref(request_ref, role="immutable_transport_request"),
+                _value_input_ref(graph_ref, role="selected_causal_graph"),
+            ],
+            canon_spec=IRCanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    result_ref = _value_artifact_ref(
+        persist_transportability_result(
+            ir_store,
+            result,
+            inputs=[
+                _value_input_ref(request_ref, role="immutable_transport_request"),
+                _value_input_ref(diagram_ref, role="selected_selection_diagram"),
+            ],
+            return_selected_profile=True,
+        ),
+        expected_kind="ir.transportability_result",
+    )
+    basis_payload = {
+        "schema_version": "policyos.runtime.value_transport_run_basis.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "request_ref": request_ref.model_dump(mode="json"),
+        "selected_graph_ref": graph_ref.model_dump(mode="json"),
+        "selection_diagram_ref": diagram_ref.model_dump(mode="json"),
+        "transport_result_ref": result_ref.model_dump(mode="json"),
+        "candidate_id": request.candidate_id,
+        "candidate_content_hash": request.candidate_content_hash,
+        "design_problem_content_hash": request.design_problem_content_hash,
+        "cycle_substrate_context_content_hash": request.cycle_substrate_context_content_hash,
+        "context_binding_hash": request.context_binding_hash,
+        "world_model_record_id": request.world_model_record_id,
+        "world_model_record_content_hash": request.world_model_record_content_hash,
+        "query_treatment": query_treatment,
+        "query_outcome": query_outcome,
+        "solver_mode": solver_mode,
+        "selection_diagram_content_hash": diagram_hash,
+        "transport_result_content_hash": gy_content_hash(result.model_dump(mode="json")),
+    }
+    basis = _ValueTransportRunBasisV1.model_validate(
+        {**basis_payload, "content_hash": gy_content_hash(basis_payload)}
+    )
+    basis_ref_raw = put_json_artifact(
+        ir_store,
+        basis.model_dump(mode="json"),
+        kind="runtime.value_transport_run_basis",
+        schema_name="runtime.value_transport_run_basis.v1",
+        schema_version="1.0",
+        inputs=[
+            _value_input_ref(request_ref, role="immutable_transport_request"),
+            _value_input_ref(graph_ref, role="selected_causal_graph"),
+            _value_input_ref(diagram_ref, role="selected_selection_diagram"),
+            _value_input_ref(result_ref, role="transport_solver_result"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=True),
+        return_selected_profile=True,
+    )
+    return _value_artifact_ref(basis_ref_raw, expected_kind="runtime.value_transport_run_basis")
+
+
+def _resolve_value_transport_run_basis(
+    *,
+    store: object,
+    run_basis_ref: object,
+    candidate: object,
+    problem: DesignProblem,
+    cycle_substrate_context: object,
+    world_record: WorldModelRecord,
+) -> tuple[object, object, object, object]:
+    """Freshly re-resolve the selected CAS chain and recompute its solver result."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.foundry.methods.catalog.causal.transport_engine import (
+        solve_transportability,
+    )
+    from polisyos.ir.analytics.transportability import (
+        SelectionDiagram,
+        TransportabilityResult,
+        TransportabilityStatus,
+        load_transportability_result,
+    )
+    from polisyos.ir.registry.refs import TransportabilityResultRef
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+
+    ir_store = ensure_ir_artifact_store(store)
+    if not isinstance(cycle_substrate_context, CycleSubstrateContext):
+        raise ValueError("transport_cycle_substrate_context_untyped")
+    context = CycleSubstrateContext.model_validate(
+        cycle_substrate_context.model_dump(mode="python")
+    )
+    basis_ref = _value_artifact_ref(
+        run_basis_ref,
+        expected_kind="runtime.value_transport_run_basis",
+    )
+    if basis_ref.manifest_profile_sha256 is None:
+        raise ValueError("transport_run_basis_selected_profile_unresolved")
+    basis = _ValueTransportRunBasisV1.model_validate(_value_load_ref_payload(ir_store, basis_ref))
+    if not _value_manifest_has_exact_inputs(
+        ir_store,
+        basis_ref,
+        (
+            (basis.request_ref, "immutable_transport_request"),
+            (basis.selected_graph_ref, "selected_causal_graph"),
+            (basis.selection_diagram_ref, "selected_selection_diagram"),
+            (basis.transport_result_ref, "transport_solver_result"),
+        ),
+    ):
+        raise ValueError("transport_run_basis_lineage_mismatch")
+    request = _ValueTransportRunRequestV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.request_ref)
+    )
+    graph = context.transport_context.causal_graph_ref if context.transport_context else None
+    current_graph_ref = (
+        _value_artifact_ref(graph, expected_kind="ir.causal_graph_model")
+        if graph is not None
+        else None
+    )
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis.request_ref,
+            ((basis.selected_graph_ref, "selected_causal_graph"),),
+        )
+        or request.selected_graph_ref != basis.selected_graph_ref
+        or current_graph_ref != basis.selected_graph_ref
+        or basis.request_ref.manifest_profile_sha256 is None
+        or basis.selected_graph_ref.manifest_profile_sha256 is None
+        or request.candidate_id != _candidate_id(candidate)
+        or request.candidate_content_hash != _candidate_content_hash(candidate)
+        or request.design_problem_content_hash != _problem_ref(problem)
+        or request.cycle_substrate_context_content_hash != context.content_hash
+        or request.context_binding_hash != context.context_binding_hash
+        or request.world_model_record_id != world_record.world_model_record_id
+        or request.world_model_record_content_hash != world_record.content_hash
+        or context.world_model_record_content_hash != world_record.content_hash
+        or context.world_model_record.world_model_record_id != world_record.world_model_record_id
+        or request.query_treatment != _candidate_transport_treatment_variable(candidate)
+        or request.query_outcome != _candidate_transport_outcome_variable(candidate, problem)
+        or request.query_treatment != basis.query_treatment
+        or request.query_outcome != basis.query_outcome
+        or request.solver_mode != basis.solver_mode
+        or request.selection_diagram_content_hash != basis.selection_diagram_content_hash
+    ):
+        raise ValueError("transport_run_basis_binding_mismatch")
+    raw_diagram = _value_load_ref_payload(ir_store, basis.selection_diagram_ref)
+    diagram = SelectionDiagram.model_validate(raw_diagram)
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis.selection_diagram_ref,
+            (
+                (basis.request_ref, "immutable_transport_request"),
+                (basis.selected_graph_ref, "selected_causal_graph"),
+            ),
+        )
+        or gy_content_hash(diagram.model_dump(mode="json")) != basis.selection_diagram_content_hash
+    ):
+        raise ValueError("transport_selection_diagram_lineage_mismatch")
+    fresh_diagram = _build_candidate_selection_diagram(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        query_treatment=request.query_treatment,
+        query_outcome=request.query_outcome,
+        cycle_substrate_context=context,
+        artifact_store=ir_store,
+    )
+    if diagram.model_dump(mode="json") != fresh_diagram.model_dump(mode="json"):
+        raise ValueError("transport_selection_diagram_fresh_recompute_mismatch")
+    result_ref_model = TransportabilityResultRef.model_validate(
+        basis.transport_result_ref.model_dump(mode="python")
+    )
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis.transport_result_ref,
+            (
+                (basis.request_ref, "immutable_transport_request"),
+                (basis.selection_diagram_ref, "selected_selection_diagram"),
+            ),
+        )
+        or basis.transport_result_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("transport_solver_result_lineage_mismatch")
+    result = load_transportability_result(ir_store, result_ref_model)
+    if not isinstance(result, TransportabilityResult):
+        raise ValueError("transport_solver_result_untyped")
+    recomputed = solve_transportability(
+        selection_diagram=fresh_diagram,
+        query_treatment=request.query_treatment,
+        query_outcome=request.query_outcome,
+        solver_mode=request.solver_mode,
+        allow_degraded_transport=False,
+    )
+    if (
+        result.status is TransportabilityStatus.UNSUPPORTED
+        or result.model_dump(mode="json") != recomputed.model_dump(mode="json")
+        or gy_content_hash(result.model_dump(mode="json")) != basis.transport_result_content_hash
+    ):
+        raise ValueError("transport_solver_result_fresh_recompute_mismatch")
+    return basis, request, diagram, result
 
 
 def _value_outer_set_from_foundry_result(
@@ -15406,6 +15920,7 @@ __all__ = [
     "ValueGateReceipt",
     "ValuePortObservation",
     "ValueTransportReceipt",
+    "ValueTransportRunReceiptV1",
     "currentness_for_generation_cycle_run",
     "eligible_n9_source_for_run",
     "enforce_no_retry_without_new_grammar",
@@ -15422,15 +15937,6 @@ __all__ = [
     "validate_generation_cycle_run",
     "validate_generation_cycle_run_history",
 ]
-
-
-class ValueArtifactBindingRefV1(_StrictModel):
-    """One exact CAS object view selected by its content and manifest profile."""
-
-    artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    kind: str = Field(min_length=1)
-    media_type: Literal["application/json"] = "application/json"
-    manifest_profile_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 class ValueOwnerTreatmentAssignmentFixtureV1(_StrictModel):

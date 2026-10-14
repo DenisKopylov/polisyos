@@ -7,7 +7,10 @@ import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.common.canonical_profile import (
+    CanonicalProfileDeclaration,
+    CanonicalProfileRefusalError,
+)
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
     ArtifactManifest,
@@ -109,6 +112,25 @@ def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
         media_type=manifest.media_type,
         manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
     )
+
+
+def _is_json_artifact_media_type(media_type: str) -> bool:
+    """Match the inspector's JSON representation classifier, including +json."""
+    normalized = media_type.lower()
+    return normalized == "application/json" or normalized.endswith("+json")
+
+
+def _require_json_artifact_profile(
+    manifest: ArtifactManifest,
+    declaration: CanonicalProfileDeclaration,
+) -> None:
+    """Require a verified profile only when the selected representation is JSON."""
+    if not _is_json_artifact_media_type(manifest.media_type):
+        return
+    if declaration.status == "absent":
+        raise CanonicalProfileRefusalError("canon_profile_absent")
+    if declaration.status != "declared":
+        raise CanonicalProfileRefusalError("canon_profile_not_verified")
 
 
 def _canonical_profile_conflict(
@@ -1054,7 +1076,7 @@ if router is not None:
                 "content": {
                     "application/octet-stream": {"schema": {"type": "string", "format": "binary"}}
                 },
-            }
+            },
         },
     )
     def download_artifact_content(
@@ -1193,15 +1215,20 @@ def _resolve_artifact_manifest(
     artifact_id: ArtifactID,
     manifest_profile_sha256: str | None,
 ) -> ArtifactManifest:
-    """Resolve one exact profile, including the exact profile behind a default view.
+    """Resolve one exact profile and admit JSON Canon only for JSON media.
 
     A profile-less request uses the default manifest only to discover its digest. It
     must still pass exact-view ownership and content verification before any
-    consumer receives the selected manifest.
+    consumer receives the selected manifest. Non-JSON views may omit CanonInfo;
+    malformed-present declarations still refuse in the Core reader.
     """
     if manifest_profile_sha256 is None:
         try:
-            default_manifest, _declaration = read_core_manifest_profile(store, artifact_id)
+            manifest, declaration = read_core_manifest_profile(
+                store,
+                artifact_id,
+                allow_profile_absent=True,
+            )
         except CanonicalProfileRefusalError:
             raise
         except ArtifactIntegrityError as exc:
@@ -1214,13 +1241,19 @@ def _resolve_artifact_manifest(
                 "Selected artifact manifest profile is unavailable",
                 code="artifact_manifest_profile_not_found",
             ) from exc
-        manifest_profile_sha256 = artifact_manifest_profile_sha256(default_manifest)
+        manifest_profile_sha256 = artifact_manifest_profile_sha256(manifest)
         try:
-            return resolve_manifest_by_profile(
+            exact_manifest = resolve_manifest_by_profile(
                 store,
                 artifact_id,
                 manifest_profile_sha256,
             )
+            if exact_manifest != manifest:
+                raise CanonicalProfileRefusalError("canon_profile_selected_manifest_changed")
+            _require_json_artifact_profile(exact_manifest, declaration)
+            return exact_manifest
+        except CanonicalProfileRefusalError:
+            raise
         except FileNotFoundError as exc:
             if not store.has(artifact_id):
                 raise not_found(str(exc), code="artifact_not_found") from exc
@@ -1240,16 +1273,23 @@ def _resolve_artifact_manifest(
             ) from exc
 
     try:
-        read_core_manifest_profile(
+        manifest, declaration = read_core_manifest_profile(
             store,
             artifact_id,
             manifest_profile_sha256=manifest_profile_sha256,
+            allow_profile_absent=True,
         )
-        return resolve_manifest_by_profile(
+        exact_manifest = resolve_manifest_by_profile(
             store,
             artifact_id,
             manifest_profile_sha256,
         )
+        if exact_manifest != manifest:
+            raise CanonicalProfileRefusalError("canon_profile_selected_manifest_changed")
+        _require_json_artifact_profile(exact_manifest, declaration)
+        return exact_manifest
+    except CanonicalProfileRefusalError:
+        raise
     except FileNotFoundError as exc:
         if not store.has(artifact_id):
             raise not_found(str(exc), code="artifact_not_found") from exc

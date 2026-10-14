@@ -1474,6 +1474,18 @@ def test_actual_foundry_basis_ref_survives_abm_ir_cas_roundtrip(
         expected_kind="foundry.execution_input_basis",
     )
     assert _ref_key(produced_basis_ref) == _ref_key(source.execution_input_basis_ref)
+    assert simulation.execution_source_status == "single_step_basis"
+    assert simulation.feedback_result_ref is None
+    serialized_simulation = simulation.model_dump(mode="json")
+    serialized_basis_ref = serialized_simulation["execution_input_basis_ref"]
+    assert isinstance(serialized_basis_ref, dict)
+    assert serialized_basis_ref["manifest_profile_sha256"] == (
+        produced_basis_ref.manifest_profile_sha256
+    )
+    received_simulation = SimulationResult.model_validate(serialized_simulation)
+    assert received_simulation.execution_source_status == "single_step_basis"
+    assert received_simulation.execution_input_basis_ref == produced_basis_ref
+    assert received_simulation == simulation
     basis = FoundryExecutionInputBasis.model_validate(
         _get_json_artifact(source.store, produced_basis_ref)
     )
@@ -2304,6 +2316,204 @@ def test_generic_core_source_reader_rejects_bad_profiles_for_the_typed_source_qu
             failure = "kind" if identity_field == "kind" else "media type"
             with pytest.raises(ValueError, match=failure):
                 _source_typed_json_model(store, model, alias_ref)
+
+
+@pytest.mark.parametrize("basis_mutation", ["kind", "media_type", "schema_version"])
+def test_fresh_observation_consumer_rejects_mutated_execution_basis_ref(
+    source_bundle, basis_mutation: str
+) -> None:
+    store, candidate_ref, welfare_ref = source_bundle
+    welfare_ref, welfare_manifest = _selected_manifest(store, welfare_ref)
+    simulation_edge = next(
+        edge for edge in welfare_manifest.inputs if edge.role == "simulation_result"
+    )
+    simulation_ref = _selected_ref_from_edge(store, simulation_edge)
+    simulation_manifest = store.get_manifest(simulation_ref)
+    simulation_payload = dict(_get_json_artifact(store, simulation_ref))
+    simulation = SimulationResult.model_validate(simulation_payload)
+    assert simulation.execution_source_status == "single_step_basis"
+    assert simulation.feedback_result_ref is None
+    assert simulation.schema_version == "1.4"
+    assert simulation.execution_input_basis_ref is not None
+    basis_payload = simulation_payload["execution_input_basis_ref"]
+    assert isinstance(basis_payload, dict)
+    basis_ref = _producer_output_ref(
+        basis_payload,
+        FoundryExecutionInputBasisRef,
+        expected_kind="foundry.execution_input_basis",
+    )
+    basis_manifest = store.get_manifest(basis_ref)
+    assert basis_manifest.artifact_schema is not None
+    assert basis_manifest.canon is not None
+    assert basis_ref.manifest_profile_sha256 is not None
+    selected_basis_bytes = store.get_bytes(basis_ref)
+    assert store.verify(basis_ref).ok
+
+    def _variant_options(
+        ref: ArtifactRef,
+        *,
+        inputs: list[InputRef] | None = None,
+        schema: SchemaInfo | None = None,
+    ) -> PutOptions:
+        manifest = store.get_manifest(ref)
+        return PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=schema if schema is not None else manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=inputs if inputs is not None else manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        )
+
+    def _put_json_variant(
+        ref: ArtifactRef,
+        payload: Mapping[str, Any],
+        *,
+        inputs: list[InputRef],
+    ) -> ArtifactRef:
+        manifest = store.get_manifest(ref)
+        assert manifest.canon is not None
+        return store.put_json(
+            payload,
+            _variant_options(ref, inputs=inputs),
+            canon_spec=CanonSpec(**manifest.canon.model_dump(mode="python")),
+            return_selected_profile=True,
+        )
+
+    selected_basis_ref = basis_ref
+    changed_basis_payload = dict(basis_payload)
+    if basis_mutation == "kind":
+        changed_basis_payload["kind"] = "foundry.invalid_execution_input_basis"
+    elif basis_mutation == "media_type":
+        changed_basis_payload["media_type"] = "application/vnd.invalid-execution-basis+json"
+    else:
+        alias_schema = SchemaInfo(name=basis_manifest.artifact_schema.name, version="99.99.99")
+        selected_basis_ref = store.put_bytes(
+            selected_basis_bytes,
+            _variant_options(basis_ref, schema=alias_schema),
+            return_selected_profile=True,
+        )
+        assert selected_basis_ref.artifact_id == basis_ref.artifact_id
+        assert selected_basis_ref.manifest_profile_sha256 is not None
+        assert selected_basis_ref.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+        alias_manifest = store.get_manifest(selected_basis_ref)
+        assert alias_manifest.kind == basis_ref.kind
+        assert alias_manifest.media_type == basis_ref.media_type
+        assert alias_manifest.artifact_schema == alias_schema
+        assert alias_manifest.inputs == basis_manifest.inputs
+        assert store.get_bytes(selected_basis_ref) == selected_basis_bytes
+        changed_basis_payload["manifest_profile_sha256"] = (
+            selected_basis_ref.manifest_profile_sha256
+        )
+
+    changed_basis_field = (
+        "manifest_profile_sha256" if basis_mutation == "schema_version" else basis_mutation
+    )
+    assert {
+        key: value for key, value in changed_basis_payload.items() if key != changed_basis_field
+    } == {key: value for key, value in basis_payload.items() if key != changed_basis_field}
+    assert changed_basis_payload["artifact_id"] == basis_payload["artifact_id"]
+
+    changed_simulation_payload = dict(simulation_payload)
+    changed_simulation_payload["execution_input_basis_ref"] = changed_basis_payload
+    assert {
+        key: value
+        for key, value in changed_simulation_payload.items()
+        if key != "execution_input_basis_ref"
+    } == {
+        key: value
+        for key, value in simulation_payload.items()
+        if key != "execution_input_basis_ref"
+    }
+    simulation_inputs = [
+        _input_edge(selected_basis_ref, role=edge.role)
+        if edge.role == "execution_input_basis"
+        else edge
+        for edge in simulation_manifest.inputs
+    ]
+    assert sum(edge.role == "execution_input_basis" for edge in simulation_inputs) == 1
+    bad_simulation_ref = _put_json_variant(
+        simulation_ref, changed_simulation_payload, inputs=simulation_inputs
+    )
+    bad_simulation_manifest = store.get_manifest(bad_simulation_ref)
+    assert bad_simulation_ref.kind == simulation_ref.kind
+    assert bad_simulation_ref.media_type == simulation_ref.media_type
+    assert bad_simulation_ref.manifest_profile_sha256 is not None
+    assert bad_simulation_manifest.artifact_schema == simulation_manifest.artifact_schema
+    assert bad_simulation_manifest.canon == simulation_manifest.canon
+    assert bad_simulation_manifest.inputs == simulation_inputs
+    assert store.verify(bad_simulation_ref).ok
+    assert store.get_bytes(basis_ref) == selected_basis_bytes
+
+    welfare_inputs = [
+        _input_edge(bad_simulation_ref, role=edge.role)
+        if edge.role == "simulation_result"
+        else _input_edge(selected_basis_ref, role=edge.role)
+        if basis_mutation == "schema_version" and edge.role == "execution_input_basis"
+        else edge
+        for edge in welfare_manifest.inputs
+    ]
+    assert sum(edge.role == "simulation_result" for edge in welfare_inputs) == 1
+    welfare_payload = dict(_get_json_artifact(store, welfare_ref))
+    bad_welfare_ref = _put_json_variant(welfare_ref, welfare_payload, inputs=welfare_inputs)
+    bad_welfare_manifest = store.get_manifest(bad_welfare_ref)
+    assert bad_welfare_manifest.artifact_schema == welfare_manifest.artifact_schema
+    assert bad_welfare_manifest.producer == welfare_manifest.producer
+    assert bad_welfare_manifest.canon == welfare_manifest.canon
+    assert bad_welfare_manifest.inputs == welfare_inputs
+    assert _get_json_artifact(store, bad_welfare_ref) == welfare_payload
+
+    original_outcome = _funnel_outcome(store, candidate_ref, welfare_ref)
+    observation_ref = next(ref for ref in original_outcome.audit_refs if ref.kind == _SOURCE_KIND)
+    original_observation = load_source_bound_risk_observation(store, observation_ref, candidate_ref)
+    observation_manifest = store.get_manifest(observation_ref)
+    observation_payload = dict(_get_json_artifact(store, observation_ref))
+    bad_observation_payload = dict(observation_payload)
+    bad_observation_payload["welfare_bundle_ref"] = bad_welfare_ref.model_dump(mode="json")
+    assert {
+        key: value for key, value in bad_observation_payload.items() if key != "welfare_bundle_ref"
+    } == {key: value for key, value in observation_payload.items() if key != "welfare_bundle_ref"}
+    assert original_observation.risk_interpretation_status == "not_established"
+    assert original_observation.refinement_status == "not_established"
+    assert original_observation.scope_relation_status == "consumer_asserted"
+
+    changed_observation_inputs = []
+    basis_alias_roles = {
+        "welfare_bundle.execution_input_basis",
+        "simulation_result.execution_input_basis",
+        "execution.input_basis",
+    }
+    for edge in observation_manifest.inputs:
+        if edge.role == "source_welfare_bundle":
+            changed_observation_inputs.append(_input_edge(bad_welfare_ref, role=edge.role))
+        elif edge.role in {"welfare_bundle.simulation_result", "execution.simulation_result"}:
+            changed_observation_inputs.append(_input_edge(bad_simulation_ref, role=edge.role))
+        elif basis_mutation == "schema_version" and edge.role in basis_alias_roles:
+            changed_observation_inputs.append(_input_edge(selected_basis_ref, role=edge.role))
+        else:
+            changed_observation_inputs.append(edge)
+    bad_observation_ref = _put_json_variant(
+        observation_ref, bad_observation_payload, inputs=changed_observation_inputs
+    )
+    bad_observation_manifest = store.get_manifest(bad_observation_ref)
+    assert bad_observation_manifest.artifact_schema == observation_manifest.artifact_schema
+    assert bad_observation_manifest.kind == observation_manifest.kind
+    assert bad_observation_manifest.media_type == observation_manifest.media_type
+    assert store.verify(bad_observation_ref).ok
+
+    expected_failure = {
+        "kind": r"execution_input_basis_ref\.kind",
+        "media_type": r"execution_input_basis_ref\.media_type",
+        "schema_version": "source-bound risk execution basis schema mismatch",
+    }[basis_mutation]
+    with pytest.raises(ValueError, match=expected_failure):
+        load_source_bound_risk_observation(store, bad_observation_ref, candidate_ref)
 
 
 @pytest.mark.parametrize("edge_role", ["simulation_result", "state_delta"])

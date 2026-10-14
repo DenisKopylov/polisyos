@@ -387,12 +387,50 @@ function textList(value: unknown): string[] {
 
 function isArtifactRef(value: unknown, kind: string): boolean {
   const ref = asRecord(value);
+  const profile = ref?.manifest_profile_sha256;
   return (
     ref !== null &&
     typeof ref.artifact_id === "string" &&
     /^sha256:[0-9a-f]{64}$/.test(ref.artifact_id) &&
     ref.kind === kind &&
-    ref.media_type === "application/json"
+    ref.media_type === "application/json" &&
+    (profile == null ||
+      (typeof profile === "string" && /^sha256:[0-9a-f]{64}$/.test(profile)))
+  );
+}
+
+function sameCoreArtifactRefView(left: unknown, right: unknown): boolean {
+  const l = asRecord(left);
+  const r = asRecord(right);
+  return (
+    l !== null &&
+    r !== null &&
+    isArtifactRef(l, "runtime.quality.n4_candidate_scenario_source") &&
+    isArtifactRef(r, "runtime.quality.n4_candidate_scenario_source") &&
+    l.artifact_id === r.artifact_id &&
+    l.kind === r.kind &&
+    l.media_type === r.media_type &&
+    (l.manifest_profile_sha256 ?? null) === (r.manifest_profile_sha256 ?? null)
+  );
+}
+
+function hasContinuationCandidate(
+  value: unknown,
+  candidateId: string,
+): boolean {
+  const c = asRecord(value);
+  const rows = c?.current_candidate_occurrences;
+  return (
+    typeof c?.continued_cycle_index === "number" &&
+    Array.isArray(rows) &&
+    rows.some((value) => {
+      const row = asRecord(value);
+      return (
+        row !== null &&
+        row.candidate_id === candidateId &&
+        row.cycle_index === c.continued_cycle_index
+      );
+    })
   );
 }
 
@@ -447,6 +485,43 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
             const reentry = row && asRecord(row.reentry_receipt_ref);
             const newSource = row && asRecord(row.new_candidate_source_ref);
             const originSource = row && asRecord(row.origin_source_ref);
+            const continuation = row && asRecord(row.continuation);
+            const sameCandidate =
+              row?.old_candidate_id != null &&
+              row.old_candidate_id === row.new_candidate_id;
+            const lineageMetadataPresent =
+              row?.schema_version != null ||
+              row?.reentry_receipt_schema_version != null ||
+              row?.continuation_join_status != null ||
+              row?.origin_source_binding_status != null;
+            const expectedOriginMatches = sameCoreArtifactRefView(
+              row?.origin_source_ref,
+              row?.expected_origin_source_ref,
+            );
+            const lineageMetadataValid =
+              row == null
+                ? false
+                : !lineageMetadataPresent
+                  ? row.expected_origin_source_ref == null
+                  : row.schema_version ===
+                      "policyos.runtime.run_candidate_simulation_acquisition_history.v2" &&
+                    (sameCandidate
+                      ? row.origin_source_binding_status ===
+                          "verified_same_candidate_root" &&
+                        expectedOriginMatches
+                      : row.origin_source_binding_status ===
+                          (row.origin_source_ref == null
+                            ? "not_supplied"
+                            : "observed_only") &&
+                        row.expected_origin_source_ref == null) &&
+                    (row.reentry_receipt_schema_version ===
+                    "policyos.runtime.acquisition_overlay_reentry.v3"
+                      ? row.continuation_join_status ===
+                          "v3_occurrence_joined" && continuation != null
+                      : row.reentry_receipt_schema_version != null &&
+                        row.continuation_join_status ===
+                          "legacy_occurrence_unbound" &&
+                        continuation == null);
             const commonKnown =
               projectionKnown &&
               projection.artifact_status === "resolved" &&
@@ -468,6 +543,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
               ) &&
               typeof row.old_candidate_id === "string" &&
               typeof row.new_candidate_id === "string" &&
+              lineageMetadataValid &&
               isArtifactRef(
                 row.new_candidate_source_ref,
                 "runtime.quality.n4_candidate_scenario_source",
@@ -476,14 +552,52 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 isArtifactRef(
                   row.origin_source_ref,
                   "runtime.quality.n4_candidate_scenario_source",
-                ));
+                )) &&
+              (row.expected_origin_source_ref == null ||
+                isArtifactRef(
+                  row.expected_origin_source_ref,
+                  "runtime.quality.n4_candidate_scenario_source",
+                )) &&
+              (sameCandidate || row.expected_origin_source_ref == null) &&
+              (continuation == null ||
+                (sameCoreArtifactRefView(
+                  row.new_candidate_source_ref,
+                  continuation.selected_n4_source_ref,
+                ) &&
+                  typeof row.new_candidate_id === "string" &&
+                  hasContinuationCandidate(
+                    continuation,
+                    row.new_candidate_id,
+                  )));
+            const expectedQuarantineOriginStatus =
+              row?.origin_source_ref == null ? "not_supplied" : "observed_only";
             const quarantineKnown =
               row?.terminal_outcome === "quarantined_no_growth" &&
               row.reentry_receipt_ref == null &&
               row.old_candidate_id == null &&
               row.new_candidate_id == null &&
               row.new_candidate_source_ref == null &&
-              row.origin_source_ref == null;
+              row.expected_origin_source_ref == null &&
+              (row.origin_source_ref == null ||
+                isArtifactRef(
+                  row.origin_source_ref,
+                  "runtime.quality.n4_candidate_scenario_source",
+                )) &&
+              (lineageMetadataPresent
+                ? row.schema_version ===
+                    "policyos.runtime.run_candidate_simulation_acquisition_history.v2" &&
+                  row.reentry_receipt_schema_version == null &&
+                  row.continuation_join_status === "not_applicable" &&
+                  row.origin_source_binding_status ===
+                    expectedQuarantineOriginStatus
+                : row.continuation_join_status == null &&
+                  row.origin_source_binding_status == null);
+            const legacyLimited =
+              !lineageMetadataPresent ||
+              row?.continuation_join_status === "legacy_occurrence_unbound";
+            const verifiedRoot =
+              row?.origin_source_binding_status ===
+                "verified_same_candidate_root" && expectedOriginMatches;
             if (!commonKnown || (!reentryKnown && !quarantineKnown)) {
               return (
                 <p
@@ -514,8 +628,23 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                     status: String(row.currentness_status),
                   })}
                 </p>
+                {legacyLimited ? (
+                  <p data-testid="overview-acquisition-history-limited">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryLimited",
+                    )}
+                  </p>
+                ) : null}
                 {reentryKnown ? (
                   <>
+                    {row.continuation_join_status != null ? (
+                      <p>
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionJoinStatus",
+                          { status: String(row.continuation_join_status) },
+                        )}
+                      </p>
+                    ) : null}
                     <p>
                       {t(
                         "pages.runs.candidateSimulation.acquisitionOldCandidate",
@@ -538,16 +667,40 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                       })}
                     </p>
                     <p className="text-xs break-all">
-                      {t("pages.runs.candidateSimulation.acquisitionOrigin", {
-                        ref:
-                          typeof originSource?.artifact_id === "string"
-                            ? originSource.artifact_id
-                            : t(
-                                "pages.runs.candidateSimulation.acquisitionOriginUnlinked",
-                              ),
-                      })}
+                      {t(
+                        "pages.runs.candidateSimulation.acquisitionOriginObserved",
+                        {
+                          ref:
+                            typeof originSource?.artifact_id === "string"
+                              ? originSource.artifact_id
+                              : t(
+                                  "pages.runs.candidateSimulation.acquisitionOriginUnlinked",
+                                ),
+                        },
+                      )}
                     </p>
+                    {verifiedRoot ? (
+                      <p className="text-xs break-all">
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionOriginVerified",
+                          {
+                            ref: String(
+                              asRecord(row.expected_origin_source_ref)
+                                ?.artifact_id,
+                            ),
+                          },
+                        )}
+                      </p>
+                    ) : null}
                   </>
+                ) : null}
+                {quarantineKnown && originSource ? (
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionOriginObserved",
+                      { ref: String(originSource.artifact_id) },
+                    )}
+                  </p>
                 ) : null}
                 <p className="text-xs break-all">
                   {t("pages.runs.candidateSimulation.acquisitionReceipt", {

@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.ir import governance, observation
 
-from ..artifacts.manifest import ArtifactRef, InputRef
+from ..artifacts.manifest import ArtifactRef, InputRef, artifact_ref_identity_key
 from ..trace import RunTerminality
 from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
@@ -2001,9 +2001,7 @@ class RunN5InteractionTerm(BaseModel):
         if set(self.replication_sampling_by_step) - set(self.by_step):
             raise ValueError("run_n5_interaction_sample_step_without_mean")
         for step, summary in self.replication_sampling_by_step.items():
-            if not math.isclose(
-                self.by_step[step], summary.mean, rel_tol=1e-12, abs_tol=1e-12
-            ):
+            if not math.isclose(self.by_step[step], summary.mean, rel_tol=1e-12, abs_tol=1e-12):
                 raise ValueError("run_n5_interaction_sample_mean_mismatch")
         return self
 
@@ -2028,9 +2026,9 @@ class RunN5InteractionEvidence(BaseModel):
     ]
     interaction_terms: tuple[RunN5InteractionTerm, ...] = ()
     higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
-    higher_order_residual_sampling: dict[
-        str, dict[int, RunN5InteractionSamplingSummary]
-    ] = Field(default_factory=dict)
+    higher_order_residual_sampling: dict[str, dict[int, RunN5InteractionSamplingSummary]] = Field(
+        default_factory=dict
+    )
     checked_interaction_orders: tuple[int, ...] = ()
     authority_purpose: Literal["candidate_checked_model_only"] = "candidate_checked_model_only"
     publication_authority: Literal[False] = False
@@ -2095,9 +2093,7 @@ def _validate_run_n5_interaction_scope(
     ):
         raise ValueError("run_n5_interaction_scope_parent_context_missing_or_invalid")
 
-    expected_pairs = {
-        frozenset(pair) for pair in itertools.combinations(atom_ids, 2)
-    }
+    expected_pairs = {frozenset(pair) for pair in itertools.combinations(atom_ids, 2)}
     expected_steps = set(executed_steps)
     expected_outcomes = set(selected_outcomes)
     actual_term_keys: set[tuple[frozenset[str], str]] = set()
@@ -2117,10 +2113,7 @@ def _validate_run_n5_interaction_scope(
         summary_steps = set(term.replication_sampling_by_step)
         if mean_steps != expected_steps:
             raise ValueError("run_n5_interaction_scope_pair_step_basis_incomplete")
-        if (
-            not summary_steps.issubset(expected_steps)
-            or not summary_steps.issubset(mean_steps)
-        ):
+        if not summary_steps.issubset(expected_steps) or not summary_steps.issubset(mean_steps):
             raise ValueError("run_n5_interaction_scope_foreign_step")
         for summary in term.replication_sampling_by_step.values():
             if summary.seeds != replication_seeds:
@@ -2152,10 +2145,7 @@ def _validate_run_n5_interaction_scope(
         summary_steps = set(evidence.higher_order_residual_sampling.get(outcome, {}))
         if mean_steps != expected_steps:
             raise ValueError("run_n5_interaction_scope_residual_step_basis_incomplete")
-        if (
-            not summary_steps.issubset(expected_steps)
-            or not summary_steps.issubset(mean_steps)
-        ):
+        if not summary_steps.issubset(expected_steps) or not summary_steps.issubset(mean_steps):
             raise ValueError("run_n5_interaction_scope_foreign_residual_step")
         for summary in evidence.higher_order_residual_sampling.get(outcome, {}).values():
             if summary.seeds != replication_seeds:
@@ -2167,13 +2157,7 @@ def _validate_run_n5_interaction_scope(
     if residual_outcomes != expected_residual_outcomes:
         raise ValueError("run_n5_interaction_scope_residual_basis_incomplete")
 
-    expected_orders = (
-        (1, 2, 3)
-        if len(atom_ids) == 3
-        else (1, 2)
-        if len(atom_ids) >= 2
-        else (1,)
-    )
+    expected_orders = (1, 2, 3) if len(atom_ids) == 3 else (1, 2) if len(atom_ids) >= 2 else (1,)
     checked_orders = evidence.checked_interaction_orders
     if (
         tuple(sorted(set(checked_orders))) != checked_orders
@@ -2218,8 +2202,7 @@ class RunCandidateSimulationN8ChildSourceBinding(BaseModel):
             (self.n5_result_ref, {"polisyos.runtime.joint_simulation_result"}),
         )
         if any(
-            ref.kind not in kinds or ref.media_type != "application/json"
-            for ref, kinds in expected
+            ref.kind not in kinds or ref.media_type != "application/json" for ref, kinds in expected
         ):
             raise ValueError("run_n8_joint_child_source_ref_invalid")
         return self
@@ -2271,15 +2254,15 @@ class RunCandidateSimulationN5Observation(BaseModel):
     authority_blockers: tuple[str, ...] = ()
     n5_interaction_evidence: RunN5InteractionEvidence | None = None
     n8_numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
-    n8_numeric_interaction_basis: Literal[
-        "finite_checked_model_point_estimate_only", "not_established"
-    ] | None = None
-    n8_interaction_sampling_status: Literal[
-        "estimated", "standard_error_not_estimated", "not_established"
-    ] | None = None
-    n8_status: Literal[
-        "value_ready", "value_conditional", "value_blocked", "value_pending_n8"
-    ] | None = None
+    n8_numeric_interaction_basis: (
+        Literal["finite_checked_model_point_estimate_only", "not_established"] | None
+    ) = None
+    n8_interaction_sampling_status: (
+        Literal["estimated", "standard_error_not_estimated", "not_established"] | None
+    ) = None
+    n8_status: (
+        Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"] | None
+    ) = None
     n8_authority_blockers: tuple[str, ...] = ()
     n8_joint_request_content_hash: str | None = Field(
         default=None,
@@ -2303,29 +2286,33 @@ class RunCandidateSimulationN5Observation(BaseModel):
         Annotated[str, Field(pattern=r"^atom_[a-f0-9]{16}$")], ...
     ] = ()
     n8_candidate_parent_atom_content_hashes: tuple[str, ...] = ()
-    n8_candidate_parent_intervention_ids: tuple[
-        Annotated[str, Field(min_length=1)], ...
-    ] = ()
+    n8_candidate_parent_intervention_ids: tuple[Annotated[str, Field(min_length=1)], ...] = ()
     n8_candidate_parent_child_refs: tuple[str, ...] = ()
-    n8_candidate_joint_selection_limitation_code: Literal[
-        "parent_joint_candidate_source_selection_not_established"
-    ] | None = None
-    n8_candidate_member_basis: Literal[
-        "hypothetical_all_unique_n4_source_members", "not_established"
-    ] | None = None
+    n8_candidate_joint_selection_limitation_code: (
+        Literal["parent_joint_candidate_source_selection_not_established"] | None
+    ) = None
+    n8_candidate_member_basis: (
+        Literal["hypothetical_all_unique_n4_source_members", "not_established"] | None
+    ) = None
     n8_source_candidate_relationship: Literal["alternatives", "not_established"] | None = None
     n8_policy_composition_status: Literal["not_established"] | None = None
-    n8_policy_composition_limitation_code: Literal[
-        "n4_source_candidates_are_alternatives_not_authored_compound_design",
-        "legacy_selection_receipt_has_no_composition_basis",
-        "parent_joint_candidate_source_selection_not_established",
-    ] | None = None
+    n8_policy_composition_limitation_code: (
+        Literal[
+            "n4_source_candidates_are_alternatives_not_authored_compound_design",
+            "legacy_selection_receipt_has_no_composition_basis",
+            "parent_joint_candidate_source_selection_not_established",
+        ]
+        | None
+    ) = None
     n8_child_to_parent_refinement_status: Literal["not_established"] | None = None
-    n8_child_to_parent_refinement_limitation_code: Literal[
-        "child_to_parent_refinement_rule_not_established",
-        "legacy_selection_receipt_has_no_refinement_basis",
-        "parent_joint_candidate_source_selection_not_established",
-    ] | None = None
+    n8_child_to_parent_refinement_limitation_code: (
+        Literal[
+            "child_to_parent_refinement_rule_not_established",
+            "legacy_selection_receipt_has_no_refinement_basis",
+            "parent_joint_candidate_source_selection_not_established",
+        ]
+        | None
+    ) = None
 
     @field_validator("executed_steps", "replication_seeds", mode="before")
     @classmethod
@@ -2389,8 +2376,7 @@ class RunCandidateSimulationN5Observation(BaseModel):
             if self.n5_interaction_evidence is None or any(value is None for value in n8_fields):
                 raise ValueError("run_n5_n8_conditional_interaction_missing")
             if self.n8_numeric_interaction == "unsupported" and (
-                "interaction_numeric_classification_unsupported"
-                not in self.n8_authority_blockers
+                "interaction_numeric_classification_unsupported" not in self.n8_authority_blockers
             ):
                 raise ValueError("run_n5_n8_unsupported_interaction_not_limited")
             if self.n8_interaction_sampling_status != "estimated" and not set(
@@ -2536,8 +2522,7 @@ class RunCandidateSimulationN5Observation(BaseModel):
             or self.n8_child_to_parent_refinement_status != "not_established"
             or self.n8_child_to_parent_refinement_limitation_code is None
             or (
-                self.n8_candidate_member_basis
-                == "hypothetical_all_unique_n4_source_members"
+                self.n8_candidate_member_basis == "hypothetical_all_unique_n4_source_members"
                 and (
                     self.n8_source_candidate_relationship != "alternatives"
                     or self.n8_policy_composition_limitation_code
@@ -2723,10 +2708,8 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
             or len(current_ids) != len(self.current_candidate_occurrences)
             or not set(self.n9_certified_candidate_ids).issubset(current_ids)
             or any(
-                row.candidate_id
-                not in getattr(self.current_fronts, f"{row.front}_candidate_ids")
-                or row.certified_by_n9
-                != (row.candidate_id in self.n9_certified_candidate_ids)
+                row.candidate_id not in getattr(self.current_fronts, f"{row.front}_candidate_ids")
+                or row.certified_by_n9 != (row.candidate_id in self.n9_certified_candidate_ids)
                 for row in self.current_candidate_occurrences
             )
             or self.continued_cycle_index != self.source_cycle_index + 1
@@ -2751,10 +2734,7 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
                 and self.previous_selected_target_baseline_hash
                 == self.selected_target_baseline_hash
             )
-            or (
-                self.n9_status != "certified_current_valid"
-                and self.n9_certified_candidate_ids
-            )
+            or (self.n9_status != "certified_current_valid" and self.n9_certified_candidate_ids)
             or (
                 self.continuation_currentness_status != "current"
                 and self.n9_status == "certified_current_valid"
@@ -2778,6 +2758,24 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
     new_candidate_id: str | None = Field(default=None, min_length=1)
     new_candidate_source_ref: ArtifactRef | None = None
     origin_source_ref: ArtifactRef | None = None
+    expected_origin_source_ref: ArtifactRef | None = None
+    schema_version: (
+        Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v2"] | None
+    ) = None
+    reentry_receipt_schema_version: (
+        Literal[
+            "policyos.runtime.acquisition_overlay_reentry.v1",
+            "policyos.runtime.acquisition_overlay_reentry.v2",
+            "policyos.runtime.acquisition_overlay_reentry.v3",
+        ]
+        | None
+    ) = None
+    continuation_join_status: (
+        Literal["not_applicable", "legacy_occurrence_unbound", "v3_occurrence_joined"] | None
+    ) = None
+    origin_source_binding_status: (
+        Literal["not_supplied", "observed_only", "verified_same_candidate_root"] | None
+    ) = None
     continuation: RunCandidateSimulationAcquisitionContinuationProjection | None = None
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
@@ -2811,6 +2809,14 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
                     or self.origin_source_ref.media_type != "application/json"
                 )
             )
+            or (
+                self.expected_origin_source_ref is not None
+                and (
+                    self.expected_origin_source_ref.kind
+                    != "runtime.quality.n4_candidate_scenario_source"
+                    or self.expected_origin_source_ref.media_type != "application/json"
+                )
+            )
         ):
             raise ValueError("candidate_acquisition_history_ref_invalid")
         reentry_fields = (
@@ -2819,6 +2825,82 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
             self.new_candidate_id,
             self.new_candidate_source_ref,
         )
+        same_candidate = (
+            self.old_candidate_id is not None and self.old_candidate_id == self.new_candidate_id
+        )
+        metadata_values = (
+            self.schema_version,
+            self.reentry_receipt_schema_version,
+            self.continuation_join_status,
+            self.origin_source_binding_status,
+        )
+        metadata_present = any(value is not None for value in metadata_values)
+        if metadata_present and (
+            self.schema_version
+            != "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+            or self.continuation_join_status is None
+            or self.origin_source_binding_status is None
+        ):
+            raise ValueError("candidate_acquisition_lineage_metadata_incomplete")
+        # Older projections may omit all version/join metadata. They remain
+        # readable as limited observations, but cannot carry a producer-verified
+        # root claim.
+        if not metadata_present and self.expected_origin_source_ref is not None:
+            raise ValueError("candidate_acquisition_expected_origin_without_metadata")
+        if self.terminal_outcome == "quarantined_no_growth":
+            if (
+                any(
+                    value is not None
+                    for value in (*reentry_fields, self.expected_origin_source_ref)
+                )
+                or self.continuation is not None
+                or self.reentry_receipt_schema_version is not None
+                or (
+                    metadata_present
+                    and (
+                        self.continuation_join_status != "not_applicable"
+                        or self.origin_source_binding_status
+                        != (
+                            "observed_only"
+                            if self.origin_source_ref is not None
+                            else "not_supplied"
+                        )
+                    )
+                )
+                or (
+                    not metadata_present
+                    and (
+                        self.continuation_join_status is not None
+                        or self.origin_source_binding_status is not None
+                    )
+                )
+            ):
+                raise ValueError("candidate_acquisition_quarantine_lineage_status_invalid")
+            return self
+        if metadata_present:
+            expected_join = (
+                "v3_occurrence_joined"
+                if self.reentry_receipt_schema_version
+                == "policyos.runtime.acquisition_overlay_reentry.v3"
+                else "legacy_occurrence_unbound"
+            )
+            if (
+                self.reentry_receipt_schema_version is None
+                or self.continuation_join_status != expected_join
+                or (
+                    self.reentry_receipt_schema_version
+                    == "policyos.runtime.acquisition_overlay_reentry.v3"
+                )
+                != (self.continuation is not None)
+            ):
+                raise ValueError("candidate_acquisition_receipt_join_status_invalid")
+            expected_origin_status = (
+                "verified_same_candidate_root"
+                if same_candidate
+                else ("observed_only" if self.origin_source_ref is not None else "not_supplied")
+            )
+            if self.origin_source_binding_status != expected_origin_status:
+                raise ValueError("candidate_acquisition_origin_status_invalid")
         if self.terminal_outcome == "reentry_completed" and any(
             value is None for value in reentry_fields
         ):
@@ -2826,30 +2908,57 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
         if self.terminal_outcome == "quarantined_no_growth" and self.continuation is not None:
             raise ValueError("candidate_acquisition_quarantine_has_continuation")
         if self.terminal_outcome == "quarantined_no_growth" and any(
-            value is not None for value in reentry_fields
+            value is not None for value in (*reentry_fields, self.expected_origin_source_ref)
         ):
             raise ValueError("candidate_acquisition_quarantine_claims_reentry")
+        if self.terminal_outcome == "reentry_completed":
+            if (
+                metadata_present
+                and same_candidate
+                and (
+                    self.origin_source_ref is None
+                    or self.expected_origin_source_ref is None
+                    or artifact_ref_identity_key(self.origin_source_ref)
+                    != artifact_ref_identity_key(self.expected_origin_source_ref)
+                )
+            ):
+                raise ValueError("candidate_acquisition_same_candidate_origin_binding_invalid")
+            if not same_candidate and self.expected_origin_source_ref is not None:
+                raise ValueError("candidate_acquisition_expected_origin_without_same_candidate")
         continuation = self.continuation
-        if continuation is not None and self.old_candidate_id == self.new_candidate_id and (
-            self.old_candidate_id is None
-            or continuation.previous_n4_source_ref is None
-            or continuation.previous_n5_input_ref is None
-            or continuation.previous_profile_selection_ref is None
-            or continuation.previous_profile_content_hash is None
-            or continuation.previous_profile_selection_ref
-            != continuation.selected_profile_selection_ref
-            or continuation.previous_selected_target_baseline_hash is None
-            or continuation.selected_target_baseline_hash is None
-            or continuation.previous_selected_target_baseline_hash
-            == continuation.selected_target_baseline_hash
-            or str(continuation.previous_n4_source_ref.artifact_id)
-            == str(continuation.selected_n4_source_ref.artifact_id)
-            or str(continuation.previous_n5_input_ref.artifact_id)
-            == str(continuation.selected_n5_input_ref.artifact_id)
-        ):
-            raise ValueError(
-                "candidate_acquisition_same_candidate_continuation_binding_invalid"
+        if continuation is not None:
+            if self.new_candidate_source_ref is None or artifact_ref_identity_key(
+                self.new_candidate_source_ref
+            ) != artifact_ref_identity_key(continuation.selected_n4_source_ref):
+                raise ValueError("candidate_acquisition_continuation_source_binding_invalid")
+            if self.new_candidate_id is None or not any(
+                occurrence.candidate_id == self.new_candidate_id
+                and occurrence.cycle_index == continuation.continued_cycle_index
+                for occurrence in continuation.current_candidate_occurrences
+            ):
+                raise ValueError("candidate_acquisition_continuation_candidate_missing")
+        if (
+            continuation is not None
+            and self.old_candidate_id == self.new_candidate_id
+            and (
+                self.old_candidate_id is None
+                or continuation.previous_n4_source_ref is None
+                or continuation.previous_n5_input_ref is None
+                or continuation.previous_profile_selection_ref is None
+                or continuation.previous_profile_content_hash is None
+                or continuation.previous_profile_selection_ref
+                != continuation.selected_profile_selection_ref
+                or continuation.previous_selected_target_baseline_hash is None
+                or continuation.selected_target_baseline_hash is None
+                or continuation.previous_selected_target_baseline_hash
+                == continuation.selected_target_baseline_hash
+                or artifact_ref_identity_key(continuation.previous_n4_source_ref)
+                == artifact_ref_identity_key(continuation.selected_n4_source_ref)
+                or artifact_ref_identity_key(continuation.previous_n5_input_ref)
+                == artifact_ref_identity_key(continuation.selected_n5_input_ref)
             )
+        ):
+            raise ValueError("candidate_acquisition_same_candidate_continuation_binding_invalid")
         return self
 
 
@@ -2976,10 +3085,14 @@ class RunCandidateSimulationProjection(BaseModel):
                 self.n4_child_profile_limitation_code is not None
             ):
                 raise ValueError("candidate_projection_unexpected_child_profile_limitation")
-            if self.limitation_code in {
-                "n5_result_reference_not_established",
-                "n5_interaction_scope_not_established",
-            } and self.n5_observations:
+            if (
+                self.limitation_code
+                in {
+                    "n5_result_reference_not_established",
+                    "n5_interaction_scope_not_established",
+                }
+                and self.n5_observations
+            ):
                 raise ValueError("candidate_projection_unverified_n5_observation_present")
             if self.limitation_code == "n5_observation_not_emitted" and self.n5_observations:
                 raise ValueError("candidate_projection_empty_n5_observation_mismatch")
@@ -3087,12 +3200,12 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     n8_limitation_code: str | None = Field(default=None, min_length=1)
     n5_interaction_evidence: RunN5InteractionEvidence | None = None
     n8_numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
-    n8_numeric_interaction_basis: Literal[
-        "finite_checked_model_point_estimate_only", "not_established"
-    ] | None = None
-    n8_interaction_sampling_status: Literal[
-        "estimated", "standard_error_not_estimated", "not_established"
-    ] | None = None
+    n8_numeric_interaction_basis: (
+        Literal["finite_checked_model_point_estimate_only", "not_established"] | None
+    ) = None
+    n8_interaction_sampling_status: (
+        Literal["estimated", "standard_error_not_estimated", "not_established"] | None
+    ) = None
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     publication_authority: Literal[False] = False
@@ -3159,17 +3272,20 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
                 )
             ):
                 raise ValueError("run_generic_n8_interaction_qualification_missing")
-            if self.n8_numeric_interaction != self.n5_interaction_evidence.numeric_interaction or (
-                self.n8_numeric_interaction_basis
-                != self.n5_interaction_evidence.numeric_interaction_basis
-            ) or (
-                self.n8_interaction_sampling_status
-                != self.n5_interaction_evidence.interaction_sampling_status
+            if (
+                self.n8_numeric_interaction != self.n5_interaction_evidence.numeric_interaction
+                or (
+                    self.n8_numeric_interaction_basis
+                    != self.n5_interaction_evidence.numeric_interaction_basis
+                )
+                or (
+                    self.n8_interaction_sampling_status
+                    != self.n5_interaction_evidence.interaction_sampling_status
+                )
             ):
                 raise ValueError("run_generic_n8_interaction_qualification_mismatch")
             if self.n8_numeric_interaction == "unsupported" and (
-                "interaction_numeric_classification_unsupported"
-                not in self.n8_authority_blockers
+                "interaction_numeric_classification_unsupported" not in self.n8_authority_blockers
             ):
                 raise ValueError("run_generic_n8_unsupported_interaction_not_limited")
             if self.n8_interaction_sampling_status != "estimated" and not set(
@@ -4136,7 +4252,7 @@ class PredictiveCoverageDiagnosticPreview(BaseModel):
     ]
     assessment: Literal["limited"]
     source_materialization: Literal["reader_materialized"]
-    canon_read_status: CanonReadStatus
+    canon_read_status: CanonReadStatus = "not_evaluated"
     producer_attestation_status: Literal["not_established"]
     s10_metric_mapping_status: Literal["not_established"]
     s10_threshold_status: Literal["not_established"]
@@ -4160,7 +4276,7 @@ class ArtifactContentPreview(BaseModel):
     kind: str
     media_type: str
     mode: PreviewMode
-    canon_read_status: CanonReadStatus
+    canon_read_status: CanonReadStatus = "not_evaluated"
     size_bytes: int = Field(ge=0)
     max_bytes: int = Field(ge=1)
     truncated: bool = False
@@ -4223,7 +4339,7 @@ class ArtifactSchemaView(BaseModel):
     manifest_profile_sha256: str | None = None
     kind: str
     media_type: str
-    canon_read_status: CanonReadStatus
+    canon_read_status: CanonReadStatus = "not_evaluated"
     schema_name: str | None = None
     schema_version: str | None = None
     top_level_keys: list[str] = Field(default_factory=list)

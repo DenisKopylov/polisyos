@@ -20,7 +20,7 @@ Inventory scope: code counts reflect statically resolved source declarations;
 they do not prove runtime or deployment readiness. Dynamic or unresolved
 declarations remain partial/unknown rather than being silently treated as absent.
 
-## Reader guide
+## Recorded lineage and missing bridges
 
 This page separates lineage the runtime currently records from lineage the
 tracker can represent. With CAS configured and an applicable transform pipeline,

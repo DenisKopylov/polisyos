@@ -3,8 +3,14 @@ from __future__ import annotations
 import logging
 from decimal import Decimal
 
+import pytest
+
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import CanonInfo, PutOptions, SchemaInfo
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import (
     LoweredIR,
     LoweredMechanism,
@@ -28,10 +34,14 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
+    _load_program_graph,
     build_policy_parameter_override_bundle,
     build_runtime_abstraction_metadata,
 )
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_ABSTRACTION_CERTIFICATE_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
+    ARTIFACT_PROGRAM_GRAPH_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.policy_design.schema import (
     ParameterScheduleEntry,
@@ -256,3 +266,36 @@ def test_build_runtime_abstraction_metadata_includes_continuous_error_bound_spec
         "gain_matrix_spectral_radius": 0.0,
         "tightness_status": "exact_on_linear_gaussian",
     }
+
+
+def test_program_graph_consumer_refuses_same_payload_under_wrong_selected_schema(
+    execution_context,
+    minimal_state,
+) -> None:
+    store = execution_context.store
+    graph = ProgramGraph(
+        ir_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.policy_spec",
+            media_type="application/json",
+        )
+    )
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    ref = store.put_bytes(
+        to_canonical_bytes(graph, spec),
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name="polisyos.test.ProgramGraph", version="9.9"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF] = ref
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_name_mismatch",
+    ):
+        _load_program_graph(execution_context, state)

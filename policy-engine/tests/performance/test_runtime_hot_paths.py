@@ -206,9 +206,7 @@ def test_canary_performance_budget_report_covers_runtime_hot_path_layers() -> No
     assert rows["runtime.lineage_api"]["layer"] == "runtime_api"
     assert rows["evidence.collection"]["layer"] == "canary_evidence"
     assert rows["dashboard.route_render:/runs/R_hot/overview"]["layer"] == "dashboard"
-    assert rows["dashboard.route_render:/runs/R_hot/overview"]["path"] == (
-        "/runs/R_hot/overview"
-    )
+    assert rows["dashboard.route_render:/runs/R_hot/overview"]["path"] == ("/runs/R_hot/overview")
     assert all(required_row_keys <= set(row) for row in report["phase_budgets"])
 
 
@@ -723,10 +721,23 @@ def test_streaming_windowed_legacy_async_chunk_round_trip_soak_smoke(
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: object, canon_spec: object = None):
+    async def _tracked_put_json(
+        self,
+        obj: object,
+        opts: object,
+        canon_spec: object = None,
+        *,
+        return_selected_profile: bool = False,
+    ):
         kind = getattr(opts, "kind", "")
         seen_kinds.append(str(kind))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
     async def _fake_fetch_stream_for_dataset_async(**kwargs: object) -> list[dict[str, object]]:
         del kwargs
@@ -779,9 +790,22 @@ def test_streaming_windowed_async_snapshot_round_trip_soak_smoke(
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: object, canon_spec: object = None):
+    async def _tracked_put_json(
+        self,
+        obj: object,
+        opts: object,
+        canon_spec: object = None,
+        *,
+        return_selected_profile: bool = False,
+    ):
         seen_kinds.append(str(getattr(opts, "kind", "")))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
     async def _fake_fetch_stream_for_dataset_async(**kwargs: object) -> list[dict[str, object]]:
         del kwargs
@@ -830,6 +854,8 @@ def test_orchestrated_ingestion_async_snapshot_round_trip_soak_smoke(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts.fabric import DataSnapshot, RetrievalSummary
 
     cas_root = tmp_path / ".polisyos"
     store = FileSystemCAS(cas_root)
@@ -846,9 +872,22 @@ def test_orchestrated_ingestion_async_snapshot_round_trip_soak_smoke(
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: object, canon_spec: object = None):
+    async def _tracked_put_json(
+        self,
+        obj: object,
+        opts: object,
+        canon_spec: object = None,
+        *,
+        return_selected_profile: bool = False,
+    ):
         seen_kinds.append(str(getattr(opts, "kind", "")))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
     monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
 
@@ -870,5 +909,15 @@ def test_orchestrated_ingestion_async_snapshot_round_trip_soak_smoke(
         ]
 
     assert all(result.data_snapshot_ref is not None for result in results)
-    assert seen_kinds.count("fabric.quality_report") == 12
+    assert seen_kinds.count("fabric.retrieval_summary") == 12
     assert seen_kinds.count("fabric.data_snapshot") == 12
+    snapshot_ref = results[0].data_snapshot_ref
+    assert snapshot_ref is not None
+    snapshot = DataSnapshot.model_validate(from_canonical_bytes(store.get_bytes(snapshot_ref)))
+    assert snapshot.quality_report_ref is not None
+    assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
+    summary = RetrievalSummary.model_validate(
+        from_canonical_bytes(store.get_bytes(snapshot.quality_report_ref))
+    )
+    assert summary.assessment_status == "not_assessed"
+    assert summary.source_refs == [data_ref]

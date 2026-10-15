@@ -3,8 +3,11 @@ from __future__ import annotations
 import logging
 from unittest.mock import patch
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -40,14 +43,17 @@ def _put_snapshot_with_quality(
 ):
     quality_report_ref = store.put_json(
         {
+            "dataset_id": "test.dataset",
+            "schema_id": "test.schema",
             "tier": tier,
             "grade": "D" if tier == "bronze" else "B",
-            "score": "0.42" if tier == "bronze" else "0.88",
+            "score": 0.42 if tier == "bronze" else 0.88,
             "freshness_status": {
                 "is_fresh": is_fresh,
                 "level": "stale" if not is_fresh else "fresh",
                 "data_age_seconds": 30 * 24 * 3600 if not is_fresh else 2 * 24 * 3600,
                 "message": "freshness violation" if not is_fresh else "fresh",
+                "fetched_at": "2026-10-15T00:00:00+00:00",
             },
             "violations": [
                 {
@@ -59,12 +65,16 @@ def _put_snapshot_with_quality(
                     "actual": "poor",
                 }
             ],
+            "validated_at": "2026-10-15T00:00:00+00:00",
+            "row_count": 1,
+            "quality_flags": [],
         },
         PutOptions(
             kind="fabric.quality_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     data_ref = store.put_json(
         {"rows": [{"income": 1000}]},
@@ -85,8 +95,50 @@ def _put_snapshot_with_quality(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     return snapshot_ref
+
+
+def _put_snapshot_with_retrieval_summary(store: FileSystemCAS):
+    from polisyos.core.contracts import RetrievalSummary
+
+    data_ref = store.put_json(
+        {"metrics": [{"name": "income"}]},
+        PutOptions(
+            kind="fabric.retrieval_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.RetrievalPayload", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    summary_ref = store.put_json(
+        RetrievalSummary(
+            assessment_status="not_assessed",
+            source="retrieval_service",
+            source_refs=[data_ref],
+            observed_counts={"metrics": 1},
+            notes=["retrieval has no schema-based quality assessment"],
+        ),
+        PutOptions(
+            kind="fabric.retrieval_summary",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.RetrievalSummary", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=data_ref, quality_report_ref=summary_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return snapshot_ref, summary_ref
 
 
 def test_data_plane_gate_blocks_strict_profile_on_quality_and_pii(tmp_path) -> None:
@@ -113,7 +165,103 @@ def test_data_plane_gate_blocks_strict_profile_on_quality_and_pii(tmp_path) -> N
     assert outcome.state.params.get("data_plane_gate_blocked") is True
 
 
-def test_data_plane_gate_allows_mvp_profile_without_blockers(tmp_path) -> None:
+@pytest.mark.parametrize("profile_is_explicit", [True, False])
+def test_data_plane_gate_allows_mvp_profile_without_blockers(
+    tmp_path,
+    profile_is_explicit,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _ctx(store)
+    snapshot_ref = _put_snapshot_with_quality(
+        store,
+        tier="silver",
+        is_fresh=True,
+        pii_total_entities=0,
+        pii_max_severity="none",
+    )
+    params = {"tenant_tier": "shared"}
+    if profile_is_explicit:
+        params["governance_profile"] = "mvp"
+    state = ExperimentState(
+        run_id="R_gate_pass",
+        inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params=params,
+    )
+
+    outcome = DataPlaneGateNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert outcome.state.params.get("data_plane_gate_blocked") is False
+    assert outcome.state.params.get("data_plane_gate_profile") == "mvp"
+    issues = outcome.state.params.get("data_plane_gate_issues")
+    assert isinstance(issues, list)
+
+
+def test_data_plane_gate_exposes_unassessed_summary_as_candidate_limitation(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _ctx(store)
+    snapshot_ref, summary_ref = _put_snapshot_with_retrieval_summary(store)
+    summary_manifest = store.get_manifest(summary_ref)
+    assert summary_ref.manifest_profile_sha256 is not None
+    assert summary_manifest.kind == "fabric.retrieval_summary"
+    assert summary_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.fabric.RetrievalSummary", version="1.0"
+    )
+    state = ExperimentState(
+        run_id="R_gate_unassessed_summary_candidate",
+        inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params={"governance_profile": "mvp", "tenant_tier": "shared"},
+    )
+
+    outcome = DataPlaneGateNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    issue = next(
+        issue
+        for issue in outcome.state.params["data_plane_gate_issues"]
+        if issue["code"] == "QUALITY_ASSESSMENT_NOT_ESTABLISHED"
+    )
+    assert issue["severity"] == "warning"
+    assert "not assessed" in issue["message"].lower()
+    assert outcome.state.params["data_plane_gate_blocked"] is False
+
+
+def test_data_plane_gate_blocks_strict_profile_on_unassessed_summary(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _ctx(store)
+    snapshot_ref, _summary_ref = _put_snapshot_with_retrieval_summary(store)
+    state = ExperimentState(
+        run_id="R_gate_unassessed_summary_strict",
+        inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params={"governance_profile": "strict", "tenant_tier": "shared"},
+    )
+
+    outcome = DataPlaneGateNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "governance.data_plane_blocked"
+    issue = next(
+        issue
+        for issue in outcome.state.params["data_plane_gate_issues"]
+        if issue["code"] == "QUALITY_ASSESSMENT_NOT_ESTABLISHED"
+    )
+    assert issue["severity"] == "blocker"
+    assert outcome.state.params["data_plane_gate_blocked"] is True
+
+
+@pytest.mark.parametrize(
+    "governance_profile",
+    [
+        "strict-ish",
+        {"level": "strict", "thresholds": []},
+        {"level": "strict", "thresholds": {"quality_staleness_acceptable": float("inf")}},
+    ],
+)
+def test_data_plane_gate_fails_closed_for_invalid_supplied_profile(
+    tmp_path,
+    governance_profile,
+) -> None:
     store = FileSystemCAS(tmp_path)
     ctx, _ = _ctx(store)
     snapshot_ref = _put_snapshot_with_quality(
@@ -124,20 +272,54 @@ def test_data_plane_gate_allows_mvp_profile_without_blockers(tmp_path) -> None:
         pii_max_severity="none",
     )
     state = ExperimentState(
-        run_id="R_gate_pass",
+        run_id="R_gate_invalid_profile",
         inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params={"governance_profile": governance_profile, "tenant_tier": "shared"},
+    )
+
+    outcome = DataPlaneGateNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
+    assert "governance profile" in outcome.error.message.lower()
+
+
+def test_data_plane_gate_refuses_same_snapshot_payload_under_wrong_schema(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _ctx(store)
+    valid_ref = _put_snapshot_with_quality(
+        store,
+        tier="silver",
+        is_fresh=True,
+        pii_total_entities=0,
+        pii_max_severity="none",
+    )
+    manifest = store.get_manifest(valid_ref)
+    wrong_profile_ref = store.put_bytes(
+        store.get_bytes(valid_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.test.DataSnapshot", version="9.9"),
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="R_gate_wrong_snapshot_owner",
+        inputs={INPUT_DATA_SNAPSHOT_REF: wrong_profile_ref},
         params={"governance_profile": "mvp", "tenant_tier": "shared"},
     )
 
     outcome = DataPlaneGateNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
-    assert outcome.state.params.get("data_plane_gate_blocked") is False
-    issues = outcome.state.params.get("data_plane_gate_issues")
-    assert isinstance(issues, list)
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
 
 
-def test_data_plane_gate_records_degraded_event_for_invalid_quality_report(tmp_path) -> None:
+def test_data_plane_gate_fails_for_invalid_quality_report_owner(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     ctx, _ = _ctx(store)
     data_ref = store.put_json(
@@ -171,13 +353,9 @@ def test_data_plane_gate_records_degraded_event_for_invalid_quality_report(tmp_p
 
     outcome = DataPlaneGateNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
-    degraded = [
-        event for event in outcome.events if event.code == "data_plane_gate.quality_report_degraded"
-    ]
-    assert degraded
-    assert degraded[0].attrs["reason"] == "quality_report_load_failed"
-    assert outcome.state.params.get("data_plane_gate_blocked") is False
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
 
 
 def test_data_plane_gate_uses_branch_state_for_param_outputs(tmp_path) -> None:

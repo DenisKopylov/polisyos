@@ -505,6 +505,43 @@ def _load_owner_projection_mapping(
     return selected_ref, mapping
 
 
+def _data_snapshot_manifest_inputs_match(
+    store: ArtifactStore,
+    selected_snapshot_ref: ArtifactRef,
+    snapshot: contracts.DataSnapshot,
+) -> bool:
+    """Reconcile every selected parent edge with its typed DataSnapshot field."""
+    from polisyos.core.contracts import fabric as fabric_contracts
+
+    manifest = store.get_manifest(selected_snapshot_ref)
+    expected_edges: list[tuple[ArtifactRef, frozenset[str]]] = []
+    for field_name in fabric_contracts.data_snapshot_reference_fields():
+        owner_ref = getattr(snapshot, field_name)
+        if owner_ref is None:
+            continue
+        allowed_roles = fabric_contracts.data_snapshot_reference_input_roles(field_name)
+        if not allowed_roles:
+            return False
+        expected_edges.append((owner_ref, allowed_roles))
+
+    if len(manifest.inputs) != len(expected_edges):
+        return False
+
+    unmatched_input_indexes = set(range(len(manifest.inputs)))
+    for owner_ref, allowed_roles in expected_edges:
+        matching_indexes = [
+            index
+            for index in unmatched_input_indexes
+            if manifest.inputs[index].artifact_id == owner_ref.artifact_id
+            and manifest.inputs[index].manifest_profile_sha256 == owner_ref.manifest_profile_sha256
+            and manifest.inputs[index].role in allowed_roles
+        ]
+        if len(matching_indexes) != 1:
+            return False
+        unmatched_input_indexes.remove(matching_indexes[0])
+    return not unmatched_input_indexes
+
+
 def _walk_verified_reference_graph(
     store: ArtifactStore,
     value: object,
@@ -903,7 +940,7 @@ def _live_source_candidate_graph_matches(
     candidate: epoch_contract.AcquisitionSemanticBoundaryCandidateStatement,
     passport_mapping: MappingABC[str, object],
 ) -> bool:
-    """Reconcile the v2 live passport with its actual Fabric producer graph."""
+    """Reconcile live payload lineage; caller-provided source labels stay descriptive."""
     schema_version = passport_mapping.get("schema_version")
     source_lane = passport_mapping.get("source_lane")
     if schema_version != "polisyos.runtime.acquisition_admission_passport.v2":
@@ -922,6 +959,10 @@ def _live_source_candidate_graph_matches(
         live = passport.live_source_execution
         if live is None:
             return False
+        request_dataset_ids = live.authorization.request_variables
+        if request_dataset_ids != (passport.registration.request_dataset_id,):
+            return False
+        expected_dataset_count = len(request_dataset_ids)
         selected_snapshot_ref, snapshot_mapping = _load_owner_projection_mapping(
             store, live.data_snapshot_ref
         )
@@ -932,11 +973,11 @@ def _live_source_candidate_graph_matches(
             store, live.evidence_bundle_ref
         )
         bundle = contracts.EvidenceBundle.model_validate(bundle_mapping)
-        _selected_quality_ref, quality = _load_owner_projection_mapping(
+        selected_quality_ref, quality = _load_owner_projection_mapping(
             store, snapshot.quality_report_ref
         )
         selected_data_ref, cache_envelope = _load_owner_projection_mapping(store, snapshot.data_ref)
-        return (
+        graph_matches = (
             _selected_cas_ref_matches_owner_projection(
                 selected_snapshot_ref, live.data_snapshot_ref
             )
@@ -950,24 +991,48 @@ def _live_source_candidate_graph_matches(
             and _selected_cas_ref_matches_owner_projection(
                 selected_data_ref, candidate.source_record_ref
             )
+            and _data_snapshot_manifest_inputs_match(store, selected_snapshot_ref, snapshot)
             and snapshot.data_ref.artifact_id == live.normalized_data_artifact_id
             and candidate.source_record_content_hash == str(selected_data_ref.artifact_id)
             and len(bundle.sources) == 1
             and _selected_cas_ref_matches_owner_projection(selected_data_ref, bundle.sources[0])
             and type(snapshot.stats.get("datasets_fetched")) is int
-            and snapshot.stats.get("datasets_fetched") == 1
-            and set(quality) == {"source", "datasets_count", "notes"}
-            and type(quality.get("source")) is str
-            and quality["source"].startswith("orchestrated_ingestion:")
-            and len(quality["source"]) > len("orchestrated_ingestion:")
-            and type(quality.get("datasets_count")) is int
-            and quality["datasets_count"] == snapshot.stats["datasets_fetched"]
-            and type(quality.get("notes")) is list
-            and quality["notes"] == bundle.notes
-            and all(type(note) is str for note in quality["notes"])
+            and snapshot.stats.get("datasets_fetched") == expected_dataset_count
             and isinstance(cache_envelope.get("version"), MappingABC)
             and cache_envelope["version"].get("content_hash")
             == live.normalized_result_content_sha256
+        )
+        if not graph_matches:
+            return False
+
+        if selected_quality_ref.kind == "fabric.retrieval_summary":
+            from polisyos.core.contracts.fabric import RetrievalSummary
+
+            summary = RetrievalSummary.model_validate(quality)
+            return (
+                selected_quality_ref.media_type == RetrievalSummary.ARTIFACT_MEDIA_TYPE
+                and selected_quality_ref.manifest_profile_sha256 is not None
+                and summary.assessment_status == "not_assessed"
+                and len(bundle.sources) == 1
+                and summary.source_refs == bundle.sources
+                and _selected_cas_ref_matches_owner_projection(
+                    selected_data_ref, summary.source_refs[0]
+                )
+                and summary.observed_counts
+                == {"datasets_fetched": snapshot.stats["datasets_fetched"]}
+                and summary.notes == bundle.notes
+            )
+
+        if selected_quality_ref.kind != "fabric.quality_report":
+            return False
+        return (
+            set(quality) == {"source", "datasets_count", "notes"}
+            and type(quality.get("source")) is str
+            and type(quality.get("datasets_count")) is int
+            and quality["datasets_count"] == expected_dataset_count
+            and type(quality.get("notes")) is list
+            and quality["notes"] == bundle.notes
+            and all(type(note) is str for note in quality["notes"])
         )
     except Exception:
         return False

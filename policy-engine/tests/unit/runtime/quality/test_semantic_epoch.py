@@ -1878,3 +1878,408 @@ def test_l5_owner_row_role_is_checked_before_cas_or_projection(tmp_path: Path) -
     assert retagged.project_calls == 0
     assert not store.has(retagged.receipt.owner_source_snapshot_ref.artifact_id)
     assert not store.has(wrong_ref.artifact_id)
+
+
+def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
+    tmp_path: Path,
+) -> None:
+    import logging
+    from unittest.mock import patch
+
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        DataSnapshotRef,
+        EvidenceBundle,
+        EvidenceBundleRef,
+        RetrievalSummary,
+    )
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+    from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    cas_root = tmp_path / "cas"
+    store = FileSystemCAS(cas_root)
+    source_ref = store.put_bytes(
+        b'{"rows":[{"x":1}]}',
+        PutOptions(kind="fabric.acquisition.raw_evidence", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    evidence_ref = store.put_json(
+        EvidenceBundle(sources=[source_ref], notes=["selected source fixture"]),
+        PutOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="fabric.evidence_bundle", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    evidence_bundle_ref = EvidenceBundleRef.model_validate(evidence_ref.model_dump(mode="python"))
+
+    with patch(
+        "polisyos.fabric.ingestion.run_connectors_ingestion",
+        return_value=evidence_bundle_ref,
+    ):
+        result = run_orchestrated_ingestion(
+            connector_manifest={"datasets": [{"connector_id": "test", "dataset_id": "ds1"}]},
+            source="semantic-epoch-test",
+            license_name="open",
+            cas_root=cas_root,
+            produce_snapshot=True,
+        )
+
+    snapshot_ref = result.data_snapshot_ref
+    assert snapshot_ref is not None
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    snapshot_payload = from_canonical_bytes(store.get_bytes(snapshot_ref))
+    snapshot = DataSnapshot.model_validate(snapshot_payload)
+    summary_ref = snapshot.quality_report_ref
+    assert summary_ref is not None
+    assert summary_ref.kind == RetrievalSummary.ARTIFACT_KIND
+    assert summary_ref.manifest_profile_sha256 is not None
+
+    summary_manifest = store.get_manifest(summary_ref)
+    assert summary_manifest.kind == RetrievalSummary.ARTIFACT_KIND
+    assert summary_manifest.media_type == RetrievalSummary.ARTIFACT_MEDIA_TYPE
+    assert summary_manifest.artifact_schema == SchemaInfo(
+        name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+        version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+    )
+    summary = RetrievalSummary.model_validate(from_canonical_bytes(store.get_bytes(summary_ref)))
+    assert summary.assessment_status == "not_assessed"
+    assert summary.source_refs == [source_ref]
+    assert summary.observed_counts == {"datasets_fetched": 1}
+    assert not hasattr(summary, "score")
+
+    profiles = epoch._resolve_selected_reference_graph(store, snapshot_ref)
+    assert profiles is not None
+    summary_identity = (str(summary_ref.artifact_id), summary_ref.kind, summary_ref.media_type)
+    assert profiles[summary_identity] == summary_ref.manifest_profile_sha256
+    assert profiles[(str(source_ref.artifact_id), source_ref.kind, source_ref.media_type)] == (
+        source_ref.manifest_profile_sha256
+    )
+
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_ref, run_id="R_epoch_summary")
+    context = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.semantic_epoch.retrieval_summary"),
+    )
+    candidate_state = ExperimentState(
+        run_id="R_epoch_summary_candidate",
+        inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params={"governance_profile": "mvp", "tenant_tier": "shared"},
+    )
+    candidate_outcome = DataPlaneGateNode().execute(context, candidate_state)
+    assert candidate_outcome.status == "ok"
+    candidate_issue = next(
+        issue
+        for issue in candidate_outcome.state.params["data_plane_gate_issues"]
+        if issue["code"] == "QUALITY_ASSESSMENT_NOT_ESTABLISHED"
+    )
+    assert candidate_issue["severity"] == "warning"
+    assert candidate_outcome.state.params["data_plane_gate_blocked"] is False
+
+    strict_state = ExperimentState(
+        run_id="R_epoch_summary_strict",
+        inputs={INPUT_DATA_SNAPSHOT_REF: snapshot_ref},
+        params={"governance_profile": "strict", "tenant_tier": "shared"},
+    )
+    strict_outcome = DataPlaneGateNode().execute(context, strict_state)
+    assert strict_outcome.status == "fail"
+    assert strict_outcome.error is not None
+    assert strict_outcome.error.code == "governance.data_plane_blocked"
+    strict_issue = next(
+        issue
+        for issue in strict_outcome.state.params["data_plane_gate_issues"]
+        if issue["code"] == "QUALITY_ASSESSMENT_NOT_ESTABLISHED"
+    )
+    assert strict_issue["severity"] == "blocker"
+    assert strict_outcome.state.params["data_plane_gate_blocked"] is True
+
+    def _persist_variant(ref: ArtifactRef) -> DataSnapshotRef:
+        changed = snapshot.model_copy(update={"quality_report_ref": ref})
+        selected = store.put_json(
+            changed,
+            PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        return DataSnapshotRef.model_validate(selected.model_dump(mode="python"))
+
+    wrong_kind = ArtifactRef.model_validate(
+        summary_ref.model_dump(mode="json") | {"kind": "fabric.data_snapshot"}
+    )
+    assert epoch._resolve_selected_reference_graph(store, _persist_variant(wrong_kind)) is None
+
+    wrong_schema_ref = store.put_json(
+        summary,
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=RetrievalSummary.ARTIFACT_SCHEMA_NAME, version="9.9"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            store,
+            _persist_variant(wrong_schema_ref),
+        )
+        is None
+    )
+
+    wrong_profile = ArtifactRef.model_validate(
+        summary_ref.model_dump(mode="json") | {"manifest_profile_sha256": f"sha256:{'0' * 64}"}
+    )
+    assert epoch._resolve_selected_reference_graph(store, _persist_variant(wrong_profile)) is None
+
+
+def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+
+    from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes
+    from polisyos.core.contracts import DataSnapshot, RetrievalSummary
+    from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+    from polisyos.runtime.quality.acquisition_executor import build_admission_passport
+    from tests._helpers.acquisition_production import _run
+    from tests._helpers.semantic_epoch_native import _semantic_handshake
+
+    authority, live_evidence, stub, _journal_path = _run(tmp_path, monkeypatch)
+    assert stub.cas_root is not None
+    store = FileSystemCAS(stub.cas_root)
+    prior_snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(live_evidence.data_snapshot_ref))
+    )
+    candidate, prepared = _semantic_handshake(store, source_ref=prior_snapshot.data_ref)
+
+    produced_snapshot_ref = asyncio.run(
+        _build_snapshot_from_evidence_async(
+            store=ensure_async_artifact_store(store),
+            evidence_ref=live_evidence.evidence_bundle_ref,
+            datasets_fetched=1,
+            source="n8-live-fixture",
+        )
+    )
+    assert produced_snapshot_ref is not None
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(produced_snapshot_ref))
+    )
+    summary_ref = snapshot.quality_report_ref
+    assert summary_ref is not None
+    summary = RetrievalSummary.model_validate(from_canonical_bytes(store.get_bytes(summary_ref)))
+
+    def _matches_with_quality_ref(
+        quality_ref: ArtifactRef,
+        *,
+        snapshot_changes: dict[str, object] | None = None,
+        manifest_inputs: list[object] | None = None,
+    ) -> bool:
+        changed_snapshot = snapshot.model_copy(
+            update=dict(snapshot_changes or {}) | {"quality_report_ref": quality_ref}
+        )
+        if manifest_inputs is None:
+            assert changed_snapshot.data_ref is not None
+            assert changed_snapshot.evidence_ref is not None
+            manifest_inputs = [
+                input_ref_from_artifact_ref(changed_snapshot.evidence_ref, role="evidence_ref"),
+                input_ref_from_artifact_ref(changed_snapshot.data_ref, role="data_ref"),
+                input_ref_from_artifact_ref(quality_ref, role="quality_report_ref"),
+            ]
+        selected_snapshot = store.put_json(
+            changed_snapshot,
+            PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+                inputs=manifest_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        selected_snapshot_ref = DataSnapshotRef.model_validate(
+            selected_snapshot.model_dump(mode="python")
+        )
+        proof = catalog_read_api.build_live_source_execution_evidence(
+            authorization=live_evidence.authorization,
+            family_receipt=live_evidence.family_receipt,
+            request_ref=live_evidence.request_ref,
+            raw_evidence_ref=live_evidence.raw_evidence_ref,
+            transport_trace=live_evidence.transport_trace,
+            raw_artifact_id=live_evidence.raw_artifact_id,
+            evidence_bundle_ref=live_evidence.evidence_bundle_ref,
+            data_snapshot_ref=selected_snapshot_ref,
+            normalized_data_artifact_id=live_evidence.normalized_data_artifact_id,
+            variable_count=live_evidence.variable_count,
+            page_count=live_evidence.page_count,
+            baseline_before_sha256=live_evidence.baseline_before_sha256,
+            baseline_after_sha256=live_evidence.baseline_after_sha256,
+            raw_body_sha256=live_evidence.raw_body_sha256,
+            normalized_result_content_sha256=(live_evidence.normalized_result_content_sha256),
+        )
+        passport = build_admission_passport(
+            epoch_id=1,
+            raw_evidence_ref=proof.raw_evidence_ref,
+            artifact_store=store,
+            raw_artifact_id=str(proof.raw_artifact_id),
+            authority=authority,
+            boundary_candidate=candidate,
+            prepared_epoch=prepared,
+            live_source_execution=proof,
+        )
+        return epoch._live_source_candidate_graph_matches(
+            store,
+            candidate.statement,
+            passport.model_dump(mode="json"),
+        )
+
+    assert _matches_with_quality_ref(summary_ref)
+
+    forged_summary_label_ref = store.put_json(
+        summary.model_copy(update={"source": "forged-descriptive-label"}),
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert _matches_with_quality_ref(forged_summary_label_ref)
+    assert _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={"stats": snapshot.stats | {"source": "different-descriptive-label"}},
+    )
+    assert _matches_with_quality_ref(
+        forged_summary_label_ref,
+        snapshot_changes={"stats": snapshot.stats | {"source": "forged-descriptive-label"}},
+    )
+
+    assert snapshot.evidence_ref is not None and snapshot.data_ref is not None
+    wrong_manifest_roles = [
+        input_ref_from_artifact_ref(snapshot.evidence_ref, role="data_ref"),
+        input_ref_from_artifact_ref(snapshot.data_ref, role="evidence_ref"),
+        input_ref_from_artifact_ref(summary_ref, role="data_ref"),
+    ]
+    assert not _matches_with_quality_ref(summary_ref, manifest_inputs=wrong_manifest_roles)
+    assert not _matches_with_quality_ref(summary_ref, manifest_inputs=[])
+
+    assert snapshot.data_ref is not None
+    foreign_source = store.put_bytes(
+        b"foreign source",
+        PutOptions(kind="fabric.acquisition.raw_evidence", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    wrong_sources_ref = store.put_json(
+        summary.model_copy(update={"source_refs": [foreign_source]}),
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert not _matches_with_quality_ref(wrong_sources_ref)
+
+    wrong_count_ref = store.put_json(
+        summary.model_copy(update={"observed_counts": {"datasets_fetched": 2}}),
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert not _matches_with_quality_ref(wrong_count_ref)
+
+    wrong_notes_ref = store.put_json(
+        summary.model_copy(update={"notes": ["forged retrieval note"]}),
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert not _matches_with_quality_ref(wrong_notes_ref)
+    with pytest.raises(ValueError, match="live_source_execution_unresolved") as count_error:
+        _matches_with_quality_ref(
+            summary_ref,
+            snapshot_changes={"stats": snapshot.stats | {"datasets_fetched": 2}},
+        )
+    assert "live_snapshot_dataset_count_invalid" in str(count_error.value.__cause__)
+
+    wrong_kind_ref = ArtifactRef.model_validate(
+        summary_ref.model_dump(mode="json") | {"kind": "fabric.quality_report"}
+    )
+    assert not _matches_with_quality_ref(wrong_kind_ref)
+
+    wrong_profile_ref = ArtifactRef.model_validate(
+        summary_ref.model_dump(mode="json") | {"manifest_profile_sha256": f"sha256:{'0' * 64}"}
+    )
+    assert not _matches_with_quality_ref(wrong_profile_ref)
+
+    legacy_quality_ref = store.put_json(
+        {
+            "source": "legacy-descriptive-source-label",
+            "datasets_count": 1,
+            "notes": ["network-free orchestrated WDI test"],
+        },
+        PutOptions(
+            kind="fabric.quality_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert _matches_with_quality_ref(legacy_quality_ref)
+
+    broken_legacy_ref = store.put_json(
+        {
+            "source": "orchestrated_ingestion:legacy-fixture",
+            "datasets_count": 2,
+            "notes": ["network-free orchestrated WDI test"],
+        },
+        PutOptions(
+            kind="fabric.quality_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert not _matches_with_quality_ref(broken_legacy_ref)

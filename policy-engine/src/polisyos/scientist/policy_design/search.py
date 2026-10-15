@@ -163,6 +163,13 @@ class HierarchicalSearchResult(BaseModel):
     pareto_projection: ParetoViewProjection | None = None
 
 
+# SearchResult is a dataclass whose deferred annotation includes ParetoViewProjection.
+# Resolve the containing Pydantic models after the imported contracts are available so
+# coordinator construction does not fail lazily on its first runtime result.
+HierarchicalSearchState.model_rebuild()
+HierarchicalSearchResult.model_rebuild()
+
+
 class Phase2BoundsApplicability(BaseModel):
     """Search-owned applicability result for explicit Phase-2 parameter bounds."""
 

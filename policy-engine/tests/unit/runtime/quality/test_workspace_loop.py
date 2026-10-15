@@ -7,7 +7,9 @@ from unittest.mock import patch
 
 import pytest
 
+from polisyos.core.artifacts.canonical_profile import validate_core_model_json_artifact
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.foundry import Metrics
 from polisyos.data_forge.read_api.catalog import (
     DatasetSearchResult,
     build_slice0_fixture_catalog_graph,
@@ -44,6 +46,7 @@ from polisyos.runtime.quality.workspace.loop import (
     select_search_terminal,
 )
 from polisyos.scientist.agent.protocols import DataNeedSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 @pytest.fixture(autouse=True)
@@ -644,6 +647,24 @@ def test_slice0_rejects_agent_or_playbook_planner() -> None:
 
     with pytest.raises(WorkspaceInvariantError, match="SeedTrajectoryPlanner"):
         loop.run_fixture("ua_msme_credit_worldbank_measurement", planner_kind="agent")
+
+
+def test_phase2_metrics_writer_emits_selected_metrics_owner_schema(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "phase2-cas")
+    loop = WorkspaceLoop(artifact_store=store)
+    state = ExperimentState(run_id="R_phase2_metrics_owner")
+
+    installed = loop._install_phase2_normative_inputs(state=state, intent={})
+    metrics_ref = installed.artifacts_index["metrics_ref"]
+
+    manifest = store.get_manifest(metrics_ref)
+    assert manifest.kind == Metrics.ARTIFACT_KIND
+    assert manifest.media_type == Metrics.ARTIFACT_MEDIA_TYPE
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == Metrics.ARTIFACT_SCHEMA_NAME
+    assert manifest.artifact_schema.version == Metrics.ARTIFACT_SCHEMA_VERSION
+    metrics = validate_core_model_json_artifact(Metrics, store, metrics_ref)
+    assert metrics.values["net_income_pct"] == 1.0
 
 
 def test_measurement_root_producer_resolves_catalog_and_persists_cas(

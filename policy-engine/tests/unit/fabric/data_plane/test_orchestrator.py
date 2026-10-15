@@ -17,6 +17,7 @@ from polisyos.core.contracts.fabric import (
     DataSnapshot,
     EvidenceBundle,
     EvidenceBundleRef,
+    RetrievalSummary,
 )
 
 if TYPE_CHECKING:
@@ -196,8 +197,16 @@ class TestRunOrchestratedIngestion:
         snapshot = DataSnapshot.model_validate(snapshot_payload)
         assert snapshot.evidence_ref == evidence_ref
         assert snapshot.quality_report_ref is not None
+        assert snapshot.quality_report_ref.kind == RetrievalSummary.ARTIFACT_KIND
+        assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
         assert snapshot.stats["datasets_fetched"] == 1
         assert "fabric.data_plane.orchestrator" in snapshot.notes
+        summary_payload = from_canonical_bytes(store.get_bytes(snapshot.quality_report_ref))
+        summary = RetrievalSummary.model_validate(summary_payload)
+        assert summary.assessment_status == "not_assessed"
+        assert summary.source == "orchestrated_ingestion:test"
+        assert summary.source_refs == [snapshot.data_ref]
+        assert summary.observed_counts == {"datasets_fetched": 1}
 
     def test_produce_snapshot_true_uses_async_artifact_adapter(
         self,
@@ -212,9 +221,22 @@ class TestRunOrchestratedIngestion:
         seen_kinds: list[str] = []
         original_put_json = AsyncArtifactStoreAdapter.put_json
 
-        async def _tracked_put_json(self, obj: object, opts: object, canon_spec: object = None):
+        async def _tracked_put_json(
+            self,
+            obj: object,
+            opts: object,
+            canon_spec: object = None,
+            *,
+            return_selected_profile: bool = False,
+        ):
             seen_kinds.append(str(getattr(opts, "kind", "")))
-            return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+            return await original_put_json(
+                self,
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
         monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
 
@@ -231,7 +253,7 @@ class TestRunOrchestratedIngestion:
             )
 
         assert result.data_snapshot_ref is not None
-        assert seen_kinds == ["fabric.quality_report", "fabric.data_snapshot"]
+        assert seen_kinds == ["fabric.retrieval_summary", "fabric.data_snapshot"]
 
     def test_no_evidence_ref_returns_none_snapshot(self, tmp_path: Path):
         """When ingestion returns None, snapshot should also be None."""

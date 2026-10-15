@@ -37,10 +37,15 @@ def test_public_surface_entrypoints_resolve_declared_exports(record_testsuite_pr
     unresolved_inventory_rows = sum(
         row.get("facade_mode_observed") == "unresolved_exports" for row in inventory
     )
-    assert len(contract) == len(inventory) == 20
-    assert len(entrypoints) == len(set(entrypoints)) == 38
+    assert contract, "public surface contract has no package definitions"
+    assert len(contract) == len({row["module"] for row in contract})
+    assert entrypoints, "public surface contract has no supported entrypoints"
+    assert len(entrypoints) == len(set(entrypoints)), "contract repeats a supported entrypoint"
     assert [row["module"] for row in contract] == [row["module"] for row in inventory]
-    assert unresolved_inventory_rows == 20
+    for policy, observed in zip(contract, inventory, strict=True):
+        expected = policy["supported_entrypoints"]
+        assert observed["supported_entrypoints"] == expected, policy["module"]
+        assert [row["module"] for row in observed["entrypoints"]] == expected, policy["module"]
 
     resolved_export_count = 0
     for module_name in entrypoints:
@@ -120,6 +125,46 @@ def test_gate_request_selected_replay_requirement_is_versioned() -> None:
     legacy = GateRequest(**base, schema_version="1.1")
     assert current.context.selected_replay_refs == {}
     assert legacy.context.selected_replay_refs is None
+
+
+def test_retrieval_summary_is_explicitly_unassessed_and_preserves_source_profile() -> None:
+    """The retrieval artifact remains typed evidence, never a quality assessment."""
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts import RetrievalSummary
+
+    source_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+        kind="fabric.retrieval_payload",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    summary = RetrievalSummary(
+        assessment_status="not_assessed",
+        source="retrieval_service",
+        source_refs=[source_ref],
+        observed_counts={"metrics": 2},
+        notes=["warnings:0"],
+    )
+
+    assert summary.ARTIFACT_KIND == "fabric.retrieval_summary"
+    assert summary.ARTIFACT_SCHEMA_NAME == "polisyos.fabric.RetrievalSummary"
+    assert summary.ARTIFACT_SCHEMA_VERSION == "1.0"
+    assert summary.source_refs == [source_ref]
+    assert summary.source_refs[0].manifest_profile_sha256 == source_ref.manifest_profile_sha256
+
+    with pytest.raises(ValidationError):
+        RetrievalSummary.model_validate(
+            summary.model_dump(mode="python") | {"assessment_status": "assessed"}
+        )
+    with pytest.raises(ValidationError):
+        RetrievalSummary.model_validate(summary.model_dump(mode="python") | {"score": 1.0})
+    with pytest.raises(ValidationError):
+        RetrievalSummary.model_validate(
+            summary.model_dump(mode="python") | {"observed_counts": {"metrics": True}}
+        )
 
 
 def test_cas_nondefault_manifest_profile_round_trips_through_fresh_reader(tmp_path: Path) -> None:

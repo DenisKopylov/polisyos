@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.core.contracts.lex import IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
+from polisyos.ir.connectors import PIIScanSummary
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 
@@ -89,3 +92,61 @@ def test_missing_scan_results_warns() -> None:
     assert len(issues) == 1
     assert issues[0].severity == IssueSeverity.WARNING
     assert issues[0].code == "PII_SCAN_MISSING"
+
+
+@pytest.mark.parametrize(
+    "summary",
+    [
+        {"max_severity": "critical"},
+        {"max_severity": "critical", "total_entities_found": "not-a-count"},
+        {"max_severity": "critical", "total_entities_found": -1},
+        {
+            "max_severity": "critical",
+            "total_entities_found": 3,
+            "entities_by_type": {"TAX_ID": "bad"},
+        },
+        {
+            "max_severity": "critical",
+            "total_entities_found": 3,
+            "entities_by_severity": {"unknown": 3},
+        },
+        {"max_severity": "critical", "total_entities_found": 3, "unexpected": True},
+        {"max_severity": "catastrophic", "total_entities_found": 3},
+    ],
+)
+def test_invalid_supplied_scan_is_a_blocker(summary: dict[str, object]) -> None:
+    context = PassContext(
+        ir=None,
+        state={"tenant_tier": "shared", "pii_scan_results": summary},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_test",
+    )
+
+    issues = PIICheckPass().validate(context)
+
+    assert len(issues) == 1
+    assert issues[0].severity == IssueSeverity.BLOCKER
+    assert issues[0].code == "PII_SCAN_INVALID"
+
+
+def test_canonical_producer_summary_keeps_critical_downstream_blocker() -> None:
+    summary = PIIScanSummary(
+        max_severity="critical",
+        total_entities_found=3,
+        entities_by_type={"TAX_ID": 2, "SOCIAL_SECURITY": 1},
+        entities_by_severity={"critical": 3},
+    ).model_dump(mode="json")
+    context = PassContext(
+        ir=None,
+        state={"tenant_tier": "shared", "pii_scan_results": summary},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_test",
+    )
+
+    issues = PIICheckPass().validate(context)
+
+    assert len(issues) == 1
+    assert issues[0].severity == IssueSeverity.BLOCKER
+    assert issues[0].code == "PII_CEILING_EXCEEDED"

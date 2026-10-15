@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, get_args
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 
 from ..artifacts.manifest import ArtifactRef, WarningRecord
 from .uncertainty import UncertaintyEnvelopeRef
@@ -179,3 +179,84 @@ class DataSnapshot(BaseModel):
     pii_scan_summary: dict[str, Any] | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+
+_DATA_SNAPSHOT_REFERENCE_INPUT_ROLES: dict[str, frozenset[str]] = {
+    "data_ref": frozenset(
+        {
+            "data_ref",
+            "retrieval_payload",
+            "production_data_payload",
+            "payload.real_l4",
+            "payload.acquired_observation_candidate",
+            "fetched_payload",
+            "masked_data",
+        }
+    ),
+    "data_schema_ref": frozenset({"data_schema_ref"}),
+    "evidence_ref": frozenset({"evidence_ref"}),
+    "quality_report_ref": frozenset({"quality_report", "quality_report_ref"}),
+    # No current DataSnapshot producer supplies these optional nested views.
+    # An authority-selected parent with one present therefore remains unbound.
+    "uncertainty_ref": frozenset(),
+    "uncertainty_envelope_ref": frozenset(),
+    "warnings_ref": frozenset({"warnings_ref"}),
+    "input_bindings_ref": frozenset(),
+}
+
+
+def data_snapshot_reference_fields() -> tuple[str, ...]:
+    """Return DataSnapshot fields whose values are typed artifact references.
+
+    The field set is derived from the model annotations so a newly added
+    reference field cannot silently evade parent-manifest lineage validation.
+    """
+    names: list[str] = []
+    for name, field in DataSnapshot.model_fields.items():
+        candidates = (field.annotation, *get_args(field.annotation))
+        if any(
+            isinstance(candidate, type)
+            and issubclass(candidate, BaseModel)
+            and {"artifact_id", "kind", "media_type"}.issubset(
+                getattr(candidate, "model_fields", {})
+            )
+            for candidate in candidates
+        ):
+            names.append(name)
+    return tuple(names)
+
+
+def data_snapshot_reference_input_roles(field_name: str) -> frozenset[str]:
+    """Return the producer roles observed for one DataSnapshot reference field.
+
+    Roles are pinned to current source producers. An optional field with no
+    producer role has an empty set and cannot be admitted in a selected parent
+    view until a source producer and its lineage edge are implemented.
+    """
+    if field_name not in _DATA_SNAPSHOT_REFERENCE_INPUT_ROLES:
+        raise ValueError(f"unknown DataSnapshot artifact-reference field: {field_name}")
+    return _DATA_SNAPSHOT_REFERENCE_INPUT_ROLES[field_name]
+
+
+class RetrievalSummary(BaseModel):
+    """Observed retrieval inputs without claiming that their quality was assessed."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.fabric.RetrievalSummary"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["fabric.retrieval_summary"]] = "fabric.retrieval_summary"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    assessment_status: Literal["not_assessed"]
+    source: StrictStr
+    source_refs: list[ArtifactRef] = Field(min_length=1)
+    observed_counts: dict[StrictStr, StrictInt] = Field(default_factory=dict)
+    notes: list[StrictStr] = Field(default_factory=list)
+
+    @field_validator("observed_counts")
+    @classmethod
+    def _require_nonnegative_counts(cls, value: dict[str, int]) -> dict[str, int]:
+        if any(count < 0 for count in value.values()):
+            raise ValueError("retrieval summary counts must be nonnegative")
+        return value

@@ -20,9 +20,11 @@ from polisyos.common.canonical_profile import (
 )
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
     read_core_json_artifact,
     read_core_manifest_profile,
     resolve_manifest_by_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
@@ -124,7 +126,6 @@ _MATERIALIZATION_REF_KINDS = {
     "data_snapshot_ref": "fabric.data_snapshot",
     "input_bindings_ref": "foundry.input_bindings",
     "registry_bundle_ref": "core.registry_bundle",
-    "quality_report_ref": "fabric.quality_report",
     "input_binding_report_ref": "foundry.input_binding_report",
     "evidence_bundle_ref": "fabric.evidence_bundle",
     "fabric_retrieval_trace_ref": "fabric.retrieval_trace",
@@ -1292,13 +1293,83 @@ class DebugService:
         data_snapshot_ref = state_snapshot_ref
         if data_snapshot_ref is None and state_snapshot_issue is None:
             data_snapshot_ref = (
-                self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
+                self._find_run_artifact_ref_by_kind(run, "fabric.data_snapshot")
                 or materialization_refs.get("data_snapshot_ref")
                 or _artifact_ref_from_string(
                     _as_str(packet_inputs.get("data_snapshot_ref")),
                     kind="fabric.data_snapshot",
                 )
             )
+        if data_snapshot_ref is not None:
+            data_snapshot_ref, selection_issue = self._resolve_selected_run_artifact_ref(
+                run,
+                data_snapshot_ref,
+            )
+            if selection_issue is not None:
+                warnings.append(selection_issue)
+        if data_snapshot_ref is not None:
+            from polisyos.core.contracts.fabric import DataSnapshot
+
+            try:
+                selected_snapshot = validate_core_model_json_artifact(
+                    DataSnapshot,
+                    self._store,
+                    data_snapshot_ref,
+                )
+            except (
+                AttributeError,
+                CanonicalProfileRefusalError,
+                FileNotFoundError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValidationError,
+                ValueError,
+            ):
+                warnings.append("data_snapshot_selected_view_not_established")
+                data_snapshot_ref = None
+            else:
+                quality_report_ref = selected_snapshot.quality_report_ref
+                supplied_quality_id = _as_str(auto_refs.get("quality_report_ref"))
+                if supplied_quality_id is None:
+                    supplied_quality_id = _as_str(
+                        _as_dict(production_data_context.get("materialization_refs")).get(
+                            "quality_report_ref"
+                        )
+                    )
+                if quality_report_ref is not None:
+                    if supplied_quality_id is not None and supplied_quality_id != str(
+                        quality_report_ref.artifact_id
+                    ):
+                        warnings.append("quality_report_ref_differs_from_selected_data_snapshot")
+                    else:
+                        try:
+                            quality_manifest, _ = read_core_manifest_profile(
+                                self._store,
+                                quality_report_ref,
+                            )
+                            quality_report_ref = ArtifactRef(
+                                artifact_id=quality_report_ref.artifact_id,
+                                kind=quality_manifest.kind,
+                                media_type=quality_manifest.media_type,
+                                manifest_profile_sha256=artifact_manifest_profile_sha256(
+                                    quality_manifest
+                                ),
+                            )
+                        except (
+                            AttributeError,
+                            CanonicalProfileRefusalError,
+                            FileNotFoundError,
+                            OSError,
+                            RuntimeError,
+                            TypeError,
+                            ValueError,
+                        ):
+                            warnings.append("quality_report_selected_view_not_established")
+                        else:
+                            materialization_refs["quality_report_ref"] = quality_report_ref
+                elif supplied_quality_id is not None:
+                    warnings.append("quality_report_ref_missing_from_selected_data_snapshot")
         state_bindings_ref, state_bindings_issue = _state_input_ref(
             state_payload,
             "input_bindings_ref",
@@ -2021,6 +2092,63 @@ class DebugService:
             if ref is not None and ref.kind == kind:
                 return ref
         return None
+
+    def _find_run_artifact_ref_by_kind(
+        self,
+        run: IndexedRunRecord,
+        kind: str,
+    ) -> ArtifactRef | None:
+        """Return one unique selected run artifact view with the requested owner kind."""
+        candidates = [
+            ref
+            for ref in (
+                *getattr(run.details, "root_artifacts", ()),
+                *getattr(run.details, "root_input_artifacts", ()),
+            )
+            if ref.kind == kind
+        ]
+        manifest_payload = self._load_run_manifest_payload(run)
+        for field_name in ("outputs", "inputs"):
+            for raw in _as_list_of_dicts(manifest_payload.get(field_name)):
+                ref = _artifact_ref_from_payload(raw)
+                if ref is not None and ref.kind == kind:
+                    candidates.append(ref)
+        selected = _merge_artifact_refs(candidates)
+        return selected[0] if len(selected) == 1 else None
+
+    def _resolve_selected_run_artifact_ref(
+        self,
+        run: IndexedRunRecord,
+        ref: ArtifactRef,
+    ) -> tuple[ArtifactRef | None, str | None]:
+        """Bind a profileless run reference only when the run records one exact view."""
+        if ref.manifest_profile_sha256 is not None:
+            return ref, None
+        recorded_refs = [
+            *getattr(run.details, "root_artifacts", ()),
+            *getattr(run.details, "root_input_artifacts", ()),
+        ]
+        manifest_payload = self._load_run_manifest_payload(run)
+        for field_name in ("outputs", "inputs"):
+            recorded_refs.extend(
+                parsed
+                for raw in _as_list_of_dicts(manifest_payload.get(field_name))
+                if (parsed := _artifact_ref_from_payload(raw)) is not None
+            )
+        candidates = _merge_artifact_refs(
+            [
+                candidate
+                for candidate in recorded_refs
+                if candidate.artifact_id == ref.artifact_id
+                and candidate.kind == ref.kind
+                and candidate.media_type == ref.media_type
+            ]
+        )
+        if len(candidates) == 1:
+            return candidates[0], None
+        if len(candidates) > 1:
+            return None, "data_snapshot_selected_view_ambiguous"
+        return None, "data_snapshot_selected_view_not_established"
 
 
 def _merge_artifact_refs(*groups: list[ArtifactRef]) -> list[ArtifactRef]:

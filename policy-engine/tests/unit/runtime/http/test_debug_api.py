@@ -333,3 +333,173 @@ def test_compare_endpoint_surfaces_law_delta(runtime_api_env) -> None:
     payload = response.json()["compare"]
     assert payload["report"]["deltas"]["law"]["changed"] is True
     assert "law" in payload["report"]["root_cause"]
+
+
+@pytest.mark.parametrize(
+    ("quality_kind", "quality_schema", "quality_payload"),
+    [
+        (
+            "fabric.retrieval_summary",
+            SchemaInfo(name="polisyos.fabric.RetrievalSummary", version="1.0"),
+            {
+                "assessment_status": "not_assessed",
+                "source": "debug_fixture",
+                "source_refs": [],
+                "observed_counts": {},
+                "notes": [],
+            },
+        ),
+        (
+            "fabric.quality_report",
+            SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+            {"status": "assessed_by_owner"},
+        ),
+    ],
+)
+def test_evidence_context_preserves_quality_ref_selected_by_snapshot(
+    tmp_path,
+    quality_kind,
+    quality_schema,
+    quality_payload,
+) -> None:
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = store.put_json(
+        {"metrics": [{"metric_id": "gdp"}]},
+        PutOptions(
+            kind="fabric.retrieval_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.RetrievalPayload", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    if quality_kind == "fabric.retrieval_summary":
+        quality_payload = {
+            **quality_payload,
+            "source_refs": [payload_ref.model_dump(mode="json")],
+        }
+    quality_ref = store.put_json(
+        quality_payload,
+        PutOptions(
+            kind=quality_kind,
+            media_type="application/json",
+            schema=quality_schema,
+        ),
+        return_selected_profile=True,
+    )
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref, quality_report_ref=quality_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        ),
+        return_selected_profile=True,
+    )
+    state_ref = store.put_json(
+        {
+            "inputs": {"data_snapshot_ref": snapshot_ref.model_dump(mode="json")},
+            "params": {
+                "retrieval_context": {
+                    "auto_data_source_refs": {
+                        "data_snapshot_ref": str(snapshot_ref.artifact_id),
+                        "quality_report_ref": str(quality_ref.artifact_id),
+                    }
+                }
+            },
+        },
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.ExperimentState", version="1.0"),
+        ),
+    )
+    run = SimpleNamespace(
+        run_id="run-summary-debug",
+        source_kind="core_run",
+        details=SimpleNamespace(
+            control_job_id=None,
+            tenant_id=None,
+            cell_id=None,
+            manifest_ref=None,
+            root_artifacts=(),
+            root_input_artifacts=(snapshot_ref,),
+        ),
+        experiment_state_ref=state_ref,
+        decision_packet_ref=None,
+    )
+
+    context = DebugService(store=store, timeline_service=object()).get_run_evidence_context(run)
+
+    selected_quality_ref = context.materialization_refs["quality_report_ref"]
+    assert selected_quality_ref == quality_ref
+    assert selected_quality_ref.kind == quality_kind
+    assert selected_quality_ref.manifest_profile_sha256 == quality_ref.manifest_profile_sha256
+
+
+def test_evidence_context_does_not_infer_quality_owner_from_ids_alone(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = store.put_json(
+        {"metrics": [{"metric_id": "gdp"}]},
+        PutOptions(
+            kind="fabric.retrieval_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.RetrievalPayload", version="1.0"),
+        ),
+    )
+    quality_ref = store.put_json(
+        {"status": "assessed_by_owner"},
+        PutOptions(
+            kind="fabric.quality_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+        ),
+    )
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref, quality_report_ref=quality_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        ),
+    )
+    state_ref = store.put_json(
+        {
+            "params": {
+                "retrieval_context": {
+                    "auto_data_source_refs": {
+                        "data_snapshot_ref": str(snapshot_ref.artifact_id),
+                        "quality_report_ref": str(quality_ref.artifact_id),
+                    }
+                }
+            }
+        },
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.ExperimentState", version="1.0"),
+        ),
+    )
+    run = SimpleNamespace(
+        run_id="run-unselected-debug",
+        source_kind="core_run",
+        details=SimpleNamespace(
+            control_job_id=None,
+            tenant_id=None,
+            cell_id=None,
+            manifest_ref=None,
+            root_artifacts=(),
+            root_input_artifacts=(),
+        ),
+        experiment_state_ref=state_ref,
+        decision_packet_ref=None,
+    )
+
+    context = DebugService(store=store, timeline_service=object()).get_run_evidence_context(run)
+
+    assert context.data_snapshot_ref is None
+    assert "quality_report_ref" not in context.materialization_refs
+    assert "data_snapshot_selected_view_not_established" in context.warnings

@@ -186,7 +186,20 @@ class BindFoundryInputsNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         if self.strict_model_spec_match:
-            mismatch = _check_model_spec_consistency(ctx, state, data_snapshot_ref.artifact_id.hex)
+            try:
+                mismatch = _check_model_spec_consistency(
+                    ctx,
+                    state,
+                    data_snapshot_ref.artifact_id.hex,
+                )
+            except _BINDING_LOAD_ERRORS as exc:
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Unable to verify the selected Trinity ModelSpec input: {exc}",
+                    details={"input": INPUT_TRINITY_BUNDLE_REF},
+                )
+                event = NodeEvent(level="error", message="ModelSpec ownership verification failed")
+                return NodeOutcome(status="fail", state=state, error=error, events=[event])
             if mismatch is not None:
                 error = NodeError(
                     code=node_errors.ERROR_INVALID_STATE,
@@ -363,20 +376,16 @@ def _check_model_spec_consistency(
     state: ExperimentState,
     effective_data_snapshot_hex: str,
 ) -> dict[str, str] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
-    try:
-        payload = load_core_json_artifact(ctx.store, trinity_ref)
-        trinity = TrinityBundle.model_validate(payload)
-    except _BINDING_LOAD_ERRORS:
-        logger.debug(
-            "Failed to load trinity bundle for model-spec consistency check from ref %s",
-            trinity_ref,
-            exc_info=True,
-        )
-        return None
+    trinity = load_trinity_bundle_artifact(
+        ensure_ir_artifact_store(ctx.store),
+        trinity_ref,
+    )
 
     expected = str(trinity.model_spec.data_snapshot_ref).strip()
     if not expected or expected == _ZERO_HASH:

@@ -72,7 +72,9 @@ class LinkTrinityNode:
         return replace(self, allow_extra_params=bool(allow_extra), strict=bool(strict))
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
         if trinity_ref is None or registry_ref is None:
@@ -86,8 +88,19 @@ class LinkTrinityNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        payload = load_core_json_artifact(ctx.store, trinity_ref)
-        bundle = TrinityBundle.model_validate(payload)
+        try:
+            bundle = load_trinity_bundle_artifact(
+                ensure_ir_artifact_store(ctx.store),
+                trinity_ref,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=f"Selected Trinity bundle failed owner admission: {exc}",
+                details={"input": INPUT_TRINITY_BUNDLE_REF},
+            )
+            event = NodeEvent(level="error", message="Trinity owner admission failed")
+            return NodeOutcome(status="fail", state=state, error=error, events=[event])
 
         registry_content = load_registry_bundle_content(ctx.store, registry_ref)
         registries = RegistryBundle(

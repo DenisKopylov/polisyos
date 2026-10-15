@@ -176,7 +176,7 @@ class CompileCrossGraphEvidenceNode:
         return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         config_payload = state.params.get("cross_graph_evidence_config")
@@ -202,6 +202,43 @@ class CompileCrossGraphEvidenceNode:
             return NodeOutcome(status="skip", state=new_state)
 
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
+        trinity_bundle = None
+        if trinity_ref is not None:
+            try:
+                trinity_bundle = load_trinity_bundle_artifact(
+                    _ensure_ir_artifact_store(ctx.store),
+                    trinity_ref,
+                )
+            except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=new_state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=f"Selected Trinity bundle failed owner admission: {exc}",
+                        details={"input": INPUT_TRINITY_BUNDLE_REF},
+                    ),
+                    events=[NodeEvent(level="error", message="Trinity owner admission failed")],
+                )
+        literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
+        literature_prior = None
+        if literature_prior_ref is not None:
+            try:
+                literature_prior = load_literature_causal_prior(
+                    _ensure_ir_artifact_store(ctx.store),
+                    literature_prior_ref,
+                )
+            except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=new_state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=f"Selected literature prior failed owner admission: {exc}",
+                        details={"input": ARTIFACT_LITERATURE_PRIOR_REF},
+                    ),
+                    events=[NodeEvent(level="error", message="Literature prior admission failed")],
+                )
         target_context = _resolve_target_context(state)
         try:
             causal_graph_ref, causal_graph = _resolve_causal_graph(ctx, state)
@@ -248,7 +285,9 @@ class CompileCrossGraphEvidenceNode:
                 notes=["cross_graph_invalid_config"],
             )
             profile_ref = persist_cross_graph_evidence_profile(
-                _ensure_ir_artifact_store(ctx.store), profile
+                _ensure_ir_artifact_store(ctx.store),
+                profile,
+                return_selected_profile=True,
             )
             new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
             new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(
@@ -269,12 +308,17 @@ class CompileCrossGraphEvidenceNode:
 
         inputs: list[InputRef] = []
         if trinity_ref is not None:
-            inputs.append(InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle"))
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(trinity_ref.model_dump(mode="json")),
+                    role="trinity_bundle",
+                )
+            )
         graph_prior_ref = state.inputs.get(INPUT_GRAPH_PRIOR_BUNDLE_REF)
         if graph_prior_ref is not None:
             inputs.append(
-                InputRef(
-                    artifact_id=str(graph_prior_ref.artifact_id),
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(graph_prior_ref.model_dump(mode="json")),
                     role="graph_prior_bundle",
                 )
             )
@@ -289,8 +333,8 @@ class CompileCrossGraphEvidenceNode:
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
         if literature_prior_ref is not None:
             inputs.append(
-                InputRef(
-                    artifact_id=str(literature_prior_ref.artifact_id),
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(literature_prior_ref.model_dump(mode="json")),
                     role="literature_prior",
                 )
             )
@@ -333,21 +377,13 @@ class CompileCrossGraphEvidenceNode:
                         index_dir=index_dir,
                     )
                     prepared_read = owned_prepared_read
-                payload = load_core_json_artifact(ctx.store, trinity_ref)
-                bundle = TrinityBundle.model_validate(payload)
-                literature_prior = (
-                    load_literature_causal_prior(
-                        _ensure_ir_artifact_store(ctx.store), literature_prior_ref
-                    )
-                    if literature_prior_ref is not None
-                    else None
-                )
+                assert trinity_bundle is not None
                 from polisyos.scientist.cross_graph.compiler import (
                     CrossGraphEvidenceCompiler,
                 )
 
                 profile = CrossGraphEvidenceCompiler(config).compile(
-                    bundle,
+                    trinity_bundle,
                     target_context=target_context,
                     causal_graph=causal_graph,
                     literature_prior=literature_prior,
@@ -383,7 +419,19 @@ class CompileCrossGraphEvidenceNode:
             if owned_prepared_read is not None:
                 owned_prepared_read.close()
 
-        profile = _augment_with_graph_prior(ctx, profile, state)
+        try:
+            profile = _augment_with_graph_prior(ctx, profile, state)
+        except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Selected graph prior failed owner admission: {exc}",
+                    details={"input": INPUT_GRAPH_PRIOR_BUNDLE_REF},
+                ),
+                events=[NodeEvent(level="error", message="Graph prior admission failed")],
+            )
         extra_events: list[NodeEvent] = []
         benchmark_summary, benchmark_status = _maybe_emit_feedback_outputs(
             config,
@@ -401,7 +449,10 @@ class CompileCrossGraphEvidenceNode:
             }
         )
         profile_ref = persist_cross_graph_evidence_profile(
-            _ensure_ir_artifact_store(ctx.store), profile, inputs=inputs
+            _ensure_ir_artifact_store(ctx.store),
+            profile,
+            inputs=inputs,
+            return_selected_profile=True,
         )
         new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
         new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(mode="json")
@@ -475,18 +526,8 @@ def _augment_with_graph_prior(
         source_identification = _source_verified_identification_rows(
             ctx.store, graph_prior_ref, bundle
         )
-    except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
-        diagnostics = [
-            *profile.diagnostics,
-            CrossGraphDiagnostic(
-                code="cross_graph.graph_prior_bundle.load_failed",
-                message="GraphPriorBundle could not be loaded; discovery prior enrichment skipped.",
-                details={"error": str(exc)},
-            ),
-        ]
-        notes = [*profile.notes, "graph_prior_bundle_enrichment_failed"]
-        enriched = profile.model_copy(update={"diagnostics": diagnostics, "notes": notes})
-        return enriched.model_copy(update={"summary": _rebuild_summary(enriched)})
+    except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS:
+        raise
 
     extra_needs = [
         *[

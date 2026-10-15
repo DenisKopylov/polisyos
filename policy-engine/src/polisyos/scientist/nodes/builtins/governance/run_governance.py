@@ -54,6 +54,7 @@ from polisyos.scientist.governance.pass_registry import (
     runtime_profile as build_runtime_profile,
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CLAIMS_REF,
@@ -75,7 +76,12 @@ from polisyos.scientist.orchestration.engine.context import (
     ExecutionContext,
 )
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
@@ -251,22 +257,51 @@ class RunGovernanceNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         events: list[NodeEvent] = []
         issues: list[dict[str, Any]] = []
+        try:
+            pii_scan_results = _extract_pii_scan_results(ctx, state)
+        except _GOVERNANCE_HELPER_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Unable to admit selected PII scan source: {exc}",
+                    details={"input": INPUT_DATA_SNAPSHOT_REF},
+                ),
+                events=[NodeEvent(level="error", message="PII source admission failed")],
+            )
         protocol = HumanGateProtocol(ctx.run)
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
-        verdict = _handle_initial_gate_request(
-            ctx=ctx,
-            protocol=protocol,
-            state=new_state,
-            verdict=self.default_verdict,
-            issues=issues,
-            events=events,
-        )
+        try:
+            verdict = _handle_initial_gate_request(
+                ctx=ctx,
+                protocol=protocol,
+                state=new_state,
+                verdict=self.default_verdict,
+                issues=issues,
+                events=events,
+            )
+        except _GOVERNANCE_HELPER_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Unable to admit a selected governance input: {exc}",
+                ),
+                events=[NodeEvent(level="error", message="Governance input admission failed")],
+            )
 
         profile = _resolve_validation_profile(
             new_state.params.get("governance_profile"),
             execution_profile=new_state.execution_profile,
         )
-        checks = _run_governance_checks(ctx, new_state, profile)
+        checks = _run_governance_checks(
+            ctx,
+            new_state,
+            profile,
+            pii_scan_results=pii_scan_results,
+        )
         new_state.params["validation_trace"] = checks.trace
         verdict = _apply_governance_check_outcomes(
             ctx=ctx,
@@ -333,8 +368,9 @@ class RunGovernanceNode:
                     version=report.schema_version,
                 ),
             ),
+            return_selected_profile=True,
         )
-        report_ref = GovernanceReportRef(artifact_id=report_ref_payload.artifact_id)
+        report_ref = GovernanceReportRef.model_validate(report_ref_payload.model_dump(mode="json"))
         new_state.reports_index[REPORT_GOVERNANCE_REPORT_REF] = report_ref
 
         events.append(NodeEvent(level="info", message=f"Governance verdict: {verdict}"))
@@ -826,9 +862,10 @@ def _run_governance_checks(
     ctx: ExecutionContext,
     state: ExperimentState,
     profile: ValidationProfile,
+    *,
+    pii_scan_results: dict[str, Any] | None,
 ) -> _GovernanceCheckResult:
     runtime_profile = build_runtime_profile(profile)
-    pii_scan_results = _extract_pii_scan_results(ctx, state)
     pass_state = {
         "artifacts_index": state.artifacts_index,
         "params": state.params,
@@ -1031,28 +1068,12 @@ def _extract_pii_scan_results(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-    existing = state.params.get("pii_scan_results")
-    if isinstance(existing, dict):
-        return existing
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
     if snapshot_ref is None:
         return None
-    try:
-        payload = load_core_json_artifact(ctx.store, snapshot_ref)
-        snapshot = DataSnapshot.model_validate(payload)
-    except _GOVERNANCE_HELPER_ERRORS as exc:
-        emit_degraded_path(
-            component="scientist.run_governance",
-            operation="extract_pii_scan_results",
-            reason="data_snapshot_load_failed",
-            exc=exc,
-            details={"run_id": state.run_id},
-            log=logger,
-            metrics=ctx.metrics,
-        )
-        return None
+    snapshot = validate_core_model_json_artifact(DataSnapshot, ctx.store, snapshot_ref)
 
     summary = snapshot.pii_scan_summary
     if isinstance(summary, dict):

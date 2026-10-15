@@ -717,7 +717,18 @@ class RunHierarchicalPolicySearchNode:
                 ),
             )
 
-        candidate = _resolve_search_candidate(ctx, state)
+        try:
+            candidate = _resolve_search_candidate(ctx, state)
+        except (OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Selected policy-search input failed owner admission: {exc}",
+                    details={"input": INPUT_TRINITY_BUNDLE_REF},
+                ),
+            )
         if candidate is None:
             if transfer_intent is not None:
                 return NodeOutcome(
@@ -754,7 +765,7 @@ class RunHierarchicalPolicySearchNode:
                 candidate,
                 loop_id=loop_id,
                 search_config=search_config,
-                initial_context={"run_id": state.run_id},
+                initial_context={"run_id": loop_id, "workflow_run_id": state.run_id},
                 candidate_only_seed_evaluations=candidate_only_seed_evaluations,
                 stage_b_evaluator=lambda candidate_payload, context: _evaluate_candidate_payload(
                     ctx,
@@ -920,7 +931,9 @@ def _resolve_search_candidate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> PolicyCandidateSchema | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
     explicit = _coerce_policy_candidate(state.params.get("policy_candidate_schema"))
     lex_bundle = _coerce_lex_bundle(state.params.get("lex_policy_bundle_input"))
     adapter = HierarchicalPolicySearchAdapter()
@@ -944,8 +957,10 @@ def _resolve_search_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
-    payload = load_core_json_artifact(ctx.store, trinity_ref)
-    bundle = TrinityBundle.model_validate(payload)
+    bundle = load_trinity_bundle_artifact(
+        ensure_ir_artifact_store(ctx.store),
+        trinity_ref,
+    )
     return PolicyCandidateSchema.from_trinity_bundle(bundle)
 
 

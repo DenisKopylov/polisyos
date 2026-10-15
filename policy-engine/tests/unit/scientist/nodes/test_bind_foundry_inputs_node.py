@@ -29,12 +29,14 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.observation.bundles import ProxyIdentificationBundle
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import BindFoundryInputsNode
+from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import (
+    BindFoundryInputsNode,
+    _check_model_spec_consistency,
+)
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_INPUT_BINDING_REPORT_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
@@ -206,12 +208,15 @@ def _verified_ukraine_intake(
         method_contract_refs=method_contract_refs,
         stage_receipt_refs={"d2": stage_receipt_ref},
         method_input_bundle_ref=method_input_bundle_ref,
+        # This fixture constructs the intake result directly; production intake reads and
+        # binds real selected profiles before creating this value.
+        source_snapshot_profile_reads={},
         receipt_ref=store.put_json(
             {
-            "schema_version": "polisyos.foundry.ukraine_intake_receipt.v1",
-            "authority_purpose": "producer_artifact_content_binding",
-            "stage_receipts": {"d0_p0": {"content_binding_provenance": "recomputed"}},
-            "validated_contracts": {"d2_dynamic_treatment": {"sha256": "a" * 64}},
+                "schema_version": "polisyos.foundry.ukraine_intake_receipt.v1",
+                "authority_purpose": "producer_artifact_content_binding",
+                "stage_receipts": {"d0_p0": {"content_binding_provenance": "recomputed"}},
+                "validated_contracts": {"d2_dynamic_treatment": {"sha256": "a" * 64}},
             },
             PutOptions(kind="foundry.ukraine_intake_receipt", media_type="application/json"),
         ),
@@ -293,9 +298,10 @@ def test_bind_foundry_inputs_node_routes_explicit_compatible_panel_selection(tmp
 
     assert outcome.status == "ok"
     selected_ref = outcome.state.inputs["ukraine_selected_foundry_method_contract_ref"]
-    assert selected_ref.artifact_id == intake.method_contract_refs[
-        "d2_panel_observational"
-    ].artifact_id
+    assert (
+        selected_ref.artifact_id
+        == intake.method_contract_refs["d2_panel_observational"].artifact_id
+    )
     assert outcome.state.observational_data_ref == selected_ref
     assert outcome.state.causal_method_fqn == "causal.inference.did.standard@1.0.0"
     assert (
@@ -312,22 +318,16 @@ def test_bind_foundry_inputs_node_routes_explicit_compatible_panel_selection(tmp
             "random_seed": 7,
         }
     )
-    with pytest.warns(UserWarning, match=r"(unexpected_key|missing_key|empty_array)"):
-        causal_outcome = RunCausalEvaluationNode().execute(ctx, causal_state)
+    causal_outcome = RunCausalEvaluationNode().execute(ctx, causal_state)
 
-    assert causal_outcome.status == "ok"
-    assert ARTIFACT_CAUSAL_METHOD_RESULT_REF in causal_outcome.state.artifacts_index
-    evidence_ref = causal_outcome.state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF]
-    evidence = from_canonical_bytes(store.get_bytes(evidence_ref.artifact_id))
-    assert evidence["authority_purpose"] == "method_execution"
-    assert "method_validity" in evidence["may_not_use_for"]
-    result_ref = causal_outcome.state.artifacts_index[ARTIFACT_CAUSAL_METHOD_RESULT_REF]
-    result_manifest = store.get_manifest(result_ref.artifact_id)
-    assert {item.role for item in result_manifest.inputs} == {
-        "input:ukraine_intake_receipt",
-        "input:ukraine_method_input_bundle",
-        "input:ukraine_selected_method_contract",
-    }
+    # This unit route fixture does not supply an evaluation-safety context or verifier,
+    # so the actual causal consumer must refuse execution after the valid binding step.
+    assert causal_outcome.status == "fail"
+    assert causal_outcome.error is not None
+    assert causal_outcome.error.details["blocker_codes"] == [
+        "polisyos.eval_safety.execution_context_missing@1.0.0"
+    ]
+    assert ARTIFACT_CAUSAL_METHOD_RESULT_REF not in causal_outcome.state.artifacts_index
 
 
 @pytest.mark.parametrize(
@@ -591,3 +591,33 @@ def test_bind_foundry_inputs_build_assertion_is_not_swallowed(tmp_path) -> None:
         pytest.raises(AssertionError, match="binding invariant"),
     ):
         BindFoundryInputsNode().execute(ctx, state)
+
+
+def test_model_spec_check_does_not_accept_same_trinity_bytes_from_wrong_schema(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, registry_bundle_ref = _setup_ctx(store)
+    trinity_ref = _put_trinity_bundle(
+        store,
+        registry_bundle_ref=registry_bundle_ref,
+        data_snapshot_ref="sha256:" + "1" * 64,
+    )
+    manifest = store.get_manifest(trinity_ref)
+    wrong_profile_ref = store.put_bytes(
+        store.get_bytes(trinity_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.test.TrinityBundle", version="9.9"),
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="R_bind_wrong_trinity_owner",
+        inputs={INPUT_TRINITY_BUNDLE_REF: wrong_profile_ref},
+    )
+
+    with pytest.raises(
+        ValueError, match="TrinityBundle artifact manifest does not match its IR owner"
+    ):
+        _check_model_spec_consistency(ctx, state, "f" * 64)

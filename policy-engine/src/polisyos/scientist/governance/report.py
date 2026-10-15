@@ -12,7 +12,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreArtifactOwnerProfile,
+    validate_owned_core_model_json_artifact,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.contracts.scientist import (
     SourceVerificationReportRef,
@@ -61,4 +66,41 @@ class GovernanceReport(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
-__all__ = ["GovernanceReport", "GovernanceReportLinks"]
+GOVERNANCE_REPORT_OWNER_PROFILE = CoreArtifactOwnerProfile(
+    kind="scientist.governance_report",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),),
+    payload_schema_version_by_manifest=(
+        (
+            ("polisyos.scientist.GovernanceReport", "1.0"),
+            "1.0",
+        ),
+    ),
+)
+
+
+def load_governance_report_artifact(
+    store: ArtifactStore,
+    selector: ArtifactRef,
+) -> GovernanceReport:
+    """Read a governance report only through its producer-owned versioned ABI.
+
+    The selected manifest and payload must match the finite producer profile above.
+    A backend that cannot expose the selected raw manifest is refused by the shared
+    owner validator. This confirms content and ABI conformity; it does not establish
+    who produced the bytes or grant governance authority to the report.
+    """
+    return validate_owned_core_model_json_artifact(
+        GovernanceReport,
+        store,
+        selector,
+        expected_owner=GOVERNANCE_REPORT_OWNER_PROFILE,
+    ).value
+
+
+__all__ = [
+    "GOVERNANCE_REPORT_OWNER_PROFILE",
+    "GovernanceReport",
+    "GovernanceReportLinks",
+    "load_governance_report_artifact",
+]

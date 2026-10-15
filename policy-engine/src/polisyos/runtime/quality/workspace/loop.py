@@ -2072,6 +2072,8 @@ class WorkspaceLoop:
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
+        from polisyos.core.contracts.foundry import Metrics
+
         metrics_core_ref = store.put_json(
             {
                 "values": {
@@ -2081,9 +2083,12 @@ class WorkspaceLoop:
                 "notes": ["Phase-2 normative replay metrics derived from recorded-row C3 panel."],
             },
             PutOptions(
-                kind="foundry.metrics",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.Metrics", version="1.0"),
+                kind=Metrics.ARTIFACT_KIND,
+                media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=Metrics.ARTIFACT_SCHEMA_NAME,
+                    version=Metrics.ARTIFACT_SCHEMA_VERSION,
+                ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )

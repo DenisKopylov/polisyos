@@ -350,58 +350,36 @@ def _policy_summary_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> str | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
     try:
-        payload = load_core_json_artifact(ctx.store, trinity_ref)
-    except _GOVERNANCE_HELPER_ERRORS as exc:
-        emit_degraded_path(
-            component="scientist.run_governance",
-            operation="policy_summary_from_state",
-            reason="trinity_bundle_load_failed",
-            exc=exc,
-            details={"run_id": state.run_id},
-            log=logger,
-            metrics=ctx.metrics,
+        trinity = load_trinity_bundle_artifact(
+            ensure_ir_artifact_store(ctx.store),
+            trinity_ref,
         )
-        return None
-    if not isinstance(payload, dict):
-        return None
-    policy_spec = payload.get("policy_spec")
-    if not isinstance(policy_spec, dict):
-        return "Policy data attached"
-    interventions = policy_spec.get("interventions")
-    if isinstance(interventions, list):
-        return f"Policy with {len(interventions)} intervention(s)"
-    return "Policy data attached"
+    except _GOVERNANCE_HELPER_ERRORS:
+        # Replay readiness carries the invalid-present state and its digest in
+        # the same GateContext. Keep the non-authoritative preview explicitly
+        # limited so a malformed selected input cannot masquerade as absence.
+        return "Policy summary unavailable: selected Trinity admission failed"
+    interventions = trinity.policy_spec.interventions
+    return f"Policy with {len(interventions)} intervention(s)"
 
 
 def _simulation_results_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return None
-    try:
-        payload = load_core_json_artifact(ctx.store, metrics_ref)
-        metrics = Metrics.model_validate(payload)
-    except _GOVERNANCE_HELPER_ERRORS as exc:
-        emit_degraded_path(
-            component="scientist.run_governance",
-            operation="simulation_results_from_state",
-            reason="metrics_preview_load_failed",
-            exc=exc,
-            details={"run_id": state.run_id},
-            log=logger,
-            metrics=ctx.metrics,
-        )
-        return None
+    metrics = validate_core_model_json_artifact(Metrics, ctx.store, metrics_ref)
 
     preview: dict[str, Any] = {}
     for key in sorted(metrics.values)[:5]:
@@ -463,7 +441,10 @@ def _transport_summary_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.analytics.causal import CausalEffectReport
+    from polisyos.ir.artifacts import get_json_artifact
+    from polisyos.ir.registry.refs import CausalEffectReportRef
 
     report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if report_ref is None:
@@ -484,40 +465,36 @@ def _transport_summary_from_state(
             }
         return None
 
-    try:
-        payload = load_core_json_artifact(ctx.store, report_ref)
-    except _GOVERNANCE_HELPER_ERRORS as exc:
-        emit_degraded_path(
-            component="scientist.run_governance",
-            operation="transport_summary_from_state",
-            reason="causal_report_load_failed",
-            exc=exc,
-            details={"run_id": state.run_id},
-            log=logger,
-            metrics=ctx.metrics,
-        )
-        return None
-    if not isinstance(payload, dict):
-        return None
-    transport = payload.get("transport_result")
-    if not isinstance(transport, dict):
+    selected_ref = CausalEffectReportRef.model_validate(
+        report_ref.model_dump(mode="json") if hasattr(report_ref, "model_dump") else report_ref
+    )
+    manifest = ctx.store.get_manifest(report_ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != "ir.causal_effect_report"
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != "ir.causal_effect_report"
+        or schema.version != "1.0"
+    ):
+        raise ValueError("selected causal-effect report does not match its producer schema ABI")
+    payload = get_json_artifact(ensure_ir_artifact_store(ctx.store), selected_ref)
+    report = CausalEffectReport.model_validate(payload)
+    if report.schema_version != "1.0":
+        raise ValueError("selected causal-effect report payload schema version is unsupported")
+    transport = report.transport_result
+    if transport is None:
         return None
     summary = {
-        "status": transport.get("status"),
-        "transport_mode": transport.get("transport_mode"),
-        "identification_engine": transport.get("identification_engine"),
+        "status": getattr(transport.status, "value", transport.status),
+        "transport_mode": getattr(transport.transport_mode, "value", transport.transport_mode),
+        "identification_engine": transport.identification_engine,
         "capability_hash": state.params.get("transportability_capability_hash"),
         "degradation_policy": state.params.get("transportability_degradation_policy"),
-        "requires_expert_review": bool(transport.get("requires_expert_review", False)),
-        "data_gaps_count": len(transport.get("data_gaps", []))
-        if isinstance(transport.get("data_gaps"), list)
-        else 0,
-        "unsupported_cases": list(transport.get("unsupported_cases", []))
-        if isinstance(transport.get("unsupported_cases"), list)
-        else [],
-        "hard_legal_constraints": list(transport.get("hard_legal_constraints", []))
-        if isinstance(transport.get("hard_legal_constraints"), list)
-        else [],
+        "requires_expert_review": transport.requires_expert_review,
+        "data_gaps_count": len(transport.data_gaps),
+        "unsupported_cases": list(transport.unsupported_cases),
+        "hard_legal_constraints": list(transport.hard_legal_constraints),
     }
     return summary
 

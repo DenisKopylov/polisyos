@@ -5,13 +5,15 @@ from unittest.mock import patch
 import pytest
 
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+    CanonInfo,
+    profile_bound_ref,
 )
 from polisyos.core.artifacts import (
-    profile_bound_ref,
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ProfileLevel, ValidationProfile
 from polisyos.ir.analytics.causal_graph import (
@@ -38,6 +40,7 @@ from polisyos.scientist.governance.passes.cross_graph_evidence_pass import Cross
 from polisyos.scientist.governance.preflight import preflight_checks
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.methods.discovery.priors import (
+    GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION,
     GraphPriorBuilder,
     GraphPriorBundle,
     HypothesisIdentificationEvidence,
@@ -97,6 +100,36 @@ def _bundle() -> TrinityBundle:
     )
 
 
+def _capture_cross_graph_profile_writes(monkeypatch: pytest.MonkeyPatch):
+    from polisyos.scientist.nodes.builtins.planning import compile_cross_graph_evidence
+
+    persist = compile_cross_graph_evidence.persist_cross_graph_evidence_profile
+    writes = []
+
+    def _persist(
+        store,
+        profile,
+        *,
+        inputs=None,
+        return_selected_profile: bool = False,
+    ):
+        ref = persist(
+            store,
+            profile,
+            inputs=inputs,
+            return_selected_profile=return_selected_profile,
+        )
+        writes.append((return_selected_profile, ref))
+        return ref
+
+    monkeypatch.setattr(
+        compile_cross_graph_evidence,
+        "persist_cross_graph_evidence_profile",
+        _persist,
+    )
+    return writes
+
+
 def test_compilation_without_trinity(execution_context, minimal_state):
     """With enabled config but no Trinity bundle, produces a policy_request_only profile."""
     state = minimal_state.model_copy(
@@ -112,6 +145,154 @@ def test_compilation_without_trinity(execution_context, minimal_state):
     summary = outcome.state.params.get("cross_graph_evidence_summary")
     assert summary is not None
     assert outcome.state.params.get("cross_graph_benchmark_summary") is not None
+
+
+def test_cross_graph_route_refuses_same_trinity_bytes_with_wrong_schema(
+    execution_context,
+    minimal_state,
+) -> None:
+    store = execution_context.store
+    bundle = _bundle()
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    trinity_ref = store.put_bytes(
+        to_canonical_bytes(bundle, spec),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name="polisyos.test.TrinityBundle", version="9.9"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    state = minimal_state.model_copy(
+        update={
+            "inputs": {**minimal_state.inputs, INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+            "params": {"cross_graph_evidence_config": {"enabled": True}},
+        }
+    )
+
+    with patch(
+        "polisyos.scientist.cross_graph.compiler.CrossGraphEvidenceCompiler.compile",
+        side_effect=AssertionError("unowned Trinity profile reached compiler"),
+    ) as compile_bundle:
+        outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    compile_bundle.assert_not_called()
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in outcome.state.artifacts_index
+
+
+def test_cross_graph_output_manifest_preserves_selected_profiles_for_all_inputs(
+    execution_context,
+    minimal_state,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    profile_writes = _capture_cross_graph_profile_writes(monkeypatch)
+    store = execution_context.store
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    trinity_ref = store.put_json(
+        _bundle(),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+    graph_prior_ref = persist_graph_prior_bundle(store, GraphPriorBundle())
+    literature_prior_ref = persist_literature_causal_prior(
+        _ensure_ir_artifact_store(store),
+        LiteratureCausalPrior(
+            environment_audit=EnvironmentAuditReport(
+                status="warning",
+                n_environments=2,
+                ks_passed=False,
+                ks_rejected_variables=[0],
+            ),
+            metadata={"build_status": "ok"},
+        ),
+    )
+
+    def _same_bytes_sibling_profile(ref):
+        manifest = store.get_manifest(ref)
+        assert manifest.artifact_schema is not None
+        assert manifest.canon is not None
+        alternate_profile = manifest.canon.model_copy(
+            update={"max_depth": manifest.canon.max_depth + 1}
+        )
+        return store.put_bytes(
+            store.get_bytes(ref),
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=list(manifest.inputs),
+                canon=alternate_profile,
+            ),
+            return_selected_profile=True,
+        )
+
+    selected_refs = {
+        "trinity_bundle": _same_bytes_sibling_profile(trinity_ref),
+        "graph_prior_bundle": _same_bytes_sibling_profile(graph_prior_ref),
+        "literature_prior": _same_bytes_sibling_profile(literature_prior_ref),
+    }
+    for role, original_ref in (
+        ("trinity_bundle", trinity_ref),
+        ("graph_prior_bundle", graph_prior_ref),
+        ("literature_prior", literature_prior_ref),
+    ):
+        selected_ref = selected_refs[role]
+        assert str(selected_ref.artifact_id) == str(original_ref.artifact_id)
+        assert selected_ref.manifest_profile_sha256 is not None
+        assert selected_ref.manifest_profile_sha256 != original_ref.manifest_profile_sha256
+
+    state = minimal_state.model_copy(
+        update={
+            "inputs": {
+                **minimal_state.inputs,
+                INPUT_TRINITY_BUNDLE_REF: selected_refs["trinity_bundle"],
+                INPUT_GRAPH_PRIOR_BUNDLE_REF: selected_refs["graph_prior_bundle"],
+            },
+            "artifacts_index": {
+                **minimal_state.artifacts_index,
+                ARTIFACT_LITERATURE_PRIOR_REF: selected_refs["literature_prior"],
+            },
+            "params": {"cross_graph_evidence_config": {"enabled": True}},
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    assert len(profile_writes) == 1
+    writer_selected_profile, writer_profile_ref = profile_writes[0]
+    assert writer_selected_profile is True
+    assert str(profile_ref.artifact_id) == str(writer_profile_ref.artifact_id)
+    assert profile_ref.manifest_profile_sha256 == writer_profile_ref.manifest_profile_sha256
+    assert profile_ref.manifest_profile_sha256 is not None
+    profile_manifest = store.get_manifest(profile_ref)
+    actual_edges = {
+        (str(edge.artifact_id), edge.role, edge.manifest_profile_sha256)
+        for edge in profile_manifest.inputs
+    }
+    expected_edges = {
+        (
+            str(selected_refs[role].artifact_id),
+            role,
+            selected_refs[role].manifest_profile_sha256,
+        )
+        for role in selected_refs
+    }
+    assert actual_edges == expected_edges
+    assert all(profile_sha256 is not None for _, _, profile_sha256 in actual_edges)
 
 
 def test_compilation_preserves_selected_graph_profile_without_trinity(
@@ -279,9 +460,7 @@ def test_compilation_enriches_profile_from_graph_prior_bundle(
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
     fresh_store = FileSystemCAS(cas_store.root)
-    profile = load_cross_graph_evidence_profile(
-        _ensure_ir_artifact_store(fresh_store), profile_ref
-    )
+    profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(fresh_store), profile_ref)
     assert any(need.need.cause == "A" and need.need.effect == "B" for need in profile.needs)
     assert any(need.need.cause == "X" and need.need.effect == "Y" for need in profile.needs)
     assert all(
@@ -450,8 +629,7 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
     identification = fresh_graph_prior.hypothesis_identification[hypothesis.hypothesis_id]
     assert identification.identification_status == "unsupported_graph_profile"
     assert any(
-        "graph_projection_unavailable" in limitation
-        for limitation in identification.limitations
+        "graph_projection_unavailable" in limitation for limitation in identification.limitations
     )
 
     state = minimal_state.model_copy(
@@ -518,9 +696,7 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
     )
     issues = CrossGraphEvidencePass().validate(governance_context)
     limitation_issues = [
-        issue
-        for issue in issues
-        if issue.code == "CROSS_GRAPH_DISCOVERY_IDENTIFICATION_LIMITED"
+        issue for issue in issues if issue.code == "CROSS_GRAPH_DISCOVERY_IDENTIFICATION_LIMITED"
     ]
     assert limitation_issues
     assert all(issue.severity.value == "blocker" for issue in limitation_issues)
@@ -541,7 +717,6 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
         issue["code"] == "CROSS_GRAPH_DISCOVERY_IDENTIFICATION_LIMITED"
         for issue in preflight_state["validation_blockers"]
     )
-
 
 
 def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
@@ -701,7 +876,9 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
         "edge_confidence_matrix",
         "bootstrap_stability_report",
     }
-    assert {item.role for item in root_manifest.inputs} & required_input_roles == required_input_roles
+    assert {
+        item.role for item in root_manifest.inputs
+    } & required_input_roles == required_input_roles
     report_input = next(
         item for item in root_manifest.inputs if item.role == "downstream_utility_report"
     )
@@ -741,8 +918,7 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
         for row in rows.values()
     )
     assert all(
-        row["source_refs"]["graph_prior_bundle"]["payload_sha256"]
-        == root_manifest.integrity.sha256
+        row["source_refs"]["graph_prior_bundle"]["payload_sha256"] == root_manifest.integrity.sha256
         for row in rows.values()
     )
     assert all(
@@ -782,6 +958,7 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
     assert source_needs
     assert all(need.evidence_status is EvidenceStatus.SUPPORTED for need in source_needs)
     assert all(not need.requires_expert_review for need in source_needs)
+
 
 def test_compilation_records_degraded_source_statuses_when_sources_missing(
     execution_context,
@@ -866,7 +1043,9 @@ def test_compilation_persists_degraded_profile_for_invalid_config(
     execution_context,
     minimal_state,
     cas_store,
+    monkeypatch: pytest.MonkeyPatch,
 ):
+    profile_writes = _capture_cross_graph_profile_writes(monkeypatch)
     state = minimal_state.model_copy(
         update={
             "params": {
@@ -882,6 +1061,12 @@ def test_compilation_persists_degraded_profile_for_invalid_config(
 
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    assert len(profile_writes) == 1
+    writer_selected_profile, writer_profile_ref = profile_writes[0]
+    assert writer_selected_profile is True
+    assert str(profile_ref.artifact_id) == str(writer_profile_ref.artifact_id)
+    assert profile_ref.manifest_profile_sha256 == writer_profile_ref.manifest_profile_sha256
+    assert profile_ref.manifest_profile_sha256 is not None
     profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(cas_store), profile_ref)
     assert profile.summary.status == "degraded"
     assert profile.diagnostics[0].code == "cross_graph.invalid_config"
@@ -897,10 +1082,15 @@ def test_compilation_passes_literature_prior_context_into_compiler(
     trinity_ref = cas_store.put_json(
         _bundle(),
         PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.trinity_bundle", version="1.0"),
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
     )
     prior_ref = persist_literature_causal_prior(
         _ensure_ir_artifact_store(cas_store),
@@ -1015,6 +1205,7 @@ def test_compilation_uses_branch_state_for_declared_outputs(execution_context, m
     assert outcome.state.params["cross_graph_evidence_expected"] is True
     assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in outcome.state.artifacts_index
 
+
 @pytest.mark.parametrize(
     (
         "graph_type",
@@ -1033,16 +1224,166 @@ def test_compilation_uses_branch_state_for_declared_outputs(execution_context, m
         "verification_reason",
     ),
     [
-        (GraphType.DAG, False, False, False, True, False, False, False, False, False, False, EvidenceStatus.SUPPORTED, "recomputed", "source_projection_matches_current_algorithm"),
-        (GraphType.PAG, False, False, False, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "recomputed", "source_projection_matches_current_algorithm"),
-        (GraphType.PAG, False, False, True, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "utility_report_source_projection_mismatch"),
-        (GraphType.DAG, False, False, False, False, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "downstream_utility_report_input_missing_or_ambiguous"),
-        (GraphType.DAG, False, False, False, True, True, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "graph_prior_manifest_profile_missing"),
-        (GraphType.DAG, False, False, False, True, False, True, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "source_artifact_schema_mismatch"),
-        (GraphType.DAG, False, False, False, True, False, False, True, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "source_artifact_schema_mismatch"),
-        (GraphType.DAG, False, False, False, True, False, False, False, True, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "edge_confidence_matrix_source_projection_mismatch"),
-        (GraphType.DAG, False, False, False, True, False, False, False, False, True, False, EvidenceStatus.INSUFFICIENT, "not_established", "graph_prior_source_projection_mismatch"),
-        (GraphType.DAG, False, False, False, True, False, False, False, False, False, True, EvidenceStatus.INSUFFICIENT, "not_established", "graph_prior_source_projection_mismatch"),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.SUPPORTED,
+            "recomputed",
+            "source_projection_matches_current_algorithm",
+        ),
+        (
+            GraphType.PAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "recomputed",
+            "source_projection_matches_current_algorithm",
+        ),
+        (
+            GraphType.PAG,
+            False,
+            False,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "utility_report_source_projection_mismatch",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "downstream_utility_report_input_missing_or_ambiguous",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "graph_prior_manifest_profile_missing",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "source_artifact_schema_mismatch",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "source_artifact_schema_mismatch",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "edge_confidence_matrix_source_projection_mismatch",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "graph_prior_source_projection_mismatch",
+        ),
+        (
+            GraphType.DAG,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            EvidenceStatus.INSUFFICIENT,
+            "not_established",
+            "graph_prior_source_projection_mismatch",
+        ),
     ],
 )
 def test_identification_source_is_recomputed_before_prior_support(
@@ -1134,11 +1475,7 @@ def test_identification_source_is_recomputed_before_prior_support(
             CausalEdge(
                 src="X",
                 dst="Y",
-                mark_src=(
-                    EdgeMark.CIRCLE
-                    if graph_type is GraphType.PAG
-                    else EdgeMark.TAIL
-                ),
+                mark_src=(EdgeMark.CIRCLE if graph_type is GraphType.PAG else EdgeMark.TAIL),
                 mark_dst=EdgeMark.ARROW,
                 evidence_refs=["fixture:source-bound-edge"],
             )
@@ -1153,11 +1490,7 @@ def test_identification_source_is_recomputed_before_prior_support(
             GraphHypothesis(
                 hypothesis_id=hypothesis_id,
                 algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
-                method=(
-                    DiscoveryMethod.FCI
-                    if graph_type is GraphType.PAG
-                    else DiscoveryMethod.PC
-                ),
+                method=(DiscoveryMethod.FCI if graph_type is GraphType.PAG else DiscoveryMethod.PC),
                 graph=source_graph,
                 resolved_graph=resolved_graph,
                 projection_disposition=graph_projection_disposition(
@@ -1261,8 +1594,7 @@ def test_identification_source_is_recomputed_before_prior_support(
         graph_prior = graph_prior.model_copy(
             update={
                 field_name: [
-                    edge.model_copy(update=updates)
-                    for edge in getattr(graph_prior, field_name)
+                    edge.model_copy(update=updates) for edge in getattr(graph_prior, field_name)
                 ]
                 for field_name in ("high_confidence_edges", "required_edges")
             }
@@ -1282,9 +1614,7 @@ def test_identification_source_is_recomputed_before_prior_support(
         )
     if wrong_root_schema or wrong_root_schema_version_only:
         schema_name = (
-            "test.invalid.GraphPriorBundle"
-            if wrong_root_schema
-            else GRAPH_PRIOR_BUNDLE_SCHEMA_NAME
+            "test.invalid.GraphPriorBundle" if wrong_root_schema else GRAPH_PRIOR_BUNDLE_SCHEMA_NAME
         )
         raw_ref = cas_store.put_json(
             graph_prior.model_copy(
@@ -1293,7 +1623,14 @@ def test_identification_source_is_recomputed_before_prior_support(
             PutOptions(
                 kind="scientist.graph_prior_bundle",
                 media_type="application/json",
-                schema=SchemaInfo(name=schema_name, version="1.0"),
+                schema=SchemaInfo(
+                    name=schema_name,
+                    version=(
+                        "1.0"
+                        if wrong_root_schema_version_only
+                        else GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION
+                    ),
+                ),
                 inputs=root_inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -1316,6 +1653,12 @@ def test_identification_source_is_recomputed_before_prior_support(
         }
     )
     outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    if profileless_root or wrong_root_schema or wrong_root_schema_version_only:
+        assert outcome.status == "fail"
+        assert outcome.error is not None
+        assert outcome.error.code == "node.invalid_state"
+        assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in outcome.state.artifacts_index
+        return
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
     profile = load_cross_graph_evidence_profile(
         _ensure_ir_artifact_store(cas_store),
@@ -1428,7 +1771,9 @@ def test_source_identification_consumer_requires_current_utility_schema_version(
         ),
     )
 
-    with pytest.raises(_IdentificationSourceBindingFailure, match="source_artifact_schema_mismatch"):
+    with pytest.raises(
+        _IdentificationSourceBindingFailure, match="source_artifact_schema_mismatch"
+    ):
         _require_source_view(
             reference,
             legacy_manifest,
@@ -1436,7 +1781,6 @@ def test_source_identification_consumer_requires_current_utility_schema_version(
             name=DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
             version=DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
         )
-
 
 
 def test_graph_derived_ci_scope_survives_prior_cas_and_need_projection(

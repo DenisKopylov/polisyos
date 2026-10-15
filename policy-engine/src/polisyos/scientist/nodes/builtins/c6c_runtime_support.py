@@ -10,7 +10,13 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    CoreArtifactOwnerProfile,
+    validate_owned_core_model_json_artifact,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -69,6 +75,17 @@ _RUNTIME_SUPPORT_LOAD_ERRORS = (
     TypeError,
     ValidationError,
     ValueError,
+)
+_LOWERED_IR_OWNER = CoreArtifactOwnerProfile(
+    kind="foundry.lowered_ir",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.foundry.LoweredIR", version="0.2.0"),),
+    payload_schema_version_by_manifest=(
+        (
+            ("polisyos.foundry.LoweredIR", "0.2.0"),
+            "0.2",
+        ),
+    ),
 )
 
 
@@ -774,44 +791,31 @@ def _load_lowered_ir(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> LoweredIR | None:
-    from polisyos.core.artifacts import load_core_json_artifact
     raw_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
     if raw_ref is None:
         return None
-    try:
-        ref = LoweredIRRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = load_core_json_artifact(ctx.store, ref)
-        return LoweredIR.model_validate(payload)
-    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
-        _runtime_support_degraded(
-            operation="load_lowered_ir",
-            reason="lowered_ir_unreadable",
-            exc=exc,
-            details={"run_id": state.run_id},
-        )
-        return None
+    raw_payload = raw_ref.model_dump(mode="json") if hasattr(raw_ref, "model_dump") else raw_ref
+    ref = LoweredIRRef.model_validate(raw_payload)
+    return validate_owned_core_model_json_artifact(
+        LoweredIR,
+        ctx.store,
+        ref,
+        expected_owner=_LOWERED_IR_OWNER,
+    ).value
 
 
 def _load_program_graph(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> ProgramGraph | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
     raw_ref = state.artifacts_index.get(ARTIFACT_PROGRAM_GRAPH_REF)
     if raw_ref is None:
         return None
-    try:
-        ref = ProgramGraphRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = load_core_json_artifact(ctx.store, ref)
-        return ProgramGraph.model_validate(payload)
-    except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
-        _runtime_support_degraded(
-            operation="load_program_graph",
-            reason="program_graph_unreadable",
-            exc=exc,
-            details={"run_id": state.run_id},
-        )
-        return None
+    raw_payload = raw_ref.model_dump(mode="json") if hasattr(raw_ref, "model_dump") else raw_ref
+    ref = ProgramGraphRef.model_validate(raw_payload)
+    return validate_core_model_json_artifact(ProgramGraph, ctx.store, ref)
 
 
 def _coerce_candidate(payload: Any) -> PolicyCandidateSchema | None:

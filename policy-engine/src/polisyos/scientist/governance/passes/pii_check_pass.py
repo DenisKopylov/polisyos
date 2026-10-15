@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
+from pydantic import ValidationError
+
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
     PassContext,
     ValidatorPass,
 )
+from polisyos.ir.connectors import PIIScanSummary
 
 _TENANT_PII_CEILINGS: dict[str, str] = {
     "shared": "low",
@@ -15,7 +20,7 @@ _TENANT_PII_CEILINGS: dict[str, str] = {
     "sovereign": "critical",
 }
 
-_SEVERITY_ORDER = ["none", "low", "medium", "high", "critical"]
+_SEVERITY_ORDER = ("none", "low", "medium", "high", "critical")
 
 
 class PIICheckPass(ValidatorPass):
@@ -52,7 +57,23 @@ class PIICheckPass(ValidatorPass):
                 )
             ]
 
-        max_severity, total_entities, entities_by_type = _extract_scan_fields(pii_results)
+        try:
+            max_severity, total_entities, entities_by_type = _extract_scan_fields(pii_results)
+        except (TypeError, ValueError, ValidationError):
+            return [
+                ComplianceIssue(
+                    pass_id=self.pass_id,
+                    path=["state", "pii_scan_results"],
+                    message=(
+                        "PII scan results were supplied but do not conform to the producer "
+                        "summary contract; the scan cannot be treated as clean."
+                    ),
+                    severity=IssueSeverity.BLOCKER,
+                    code="PII_SCAN_INVALID",
+                    suggestion="Repair or rerun the PII scan and provide its complete typed summary",
+                    input_value="invalid_pii_scan_summary",
+                )
+            ]
         if total_entities <= 0:
             return []
 
@@ -98,39 +119,34 @@ class PIICheckPass(ValidatorPass):
 
 
 def _extract_scan_fields(value: object) -> tuple[str, int, dict[str, int]]:
-    if isinstance(value, dict):
-        max_severity = str(value.get("max_severity", "none")).strip().lower()
-        total_entities = _to_non_negative_int(value.get("total_entities_found", 0))
-        by_type_raw = value.get("entities_by_type", {})
-        if isinstance(by_type_raw, dict):
-            entities_by_type = {
-                str(key): _to_non_negative_int(item) for key, item in by_type_raw.items()
-            }
-        else:
-            entities_by_type = {}
-        return max_severity, total_entities, entities_by_type
-
-    max_severity = str(getattr(value, "max_severity", "none")).strip().lower()
-    total_entities = _to_non_negative_int(getattr(value, "total_entities_found", 0))
-    by_type_raw = getattr(value, "entities_by_type", {})
-    if isinstance(by_type_raw, dict):
-        entities_by_type = {
-            str(key): _to_non_negative_int(item) for key, item in by_type_raw.items()
-        }
+    if isinstance(value, PIIScanSummary):
+        summary = value
+    elif isinstance(value, Mapping):
+        payload = dict(value)
+        if "max_severity" not in payload or "total_entities_found" not in payload:
+            raise ValueError("PII scan summary is missing required decision fields")
+        summary = PIIScanSummary.model_validate(payload, strict=True)
     else:
-        entities_by_type = {}
-    return max_severity, total_entities, entities_by_type
+        raise TypeError("PII scan summary must be the producer's typed summary or mapping")
 
-
-def _to_non_negative_int(value: object) -> int:
-    try:
-        return max(0, int(value))
-    except (OverflowError, TypeError, ValueError):
-        return 0
+    max_severity = summary.max_severity.strip().lower()
+    if max_severity not in _SEVERITY_ORDER:
+        raise ValueError("PII scan summary has an unknown maximum severity")
+    if any(type(count) is not int or count < 0 for count in summary.entities_by_type.values()):
+        raise ValueError("PII scan summary has an invalid entity-type count")
+    if any(
+        severity not in _SEVERITY_ORDER or type(count) is not int or count < 0
+        for severity, count in summary.entities_by_severity.items()
+    ):
+        raise ValueError("PII scan summary has an invalid severity count")
+    if any(entity.severity.strip().lower() not in _SEVERITY_ORDER for entity in summary.entities):
+        raise ValueError("PII scan summary contains an unknown entity severity")
+    if summary.total_entities_found == 0 and max_severity != "none":
+        raise ValueError("PII scan summary severity conflicts with its empty count")
+    if summary.total_entities_found > 0 and max_severity == "none":
+        raise ValueError("PII scan summary severity conflicts with its non-empty count")
+    return max_severity, summary.total_entities_found, dict(summary.entities_by_type)
 
 
 def _severity_idx(value: str) -> int:
-    try:
-        return _SEVERITY_ORDER.index(value)
-    except ValueError:
-        return 0
+    return _SEVERITY_ORDER.index(value)

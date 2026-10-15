@@ -167,10 +167,21 @@ def test_quickstart_input_bindings_persist_owner_schema_for_fresh_reader(tmp_pat
     loaded = load_input_bindings(reader, bindings_ref)
     assert loaded.registry_bundle_ref.artifact_id == registry_bundle.bundle_ref.artifact_id
     assert loaded.data_snapshot_ref.manifest_profile_sha256 is not None
+    snapshot_edge = next(edge for edge in manifest.inputs if edge.role == "input.data_snapshot_ref")
     assert loaded.data_snapshot_ref.manifest_profile_sha256 == (
-        selected_snapshot_ref.manifest_profile_sha256
+        snapshot_edge.manifest_profile_sha256
     )
-    validate_core_model_json_artifact(DataSnapshot, reader, loaded.data_snapshot_ref)
+    loaded_snapshot = validate_core_model_json_artifact(
+        DataSnapshot, reader, loaded.data_snapshot_ref
+    )
+    assert loaded_snapshot.data_ref.manifest_profile_sha256 is not None
+    snapshot_manifest = reader.get_manifest(loaded.data_snapshot_ref)
+    nested_data_edges = [edge for edge in snapshot_manifest.inputs if edge.role == "data_ref"]
+    assert len(nested_data_edges) == 1
+    assert nested_data_edges[0].artifact_id == loaded_snapshot.data_ref.artifact_id
+    assert nested_data_edges[0].manifest_profile_sha256 == (
+        loaded_snapshot.data_ref.manifest_profile_sha256
+    )
     with pytest.raises(CanonicalProfileRefusalError):
         validate_core_model_json_artifact(DataSnapshot, reader, legacy_snapshot_ref)
     with pytest.raises(CanonicalProfileRefusalError):

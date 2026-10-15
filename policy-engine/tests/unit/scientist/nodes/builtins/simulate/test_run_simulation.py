@@ -9,10 +9,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts import CanonInfo
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    MetricsRef,
+    ProgramGraph,
+    SimulationResult,
+)
 from polisyos.ir.analytics.simulation_proof_bridge import load_simulation_proof_bridge
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
@@ -20,17 +27,22 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
     persist_strategic_payoff_table,
 )
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     SimulationProofBridgeRef,
     StrategicResponseBundleRef,
 )
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_PROOF_BUNDLE_REF,
     ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
     ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
@@ -40,6 +52,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
 )
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
 def test_fail_when_foundry_port_missing(execution_context, minimal_state, artifact_ref_factory):
@@ -121,6 +134,48 @@ def test_fail_when_input_bindings_missing(execution_context, minimal_state, arti
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_MISSING_INPUT
     assert "input_bindings_ref" in outcome.error.message
+
+
+def test_run_simulation_fails_closed_on_supplied_program_graph_with_wrong_owner(
+    execution_context,
+    minimal_state,
+):
+    graph = ProgramGraph(ir_ref=minimal_state.inputs["registry_bundle_ref"])
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    graph_ref = execution_context.store.put_bytes(
+        to_canonical_bytes(graph, spec),
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name="polisyos.test.ProgramGraph", version="9.9"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        TrinityBundle(
+            problem_frame=ProblemFrame(problem_id="simulation_owner", domain="social"),
+            policy_spec=PolicySpec(policy_id="simulation_owner"),
+            model_spec=ModelSpec(
+                model_id="simulation_owner",
+                data_snapshot_ref="sha256:" + "d" * 64,
+            ),
+        ),
+        candidate_id="simulation_owner",
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.params["policy_candidate_schema"] = candidate
+    state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF] = graph_ref
+    foundry = MagicMock()
+    ctx = replace(execution_context, foundry=foundry)
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == node_errors.ERROR_INVALID_STATE
+    assert "materialize policy override bundle" in outcome.error.message
+    foundry.execute.assert_not_called()
 
 
 def test_fail_when_foundry_execute_returns_not_ok(
@@ -401,9 +456,17 @@ def test_run_simulation_result_assertion_is_not_swallowed(
     execution_context, minimal_state, artifact_ref_factory
 ):
     mock_foundry = MagicMock()
-    sim_ref = artifact_ref_factory(
-        kind="foundry.simulation_result",
-        data={"schema_version": "1.0", "notes": []},
+    sim_ref = execution_context.store.put_json(
+        {"schema_version": "1.3", "notes": []},
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
     )
     mock_foundry.execute.return_value = SimpleNamespace(
         ok=True,

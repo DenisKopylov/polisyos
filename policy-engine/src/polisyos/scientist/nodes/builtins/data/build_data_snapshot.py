@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
@@ -17,7 +17,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_VIEW_REQUEST_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
@@ -50,8 +49,6 @@ _SPEC = NodeSpec(
     ],
     produces=[INPUT_DATA_SNAPSHOT_REF],
 )
-_logger = get_logger(__name__)
-
 _DATA_SNAPSHOT_RUNTIME_ERRORS = (
     OSError,
     RuntimeError,
@@ -86,12 +83,19 @@ class BuildDataSnapshotNode:
         if self.allow_fabric and ctx.fabric is not None and INPUT_DATA_VIEW_REQUEST_REF in inputs:
             request_ref = profile_bound_ref(
                 ctx.store,
-                DataViewRequestRef.model_validate(
-                    inputs[INPUT_DATA_VIEW_REQUEST_REF].model_dump()
-                ),
+                DataViewRequestRef.model_validate(inputs[INPUT_DATA_VIEW_REQUEST_REF].model_dump()),
             )
-            snapshot_ref = ctx.fabric.snapshot(ctx.store, request_ref)
-            pii_scan_summary = _read_snapshot_pii_summary(ctx, snapshot_ref)
+            try:
+                snapshot_ref = ctx.fabric.snapshot(ctx.store, request_ref)
+                pii_scan_summary = _read_snapshot_pii_summary(ctx, snapshot_ref)
+            except _DATA_SNAPSHOT_RUNTIME_ERRORS as exc:
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Fabric returned an invalid selected DataSnapshot: {exc}",
+                    details={"input": INPUT_DATA_SNAPSHOT_REF},
+                )
+                event = NodeEvent(level="error", message="DataSnapshot owner admission failed")
+                return NodeOutcome(status="fail", state=state, error=error, events=[event])
             new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.inputs[INPUT_DATA_VIEW_REQUEST_REF] = request_ref
             new_state.inputs[INPUT_DATA_SNAPSHOT_REF] = snapshot_ref
@@ -112,36 +116,15 @@ def _read_snapshot_pii_summary(
     ctx: ExecutionContext,
     snapshot_ref: DataSnapshotRef,
 ) -> dict[str, Any] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-    try:
-        payload = load_core_json_artifact(ctx.store, snapshot_ref)
-        snapshot = DataSnapshot.model_validate(payload)
-    except _DATA_SNAPSHOT_RUNTIME_ERRORS as exc:
-        emit_degraded_path(
-            component="scientist.nodes.build_data_snapshot",
-            operation="read_snapshot_pii_summary",
-            reason="snapshot_pii_summary_load_failed",
-            exc=exc,
-            details={"artifact_id": str(snapshot_ref.artifact_id)},
-            log=_logger,
-            metrics=ctx.metrics,
-        )
-        return None
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    snapshot = validate_core_model_json_artifact(DataSnapshot, ctx.store, snapshot_ref)
     return _coerce_pii_scan_summary(snapshot.pii_scan_summary)
 
 
 def _coerce_pii_scan_summary(value: Any) -> dict[str, Any] | None:
-    if not isinstance(value, dict):
+    if value is None:
         return None
-    result = dict(value)
-    max_severity = result.get("max_severity")
-    if max_severity is None:
-        result["max_severity"] = "none"
-    else:
-        result["max_severity"] = str(max_severity).lower()
-    total = result.get("total_entities_found")
-    try:
-        result["total_entities_found"] = max(0, int(total))
-    except (TypeError, ValueError):
-        result["total_entities_found"] = 0
-    return result
+    if not isinstance(value, Mapping):
+        raise TypeError("selected DataSnapshot PII summary must be a mapping or absent")
+    return dict(value)

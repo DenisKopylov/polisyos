@@ -33,6 +33,8 @@ from polisyos.scientist.nodes.builtins.governance.governance_gate_requests impor
     _ensure_human_review_gate_request,
     _gate_replay_readiness,
     _gate_replay_summary,
+    _policy_summary_from_state,
+    _simulation_results_from_state,
 )
 from polisyos.scientist.nodes.builtins.governance.run_governance import (
     _handle_initial_gate_request,
@@ -144,12 +146,26 @@ def test_gate_request_persists_context_and_scopes_identity_to_phase_and_iteratio
         run_id="R_gate_request_context",
     )
     trinity_ref = store.put_json(
-        {"policy_spec": {"interventions": [{"id": "one"}, {"id": "two"}]}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        TrinityBundle(
+            problem_frame=ProblemFrame(
+                problem_id="gate_request_context",
+                domain=ProblemDomain.SOCIAL,
+            ),
+            policy_spec=PolicySpec(policy_id="gate_request_context"),
+            model_spec=ModelSpec(
+                model_id="gate_request_context",
+                data_snapshot_ref="sha256:" + "c" * 64,
+            ),
         ),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
     )
     metrics_ref = store.put_json(
         Metrics(
@@ -163,10 +179,14 @@ def test_gate_request_persists_context_and_scopes_identity_to_phase_and_iteratio
             }
         ),
         PutOptions(
-            kind="foundry.metrics",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.Metrics", version="1.0"),
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        return_selected_profile=True,
     )
     model_spec_ref = store.put_json(
         ModelSpec(
@@ -209,7 +229,7 @@ def test_gate_request_persists_context_and_scopes_identity_to_phase_and_iteratio
     assert request.context.phase == "PREPUBLISH"
     assert request.context.iteration == 4
     assert request.context.governance_profile == "strict"
-    assert request.context.policy_summary == "Policy with 2 intervention(s)"
+    assert request.context.policy_summary == "Policy with 0 intervention(s)"
     assert request.context.simulation_results == {
         "alpha": 1,
         "beta": 2,
@@ -362,6 +382,9 @@ def test_human_gate_consumer_carries_malformed_present_replay_input(tmp_path) ->
     request = GateRequest.model_validate(state.params["gate_request"])
     assert verdict == "human_gate"
     assert request.run_id == state.run_id
+    assert request.context.policy_summary == (
+        "Policy summary unavailable: selected Trinity admission failed"
+    )
     assert request.context.replay_summary is not None
     assert request.context.replay_summary["readiness"] == "incomplete"
     assert request.context.replay_summary["invalid_refs"] == {
@@ -500,6 +523,7 @@ def test_replay_readiness_uses_selected_artifact_kind_schema_and_payload(tmp_pat
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.test.TrinityBundle", version="9.9"),
         ),
+        return_selected_profile=True,
     )
     wrong_schema_trinity_state = ExperimentState(
         run_id="R_gate_replay_contracts",
@@ -1042,6 +1066,7 @@ def _build_valid_replay_inputs(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
         ),
+        return_selected_profile=True,
     )
     return {
         INPUT_TRINITY_BUNDLE_REF: trinity_ref,
@@ -1054,4 +1079,91 @@ def _build_valid_replay_inputs(
         INPUT_NORM_PACK_REF: norm_pack_ref,
         INPUT_KNOWLEDGE_BUNDLE_REF: knowledge_bundle_ref,
         INPUT_RESEARCH_INTENT_REF: research_intent_ref,
+    }
+
+
+def test_simulation_preview_refuses_same_metrics_bytes_under_wrong_schema(tmp_path) -> None:
+    store, ctx, _protocol, _registry_ref = _build_gate_context(
+        tmp_path,
+        run_id="R_metrics_wrong_owner",
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"net_income_pct": 1}),
+        PutOptions(
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    manifest = store.get_manifest(metrics_ref)
+    wrong_profile_ref = store.put_bytes(
+        store.get_bytes(metrics_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.test.Metrics", version="9.9"),
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="R_metrics_wrong_owner",
+        artifacts_index={ARTIFACT_METRICS_REF: wrong_profile_ref},
+    )
+
+    with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_name_mismatch"):
+        _simulation_results_from_state(ctx, state)
+
+
+def test_policy_summary_refuses_same_trinity_bytes_under_wrong_schema(tmp_path) -> None:
+    store, ctx, _protocol, _registry_ref = _build_gate_context(
+        tmp_path,
+        run_id="R_trinity_summary_wrong_owner",
+    )
+    trinity = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="trinity_summary_owner",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(policy_id="trinity_summary_owner"),
+        model_spec=ModelSpec(
+            model_id="trinity_summary_owner",
+            data_snapshot_ref="sha256:" + "7" * 64,
+        ),
+    )
+    trinity_ref = store.put_json(
+        trinity,
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    manifest = store.get_manifest(trinity_ref)
+    wrong_profile_ref = store.put_bytes(
+        store.get_bytes(trinity_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.test.TrinityBundle", version="9.9"),
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="R_trinity_summary_wrong_owner",
+        inputs={INPUT_TRINITY_BUNDLE_REF: wrong_profile_ref},
+    )
+
+    assert _policy_summary_from_state(ctx, state) == (
+        "Policy summary unavailable: selected Trinity admission failed"
+    )
+    assert _gate_replay_summary(ctx, state)["invalid_refs"] == {
+        INPUT_TRINITY_BUNDLE_REF: "wrong_schema"
     }

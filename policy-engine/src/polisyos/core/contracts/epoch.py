@@ -271,6 +271,14 @@ def acquisition_artifact_codec(
             "polisyos.fabric.DataQualityReport",
             "1.0",
         )
+    if kind == "fabric.retrieval_summary":
+        return AcquisitionArtifactCodec(
+            "application/json",
+            "producer_json",
+            CanonInfo.from_spec(CanonSpec(forbid_floats=False)),
+            "polisyos.fabric.RetrievalSummary",
+            "1.0",
+        )
     if kind == "connector_cache.payload":
         if media_type not in _CONNECTOR_CACHE_DATA_MEDIA_TYPES:
             return None

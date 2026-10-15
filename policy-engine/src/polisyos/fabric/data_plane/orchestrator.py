@@ -22,7 +22,7 @@ from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.cursor import PartitionCursorState
 from polisyos.core.contracts.fabric import (
@@ -30,6 +30,7 @@ from polisyos.core.contracts.fabric import (
     DataSnapshotRef,
     EvidenceBundle,
     EvidenceBundleRef,
+    RetrievalSummary,
 )
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.quality.processing_guarantees import (
@@ -614,26 +615,32 @@ async def _build_snapshot_from_evidence_async(
     # Use the first source artifact as the primary data reference
     data_ref = evidence_bundle.sources[0]
 
-    # Build a quality report from evidence metadata
-    quality_payload = {
-        "source": f"orchestrated_ingestion:{source}",
-        "datasets_count": datasets_fetched,
-        "notes": evidence_bundle.notes,
-    }
+    # Persist retrieval observations without presenting them as an assessment.
+    quality_payload = RetrievalSummary(
+        assessment_status="not_assessed",
+        source=f"orchestrated_ingestion:{source}",
+        source_refs=evidence_bundle.sources,
+        observed_counts={"datasets_fetched": datasets_fetched},
+        notes=evidence_bundle.notes,
+    )
     quality_ref = await store.put_json(
         quality_payload,
         ArtifactWriteOptions(
-            kind="fabric.quality_report",
+            kind=RetrievalSummary.ARTIFACT_KIND,
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
     snapshot_inputs = [
-        InputRef(artifact_id=evidence_ref.artifact_id, role="evidence_ref"),
-        InputRef(artifact_id=data_ref.artifact_id, role="data_ref"),
-        InputRef(artifact_id=quality_ref.artifact_id, role="quality_report_ref"),
+        input_ref_from_artifact_ref(evidence_ref, role="evidence_ref"),
+        input_ref_from_artifact_ref(data_ref, role="data_ref"),
+        input_ref_from_artifact_ref(quality_ref, role="quality_report_ref"),
     ]
 
     snapshot = DataSnapshot(
@@ -659,8 +666,9 @@ async def _build_snapshot_from_evidence_async(
             inputs=snapshot_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return DataSnapshotRef(artifact_id=snapshot_art_ref.artifact_id)
+    return DataSnapshotRef.model_validate(snapshot_art_ref.model_dump(mode="python"))
 
 
 def _resolve_execution_backend(backend: ExecutionBackend | str) -> ExecutionBackend:

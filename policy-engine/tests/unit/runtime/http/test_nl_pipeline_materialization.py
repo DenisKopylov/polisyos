@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import replace
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,7 +15,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
@@ -24,6 +26,7 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     _build_scientist_context_params,
     _preflight_design_problem_model,
     _production_materialization_failure,
+    _resolve_selected_materialization_ref,
     build_design_problem_from_nl_request,
     design_problem_compiler_source_semantics_invariant,
     design_problem_provider_constraint_schema,
@@ -115,7 +118,7 @@ class _FakeRetrievalService:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def resolve(self, request: Any) -> Any:
+    def resolve(self, request: Any, *, run_profile: Any = None) -> Any:
         return SimpleNamespace(
             fetch_plans=[{"id": "plan-1"}],
             telemetry={
@@ -1198,6 +1201,233 @@ def test_production_materialization_failure_is_not_required_for_dev_profile() ->
     )
 
 
+def test_selected_materialization_ref_resolves_exact_core_view_and_parent_edge(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.manifest import ProducerInfo, input_ref_from_artifact_ref
+
+    store = FileSystemCAS(tmp_path / "cas")
+    producer = ProducerInfo(component="polisyos.tests.materialization", version="1.0")
+    child_options = ArtifactWriteOptions(
+        kind="fabric.retrieval_summary",
+        media_type="application/json",
+        schema=SchemaInfo(name="polisyos.fabric.RetrievalSummary", version="1.0"),
+        producer=producer,
+    )
+    child_payload = {"assessment_status": "not_assessed", "source": "fixture"}
+    selected_child = store.put_json(
+        child_payload,
+        child_options,
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    sibling_view = store.put_json(
+        child_payload,
+        child_options,
+        CanonSpec(forbid_floats=False, ensure_ascii=True),
+        return_selected_profile=True,
+    )
+    assert sibling_view.artifact_id == selected_child.artifact_id
+    assert sibling_view.manifest_profile_sha256 != selected_child.manifest_profile_sha256
+
+    parent_ref = store.put_json(
+        {"quality_report_ref": selected_child.model_dump(mode="json")},
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            producer=producer,
+            inputs=[input_ref_from_artifact_ref(selected_child, role="quality_report")],
+        ),
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    parent_manifest = store.get_manifest(parent_ref)
+    selected_by_id = {str(selected_child.artifact_id): [selected_child]}
+    parent_roles = frozenset({"quality_report", "quality_report_ref"})
+
+    assert (
+        _resolve_selected_materialization_ref(
+            store,
+            selected_child,
+            selected_by_id,
+            kind="fabric.retrieval_summary",
+            parent_manifest=parent_manifest,
+            parent_roles=parent_roles,
+        )
+        == selected_child
+    )
+    assert (
+        _resolve_selected_materialization_ref(
+            store,
+            selected_child,
+            {},
+            kind="fabric.retrieval_summary",
+            parent_manifest=parent_manifest,
+            parent_roles=parent_roles,
+        )
+        == selected_child
+    )
+    profileless_child = selected_child.model_copy(update={"manifest_profile_sha256": None})
+    assert (
+        _resolve_selected_materialization_ref(
+            store,
+            profileless_child,
+            {},
+            kind="fabric.retrieval_summary",
+            parent_manifest=parent_manifest,
+            parent_roles=parent_roles,
+        )
+        == selected_child
+    )
+    with pytest.raises(
+        RuntimeError,
+        match="auto_materialization_selected_ref_not_established",
+    ):
+        _resolve_selected_materialization_ref(
+            store,
+            profileless_child,
+            {str(selected_child.artifact_id): [sibling_view]},
+            kind="fabric.retrieval_summary",
+            parent_manifest=parent_manifest,
+            parent_roles=parent_roles,
+        )
+
+    invalid_views = (
+        selected_child.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64}),
+        selected_child.model_copy(update={"kind": "foreign.retrieval_summary"}),
+        selected_child.model_copy(update={"media_type": "text/plain"}),
+    )
+    for invalid_view in invalid_views:
+        with pytest.raises(
+            RuntimeError,
+            match="auto_materialization_selected_ref_not_established",
+        ):
+            _resolve_selected_materialization_ref(
+                store,
+                invalid_view,
+                selected_by_id,
+                kind="fabric.retrieval_summary",
+            )
+
+    with pytest.raises(
+        RuntimeError,
+        match="auto_materialization_quality_ref_lineage_not_established",
+    ):
+        _resolve_selected_materialization_ref(
+            store,
+            sibling_view,
+            {},
+            kind="fabric.retrieval_summary",
+            parent_manifest=parent_manifest,
+            parent_roles=parent_roles,
+        )
+
+    parent_input = parent_manifest.inputs[0]
+    wrong_parent_manifests = (
+        parent_manifest.model_copy(update={"inputs": []}),
+        parent_manifest.model_copy(
+            update={
+                "inputs": [parent_input.model_copy(update={"artifact_id": "sha256:" + "9" * 64})]
+            }
+        ),
+        parent_manifest.model_copy(
+            update={"inputs": [parent_input.model_copy(update={"role": "other"})]}
+        ),
+    )
+    for wrong_parent_manifest in wrong_parent_manifests:
+        with pytest.raises(
+            RuntimeError,
+            match="auto_materialization_quality_ref_lineage_not_established",
+        ):
+            _resolve_selected_materialization_ref(
+                store,
+                selected_child,
+                {},
+                kind="fabric.retrieval_summary",
+                parent_manifest=wrong_parent_manifest,
+                parent_roles=parent_roles,
+            )
+
+    missing_ref = selected_child.model_copy(
+        update={
+            "artifact_id": "sha256:" + "e" * 64,
+            "manifest_profile_sha256": "sha256:" + "d" * 64,
+        }
+    )
+    with pytest.raises(
+        RuntimeError,
+        match="auto_materialization_selected_ref_not_established",
+    ):
+        _resolve_selected_materialization_ref(
+            store,
+            missing_ref,
+            {},
+            kind="fabric.retrieval_summary",
+        )
+
+    with pytest.raises(
+        RuntimeError,
+        match="auto_materialization_selected_ref_not_established",
+    ):
+        _resolve_selected_materialization_ref(
+            store,
+            {
+                "artifact_id": str(selected_child.artifact_id),
+                "kind": "fabric.retrieval_summary",
+                "media_type": "application/json",
+                "manifest_profile_sha256": "malformed-profile",
+            },
+            selected_by_id,
+            kind="fabric.retrieval_summary",
+        )
+
+
+def test_materialization_input_basis_ignores_later_outputs_but_detects_source_view_change() -> None:
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _reconcile_materialization_input_basis,
+    )
+
+    source_input = InputRef(
+        artifact_id="sha256:" + "1" * 64,
+        role="data_ref",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    output_id = "sha256:" + "2" * 64
+    initial_basis = _reconcile_materialization_input_basis(
+        [source_input],
+        currently_published_refs=frozenset(),
+        existing_basis=None,
+    )
+
+    retry_inputs = [
+        source_input,
+        InputRef(
+            artifact_id=output_id,
+            role="production_data_quality_report",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        ),
+    ]
+    assert (
+        _reconcile_materialization_input_basis(
+            retry_inputs,
+            currently_published_refs=frozenset({output_id}),
+            existing_basis=initial_basis,
+        )
+        == initial_basis
+    )
+
+    changed_source_view = source_input.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "c" * 64}
+    )
+    with pytest.raises(RuntimeError, match="auto_materialization_input_basis_changed"):
+        _reconcile_materialization_input_basis(
+            [changed_source_view, retry_inputs[1]],
+            currently_published_refs=frozenset({output_id}),
+            existing_basis=initial_basis,
+        )
+
+
 def test_nl_pipeline_only_auto_attaches_default_production_data_for_serious_profiles(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1547,9 +1777,32 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
         registry_providers=_registry_providers(),
     )
 
-    try:
-        result = service._execute_nl_pipeline_for_contract_testing(
-            run_id="R_nl_materialize",
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
+
+    production_quality_writes: list[str] = []
+    original_authority_writer = nl_pipeline_module.write_runtime_authority_artifact
+
+    def _track_authority_write(
+        store_arg: object,
+        event_log: object,
+        payload: object,
+        opts: Any,
+        **fields: Any,
+    ):
+        if opts.kind == "runtime.production_data_quality_report":
+            production_quality_writes.append(opts.kind)
+        return original_authority_writer(store_arg, event_log, payload, opts, **fields)
+
+    monkeypatch.setattr(
+        nl_pipeline_module,
+        "write_runtime_authority_artifact",
+        _track_authority_write,
+    )
+
+    def _run_contract_pipeline(run_id: str) -> dict[str, Any]:
+        return service._execute_nl_pipeline_for_contract_testing(
+            run_id=run_id,
             nl_request="test request",
             context=_intent_context(requested_authority_level="dev"),
             domain_hint="fiscal",
@@ -1566,10 +1819,64 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
             governance_constraints_payload=[],
             expected_outputs_payload=[],
         )
+
+    tampered_snapshots: list[str] = []
+    baseline_quality_write_count = 0
+    try:
+        result = _run_contract_pipeline("R_nl_materialize")
+        assert production_quality_writes
+        positive_payload = captured["payload"]
+
+        original_put_json = store.put_json
+        tamper_snapshot = True
+
+        def _put_json_with_wrong_nested_profile(
+            obj: object,
+            opts: Any,
+            canon_spec: CanonSpec | None = None,
+            *,
+            return_selected_profile: bool = False,
+        ):
+            if tamper_snapshot and opts.kind == "fabric.data_snapshot":
+                assert isinstance(obj, DataSnapshot)
+                assert obj.quality_report_ref is not None
+                tampered_snapshots.append(str(obj.quality_report_ref.artifact_id))
+                invalid_ref = obj.quality_report_ref.model_copy(
+                    update={
+                        "manifest_profile_sha256": "sha256:" + "f" * 64,
+                    }
+                )
+                obj = obj.model_copy(update={"quality_report_ref": invalid_ref})
+            return original_put_json(
+                obj,
+                opts,
+                canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+
+        monkeypatch.setattr(store, "put_json", _put_json_with_wrong_nested_profile)
+        baseline_quality_write_count = len(production_quality_writes)
+        _run_contract_pipeline("R_nl_materialize_wrong_nested_profile")
     finally:
         service.close()
 
-    payload = captured["payload"]
+    assert tampered_snapshots
+    assert len(production_quality_writes) == baseline_quality_write_count, {
+        "baseline": baseline_quality_write_count,
+        "after": len(production_quality_writes),
+    }
+    negative_payload = captured["payload"]
+    negative_variant = negative_payload["params"]["llm_model_variants"][0]
+    assert (
+        "auto_materialization_failed:DataSnapshot selected nested reference profile differs from its parent: quality_report_ref"
+        in (negative_variant["notes"])
+    )
+    assert any(
+        step["action"] == "materialize_data_artifacts" and step["status"] == "warn"
+        for step in negative_variant["steps"]
+    )
+
+    payload = positive_payload
     assert result["contract_testing_authority"] == {
         "authority_scope": "contract_testing",
         "production_promotable": False,
@@ -1582,6 +1889,32 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
     assert "data_snapshot_ref" in inputs
     assert "input_bindings_ref" in inputs
     assert "registry_bundle_ref" in inputs
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.fabric import RetrievalSummary
+
+    snapshot_ref = ArtifactRef.model_validate(inputs["data_snapshot_ref"])
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(snapshot_ref.artifact_id))
+    )
+    assert snapshot.quality_report_ref is not None
+    assert snapshot.quality_report_ref.kind == RetrievalSummary.ARTIFACT_KIND
+    assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
+    summary_payload = from_canonical_bytes(store.get_bytes(snapshot.quality_report_ref.artifact_id))
+    summary = RetrievalSummary.model_validate(summary_payload)
+    assert summary.assessment_status == "not_assessed"
+    assert summary.source == "retrieval_service"
+    assert summary.source_refs
+    assert summary.source_refs[0].kind == "fabric.retrieval_payload"
+    assert summary.source_refs[0].manifest_profile_sha256 is not None
+    assert store.get_manifest(snapshot.quality_report_ref).kind == RetrievalSummary.ARTIFACT_KIND
+    snapshot_manifest = store.get_manifest(snapshot_ref)
+    assert any(
+        item.role in {"quality_report", "quality_report_ref"}
+        and item.artifact_id == snapshot.quality_report_ref.artifact_id
+        and item.manifest_profile_sha256 == snapshot.quality_report_ref.manifest_profile_sha256
+        for item in snapshot_manifest.inputs
+    )
 
 
 def test_nl_pipeline_can_run_simulated_llm_without_mock_fallback(
@@ -1707,11 +2040,115 @@ def test_nl_pipeline_can_run_simulated_llm_without_mock_fallback(
     assert all(event.amount == Decimal("0") for event in persisted_events.values())
 
 
+@pytest.mark.parametrize(
+    "change_as_of_on_retry", [False, True], ids=["stable-intent", "changed-as-of"]
+)
 def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
+    change_as_of_on_retry: bool,
 ) -> None:
     captured: dict[str, Any] = {}
+    authority_write_attempts: list[dict[str, Any]] = []
+    persisted_time_candidates: list[tuple[str | None, tuple[str, str] | None]] = []
+    mutable_as_of = {"value": "2026-05-12"}
+
+    class _MutableAsOf(str):
+        def __new__(cls, state: dict[str, str]) -> _MutableAsOf:
+            instance = super().__new__(cls, state["value"])
+            instance._state = state
+            return instance
+
+        def __str__(self) -> str:
+            return self._state["value"]
+
+        def strip(self, chars: str | None = None) -> str:
+            return self._state["value"].strip(chars)
+
+        def __deepcopy__(self, memo: dict[int, Any]) -> _MutableAsOf:
+            return self
+
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _persisted_runtime_quality_publication_times as original_persisted_times,
+    )
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        write_runtime_authority_artifact as original_authority_writer,
+    )
+
+    def _capture_persisted_times(
+        store: Any,
+        *,
+        output_artifact_id: str,
+        artifact_kind: str,
+        requested_as_of_time: str | None,
+    ) -> tuple[str, str] | None:
+        result = original_persisted_times(
+            store,
+            output_artifact_id=output_artifact_id,
+            artifact_kind=artifact_kind,
+            requested_as_of_time=requested_as_of_time,
+        )
+        if artifact_kind == "runtime.production_data_quality_report":
+            persisted_time_candidates.append((requested_as_of_time, result))
+        return result
+
+    def _capture_authority_write(
+        store: Any,
+        event_log: Any,
+        payload: Any,
+        opts: Any,
+        **authority_fields: Any,
+    ) -> Any:
+        attempt = {
+            "kind": opts.kind,
+            "attempt_observed_at": datetime.now(UTC).isoformat(),
+            "output_id": "sha256:"
+            + hashlib.sha256(
+                to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
+            ).hexdigest(),
+            "input_refs": [
+                {
+                    "artifact_id": str(item.artifact_id),
+                    "role": item.role,
+                    "manifest_profile_sha256": item.manifest_profile_sha256,
+                }
+                for item in opts.inputs
+            ],
+            "generated_at_argument": authority_fields.get("generated_at"),
+            "as_of_time_argument": authority_fields.get("as_of_time"),
+        }
+        authority_write_attempts.append(attempt)
+        result = original_authority_writer(
+            store,
+            event_log,
+            payload,
+            opts,
+            **authority_fields,
+        )
+        attempt["output_id"] = str(result.cas_ref.artifact_id)
+        attempt["publication_generated_at"] = result.identity_context.generated_at
+        attempt["publication_as_of_time"] = result.identity_context.as_of_time
+        if (
+            change_as_of_on_retry
+            and opts.kind == "runtime.production_data_quality_report"
+            and sum(
+                1
+                for item in authority_write_attempts
+                if item["kind"] == "runtime.production_data_quality_report"
+            )
+            == 1
+        ):
+            mutable_as_of["value"] = "2026-05-13"
+        return result
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control.nl_pipeline.write_runtime_authority_artifact",
+        _capture_authority_write,
+    )
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control.nl_pipeline._persisted_runtime_quality_publication_times",
+        _capture_persisted_times,
+    )
 
     def _capture_state(payload: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
         captured["payload"] = payload
@@ -1765,41 +2202,132 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     )
 
     persisted_report: dict[str, Any] = {}
+    persisted_quality_envelope: Any | None = None
+    production_quality_input_ids: set[str] = set()
+    normative_context = _normative_context()
+    if change_as_of_on_retry:
+        normative_context["as_of"] = _MutableAsOf(mutable_as_of)
+    pipeline_error: Exception | None = None
     try:
-        service._execute_nl_pipeline(
-            run_id="R_nl_normative",
-            nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
-            context=_normative_context(),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            execution_profile="research",
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
-        record = service._control_store.get_job(job_id)
-        payload = captured["payload"]
-        report_ref = payload["params"]["normative_applicability_report_ref"]
-        persisted_report = from_canonical_bytes(
-            service._artifact_store.get_bytes(ArtifactID(report_ref))
-        )
+        try:
+            service._execute_nl_pipeline(
+                run_id="R_nl_normative",
+                nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
+                context=normative_context,
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                execution_profile="research",
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
+        except Exception as exc:
+            if not change_as_of_on_retry:
+                raise
+            pipeline_error = exc
+
+        if not change_as_of_on_retry:
+            record = service._control_store.get_job(job_id)
+            payload = captured["payload"]
+            report_ref = payload["params"]["normative_applicability_report_ref"]
+            persisted_report = from_canonical_bytes(
+                service._artifact_store.get_bytes(ArtifactID(report_ref))
+            )
+            from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+            from polisyos.core.artifacts.manifest import ArtifactRef
+            from polisyos.core.contracts.fabric import DataSnapshot
+
+            production_quality_ref = ArtifactRef.model_validate(
+                payload["params"]["runtime_quality_evidence"]["production_data_quality"][
+                    "runtime_quality_artifact_refs"
+                ]["production_data_quality_report_ref"]
+            )
+            selected_snapshot_ref = ArtifactRef.model_validate(
+                payload["inputs"]["data_snapshot_ref"]
+            )
+            selected_snapshot_manifest, _ = read_core_manifest_profile(
+                service._artifact_store,
+                selected_snapshot_ref,
+            )
+            selected_snapshot = DataSnapshot.model_validate(
+                from_canonical_bytes(
+                    service._artifact_store.get_bytes(selected_snapshot_ref.artifact_id)
+                )
+            )
+            production_quality_manifest, _ = read_core_manifest_profile(
+                service._artifact_store,
+                production_quality_ref,
+            )
+            assert production_quality_manifest.authority is not None
+            from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
+
+            persisted_quality_envelope = EvidenceAuthorityEnvelope.model_validate(
+                from_canonical_bytes(
+                    service._artifact_store.get_bytes(
+                        ArtifactID(production_quality_manifest.authority.authority_envelope_ref)
+                    )
+                )
+            )
+            normative_manifest = service._artifact_store.get_manifest(ArtifactID(report_ref))
+            production_quality_input_ids = {
+                str(item.artifact_id) for item in production_quality_manifest.inputs
+            }
     finally:
         service.close()
+
+    if change_as_of_on_retry:
+        production_quality_attempts = [
+            attempt
+            for attempt in authority_write_attempts
+            if attempt["kind"] == "runtime.production_data_quality_report"
+        ]
+        assert pipeline_error is not None, [
+            (
+                item.get("as_of_time_argument"),
+                item.get("output_id"),
+                item.get("generated_at_argument"),
+                item.get("publication_generated_at"),
+            )
+            for item in production_quality_attempts
+        ]
+        assert isinstance(pipeline_error, ValueError)
+        assert str(pipeline_error) == "existing authority identity mismatch"
+        assert len(production_quality_attempts) >= 2, repr(pipeline_error)
+        first_quality_attempt, changed_as_of_attempt = production_quality_attempts[:2]
+        assert first_quality_attempt["input_refs"] == changed_as_of_attempt["input_refs"]
+        assert first_quality_attempt["output_id"] == changed_as_of_attempt["output_id"]
+        assert first_quality_attempt["as_of_time_argument"] == "2026-05-12"
+        assert changed_as_of_attempt["as_of_time_argument"] == "2026-05-13"
+        assert first_quality_attempt["publication_as_of_time"] == "2026-05-12"
+        assert persisted_time_candidates[0] == ("2026-05-12", None)
+        assert ("2026-05-13", None) in persisted_time_candidates
+        assert "publication_generated_at" not in changed_as_of_attempt
+        assert "publication_as_of_time" not in changed_as_of_attempt
+        assert (
+            changed_as_of_attempt["attempt_observed_at"]
+            != (first_quality_attempt["attempt_observed_at"])
+        )
+        return
 
     payload = captured["payload"]
     params = payload["params"]
     report_ref = params["normative_applicability_report_ref"]
+    production_quality_ref = ArtifactRef.model_validate(
+        params["runtime_quality_evidence"]["production_data_quality"][
+            "runtime_quality_artifact_refs"
+        ]["production_data_quality_report_ref"]
+    )
 
     assert report_ref.startswith("sha256:")
     assert params["runtime_quality_refs"]["normative_applicability_report_ref"] == report_ref
@@ -1809,6 +2337,75 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     )
     assert persisted_report["status"] == "pass"
     assert persisted_report["applied_norms"][0]["norm_id"] == "norm.ua.credit_eligibility"
+    normative_edges = list(normative_manifest.inputs)
+    assert normative_edges
+    assert all(edge.manifest_profile_sha256 is not None for edge in normative_edges)
+    from polisyos.core.contracts.fabric import (
+        data_snapshot_reference_fields,
+        data_snapshot_reference_input_roles,
+    )
+
+    for field_name in data_snapshot_reference_fields():
+        nested_ref = getattr(selected_snapshot, field_name)
+        if nested_ref is None:
+            continue
+        parent_edges = [
+            edge
+            for edge in selected_snapshot_manifest.inputs
+            if edge.role in data_snapshot_reference_input_roles(field_name)
+            and edge.artifact_id == nested_ref.artifact_id
+        ]
+        assert len(parent_edges) == 1
+        assert parent_edges[0].manifest_profile_sha256 == nested_ref.manifest_profile_sha256
+        report_edges = [
+            edge
+            for edge in normative_edges
+            if edge.role == field_name and edge.artifact_id == nested_ref.artifact_id
+        ]
+        assert len(report_edges) == 1
+        assert report_edges[0].manifest_profile_sha256 == nested_ref.manifest_profile_sha256
+    assert str(production_quality_ref.artifact_id) not in production_quality_input_ids
+    assert str(selected_snapshot_ref.artifact_id) in production_quality_input_ids
+    production_quality_attempts = [
+        attempt
+        for attempt in authority_write_attempts
+        if attempt["kind"] == "runtime.production_data_quality_report"
+    ]
+    assert len(production_quality_attempts) >= 2
+    first_quality_attempt = production_quality_attempts[0]
+    assert persisted_quality_envelope is not None
+    assert persisted_quality_envelope.artifact_ref == str(production_quality_ref.artifact_id)
+    assert persisted_quality_envelope.cas_ref == str(production_quality_ref.artifact_id)
+    assert persisted_quality_envelope.artifact_kind == production_quality_ref.kind
+    assert (
+        persisted_quality_envelope.generated_at == first_quality_attempt["publication_generated_at"]
+    )
+    assert persisted_quality_envelope.as_of_time == first_quality_attempt["publication_as_of_time"]
+    assert any(
+        candidate
+        == (
+            first_quality_attempt["publication_generated_at"],
+            first_quality_attempt["publication_as_of_time"],
+        )
+        for _requested_as_of, candidate in persisted_time_candidates
+    )
+    for retry_attempt in production_quality_attempts[1:]:
+        assert retry_attempt["input_refs"] == first_quality_attempt["input_refs"]
+        assert retry_attempt["output_id"] == first_quality_attempt["output_id"]
+        assert (
+            retry_attempt["publication_generated_at"]
+            == (first_quality_attempt["publication_generated_at"])
+        )
+        assert (
+            retry_attempt["publication_as_of_time"]
+            == (first_quality_attempt["publication_as_of_time"])
+        )
+        assert retry_attempt["attempt_observed_at"] != first_quality_attempt["attempt_observed_at"]
+    assert all(
+        item["artifact_id"] != attempt["output_id"]
+        for attempt in production_quality_attempts
+        for item in attempt["input_refs"]
+    )
     assert record is not None
     assert record.progress["details"]["normative_applicability_report_ref"] == report_ref
     assert (
@@ -4003,6 +4600,21 @@ def test_nl_pipeline_updates_control_job_progress(
         payload_ref=None,
         submitted_by="tester",
     )
+    progress_write_errors: list[Exception] = []
+    original_update_progress = service._control_store.update_progress_state
+
+    def _track_progress_write(**kwargs: Any) -> None:
+        try:
+            original_update_progress(**kwargs)
+        except Exception as exc:
+            progress_write_errors.append(exc)
+            raise
+
+    monkeypatch.setattr(
+        service._control_store,
+        "update_progress_state",
+        _track_progress_write,
+    )
 
     try:
         service._execute_nl_pipeline(
@@ -4031,18 +4643,33 @@ def test_nl_pipeline_updates_control_job_progress(
         service.close()
 
     assert record is not None
+    assert not progress_write_errors, [str(error) for error in progress_write_errors]
     assert record.progress["phase"] == "scientist_workflow_completed"
     assert record.progress["run_id"] == "R_nl_progress"
     assert record.progress["steps_completed"] > 0
     assert record.progress["last_step"]["action"] == "run_experiment"
     assert record.progress["variants"]["simulated_qwen_1"]["status"] == "completed"
-    assert record.progress["variants"]["simulated_qwen_1"]["auto_data_source_refs"][
-        "data_snapshot_ref"
-    ].startswith("sha256:")
+    selected_auto_refs = record.progress["variants"]["simulated_qwen_1"]["auto_data_source_refs"]
+    assert selected_auto_refs["data_snapshot_ref"].startswith("sha256:")
+    assert selected_auto_refs["input_bindings_ref"].startswith("sha256:")
+    assert selected_auto_refs["registry_bundle_ref"].startswith("sha256:")
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    selected_snapshot_ref = ArtifactRef.model_validate(
+        captured["payload"]["inputs"]["data_snapshot_ref"]
+    )
+    assert str(selected_snapshot_ref.artifact_id) == selected_auto_refs["data_snapshot_ref"]
+    assert selected_snapshot_ref.manifest_profile_sha256 is not None
     assert record.progress["provider_preflight"] == {
         "status": "skipped",
         "reason": "simulation_mode",
     }
+    assert record.progress["runtime_diagnostic_event_status"] == "not_persisted"
+    assert record.progress["diagnostic_event_scope_status"] == "not_established"
+    assert (
+        record.progress["runtime_diagnostic_event_limitation_code"]
+        == "control_job_execution_binding_not_established"
+    )
 
 
 def test_nl_pipeline_bridges_scientist_trace_events_to_control_progress(

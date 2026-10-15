@@ -12,7 +12,12 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -187,8 +192,9 @@ def prepare_trivial_input_bindings(
         store,
         state=state,
         step=step,
+        return_selected_profile=True,
     )
-    state_snapshot_ref = StateSnapshotRef(artifact_id=state_ref.artifact_id)
+    state_snapshot_ref = StateSnapshotRef.model_validate(state_ref.model_dump(mode="python"))
     data_snapshot_ref = store.put_json(
         DataSnapshot(data_ref=state_snapshot_ref),
         PutOptions(
@@ -198,6 +204,7 @@ def prepare_trivial_input_bindings(
                 name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=[input_ref_from_artifact_ref(state_snapshot_ref, role="data_ref")],
         ),
         return_selected_profile=True,
     )
@@ -215,6 +222,20 @@ def prepare_trivial_input_bindings(
                 name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
                 version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    data_snapshot_ref,
+                    role="input.data_snapshot_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    registry_bundle_ref,
+                    role="input.registry_bundle_ref",
+                ),
+                input_ref_from_artifact_ref(
+                    state_snapshot_ref,
+                    role="artifact.bound_state_snapshot_ref",
+                ),
+            ],
         ),
         return_selected_profile=True,
     )

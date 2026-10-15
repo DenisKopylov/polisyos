@@ -4,13 +4,23 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from math import isfinite
+from typing import Any, Literal
 
-from pydantic import ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    ValidationError,
+    field_validator,
+)
 
-from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import CoreArtifactOwnerProfile, SchemaInfo
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, RetrievalSummary
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
@@ -23,7 +33,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
@@ -33,7 +42,6 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
-logger = get_logger(__name__)
 _DATA_PLANE_GATE_LOAD_ERRORS = (
     AttributeError,
     KeyError,
@@ -51,6 +59,23 @@ _QUALITY_TIER_MAP: dict[str, QualityTier] = {
     "gold": QualityTier.GOLD,
     "platinum": QualityTier.PLATINUM,
 }
+_QUALITY_REPORT_OWNER = CoreArtifactOwnerProfile(
+    kind="fabric.quality_report",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+_RETRIEVAL_SUMMARY_OWNER = CoreArtifactOwnerProfile(
+    kind=RetrievalSummary.ARTIFACT_KIND,
+    media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+    schema_variants=(
+        SchemaInfo(
+            name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+            version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+        ),
+    ),
+    payload_schema_version_by_manifest="not_applicable",
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_data_plane_gate@1.0.0"),
@@ -92,7 +117,8 @@ class DataPlaneGateNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+
         data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
         if data_snapshot_ref is None:
             error = NodeError(
@@ -103,8 +129,11 @@ class DataPlaneGateNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            snapshot_payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(snapshot_payload)
+            snapshot = validate_core_model_json_artifact(
+                DataSnapshot,
+                ctx.store,
+                data_snapshot_ref,
+            )
         except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
@@ -116,9 +145,32 @@ class DataPlaneGateNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        profile = _resolve_validation_profile(state.params.get("governance_profile"))
+        try:
+            profile = _resolve_validation_profile(state.params.get("governance_profile"))
+        except (TypeError, ValueError) as exc:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=f"Invalid supplied governance profile: {exc}",
+                details={"error_type": exc.__class__.__name__},
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
         pii_scan = _extract_pii_summary(state, snapshot)
-        quality_report, quality_report_degraded = _load_quality_report(ctx, state, snapshot)
+        try:
+            quality_report, quality_report_degraded, quality_not_assessed = _load_quality_report(
+                ctx, state, snapshot
+            )
+        except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=f"Unable to admit selected Fabric quality report: {exc}",
+                details={
+                    "error_type": exc.__class__.__name__,
+                    "artifact_id": str(snapshot.quality_report_ref.artifact_id)
+                    if snapshot.quality_report_ref is not None
+                    else None,
+                },
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
 
         pass_state: dict[str, Any] = {
             "_store": ctx.store,
@@ -145,6 +197,23 @@ class DataPlaneGateNode:
         issues: list[ComplianceIssue] = []
         issues.extend(QualityGatePass(force_run=True).validate(pass_ctx))
         issues.extend(PIICheckPass().validate(pass_ctx))
+        if quality_not_assessed:
+            issues.append(
+                ComplianceIssue(
+                    pass_id="quality",
+                    path=["data", "quality"],
+                    message=("A retrieval summary is present, but data quality was not assessed."),
+                    severity=(
+                        IssueSeverity.BLOCKER
+                        if profile.level.value == "strict"
+                        else IssueSeverity.WARNING
+                    ),
+                    code="QUALITY_ASSESSMENT_NOT_ESTABLISHED",
+                    suggestion=(
+                        "Provide an owner-validated DataQualityReport for quality-gated use."
+                    ),
+                )
+            )
 
         blocker_count = sum(1 for issue in issues if issue.severity == IssueSeverity.BLOCKER)
         issue_payload = [_issue_to_payload(issue) for issue in issues]
@@ -203,29 +272,57 @@ class DataPlaneGateNode:
 
 
 def _resolve_validation_profile(raw: Any) -> ValidationProfile:
+    if raw is None:
+        return ValidationProfile.mvp()
     if isinstance(raw, ValidationProfile):
         return raw
     if isinstance(raw, dict):
+        allowed_fields = {"level", "pass_ids", "thresholds", "short_circuit_on_blocker"}
+        unexpected_fields = sorted(set(raw) - allowed_fields)
+        if unexpected_fields:
+            raise ValueError(f"unsupported fields: {', '.join(unexpected_fields)}")
+        if raw.get("level") not in {"fast", "mvp", "strict"}:
+            raise ValueError("level must be one of fast, mvp, or strict")
+        pass_ids = raw.get("pass_ids", [])
+        if not isinstance(pass_ids, (list, tuple, set, frozenset)) or any(
+            not isinstance(pass_id, str) for pass_id in pass_ids
+        ):
+            raise ValueError("pass_ids must be a sequence of strings")
+        thresholds = raw.get("thresholds", {})
+        if not isinstance(thresholds, dict) or any(
+            not isinstance(name, str)
+            or isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not isfinite(value)
+            for name, value in thresholds.items()
+        ):
+            raise ValueError("thresholds must map strings to numbers")
+        if "short_circuit_on_blocker" in raw and not isinstance(
+            raw["short_circuit_on_blocker"], bool
+        ):
+            raise ValueError("short_circuit_on_blocker must be a boolean")
         try:
             return ValidationProfile.from_dict(raw)
-        except (TypeError, ValueError):
-            return ValidationProfile.mvp()
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("profile dictionary is malformed") from exc
     if isinstance(raw, str):
         token = raw.strip().lower()
-        if token == "fast":
-            return ValidationProfile.fast()
-        if token == "strict":
-            return ValidationProfile.strict()
-    return ValidationProfile.mvp()
+        builders = {
+            "fast": ValidationProfile.fast,
+            "mvp": ValidationProfile.mvp,
+            "strict": ValidationProfile.strict,
+        }
+        builder = builders.get(token)
+        if builder is not None:
+            return builder()
+        raise ValueError("profile name must be fast, mvp, or strict")
+    raise TypeError("profile must be absent, a ValidationProfile, a name, or a mapping")
 
 
 def _extract_pii_summary(
     state: ExperimentState,
     snapshot: DataSnapshot,
 ) -> dict[str, Any] | None:
-    existing = state.params.get("pii_scan_results")
-    if isinstance(existing, dict):
-        return existing
     if isinstance(snapshot.pii_scan_summary, dict):
         return dict(snapshot.pii_scan_summary)
     return None
@@ -235,28 +332,26 @@ def _load_quality_report(
     ctx: ExecutionContext,
     state: ExperimentState,
     snapshot: DataSnapshot,
-) -> tuple[Any | None, dict[str, object] | None]:
-    from polisyos.core.artifacts import load_core_json_artifact
+) -> tuple[Any | None, dict[str, object] | None, bool]:
+    from polisyos.core.artifacts import validate_owned_core_model_json_artifact
+
     if snapshot.quality_report_ref is None:
-        return None, None
-    try:
-        payload = load_core_json_artifact(ctx.store, snapshot.quality_report_ref)
-    except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
-        return None, emit_degraded_path(
-            component="scientist.data_plane_gate",
-            operation="load_quality_report",
-            reason="quality_report_load_failed",
-            exc=exc,
-            details={
-                "run_id": state.run_id,
-                "artifact_id": str(snapshot.quality_report_ref.artifact_id),
-            },
-            log=logger,
-            metrics=ctx.metrics,
+        return None, None, False
+    if snapshot.quality_report_ref.kind == RetrievalSummary.ARTIFACT_KIND:
+        validate_owned_core_model_json_artifact(
+            RetrievalSummary,
+            ctx.store,
+            snapshot.quality_report_ref,
+            expected_owner=_RETRIEVAL_SUMMARY_OWNER,
         )
-    if isinstance(payload, dict):
-        return _quality_report_from_dict(payload), None
-    return payload, None
+        return None, None, True
+    selected = validate_owned_core_model_json_artifact(
+        _QualityReportArtifact,
+        ctx.store,
+        snapshot.quality_report_ref,
+        expected_owner=_QUALITY_REPORT_OWNER,
+    )
+    return _quality_report_from_dict(selected.value.model_dump(mode="python")), None, False
 
 
 @dataclass(frozen=True)
@@ -265,6 +360,58 @@ class _FreshnessProxy:
     data_age_seconds: int | None
     cache_age_seconds: int | None
     message: str
+
+
+class _QualityReportFreshnessArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    is_fresh: bool
+    level: Literal["fresh", "stale"]
+    data_age_seconds: StrictInt | None
+    message: StrictStr
+    fetched_at: StrictStr
+
+    @field_validator("fetched_at")
+    @classmethod
+    def _validate_timestamp(cls, value: str) -> str:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError("quality report timestamp must include a timezone")
+        return value
+
+
+class _QualityReportViolationArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    rule_type: StrictStr
+    field_name: StrictStr | None
+    severity: Literal["warning", "error"]
+    message: StrictStr
+    expected: StrictStr
+    actual: StrictStr
+
+
+class _QualityReportArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    dataset_id: StrictStr
+    schema_id: StrictStr
+    score: StrictFloat
+    tier: Literal["unverified", "bronze", "silver", "gold", "platinum"]
+    grade: Literal["A", "B", "C", "D", "F"]
+    freshness_status: _QualityReportFreshnessArtifact
+    violations: list[_QualityReportViolationArtifact]
+    validated_at: StrictStr
+    row_count: StrictInt = Field(ge=0)
+    quality_flags: list[StrictStr]
+
+    @field_validator("validated_at")
+    @classmethod
+    def _validate_timestamp(cls, value: str) -> str:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError("quality report timestamp must include a timezone")
+        return value
 
 
 @dataclass(frozen=True)

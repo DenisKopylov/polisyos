@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts import CanonInfo, PutOptions, SchemaInfo
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
     ParameterSpec,
@@ -21,6 +23,7 @@ from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, M
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.observation.contracts import StrategicResponseChannel
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import TrinityLoadError
 from polisyos.lex import (
     InterventionKnobSpec,
     LexInterventionCompiler,
@@ -57,8 +60,10 @@ from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search i
     _candidate_payload_without_hash,
     _evaluate_candidate_payload,
     _persist_frontier_report,
+    _resolve_search_candidate,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
@@ -83,6 +88,31 @@ def test_hierarchical_policy_search_adapter_is_scientist_owned() -> None:
     assert HierarchicalPolicySearchAdapter.__module__ == (
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
     )
+
+
+def test_search_candidate_route_refuses_same_trinity_bytes_with_wrong_schema(
+    execution_context,
+) -> None:
+    store = execution_context.store
+    bundle = _bundle()
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    trinity_ref = store.put_bytes(
+        to_canonical_bytes(bundle, spec),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name="polisyos.test.TrinityBundle", version="9.9"),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="R_search_wrong_trinity_owner",
+        inputs={"trinity_bundle_ref": trinity_ref},
+    )
+
+    with pytest.raises(TrinityLoadError, match="manifest does not match"):
+        _resolve_search_candidate(execution_context, state)
 
 
 def _selector() -> SelectorPredicate:
@@ -676,6 +706,7 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
 
     real_run_search = HierarchicalPolicySearchAdapter.run_search
     captured_results = []
+    captured_run_contexts = []
 
     def _capture_search(adapter, *args, **kwargs):
         result = real_run_search(adapter, *args, **kwargs)
@@ -689,6 +720,9 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
         candidate_payload,
         context,
     ):
+        captured_run_contexts.append(
+            (context.get("run_id"), context.get("workflow_run_id"), context.get("loop_id"))
+        )
         transfer_record = context.get("candidate_only_transfer")
         if transfer_record is not None:
             assert transfer_record["generic_source_objectives_used"] is False
@@ -725,6 +759,11 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
 
     assert outcome.status == "ok"
     assert len(captured_results) == 1
+    assert captured_run_contexts
+    assert all(
+        run_context == (loop_id, minimal_state.run_id, loop_id)
+        for run_context in captured_run_contexts
+    )
     parameter_results = captured_results[0].state.parameter_search_results
     assert len(parameter_results) == 1
     history = next(iter(parameter_results.values())).history

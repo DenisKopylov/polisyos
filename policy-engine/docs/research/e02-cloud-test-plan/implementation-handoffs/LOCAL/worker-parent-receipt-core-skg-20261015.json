@@ -1,0 +1,436 @@
+{
+  "handoff_version": 1,
+  "kind": "candidate_source_and_verification_handoff",
+  "slice": "worker-parent-receipt-core-skg-20261015",
+  "author_role": "candidate author; independent G acceptance and formal finding adjudication remain external",
+  "finding_ids": [
+    "B61"
+  ],
+  "formal_adjudication": {
+    "closure_ids": [],
+    "status": "not_adjudicated_by_author"
+  },
+  "source_slice": {
+    "base_commit": "3fb7573012f8785b1c40e1ecd9b1477e0a293020",
+    "base_tree": "fe5833fb5ce8eaaeab5f0779eb4897a62fc70ff9",
+    "candidate_commit": "28db55b4aba3c3c5e49df063851d33dd7df55977",
+    "candidate_tree": "5e26cf7a558fed2c569cba6367d081623fa4f113",
+    "candidate_parent": "3fb7573012f8785b1c40e1ecd9b1477e0a293020",
+    "committed_source_test_path_count": 26,
+    "path_readback": "All 26 commit blobs were read from the exact commit and SHA-256 matched their corresponding manifest entries and current worktree bytes.",
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "git_blob_oid": "3cb536a2e12ec11d6cc2f29b38303c31e924853d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/trace/__init__.py",
+        "git_blob_oid": "2f670afca503602fc73109b1996321ddef9d6ea6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/trace/record.py",
+        "git_blob_oid": "e0f4c05acf14e15955585fdce3ef71b44d7edea2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/trace/sink.py",
+        "git_blob_oid": "da117a79f9478d594e6d2e09da5ae7c17ef4f98a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "git_blob_oid": "20814da92bf68bca7f475f6649437a75daed3417"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "git_blob_oid": "a0e61d67fccb596b8401ed693fbb77f4d97b8c52"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "git_blob_oid": "f3d5e534e3a63176af2af97ee407574a537e2b28"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "git_blob_oid": "4733c57dfe65ba424b21ec658079f64f8028408b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+        "git_blob_oid": "82b06d99f892efe7474cd441284c25a36be138f6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/ray_runner.py",
+        "git_blob_oid": "877e513864cf1073b1b6d8f203be272eef98201a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "git_blob_oid": "d0308d7df876119dd98e63e15b348881e50ddbdd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/task_router.py",
+        "git_blob_oid": "2ba06e952d583584077742d52b98a5f484854758"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py",
+        "git_blob_oid": "f1175ad12beaa020698437b1e153ddeff8118242"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+        "git_blob_oid": "d0a651caa7e973b7d9d7b25d42563fffe4d78499"
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "git_blob_oid": "150236c844a589eaa76b7aa090a29d1c11a03826"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+        "git_blob_oid": "2fd6a7f68d7b77621403b8e803f6e97e8d452638"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/trace/test_record.py",
+        "git_blob_oid": "a17c48e3750cfac0e332bc941c703255694c3934"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/trace/test_sink.py",
+        "git_blob_oid": "8277c3c9abfab008479a04076ab35b5a773e24b0"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "git_blob_oid": "9f75ceb93c1f2fe0d56edf264a9d406bd18ef7a1"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "git_blob_oid": "d41452b0a70f0619d60e4690d24c1ad967d9100a"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+        "git_blob_oid": "834da5de76a8dec963513d843e2c827e7d4eb3d2"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_task_router.py",
+        "git_blob_oid": "361d89f88bfece0556acda1707f1773426ed16c4"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_temporal_runner_preflight.py",
+        "git_blob_oid": "15eee93737ac6a3c36dc63198d408ec1f679e40b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+        "git_blob_oid": "31b78286e362101a17f5037dab6de1a5377b4569"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "git_blob_oid": "f187283597488e90b6d2fc34ea2ab437369ea7db"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "git_blob_oid": "c665aba2f0c2dc14cb62755d24e1b3201dd1cc6d"
+      }
+    ],
+    "later_disjoint_head_observed": {
+      "commit": "511095b8080859c63278e17c5602b3857d85e710",
+      "tree": "87e5fc4e837f3566f516383da327eeff56eab23d",
+      "note": "Current branch includes later disjoint work; this does not change the slice base or candidate identity."
+    }
+  },
+  "source_freeze_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/post-res03-owner-profile-fix-parent-state-r2-current-28-manifest.jsonl",
+    "sha256": "37ed06acba84278867179e7e28bb6ab5dc3745be32dbfa02add7bd5df1c2152c",
+    "entries": 28,
+    "roles": {
+      "committed_source_and_test_entries": 26,
+      "decision_packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/worker-transport-ownership-temporal.json",
+        "sha256": "8584f992c3b3e1a84e6e05783b8bb07ebca54583d084d1fe57df51ac7ba019d6"
+      },
+      "retained_prior_host_runtime_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/host-worker-runtime-tests.txt",
+        "sha256": "74b38e0149a66031e78458742ec4fc5f6fc986bd234055b306e6ef25ee9093df"
+      }
+    },
+    "entry_validation": "28/28 current file bytes match the frozen manifest; 26/26 also match candidate commit blobs."
+  },
+  "decision_packet_reference": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/worker-transport-ownership-temporal.json",
+    "sha256": "8584f992c3b3e1a84e6e05783b8bb07ebca54583d084d1fe57df51ac7ba019d6",
+    "meaning": "Historical reuse-first and Temporal contract decision packet; retain unchanged. This handoff supplies the later exact source commit and replay identity, superseding its earlier candidate-source identity fields."
+  },
+  "implemented_path": {
+    "producer": "Worker execution constructs a typed, invocation-bound staged receipt carrying worker events and the allowed RunContext operations; the timeout-spawn path and LocalPool result route are exercised by unit tests.",
+    "artifact_and_provenance": "Receipt binds the issued invocation, dispatched parameters/digest, selected owner snapshot and exact event/operation payload. It remains candidate work data and confers no external issuer, custody, or publication authority.",
+    "bridge": "Parent RunContext.merge_worker_events verifies the current invocation/owner and receipt payload, serializes state transitions, appends and fsyncs the trace batch, reads back and validates the exact durable suffix, then publishes the candidate manifest/owner state.",
+    "consumer_and_recovery": "Parent RunContext consumes the receipt; exact-prefix resume/recovery and terminal finalize/suspend paths reject stale, partial, malformed, replayed, or lifecycle-forged receipts before mutation.",
+    "surface_boundary": "Local worker/TaskRouter-to-parent RunContext path is covered by focused tests. This evidence is not a production publication/API/dashboard authority claim."
+  },
+  "author_deciding_replay": {
+    "profile": "macOS native (pytest platform darwin); existing policy-engine/.venv; CPython 3.14.3; pytest 9.0.2; OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1.",
+    "modules": [
+      {
+        "module": "core.run_context",
+        "passed": 58,
+        "skipped": 0
+      },
+      {
+        "module": "core.trace.record",
+        "passed": 4,
+        "skipped": 0
+      },
+      {
+        "module": "core.trace.sink",
+        "passed": 4,
+        "skipped": 0
+      },
+      {
+        "module": "worker.activity",
+        "passed": 42,
+        "skipped": 0
+      },
+      {
+        "module": "ray.unit",
+        "passed": 8,
+        "skipped": 0
+      },
+      {
+        "module": "worker.task_router",
+        "passed": 9,
+        "skipped": 0
+      },
+      {
+        "module": "temporal.preflight",
+        "passed": 2,
+        "skipped": 0
+      },
+      {
+        "module": "worker.pool",
+        "passed": 16,
+        "skipped": 0
+      },
+      {
+        "module": "retry",
+        "passed": 82,
+        "skipped": 71
+      },
+      {
+        "module": "skg.snapshot_replay",
+        "passed": 49,
+        "skipped": 0
+      }
+    ],
+    "junit_total": 345,
+    "junit_counts": {
+      "passed": 274,
+      "skipped": 71,
+      "failed": 0,
+      "errored": 0
+    },
+    "pytest_elapsed_seconds": 126.75,
+    "external_wall_seconds": 130.85,
+    "warnings": 2,
+    "skip_reasons": [
+      {
+        "count": 23,
+        "reason": "Darwin timed execution admits canonical spawn nodes, not thread fallback"
+      },
+      {
+        "count": 6,
+        "reason": "Linux child subreaper contract"
+      },
+      {
+        "count": 6,
+        "reason": "actual Linux RLIMIT descriptor oracle"
+      },
+      {
+        "count": 2,
+        "reason": "arbitrary-node timeout is verified on the native Linux fork route"
+      },
+      {
+        "count": 6,
+        "reason": "control-exception transport is verified on the native Linux fork route"
+      },
+      {
+        "count": 16,
+        "reason": "native Linux fork timeout worker required"
+      },
+      {
+        "count": 1,
+        "reason": "native Linux fork worker required"
+      },
+      {
+        "count": 10,
+        "reason": "native Linux fork worker unavailable"
+      },
+      {
+        "count": 1,
+        "reason": "process-start failure transport is verified on the native Linux fork route"
+      }
+    ],
+    "command_and_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/focused-worker-core-skg-r3.run.txt",
+      "sha256": "0fb668d6a5c17152cf309d3e5e4aadea7c077a9892dad804f5561f99b31b07c7"
+    },
+    "complete_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/focused-worker-core-skg-r3.stdout.txt",
+      "sha256": "7c918ac4658186307d55dd535aaa28019653563b329c7808f7d98580617cd184"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/focused-worker-core-skg-r3.junit.xml",
+      "sha256": "2f29859ff9474964eee89ce2865fb73f4a8c03551bca2a24830d359ac1227bd2"
+    },
+    "run_to_source_binding": "Replay used the frozen 28-entry manifest content; after source commit, every committed path was read back and verified against the same file SHA-256 values."
+  },
+  "skip_interpretation": {
+    "classification": "All 71 skips are explicit Darwin/native-Linux boundaries in retry tests; they are not green evidence for Linux fork, subreaper, RLIMIT, arbitrary-node timeout, or control-exception behavior.",
+    "reasons_are_fully_enumerated_above": true,
+    "native_linux_current_source_replay": "UNRUN"
+  },
+  "independent_review": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/parent-state-r2-independent-review.json",
+      "sha256": "c5d3df7334ae6961590065d5ff4ff9e841708951fa122436c352a3e0d4252989"
+    },
+    "reviewed_snapshot_head": "2c08961903c44f92daf762048e37e2ac79abf6ac",
+    "verdict": "BOUNDED_GO_FOR_PARENT_STATE_TRANSITION_REPAIR",
+    "scope": "Independent read-only delta review of the frozen 28-path Core/worker source; not G acceptance, not a whole-runtime or global E02 finding closure.",
+    "independent_deciding_outputs": [
+      {
+        "result": "62 passed",
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/core-context-and-trace-record-r2-independent.txt",
+          "sha256": "308072a26efd739625da1ff164ecb2f0f4615f36bf93457c08b5a989eb319a16"
+        }
+      },
+      {
+        "result": "6/6 lifecycle/readback race selectors passed; 52 deselected",
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/r2-transition-and-readback-focused.txt",
+          "sha256": "40dd14eecca7ff21979eaf08f2a40e91f69d58d37e2030d205dea86c0e838834"
+        }
+      },
+      {
+        "result": "Actual threaded merge/finalize/update/suspend probes pass after source repair",
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/parent-transition-r2-concurrency-probes.json",
+          "sha256": "fd44639429b939f57032d25f71f8b6607775f2a728a3e066269580f4261eaf5f"
+        }
+      }
+    ]
+  },
+  "adversarial_recovery_and_removal_controls": {
+    "test_file": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+    "test_file_sha256": "983a27f6e093a64f45b0ba51a265eac666d4f0dea72115aff161889459c99e58",
+    "full_current_junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/focused-worker-core-skg-r3.junit.xml@2f29859ff9474964eee89ce2865fb73f4a8c03551bca2a24830d359ac1227bd2",
+    "selectors": [
+      "test_worker_receipt_recovers_typed_operation_prefix_without_reapplying_effects",
+      "test_worker_trace_receipt_recovers_only_an_exact_complete_record_prefix",
+      "test_incomplete_worker_receipt_refuses_resume_and_finalization",
+      "test_resume_recovers_exact_incomplete_worker_prefix_without_double_applying_manifest_ops",
+      "test_worker_trace_receipt_concurrent_replay_is_admitted_once",
+      "test_worker_trace_receipt_refuses_malformed_tail_without_mutation",
+      "test_worker_trace_receipt_refuses_stale_or_lifecycle_input_without_mutation",
+      "test_worker_merge_requires_exact_durable_batch_readback",
+      "test_worker_merge_readback_failure_preserves_receipt_for_exact_resume_recovery"
+    ],
+    "reviewed_race_selectors": [
+      "test_worker_merge_wins_run_state_lease_before_manifest_update",
+      "test_manifest_update_wins_run_state_lease_and_refuses_stale_worker_dispatch",
+      "test_finalize_wins_run_state_lease_and_refuses_late_worker_dispatch",
+      "test_suspend_wins_run_state_lease_and_refuses_late_worker_dispatch",
+      "test_worker_merge_requires_exact_durable_batch_readback",
+      "test_worker_merge_readback_failure_preserves_receipt_for_exact_resume_recovery"
+    ],
+    "independent_race_test_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/r2-transition-and-readback-focused.txt@40dd14eecca7ff21979eaf08f2a40e91f69d58d37e2030d205dea86c0e838834"
+  },
+  "preserved_prior_reds_and_race_falsifiers": [
+    {
+      "classification": "pre-fix Core lifecycle race; source defect reproduced, then fixed with one shared parent state lease",
+      "falsifier": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/finalize-merge-race-falsifier.json",
+        "sha256": "0e7062f57729974e87d3d725bece04ab3ef8749c72cd7804faac1b5bc9ca81e3"
+      },
+      "observed": "Finalize/terminal event preceded worker receipt append; receipt was then appended after terminal and final parent state was inconsistent."
+    },
+    {
+      "classification": "pre-fix stale-owner race; source defect reproduced, then fixed and covered by ordered lease tests",
+      "falsifier": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-parent-receipt-independent-20261015/manifest-update-merge-race-falsifier.json",
+        "sha256": "52fc11a7f43ba0be5e7f34337a32463906210fd8d8b496c02e765d4c386eee77"
+      },
+      "observed": "Manifest owner update interleaved with merge; receipt bound the prior owner while merge published over the newer snapshot."
+    },
+    {
+      "classification": "initial Core fixture exposed lifecycle-lock side effect; repaired and rerun",
+      "red": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/parent-state-transition-r2.test.txt",
+        "sha256": "3c712a20a4565ece23c9aade5e8bd08bc73b8a805428cbdd676d33050e47ebdf"
+      },
+      "red_result": "1 failed, 57 passed: completed legacy read unexpectedly created finalize lock.",
+      "green": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/parent-state-transition-r3.test.txt",
+        "sha256": "265687eff201cff1bbd81cd559700b30ef6bdd43491617cf24916adbcd784f59"
+      },
+      "green_junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/parent-state-transition-r3.junit.xml",
+        "sha256": "d86ccb29a26155b3badc170ca207a12edbbd9b3c41f62bd047a855c9b513bd9a"
+      },
+      "green_result": "58 passed."
+    },
+    {
+      "classification": "actual SKG async consumer failure; async deadline wrapper supplied ExecutionContext where strict timeout serialization required the original parent context and invocation-bound dispatch parameters",
+      "red_capture": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/skg-async-failure-capture.json",
+        "sha256": "1b55cac7d04429c15f0f1ab802ea585ba5312a8b806466fac56b9d34541a7ccc"
+      },
+      "red_run": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/skg-async-failure-capture-run.txt",
+        "sha256": "b624ad1b57bbb5e099869bd21ea4583443f53008b53c20d576a4bd0cb0bdf8a0"
+      },
+      "focused_red": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/async-parent-context-fix-focused-tests.txt",
+        "sha256": "e5a62eb7acb1fcbd23fe054b63b80d26a40c9dc58042c670292fade440d59321"
+      },
+      "focused_green": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/async-parent-context-fix-focused-tests-r2.txt",
+        "sha256": "ce012784099e13faf974119f5fda482c823d6cf68c4887aff15151e163103f1b"
+      },
+      "bounded_22_case_red": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/skg-22-postformat-isolated-run-1.txt",
+        "sha256": "76c39d202104df6404c3b875bc6eb5a4b4a41873c69e94e46fa163728371096c"
+      },
+      "bounded_22_case_green": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/skg-22-postformat-async-fix-run-2.txt",
+        "sha256": "f24dce36072e2109a0b74e3b47685822418c004db6c76651e8343e53365904ba"
+      },
+      "post_fix_full_module_fixture_red": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/skg-module-post-async-fix-r2.txt",
+        "sha256": "1b7e998a9ff6f442fa6b509513e64c2d58283736115c6f7d13bd87b9623975cd"
+      },
+      "classification_note": "The subsequent full-module red included test fixtures that had not forwarded the newly required dispatch_params and one stale refusal expectation. The current complete SKG module is 49/49 passing in the deciding JUnit above."
+    }
+  ],
+  "backend_and_surface_limits": {
+    "temporal_positive_route": "bridge_missing",
+    "temporal_current_behavior": "Parent RunContext is refused before Temporal client lookup/dispatch by the typed parent-receipt-route guard; only negative preflight is verified. No genuine supported Temporal SDK recipe or positive workflow-to-parent receipt admission is established.",
+    "temporal_preflight": "2 passed in the full deciding JUnit; see test_temporal_runner_preflight module.",
+    "ray_native_execution": "UNRUN; Ray unit tests verify bounded routing/refusal contracts but do not prove native Ray worker receipt transport.",
+    "linux_native_fork_execution": "UNRUN in this Darwin replay; the 71 skips remain open native-platform checks.",
+    "production_authority": "No production issuer, custody, live-serving currentness, or publication authority is claimed."
+  },
+  "decision_and_next_checks": {
+    "architecture_decision_reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/worker-transport-ownership-temporal.json",
+      "sha256": "8584f992c3b3e1a84e6e05783b8bb07ebca54583d084d1fe57df51ac7ba019d6"
+    },
+    "temporal_retry_choice": "The existing decision packet retains the narrow G question whether Temporal may acknowledge an exact already-completed receipt after verifying invocation, dispatch, payload and current owner chain. Current Core semantics refuse completed replay; this handoff does not change them.",
+    "next_checks_for_G": [
+      "Run the exact committed candidate on the supported Linux fork worker and retain current source-bound output.",
+      "Exercise native Ray transport with an actual worker and current parent consumer; unit-only routing is not a positive.",
+      "Supply/identify a supported genuine Temporal worker recipe and settle the exact-replay authority semantics before implementing a positive bridge."
+    ],
+    "source_changes_after_freeze": "None by this handoff author; no test/source files are modified here."
+  },
+  "proposals": [
+    {
+      "finding_id": "B61",
+      "proposed_outcome": "limited_pending_G_adjudication",
+      "basis": "The Core parent receipt mechanism and local child-to-parent durable append/recovery/terminal path have committed source, current 345-case evidence and bounded independent GO. Native Linux fork and Ray positives remain UNRUN; Temporal positive receipt bridge is missing and guarded.",
+      "formal_closure_claim": false
+    }
+  ]
+}

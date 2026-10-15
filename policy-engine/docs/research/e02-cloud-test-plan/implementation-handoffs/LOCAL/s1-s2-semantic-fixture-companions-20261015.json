@@ -1,0 +1,156 @@
+{
+  "schema": "e02_s1_s2_semantic_fixture_companions_v1",
+  "prepared_on": "2026-10-15",
+  "source_frame": {
+    "slice_base": {
+      "commit": "cfc7ffca47b610df1e9ffce6ee483647fe6ee8ad",
+      "tree": "68f2be2c40259fde4f3091cf718df322ea8a5025"
+    },
+    "source_commit": {
+      "commit": "606f499c9c2608111a5339f13d01f90673abf88e",
+      "tree": "3af7437f28a7bf5e2c048b58317c47389f663865",
+      "parent": "cfc7ffca47b610df1e9ffce6ee483647fe6ee8ad",
+      "subject": "test(e02): align fallback and value selection fixtures with real contracts"
+    },
+    "observed_head": {
+      "commit": "3fb7573012f8785b1c40e1ecd9b1477e0a293020",
+      "tree": "fe5833fb5ce8eaaeab5f0779eb4897a62fc70ff9",
+      "note": "The three source paths below are byte-identical to source_commit; unrelated concurrent worktree edits are outside this packet."
+    }
+  },
+  "canonical_scope": {
+    "task_file": {
+      "path": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "source_binding_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/s1-s2-s3-current-source-binding-erratum-20261011.md",
+      "sha256": "9b4de6ed3eaf24c1c999e97f1e7a2f9473b952c584dc2890402ee5a38403e2cd"
+    },
+    "S1": {
+      "finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "unique_ids": 15,
+      "criterion_occurrences": 16,
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S1",
+      "scope_status": "execution_remaining"
+    },
+    "S2": {
+      "finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "unique_ids": 6,
+      "criterion_occurrences": 6,
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S2",
+      "scope_status": "execution_remaining"
+    },
+    "overlap": [
+      "LA-036"
+    ],
+    "union": {
+      "unique_ids": 20,
+      "criterion_occurrences": 21
+    },
+    "closure_ids": [],
+    "closure_note": "Author evidence only; no G closure is proposed or implied."
+  },
+  "committed_source_footprint": [
+    {
+      "path": "tests/unit/remediation/test_sim_01.py",
+      "git_blob": "13222ead7ba5748768a325915a61d93453bda3f2",
+      "sha256": "45777de36b1735035393efa15a877c8c982bfe812a9417a2e901343b90f5b300"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_selection_advisor.py",
+      "git_blob": "5369f87da5479559bdc041c112d1bee7c27008b7",
+      "sha256": "9e411df04642efb29e1d16de26958796be7144857e071fc5c13602c3c4dcaed8"
+    },
+    {
+      "path": "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "git_blob": "20d4c91c089e384c5d201543e7ce6d566384675d",
+      "sha256": "2ece8527030a089ef40515aa11c5ca5b993b185eb6fd04089bf0461ad83f11ba"
+    }
+  ],
+  "criterion_evidence": [
+    {
+      "finding_id": "B07",
+      "original_criterion": {
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-01.md",
+        "git_blob_at_source_commit": "1b9ab5127e4c1545986fb173ed66dc7b65f04bfd",
+        "section": "B07, lines 68-81",
+        "criterion": "First engine is acceptable on inputs but not required coupling; second supports both and executes. No suitable engine remains a refusal; complex interaction is not replaced by independent effects."
+      },
+      "repaired_fixture": "test_unsupported_first_engine_falls_back_to_supported_second uses an inclusive one-transition horizon [0,1]; the sibling same-coupling/no-capable-fallback test requires both typed refusals, no trajectories, and blocked port outcome.",
+      "independent_runtime_witness": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-test-companion-independent-20261015/b07-horizon-runtime-probe.stdout.txt",
+        "sha256": "539011271e8adffef3347d152caa5f4c9f73d82f83b102ddd1eed0165d7df897",
+        "observed": "Actual horizon controller refused NCM, selected coupled DES, then emitted four trajectories; each requested and covered [0,1], with coverage_status=complete."
+      },
+      "limit": "The selector test does not assert exact point steps or coverage_status; the independent review flags assertion hardening as non-blocking. This is synthetic controller evidence, not a content-bound physical-run receipt or full composed caller proof."
+    },
+    {
+      "finding_id": "B36",
+      "original_criterion": {
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SEL-01.md",
+        "git_blob_at_source_commit": "89d2fe6b59b55565e46f858d1b91ec0cab72d44f",
+        "section": "B36, lines 102-125",
+        "criterion": "Preserve the required panel request; eligible methods pass, incompatible methods do not, and an allowed transformation has a real producer, inputs, and verifiable output."
+      },
+      "repaired_fixture": "The top-k test derives all eligible panel value owners from the live registry/signature and native projection capability; score trace and ranked alternatives must equal that full set. No winning estimator FQN is asserted. The tabular-only required-panel companion remains a typed refusal.",
+      "review_classification": "SAME_CLASS_DEEPER; independent reviewer GO after replacing winner-proxy assertion with whole eligible-set property.",
+      "limit": "Selection and refusal are covered; execution of the selected panel adapter's real producer/output is still outside this test evidence."
+    },
+    {
+      "finding_id": "S2 calibration fixture companions",
+      "repaired_fixture": "Two positive MC fixtures now pass explicit nominal theta values 0.2 and 0.3 because their real simulators read params['theta']; no theta default or production behavior was added.",
+      "refusal_controls": [
+        "test_off_interval_summary_candidate_roundtrips_fresh_cas_and_recomputes_limitation retains parameter_envelope_unavailable and makes no simulator call when the candidate has no usable envelope.",
+        "test_legacy_posterior_pairing_context_is_preserved_but_not_admitted_as_joint_law retains consumer_refused/unestablished_joint_law and makes no simulator call."
+      ],
+      "limit": "The committed file has no explicit wrong-type theta-value negative; the corrected prior fixtures were missing required nominal theta in positive consumer calls, not evidence for a general malformed-value refusal contract."
+    }
+  ],
+  "verification_receipts": {
+    "owned_full_focused_run": {
+      "command": ".venv/bin/python -B -m pytest -q -ra -o addopts= tests/unit/remediation/test_sim_01.py tests/unit/foundry/methods/test_selection_advisor.py::test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "result": "39 passed in 49.03s",
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s3-subject-refinement-law-20261015/owned-test-files-focused-pytest-final.stdout.txt",
+      "stdout_sha256": "93f7f55f91dc31089075bb57cd7157467860c72f12303633b83e3f7bd1cf794a"
+    },
+    "independent_six_selector_run": {
+      "receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-test-companion-independent-20261015/targeted-six.json",
+      "receipt_sha256": "f4e341bcbdfc8c552e2f8f9e65eb438a764aba770145c02e7facaeeb76354c42",
+      "result": "6 passed, exit 0; receipt records source hashes before and after identical to committed_source_footprint sha256 values.",
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-test-companion-independent-20261015/targeted-six.stdout.txt",
+      "stdout_sha256": "8a20c675a9055d930f303133624858824bfd5cc3fa7c0263da6c803670d1fc40",
+      "review": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-test-companion-independent-20261015/review.md",
+      "review_sha256": "4b911c2a124a7bfdc5e2b80b095d52be299fad28920b1465898bf58afec4595c"
+    }
+  },
+  "current_dependency_limits": [
+    "This packet adjudicates only the fixture/test companion delta; S1 and S2 task records remain execution_remaining in the pinned task source.",
+    "B07 still lacks a real content-bound physical execution receipt and complete composed selected-plan consumer proof.",
+    "B36 still lacks evidence that the selected panel value adapter executes and its typed output is consumed.",
+    "B31 subject/assignment/unit relation, B161 refinement law, B214 all-admissible-completions result, and the broader S2 source-owned law/calibration inputs are not closed by these three test files."
+  ]
+}

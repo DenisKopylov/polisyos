@@ -1,0 +1,261 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "handoff_id": "c05-atomic-review-basis-and-profile-snapshot-20261015",
+  "created_at": "2026-10-15",
+  "slice": {
+    "task": "C05 / I1 effective profile and producer review-basis currentness",
+    "branch": "codex/e02-unified-local-20261009",
+    "base_sha": "28db55b4aba3c3c5e49df063851d33dd7df55977",
+    "base_tree_sha": "5e26cf7a558fed2c569cba6367d081623fa4f113",
+    "base_parents": [
+      "3fb7573012f8785b1c40e1ecd9b1477e0a293020"
+    ],
+    "candidate_sha": "511095b8080859c63278e17c5602b3857d85e710",
+    "candidate_tree_sha": "87e5fc4e837f3566f516383da327eeff56eab23d",
+    "candidate_parents": [
+      "28db55b4aba3c3c5e49df063851d33dd7df55977"
+    ],
+    "commit_subject": "fix(catalog): bind review basis to atomic material inputs and isolated sidecar",
+    "working_tree_readback": "All 16 C05 source/test paths are clean relative to this commit and match the frozen manifest. Shared checkout contains unrelated dirty paths from concurrent lanes; they are not included in this slice.",
+    "source_commit_and_receipt_are_separate": true
+  },
+  "source_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c05-profile-snapshot-candidate-manifest-20261015.json",
+    "sha256": "9b141406b11fda43d5c802de06b84d05950a4524b6867b1693f4ef93ee271830",
+    "state": "Historical pre-commit freeze manifest. Its old candidate HEAD/tree fields are preserved; its 16 content hashes now match the committed candidate blobs exactly.",
+    "path_count": 16,
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "git_blob": "009f4f22d12d0ad3d9e5ce5c66037584d271689a",
+        "sha256": "e7bccd3b47c462e682a5e7e309c6eced03a3a6a4d1c9ce66c0c457bbcf5dd06a",
+        "role": "Capture one immutable effective profile snapshot for material identity, coverage, and runtime consumers."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "git_blob": "af1e8e8aeafb4193dc01564f4a892e7396678f6a",
+        "sha256": "66f1bace7eaa3e47d50bdfc78565e541c2188204eab066530c130304063d6621",
+        "role": "Bind source/profile inputs before writes; transact dataset registry, audit, alignment, and sidecar replacements as one unit in catalog and legacy paths."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "git_blob": "2c96657b45911758f18eca6d2fd9bbb920c3d4a9",
+        "sha256": "ab035a2cc46347d3095fcd6cdd3603bb658101762d24213b32d6383960332cbf",
+        "role": "Create and validate the versioned operational basis, compare complete producer groups, reset stale review, and include the sidecar in the receipt output boundary."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+        "git_blob": "5def4bce3c30835c92fc465d497eee577648b24e",
+        "sha256": "a138423bfc75c70b5f5345f08a5eab58a1db846d4ade3391dbe644927f0d5a78",
+        "role": "Resolve connector inputs from the active immutable profile snapshot on every supported connector route."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/schema.py",
+        "git_blob": "24063e0f80f353f4dfaca7c1f1aac43a2353e8e3",
+        "sha256": "acc6672894e7ceaabaffd9f75545afaf051b5edf9a78501a16870c409d6af482",
+        "role": "Own canonical sidecar DDL and fail-closed exact physical signature validation."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+        "git_blob": "780181f52f25eb7d16da3b1532b7747480f2e362",
+        "sha256": "2bd423142f249935bd59c17706c88feb0b8759d9805df2193bd2fc36693741ac",
+        "role": "Use shared table schema and clear sidecar with registry, audit, and alignment rows on canonical graph rebuild."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "git_blob": "32b80dd8a6c097546a696b4497c2551b1a246743",
+        "sha256": "e29a95719931d0e473c13ceadd8d0601f315ee224da7cb817e39f29b0ece44dd",
+        "role": "Carry one effective profile snapshot through pipeline stages and actual consumers."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "git_blob": "9b7ad7571183bea1803f9356d35d6c88a283cf0c",
+        "sha256": "7bbfe2aea4fe046d660040c8be135dc51c7028c1f4bd75cd4b76046e5377a745",
+        "role": "Recompute core output receipt/currentness over the source inventory, including the sidecar."
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+        "git_blob": "61c4f6b8369f9da00d2be820fe15acb72f50f513",
+        "sha256": "fa29381bdf081f481d77e0544eed83fe975113189e24db972571e18d014e88a4",
+        "role": "Copy registered source profiles under the registry state lock without changing existing get/list_all identity behavior."
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py",
+        "git_blob": "bf538b0337b6a2f811b53b25062a52a7b9dff894",
+        "sha256": "677b9da0d5a44910b66c61794b4a2903334c5876e930c098276569817653dfca",
+        "role": "Exercise actual DuckDB sidecar schema, content binding, malformed digest and schema refusals, public DatasetMatch evidence, graph cleanup, and catalog/legacy transaction rollback."
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+        "git_blob": "09c2e8e1bb17050f64cc3161d58e9ea072579810",
+        "sha256": "110c7644963a66c3b823bab42685c6edb922c7f82100233d2d1e88a1f34e7062",
+        "role": "Exercise all supported connector routes against coherent profile override and execution-policy snapshots."
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+        "git_blob": "563740132f38388622d9db611cc5069cc5c08dc0",
+        "sha256": "042686463d5415248d438863d5e235223acfb7e87a0970b3f08ba1173670fc0c",
+        "role": "Exercise run identity and pipeline consumer behavior under supported profile overrides."
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+        "git_blob": "b8148120680d2f766a1b5ee14022f467a89a2b99",
+        "sha256": "4d4b195f2783d9d66b485e66b612158f5c264cb16d183b9db908ac5d5cbc8a13",
+        "role": "Exercise header-only profile change, receipt currentness, and same-snapshot runtime resolution."
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+        "git_blob": "4912d26202da5f9ec184e3fe8d0de3dc428aca0e",
+        "sha256": "ce9c1d686aae6b7f3863d7c8cf027d31f483dc3015210a2f6028ec9461778c1d",
+        "role": "Prove copied snapshots survive a supported registry override."
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+        "git_blob": "e464b10dc66962c258d26c66e64eb5e9f647ec8e",
+        "sha256": "1b12698a5334f24938fe1ef32c030beb1d7ce9c53d8dc6abfcbf4bb972e74c0b",
+        "role": "Exercise real producer-to-observation/benchmark replay; verify sidecar recomputation, rejection of forged digest, and receipt invalidation/recovery."
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "git_blob": "7ab995b1c26e105d95f37bdfa4504fe07f898104",
+        "sha256": "7075cf10341f37b2da8315ad9631036c24f30c45a36e4332ceba763ebded8772",
+        "role": "Prove operational sidecar mutations leave the selected-catalog credal reference hash unchanged."
+      }
+    ],
+    "related_decision_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c05-complete-alignment-review-basis-source-proposal-20261015.json",
+      "sha256": "885dbe00f3d4fa43a4e2a05b4077d8ffa70ae4a294051314330a26316f3021b4",
+      "state": "Historical author decision packet; no formal G closure is recorded here."
+    }
+  },
+  "profile_and_backend": {
+    "producer": "DatasetBatchConfig core-source catalog ingest and content-bound receipt/currentness path",
+    "backend": "Real temporary DuckDB databases and canonical DuckDB metadata/schema reads in pytest fixtures; connector calls use deterministic fixture responses. No production database/profile/input was read or modified.",
+    "profile_snapshot": "SourceProfileRegistry.snapshot_all() deep-copies under the registry lock; a single scoped runtime snapshot binds source profile payload/coverage, connection configuration, execution policy, UNPD token presence/value in memory, and legacy serial setting across config identity, pipeline/direct ingest, receipt/currentness/resume and connector resolution.",
+    "covered_connector_routes": [
+      "World Bank",
+      "Eurostat",
+      "WHO",
+      "UNPD",
+      "UNESCO UIS",
+      "SDMX"
+    ],
+    "secret_handling": "Header/auth values and environment token are not persisted, hashed into stored fields, or logged; excluded-input presence is typed, and unknown coverage is not reusable."
+  },
+  "implemented_chain": {
+    "input_and_producer": "A copied effective profile/material snapshot and complete CatalogTransportDataset producer payload bind catalog source/profile currentness and the complete competing VariableAlignment model group.",
+    "artifact": "Versioned ds_alignment_review_basis sidecar keyed by dataset_id and raw_variable, with canonical payload and recomputed digest; the existing producer evidence string is unchanged.",
+    "bridge_and_lifecycle": "Catalog and legacy ingestion transact registry datasets, audit rows, alignment rows, and sidecar replacement together. Receipt outputs include the sidecar. Canonical graph rebuild clears sidecar and related catalog rows together.",
+    "consumer_and_surface": "DatasetRegistry.find_datasets_for_variable returns actual DatasetMatch values with unchanged alignment_evidence. The selected-catalog credal reference hash remains invariant under sidecar-only changes. Core-source receipt/currentness gates benchmark reuse and fresh producer replay.",
+    "semantic_positive_and_negatives": [
+      "Unchanged basis preserves existing audit annotations and receipt/currentness across actual producer replay.",
+      "Changed same-size/same-mtime material bytes or a supported profile override changes identity, invalidates stale receipt/review reuse, reruns core producer and benchmark, and a fresh benchmark can be skipped only after a current receipt exists.",
+      "Missing, malformed, forged, unbound legacy, or changed sidecar basis clears prior review; independent removal replay confirms missing-basis reset then restores the candidate basis.",
+      "Injected failures after actual alignment writes roll back all four catalog/audit/alignment/basis relations for both catalog and legacy paths.",
+      "Sidecar-only mutation leaves public DatasetMatch.alignment_evidence and selected-catalog credal reference hash unchanged.",
+      "Direct in-place mutation of a compatibility-preserved mutable live profile remains a reproduced bounded residual, not a pass."
+    ]
+  },
+  "verification": {
+    "author_focused_replay": {
+      "command": "cd policy-engine && .venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/domains/catalog/batch/test_publish.py tests/unit/fabric/connectors/profiles/test_source_profiles.py tests/unit/remediation/test_dfi_03.py::test_material_input_change_recomputes_real_producer_and_benchmark tests/unit/runtime/quality/test_credal_reference.py::test_selected_catalog_context_binds_all_alignment_rows_into_kref -q",
+      "result": "PASS, exit 0, 67 tests completed.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-sidecar-atomicity-20261015/focused-pytest.txt",
+        "sha256": "71bbbb6f8ccc63b8533a60bb69ddfc2fd6db928c57ea755d4bcf25b3e9c6bbf8"
+      }
+    },
+    "independent_replay": {
+      "command": ".venv/bin/python -m pytest tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/domains/catalog/batch/test_publish.py tests/unit/fabric/connectors/profiles/test_source_profiles.py tests/unit/remediation/test_dfi_03.py::test_material_input_change_recomputes_real_producer_and_benchmark tests/unit/runtime/quality/test_credal_reference.py::test_selected_catalog_context_binds_all_alignment_rows_into_kref -q",
+      "result": "Independent reviewer observed 67 passing progress dots and exit 0; configured quiet mode suppresses summary count.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/focused-pytest.txt",
+        "sha256": "e8ca89320215100aa98af0253237bf6f46c62048fbacd0ca2bf547d0f2ee2c58"
+      }
+    },
+    "lint_and_format": {
+      "result": "PASS on all 16 Python paths; author canonical Ruff check and format outputs plus independent check and format outputs are retained.",
+      "author_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-sidecar-atomicity-20261015/canonical-ruff.txt",
+        "sha256": "13512fb6e51653d11a0b8851e7cca7ba9d6897dffcee7c4e92648d26cce09023"
+      },
+      "independent_check": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/ruff-check.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "independent_format_check": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/ruff-format-check.txt",
+        "sha256": "7ff2df5e4a19c344d6ea2dfc25c25d2370159894cbac570f392753b22180e09c"
+      }
+    },
+    "independent_source_review": {
+      "result": "GO for this exact 16-path slice; no blocking defect found. Review is code acceptance evidence only, not G adjudication or global E02 acceptance.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/independent-review.md",
+        "sha256": "5387c3b3de275d6a182b70c3fe493c15f33bf1a7e8dbabe8a9de87e43b1b2306"
+      },
+      "freeze_hash_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/freeze-hash-verification.txt",
+        "sha256": "03151cdb2668a34135d16450e1f941bc7cd297fcfcdf457f136f01613533151d"
+      }
+    },
+    "removal_and_residual_controls": {
+      "missing_basis_removal_replay": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/removed-basis-falsifier.txt",
+        "sha256": "13d5a4616300907c3b6d0ec4cfa8c9e1d387960d922b271e4069967650cca1eb"
+      },
+      "mutable_live_profile_alias_residual": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-sidecar-independent-20261015/direct-mutation-falsifier.txt",
+        "sha256": "7aa6fc892136545de9f639b4424d6f2afbd3691ea48e8577e647c28e8047dcd0"
+      },
+      "residual_result": "While a direct unsynchronized in-place edit changed max_concurrency during snapshot copying, the snapshot contained max_concurrency=9 with prior headers. This demonstrates that register/get/list_all live mutable aliases can bypass the registry lock. Supported register/override is covered; no compatibility behavior was silently changed."
+    },
+    "not_run": [
+      "Full I1 13-supplier composition and G-only _resources replay",
+      "Complete DFI-03 full harvest/checkpoint acceptance",
+      "Global/native E02 closeout gates"
+    ]
+  },
+  "proposals": [
+    {
+      "id": "LA-041",
+      "occurrence": "LA-041#1:LA_r09:DFI-03:11fa4aba4b13edd0ea0537a3cfcc7b725568c06f116f599d5bee39f479b09f88",
+      "task_route": "TASKS.json#/tasks/I1 (Effective profile/policy currentness basis; next task I1; original exit: same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark)",
+      "criterion_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines_1_based_inclusive": [
+          2595,
+          2631
+        ],
+        "sha256_exact_line_span": "11fa4aba4b13edd0ea0537a3cfcc7b725568c06f116f599d5bee39f479b09f88",
+        "title": "Batch checkpoint: прежняя «стадия уже выполнена» живёт отдельно от content-bound результата"
+      },
+      "historical_status": {
+        "source_author_proposal": "limited",
+        "historical_ledger": "partial",
+        "formal_g": "not_adjudicated"
+      },
+      "candidate_proposal": "limited support for the effective profile/material-currentness component; keep LA-041 open. This C05 slice does not change the complete DFI checkpoint/harvest owner path or establish the original full criterion.",
+      "evidence": [
+        "Committed C05 implementation and 16-file independent review establish an atomic, content-bound currentness basis and real same-size/same-mtime material-change producer/benchmark replay.",
+        "The exact original DFI criterion still requires full harvest completion, unchanged resume, required-output inventory and downstream new-generation readback. Those checks were not run here."
+      ],
+      "boundary_and_limit": "No full 13-supplier or whole-I1 consumer composition, DFI checkpoint/harvester/generation_basis acceptance, production profile/currentness, or formal G closure is established. Direct in-place mutation through retained mutable SourceProfile aliases is a documented, reproduced same-class residual.",
+      "next_check": "Execute the original DFI command on a real temporary catalog: complete harvest, unchanged resume positive, selected input content mutation preserving size and mtime forces recomputation, then prove the downstream reader observes the new generation; independently hash selected source membership and required outputs. Separately complete the full I1 13-supplier/facade composition including preserved G _resources before proposing any broader disposition.",
+      "formal_closure": false
+    }
+  ],
+  "closure_ids": [],
+  "authority_and_acceptance": {
+    "local_candidate_only": true,
+    "g_code_acceptance": "Independent local reviewer GO covers only the exact 16-file C05 slice at candidate 511095b; integration publication and formal finding adjudication remain with G.",
+    "no_claims": [
+      "No production currentness or external authority input",
+      "No complete 13-supplier/I1 closure",
+      "No DFI-03 whole-criterion closure",
+      "No formal finding closure"
+    ]
+  }
+}

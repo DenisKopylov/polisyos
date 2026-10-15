@@ -1,0 +1,170 @@
+{
+  "packet_version": 1,
+  "topic": "worker-transport-ownership-temporal",
+  "status": "author_proposal_for_independent_G_review",
+  "related_finding_ids": ["B61"],
+  "closure_ids": [],
+  "candidate_source_identity": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "head_tree": "91689d6a82c604ee5375dd2d7f8ac7f26db9dc26",
+    "note": "The listed temporal source/test hashes identify uncommitted candidate bytes over this HEAD; root owns commit and final freeze identity."
+  },
+  "observed_source_path": {
+    "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py",
+    "current_behavior": [
+      "TemporalWorkflowRunner.execute_workflow serializes ordinary context metadata and starts the remote workflow while the caller RunContext remains live.",
+      "The workflow dispatches scientist_execute_node_outcome_v1; run_node_in_worker defaults to parent_receipt=false.",
+      "That route calls _build_worker_context, which creates a new RunContext.start from the same run id and FileSystemCAS root. For a normal existing parent run this reuses the same default run directory and attempts a second lifecycle writer; it cannot return child trace mutations through a parent admission bridge.",
+      "A matching directory string is not evidence that a remote Temporal worker shares the same filesystem or CAS instance."
+    ],
+    "candidate_guard": {
+      "behavior": "execute_workflow rejects any non-null ctx.run before client lookup or remote dispatch until a staged-receipt admission route exists.",
+      "error_type": "TemporalParentRunReceiptUnavailable",
+      "error_code": "temporal_parent_run_receipt_route_unavailable",
+      "source_sha256": "3471b180691d5f6c7305c699bad50fc668c7a6742d63c827ef3660aeb74eb42d"
+    }
+  },
+  "current_evidence": {
+    "prior_independent_protocol_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-worker-protocol-independent-20261015/report.json",
+      "sha256": "8e96269e21e862f4c2298d12e5fc63aa5679b290d580cad39d36752974b13cd1",
+      "verdict": "GO_DIRECTION_WITH_CONTRACT_HOLDS",
+      "bucket": "SAME_CLASS_DEEPER",
+      "scope": "Read-only review of the shared B61 worker ownership protocol; not G acceptance and no closure IDs."
+    },
+    "temporal_dependency": {
+      "test_command": ".venv/bin/python -m pytest -q tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py",
+      "result": "module skipped at import: temporalio is absent",
+      "dependency_search": "No temporalio package or optional extra occurs in policy-engine/pyproject.toml or policy-engine/uv.lock; local pip cache list contained no temporalio wheel.",
+      "interpretation": "No repository-supported genuine Temporal test recipe was found; no undeclared dependency was installed. Positive Temporal behavior remains untested/not_established."
+    },
+    "negative_preflight": {
+      "test_command": ".venv/bin/python -m pytest -q tests/unit/scientist/orchestration/engine/runner/test_temporal_runner_preflight.py",
+      "deciding_output": ".. [100%]",
+      "result": "2 passed; parent RunContext refuses before _get_client, while explicit ctx.run=None passes the ownership preflight.",
+      "test_source_sha256": "38fded676dccf50a5f72d6ea74d37fc72c4d10ae3495d3f21b1746d3c8715b75"
+    },
+    "worker_receipts": {
+      "positive_and_negative_suite": "tests/unit/core/phase0/test_run_context.py, tests/unit/core/trace/test_sink.py, tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "collected": 93,
+      "result": "93 passed on the local Darwin environment. One initial run exposed a direct timeout fixture omitting explicit dispatch_params; the fixture was corrected to pass an explicit empty mapping and the complete suite then passed.",
+      "distinguishing_case": "A crash after a complete-record prefix containing the receipt start and RUN_CONTEXT_SNAPSHOT refuses a wrong recovery invocation id without changing bytes; exact invocation id resumes from the verified old owner, then merges the exact receipt once without duplicating snapshot/input manifest operations."
+    },
+    "ray_and_local_worker_suites": {
+      "files": [
+        "tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_task_router.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py"
+      ],
+      "collected": 186,
+      "result": "116 passed, 70 skipped on Darwin; skips are native-Linux fork/subreaper/resource-limit/control-exception checks or Darwin's unsupported arbitrary-node timeout profiles. This is not a Linux runtime receipt.",
+      "deciding_output": "The selected command reached [100%]; pytest listed each platform-specific skip reason. Full retained output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-transport-ownership-temporal-20261015/host-worker-runtime-tests.txt@74b38e0149a66031e78458742ec4fc5f6fc986bd234055b306e6ef25ee9093df. A composed Linux replay remains outstanding."
+    },
+    "ruff": {
+      "command": ".venv/bin/python -m ruff check <leased Core, retry, executor, worker, LocalPool, Ray and mirrored test paths>",
+      "result": "All checks passed."
+    },
+    "source_sha256": {
+      "policy-engine/src/polisyos/core/run/context.py": "273362a70ec9d4aaf0db28e1f147808752cde20dbb1c4b1973f03401cdd20853",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py": "94b01884db70fd3b50377dfb8944d71182dc2e4d79deac825742fdb0c45b3245",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/ray_runner.py": "5e252e7fe731a97393f45d0a954cef233599c7d13626e553de48adb567629210",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "16f3538c806482721ad684f6b570d074bc10e2aa89c14fa6604e3c969d80650c",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py": "3471b180691d5f6c7305c699bad50fc668c7a6742d63c827ef3660aeb74eb42d",
+      "policy-engine/tests/unit/core/phase0/test_run_context.py": "567648d26d9ce050b2b6fedfcea4b66a381044663843d69de8133ea74c1fdef1",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py": "5a53303fef21b8f0b4519bed66248f0291279d32fdaa62bb3f7b8864fb8d3464",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_temporal_runner_preflight.py": "38fded676dccf50a5f72d6ea74d37fc72c4d10ae3495d3f21b1746d3c8715b75"
+    }
+  },
+  "reuse_extend_consolidate_build": [
+    {
+      "order": 1,
+      "choice": "reuse existing Core staged worker receipt + RunContext.resume + merge_worker_events",
+      "assessment": "Recommended foundation. The parent receipt already binds invocation, dispatch digest, owner snapshot and exact worker event bytes; Core applies allowed manifest operations through one active writer and refuses completed receipt replay."
+    },
+    {
+      "order": 2,
+      "choice": "extend Temporal activities with source-bound staged receipts and one serialized admission activity",
+      "assessment": "Narrow candidate. Host must suspend ownership before remote start; the workflow passes strict context and invocation-bound receipt; the admission activity resumes the same run, merges, emits refreshed owner context and suspends; host resumes after workflow completion or typed refusal. Sequential per-node admission with refreshed owner context avoids admitting sibling receipts against stale owner snapshots."
+    },
+    {
+      "order": 3,
+      "choice": "consolidate into a shared parent-run coordinator across LocalPool, Ray and Temporal",
+      "assessment": "Broader and unnecessary for the first Temporal repair; it would couple optional backend lifecycles and expand the owner protocol footprint."
+    },
+    {
+      "order": 4,
+      "choice": "build a Temporal-specific trace authority log or independent run owner",
+      "assessment": "Rejected absent a source-of-truth gap: this duplicates Core lifecycle custody and creates a competing writer rather than closing the bridge."
+    }
+  ],
+  "required_G_choice": {
+    "question": "May a Temporal admission activity acknowledge an exact duplicate of an already-completed worker receipt without writing again, after verifying invocation id, dispatch digest, exact event-body digest, and current verified owner-chain identity?",
+    "current_contract": "Core merge_worker_events refuses completed receipt replay before mutation. Temporal activity execution can be retried after a durable trace append but before its result is recorded in Temporal history.",
+    "alternatives": [
+      "Preserve refusal: exact completed replay yields typed refusal and the run stays limited/held. Set one Temporal attempt where possible, but do not claim that this removes transport ambiguity.",
+      "Authorize a narrow idempotent acknowledgement for an exact fully verified completed receipt; add source-bound owner-chain checks and forged/different-body controls. This changes replay semantics and requires G's decision.",
+      "Introduce a durable transactional admission protocol coupling Temporal activity completion and CAS trace append; requires a storage/transaction capability not established by current FileSystemCAS."
+    ],
+    "recommendation": "Keep current refusal pending G. Do not weaken Core replay semantics or treat activity retry policy as proof of exactly-once execution."
+  },
+  "additional_contract_questions_before_positive_temporal_claim": [
+    {
+      "question": "Which worker diagnostic phase/event names, warning/error payloads, and timestamp roles may enter the parent trace?",
+      "current_boundary": "TraceRecord is an open string/event schema with arbitrary warning/error dictionaries. Parent admission preserves worker record order and timestamps but those fields do not establish issuer authority or authoritative event time.",
+      "smallest_discriminator": "Use a real worker timestamp with a parent receipt time and equal-second sibling timestamps; prove accepted/recorded order is explicit and lifecycle/authority events remain parent-only."
+    },
+    {
+      "question": "Which worker RunContext operations can be staged and merged, especially update_manifest owner snapshots and concurrent same-base edits?",
+      "current_boundary": "Core accepts only RUN_INPUT_ADDED, RUN_OUTPUT_ADDED, and RUN_CONTEXT_SNAPSHOT operations with a restricted manifest-field update set; owner snapshot chains are verified; sibling receipts with conflicting snapshots are refused before parent mutation.",
+      "smallest_discriminator": "Exercise one update_manifest producer through the actual worker receipt into the fresh parent context, then two same-base sibling snapshots with conflicting and disjoint changes. Do not infer a merge law for unknown conflict semantics."
+    },
+    {
+      "question": "What can cancellation promise about worker artifacts already written to CAS?",
+      "current_boundary": "Parent admission can reject canceled, stale, or mismatched receipts before canonical trace mutation; distributed cancellation does not sandbox worker code or revoke bytes already written to a shared CAS.",
+      "smallest_discriminator": "Cancel after a worker artifact write and before admission; verify no run output/trace admission occurs and treat the artifact as an unreferenced candidate unless a separate custody protocol proves cleanup."
+    },
+    {
+      "question": "How should hard worker loss or timeout report partial staged diagnostics?",
+      "current_boundary": "A returned failure can carry a strict receipt, while hard worker/process loss may return no receipt. Do not synthesize a completed failure receipt or infer that partial in-memory events exist.",
+      "smallest_discriminator": "Test returned typed failure receipt separately from activity/process loss and complete-record append-prefix recovery; malformed JSONL tails remain fail-closed."
+    },
+    {
+      "question": "Where must Temporal receipt verification occur relative to checkpoint/cache writes and workflow history versioning?",
+      "current_boundary": "A final result check cannot reverse checkpoint effects already persisted inside a merge activity. Existing state-only/outcome histories must replay under their recorded version path.",
+      "smallest_discriminator": "Add a new workflow patch/result version and prove receipt admission happens before the first checkpoint side effect; preserve old history replay and make duplicate activity execution hit the chosen replay contract."
+    }
+  ],
+  "external_inputs_and_limits": [
+    "A real shared-filesystem/CAS identity and custody input for the Temporal worker and host is required; matching absolute path strings is insufficient. If absent, the route must typed-refuse.",
+    "A supported Temporal SDK/test-server recipe must be added through an owner-approved optional dependency and lock update before positive workflow claims; current test module is skipped.",
+    "The strict context wire admits a bounded plain local ExecutionContext/FileSystemCAS profile. Rich ClaimCapable contexts, optional ports, audit-enabled contexts and remote/non-shared CAS do not become supported through this packet.",
+    "Temporal cancellation, timeout, retry, worker loss, exact-prefix recovery, completed replay, and host lease restoration require genuine WorkflowEnvironment tests before positive acceptance.",
+    "No law, issuer, custody/currentness, permission, or production authority is supplied or inferred here."
+  ],
+  "next_check": [
+    "Find or approve a supported locked Temporal SDK/test-server recipe, preserving the optional-backend boundary.",
+    "With a source-bound same-host/shared-CAS fixture, prove host suspend -> node activity stages only -> single admission activity resumes and merges -> refreshed owner context -> host resume, including failure/finally restoration.",
+    "Probe complete receipt retry-after-admission, exact and conflicting event bodies, start-only and complete-record prefixes, malformed JSONL tail, stale owner, cancellation and sibling dispatch. Keep the Core replay refusal unless G approves a precise idempotent acknowledgement contract.",
+    "Run the full original 13 affected contours and composed current-profile replay only after source freeze, independent review, dependency/input profile freeze, and explicit backend selection."
+  ],
+  "proposal_classification": {
+    "temporal_parent_run_capability": "bridge_missing",
+    "current_local_and_ray_candidate": "candidate_mechanism_tested_on_host; full composed Linux receipt remains unrun",
+    "formal_finding_state": "not_adjudicated_by_author",
+    "formal_closures": []
+  },
+  "pattern_pass": {
+    "relevant": ["P01", "P02", "P05", "P12", "P29", "P32", "P37", "P38", "P40", "P41"],
+    "anti_patterns_found": [
+      "contract-only worker transport without an admitted parent receipt",
+      "independent worker RunContext.start can claim the same run identity",
+      "path-string equality is a proxy for shared storage custody",
+      "workflow activity retry can replay a completed receipt whose API refuses replay"
+    ],
+    "target_pattern": "Reuse the source-bound Core receipt and single writer lease; refuse unsupported context/storage profiles before remote dispatch; prove complete producer -> staged receipt -> verified admission -> consumer lifecycle behavior in genuine Temporal history.",
+    "divergent_case": "A marker-only test or a worker-created temporary RunContext can appear successful while the host RunContext receives no worker event and the actual trace remains split.",
+    "acceptance_signal": "G independently accepts or narrows the replay contract, then a genuine supported Temporal test proves the full lifecycle and adversarial controls on the exact frozen source/profile."
+  }
+}

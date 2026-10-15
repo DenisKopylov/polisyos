@@ -5,12 +5,84 @@
   "branch": "codex/e02-unified-local-20261009",
   "one_level_delegation": true,
   "current_root_application_lease": {
-    "as_of_candidate_commit": "eeb50362eafa39a218e24cea34dd2b39b1644700",
-    "writer": "root",
-    "subagent_mode": "patch-only author or read-only independent reviewer; no children",
+    "as_of_candidate_commit": "511095b8080859c63278e17c5602b3857d85e710",
+    "commit_owner": "root only; source and receipt commits are separate; known advances are journaled under raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+    "subagent_mode": "Direct authors on exact disjoint path leases and independent read-only reviewers; no children or agent commits",
     "scope": "All necessary E02 source/test/schema/config/lock/generator companions across former module-owner boundaries",
-    "serialization": "Root applies shared source, export, schema and generator changes sequentially; one heavy slot and one numerical thread",
-    "previous_writer_entries": "Historical provenance; they do not prohibit the current root companion lease"
+    "serialization": "Two heavy compute slots, one numerical thread per process, explicit lightweight exceptions after measurement; shared DB/port/generator/lock serialized. Pause all tracked writers briefly for commit hooks, whose change detector covers the shared tree.",
+    "active_candidate_slices": [
+      {
+        "owner": "b61_exact_writer_runtime_author",
+        "state": "implementation_committed_28db55b4; separate receipt pending",
+        "footprint": "26 Python paths, complete reviewed 28-entry manifest raw/worker-transport-ownership-temporal-20261015/post-res03-owner-profile-fix-parent-state-r2-current-28-manifest.jsonl; remaining two entries are decision and deciding raw output"
+      },
+      {
+        "owner": "v3_acquisition_actual_post_author",
+        "state": "implementation_committed_511095b8; separate handoff authoring",
+        "footprint": "16 source/test paths in decisions/c05-profile-snapshot-candidate-manifest-20261015.json; historical snapshots remain provenance, not current source acceptance"
+      },
+      {
+        "owner": "s1_s3_semantic_failure_oracle",
+        "state": "original 25 frozen review completed; seven source plus eight test additions approved for quantity-wide typed owner admission",
+        "footprint": "Programmatically unique union is 40 paths = 19 source + 21 tests; original manifest remains preimage; current complete 40-path freeze pending. Generic dictionary readers and ownerless/manual planes are explicitly outside this typed-owner mechanism."
+      },
+      {
+        "owner": "full_occurrence_property_audit_2",
+        "state": "8 paths frozen r2; independent scoped GO c547bfb9; implementation commit pending",
+        "footprint": "raw/resume-can-central-reader-guard-r2-20261015/report.json exact8; central guard preserves public ArtifactStore ABI for all three registry loaders; S1 owns the separate canonical typed helper dependency."
+      },
+      {
+        "owner": "ir_governance_loop_types_author",
+        "state": "one general parsing repair authorized after independent malformed-input falsifier",
+        "footprint": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "tests/unit/runtime/quality/test_value_gate.py"
+        ],
+        "limit": "No unit conversion, owner truth, treatment assignment, native uncertainty or calibration semantics are manufactured"
+      },
+      {
+        "owner": "v5_v6_join_systemic_oracle",
+        "state": "single consumer-test fixture companion authorized; actual caller-selection provenance required",
+        "footprint": [
+          "tests/integration/scientist/test_res_03_real_simulation_route.py"
+        ],
+        "limit": "No production/Core/S1 writes; retain failed original-context replay and real producer/CAS outputs separately"
+      },
+      {
+        "owner": "root",
+        "state": "reserved",
+        "footprint": "All generated artifacts, public surface inventory/docs, API/schema outputs, lockfiles, final composed freeze/proposals and Git publication; regeneration may be delegated only by exact lease"
+      },
+      {
+        "owner": "can_whole_profile_current_oracle",
+        "state": "15 exact paths approved; Ops ownership/ordinary CLI injection plus mandatory D3 declaration companion; native Ruff and Linux evidence pending",
+        "footprint": "Fourteen enumerated domain/Ops/CLI/pyproject/test paths in author lease plus src/polisyos/data_forge/domains/ukraine/models.py. D3 retains its exact declared-output comparison, empty monthly-to-quarter panel and incomplete basis semantics."
+      },
+      {
+        "owner": "ir_small_analytics_types_author",
+        "state": "two exact registry/test paths approved; no generated output writes until root release",
+        "footprint": [
+          "architecture/generated_artifacts.toml",
+          "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py"
+        ],
+        "limit": "Register actual generated-artifacts.md owner and behavioral drift control; preserve explicitly supported backend facade and root export separation."
+      },
+      {
+        "owner": "fabric_pool_cleanup_author",
+        "state": "C09 central eight-role source-lineage repair approved; full profile freeze/review pending",
+        "footprint": [
+          "src/polisyos/calibration/forecast_bridge.py",
+          "tests/unit/remediation/test_frc_02_bridge.py",
+          "tests/unit/remediation/test_frc_02_empirical_bridge.py",
+          "tests/unit/remediation/test_frc_02_s10.py",
+          "tests/unit/runtime/http/test_control_service_di.py (existing predictive calibration post/event/reopen/exact-intent test only)"
+        ],
+        "limit": "Resolve exact child-to-source manifest edges already emitted by producer; retain predictive-only status and unknown external authority, population and time."
+      }
+    ],
+    "pending_gate_status": "No global source/input/backend freeze or native repository-wide green is claimed. Independent reports and focused receipts are bounded to their exact manifests.",
+    "previous_writer_entries": "The writers below are historical mechanism provenance. Current entries above supersede old writer exclusivity and permit necessary companions.",
+    "writer": "Root coordinates exact direct-agent leases below and alone commits/publishes own candidate topics."
   },
   "writers": {
     "i1_c05": {

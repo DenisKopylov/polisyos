@@ -33,7 +33,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 os.environ["JAX_PLATFORM_NAME"] = "cpu"
 os.environ["JAX_PLATFORMS"] = "cpu"
@@ -2454,7 +2454,13 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices={"text", "json"}, default="text")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+        ),
+    )
 
     if args.corrupt_field_drift_check:
         report = corrupt_field_drift_check(args.repo_root)

@@ -40,7 +40,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 from tools.quality.validation.universality_preflight import assert_universality_preflight
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -8074,7 +8074,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--capture-proof-runs", action="store_true")
     modes.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--capture-proof-runs",
+            "--characterize-compiler",
+            "--characterize-compiler-capabilities",
+            "--characterize-compiler-structured",
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     # Recomputing owners may emit diagnostics through sinks bound before Python-level
     # redirection, or through descendants. Keep one structural emission boundary so
     # the validator always owns exactly one machine-readable output document.

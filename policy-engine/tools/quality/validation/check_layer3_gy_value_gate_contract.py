@@ -79,7 +79,7 @@ from polisyos.runtime.quality.generation_cycle import (
     ValuePortObservation,
     ValueTransportReceipt,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH: Literal["architecture/policy_design_case/layer3_gy_value_gate_contract.json"] = (
     "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
@@ -6611,7 +6611,22 @@ def main(argv: list[str] | None = None) -> int:
         help="retained source-flip output directory under ignored LOCAL/raw",
     )
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--candidate-reissue-catalog-provenance",
+            "--check",
+            "--check-catalog-provenance",
+            "--check-dependency-discriminant",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--reissue-catalog-provenance",
+            "--source-flip-mutations",
+            "--write",
+            "--write-dependency-discriminant",
+        ),
+    )
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
     selected_modes = [

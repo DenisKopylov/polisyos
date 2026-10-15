@@ -40,7 +40,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 from polisyos.runtime.quality.data_state_substrate import (
     l1_dcat_variable_availability,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_CARRIER_LIVENESS_UPDATE,
     DEFAULT_D6_PRIMARY_METADATA_EVIDENCE,
@@ -175,7 +175,37 @@ def main() -> int:
     parser.add_argument("--attempt-count", type=int, default=1)
     parser.add_argument("--attempt-ordinal", type=int, default=1)
     parser.add_argument("--page-size", type=int, default=10)
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(
+            "--check-acceptance-authority",
+            "--check-acceptance-case",
+            "--check-acceptance-execution",
+            "--check-acceptance-fallback",
+            "--check-acceptance-inputs",
+            "--check-d6-metadata-evidence",
+            "--check-d6-route-owners",
+            "--check-metadata-evidence",
+            "--check-reentry",
+            "--check-resumption-owners",
+            "--check-target-owners",
+            "--execute-acceptance-deflator",
+            "--execute-d6-metadata",
+            "--execute-live",
+            "--execute-metadata",
+            "--write-acceptance-authority",
+            "--write-acceptance-case",
+            "--write-acceptance-execution",
+            "--write-acceptance-fallback",
+            "--write-acceptance-inputs",
+            "--write-d6-metadata-evidence",
+            "--write-d6-route-owners",
+            "--write-metadata-evidence",
+            "--write-reentry",
+            "--write-resumption-owners",
+            "--write-target-owners",
+        ),
+    )
     if args.attempt_count < 1:
         parser.error("--attempt-count must be at least 1")
     if not 1 <= args.attempt_ordinal <= args.attempt_count:

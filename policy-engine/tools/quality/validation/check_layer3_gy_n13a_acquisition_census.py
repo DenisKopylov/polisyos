@@ -28,7 +28,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
     CatalogContractError,
     CensusManifest,
@@ -67,12 +67,8 @@ DEFAULT_SUBSTRATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_intervention_substr
 DEFAULT_VALUE_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_value_gate_contract.json"
 DEFAULT_JOURNAL_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_n13a_live_probe_journal.json"
 DEFAULT_OUTPUT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_n13a_acquisition_census.json"
-SOURCE_MODULE_PATH = Path(
-    "tools/quality/validation/layer3_gy_n13a_acquisition_census.py"
-)
-TEST_MODULE_PATH = Path(
-    "tests/repo_quality/tools/test_layer3_gy_n13a_acquisition_census.py"
-)
+SOURCE_MODULE_PATH = Path("tools/quality/validation/layer3_gy_n13a_acquisition_census.py")
+TEST_MODULE_PATH = Path("tests/repo_quality/tools/test_layer3_gy_n13a_acquisition_census.py")
 
 
 def declared_outputs() -> list[str]:
@@ -127,9 +123,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Stable logical locator recorded in catalog identity",
     )
     parser.add_argument("--capstone-path", type=Path, default=DEFAULT_CAPSTONE_PATH)
-    parser.add_argument(
-        "--intervention-substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH
-    )
+    parser.add_argument("--intervention-substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH)
     parser.add_argument("--value-gate-path", type=Path, default=DEFAULT_VALUE_GATE_PATH)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument(
@@ -165,7 +159,17 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run one inspection, lifecycle, capture, or mutation mode."""
 
-    args = build_parser().parse_args(argv)
+    args = parse_args_for_timing(
+        build_parser(),
+        argv,
+        mode_options=(
+            "--capture-live-journal",
+            "--check",
+            "--corrupt-field-drift-check",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     if args.source_flip_mutations:
         report = run_source_flip_mutations(POLICY_ENGINE_ROOT)
         print(json.dumps(report, sort_keys=True))
@@ -201,9 +205,7 @@ def _recompute(args: argparse.Namespace) -> _RecomputedCensus:
         intervention_substrate_path=args.intervention_substrate_path,
         value_gate_path=args.value_gate_path,
         capstone_source=_stable_artifact_locator(args.capstone_path),
-        intervention_substrate_source=_stable_artifact_locator(
-            args.intervention_substrate_path
-        ),
+        intervention_substrate_source=_stable_artifact_locator(args.intervention_substrate_path),
         value_gate_source=_stable_artifact_locator(args.value_gate_path),
     )
     demand_rows = measure_reverse_demand(args.catalog_path, demand_projection.demands)
@@ -246,9 +248,7 @@ def _recompute(args: argparse.Namespace) -> _RecomputedCensus:
                 "--capture-live-journal requires --event-log-path",
             )
         if args.event_log_path.exists():
-            raise CatalogContractError(
-                "probe_event_log_already_exists", str(args.event_log_path)
-            )
+            raise CatalogContractError("probe_event_log_already_exists", str(args.event_log_path))
         if args.capture_live_journal.exists():
             raise CatalogContractError(
                 "probe_journal_already_exists", str(args.capture_live_journal)
@@ -329,9 +329,7 @@ def _capture_mode(args: argparse.Namespace, recomputed: _RecomputedCensus) -> di
     output = args.output
     if output == DEFAULT_OUTPUT_PATH:
         stamp = recomputed.manifest.observed_at.strftime("%Y%m%dT%H%M%SZ")
-        output = DEFAULT_OUTPUT_PATH.with_name(
-            f"layer3_gy_n13a_acquisition_census_{stamp}.json"
-        )
+        output = DEFAULT_OUTPUT_PATH.with_name(f"layer3_gy_n13a_acquisition_census_{stamp}.json")
     if output.exists():
         raise CatalogContractError("census_artifact_already_exists", str(output))
     payload = recomputed.manifest.model_dump(mode="json")
@@ -396,9 +394,7 @@ def _corrupt_field_mode(
     mutations.append(("fetch_plan_owner_edge", plan))
 
     scorecard = copy.deepcopy(payload)
-    scorecard["family_scorecards"][0]["tier_decay_findings"].append(
-        "corrupt_decisive_tier_decay"
-    )
+    scorecard["family_scorecards"][0]["tier_decay_findings"].append("corrupt_decisive_tier_decay")
     mutations.append(("scorecard_tier_decay_finding", scorecard))
 
     backlog = copy.deepcopy(payload)
@@ -497,12 +493,9 @@ def _inspection_report(recomputed: _RecomputedCensus) -> dict[str, Any]:
                 recomputed.selection_plan.family_projection_binding.model_dump(mode="json")
             ),
             "sampling_receipts": [
-                row.model_dump(mode="json")
-                for row in recomputed.selection_plan.sampling_receipts
+                row.model_dump(mode="json") for row in recomputed.selection_plan.sampling_receipts
             ],
-            "owner_receipts": [
-                row.model_dump(mode="json") for row in recomputed.family_receipts
-            ],
+            "owner_receipts": [row.model_dump(mode="json") for row in recomputed.family_receipts],
             "preflight_counts": dict(
                 sorted(
                     Counter(
@@ -540,10 +533,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
     return (
         _SourceFlipCase(
             mutation_id="liveness_dead_relabelled_alive",
-            replacements=((
-                "    if status in {404, 410}:\n        return LivenessState.DEAD\n",
-                "    if status in {404, 410}:\n        return LivenessState.ALIVE_SCHEMA_UNVERIFIED\n",
-            ),),
+            replacements=(
+                (
+                    "    if status in {404, 410}:\n        return LivenessState.DEAD\n",
+                    "    if status in {404, 410}:\n        return LivenessState.ALIVE_SCHEMA_UNVERIFIED\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix + "test_live_liveness_requires_raw_journal_and_rejects_relabeling"
             ),
@@ -554,15 +549,15 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 (
                     "        if live_authorized and self.raw_response is None:\n"
-                    "            raise ValueError(\"an authorized live result requires journaled raw response evidence\")\n",
+                    '            raise ValueError("an authorized live result requires journaled raw response evidence")\n',
                     "        if False and live_authorized and self.raw_response is None:\n"
-                    "            raise ValueError(\"an authorized live result requires journaled raw response evidence\")\n",
+                    '            raise ValueError("an authorized live result requires journaled raw response evidence")\n',
                 ),
                 (
                     "    if request is None or raw_response is None:\n"
-                    "        raise ValueError(\"authorized probe requires request and raw response\")\n",
+                    '        raise ValueError("authorized probe requires request and raw response")\n',
                     "    if request is None:\n"
-                    "        raise ValueError(\"authorized probe requires request and raw response\")\n"
+                    '        raise ValueError("authorized probe requires request and raw response")\n'
                     "    if raw_response is None:\n"
                     "        return LivenessState.ALIVE_SCHEMA_UNVERIFIED\n",
                 ),
@@ -574,10 +569,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="route_class_pinning_accepted",
-            replacements=((
-                "        if self.route_class is not expected:\n",
-                "        if False and self.route_class is not expected:\n",
-            ),),
+            replacements=(
+                (
+                    "        if self.route_class is not expected:\n",
+                    "        if False and self.route_class is not expected:\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix + "test_route_class_label_is_rejected_when_it_disagrees_with_evidence"
             ),
@@ -585,25 +582,29 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="fetch_plan_execution_fence_removed",
-            replacements=((
-                "    def preview(self, *_: object, **__: object) -> None:\n"
-                "        self.preview_calls += 1\n"
-                "        raise CensusExecutionFenceError(\n"
-                "            \"fetch_plan_execution_forbidden\",\n"
-                "            \"FetchExecutor.preview is forbidden during N13a plan generation\",\n"
-                "        )\n",
-                "    def preview(self, *_: object, **__: object) -> None:\n"
-                "        self.preview_calls += 1\n",
-            ),),
+            replacements=(
+                (
+                    "    def preview(self, *_: object, **__: object) -> None:\n"
+                    "        self.preview_calls += 1\n"
+                    "        raise CensusExecutionFenceError(\n"
+                    '            "fetch_plan_execution_forbidden",\n'
+                    '            "FetchExecutor.preview is forbidden during N13a plan generation",\n'
+                    "        )\n",
+                    "    def preview(self, *_: object, **__: object) -> None:\n"
+                    "        self.preview_calls += 1\n",
+                ),
+            ),
             probe_nodeid=test_prefix + "test_fetch_plan_execution_attempt_is_hard_red",
             expected_red_signal="test_fetch_plan_execution_attempt_is_hard_red",
         ),
         _SourceFlipCase(
             mutation_id="growth_backlog_order_reversed",
-            replacements=((
-                "            -row.ranking_score,\n",
-                "            row.ranking_score,\n",
-            ),),
+            replacements=(
+                (
+                    "            -row.ranking_score,\n",
+                    "            row.ranking_score,\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix
                 + "test_growth_backlog_ranks_full_residual_denominator_without_claiming_voi"
@@ -614,10 +615,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="connector_family_denominator_hardcoded",
-            replacements=((
-                "    for connector_id in sorted(populations):\n",
-                "    for connector_id in (\"family.alpha\", \"family.beta\"):\n",
-            ),),
+            replacements=(
+                (
+                    "    for connector_id in sorted(populations):\n",
+                    '    for connector_id in ("family.alpha", "family.beta"):\n',
+                ),
+            ),
             probe_nodeid=(
                 test_prefix
                 + "test_probe_selector_grows_for_a_new_catalog_family_without_code_changes"
@@ -628,13 +631,15 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="connector_fetch_replaced_by_marker_only_dry_run",
-            replacements=((
-                "                    await asyncio.wait_for(\n"
-                "                        harness.test_fetch_returns_fetch_result((connector, handle)),\n"
-                "                        timeout=5.0,\n"
-                "                    )\n",
-                "                    await asyncio.wait_for(asyncio.sleep(0), timeout=5.0)\n",
-            ),),
+            replacements=(
+                (
+                    "                    await asyncio.wait_for(\n"
+                    "                        harness.test_fetch_returns_fetch_result((connector, handle)),\n"
+                    "                        timeout=5.0,\n"
+                    "                    )\n",
+                    "                    await asyncio.wait_for(asyncio.sleep(0), timeout=5.0)\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix
                 + "test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator"
@@ -645,10 +650,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="progressing_live_probe_given_total_kill_timeout",
-            replacements=((
-                "        total=None,\n",
-                "        total=request.budget.timeout_seconds,\n",
-            ),),
+            replacements=(
+                (
+                    "        total=None,\n",
+                    "        total=request.budget.timeout_seconds,\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix
                 + "test_live_transport_uses_inactivity_timeouts_not_a_total_progress_kill"
@@ -659,10 +666,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="nested_run_economics_left_in_semantic_hash",
-            replacements=((
-                "            key: _without_run_economics(item)\n",
-                "            key: item\n",
-            ),),
+            replacements=(
+                (
+                    "            key: _without_run_economics(item)\n",
+                    "            key: item\n",
+                ),
+            ),
             probe_nodeid=(
                 test_prefix
                 + "test_semantic_content_hash_recursively_excludes_declared_run_economics"

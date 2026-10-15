@@ -28,7 +28,6 @@ from tools.lib.timing import (
     SAMPLE_ADMISSION_PREDICATE_IDS,
     ToolRunRecord,
     _coerce_record,
-    _mode_and_output_format_from_argv,
     admit_duration_sample,
     append_timing_record,
     budget_basis_for,
@@ -246,7 +245,7 @@ def _source_ref_excerpt(
     try:
         source_path.relative_to(REPO_ROOT)
         lines = source_path.read_text(encoding="utf-8").splitlines()
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return f"{timing_key}:unreadable_source_ref:{source_ref}"
     start = int(match.group("start"))
     end = int(match.group("end") or start)
@@ -353,6 +352,8 @@ def _live_pytest_node_map(test_paths: tuple[str, ...]) -> dict[str, tuple[str, .
 def _pytest_execution_receipt_record(
     lane: dict[str, object],
     entry: dict[str, object],
+    *,
+    allow_stale_identity: bool = False,
 ) -> tuple[object, list[str]]:
     """Validate a same-child pytest envelope and return its canonical record bytes."""
 
@@ -386,13 +387,11 @@ def _pytest_execution_receipt_record(
         violations.append(f"{timing_key}:uncited_tool_run_record:receipt_record_digest")
 
     workload_identity = entry.get("workload_identity")
-    if workload_identity != lane.get("workload_identity"):
+    if workload_identity != lane.get("workload_identity") and not allow_stale_identity:
         violations.append(f"{timing_key}:uncited_tool_run_record:receipt_identity")
     node_map_payload = entry.get("node_ids_by_path")
     test_paths = (
-        workload_identity.get("test_paths")
-        if isinstance(workload_identity, dict)
-        else None
+        workload_identity.get("test_paths") if isinstance(workload_identity, dict) else None
     )
     if (
         not isinstance(test_paths, list)
@@ -482,7 +481,11 @@ def _preserved_tool_run_record_duration(
             violations.append(f"{timing_key}:uncited_tool_run_record:source_line")
         raw = entry["raw"]
     elif set(entry) == execution_receipt_fields:
-        raw, receipt_violations = _pytest_execution_receipt_record(lane, entry)
+        raw, receipt_violations = _pytest_execution_receipt_record(
+            lane,
+            entry,
+            allow_stale_identity=not expected_admitted,
+        )
         violations.extend(receipt_violations)
     else:
         return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper_fields"]
@@ -502,13 +505,19 @@ def _preserved_tool_run_record_duration(
     try:
         record = _coerce_record(record_payload)
         duration_ms = Decimal(str(record.duration_ms))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         violations.append(f"{timing_key}:uncited_tool_run_record:shape")
         return Decimal("NaN"), violations
     expected_fields = {"tool": lane["tool"], "mode": lane["mode"], "regime": lane["regime"]}
     for field, expected in expected_fields.items():
         if getattr(record, field) != expected:
             violations.append(f"{timing_key}:uncited_tool_run_record:{field}")
+    if (
+        not expected_admitted
+        and entry.get("workload_identity") != lane.get("workload_identity")
+        and (record.status != "failed" or record.exit_code == 0)
+    ):
+        violations.append(f"{timing_key}:uncited_tool_run_record:stale_identity_not_failed_history")
     if record.category not in {record.tool.split(".", 1)[0], "external"}:
         violations.append(f"{timing_key}:uncited_tool_run_record:category")
     declarations = load_healthy_terminal_declarations()
@@ -545,9 +554,7 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
             if lane.get("workload_identity") is None:
                 continue
             if len(source_refs) != 1:
-                violations.append(
-                    f"{timing_key}:nonreceipt_source_cardinality:{len(source_refs)}"
-                )
+                violations.append(f"{timing_key}:nonreceipt_source_cardinality:{len(source_refs)}")
                 continue
             source_ref = source_refs[0]
             assert isinstance(source_ref, str)
@@ -626,21 +633,31 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
     return violations
 
 
-def _direct_cli_options() -> dict[str, tuple[set[str], set[str]]]:
-    """Return independently derived action/context option names for every GY validator."""
+def _direct_cli_options() -> dict[str, tuple[dict[str, bool], set[str]]]:
+    """Derive each current GY parser's action/context options from its declarations."""
 
-    value_actions = {
-        "accept-stage1-n4-journal",
-        "candidate-dir",
-        "candidate-output",
-        "candidate-reissue-catalog-provenance",
-        "capture-live-journal",
-    }
-    surfaces: dict[str, tuple[set[str], set[str]]] = {}
+    surfaces: dict[str, tuple[dict[str, bool], set[str]]] = {}
     for path in sorted(VALIDATION_ROOT.glob("check_layer3_gy_*.py")):
-        actions: set[str] = set()
-        contexts: set[str] = set()
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        group_names: set[str] = set()
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Assign, ast.AnnAssign)) or not isinstance(
+                node.value, ast.Call
+            ):
+                continue
+            if (
+                isinstance(node.value.func, ast.Attribute)
+                and node.value.func.attr == "add_mutually_exclusive_group"
+            ):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        group_names.add(target.id)
+
+        option_destinations: dict[str, str] = {}
+        group_options: set[str] = set()
+        boolean_options: set[str] = set()
+        value_taking: dict[str, bool] = {}
         for node in ast.walk(tree):
             if not (
                 isinstance(node, ast.Call)
@@ -652,15 +669,57 @@ def _direct_cli_options() -> dict[str, tuple[set[str], set[str]]]:
                 and node.args[0].value.startswith("--")
             ):
                 continue
-            name = node.args[0].value[2:]
+            names = [
+                argument.value[2:]
+                for argument in node.args
+                if isinstance(argument, ast.Constant)
+                and isinstance(argument.value, str)
+                and argument.value.startswith("--")
+            ]
+            if not names:
+                continue
             keywords = {keyword.arg: keyword.value for keyword in node.keywords if keyword.arg}
+            declared_dest = keywords.get("dest")
+            inferred_dest = (
+                declared_dest.value
+                if isinstance(declared_dest, ast.Constant) and isinstance(declared_dest.value, str)
+                else names[0].replace("-", "_")
+            )
             action = keywords.get("action")
             is_store_true = isinstance(action, ast.Constant) and action.value == "store_true"
-            if (is_store_true and name != "json") or name in value_actions:
-                actions.add(name)
-            else:
-                contexts.add(name)
-        surfaces[path.name] = (actions, contexts)
+            is_mode_group = (
+                isinstance(node.func.value, ast.Name) and node.func.value.id in group_names
+            )
+            for name in names:
+                option_destinations[name] = inferred_dest
+                value_taking[name] = not is_store_true
+                if is_mode_group:
+                    group_options.add(name)
+                if is_store_true and name != "json":
+                    boolean_options.add(name)
+
+        destinations = set(option_destinations.values())
+        selected_value_options: set[str] = set()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Tuple) or len(node.elts) != 2:
+                continue
+            label, selected = node.elts
+            if (
+                not isinstance(label, ast.Constant)
+                or not isinstance(label.value, str)
+                or label.value not in option_destinations
+            ):
+                continue
+            referenced_destinations = {
+                item.attr for item in ast.walk(selected) if isinstance(item, ast.Attribute)
+            }
+            if referenced_destinations & destinations:
+                selected_value_options.add(label.value)
+
+        actions = group_options | boolean_options | selected_value_options
+        contexts = set(option_destinations) - actions
+        action_values = {name: value_taking[name] for name in sorted(actions)}
+        surfaces[path.name] = (action_values, contexts)
     return surfaces
 
 
@@ -729,188 +788,489 @@ def test_direct_gy_guard_persists_expected_nonzero_exception_result(tmp_path: Pa
     assert records[0]["exit_code"] == 1
 
 
-def test_canonical_direct_run_records_action_lane_and_output_format(tmp_path: Path) -> None:
-    """Catch option parsing that mistakes value-taking plumbing for the action lane."""
+def _write_timed_cli_fixture(script_path: Path, main_body: str) -> None:
+    """Write a subprocess fixture that uses the canonical actual-parser timing bridge."""
 
-    script_path = tmp_path / "check_layer3_gy_fixture.py"
+    body = textwrap.indent(textwrap.dedent(main_body).strip(), "    ")
     script_path.write_text(
-        textwrap.dedent(
-            """\
-            from tools.lib.timing import run_timed_entrypoint
-
-            def main(argv: list[str]) -> int:
-                return 0
-
-            if __name__ == "__main__":
-                import sys
-                raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))
-            """
-        ),
+        "import argparse\n"
+        "import sys\n"
+        "from pathlib import Path\n\n"
+        "from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint\n\n"
+        "def main(argv: list[str]) -> int:\n"
+        f"{body}\n\n"
+        'if __name__ == "__main__":\n'
+        "    raise SystemExit(\n"
+        "        run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:])\n"
+        "    )\n",
         encoding="utf-8",
     )
+
+
+def test_actual_parser_result_drives_mode_and_output_format(tmp_path: Path) -> None:
+    """Use argparse's accepted namespace for both the operational mode and format."""
+
+    script_path = tmp_path / "check_layer3_gy_fixture.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        modes = parser.add_mutually_exclusive_group()
+        modes.add_argument("--check", action="store_true")
+        modes.add_argument("--write", action="store_true")
+        parser.add_argument("--repo-root", type=Path)
+        parser.add_argument("--output-format", choices=("text", "json"), default="text")
+        args = parse_args_for_timing(
+            parser,
+            argv,
+            mode_options=("--check", "--write"),
+        )
+        print(args.repo_root)
+        print(sorted(vars(args)))
+        return 0
+        """,
+    )
     timing_log = tmp_path / "timing.jsonl"
+
     result = _run_direct_guard(
         script_path,
         "--repo-root",
-        ".",
+        "fixture-root",
         "--check",
-        "--output-format",
-        "json",
-        timing_log=timing_log,
-    )
-
-    assert result.returncode == 0
-    records = read_timing_records(timing_log)
-    assert len(records) == 1
-    assert records[0].mode == "check"
-    assert records[0].output_format == "json"
-    catalog = load_timing_budget_catalog_data(
-        {
-            "lanes": [
-                {
-                    "timing_key": "check_layer3_gy_fixture:check",
-                    "tool": "check_layer3_gy_fixture",
-                    "mode": "check",
-                    "command": "python check_layer3_gy_fixture.py --repo-root . --check --output-format json",
-                    "samples_ms": [0.0],
-                    "measured_p95_ms": 0.0,
-                    "recommended_timeout_ms": 0.0,
-                    "source_refs": ["docs/receipt.md:1"],
-                    "sample_admission_predicate": "manual_journal_excerpt:v1",
-                    "regime": "serialized",
-                }
-            ]
-        }
-    )
-    assert summarize_timing_budget_lanes(records, catalog)[0].local_runs == 1
-
-
-def test_direct_context_options_do_not_invent_an_action_mode(tmp_path: Path) -> None:
-    """Catch an alternate input path being mislabeled as an operational action."""
-
-    script_path = tmp_path / "check_layer3_gy_fixture.py"
-    script_path.write_text(
-        textwrap.dedent(
-            """\
-            from tools.lib.timing import run_timed_entrypoint
-
-            def main(argv: list[str]) -> int:
-                return 0
-
-            if __name__ == "__main__":
-                import sys
-                raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))
-            """
-        ),
-        encoding="utf-8",
-    )
-    timing_log = tmp_path / "timing.jsonl"
-
-    result = _run_direct_guard(
-        script_path,
-        "--audit",
-        "receipt.json",
-        "--repo-root",
-        ".",
         "--output-format=json",
         timing_log=timing_log,
     )
 
     assert result.returncode == 0
-    records = read_timing_records(timing_log)
-    assert len(records) == 1
-    assert records[0].mode == "default"
-    assert records[0].output_format == "json"
+    assert result.stdout == "fixture-root\n['check', 'output_format', 'repo_root', 'write']\n"
+    record = read_timing_records(timing_log)[0]
+    assert record.mode == "check"
+    assert record.output_format == "json"
 
 
-def test_direct_action_classification_ignores_json_presentation_flag(tmp_path: Path) -> None:
-    """Catch ``--json`` outranking a later operational action flag."""
+def test_required_mode_group_failure_records_unknown(tmp_path: Path) -> None:
+    """A failed required mutually exclusive group cannot be recorded as default."""
 
-    script_path = tmp_path / "check_layer3_gy_fixture.py"
-    script_path.write_text(
-        textwrap.dedent(
-            """\
-            from tools.lib.timing import run_timed_entrypoint
-
-            def main(argv: list[str]) -> int:
-                return 0
-
-            if __name__ == "__main__":
-                import sys
-                raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))
-            """
-        ),
-        encoding="utf-8",
+    script_path = tmp_path / "required_group_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        modes = parser.add_mutually_exclusive_group(required=True)
+        modes.add_argument("--check", action="store_true")
+        modes.add_argument("--write", action="store_true")
+        parser.add_argument("--expected-source-freeze")
+        parse_args_for_timing(
+            parser,
+            argv,
+            mode_options=("--check", "--write"),
+        )
+        return 0
+        """,
     )
     timing_log = tmp_path / "timing.jsonl"
 
     result = _run_direct_guard(
         script_path,
-        "--json",
+        "--expected-source-freeze",
+        "unused-source-freeze.json",
+        timing_log=timing_log,
+    )
+
+    assert result.returncode == 2
+    assert "one of the arguments --check --write is required" in result.stderr
+    record = read_timing_records(timing_log)[0]
+    assert record.mode == "unknown"
+    assert record.output_format == "unknown"
+    assert record.exit_code == 2
+
+
+@pytest.mark.parametrize(
+    ("script_name", "argv"),
+    [
+        ("check_layer3_gy_confidence_ledger.py", ()),
+        (
+            "check_layer3_gy_epoch_chronology_contract.py",
+            ("--expected-source-freeze", "unused-source-freeze.json"),
+        ),
+    ],
+)
+def test_real_required_gy_mode_groups_record_unknown_on_parse_failure(
+    tmp_path: Path,
+    script_name: str,
+    argv: tuple[str, ...],
+) -> None:
+    """Exercise the two production parsers whose required mode group rejected wrappers."""
+
+    timing_log = tmp_path / f"{script_name}.jsonl"
+    result = _run_direct_guard(
+        VALIDATION_ROOT / script_name,
+        *argv,
+        timing_log=timing_log,
+    )
+
+    assert result.returncode == 2
+    assert "one of the arguments" in result.stderr
+    record = read_timing_records(timing_log)[0]
+    assert record.mode == "unknown"
+    assert record.exit_code == 2
+
+
+def test_dead_branch_parser_marker_does_not_classify_an_unregistered_mode(
+    tmp_path: Path,
+) -> None:
+    """The runtime parser, not a source marker, decides whether the mode exists."""
+
+    script_path = tmp_path / "dead_branch_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        if False:
+            parser.add_argument("--check", action="store_true")
+        parse_args_for_timing(parser, argv, mode_options=("--check",))
+        return 0
+        """,
+    )
+    timing_log = tmp_path / "timing.jsonl"
+
+    result = _run_direct_guard(script_path, "--check", timing_log=timing_log)
+
+    assert result.returncode == 2
+    assert "unrecognized arguments: --check" in result.stderr
+    record = read_timing_records(timing_log)[0]
+    assert record.mode == "unknown"
+    assert record.exit_code == 2
+
+
+@pytest.mark.parametrize(
+    ("option", "mode_options"),
+    [
+        ("--candidate-dir", ("--candidate-dir",)),
+        ("--accept-stage1-n4-journal", ("--accept-stage1-n4-journal",)),
+    ],
+)
+def test_value_taking_modes_use_the_actual_path_action(
+    tmp_path: Path,
+    option: str,
+    mode_options: tuple[str, ...],
+) -> None:
+    """Value-taking mode labels come from a parsed Action, not a destination prefix."""
+
+    script_path = tmp_path / "path_mode_guard.py"
+    options = ", ".join(repr(value) for value in mode_options)
+    if len(mode_options) == 1:
+        options += ","
+    _write_timed_cli_fixture(
+        script_path,
+        f"""
+        parser = argparse.ArgumentParser()
+        parser.add_argument({option!r}, type=Path)
+        args = parse_args_for_timing(parser, argv, mode_options=({options}))
+        print(args.{option.removeprefix("--").replace("-", "_")})
+        return 0
+        """,
+    )
+    value = tmp_path / "candidate.json"
+    timing_log = tmp_path / "timing.jsonl"
+
+    result = _run_direct_guard(script_path, option, str(value), timing_log=timing_log)
+
+    assert result.returncode == 0
+    assert result.stdout == f"{value}\n"
+    record = read_timing_records(timing_log)[0]
+    assert record.mode == option.removeprefix("--")
+
+
+def test_context_option_is_default_and_abbreviation_uses_argparse_result(
+    tmp_path: Path,
+) -> None:
+    """Context values stay default while valid argparse abbreviations map to declared modes."""
+
+    script_path = tmp_path / "context_mode_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        parser.add_argument("--repo-root")
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        print(args.repo_root)
+        return 0
+        """,
+    )
+    context_log = tmp_path / "context.jsonl"
+    context_result = _run_direct_guard(
+        script_path,
+        "--repo-root",
+        "some-root",
+        timing_log=context_log,
+    )
+    assert context_result.returncode == 0
+    assert read_timing_records(context_log)[0].mode == "default"
+
+    abbreviated_log = tmp_path / "abbreviated.jsonl"
+    abbreviated_result = _run_direct_guard(
+        script_path,
+        "--chec",
+        timing_log=abbreviated_log,
+    )
+    assert abbreviated_result.returncode == 0
+    assert read_timing_records(abbreviated_log)[0].mode == "check"
+
+
+def test_non_neutral_mode_default_stays_unknown_without_changing_parse_result(
+    tmp_path: Path,
+) -> None:
+    """A counterfactual true default is not mistaken for a user-selected action."""
+
+    script_path = tmp_path / "non_neutral_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true", default=True)
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        print(args.check)
+        return 0
+        """,
+    )
+    timing_log = tmp_path / "timing.jsonl"
+
+    result = _run_direct_guard(script_path, timing_log=timing_log)
+
+    assert result.returncode == 0
+    assert result.stdout == "True\n"
+    assert read_timing_records(timing_log)[0].mode == "unknown"
+
+
+def test_repeated_parse_and_repeated_mode_occurrences_are_unknown(tmp_path: Path) -> None:
+    """One direct entrypoint may contribute a label only from one unambiguous parse."""
+
+    repeated_parse = tmp_path / "repeated_parse_guard.py"
+    _write_timed_cli_fixture(
+        repeated_parse,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        parse_args_for_timing(parser, [], mode_options=("--check",))
+        return 0 if args.check else 0
+        """,
+    )
+    repeated_log = tmp_path / "repeated-parse.jsonl"
+    repeated_result = _run_direct_guard(
+        repeated_parse,
         "--check",
+        timing_log=repeated_log,
+    )
+    assert repeated_result.returncode == 0
+    assert read_timing_records(repeated_log)[0].mode == "unknown"
+
+    repeated_option = tmp_path / "repeated_option_guard.py"
+    _write_timed_cli_fixture(
+        repeated_option,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        return 0 if args.check else 1
+        """,
+    )
+    option_log = tmp_path / "repeated-option.jsonl"
+    option_result = _run_direct_guard(
+        repeated_option,
+        "--check",
+        "--check",
+        timing_log=option_log,
+    )
+    assert option_result.returncode == 0
+    assert read_timing_records(option_log)[0].mode == "unknown"
+
+
+def test_multiple_selected_actions_are_unknown(tmp_path: Path) -> None:
+    """A permissive parser with two selected modes has no unique timing lane."""
+
+    script_path = tmp_path / "multiple_modes_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        parser.add_argument("--write", action="store_true")
+        args = parse_args_for_timing(
+            parser,
+            argv,
+            mode_options=("--check", "--write"),
+        )
+        return 0 if args.check and args.write else 1
+        """,
+    )
+    timing_log = tmp_path / "multiple-modes.jsonl"
+
+    result = _run_direct_guard(
+        script_path,
+        "--check",
+        "--write",
         timing_log=timing_log,
     )
 
     assert result.returncode == 0
-    records = read_timing_records(timing_log)
-    assert len(records) == 1
-    assert records[0].mode == "check"
-    assert records[0].output_format == "json"
+    assert read_timing_records(timing_log)[0].mode == "unknown"
 
 
-def test_value_taking_action_precedes_later_context_options() -> None:
-    """Catch a value-taking mode being replaced by the last value option in argv."""
+def test_unsupported_action_and_parser_default_override_stay_unknown(
+    tmp_path: Path,
+) -> None:
+    """Custom actions and parser-level counterfactual defaults are not guessed."""
 
-    assert _mode_and_output_format_from_argv(
-        [
-            "--capture-live-journal",
-            "capture.json",
-            "--event-log-path",
-            "events.jsonl",
-            "--catalog-path",
-            "catalog.duckdb",
-        ]
-    ) == ("capture-live-journal", "text")
+    custom_action = tmp_path / "custom_action_guard.py"
+    _write_timed_cli_fixture(
+        custom_action,
+        """
+        class CustomAction(argparse.Action):
+            def __call__(self, parser, namespace, values, option_string=None):
+                setattr(namespace, self.dest, True)
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action=CustomAction, nargs=0, default=False)
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        return 0 if args.check else 1
+        """,
+    )
+    custom_log = tmp_path / "custom-action.jsonl"
+    custom_result = _run_direct_guard(custom_action, "--check", timing_log=custom_log)
+    assert custom_result.returncode == 0
+    assert read_timing_records(custom_log)[0].mode == "unknown"
+
+    mutated_default = tmp_path / "mutated_parser_default_guard.py"
+    _write_timed_cli_fixture(
+        mutated_default,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        parser.set_defaults(check=True)
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        return 0 if args.check else 1
+        """,
+    )
+    default_log = tmp_path / "mutated-default.jsonl"
+    default_result = _run_direct_guard(mutated_default, timing_log=default_log)
+    assert default_result.returncode == 0
+    assert read_timing_records(default_log)[0].mode == "unknown"
 
 
-def test_mode_classifier_covers_every_current_gy_argparse_surface() -> None:
-    """Catch any current GY action or context option escaping shared classification."""
+def test_uninstrumented_or_changed_parse_input_is_unknown(tmp_path: Path) -> None:
+    """Only the canonical helper can bind the actual parse to the timed argv."""
+
+    uninstrumented = tmp_path / "uninstrumented_guard.py"
+    _write_timed_cli_fixture(
+        uninstrumented,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        args = parser.parse_args(argv)
+        return 0 if args.check else 0
+        """,
+    )
+    uninstrumented_log = tmp_path / "uninstrumented.jsonl"
+    uninstrumented_result = _run_direct_guard(
+        uninstrumented,
+        "--check",
+        timing_log=uninstrumented_log,
+    )
+    assert uninstrumented_result.returncode == 0
+    assert read_timing_records(uninstrumented_log)[0].mode == "unknown"
+
+    changed_input = tmp_path / "changed_input_guard.py"
+    _write_timed_cli_fixture(
+        changed_input,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        argv.append("--check")
+        args = parse_args_for_timing(parser, argv, mode_options=("--check",))
+        return 0 if args.check else 1
+        """,
+    )
+    changed_log = tmp_path / "changed-input.jsonl"
+    changed_result = _run_direct_guard(changed_input, timing_log=changed_log)
+    assert changed_result.returncode == 0
+    assert read_timing_records(changed_log)[0].mode == "unknown"
+
+
+def test_dead_helper_call_does_not_classify_a_direct_runtime_parse(tmp_path: Path) -> None:
+    """A source-present helper call must execute before its timing label is trusted."""
+
+    script_path = tmp_path / "dead_helper_call_guard.py"
+    _write_timed_cli_fixture(
+        script_path,
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--check", action="store_true")
+        if False:
+            parse_args_for_timing(parser, argv, mode_options=("--check",))
+        args = parser.parse_args(argv)
+        print(args.check)
+        return 0
+        """,
+    )
+    timing_log = tmp_path / "dead-helper-call.jsonl"
+
+    result = _run_direct_guard(script_path, "--check", timing_log=timing_log)
+
+    assert result.returncode == 0
+    assert result.stdout == "True\n"
+    assert read_timing_records(timing_log)[0].mode == "unknown"
+
+
+def test_mode_contract_is_wired_to_the_complete_current_gy_option_census() -> None:
+    """Every current operational option has a per-parser role and actual parse bridge."""
 
     surfaces = _direct_cli_options()
-    value_actions = {
-        "accept-stage1-n4-journal",
-        "candidate-dir",
-        "candidate-output",
-        "candidate-reissue-catalog-provenance",
-        "capture-live-journal",
-    }
-    observed_value_actions: set[str] = set()
     assert len(surfaces) == 42
+    assert sum(len(actions) for actions, _contexts in surfaces.values()) == 132
+    assert sum(len(contexts) for _actions, contexts in surfaces.values()) == 110
 
-    for script, (actions, contexts) in surfaces.items():
-        context_argv: list[str] = []
-        for context in sorted(contexts):
-            context_argv.append(f"--{context}")
-            if context == "json":
-                continue
-            context_argv.append("json" if context == "output-format" else "fixture")
-        expected_format = "json" if {"json", "output-format"} & contexts else "text"
-        assert _mode_and_output_format_from_argv(context_argv) == (
-            "default",
-            expected_format,
-        ), script
-
-        for action in actions:
-            action_argv = [f"--{action}"]
-            if action in value_actions:
-                observed_value_actions.add(action)
-                action_argv.append("action-value")
-            assert _mode_and_output_format_from_argv([*action_argv, *context_argv]) == (
-                action,
-                expected_format,
-            ), f"{script}:{action}"
-
-    assert observed_value_actions == value_actions
+    for script, (action_options, _contexts) in surfaces.items():
+        source_path = VALIDATION_ROOT / script
+        source = source_path.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(source_path))
+        imports = {
+            imported.asname or imported.name
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom) and node.module == "tools.lib.timing"
+            for imported in node.names
+            if imported.name == "parse_args_for_timing"
+        }
+        assert imports == {"parse_args_for_timing"}, script
+        helper_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "parse_args_for_timing"
+        ]
+        assert len(helper_calls) == 1, script
+        option_keywords = [
+            keyword.value for keyword in helper_calls[0].keywords if keyword.arg == "mode_options"
+        ]
+        assert len(option_keywords) == 1 and isinstance(option_keywords[0], ast.Tuple), script
+        actual = tuple(
+            element.value
+            for element in option_keywords[0].elts
+            if isinstance(element, ast.Constant) and isinstance(element.value, str)
+        )
+        expected = tuple(f"--{option}" for option in sorted(action_options))
+        assert actual == expected, script
+        direct_parse_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr in {"parse_args", "parse_known_args"}
+        ]
+        assert direct_parse_calls == [], script
 
 
 def test_direct_duration_includes_slow_module_initialization(tmp_path: Path) -> None:
@@ -1516,8 +1876,7 @@ def test_epoch_corrupt_field_drift_catalog_lane_binds_healthy_wall_receipt() -> 
     assert len(lanes) == 1
     lane = lanes[0]
     evidence_path = Path(
-        "docs/superpowers/timing-evidence/"
-        "2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl"
+        "docs/superpowers/timing-evidence/2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl"
     )
     assert lane.source_refs == (f"{evidence_path}:1",)
     evidence_lines = evidence_path.read_text(encoding="utf-8").splitlines()
@@ -1555,10 +1914,7 @@ def test_timing_budget_evidence_rejects_a_line_shifted_receipt() -> None:
         for lane in lanes
         if isinstance(lane, dict) and lane.get("timing_key") == "atlas.python-governance:default"
     )
-    shifted_ref = (
-        "docs/superpowers/timing-evidence/"
-        "2026-09-01-atlas-python-governance.jsonl:2"
-    )
+    shifted_ref = "docs/superpowers/timing-evidence/2026-09-01-atlas-python-governance.jsonl:2"
     atlas["source_refs"] = [shifted_ref]
 
     assert (
@@ -1613,11 +1969,7 @@ def test_timing_budget_evidence_binds_failed_pytest_execution_receipt(
         "workload_identity": identity,
     }
     evidence_path = (
-        tmp_path
-        / "docs"
-        / "superpowers"
-        / "timing-evidence"
-        / "atlas-python-governance.jsonl"
+        tmp_path / "docs" / "superpowers" / "timing-evidence" / "atlas-python-governance.jsonl"
     )
     evidence_path.parent.mkdir(parents=True)
     evidence_path.write_text(
@@ -1635,9 +1987,7 @@ def test_timing_budget_evidence_binds_failed_pytest_execution_receipt(
                 "samples_ms": [],
                 "measured_p95_ms": None,
                 "recommended_timeout_ms": None,
-                "source_refs": [
-                    "docs/superpowers/timing-evidence/atlas-python-governance.jsonl:1"
-                ],
+                "source_refs": ["docs/superpowers/timing-evidence/atlas-python-governance.jsonl:1"],
                 "workload_identity": identity,
                 "sample_admission_predicate": "declared_healthy_terminal:v1",
                 "regime": "serialized",
@@ -1646,6 +1996,20 @@ def test_timing_budget_evidence_binds_failed_pytest_execution_receipt(
     }
 
     assert _catalog_evidence_violations(payload) == []
+    stale_identity = {**identity, "source_digests": {test_path: "sha256:" + "3" * 64}}
+    stale_lane = {**payload["lanes"][0], "workload_identity": stale_identity}
+    _raw, identity_violations = _pytest_execution_receipt_record(stale_lane, receipt)
+    assert "atlas.python-governance:default:uncited_tool_run_record:receipt_identity" in (
+        identity_violations
+    )
+    receipt["node_ids_by_path"][test_path] = [f"{test_path}::tampered"]
+    evidence_path.write_text(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    assert "atlas.python-governance:default:uncited_tool_run_record:receipt_node_map" in (
+        _catalog_evidence_violations(payload)
+    )
     receipt["argv"] = [sys.executable, "-m", "pytest", "tests/other.py", "-q"]
     evidence_path.write_text(
         json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n",
@@ -1775,8 +2139,7 @@ def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
     assert any("confidence_ledger:check" in item for item in violations)
 
 
-def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
-) -> None:
+def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> None:
     """Bind the current Atlas lane to its complete live pytest workload identity."""
 
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
@@ -1833,7 +2196,12 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
     assert receipt["timing_key"] == atlas["timing_key"]
     assert receipt["cwd"] == "."
     assert receipt["argv"] == shlex.split(atlas["command"])
-    assert receipt["workload_identity"] == identity_payload
+    assert receipt["workload_identity"] != identity_payload
+    assert receipt["workload_identity"]["test_paths"] == identity_payload["test_paths"]
+    assert (
+        timing_lib.pytest_node_map_digest(receipt["node_ids_by_path"])
+        == receipt["workload_identity"]["node_map_digest"]
+    )
     raw_record = receipt["tool_run_record"]
     assert isinstance(raw_record, str)
     assert receipt["tool_run_record_digest"] == (
@@ -1874,9 +2242,7 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
     timing_lib.verify_pytest_workload_identity(
         lane.workload_identity,
         command_test_paths=tuple(command_test_paths),
-        source_bytes={
-            path: (REPO_ROOT / path).read_bytes() for path in command_test_paths
-        },
+        source_bytes={path: (REPO_ROOT / path).read_bytes() for path in command_test_paths},
         node_ids_by_path=collected,
         pytest_version=pytest.__version__,
         config_path="pytest.ini",
@@ -1917,9 +2283,7 @@ def test_atlas_python_governance_workload_identity_rejects_same_cardinality_node
         config_path="pytest.ini",
         config_bytes=config_bytes,
     )
-    swapped = {
-        test_path: (f"{test_path}::test_example[a]", f"{test_path}::test_example[c]")
-    }
+    swapped = {test_path: (f"{test_path}::test_example[a]", f"{test_path}::test_example[c]")}
     assert sum(map(len, original.values())) == sum(map(len, swapped.values()))
     with pytest.raises(ValueError, match="node map digest"):
         timing_lib.verify_pytest_workload_identity(
@@ -1955,9 +2319,7 @@ def test_pytest_workload_verifier_rejects_invalid_direct_identity(
         schema_version=timing_lib.PYTEST_WORKLOAD_SCHEMA_VERSION,
         predicate_provenance=timing_lib.PYTEST_WORKLOAD_PREDICATE_PROVENANCE,
         test_paths=(test_path,),
-        source_digests=(
-            (test_path, "sha256:" + hashlib.sha256(source).hexdigest()),
-        ),
+        source_digests=((test_path, "sha256:" + hashlib.sha256(source).hexdigest()),),
         pytest_version="9.0.2",
         config_path="pytest.ini",
         config_digest="sha256:" + hashlib.sha256(config).hexdigest(),

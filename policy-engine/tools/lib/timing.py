@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import ast
 import fcntl
 import hashlib
@@ -12,6 +13,7 @@ import sys
 import time
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from inspect import signature
@@ -88,22 +90,6 @@ DEFAULT_TIMING_LOG_PATH = Path(__file__).resolve().parents[2] / ".polisyos-tools
 DEFAULT_TIMING_RETENTION = 2000
 DEFAULT_TIMING_BUDGET_CATALOG_PATH = (
     Path(__file__).resolve().parents[1] / "quality" / "timing_budgets.json"
-)
-_DIRECT_ACTION_OPTION_PREFIXES = (
-    "accept",
-    "candidate",
-    "capture",
-    "characterize",
-    "check",
-    "cold",
-    "corrupt",
-    "execute",
-    "measure",
-    "rederive",
-    "reissue",
-    "source-flip",
-    "warm",
-    "write",
 )
 DEFAULT_TIMING_BUDGETS_MS: dict[str, float] = {
     "workspace.bootstrap": 180_000.0,
@@ -684,7 +670,7 @@ def read_timing_records(path: Path) -> list[ToolRunRecord]:
             continue
         try:
             records.append(_coerce_record(payload))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             continue
     return records
 
@@ -1114,6 +1100,7 @@ def run_timed_operation(
     output_format: str = "text",
     started_perf_counter: float | None = None,
     record_sink: Callable[[ToolRunRecord], None] | None = None,
+    _record_labels: Callable[[], tuple[str, str]] | None = None,
 ) -> int:
     """Run an operation and append one best-effort timing record without changing its outcome."""
 
@@ -1137,16 +1124,23 @@ def run_timed_operation(
     except BaseException:
         raise
     finally:
+        record_mode = mode
+        record_format = output_format
+        if _record_labels is not None:
+            try:
+                record_mode, record_format = _record_labels()
+            except Exception:  # pragma: no cover - defensive telemetry boundary.
+                record_mode, record_format = "unknown", "unknown"
         record = ToolRunRecord(
             tool=tool,
             category=category,
-            output_format=output_format,
+            output_format=record_format,
             status=status,
             preflight_status="ok",
             started_at=started_at,
             duration_ms=round((time.perf_counter() - started) * 1000.0, 3),
             exit_code=exit_code,
-            mode=mode,
+            mode=record_mode,
             regime=regime_from_env(),
         )
         if record_sink is not None:
@@ -1175,55 +1169,270 @@ def _timing_key_for_script(script_path: str | Path) -> str:
     return ".".join(parts[tools_index + 1 :])
 
 
-def _long_options_from_argv(argv: list[str]) -> list[tuple[str, str | None]]:
-    """Return long options and their syntactically attached values before ``--``."""
+@dataclass
+class _CLIParseObservation:
+    """Actual parser result observed during one direct timed entrypoint."""
 
-    options: list[tuple[str, str | None]] = []
-    index = 0
-    while index < len(argv):
-        argument = argv[index]
-        if argument == "--":
-            break
-        if not argument.startswith("--") or len(argument) <= 2:
-            index += 1
-            continue
-        rendered = argument[2:]
-        if "=" in rendered:
-            name, value = rendered.split("=", 1)
-            options.append((name, value))
-            index += 1
-            continue
-        value: str | None = None
-        if index + 1 < len(argv) and not argv[index + 1].startswith("--"):
-            value = argv[index + 1]
-            index += 1
-        options.append((rendered, value))
-        index += 1
-    return options
+    expected_argv: tuple[str, ...]
+    parse_calls: int = 0
+    usable: bool = True
+    mode: str = "unknown"
+    output_format: str = "unknown"
 
 
-def _mode_and_output_format_from_argv(argv: list[str]) -> tuple[str, str]:
-    """Classify action mode and presentation format without treating values as actions."""
+class _ObservedNamespace(argparse.Namespace):
+    """Namespace that records actual action writes without changing parser rules."""
 
-    options = _long_options_from_argv(argv)
-    output_format = "text"
-    for name, value in options:
-        if name == "output-format" and value:
-            output_format = value
-        elif name == "json" and value is None:
-            output_format = "json"
+    __slots__ = ("_polisyos_timing_write_events",)
 
-    action_options = [
-        name
-        for name, _value in options
-        if any(
-            name == prefix or name.startswith(f"{prefix}-")
-            for prefix in _DIRECT_ACTION_OPTION_PREFIXES
-        )
+    def __init__(self) -> None:
+        super().__init__()
+        object.__setattr__(self, "_polisyos_timing_write_events", {})
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if name != "_polisyos_timing_write_events":
+            writes: dict[str, list[object]] = object.__getattribute__(
+                self, "_polisyos_timing_write_events"
+            )
+            writes.setdefault(name, []).append(value)
+        super().__setattr__(name, value)
+
+
+_ACTIVE_CLI_PARSE: ContextVar[_CLIParseObservation | None] = ContextVar(
+    "polisyos_timed_cli_parse", default=None
+)
+_OBSERVABLE_ARGPARSE_ACTIONS = frozenset(
+    {
+        argparse._StoreAction,
+        argparse._StoreTrueAction,
+        argparse._StoreFalseAction,
+        argparse._StoreConstAction,
+        argparse._AppendAction,
+        argparse._AppendConstAction,
+        argparse._CountAction,
+        argparse._HelpAction,
+        argparse._VersionAction,
+        argparse._ExtendAction,
+    }
+)
+
+
+def _mode_action_specs(
+    parser: argparse.ArgumentParser,
+    mode_options: tuple[str, ...],
+) -> tuple[tuple[str, argparse.Action, object], ...] | None:
+    """Validate explicit mode roles against the actual parser's supported actions."""
+
+    if type(parser) is not argparse.ArgumentParser or type(mode_options) is not tuple:
+        return None
+    if any(type(option) is not str or not option.startswith("--") for option in mode_options):
+        return None
+    if len(set(mode_options)) != len(mode_options):
+        return None
+
+    actions = parser._actions
+    specs: list[tuple[str, argparse.Action, object]] = []
+    destinations: set[str] = set()
+    for option in mode_options:
+        matches = [action for action in actions if option in action.option_strings]
+        if len(matches) != 1:
+            return None
+        action = matches[0]
+        if not isinstance(action.dest, str) or not action.dest or action.dest in destinations:
+            return None
+        destinations.add(action.dest)
+        if sum(candidate.dest == action.dest for candidate in actions) != 1:
+            return None
+        if (
+            type(action) is argparse._StoreTrueAction
+            and action.default is False
+            and action.nargs == 0
+        ):
+            neutral: object = False
+        elif (
+            type(action) is argparse._StoreAction
+            and action.default is None
+            and action.nargs is None
+            and action.const is None
+            and action.type in (None, Path)
+        ):
+            neutral = None
+        else:
+            return None
+        if action.dest in parser._defaults and parser._defaults[action.dest] is not neutral:
+            return None
+        specs.append((option, action, neutral))
+    return tuple(specs)
+
+
+def _output_format_from_parsed_namespace(
+    parser: argparse.ArgumentParser,
+    namespace: argparse.Namespace,
+    writes: Mapping[str, list[object]],
+) -> str:
+    """Read supported presentation options from the successful parse result."""
+
+    json_actions = [action for action in parser._actions if "--json" in action.option_strings]
+    format_actions = [
+        action for action in parser._actions if "--output-format" in action.option_strings
     ]
-    if action_options:
-        return action_options[0], output_format
-    return "default", output_format
+    if len(json_actions) > 1 or len(format_actions) > 1:
+        return "unknown"
+
+    json_enabled = False
+    if json_actions:
+        action = json_actions[0]
+        if (
+            type(action) is not argparse._StoreTrueAction
+            or action.default is not False
+            or action.nargs != 0
+            or sum(candidate.dest == action.dest for candidate in parser._actions) != 1
+        ):
+            return "unknown"
+        value = getattr(namespace, action.dest, False)
+        active_writes = sum(item is True for item in writes.get(action.dest, []))
+        if value not in (False, True) or active_writes > 1:
+            return "unknown"
+        json_enabled = value is True
+
+    parsed_format = "text"
+    if format_actions:
+        action = format_actions[0]
+        choices = action.choices
+        if (
+            type(action) is not argparse._StoreAction
+            or action.default != "text"
+            or action.nargs is not None
+            or action.const is not None
+            or action.type not in (None, str)
+            or not isinstance(choices, (tuple, list))
+            or not {"text", "json"}.issubset(choices)
+            or sum(candidate.dest == action.dest for candidate in parser._actions) != 1
+        ):
+            return "unknown"
+        value = getattr(namespace, action.dest, "text")
+        if value not in choices or type(value) is not str:
+            return "unknown"
+        action_writes = writes.get(action.dest, [])
+        explicit_writes = len(action_writes) - (action.default is not argparse.SUPPRESS)
+        if explicit_writes > 1:
+            return "unknown"
+        parsed_format = value
+
+    if json_enabled and parsed_format == "json":
+        return "json"
+    if json_enabled and parsed_format == "text" and format_actions:
+        # Two independent presentation controls disagree; the record cannot choose
+        # which surface contract the entrypoint applies.
+        format_writes = writes.get(format_actions[0].dest, [])
+        explicit_format = len(format_writes) > 1
+        if explicit_format:
+            return "unknown"
+    if json_enabled:
+        return "json"
+    return parsed_format
+
+
+def _mode_from_parsed_namespace(
+    namespace: argparse.Namespace,
+    writes: Mapping[str, list[object]],
+    specs: tuple[tuple[str, argparse.Action, object], ...] | None,
+) -> str:
+    """Classify only explicitly declared, neutral-default mode actions."""
+
+    if specs is None:
+        return "unknown"
+    selected: list[str] = []
+    for option, action, neutral in specs:
+        value = getattr(namespace, action.dest, neutral)
+        if isinstance(action, argparse._StoreTrueAction):
+            if type(value) is not bool:
+                return "unknown"
+            active = value
+            active_writes = sum(item is True for item in writes.get(action.dest, []))
+        else:
+            active = value is not None
+            active_writes = sum(item is not None for item in writes.get(action.dest, []))
+        if active_writes > 1 or (active and active_writes != 1) or (not active and active_writes):
+            return "unknown"
+        if active:
+            selected.append(option[2:])
+    if len(selected) > 1:
+        return "unknown"
+    return selected[0] if selected else "default"
+
+
+def parse_args_for_timing(
+    parser: argparse.ArgumentParser,
+    args: Sequence[str] | None = None,
+    *,
+    mode_options: tuple[str, ...],
+) -> argparse.Namespace:
+    """Parse once with argparse and bind timing labels to its actual result.
+
+    ``mode_options`` names the parser's operational options; context and presentation
+    options are omitted. The real parser remains the grammar source of truth. An
+    unsupported parser/action, changed argv, repeated parse, invalid parse, or
+    ambiguous mode produces an ``unknown`` timing label without changing CLI output.
+
+    Args:
+        parser: The real argument parser that owns this command's CLI grammar.
+        args: The same token sequence that the command passes to ``parse_args``.
+        mode_options: Explicit registered long options that select operational modes.
+
+    Returns:
+        The namespace returned by the one actual argparse parse.
+    """
+
+    observation = _ACTIVE_CLI_PARSE.get()
+    if observation is None:
+        return parser.parse_args(args)
+
+    observation.parse_calls += 1
+    if observation.parse_calls != 1:
+        observation.usable = False
+
+    effective_argv: tuple[str, ...] | None
+    if args is None:
+        effective_argv = tuple(sys.argv[1:])
+    else:
+        try:
+            effective_argv = tuple(args)
+        except TypeError:
+            effective_argv = None
+    if effective_argv != observation.expected_argv:
+        observation.usable = False
+
+    # An overridden parser may not accept argparse's namespace parameter. Preserve
+    # its normal call shape and mark labels unknown rather than guessing its grammar.
+    if (
+        type(parser) is not argparse.ArgumentParser
+        or getattr(parser.parse_args, "__func__", None) is not argparse.ArgumentParser.parse_args
+        or any(type(action) not in _OBSERVABLE_ARGPARSE_ACTIONS for action in parser._actions)
+        or any(action.dest == "_polisyos_timing_write_events" for action in parser._actions)
+    ):
+        observation.usable = False
+        try:
+            return parser.parse_args(args)
+        except BaseException:
+            observation.usable = False
+            raise
+
+    specs = _mode_action_specs(parser, mode_options)
+    if specs is None:
+        observation.usable = False
+    namespace = _ObservedNamespace()
+    try:
+        parsed = parser.parse_args(args, namespace=namespace)
+    except BaseException:
+        observation.usable = False
+        raise
+
+    if observation.parse_calls == 1 and observation.usable:
+        writes = namespace._polisyos_timing_write_events
+        observation.mode = _mode_from_parsed_namespace(namespace, writes, specs)
+        observation.output_format = _output_format_from_parsed_namespace(parser, namespace, writes)
+    return parsed
 
 
 def run_timed_entrypoint(
@@ -1236,18 +1445,28 @@ def run_timed_entrypoint(
     """Run a legacy direct entrypoint through the shared timing emission path."""
 
     arguments = list(argv)
+    observation = _CLIParseObservation(expected_argv=tuple(arguments))
 
     def _operation() -> int:
         if _entrypoint_accepts_argv(entrypoint):
             return entrypoint(arguments)
         return entrypoint()
 
-    mode, output_format = _mode_and_output_format_from_argv(arguments)
-    return run_timed_operation(
-        _operation,
-        tool=_timing_key_for_script(script_path),
-        category="quality",
-        mode=mode,
-        output_format=output_format,
-        started_perf_counter=started_perf_counter,
-    )
+    def _record_labels() -> tuple[str, str]:
+        if not observation.usable or observation.parse_calls != 1:
+            return "unknown", "unknown"
+        return observation.mode, observation.output_format
+
+    token = _ACTIVE_CLI_PARSE.set(observation)
+    try:
+        return run_timed_operation(
+            _operation,
+            tool=_timing_key_for_script(script_path),
+            category="quality",
+            mode="unknown",
+            output_format="unknown",
+            started_perf_counter=started_perf_counter,
+            _record_labels=_record_labels,
+        )
+    finally:
+        _ACTIVE_CLI_PARSE.reset(token)

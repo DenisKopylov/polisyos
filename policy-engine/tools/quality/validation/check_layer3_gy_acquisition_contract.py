@@ -62,7 +62,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry,
     build_substrate_registry_entry,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_acquisition_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.acquisition_contract.v1"
@@ -257,11 +257,7 @@ def _generation_cycle_substrate_call_census(
         "build_substrate_registry",
         "build_substrate_registry_entry",
     }
-    parents = {
-        id(child): node
-        for node in ast.walk(tree)
-        for child in ast.iter_child_nodes(node)
-    }
+    parents = {id(child): node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
 
     production_callers: list[str] = []
     owner_entry_recomputations: list[str] = []
@@ -287,9 +283,7 @@ def _generation_cycle_substrate_call_census(
             and isinstance(node.value, str)
             and "n6.bootstrap" in node.value
         ):
-            bootstrap_literals.append(
-                f"{source_label}:{node.lineno}:{node.value}"
-            )
+            bootstrap_literals.append(f"{source_label}:{node.lineno}:{node.value}")
 
     return {
         "production_callers": sorted(production_callers),
@@ -344,6 +338,7 @@ def generation_cycle_substrate_fence(repo_root: Path) -> dict[str, Any]:
         "fabricated_registry": fabricated_registry,
     }
 
+
 def _ast_call_symbol(node: ast.Call) -> str:
     if isinstance(node.func, ast.Name):
         return node.func.id
@@ -355,9 +350,7 @@ def _ast_call_symbol(node: ast.Call) -> str:
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Recompute the frozen N7 receipt from recorded real-owner responses."""
 
-    positive_world_snapshot = _world_snapshot(
-        families=("production_msme_panel", "tax_admin_panel")
-    )
+    positive_world_snapshot = _world_snapshot(families=("production_msme_panel", "tax_admin_panel"))
     no_result_world_snapshot = _world_snapshot(families=("production_msme_panel",))
     positive = _positive_receipt(repo_root, world_snapshot=positive_world_snapshot)
     no_result = _no_result_receipt(repo_root, world_snapshot=no_result_world_snapshot)
@@ -584,9 +577,10 @@ def _core_issues(payload: dict[str, Any], *, require_mutations: bool) -> list[di
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "schema_version_drift"})
     denominators = payload.get("denominators")
-    if not isinstance(denominators, dict) or tuple(
-        denominators.get("acquisition_families", ())
-    ) != ACQUISITION_FAMILY_DENOMINATOR:
+    if (
+        not isinstance(denominators, dict)
+        or tuple(denominators.get("acquisition_families", ())) != ACQUISITION_FAMILY_DENOMINATOR
+    ):
         issues.append({"code": "acquisition_family_denominator_mismatch"})
     for key in ("positive_receipt", "no_result_receipt"):
         receipt_payload = payload.get(key)
@@ -675,7 +669,9 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
         rows.append(
             {
                 "mutation_id": mutation_id,
-                "status": "red" if any(issue.get("code") == mutation_id for issue in report) else "green",
+                "status": "red"
+                if any(issue.get("code") == mutation_id for issue in report)
+                else "green",
                 "issue_codes": [str(issue.get("code")) for issue in report],
             }
         )
@@ -748,8 +744,7 @@ def _rederive_receipt_from_recording(
 ) -> AcquisitionReceipt:
     receipt = AcquisitionReceipt.model_validate(receipt_payload)
     artifacts_by_requirement = {
-        artifact.requirement_ref: artifact
-        for artifact in receipt.owner_artifacts
+        artifact.requirement_ref: artifact for artifact in receipt.owner_artifacts
     }
     return run_acquisition_closed_loop(
         run_id=receipt.run_id,
@@ -829,10 +824,7 @@ def _world_snapshot(
     *,
     families: tuple[str, ...] = ("production_msme_panel", "tax_admin_panel"),
 ) -> AcquisitionWorldSnapshot:
-    dependency_index = {
-        family: (f"design:{family.replace('_', '-')}",)
-        for family in families
-    }
+    dependency_index = {family: (f"design:{family.replace('_', '-')}",) for family in families}
     design_revalidation_stages = {
         design_id: ("identification", "calibration", "value_set", "grounding")
         for designs in dependency_index.values()
@@ -1042,9 +1034,9 @@ def _mutate_compiled_denominator(payload: dict[str, Any]) -> None:
 
 def _mutate_content_binding(payload: dict[str, Any]) -> None:
     artifact = _first_artifact_with_registrations(payload["positive_receipt"]["owner_artifacts"])
-    artifact["payload"]["acquired_substrate_registrations"][0][
-        "family_id"
-    ] = "ghost.nonexistent_world_slot"
+    artifact["payload"]["acquired_substrate_registrations"][0]["family_id"] = (
+        "ghost.nonexistent_world_slot"
+    )
 
 
 def _mutate_forced_useful_rate(payload: dict[str, Any]) -> None:
@@ -1130,13 +1122,9 @@ def _mutate_hook_family_scored(payload: dict[str, Any]) -> None:
 
 def _contract_content_hash(payload: dict[str, Any]) -> str:
     stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
+        key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
-    encoded = json.dumps(stable, sort_keys=True, separators=(",", ":"), default=str).encode(
-        "utf-8"
-    )
+    encoded = json.dumps(stable, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
@@ -1161,7 +1149,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--output-format", choices={"json", "text"}, default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--write",
+        ),
+    )
     repo_root = args.repo_root.resolve()
     if args.write:
         started = time.monotonic()

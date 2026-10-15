@@ -46,7 +46,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import duckdb
 from pydantic import TypeAdapter
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT / "src") not in sys.path:
@@ -482,9 +482,7 @@ def dependency_environment_diagnostic_projection(
         ),
         "status": result.status,
         "first_case": (
-            first_case.model_dump(mode="json")
-            if hasattr(first_case, "model_dump")
-            else first_case
+            first_case.model_dump(mode="json") if hasattr(first_case, "model_dump") else first_case
         ),
     }
 
@@ -7505,7 +7503,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--accept-stage1-n4-journal",
+            "--candidate-dir",
+            "--capture-stage1-n4",
+            "--check",
+            "--corrupt-field-drift-check",
+            "--measure-write-transition",
+            "--rederive-audit",
+            "--write",
+        ),
+    )
     capture_selected = sum(
         bool(value)
         for value in (

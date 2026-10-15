@@ -16,7 +16,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.data_state_substrate_contract.v1"
@@ -297,9 +297,7 @@ def _household_proxy_behavioral_detail(
                     "min_coverage": 0.9,
                     "max_coverage": 1.0,
                     "promotion_floor": 0.5,
-                    "authority_ref": (
-                        "contract://l5/trust_tiers/synthetic_authoritative_high"
-                    ),
+                    "authority_ref": ("contract://l5/trust_tiers/synthetic_authoritative_high"),
                 },
             }
         ).promotion_decision()
@@ -308,8 +306,7 @@ def _household_proxy_behavioral_detail(
             and "representation_not_certified" in non_certified_decision.reasons
         )
         zero_trust_blocked = (
-            not zero_trust_decision.promotable
-            and "data_trust_zero" in zero_trust_decision.reasons
+            not zero_trust_decision.promotable and "data_trust_zero" in zero_trust_decision.reasons
         )
         weak_trust_blocked = (
             not weak_trust_decision.promotable
@@ -395,8 +392,7 @@ def _repo_with_household_identification_mode(
     selected_mode: str,
 ) -> Path:
     canonical = (
-        Path("production_data/canonical/local_data_20260501/")
-        / "ukraine_server_support_20260410"
+        Path("production_data/canonical/local_data_20260501/") / "ukraine_server_support_20260410"
     )
     l5_d2 = canonical / "runtime_calibration_internals/calibration/d2"
     l5_d3 = canonical / "runtime_calibration_internals/calibration/d3"
@@ -577,7 +573,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--write",
+        ),
+    )
 
     repo_root = args.repo_root.resolve()
     inserted = [str(repo_root), str(repo_root / "src")]

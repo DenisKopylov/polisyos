@@ -8,6 +8,7 @@ observed frontier laundering event.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -19,7 +20,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -82,25 +83,31 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     violations: list[dict[str, Any]] = []
 
     if audit.get("schema_version") != "layer3_gy_lex_frontier_root_cause_audit.v1":
-        violations.append({
-            "code": "bad_schema_version",
-            "detail": audit.get("schema_version"),
-        })
+        violations.append(
+            {
+                "code": "bad_schema_version",
+                "detail": audit.get("schema_version"),
+            }
+        )
 
     methodology = audit.get("methodology")
     if not isinstance(methodology, dict):
         violations.append({"code": "missing_methodology", "detail": "methodology missing"})
         methodology = {}
     if methodology.get("network_fetches_run") is not False:
-        violations.append({
-            "code": "network_scope_laundering",
-            "detail": "audit must not imply live network/fetch coverage",
-        })
+        violations.append(
+            {
+                "code": "network_scope_laundering",
+                "detail": "audit must not imply live network/fetch coverage",
+            }
+        )
     if methodology.get("agents_used") is not False:
-        violations.append({
-            "code": "agent_scope_drift",
-            "detail": "user requested independent audit without agents",
-        })
+        violations.append(
+            {
+                "code": "agent_scope_drift",
+                "detail": "user requested independent audit without agents",
+            }
+        )
 
     classification = audit.get("classification")
     if not isinstance(classification, dict):
@@ -114,17 +121,21 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     patterns = set(classification.get("patterns") or [])
     if not patterns >= REQUIRED_PATTERNS:
-        violations.append({
-            "code": "pattern_coverage_drift",
-            "detail": sorted(patterns),
-        })
+        violations.append(
+            {
+                "code": "pattern_coverage_drift",
+                "detail": sorted(patterns),
+            }
+        )
 
     root_matrix = classification.get("root_cause_matrix")
     if not isinstance(root_matrix, dict):
@@ -143,10 +154,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     for (outer, inner), expected in matrix_expectations.items():
         value = _nested(root_matrix, (outer, inner))
         if value != expected:
-            violations.append({
-                "code": "root_cause_matrix_drift",
-                "detail": f"{outer}.{inner}={value!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "root_cause_matrix_drift",
+                    "detail": f"{outer}.{inner}={value!r}; expected {expected!r}",
+                }
+            )
 
     summary = audit.get("summary")
     if not isinstance(summary, dict):
@@ -191,30 +204,38 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     if summary.get("failure_message") != (
         "Hierarchical policy search failed: Invalid bounds for "
         "'verified_policy_option_rate': lower >= upper"
     ):
-        violations.append({
-            "code": "failure_message_drift",
-            "detail": summary.get("failure_message"),
-        })
+        violations.append(
+            {
+                "code": "failure_message_drift",
+                "detail": summary.get("failure_message"),
+            }
+        )
 
     if summary.get("derived_bounds_from_current_builder") != [0.0, 0.0]:
-        violations.append({
-            "code": "current_builder_bounds_drift",
-            "detail": summary.get("derived_bounds_from_current_builder"),
-        })
+        violations.append(
+            {
+                "code": "current_builder_bounds_drift",
+                "detail": summary.get("derived_bounds_from_current_builder"),
+            }
+        )
     if summary.get("derived_bounds_if_none_preserved") != [0.08, 0.12000000000000001]:
-        violations.append({
-            "code": "none_preserved_bounds_drift",
-            "detail": summary.get("derived_bounds_if_none_preserved"),
-        })
+        violations.append(
+            {
+                "code": "none_preserved_bounds_drift",
+                "detail": summary.get("derived_bounds_if_none_preserved"),
+            }
+        )
 
     parameter = _nested(audit, ("probes", "persisted_trinity_bundle", "parameter"))
     if not isinstance(parameter, dict):
@@ -229,10 +250,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in parameter_expectations.items():
         if parameter.get(key) != expected:
-            violations.append({
-                "code": "persisted_parameter_probe_drift",
-                "detail": f"{key}={parameter.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "persisted_parameter_probe_drift",
+                    "detail": f"{key}={parameter.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     direct = _nested(audit, ("probes", "direct_reproducer", "observed_values"))
     if not isinstance(direct, dict):
@@ -247,33 +270,43 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in direct_expectations.items():
         if direct.get(key) != expected:
-            violations.append({
-                "code": "direct_reproducer_drift",
-                "detail": f"{key}={direct.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "direct_reproducer_drift",
+                    "detail": f"{key}={direct.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     frontier = _nested(audit, ("probes", "frontier_semantics"))
     if not isinstance(frontier, dict):
         violations.append({"code": "missing_frontier_semantics", "detail": "probe missing"})
         frontier = {}
     if frontier.get("current_run_frontier_status") != "absent_due_to_node_fail":
-        violations.append({
-            "code": "frontier_status_drift",
-            "detail": frontier.get("current_run_frontier_status"),
-        })
+        violations.append(
+            {
+                "code": "frontier_status_drift",
+                "detail": frontier.get("current_run_frontier_status"),
+            }
+        )
     if frontier.get("current_run_laundering_status") != "not_observed":
-        violations.append({
-            "code": "frontier_laundering_greenwash",
-            "detail": frontier.get("current_run_laundering_status"),
-        })
+        violations.append(
+            {
+                "code": "frontier_laundering_greenwash",
+                "detail": frontier.get("current_run_laundering_status"),
+            }
+        )
 
-    acceptance_text = "\n".join(str(item) for item in frontier.get("required_repair_acceptance") or [])
+    acceptance_text = "\n".join(
+        str(item) for item in frontier.get("required_repair_acceptance") or []
+    )
     for phrase in REQUIRED_ACCEPTANCE_PHRASES:
         if phrase not in acceptance_text:
-            violations.append({
-                "code": "missing_repair_acceptance_guardrail",
-                "detail": phrase,
-            })
+            violations.append(
+                {
+                    "code": "missing_repair_acceptance_guardrail",
+                    "detail": phrase,
+                }
+            )
 
     rows = _row_map(audit)
     missing_rows = REQUIRED_ROUTE_ROWS - set(rows)
@@ -282,29 +315,37 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
 
     root_row = rows.get("scientist.policy_design.search.optional_bounds", {})
     if root_row.get("classification") != "root_cause":
-        violations.append({
-            "code": "root_row_classification_drift",
-            "detail": root_row.get("classification"),
-        })
+        violations.append(
+            {
+                "code": "root_row_classification_drift",
+                "detail": root_row.get("classification"),
+            }
+        )
     if root_row.get("execution_status") != "fails":
-        violations.append({
-            "code": "root_row_execution_drift",
-            "detail": root_row.get("execution_status"),
-        })
+        violations.append(
+            {
+                "code": "root_row_execution_drift",
+                "detail": root_row.get("execution_status"),
+            }
+        )
 
     frontier_row = rows.get("scientist.policy_frontier_report.persistence", {})
     if frontier_row.get("execution_status") != "not_reached":
-        violations.append({
-            "code": "frontier_row_greenwash",
-            "detail": frontier_row.get("execution_status"),
-        })
+        violations.append(
+            {
+                "code": "frontier_row_greenwash",
+                "detail": frontier_row.get("execution_status"),
+            }
+        )
 
     strict_row = rows.get("scientist.methods.search.ParameterBounds", {})
     if strict_row.get("execution_status") != "works":
-        violations.append({
-            "code": "bounds_validator_blame_drift",
-            "detail": strict_row.get("execution_status"),
-        })
+        violations.append(
+            {
+                "code": "bounds_validator_blame_drift",
+                "detail": strict_row.get("execution_status"),
+            }
+        )
 
     return violations
 
@@ -313,7 +354,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)

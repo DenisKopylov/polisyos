@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v4"
@@ -102,8 +102,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "policy_scenario_templates.json"
             ),
             "owner_authority_bindings": (
-                "architecture/policy_design_case/"
-                "layer3_gy_l6_owner_authority_bindings.json"
+                "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
             ),
         },
         "reuse_existing_owners": [
@@ -120,8 +119,10 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "truthful_data_limitations": behavior["authority_limitations"],
         "task_acceptance": {
             "status": "not_established",
-            "unmet_conjuncts": ["independently_verified_law_to_knob_correspondence",
-                               "authorized_law_free_growth"],
+            "unmet_conjuncts": [
+                "independently_verified_law_to_knob_correspondence",
+                "authorized_law_free_growth",
+            ],
             "mechanism_validation_is_task_completion": False,
         },
         "coverage_gate": {
@@ -180,7 +181,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "P33",
             "P34",
         ],
-        "missing_capability_labels": ["producer_missing: independently authoritative real legal-subject identity (CORR-B1)"],
+        "missing_capability_labels": [
+            "producer_missing: independently authoritative real legal-subject identity (CORR-B1)"
+        ],
         "json_schemas": {
             "intervention_substrate_bundle": InterventionSubstrateBundle.model_json_schema(),
             "intervention_lever_resolution": InterventionLeverResolution.model_json_schema(),
@@ -225,9 +228,7 @@ def validate(repo_root: Path | None = None) -> dict[str, Any]:
         str(mutation.get("mutation_id")): str(mutation.get("status"))
         for mutation in live["behavior_report"].get("remove_property_mutations", [])
     }
-    missing_mutations = sorted(
-        EXPECTED_REMOVE_PROPERTY_MUTATIONS.difference(mutation_statuses)
-    )
+    missing_mutations = sorted(EXPECTED_REMOVE_PROPERTY_MUTATIONS.difference(mutation_statuses))
     if missing_mutations:
         issues.append(
             {
@@ -284,7 +285,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--write",
+        ),
+    )
 
     repo_root = args.repo_root.resolve()
     for item in (str(repo_root / "src"), str(repo_root)):

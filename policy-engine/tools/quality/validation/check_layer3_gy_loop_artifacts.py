@@ -31,7 +31,7 @@ from unittest.mock import patch
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -5090,7 +5090,15 @@ def main(argv: list[str] | None = None) -> int:
         help="Mutate a recomputed graded-outcome field and require validation to fail.",
     )
     parser.add_argument("--child", type=Path, help=argparse.SUPPRESS)
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--write",
+        ),
+    )
     if args.child is not None:
         return _gx_child(args.child.resolve())
     if args.check and args.write:

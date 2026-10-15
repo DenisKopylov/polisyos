@@ -8,6 +8,7 @@ outputs must dereference to files on disk.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -26,7 +27,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -131,28 +132,20 @@ def _expected_file_sets(
         lifecycle_report = validate_gy_lifecycle_registry(repo_root)
     return {
         "paths": list(lifecycle_report.get("discovered_artifacts") or []),
-        "producer_declared_outputs": list(
-            lifecycle_report.get("producer_declared_outputs") or []
-        ),
-        "source_committed_outputs": list(
-            lifecycle_report.get("source_committed_outputs") or []
-        ),
+        "producer_declared_outputs": list(lifecycle_report.get("producer_declared_outputs") or []),
+        "source_committed_outputs": list(lifecycle_report.get("source_committed_outputs") or []),
         "output_root_files": list(lifecycle_report.get("output_root_files") or []),
         "unaccounted_output_root_files": list(
             lifecycle_report.get("unaccounted_output_root_files") or []
         ),
         "validators": sorted(
             path.relative_to(repo_root).as_posix()
-            for path in (repo_root / "tools" / "quality" / "validation").glob(
-                "check_layer3_gy*.py"
-            )
+            for path in (repo_root / "tools" / "quality" / "validation").glob("check_layer3_gy*.py")
             if path.is_file()
         ),
         "validator_tests": sorted(
             path.relative_to(repo_root).as_posix()
-            for path in (repo_root / "tests" / "repo_quality" / "tools").glob(
-                "test_layer3_gy*.py"
-            )
+            for path in (repo_root / "tests" / "repo_quality" / "tools").glob("test_layer3_gy*.py")
             if path.is_file()
         ),
     }
@@ -180,9 +173,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     generated = tomllib.loads(generated_path.read_text(encoding="utf-8"))
     marker_scan_exclusions = _marker_scan_exclusions_from_generated(generated, issues)
-    families = [
-        family for family in generated.get("family", []) if isinstance(family, dict)
-    ]
+    families = [family for family in generated.get("family", []) if isinstance(family, dict)]
     gy_families = [family for family in families if _is_gy_lifecycle_family(family)]
     producer_outputs_by_family = _producer_declared_gy_outputs(
         repo_root,
@@ -191,9 +182,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         scope_exclusions=marker_scan_exclusions,
     )
     producer_declared_outputs = {
-        output
-        for outputs in producer_outputs_by_family.values()
-        for output in outputs
+        output for outputs in producer_outputs_by_family.values() for output in outputs
     }
     source_committed_outputs = {
         str(output)
@@ -201,9 +190,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         if family.get("lifecycle") == "source_committed"
         for output in family.get("outputs") or []
     }
-    marker_detected_outputs = set(
-        _iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions)
-    )
+    marker_detected_outputs = set(_iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions))
     discovered = sorted(
         producer_declared_outputs | source_committed_outputs | marker_detected_outputs
     )
@@ -461,9 +448,7 @@ def _discover_gy_artifact_paths(repo_root: Path) -> list[str]:
         if family.get("lifecycle") == "source_committed"
         for output in family.get("outputs") or []
     }
-    marker_detected_outputs = set(
-        _iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions)
-    )
+    marker_detected_outputs = set(_iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions))
     return sorted(producer_declared_outputs | source_committed_outputs | marker_detected_outputs)
 
 
@@ -1288,9 +1273,10 @@ def _has_task_scoped_gy_namespace(value: str) -> bool:
         return False
     if re.fullmatch(r"gy_[a-z][a-z0-9]*", segments[1]):
         return True
-    return segments[1] == "policy_design_case" and re.fullmatch(
-        r"gy_[a-z][a-z0-9]*", segments[2]
-    ) is not None
+    return (
+        segments[1] == "policy_design_case"
+        and re.fullmatch(r"gy_[a-z][a-z0-9]*", segments[2]) is not None
+    )
 
 
 def _validate_source_integrity(
@@ -1367,14 +1353,10 @@ def _lifecycle_facts(
     )
     pdc_inventory = _load_json(repo_root / "architecture/policy_design_case/inventory.json")
     pdc_artifacts = [
-        artifact
-        for artifact in pdc_inventory.get("artifacts", [])
-        if isinstance(artifact, dict)
+        artifact for artifact in pdc_inventory.get("artifacts", []) if isinstance(artifact, dict)
     ]
     pdc_gy_entries = [
-        artifact
-        for artifact in pdc_artifacts
-        if str(artifact.get("path") or "") in gy_paths
+        artifact for artifact in pdc_artifacts if str(artifact.get("path") or "") in gy_paths
     ]
     public_surface = _load_toml(repo_root / "architecture/public_surface/contract.toml")
     public_generated_families = [
@@ -1396,14 +1378,10 @@ def _lifecycle_facts(
         "gy_generated_family_ids": sorted(gy_family_ids),
         "gy_artifact_files_detected": len(lifecycle_report["discovered_artifacts"]),
         "gy_artifact_files_registered_count": lifecycle_report["registered_artifact_count"],
-        "gy_producer_declared_output_count": len(
-            lifecycle_report["producer_declared_outputs"]
-        ),
+        "gy_producer_declared_output_count": len(lifecycle_report["producer_declared_outputs"]),
         "gy_source_committed_output_count": len(lifecycle_report["source_committed_outputs"]),
         "gy_output_root_file_count": len(lifecycle_report["output_root_files"]),
-        "gy_unaccounted_output_root_count": len(
-            lifecycle_report["unaccounted_output_root_files"]
-        ),
+        "gy_unaccounted_output_root_count": len(lifecycle_report["unaccounted_output_root_files"]),
         "gy_lifecycle_orphan_count": lifecycle_report["orphan_count"],
         "gy_lifecycle_phantom_output_count": lifecycle_report["phantom_output_count"],
         "gy_lifecycle_duplicate_claim_count": lifecycle_report["duplicate_claim_count"],
@@ -1415,8 +1393,7 @@ def _lifecycle_facts(
         ),
         "public_surface_generated_artifact_family_count": len(public_generated_families),
         "gy_public_surface_family_registered": any(
-            str(family.get("id") or "") in gy_family_ids
-            for family in public_generated_families
+            str(family.get("id") or "") in gy_family_ids for family in public_generated_families
         ),
     }
 
@@ -1456,10 +1433,12 @@ def validate(
     }
     for key, expected in expected_methodology.items():
         if methodology.get(key) != expected:
-            violations.append({
-                "code": "methodology_drift",
-                "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "methodology_drift",
+                    "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
+                }
+            )
     if methodology.get("probe_type") != "source_registry_class_invariant_audit":
         violations.append({"code": "probe_type_drift", "detail": methodology.get("probe_type")})
 
@@ -1476,10 +1455,12 @@ def validate(
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
     patterns = set(_list_value(classification.get("patterns")))
     if not patterns >= REQUIRED_PATTERNS:
         violations.append({"code": "pattern_coverage_drift", "detail": sorted(patterns)})
@@ -1513,9 +1494,7 @@ def validate(
         "policy_design_case_inventory_artifact_count": (
             facts["policy_design_case_inventory_artifact_count"]
         ),
-        "policy_design_case_inventory_gy_entries": facts[
-            "policy_design_case_inventory_gy_entries"
-        ],
+        "policy_design_case_inventory_gy_entries": facts["policy_design_case_inventory_gy_entries"],
         "policy_design_case_inventory_registered_in_generated_artifacts": facts[
             "policy_design_case_inventory_registered_in_generated_artifacts"
         ],
@@ -1533,10 +1512,12 @@ def validate(
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     rows = _rows_by_id(audit.get("lifecycle_matrix"), "row_id")
     missing_rows = sorted(REQUIRED_ROWS - set(rows))
@@ -1557,15 +1538,19 @@ def validate(
             violations.append({"code": "registered_family_marked_unregistered", "detail": row_id})
         for field in ("source_of_truth", "verifier", "stale_output_behavior"):
             if not str(row.get(field, "")).strip() or row.get(field) == "missing_registry":
-                violations.append({
-                    "code": "registered_family_missing_lifecycle_metadata",
-                    "detail": f"{row_id}.{field}",
-                })
+                violations.append(
+                    {
+                        "code": "registered_family_missing_lifecycle_metadata",
+                        "detail": f"{row_id}.{field}",
+                    }
+                )
         if int(row.get("outputs_registered_count") or 0) <= 0:
-            violations.append({
-                "code": "registered_family_missing_outputs",
-                "detail": row_id,
-            })
+            violations.append(
+                {
+                    "code": "registered_family_missing_outputs",
+                    "detail": row_id,
+                }
+            )
 
     gy_row = rows.get("layer3_gy_task0_audit_artifacts", {})
     if gy_row.get("registered") is not True:
@@ -1573,33 +1558,42 @@ def validate(
     if gy_row.get("family_id") != "policy-design-case-layer3-gy-task0-audit-artifacts":
         violations.append({"code": "gy_family_id_drift", "detail": gy_row.get("family_id")})
     if gy_row.get("outputs_registered_count") != facts["gy_artifact_files_registered_count"]:
-        violations.append({
-            "code": "gy_registered_output_count_drift",
-            "detail": gy_row.get("outputs_registered_count"),
-        })
+        violations.append(
+            {
+                "code": "gy_registered_output_count_drift",
+                "detail": gy_row.get("outputs_registered_count"),
+            }
+        )
     if gy_row.get("stale_output_behavior") != "fail":
-        violations.append({
-            "code": "gy_stale_policy_drift",
-            "detail": gy_row.get("stale_output_behavior"),
-        })
+        violations.append(
+            {
+                "code": "gy_stale_policy_drift",
+                "detail": gy_row.get("stale_output_behavior"),
+            }
+        )
     if "registered_source_committed" not in str(gy_row.get("authority_boundary_status", "")):
-        violations.append({
-            "code": "gy_authority_boundary_drift",
-            "detail": gy_row.get("authority_boundary_status"),
-        })
+        violations.append(
+            {
+                "code": "gy_authority_boundary_drift",
+                "detail": gy_row.get("authority_boundary_status"),
+            }
+        )
 
     pdc_row = rows.get("policy_design_case_inventory", {})
-    if pdc_row.get("registered") is not facts[
-        "policy_design_case_inventory_registered_in_generated_artifacts"
-    ]:
+    if (
+        pdc_row.get("registered")
+        is not facts["policy_design_case_inventory_registered_in_generated_artifacts"]
+    ):
         violations.append({"code": "pdc_inventory_registration_greenwash", "detail": pdc_row})
     if pdc_row.get("contains_gy_entries") is not True:
         violations.append({"code": "pdc_inventory_gy_entry_missing", "detail": pdc_row})
     if pdc_row.get("artifact_count") != facts["policy_design_case_inventory_artifact_count"]:
-        violations.append({
-            "code": "pdc_inventory_artifact_count_drift",
-            "detail": pdc_row.get("artifact_count"),
-        })
+        violations.append(
+            {
+                "code": "pdc_inventory_artifact_count_drift",
+                "detail": pdc_row.get("artifact_count"),
+            }
+        )
 
     surfaces = _rows_by_id(audit.get("public_surface_lifecycle"), "surface_id")
     missing_surfaces = sorted(REQUIRED_SURFACES - set(surfaces))
@@ -1616,15 +1610,19 @@ def validate(
 
     projection_surface = surfaces.get("layer3_public_export_projection_refs", {})
     if projection_surface.get("api_dashboard_enforcement") is not False:
-        violations.append({
-            "code": "projection_refs_api_enforcement_laundering",
-            "detail": projection_surface,
-        })
+        violations.append(
+            {
+                "code": "projection_refs_api_enforcement_laundering",
+                "detail": projection_surface,
+            }
+        )
     if projection_surface.get("public_export_route_registered") is not False:
-        violations.append({
-            "code": "projection_refs_public_export_laundering",
-            "detail": projection_surface,
-        })
+        violations.append(
+            {
+                "code": "projection_refs_public_export_laundering",
+                "detail": projection_surface,
+            }
+        )
 
     inventory = audit.get("gy_artifact_inventory")
     if not isinstance(inventory, dict):
@@ -1633,15 +1631,19 @@ def validate(
     for key, expected in expected_files.items():
         actual = _list_value(inventory.get(key))
         if actual != expected:
-            violations.append({
-                "code": "gy_detected_artifact_list_drift",
-                "detail": {"key": key, "actual": actual, "expected": expected},
-            })
+            violations.append(
+                {
+                    "code": "gy_detected_artifact_list_drift",
+                    "detail": {"key": key, "actual": actual, "expected": expected},
+                }
+            )
     if inventory.get("registered_output_count") != facts["gy_artifact_files_registered_count"]:
-        violations.append({
-            "code": "gy_inventory_registered_output_count_drift",
-            "detail": inventory.get("registered_output_count"),
-        })
+        violations.append(
+            {
+                "code": "gy_inventory_registered_output_count_drift",
+                "detail": inventory.get("registered_output_count"),
+            }
+        )
 
     negatives = _rows_by_id(audit.get("negative_assertions"), "id")
     missing_negatives = sorted(REQUIRED_NEGATIVES - set(negatives))
@@ -1649,10 +1651,12 @@ def validate(
         violations.append({"code": "missing_negative_assertions", "detail": missing_negatives})
     for negative_id in REQUIRED_NEGATIVES & set(negatives):
         if negatives[negative_id].get("assertion_holds") is not True:
-            violations.append({
-                "code": "negative_assertion_not_enforced",
-                "detail": negative_id,
-            })
+            violations.append(
+                {
+                    "code": "negative_assertion_not_enforced",
+                    "detail": negative_id,
+                }
+            )
 
     acceptance = _list_value(audit.get("acceptance_signal"))
     acceptance_text = "\n".join(acceptance)
@@ -1678,7 +1682,10 @@ def main() -> int:
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--check", action="store_true", help="Run fail-closed validation.")
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=("--check",),
+    )
 
     violations = validate(_load(args.audit), repo_root=args.repo_root)
     report = {

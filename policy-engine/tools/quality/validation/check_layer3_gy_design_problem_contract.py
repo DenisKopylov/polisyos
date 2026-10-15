@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_design_problem_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.design_problem_contract.v1"
@@ -106,7 +106,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--write",
+        ),
+    )
 
     repo_root = args.repo_root.resolve()
     inserted = [str(repo_root), str(repo_root / "src")]

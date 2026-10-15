@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -110,7 +110,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             violations.append(_violation("methodology_probe_missing", key))
     for key in ("agents_used", "network_fetches_run", "runtime_server_started", "fixes_made"):
         if methodology.get(key) is not False:
-            violations.append(_violation("methodology_scope_drift", f"{key}={methodology.get(key)!r}"))
+            violations.append(
+                _violation("methodology_scope_drift", f"{key}={methodology.get(key)!r}")
+            )
     if methodology.get("probe_digest") != (
         "sha256:714dfe6ec3df783f10d55613aa968e77f086ba42c08d890c3dcef3cddcd3e2b6"
     ):
@@ -159,7 +161,11 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         violations.append(_violation("catalog_route_precision_greenwash", aggregate))
     if aggregate.get("country_filter_zero_result_cases") != 4:
         violations.append(_violation("catalog_country_filter_drift", aggregate))
-    cases = {str(row.get("case_id")): row for row in _list(benchmark.get("cases")) if isinstance(row, dict)}
+    cases = {
+        str(row.get("case_id")): row
+        for row in _list(benchmark.get("cases"))
+        if isinstance(row, dict)
+    }
     expected_case_precisions = {
         "ua_msme_credit": (0.4, 0.0, 0.0),
         "pl_energy_affordability": (0.4, 0.0, 0.0),
@@ -200,7 +206,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     for query, expected_count in expected_metric_counts.items():
         row = _dict(metric_rows.get(query))
         if row.get("returned") != expected_count:
-            violations.append(_violation("metric_binding_count_drift", {query: row.get("returned")}))
+            violations.append(
+                _violation("metric_binding_count_drift", {query: row.get("returned")})
+            )
         if not str(row.get("diagnosis") or "").strip():
             violations.append(_violation("metric_binding_missing_diagnosis", query))
 
@@ -237,11 +245,18 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     if toolkit.get("registered_count") != 3 or toolkit.get("missing_registered_count") != 17:
         violations.append(_violation("knowledge_toolkit_registry_count_drift", toolkit))
     if "TYPE_CHECKING" not in str(toolkit.get("failure_mode") or ""):
-        violations.append(_violation("knowledge_toolkit_failure_mode_drift", toolkit.get("failure_mode")))
-    if toolkit.get("classification") != "tool_facade_built_but_route_bridge_and_registry_completeness_missing":
+        violations.append(
+            _violation("knowledge_toolkit_failure_mode_drift", toolkit.get("failure_mode"))
+        )
+    if (
+        toolkit.get("classification")
+        != "tool_facade_built_but_route_bridge_and_registry_completeness_missing"
+    ):
         violations.append(_violation("knowledge_toolkit_classification_drift", toolkit))
 
-    findings = {str(row.get("id")): row for row in _list(audit.get("findings")) if isinstance(row, dict)}
+    findings = {
+        str(row.get("id")): row for row in _list(audit.get("findings")) if isinstance(row, dict)
+    }
     for finding_id in ("P2-1", "P2-2", "P2-3", "P2-4", "P2-5"):
         if finding_id not in findings:
             violations.append(_violation("missing_finding", finding_id))
@@ -257,7 +272,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if negatives[negative_id].get("assertion_holds") is not True:
             violations.append(_violation("negative_assertion_not_enforced", negative_id))
 
-    acceptance = "\n".join(str(item) for item in _list(audit.get("acceptance_signal_for_future_repairs")))
+    acceptance = "\n".join(
+        str(item) for item in _list(audit.get("acceptance_signal_for_future_repairs"))
+    )
     for phrase in (
         "route_admissible_precision_at_k",
         "FetchPlan admission",
@@ -281,7 +298,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     violations = validate(_load(args.audit))
     report = {

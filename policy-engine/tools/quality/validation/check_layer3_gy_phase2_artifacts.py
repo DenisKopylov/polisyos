@@ -22,7 +22,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 FAMILY_ID = "policy-design-case-layer3-gy-phase2-artifacts"
 HISTORY_FAMILY_ID = "policy-design-case-layer3-gy-phase2-history-artifacts"
@@ -2652,7 +2652,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
     parser.add_argument("--check", action="store_true", help="Validate committed artifacts.")
     parser.add_argument("--write", action="store_true", help="Regenerate committed artifacts.")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--write",
+        ),
+    )
     if args.check and args.write:
         parser.error("--check and --write are mutually exclusive")
     with contextlib.redirect_stdout(sys.stderr):

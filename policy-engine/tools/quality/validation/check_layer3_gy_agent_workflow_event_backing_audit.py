@@ -8,6 +8,7 @@ G6 readiness projections.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -20,7 +21,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -79,9 +80,7 @@ def _steps(probe: dict[str, Any]) -> set[tuple[str, str]]:
     if not isinstance(rows, list):
         return set()
     return {
-        (str(row.get("agent")), str(row.get("action")))
-        for row in rows
-        if isinstance(row, dict)
+        (str(row.get("agent")), str(row.get("action"))) for row in rows if isinstance(row, dict)
     }
 
 
@@ -114,10 +113,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_methodology.items():
         if methodology.get(key) != expected:
-            violations.append({
-                "code": "methodology_drift",
-                "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "methodology_drift",
+                    "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
+                }
+            )
     if methodology.get("probe_type") != "source_static_probe_plus_temp_simulated_nl_execution":
         violations.append({"code": "probe_type_drift", "detail": methodology.get("probe_type")})
 
@@ -136,10 +137,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
     patterns = set(classification.get("patterns") or [])
     if not patterns >= REQUIRED_PATTERNS:
         violations.append({"code": "pattern_coverage_drift", "detail": sorted(patterns)})
@@ -172,10 +175,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     probes = _rows_by_id(audit.get("execution_probes"), "probe_id")
     dev_probe = probes.get("dev_simulated_nl_variant_steps")
@@ -184,10 +189,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         violations.append({"code": "missing_dev_execution_probe", "detail": "dev probe missing"})
         dev_probe = {}
     if not isinstance(research_probe, dict):
-        violations.append({
-            "code": "missing_research_execution_probe",
-            "detail": "research probe missing",
-        })
+        violations.append(
+            {
+                "code": "missing_research_execution_probe",
+                "detail": "research probe missing",
+            }
+        )
         research_probe = {}
 
     for probe_id, probe in (
@@ -199,94 +206,122 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if probe.get("agent_circuit") is not True:
             violations.append({"code": "agent_circuit_not_observed", "detail": probe_id})
         if probe.get("step_count") != 13:
-            violations.append({
-                "code": "execution_probe_step_count_drift",
-                "detail": f"{probe_id}={probe.get('step_count')!r}",
-            })
+            violations.append(
+                {
+                    "code": "execution_probe_step_count_drift",
+                    "detail": f"{probe_id}={probe.get('step_count')!r}",
+                }
+            )
         observed_steps = _steps(probe)
         if not observed_steps >= REQUIRED_ROLE_STEPS:
-            violations.append({
-                "code": "required_role_step_missing",
-                "detail": {"probe_id": probe_id, "steps": sorted(observed_steps)},
-            })
+            violations.append(
+                {
+                    "code": "required_role_step_missing",
+                    "detail": {"probe_id": probe_id, "steps": sorted(observed_steps)},
+                }
+            )
 
     if dev_probe.get("prompt_tool_ledger_ref") is not None:
-        violations.append({
-            "code": "dev_prompt_ledger_greenwash",
-            "detail": dev_probe.get("prompt_tool_ledger_ref"),
-        })
+        violations.append(
+            {
+                "code": "dev_prompt_ledger_greenwash",
+                "detail": dev_probe.get("prompt_tool_ledger_ref"),
+            }
+        )
     research_ref = research_probe.get("prompt_tool_ledger_ref")
     if not isinstance(research_ref, str) or not SHA256_RE.fullmatch(research_ref):
         violations.append({"code": "research_prompt_ledger_ref_missing", "detail": research_ref})
     if research_probe.get("prompt_tool_authority_status") != "pass":
-        violations.append({
-            "code": "research_prompt_ledger_status_drift",
-            "detail": research_probe.get("prompt_tool_authority_status"),
-        })
+        violations.append(
+            {
+                "code": "research_prompt_ledger_status_drift",
+                "detail": research_probe.get("prompt_tool_authority_status"),
+            }
+        )
     if research_probe.get("prompt_tool_step_count") != 13:
-        violations.append({
-            "code": "research_prompt_ledger_step_count_drift",
-            "detail": research_probe.get("prompt_tool_step_count"),
-        })
+        violations.append(
+            {
+                "code": "research_prompt_ledger_step_count_drift",
+                "detail": research_probe.get("prompt_tool_step_count"),
+            }
+        )
     if research_probe.get("prompt_tool_tool_names") != []:
-        violations.append({
-            "code": "parser_ledger_tool_loop_laundering",
-            "detail": research_probe.get("prompt_tool_tool_names"),
-        })
+        violations.append(
+            {
+                "code": "parser_ledger_tool_loop_laundering",
+                "detail": research_probe.get("prompt_tool_tool_names"),
+            }
+        )
     if research_probe.get("reports_index_has_prompt_tool_ledger_ref") is not True:
-        violations.append({
-            "code": "reports_index_prompt_ledger_missing",
-            "detail": research_probe.get("reports_index_has_prompt_tool_ledger_ref"),
-        })
+        violations.append(
+            {
+                "code": "reports_index_prompt_ledger_missing",
+                "detail": research_probe.get("reports_index_has_prompt_tool_ledger_ref"),
+            }
+        )
 
     static = audit.get("static_probes")
     if not isinstance(static, dict):
         violations.append({"code": "missing_static_probes", "detail": "static probes missing"})
         static = {}
     if _nested(static, ("nl_pipeline_tool_loop_references", "match_count")) != 0:
-        violations.append({
-            "code": "nl_tool_loop_invocation_greenwash",
-            "detail": static.get("nl_pipeline_tool_loop_references"),
-        })
+        violations.append(
+            {
+                "code": "nl_tool_loop_invocation_greenwash",
+                "detail": static.get("nl_pipeline_tool_loop_references"),
+            }
+        )
     if _nested(static, ("g6_bounded_agent_tool_loop", "tool_loop_call_site")) != (
         "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1346"
     ):
-        violations.append({
-            "code": "g6_tool_loop_call_site_drift",
-            "detail": static.get("g6_bounded_agent_tool_loop"),
-        })
+        violations.append(
+            {
+                "code": "g6_tool_loop_call_site_drift",
+                "detail": static.get("g6_bounded_agent_tool_loop"),
+            }
+        )
     g6_records = static.get("committed_g6_agent_run_records")
     if not isinstance(g6_records, dict):
         violations.append({"code": "missing_g6_record_probe", "detail": "G6 record probe missing"})
         g6_records = {}
     if g6_records.get("classification") != "projection_only_not_nl_runtime_event_backed":
-        violations.append({
-            "code": "g6_record_laundering",
-            "detail": g6_records.get("classification"),
-        })
+        violations.append(
+            {
+                "code": "g6_record_laundering",
+                "detail": g6_records.get("classification"),
+            }
+        )
     if g6_records.get("request_id") != "req-layer3-g6-readiness":
         violations.append({"code": "g6_request_id_drift", "detail": g6_records.get("request_id")})
     if g6_records.get("count") != 1:
         violations.append({"code": "g6_record_count_drift", "detail": g6_records.get("count")})
     projection = static.get("committed_g6_prompt_tool_ledger_projection")
     if not isinstance(projection, dict):
-        violations.append({
-            "code": "missing_g6_prompt_ledger_projection_probe",
-            "detail": "projection probe missing",
-        })
+        violations.append(
+            {
+                "code": "missing_g6_prompt_ledger_projection_probe",
+                "detail": "projection probe missing",
+            }
+        )
         projection = {}
     if projection.get("classification") != "g6_candidate_projection_not_runtime_tool_loop_backing":
-        violations.append({
-            "code": "g6_prompt_projection_laundering",
-            "detail": projection.get("classification"),
-        })
+        violations.append(
+            {
+                "code": "g6_prompt_projection_laundering",
+                "detail": projection.get("classification"),
+            }
+        )
     if projection.get("nested_prompt_tool_ledger_summary_status") != "fail":
-        violations.append({
-            "code": "g6_nested_ledger_status_drift",
-            "detail": projection.get("nested_prompt_tool_ledger_summary_status"),
-        })
+        violations.append(
+            {
+                "code": "g6_nested_ledger_status_drift",
+                "detail": projection.get("nested_prompt_tool_ledger_summary_status"),
+            }
+        )
     if projection.get("outer_status") != "pass":
-        violations.append({"code": "g6_outer_status_drift", "detail": projection.get("outer_status")})
+        violations.append(
+            {"code": "g6_outer_status_drift", "detail": projection.get("outer_status")}
+        )
 
     components = _rows_by_id(audit.get("roles"), "component_id")
     if set(components) != set(REQUIRED_COMPONENT_CLASSIFICATIONS):
@@ -296,47 +331,64 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(row, dict):
             continue
         if row.get("classification") != expected_classification:
-            violations.append({
-                "code": "component_classification_drift",
-                "detail": (
-                    f"{component_id}={row.get('classification')!r}; "
-                    f"expected {expected_classification!r}"
-                ),
-            })
+            violations.append(
+                {
+                    "code": "component_classification_drift",
+                    "detail": (
+                        f"{component_id}={row.get('classification')!r}; "
+                        f"expected {expected_classification!r}"
+                    ),
+                }
+            )
         if component_id in {"pi_agent", "drafter", "critic"}:
             if row.get("dedicated_persisted_role_artifact") is not None:
-                violations.append({
-                    "code": "role_artifact_greenwash",
-                    "detail": component_id,
-                })
-        if component_id == "formalizer" and row.get("dedicated_persisted_role_artifact") is not None:
-            violations.append({
-                "code": "formalizer_role_artifact_greenwash",
-                "detail": row.get("dedicated_persisted_role_artifact"),
-            })
+                violations.append(
+                    {
+                        "code": "role_artifact_greenwash",
+                        "detail": component_id,
+                    }
+                )
+        if (
+            component_id == "formalizer"
+            and row.get("dedicated_persisted_role_artifact") is not None
+        ):
+            violations.append(
+                {
+                    "code": "formalizer_role_artifact_greenwash",
+                    "detail": row.get("dedicated_persisted_role_artifact"),
+                }
+            )
         if component_id == "prompt_tool_ledger":
             if row.get("g6_asset_backing") != "parser_ledger_only_not_tool_loop":
-                violations.append({
-                    "code": "prompt_ledger_tool_loop_greenwash",
-                    "detail": row.get("g6_asset_backing"),
-                })
+                violations.append(
+                    {
+                        "code": "prompt_ledger_tool_loop_greenwash",
+                        "detail": row.get("g6_asset_backing"),
+                    }
+                )
         if component_id == "scientist_tool_loop":
             if row.get("nl_route_invoked") is not False:
-                violations.append({
-                    "code": "tool_loop_nl_invocation_greenwash",
-                    "detail": row.get("nl_route_invoked"),
-                })
+                violations.append(
+                    {
+                        "code": "tool_loop_nl_invocation_greenwash",
+                        "detail": row.get("nl_route_invoked"),
+                    }
+                )
         if component_id == "g6_agent_run_records":
             if row.get("nl_route_invoked") is not False:
-                violations.append({
-                    "code": "g6_records_nl_invocation_greenwash",
-                    "detail": row.get("nl_route_invoked"),
-                })
+                violations.append(
+                    {
+                        "code": "g6_records_nl_invocation_greenwash",
+                        "detail": row.get("nl_route_invoked"),
+                    }
+                )
             if row.get("g6_asset_backing") != "projection_only_not_nl_runtime_event_backed":
-                violations.append({
-                    "code": "g6_asset_backing_laundering",
-                    "detail": row.get("g6_asset_backing"),
-                })
+                violations.append(
+                    {
+                        "code": "g6_asset_backing_laundering",
+                        "detail": row.get("g6_asset_backing"),
+                    }
+                )
 
     negative_ids = set(_rows_by_id(audit.get("negative_assertions"), "id"))
     if not negative_ids >= REQUIRED_NEGATIVES:
@@ -355,7 +407,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true", help="Emit machine-readable output")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)

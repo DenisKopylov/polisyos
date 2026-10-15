@@ -12,6 +12,7 @@ grid) and enforces row integrity. FAILS (exit 1) on any of:
 Usage:
     python3 tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -25,16 +26,35 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 ART = (
     Path(__file__).resolve().parents[3]
-    / "architecture" / "policy_design_case" / "layer3_gy_task0_audit"
+    / "architecture"
+    / "policy_design_case"
+    / "layer3_gy_task0_audit"
     / "layer3_gy_capability_coverage_matrix.json"
 )
 
-STAGES = ["contract", "producer", "artifact_or_event", "bridge", "consumer", "surface", "semantic_test"]
-STATUS = {"proven", "partial", "bridge_missing", "surface_missing", "absent", "not_audited", "out_of_route", "n/a"}
+STAGES = [
+    "contract",
+    "producer",
+    "artifact_or_event",
+    "bridge",
+    "consumer",
+    "surface",
+    "semantic_test",
+]
+STATUS = {
+    "proven",
+    "partial",
+    "bridge_missing",
+    "surface_missing",
+    "absent",
+    "not_audited",
+    "out_of_route",
+    "n/a",
+}
 VERB_GAP = {
     "wired_and_works": {"govern", "none"},
     "wired_but_ungoverned": {"govern", "repair", "build"},
@@ -58,7 +78,9 @@ def validate(art: dict) -> list[dict]:
     body = {k: art[k] for k in art if k != "digest"}
     exp = "sha256:" + hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     if art.get("digest") != exp:
-        v.append({"code": "digest_mismatch", "detail": f"declared={art.get('digest')} expected={exp}"})
+        v.append(
+            {"code": "digest_mismatch", "detail": f"declared={art.get('digest')} expected={exp}"}
+        )
 
     seen = set()
     for i, r in enumerate(rows):
@@ -79,17 +101,29 @@ def validate(art: dict) -> list[dict]:
         if gap not in VERB_GAP:
             v.append({"code": "bad_gap_class", "detail": f"{cid}: {gap!r}"})
         elif r.get("verb") not in VERB_GAP[gap]:
-            v.append({"code": "verb_gap_mismatch", "detail": f"{cid}: gap={gap} verb={r.get('verb')!r}"})
+            v.append(
+                {"code": "verb_gap_mismatch", "detail": f"{cid}: gap={gap} verb={r.get('verb')!r}"}
+            )
 
     # recompute summary
-    recomputed = {s: dict(Counter(r["chain"][s]["status"] for r in rows if s in r.get("chain", {}))) for s in STAGES}
+    recomputed = {
+        s: dict(Counter(r["chain"][s]["status"] for r in rows if s in r.get("chain", {})))
+        for s in STAGES
+    }
     declared = (art.get("summary") or {}).get("stage_status_counts") or {}
     for s in STAGES:
         if declared.get(s) != recomputed[s]:
-            v.append({"code": "summary_drift", "detail": f"stage {s}: declared={declared.get(s)} recomputed={recomputed[s]}"})
+            v.append(
+                {
+                    "code": "summary_drift",
+                    "detail": f"stage {s}: declared={declared.get(s)} recomputed={recomputed[s]}",
+                }
+            )
     declared_rc = (art.get("summary") or {}).get("row_count")
     if declared_rc != len(rows):
-        v.append({"code": "row_count_drift", "detail": f"declared={declared_rc} actual={len(rows)}"})
+        v.append(
+            {"code": "row_count_drift", "detail": f"declared={declared_rc} actual={len(rows)}"}
+        )
     return v
 
 
@@ -97,18 +131,29 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--artifact", type=Path, default=ART)
     ap.add_argument("--json", action="store_true")
-    args = ap.parse_args(argv)
+    args = parse_args_for_timing(
+        ap,
+        argv,
+        mode_options=(),
+    )
     if not args.artifact.exists():
         print(f"FAIL: artifact not found: {args.artifact}", file=sys.stderr)
         return 2
     art = json.loads(args.artifact.read_text())
     violations = validate(art)
-    report = {"artifact": str(args.artifact), "status": "pass" if not violations else "fail",
-              "row_count": len(art.get("rows", [])), "violation_count": len(violations), "violations": violations}
+    report = {
+        "artifact": str(args.artifact),
+        "status": "pass" if not violations else "fail",
+        "row_count": len(art.get("rows", [])),
+        "violation_count": len(violations),
+        "violations": violations,
+    }
     if args.json:
         print(json.dumps(report, indent=2))
     else:
-        print(f"GY capability coverage matrix: {report['status'].upper()} (rows={report['row_count']}, violations={len(violations)})")
+        print(
+            f"GY capability coverage matrix: {report['status'].upper()} (rows={report['row_count']}, violations={len(violations)})"
+        )
         for x in violations:
             print(f"  [{x['code']}] {x['detail']}")
     return 0 if not violations else 1

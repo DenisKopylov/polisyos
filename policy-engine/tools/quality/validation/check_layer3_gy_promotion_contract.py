@@ -91,7 +91,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     parse_canonical_promotion_history_receipt,
 )
 from tools.lib.fs import measure_file_reads, measured_read_bytes
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _CONTRACT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion_contract.v2"
@@ -2571,7 +2571,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
     if args.write:

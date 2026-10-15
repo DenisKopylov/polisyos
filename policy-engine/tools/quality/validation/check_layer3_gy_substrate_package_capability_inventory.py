@@ -7,6 +7,7 @@ capability surfaces, but mostly not GY-censused pinned-route authority.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -18,7 +19,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_INVENTORY = (
     Path(__file__).resolve().parents[3]
@@ -117,10 +118,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     violations: list[dict[str, Any]] = []
 
     if inventory.get("schema_version") != "layer3_gy_substrate_package_capability_inventory.v1":
-        violations.append({
-            "code": "bad_schema_version",
-            "detail": inventory.get("schema_version"),
-        })
+        violations.append(
+            {
+                "code": "bad_schema_version",
+                "detail": inventory.get("schema_version"),
+            }
+        )
 
     methodology = inventory.get("methodology")
     if not isinstance(methodology, dict):
@@ -141,10 +144,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_methodology.items():
         if methodology.get(key) != expected:
-            violations.append({
-                "code": "methodology_drift",
-                "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "methodology_drift",
+                    "detail": f"{key}={methodology.get(key)!r}; expected {expected!r}",
+                }
+            )
     if methodology.get("probe_type") != "source_static_package_capability_inventory":
         violations.append({"code": "probe_type_drift", "detail": methodology.get("probe_type")})
 
@@ -164,10 +169,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
     patterns = set(_list(classification.get("patterns")))
     if not patterns >= REQUIRED_PATTERNS:
         violations.append({"code": "pattern_coverage_drift", "detail": sorted(patterns)})
@@ -198,10 +205,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     rows = _rows_by_module(inventory.get("package_inventory"))
     missing = sorted(REQUIRED_PACKAGES - set(rows))
@@ -225,10 +234,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
             count_checks = {}
         for key, actual in count_checks.items():
             if summary.get(key) != actual:
-                violations.append({
-                    "code": "summary_row_count_mismatch",
-                    "detail": f"{key}={summary.get(key)!r}; row sum {actual!r}",
-                })
+                violations.append(
+                    {
+                        "code": "summary_row_count_mismatch",
+                        "detail": f"{key}={summary.get(key)!r}; row sum {actual!r}",
+                    }
+                )
 
     for module, row in rows.items():
         for key in (
@@ -248,10 +259,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
             "evidence_refs",
         ):
             if key not in row:
-                violations.append({
-                    "code": "package_row_missing_field",
-                    "detail": f"{module}.{key}",
-                })
+                violations.append(
+                    {
+                        "code": "package_row_missing_field",
+                        "detail": f"{module}.{key}",
+                    }
+                )
         if not _list(row.get("primary_contracts")):
             violations.append({"code": "package_missing_contracts", "detail": module})
         if not _list(row.get("producers")):
@@ -279,108 +292,140 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     data_requirement = rows.get("polisyos.data_requirement", {})
     if data_requirement:
         if data_requirement.get("package_contract_registered") is not False:
-            violations.append({
-                "code": "data_requirement_package_contract_greenwash",
-                "detail": data_requirement.get("package_contract_registered"),
-            })
+            violations.append(
+                {
+                    "code": "data_requirement_package_contract_greenwash",
+                    "detail": data_requirement.get("package_contract_registered"),
+                }
+            )
         if data_requirement.get("public_surface_registered") is not False:
-            violations.append({
-                "code": "data_requirement_public_surface_greenwash",
-                "detail": data_requirement.get("public_surface_registered"),
-            })
+            violations.append(
+                {
+                    "code": "data_requirement_public_surface_greenwash",
+                    "detail": data_requirement.get("public_surface_registered"),
+                }
+            )
         required_labels = {"bridge_missing", "implemented_but_not_orchestrated", "surface_missing"}
         if not _labels(data_requirement) >= required_labels:
-            violations.append({
-                "code": "data_requirement_missing_label_drift",
-                "detail": sorted(_labels(data_requirement)),
-            })
+            violations.append(
+                {
+                    "code": "data_requirement_missing_label_drift",
+                    "detail": sorted(_labels(data_requirement)),
+                }
+            )
         if data_requirement.get("route_participation") != "near_route_fetch_admission_bridge":
-            violations.append({
-                "code": "data_requirement_route_classification_drift",
-                "detail": data_requirement.get("route_participation"),
-            })
+            violations.append(
+                {
+                    "code": "data_requirement_route_classification_drift",
+                    "detail": data_requirement.get("route_participation"),
+                }
+            )
         if "fetchexecutor already consumes" in _authority_text(data_requirement):
-            violations.append({
-                "code": "data_requirement_fetch_admission_greenwash",
-                "detail": data_requirement.get("authority_boundary_summary"),
-            })
+            violations.append(
+                {
+                    "code": "data_requirement_fetch_admission_greenwash",
+                    "detail": data_requirement.get("authority_boundary_summary"),
+                }
+            )
 
     evidence = rows.get("polisyos.evidence", {})
     if evidence:
         if not _labels(evidence) >= {"bridge_missing", "surface_missing", "semantic_test_missing"}:
-            violations.append({
-                "code": "evidence_missing_label_drift",
-                "detail": sorted(_labels(evidence)),
-            })
+            violations.append(
+                {
+                    "code": "evidence_missing_label_drift",
+                    "detail": sorted(_labels(evidence)),
+                }
+            )
         boundary = _authority_text(evidence)
         if "support strength" not in boundary or "may not" not in boundary:
-            violations.append({
-                "code": "evidence_support_authority_greenwash",
-                "detail": evidence.get("authority_boundary_summary"),
-            })
+            violations.append(
+                {
+                    "code": "evidence_support_authority_greenwash",
+                    "detail": evidence.get("authority_boundary_summary"),
+                }
+            )
 
     berl = rows.get("polisyos.berl", {})
     if berl:
         if berl.get("route_participation") == "route_pinned_substrate":
-            violations.append({
-                "code": "berl_route_greenwash",
-                "detail": berl.get("route_participation"),
-            })
+            violations.append(
+                {
+                    "code": "berl_route_greenwash",
+                    "detail": berl.get("route_participation"),
+                }
+            )
         if "recommendation" not in _authority_text(berl):
-            violations.append({
-                "code": "berl_authority_boundary_drift",
-                "detail": berl.get("authority_boundary_summary"),
-            })
+            violations.append(
+                {
+                    "code": "berl_authority_boundary_drift",
+                    "detail": berl.get("authority_boundary_summary"),
+                }
+            )
 
     calibration = rows.get("polisyos.calibration", {})
     if calibration:
         if "bridge_missing" not in _labels(calibration):
-            violations.append({
-                "code": "calibration_bridge_gap_erased",
-                "detail": sorted(_labels(calibration)),
-            })
+            violations.append(
+                {
+                    "code": "calibration_bridge_gap_erased",
+                    "detail": sorted(_labels(calibration)),
+                }
+            )
         if "route consumer" not in _authority_text(calibration):
-            violations.append({
-                "code": "calibration_authority_boundary_drift",
-                "detail": calibration.get("authority_boundary_summary"),
-            })
+            violations.append(
+                {
+                    "code": "calibration_authority_boundary_drift",
+                    "detail": calibration.get("authority_boundary_summary"),
+                }
+            )
 
     ddm = rows.get("polisyos.ddm", {})
     if ddm:
         if ddm.get("route_participation") != "out_of_route_production_monitoring":
-            violations.append({
-                "code": "ddm_route_greenwash",
-                "detail": ddm.get("route_participation"),
-            })
+            violations.append(
+                {
+                    "code": "ddm_route_greenwash",
+                    "detail": ddm.get("route_participation"),
+                }
+            )
         if "surface_out_of_scope" not in _labels(ddm):
-            violations.append({
-                "code": "ddm_surface_scope_drift",
-                "detail": sorted(_labels(ddm)),
-            })
+            violations.append(
+                {
+                    "code": "ddm_surface_scope_drift",
+                    "detail": sorted(_labels(ddm)),
+                }
+            )
 
     participation = rows.get("polisyos.participation_requirement", {})
     if participation and "llm speculation" not in _authority_text(participation):
-        violations.append({
-            "code": "participation_llm_boundary_drift",
-            "detail": participation.get("authority_boundary_summary"),
-        })
+        violations.append(
+            {
+                "code": "participation_llm_boundary_drift",
+                "detail": participation.get("authority_boundary_summary"),
+            }
+        )
 
     obligation_rules = rows.get("polisyos.obligation_rules", {})
     if obligation_rules and "rulegovernancedecision" not in _authority_text(obligation_rules):
-        violations.append({
-            "code": "obligation_rules_governance_boundary_drift",
-            "detail": obligation_rules.get("authority_boundary_summary"),
-        })
+        violations.append(
+            {
+                "code": "obligation_rules_governance_boundary_drift",
+                "detail": obligation_rules.get("authority_boundary_summary"),
+            }
+        )
 
     obligation_graph = rows.get("polisyos.obligation_graph", {})
     if obligation_graph:
         boundary = _authority_text(obligation_graph)
         for phrase in ("legal authority", "method validity", "projection authority"):
             if phrase not in boundary:
-                violations.append({
-                    "code": "obligation_graph_authority_boundary_drift",
-                    "detail": phrase,
-                })
+                violations.append(
+                    {
+                        "code": "obligation_graph_authority_boundary_drift",
+                        "detail": phrase,
+                    }
+                )
 
     negatives = inventory.get("negative_assertions")
     if not isinstance(negatives, list):
@@ -398,10 +443,12 @@ def validate(inventory: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             continue
         if item.get("assertion_holds") is not True:
-            violations.append({
-                "code": "negative_assertion_not_enforced",
-                "detail": item.get("id"),
-            })
+            violations.append(
+                {
+                    "code": "negative_assertion_not_enforced",
+                    "detail": item.get("id"),
+                }
+            )
 
     acceptance = "\n".join(_list(inventory.get("acceptance_signal")))
     for phrase in REQUIRED_ACCEPTANCE_PHRASES:
@@ -420,7 +467,10 @@ def main() -> int:
         default=DEFAULT_INVENTORY,
         help="Path to substrate package capability inventory JSON.",
     )
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     inventory = json.loads(args.inventory.read_text(encoding="utf-8"))
     violations = validate(inventory)

@@ -15,6 +15,7 @@ This makes the artifact a recomputed claim, not prose.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -27,10 +28,16 @@ import json
 import sys
 from pathlib import Path
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 ROOT = Path(__file__).resolve().parents[3]
-ART = ROOT / "architecture" / "policy_design_case" / "layer3_gy_task0_audit" / "layer3_gy_workflow_mode_truth_audit.json"
+ART = (
+    ROOT
+    / "architecture"
+    / "policy_design_case"
+    / "layer3_gy_task0_audit"
+    / "layer3_gy_workflow_mode_truth_audit.json"
+)
 
 REQUIRED_SECTIONS = (
     "selection_truth",
@@ -77,7 +84,12 @@ def validate(art: dict) -> list[dict]:
     body = {k: art[k] for k in art if k != "digest"}
     expected = "sha256:" + hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     if art.get("digest") != expected:
-        v.append({"code": "digest_mismatch", "detail": f"declared={art.get('digest')} expected={expected}"})
+        v.append(
+            {
+                "code": "digest_mismatch",
+                "detail": f"declared={art.get('digest')} expected={expected}",
+            }
+        )
 
     # recompute node-set algebra from live specs
     try:
@@ -93,11 +105,17 @@ def validate(art: dict) -> list[dict]:
     claimed_counts = ws.get("node_counts", {})
     live_counts = {k: len(live[k]) for k in live}
     if claimed_counts != live_counts:
-        v.append({"code": "node_count_drift", "detail": f"claimed={claimed_counts} live={live_counts}"})
+        v.append(
+            {"code": "node_count_drift", "detail": f"claimed={claimed_counts} live={live_counts}"}
+        )
 
     if sorted(ws.get("shared_spine_common_to_all_3", [])) != sorted(common):
-        v.append({"code": "shared_spine_drift",
-                  "detail": f"claimed {len(ws.get('shared_spine_common_to_all_3', []))} vs live {len(common)}"})
+        v.append(
+            {
+                "code": "shared_spine_drift",
+                "detail": f"claimed {len(ws.get('shared_spine_common_to_all_3', []))} vs live {len(common)}",
+            }
+        )
 
     # node_id identity across the common spine
     nonident = [a for a in common if len({live[k][a] for k in live}) != 1]
@@ -108,17 +126,29 @@ def validate(art: dict) -> list[dict]:
     claim_subset = ws.get("policy_verified_is_subset_of_policy_design_nodes")
     live_subset = sets["policy_verified"] <= sets["policy_design"]
     if claim_subset != live_subset:
-        v.append({"code": "pv_subset_claim_drift", "detail": f"claimed={claim_subset} live={live_subset}"})
+        v.append(
+            {
+                "code": "pv_subset_claim_drift",
+                "detail": f"claimed={claim_subset} live={live_subset}",
+            }
+        )
 
     # only_* sets
     checks = {
         "only_policy_design": sets["policy_design"] - sets["causal_full"] - sets["policy_verified"],
         "only_causal_full": sets["causal_full"] - sets["policy_design"] - sets["policy_verified"],
-        "only_policy_verified": sets["policy_verified"] - sets["policy_design"] - sets["causal_full"],
+        "only_policy_verified": sets["policy_verified"]
+        - sets["policy_design"]
+        - sets["causal_full"],
     }
     for key, live_set in checks.items():
         if sorted(ws.get(key, [])) != sorted(live_set):
-            v.append({"code": f"{key}_drift", "detail": f"claimed={sorted(ws.get(key, []))} live={sorted(live_set)}"})
+            v.append(
+                {
+                    "code": f"{key}_drift",
+                    "detail": f"claimed={sorted(ws.get(key, []))} live={sorted(live_set)}",
+                }
+            )
 
     return v
 
@@ -127,18 +157,28 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--artifact", type=Path, default=ART)
     ap.add_argument("--json", action="store_true")
-    args = ap.parse_args(argv)
+    args = parse_args_for_timing(
+        ap,
+        argv,
+        mode_options=(),
+    )
     if not args.artifact.exists():
         print(f"FAIL: artifact not found: {args.artifact}", file=sys.stderr)
         return 2
     art = json.loads(args.artifact.read_text())
     violations = validate(art)
-    report = {"artifact": str(args.artifact), "status": "pass" if not violations else "fail",
-              "violation_count": len(violations), "violations": violations}
+    report = {
+        "artifact": str(args.artifact),
+        "status": "pass" if not violations else "fail",
+        "violation_count": len(violations),
+        "violations": violations,
+    }
     if args.json:
         print(json.dumps(report, indent=2))
     else:
-        print(f"GY workflow-mode truth audit: {report['status'].upper()} (violations={len(violations)})")
+        print(
+            f"GY workflow-mode truth audit: {report['status'].upper()} (violations={len(violations)})"
+        )
         for x in violations:
             print(f"  [{x['code']}] {x['detail']}")
     return 0 if not violations else 1

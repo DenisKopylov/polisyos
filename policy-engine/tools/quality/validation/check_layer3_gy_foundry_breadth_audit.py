@@ -7,6 +7,7 @@ Foundry producer smokes and pinned-route DAG-consumed method truth.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -20,7 +21,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -95,9 +96,13 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     if methodology.get("agents_used") is not False:
         violations.append({"code": "agent_scope_drift", "detail": methodology.get("agents_used")})
     if methodology.get("network_fetches_run") is not False:
-        violations.append({"code": "network_scope_laundering", "detail": "network fetches not in scope"})
+        violations.append(
+            {"code": "network_scope_laundering", "detail": "network fetches not in scope"}
+        )
     if methodology.get("direct_invocation") != "registry.get(fqn).pure_step(state, params)":
-        violations.append({"code": "direct_invocation_drift", "detail": methodology.get("direct_invocation")})
+        violations.append(
+            {"code": "direct_invocation_drift", "detail": methodology.get("direct_invocation")}
+        )
 
     classification = audit.get("classification")
     if not isinstance(classification, dict):
@@ -114,10 +119,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
     patterns = set(classification.get("patterns") or [])
     if not patterns >= EXPECTED_PATTERNS:
         violations.append({"code": "pattern_coverage_drift", "detail": sorted(patterns)})
@@ -142,46 +149,70 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
     if summary.get("dag_skipped_method_nodes") != ["compile_foundry", "run_simulation"]:
-        violations.append({
-            "code": "dag_skip_truth_drift",
-            "detail": summary.get("dag_skipped_method_nodes"),
-        })
+        violations.append(
+            {
+                "code": "dag_skip_truth_drift",
+                "detail": summary.get("dag_skipped_method_nodes"),
+            }
+        )
     if "lower >= upper" not in str(summary.get("dag_blocker_message", "")):
-        violations.append({"code": "dag_blocker_message_drift", "detail": summary.get("dag_blocker_message")})
+        violations.append(
+            {"code": "dag_blocker_message_drift", "detail": summary.get("dag_blocker_message")}
+        )
     if summary.get("pinned_route_relevant_count") == summary.get("broad_live_tag_envelope_count"):
-        violations.append({
-            "code": "route_envelope_collapsed",
-            "detail": "pinned 172 and broad 232 envelopes must remain distinct",
-        })
+        violations.append(
+            {
+                "code": "route_envelope_collapsed",
+                "detail": "pinned 172 and broad 232 envelopes must remain distinct",
+            }
+        )
 
     pinned = _nested(audit, ("route_relevance", "pinned_legacy_filter"))
     broad = _nested(audit, ("route_relevance", "broad_live_tag_envelope"))
     if not isinstance(pinned, dict):
-        violations.append({"code": "missing_pinned_route_filter", "detail": "pinned filter missing"})
+        violations.append(
+            {"code": "missing_pinned_route_filter", "detail": "pinned filter missing"}
+        )
         pinned = {}
     if not isinstance(broad, dict):
-        violations.append({"code": "missing_broad_route_envelope", "detail": "broad envelope missing"})
+        violations.append(
+            {"code": "missing_broad_route_envelope", "detail": "broad envelope missing"}
+        )
         broad = {}
     if pinned.get("count") != 172 or pinned.get("by_top_family") != EXPECTED_PINNED_BY_TOP:
-        violations.append({
-            "code": "pinned_route_filter_drift",
-            "detail": {"count": pinned.get("count"), "by_top_family": pinned.get("by_top_family")},
-        })
+        violations.append(
+            {
+                "code": "pinned_route_filter_drift",
+                "detail": {
+                    "count": pinned.get("count"),
+                    "by_top_family": pinned.get("by_top_family"),
+                },
+            }
+        )
     if broad.get("count") != 232 or broad.get("by_top_family") != EXPECTED_BROAD_BY_TOP:
-        violations.append({
-            "code": "broad_route_envelope_drift",
-            "detail": {"count": broad.get("count"), "by_top_family": broad.get("by_top_family")},
-        })
+        violations.append(
+            {
+                "code": "broad_route_envelope_drift",
+                "detail": {
+                    "count": broad.get("count"),
+                    "by_top_family": broad.get("by_top_family"),
+                },
+            }
+        )
     if "bayesian" in (pinned.get("by_top_family") or {}):
-        violations.append({
-            "code": "pinned_filter_overexpanded",
-            "detail": "bayesian belongs to broad envelope, not the pinned 172 filter",
-        })
+        violations.append(
+            {
+                "code": "pinned_filter_overexpanded",
+                "detail": "bayesian belongs to broad envelope, not the pinned 172 filter",
+            }
+        )
 
     smokes = _smokes(audit)
     if set(smokes) != EXPECTED_FAMILIES:
@@ -191,26 +222,39 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(row, dict):
             continue
         if row.get("status") != "pass":
-            violations.append({"code": "direct_smoke_not_pass", "detail": f"{family}={row.get('status')!r}"})
+            violations.append(
+                {"code": "direct_smoke_not_pass", "detail": f"{family}={row.get('status')!r}"}
+            )
         if row.get("evidence_kind") != "direct_smoke_only":
-            violations.append({"code": "direct_smoke_laundered", "detail": f"{family} evidence_kind={row.get('evidence_kind')!r}"})
+            violations.append(
+                {
+                    "code": "direct_smoke_laundered",
+                    "detail": f"{family} evidence_kind={row.get('evidence_kind')!r}",
+                }
+            )
         if row.get("dag_consumed_on_pinned_route") is not False:
-            violations.append({"code": "dag_consumption_greenwash", "detail": f"{family} marked DAG-consumed"})
+            violations.append(
+                {"code": "dag_consumption_greenwash", "detail": f"{family} marked DAG-consumed"}
+            )
         output_hash = row.get("output_hash")
         if not isinstance(output_hash, str) or not SHA256_RE.fullmatch(output_hash):
             violations.append({"code": "bad_output_hash", "detail": f"{family}={output_hash!r}"})
         elif output_hash != EXPECTED_HASHES[family]:
-            violations.append({
-                "code": "output_hash_drift",
-                "detail": f"{family}={output_hash!r}; expected {EXPECTED_HASHES[family]!r}",
-            })
+            violations.append(
+                {
+                    "code": "output_hash_drift",
+                    "detail": f"{family}={output_hash!r}; expected {EXPECTED_HASHES[family]!r}",
+                }
+            )
 
     dag = audit.get("dag_consumption_truth")
     if not isinstance(dag, dict):
         violations.append({"code": "missing_dag_consumption_truth", "detail": "DAG truth missing"})
         dag = {}
     if dag.get("workflow_status") != "fail":
-        violations.append({"code": "workflow_status_greenwash", "detail": dag.get("workflow_status")})
+        violations.append(
+            {"code": "workflow_status_greenwash", "detail": dag.get("workflow_status")}
+        )
     if dag.get("classification") != "blocked_upstream_not_method_failure":
         violations.append({"code": "dag_classification_drift", "detail": dag.get("classification")})
     expected_support = {
@@ -220,15 +264,21 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         "run_data_plane_gate": "ok",
     }
     if dag.get("foundry_support_nodes") != expected_support:
-        violations.append({"code": "foundry_support_node_drift", "detail": dag.get("foundry_support_nodes")})
+        violations.append(
+            {"code": "foundry_support_node_drift", "detail": dag.get("foundry_support_nodes")}
+        )
     if dag.get("method_execution_nodes") != {"compile_foundry": "skip", "run_simulation": "skip"}:
-        violations.append({"code": "method_execution_node_greenwash", "detail": dag.get("method_execution_nodes")})
+        violations.append(
+            {"code": "method_execution_node_greenwash", "detail": dag.get("method_execution_nodes")}
+        )
     if _nested(dag, ("blocking_node", "alias")) != "run_hierarchical_policy_search":
         violations.append({"code": "blocking_node_drift", "detail": dag.get("blocking_node")})
 
     acceptance = audit.get("acceptance_signal")
     if not isinstance(acceptance, list):
-        violations.append({"code": "missing_acceptance_signal", "detail": "acceptance_signal missing"})
+        violations.append(
+            {"code": "missing_acceptance_signal", "detail": "acceptance_signal missing"}
+        )
         acceptance = []
     required_phrases = {
         "all direct smokes are marked direct_smoke_only",
@@ -248,7 +298,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(),
+    )
 
     if not args.audit.exists():
         print(f"FAIL: Foundry breadth audit not found: {args.audit}", file=sys.stderr)

@@ -86,7 +86,7 @@ from polisyos.scientist.evidence.claims.models import (
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
@@ -238,11 +238,11 @@ def dependency_environment_diagnostic_projection(result: ValidationResult) -> di
         ),
         "status": result.status,
         "first_case": (
-            first_case.model_dump(mode="json")
-            if hasattr(first_case, "model_dump")
-            else first_case
+            first_case.model_dump(mode="json") if hasattr(first_case, "model_dump") else first_case
         ),
     }
+
+
 _ALLOCATION_PAYLOAD_FIELDS: Final = (
     "row_kind",
     "subject_key",
@@ -1789,7 +1789,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    args = parse_args_for_timing(
+        build_parser(),
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+        ),
+    )
     mode = (
         "check"
         if args.check

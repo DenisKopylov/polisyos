@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.knowledge_substrate_contract.v1"
@@ -437,13 +437,17 @@ def knowledge_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         case_id="l3_amendment_effective_from_temporal_gate",
         passed=temporal_ok,
         expected="effective_from_and_lineage_supersession",
-        actual="effective_from_and_lineage_supersession" if temporal_ok else "latest_or_one_row_only",
+        actual="effective_from_and_lineage_supersession"
+        if temporal_ok
+        else "latest_or_one_row_only",
         detail={
             "before": before.model_dump(mode="json"),
             "after": after.model_dump(mode="json"),
             "lineage_old_mid": lineage_old_mid.model_dump(mode="json"),
             "lineage_mid_threshold": (
-                None if lineage_mid_threshold is None else lineage_mid_threshold.model_dump(mode="json")
+                None
+                if lineage_mid_threshold is None
+                else lineage_mid_threshold.model_dump(mode="json")
             ),
             "lineage_mid_status": (
                 None if lineage_mid_status is None else lineage_mid_status.model_dump(mode="json")
@@ -533,7 +537,19 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "surface": "GY-S0 substrate registry + generated contract artifact",
             "semantic_test": "real-store integration + remove-property behavior probes",
         },
-        "patterns_closed": ["P01", "P03", "P04", "P05", "P07", "P08", "P10", "P27", "P29", "P32", "P33"],
+        "patterns_closed": [
+            "P01",
+            "P03",
+            "P04",
+            "P05",
+            "P07",
+            "P08",
+            "P10",
+            "P27",
+            "P29",
+            "P32",
+            "P33",
+        ],
         "missing_capability_labels": [],
         "behavioral_checks": {
             "knowledge_substrate": {
@@ -619,7 +635,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--write",
+        ),
+    )
     if args.write:
         report = write(args.repo_root)
     else:

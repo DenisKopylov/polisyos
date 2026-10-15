@@ -19,6 +19,7 @@ the GY-0 census discipline. The check FAILS (exit 1) on any of:
 Usage:
     python3 tools/quality/validation/check_layer3_gy_engine_census.py [--census PATH] [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -32,7 +33,7 @@ import re
 import sys
 from pathlib import Path
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_CENSUS = (
     Path(__file__).resolve().parents[3]
@@ -70,7 +71,12 @@ ALLOWED_EXECUTION_STATUS = {
     "not_exercised_network",
 }
 # statuses that REQUIRE a recorded output_hash (a real run happened)
-EXECUTION_BEARING = {"runs_e2e_on_real", "runs_with_deadline_adapter", "runs_degraded_dependency", "fails"}
+EXECUTION_BEARING = {
+    "runs_e2e_on_real",
+    "runs_with_deadline_adapter",
+    "runs_degraded_dependency",
+    "fails",
+}
 # statuses that did not run the outward call but still need a replay/probe hash.
 EVIDENCE_HASH_REQUIRED = EXECUTION_BEARING | {"not_exercised_network"}
 SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -120,20 +126,24 @@ def validate(census: dict) -> list[dict]:
 
     declared_row_count = census.get("row_count")
     if declared_row_count != len(rows):
-        violations.append({
-            "row": None,
-            "code": "row_count_mismatch",
-            "detail": f"row_count={declared_row_count!r} but actual rows={len(rows)}",
-        })
+        violations.append(
+            {
+                "row": None,
+                "code": "row_count_mismatch",
+                "detail": f"row_count={declared_row_count!r} but actual rows={len(rows)}",
+            }
+        )
 
     declared_digest = census.get("census_digest")
     expected_digest = _canonical_rows_digest(rows)
     if declared_digest != expected_digest:
-        violations.append({
-            "row": None,
-            "code": "census_digest_mismatch",
-            "detail": f"census_digest={declared_digest!r}; expected={expected_digest}",
-        })
+        violations.append(
+            {
+                "row": None,
+                "code": "census_digest_mismatch",
+                "detail": f"census_digest={declared_digest!r}; expected={expected_digest}",
+            }
+        )
 
     seen_ids: set[str] = set()
     for i, row in enumerate(rows):
@@ -154,11 +164,21 @@ def validate(census: dict) -> list[dict]:
 
         es = row.get("execution_status")
         if es == "unknown" or es in (None, ""):
-            violations.append({"row": aid, "code": "unknown_execution_status",
-                               "detail": f"execution_status={es!r} (the census forbids unknown)"})
+            violations.append(
+                {
+                    "row": aid,
+                    "code": "unknown_execution_status",
+                    "detail": f"execution_status={es!r} (the census forbids unknown)",
+                }
+            )
         elif es not in ALLOWED_EXECUTION_STATUS:
-            violations.append({"row": aid, "code": "bad_execution_status",
-                               "detail": f"execution_status={es!r} not in vocabulary"})
+            violations.append(
+                {
+                    "row": aid,
+                    "code": "bad_execution_status",
+                    "detail": f"execution_status={es!r} not in vocabulary",
+                }
+            )
 
         # execution evidence: a real run/probe must carry a real digest. Text such
         # as "n/a", "see file", or raw path references is not reproducible evidence.
@@ -166,11 +186,21 @@ def validate(census: dict) -> list[dict]:
             ev = row.get("execution_evidence") or {}
             oh = ev.get("output_hash") if isinstance(ev, dict) else None
             if not oh:
-                violations.append({"row": aid, "code": "missing_output_hash",
-                                   "detail": f"execution_status={es} requires execution_evidence.output_hash"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "missing_output_hash",
+                        "detail": f"execution_status={es} requires execution_evidence.output_hash",
+                    }
+                )
             elif not _valid_sha256(oh):
-                violations.append({"row": aid, "code": "bad_output_hash",
-                                   "detail": f"execution_status={es} requires sha256:<64 hex>, got {oh!r}"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "bad_output_hash",
+                        "detail": f"execution_status={es} requires sha256:<64 hex>, got {oh!r}",
+                    }
+                )
 
         # gap_class
         gap = row.get("gap_class")
@@ -181,51 +211,106 @@ def validate(census: dict) -> list[dict]:
         verb = row.get("recommended_gy_action")
         allowed = VERB_GAP.get(gap, set())
         if gap in VERB_GAP and verb not in allowed:
-            violations.append({"row": aid, "code": "verb_gap_mismatch",
-                               "detail": f"gap_class={gap!r} forbids verb={verb!r}; allowed={sorted(allowed)}"})
+            violations.append(
+                {
+                    "row": aid,
+                    "code": "verb_gap_mismatch",
+                    "detail": f"gap_class={gap!r} forbids verb={verb!r}; allowed={sorted(allowed)}",
+                }
+            )
 
         if gap == "blocked_upstream" and not row.get("blocked_by"):
-            violations.append({"row": aid, "code": "blocked_upstream_without_blocker",
-                               "detail": "blocked_upstream rows must name blocked_by"})
+            violations.append(
+                {
+                    "row": aid,
+                    "code": "blocked_upstream_without_blocker",
+                    "detail": "blocked_upstream rows must name blocked_by",
+                }
+            )
 
         # authority status vocabulary
         auth = row.get("authority_status")
         if auth not in ALLOWED_AUTHORITY:
-            violations.append({"row": aid, "code": "bad_authority_status", "detail": f"authority_status={auth!r}"})
+            violations.append(
+                {"row": aid, "code": "bad_authority_status", "detail": f"authority_status={auth!r}"}
+            )
 
         # producer-root / smart-component firewall: governed requires a runnable,
         # consumer-reaching asset with evidence.
         if auth == "governed":
             if gap not in GOVERNED_OK_GAP:
-                violations.append({"row": aid, "code": "authority_without_provenance",
-                                   "detail": f"authority_status=governed but gap_class={gap!r} (not wired/works)"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "authority_without_provenance",
+                        "detail": f"authority_status=governed but gap_class={gap!r} (not wired/works)",
+                    }
+                )
             if es not in {"runs_e2e_on_real", "runs_with_deadline_adapter"}:
-                violations.append({"row": aid, "code": "authority_without_run",
-                                   "detail": f"authority_status=governed but execution_status={es!r}"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "authority_without_run",
+                        "detail": f"authority_status=governed but execution_status={es!r}",
+                    }
+                )
             if not row.get("evidence_refs"):
-                violations.append({"row": aid, "code": "authority_without_evidence",
-                                   "detail": "authority_status=governed but evidence_refs empty"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "authority_without_evidence",
+                        "detail": "authority_status=governed but evidence_refs empty",
+                    }
+                )
 
         if auth == "laundered":
             if gap != "wired_but_ungoverned":
-                violations.append({"row": aid, "code": "laundered_authority_wrong_gap",
-                                   "detail": f"authority_status=laundered requires wired_but_ungoverned, got {gap!r}"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "laundered_authority_wrong_gap",
+                        "detail": f"authority_status=laundered requires wired_but_ungoverned, got {gap!r}",
+                    }
+                )
             if verb not in {"govern", "repair"}:
-                violations.append({"row": aid, "code": "laundered_authority_wrong_action",
-                                   "detail": f"authority_status=laundered requires govern/repair, got {verb!r}"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "laundered_authority_wrong_action",
+                        "detail": f"authority_status=laundered requires govern/repair, got {verb!r}",
+                    }
+                )
             if not row.get("evidence_refs"):
-                violations.append({"row": aid, "code": "laundered_authority_without_evidence",
-                                   "detail": "authority_status=laundered but evidence_refs empty"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "laundered_authority_without_evidence",
+                        "detail": "authority_status=laundered but evidence_refs empty",
+                    }
+                )
 
         if gap == "wired_and_works":
             called = _row_text((row.get("reachability") or {}).get("called_from_production"))
-            if any(token in called for token in ("false", "tools-only", "not invoked", "registered-only")):
-                violations.append({"row": aid, "code": "wired_and_works_not_production",
-                                   "detail": f"wired_and_works must be production-called, got {called!r}"})
+            if any(
+                token in called
+                for token in ("false", "tools-only", "not invoked", "registered-only")
+            ):
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "wired_and_works_not_production",
+                        "detail": f"wired_and_works must be production-called, got {called!r}",
+                    }
+                )
             destination = _row_text(row.get("output_destination"))
             if destination.startswith("dropped"):
-                violations.append({"row": aid, "code": "wired_and_works_no_consumer",
-                                   "detail": f"wired_and_works must reach a consumer, got output_destination={destination!r}"})
+                violations.append(
+                    {
+                        "row": aid,
+                        "code": "wired_and_works_no_consumer",
+                        "detail": f"wired_and_works must reach a consumer, got output_destination={destination!r}",
+                    }
+                )
 
     return violations
 
@@ -234,7 +319,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--census", type=Path, default=DEFAULT_CENSUS)
     ap.add_argument("--json", action="store_true", help="emit machine-readable report")
-    args = ap.parse_args(argv)
+    args = parse_args_for_timing(
+        ap,
+        argv,
+        mode_options=(),
+    )
 
     if not args.census.exists():
         print(f"FAIL: census artifact not found: {args.census}", file=sys.stderr)

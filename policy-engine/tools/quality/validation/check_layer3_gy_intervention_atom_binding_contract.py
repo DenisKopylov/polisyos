@@ -16,12 +16,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract.json"
-SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.intervention_atom_binding_contract.v1"
-)
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_atom_binding_contract.v1"
 SOURCE_FLIP_MUTATION_ID = "source_flip_normalized_from_used_as_authority"
 SOURCE_FLIP_TARGET = "src/polisyos/runtime/quality/intervention_atom_binding.py"
 
@@ -113,9 +111,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
         else:
             path.write_bytes(original.replace(needle, replacement, 1))
             env = os.environ.copy()
-            env["PYTHONPATH"] = os.pathsep.join(
-                (str(repo_root / "src"), str(repo_root))
-            )
+            env["PYTHONPATH"] = os.pathsep.join((str(repo_root / "src"), str(repo_root)))
             probe = subprocess.run(
                 [
                     sys.executable,
@@ -183,9 +179,7 @@ def validate(repo_root: Path) -> dict[str, Any]:
                 }
             )
     if committed is not None and committed != live:
-        issues.append(
-            {"code": "intervention_atom_binding_contract_drift", "path": OUTPUT_PATH}
-        )
+        issues.append({"code": "intervention_atom_binding_contract_drift", "path": OUTPUT_PATH})
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -213,7 +207,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
 
     repo_root = args.repo_root.resolve()
     inserted = [str(repo_root), str(repo_root / "src")]

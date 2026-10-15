@@ -19,7 +19,7 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 FAMILY_ID = "policy-design-case-layer3-gy-composition-artifacts"
 CERTIFICATES_PATH = "architecture/policy_design_case/layer3_gy_composition_certificates.json"
@@ -1407,7 +1407,16 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Run restoring Stage-3 source mutations serially.",
     )
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     if args.check and args.write:
         parser.error("--check and --write are mutually exclusive")
 

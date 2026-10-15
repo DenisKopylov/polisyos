@@ -17,7 +17,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -100,7 +100,10 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     """Return audit integrity violations."""
     violations: list[dict[str, Any]] = []
 
-    if audit.get("schema_version") != "policyos.policy_design_case.layer3_gy_p1_substrate_authority_audit.v1":
+    if (
+        audit.get("schema_version")
+        != "policyos.policy_design_case.layer3_gy_p1_substrate_authority_audit.v1"
+    ):
         violations.append(_violation("bad_schema_version", audit.get("schema_version")))
     if audit.get("status") != "pass":
         violations.append(_violation("audit_status_not_pass", audit.get("status")))
@@ -120,7 +123,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             violations.append(_violation("methodology_missing_probe", key))
     for key in ("agents_used", "network_fetches_run", "runtime_server_started", "fixes_made"):
         if methodology.get(key) is not False:
-            violations.append(_violation("methodology_scope_drift", f"{key}={methodology.get(key)!r}"))
+            violations.append(
+                _violation("methodology_scope_drift", f"{key}={methodology.get(key)!r}")
+            )
 
     classification = _dict(audit.get("classification"))
     if classification.get("primary") != "high_risk_substrate_authority_partial":
@@ -160,11 +165,20 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             violations.append(_violation("cas_probe_drift", f"{key}={temp_probe.get(key)!r}"))
     manifest_scan = _dict(cas.get("p0_dag_manifest_scan"))
     if manifest_scan.get("total_manifest_count") != 178:
-        violations.append(_violation("p0_cas_manifest_count_drift", manifest_scan.get("total_manifest_count")))
+        violations.append(
+            _violation("p0_cas_manifest_count_drift", manifest_scan.get("total_manifest_count"))
+        )
     if manifest_scan.get("authority_manifest_count") != 0:
-        violations.append(_violation("dag_authority_manifest_greenwash", manifest_scan.get("authority_manifest_count")))
+        violations.append(
+            _violation(
+                "dag_authority_manifest_greenwash", manifest_scan.get("authority_manifest_count")
+            )
+        )
     bridge_rows = _list(cas.get("authority_bridge_map"))
-    if not any(_dict(row).get("status") == "cas_integrity_only_no_runtime_authority_manifest" for row in bridge_rows):
+    if not any(
+        _dict(row).get("status") == "cas_integrity_only_no_runtime_authority_manifest"
+        for row in bridge_rows
+    ):
         violations.append(_violation("missing_dag_authority_gap_row", bridge_rows))
 
     time = _dict(audit.get("time_semantics_bitemporality"))
@@ -183,14 +197,24 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
 
     secret = _dict(audit.get("secrets_pii_scan"))
     if secret.get("selected_secret_match_line_count") != 5:
-        violations.append(_violation("secret_scan_count_drift", secret.get("selected_secret_match_line_count")))
+        violations.append(
+            _violation("secret_scan_count_drift", secret.get("selected_secret_match_line_count"))
+        )
     if secret.get("selected_pii_match_line_count") != 0:
-        violations.append(_violation("pii_scan_count_drift", secret.get("selected_pii_match_line_count")))
+        violations.append(
+            _violation("pii_scan_count_drift", secret.get("selected_pii_match_line_count"))
+        )
     connector_payload_scan = _dict(secret.get("connector_probe_payload_scan"))
-    if connector_payload_scan.get("files_scanned") != 1 or connector_payload_scan.get("secret_hits") != 0:
+    if (
+        connector_payload_scan.get("files_scanned") != 1
+        or connector_payload_scan.get("secret_hits") != 0
+    ):
         violations.append(_violation("connector_payload_scan_drift", connector_payload_scan))
     secret_hits = _list(secret.get("secret_hits"))
-    if not any(_dict(hit).get("classification") == "raw_dag_bundle_secret_like_fixture_leak" for hit in secret_hits):
+    if not any(
+        _dict(hit).get("classification") == "raw_dag_bundle_secret_like_fixture_leak"
+        for hit in secret_hits
+    ):
         violations.append(_violation("missing_raw_dag_secret_hit", secret_hits))
     route_behavior = _dict(secret.get("route_behavior"))
     if route_behavior.get("artifact_raw_content_route_unredacted") is not True:
@@ -210,10 +234,16 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     g5_refs = _dict(cost.get("g5_s12_pass_exact_refs"))
     if g5_refs.get("exact_producer_artifacts_found") is not False:
         violations.append(_violation("g5_s12_exact_ref_greenwash", g5_refs))
-    if g5_refs.get("classification") != "authorial_refs_in_g5_handoff_not_measured_exact_s12_objects":
+    if (
+        g5_refs.get("classification")
+        != "authorial_refs_in_g5_handoff_not_measured_exact_s12_objects"
+    ):
         violations.append(_violation("g5_s12_classification_drift", g5_refs.get("classification")))
     run_cost = _dict(cost.get("runtime_run_cost_gate"))
-    if run_cost.get("separate_capability") is not True or run_cost.get("not_equivalent_to_s12_voi_budget_honesty") is not True:
+    if (
+        run_cost.get("separate_capability") is not True
+        or run_cost.get("not_equivalent_to_s12_voi_budget_honesty") is not True
+    ):
         violations.append(_violation("run_cost_gate_equivalence_greenwash", run_cost))
 
     risk_rows = _list(audit.get("substrate_authority_risk_matrix"))
@@ -226,7 +256,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if not str(row.get("must_not_count_as", "")).strip():
             violations.append(_violation("risk_row_missing_negative_boundary", row.get("area")))
 
-    acceptance = " ".join(str(item) for item in _list(audit.get("acceptance_signal_for_future_repairs")))
+    acceptance = " ".join(
+        str(item) for item in _list(audit.get("acceptance_signal_for_future_repairs"))
+    )
     for phrase in (
         "runtime authority writer",
         "not_publishable",
@@ -244,12 +276,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)
     if args.json:
-        print(json.dumps({"status": "fail" if violations else "pass", "violations": violations}, indent=2))
+        print(
+            json.dumps(
+                {"status": "fail" if violations else "pass", "violations": violations}, indent=2
+            )
+        )
     elif violations:
         print("FAIL layer3_gy_p1_substrate_authority_audit")
         for violation in violations:

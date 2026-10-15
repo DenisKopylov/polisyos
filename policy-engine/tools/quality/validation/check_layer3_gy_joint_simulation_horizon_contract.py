@@ -116,7 +116,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     world_model_record_content_hash,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v2"
@@ -475,10 +475,7 @@ def _interaction_sampling_issues(gate: Mapping[str, Any]) -> list[dict[str, Any]
         for outcome, by_step in expected_residuals.items()
     }
     expected_residual_sampling_json = {
-        outcome: {
-            str(step): summary.model_dump(mode="json")
-            for step, summary in by_step.items()
-        }
+        outcome: {str(step): summary.model_dump(mode="json") for step, summary in by_step.items()}
         for outcome, by_step in expected_residual_sampling.items()
     }
     if gate.get("higher_order_residuals") != expected_residual_json:
@@ -1086,9 +1083,9 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
     )
 
     try:
-        JointSimulationHorizonController.for_contract_testing(
-            fabricate_interaction_terms=True
-        ).run(_dynamic_request())
+        JointSimulationHorizonController.for_contract_testing(fabricate_interaction_terms=True).run(
+            _dynamic_request()
+        )
     except ValueError:
         fabricated_rejected_at_producer = True
         fabricated_report = []
@@ -1100,7 +1097,10 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
             "mutation": "fabricated_interaction_term",
             "status": "red"
             if fabricated_rejected_at_producer
-            or any(issue.get("code") == "fabricated_interaction_term_detected" for issue in fabricated_report)
+            or any(
+                issue.get("code") == "fabricated_interaction_term_detected"
+                for issue in fabricated_report
+            )
             else "green",
         }
     )
@@ -1392,8 +1392,7 @@ def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]
         },
         "higher_order_residual_sampling": {
             outcome: {
-                str(step): summary.model_dump(mode="json")
-                for step, summary in by_step.items()
+                str(step): summary.model_dump(mode="json") for step, summary in by_step.items()
             }
             for outcome, by_step in result.higher_order_residual_sampling.items()
         },
@@ -2312,7 +2311,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--source-flip-mutations", action="store_true")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     repo_root = args.repo_root.resolve()
     if args.source_flip_mutations:
         results = run_source_flip_mutations(repo_root)

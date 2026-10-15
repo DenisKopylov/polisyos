@@ -20,7 +20,7 @@ from typing import Any
 
 import duckdb
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 FAMILY_ID = "policy-design-case-layer3-gy-openalex-artifacts"
 SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-openalex-source-artifacts"
@@ -1084,7 +1084,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--write",
+            "--write-real-accuracy",
+        ),
+    )
 
     repo_root = Path(args.repo_root).resolve()
     if args.write_real_accuracy:

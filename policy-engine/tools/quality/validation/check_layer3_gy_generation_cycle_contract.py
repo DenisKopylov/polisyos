@@ -105,7 +105,7 @@ from tools.lib.fs import (
     measured_read_bytes,
     measured_read_text,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
 _FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
@@ -352,10 +352,7 @@ def _verification_session_factory_measurement(
     scope = factory.risk_scope
     candidate_ids = factory.candidate_ids or ()
     receipt_ids = (
-        tuple(
-            str(receipt.get("candidate_id") or "")
-            for receipt in run.promotion_port.receipts
-        )
+        tuple(str(receipt.get("candidate_id") or "") for receipt in run.promotion_port.receipts)
         if run is not None
         else ()
     )
@@ -367,9 +364,7 @@ def _verification_session_factory_measurement(
     if factory.callback_attempt_count == 0:
         measurement_status = "not_reached"
     elif (
-        run is not None
-        and factory.callback_attempt_count == 1
-        and factory.session_open_count == 1
+        run is not None and factory.callback_attempt_count == 1 and factory.session_open_count == 1
     ):
         measurement_status = "complete"
     else:
@@ -413,9 +408,7 @@ def _verification_session_factory_measurement(
         ),
         "session_risk_scope": session_scope_payload,
         "session_risk_scope_hash": (
-            gy_content_hash(session_scope_payload)
-            if session_scope_payload is not None
-            else None
+            gy_content_hash(session_scope_payload) if session_scope_payload is not None else None
         ),
         "session_matches_final_n9_risk_scope": (
             session_scope_payload == scope_payload
@@ -427,9 +420,7 @@ def _verification_session_factory_measurement(
         ),
         "selector_denominator": {
             "n6_cycles": len(run.cycles) if run is not None else None,
-            "n6_candidate_summaries": (
-                len(run.candidate_summaries) if run is not None else None
-            ),
+            "n6_candidate_summaries": (len(run.candidate_summaries) if run is not None else None),
             "n9_callback_attempt_count": factory.callback_attempt_count,
             "n9_session_open_count": factory.session_open_count,
             "n9_candidate_summaries": (
@@ -439,12 +430,8 @@ def _verification_session_factory_measurement(
             "candidate_summaries": (
                 len(candidate_ids) if factory.candidate_ids is not None else None
             ),
-            "run_candidate_summaries": (
-                len(run.candidate_summaries) if run is not None else None
-            ),
-            "candidate_ids": (
-                list(candidate_ids) if factory.candidate_ids is not None else None
-            ),
+            "run_candidate_summaries": (len(run.candidate_summaries) if run is not None else None),
+            "candidate_ids": (list(candidate_ids) if factory.candidate_ids is not None else None),
             "promotion_receipts": len(receipt_ids),
             "run_promotion_receipts": (
                 len(run.promotion_port.receipts) if run is not None else None
@@ -943,9 +930,7 @@ def _verification_replay_measurement(
             "delegated file operations are unresolved by construction"
         ),
     }
-    measurement["predicate"] = (
-        "final N9 input binding and full risk-scope equality were recomputed"
-    )
+    measurement["predicate"] = "final N9 input binding and full risk-scope equality were recomputed"
     return measurement
 
 
@@ -1474,10 +1459,7 @@ def validate(repo_root: Path) -> dict[str, Any]:
                 "predicate_stage": "n6_source_census",
                 "predicate_result": "fail",
             }
-        elif (
-            n6_source_census.source_verdict == "UNRUN"
-            and report.get("status") != "fail"
-        ):
+        elif n6_source_census.source_verdict == "UNRUN" and report.get("status") != "fail":
             report = {
                 **report,
                 "status": "UNRUN",
@@ -1615,8 +1597,7 @@ def _validate_committed_contract_text(
         (
             issue
             for issue in issues
-            if issue.get("code")
-            in {"generation_cycle_run_missing", "generation_cycle_run_invalid"}
+            if issue.get("code") in {"generation_cycle_run_missing", "generation_cycle_run_invalid"}
         ),
         None,
     )
@@ -1812,9 +1793,7 @@ def _validator_entrypoint_exception_report(exc: Exception, *, stage: str) -> dic
                 "receipts": unavailable.receipts,
             }
         if unavailable.receipts.get("n9_replay_measurement") is not None:
-            report["n9_replay_measurement"] = unavailable.receipts[
-                "n9_replay_measurement"
-            ]
+            report["n9_replay_measurement"] = unavailable.receipts["n9_replay_measurement"]
         return report
 
 
@@ -2355,7 +2334,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--output-format", choices={"json", "text"}, default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--write",
+        ),
+    )
     repo_root = args.repo_root.resolve()
     if args.write:
         write(repo_root)
@@ -2392,8 +2380,7 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         print(
-            "Measurement details: "
-            + json.dumps(report.get("measurement", {}), sort_keys=True),
+            "Measurement details: " + json.dumps(report.get("measurement", {}), sort_keys=True),
             file=sys.stderr,
         )
     else:

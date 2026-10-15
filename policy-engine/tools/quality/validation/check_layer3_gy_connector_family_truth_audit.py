@@ -9,6 +9,7 @@ truth about catalog binding shape versus concrete connector fetch contracts.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -20,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -101,20 +102,24 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     """Return audit integrity violations."""
     violations: list[dict[str, Any]] = []
     if audit.get("schema_version") != "layer3_gy_connector_family_truth_audit.v1":
-        violations.append({
-            "code": "bad_schema_version",
-            "detail": audit.get("schema_version"),
-        })
+        violations.append(
+            {
+                "code": "bad_schema_version",
+                "detail": audit.get("schema_version"),
+            }
+        )
 
     methodology = audit.get("methodology")
     if not isinstance(methodology, dict):
         violations.append({"code": "missing_methodology", "detail": "methodology missing"})
         methodology = {}
     if methodology.get("network_fetches_run") is not False:
-        violations.append({
-            "code": "network_scope_laundering",
-            "detail": "artifact must not claim all-family network replay coverage",
-        })
+        violations.append(
+            {
+                "code": "network_scope_laundering",
+                "detail": "artifact must not claim all-family network replay coverage",
+            }
+        )
 
     summary = audit.get("summary")
     if not isinstance(summary, dict):
@@ -135,51 +140,65 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     if int(summary.get("production_binding_count_for_12_families") or 0) <= 50_000:
-        violations.append({
-            "code": "production_binding_scope_too_small",
-            "detail": summary.get("production_binding_count_for_12_families"),
-        })
+        violations.append(
+            {
+                "code": "production_binding_scope_too_small",
+                "detail": summary.get("production_binding_count_for_12_families"),
+            }
+        )
 
     if summary.get("shape_status_counts") != EXPECTED_STATUS_COUNTS:
-        violations.append({
-            "code": "shape_status_counts_drift",
-            "detail": summary.get("shape_status_counts"),
-        })
+        violations.append(
+            {
+                "code": "shape_status_counts_drift",
+                "detail": summary.get("shape_status_counts"),
+            }
+        )
 
     blockers = set(summary.get("families_with_blocking_shape_gaps") or [])
     if blockers != EXPECTED_BLOCKERS:
-        violations.append({
-            "code": "blocking_family_set_drift",
-            "detail": sorted(blockers),
-        })
+        violations.append(
+            {
+                "code": "blocking_family_set_drift",
+                "detail": sorted(blockers),
+            }
+        )
 
     warn_only = set(summary.get("families_warn_only") or [])
     if warn_only != EXPECTED_WARN_ONLY:
-        violations.append({
-            "code": "warn_family_set_drift",
-            "detail": sorted(warn_only),
-        })
+        violations.append(
+            {
+                "code": "warn_family_set_drift",
+                "detail": sorted(warn_only),
+            }
+        )
 
     critical_labels = set(summary.get("critical_gap_labels") or [])
     missing_critical = sorted(ALLOWED_GAP_LABELS - critical_labels)
     if missing_critical:
-        violations.append({
-            "code": "missing_critical_gap_label",
-            "detail": missing_critical,
-        })
+        violations.append(
+            {
+                "code": "missing_critical_gap_label",
+                "detail": missing_critical,
+            }
+        )
 
     rows_by_id = _row_map(audit)
     if not rows_by_id:
-        violations.append({
-            "code": "missing_connector_rows",
-            "detail": "connector_rows missing or empty",
-        })
+        violations.append(
+            {
+                "code": "missing_connector_rows",
+                "detail": "connector_rows missing or empty",
+            }
+        )
         return violations
 
     missing_rows = sorted(REQUIRED_CONNECTORS - set(rows_by_id))
@@ -209,19 +228,23 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             if row.get(field) in (None, "", [], {}):
                 if field == "gap_labels" and row.get("shape_status") == "shape_pass":
                     continue
-                violations.append({
-                    "code": "missing_connector_row_field",
-                    "detail": f"{connector_id}.{field}",
-                })
+                violations.append(
+                    {
+                        "code": "missing_connector_row_field",
+                        "detail": f"{connector_id}.{field}",
+                    }
+                )
 
         labels = row.get("gap_labels")
         if isinstance(labels, list):
             unknown = sorted(set(labels) - ALLOWED_GAP_LABELS)
             if unknown:
-                violations.append({
-                    "code": "unknown_gap_label",
-                    "detail": f"{connector_id}: {unknown}",
-                })
+                violations.append(
+                    {
+                        "code": "unknown_gap_label",
+                        "detail": f"{connector_id}: {unknown}",
+                    }
+                )
         else:
             violations.append({"code": "bad_gap_labels", "detail": connector_id})
 
@@ -231,97 +254,121 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         else:
             for check in checks:
                 if not isinstance(check, dict):
-                    violations.append({
-                        "code": "bad_shape_check",
-                        "detail": connector_id,
-                    })
+                    violations.append(
+                        {
+                            "code": "bad_shape_check",
+                            "detail": connector_id,
+                        }
+                    )
                     continue
                 if check.get("id") in (None, "") or check.get("status") not in {
                     "pass",
                     "warn",
                     "fail",
                 }:
-                    violations.append({
-                        "code": "bad_shape_check",
-                        "detail": f"{connector_id}: {check}",
-                    })
+                    violations.append(
+                        {
+                            "code": "bad_shape_check",
+                            "detail": f"{connector_id}: {check}",
+                        }
+                    )
 
         evidence_refs = row.get("evidence_refs")
         if not isinstance(evidence_refs, list) or not any(
             str(ref).endswith("dataset_catalog.duckdb") for ref in evidence_refs
         ):
-            violations.append({
-                "code": "missing_catalog_evidence_ref",
-                "detail": connector_id,
-            })
+            violations.append(
+                {
+                    "code": "missing_catalog_evidence_ref",
+                    "detail": connector_id,
+                }
+            )
         if not isinstance(evidence_refs, list) or not any(
             str(ref).startswith("src/polisyos/fabric/connectors/") for ref in evidence_refs
         ):
-            violations.append({
-                "code": "missing_connector_code_evidence_ref",
-                "detail": connector_id,
-            })
+            violations.append(
+                {
+                    "code": "missing_connector_code_evidence_ref",
+                    "detail": connector_id,
+                }
+            )
 
     for connector_id, expected_status in EXPECTED_ROW_STATUSES.items():
         row = rows_by_id.get(connector_id)
         if row is None:
             continue
         if row.get("shape_status") != expected_status:
-            violations.append({
-                "code": "required_connector_status_changed",
-                "detail": f"{connector_id}={row.get('shape_status')!r}; expected {expected_status!r}",
-            })
+            violations.append(
+                {
+                    "code": "required_connector_status_changed",
+                    "detail": f"{connector_id}={row.get('shape_status')!r}; expected {expected_status!r}",
+                }
+            )
 
     rest_row = rows_by_id.get("rest.json", {})
     rest_check = _check_by_id(rest_row, "request_dataset_id_controls_endpoint")
     if not rest_check or rest_check.get("status") != "fail":
-        violations.append({
-            "code": "rest_endpoint_contract_gap_missing",
-            "detail": "rest.json must preserve request_dataset_id versus profile endpoint mismatch",
-        })
+        violations.append(
+            {
+                "code": "rest_endpoint_contract_gap_missing",
+                "detail": "rest.json must preserve request_dataset_id versus profile endpoint mismatch",
+            }
+        )
     for label in ("producer_missing", "bridge_missing", "semantic_test_missing"):
         if label not in _labels(rest_row):
-            violations.append({
-                "code": "rest_gap_label_missing",
-                "detail": label,
-            })
+            violations.append(
+                {
+                    "code": "rest_gap_label_missing",
+                    "detail": label,
+                }
+            )
 
     unpd_row = rows_by_id.get("unpd.data", {})
     for check_id in ("location_filter_present", "time_filter_present"):
         check = _check_by_id(unpd_row, check_id)
         if not check or check.get("status") != "fail":
-            violations.append({
-                "code": "unpd_required_filter_gap_missing",
-                "detail": check_id,
-            })
+            violations.append(
+                {
+                    "code": "unpd_required_filter_gap_missing",
+                    "detail": check_id,
+                }
+            )
     for label in ("bridge_missing", "semantic_test_missing"):
         if label not in _labels(unpd_row):
-            violations.append({
-                "code": "unpd_gap_label_missing",
-                "detail": label,
-            })
+            violations.append(
+                {
+                    "code": "unpd_gap_label_missing",
+                    "detail": label,
+                }
+            )
 
     ukons_row = rows_by_id.get("ukons.datasets", {})
     ukons_check = _check_by_id(ukons_row, "binding_execution_tier_fetchable")
     if not ukons_check or ukons_check.get("status") != "fail":
-        violations.append({
-            "code": "ukons_catalog_tier_gap_missing",
-            "detail": "ukons.datasets must remain catalog-tier-only in this audit",
-        })
+        violations.append(
+            {
+                "code": "ukons_catalog_tier_gap_missing",
+                "detail": "ukons.datasets must remain catalog-tier-only in this audit",
+            }
+        )
     for label in ("producer_missing", "bridge_missing", "semantic_test_missing"):
         if label not in _labels(ukons_row):
-            violations.append({
-                "code": "ukons_gap_label_missing",
-                "detail": label,
-            })
+            violations.append(
+                {
+                    "code": "ukons_gap_label_missing",
+                    "detail": label,
+                }
+            )
 
     sdmx_row = rows_by_id.get("sdmx.source", {})
     sdmx_check = _check_by_id(sdmx_row, "dimension_key_bound")
     if not sdmx_check or sdmx_check.get("status") != "warn":
-        violations.append({
-            "code": "sdmx_dimension_warning_missing",
-            "detail": "sdmx.source must preserve unbounded dimension-key warning",
-        })
+        violations.append(
+            {
+                "code": "sdmx_dimension_warning_missing",
+                "detail": "sdmx.source must preserve unbounded dimension-key warning",
+            }
+        )
 
     fetch_contracts = {
         json.dumps(row.get("fetch_contract"), sort_keys=True)
@@ -329,17 +376,21 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(row.get("fetch_contract"), dict)
     }
     if len(fetch_contracts) < 10:
-        violations.append({
-            "code": "family_contracts_too_uniform",
-            "detail": len(fetch_contracts),
-        })
+        violations.append(
+            {
+                "code": "family_contracts_too_uniform",
+                "detail": len(fetch_contracts),
+            }
+        )
 
     findings = audit.get("findings")
     if not isinstance(findings, list) or len(findings) < 6:
-        violations.append({
-            "code": "missing_findings",
-            "detail": "at least six findings required",
-        })
+        violations.append(
+            {
+                "code": "missing_findings",
+                "detail": "at least six findings required",
+            }
+        )
 
     return violations
 
@@ -349,7 +400,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true", help="Emit machine-readable output")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)

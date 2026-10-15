@@ -15,14 +15,11 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.pdc import gy_content_hash
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = Path(tempfile.gettempdir()) / "gy_n10_cg1_l2_relation_census.json"
-TARGET = ROOT / (
-    "architecture/policy_design_case/"
-    "layer3_gy_n10_cg1_l2_relation_census.json"
-)
+TARGET = ROOT / ("architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json")
 
 
 def declared_outputs() -> list[str]:
@@ -128,18 +125,12 @@ def _build_compact(raw: dict[str, Any]) -> dict[str, Any]:
         for atom_hash, relation in certificate["target_atom_relations"].items():
             witnesses = relation.get("axis_witnesses", [])
             targets[atom_hash] = {
-                key: value
-                for key, value in relation.items()
-                if key != "axis_witnesses"
+                key: value for key, value in relation.items() if key != "axis_witnesses"
             }
             targets[atom_hash]["axis_witness_count"] = len(witnesses)
-            targets[atom_hash]["axis_witnesses_content_hash"] = gy_content_hash(
-                witnesses
-            )
+            targets[atom_hash]["axis_witnesses_content_hash"] = gy_content_hash(witnesses)
         certificates[signature_hash] = {
-            key: value
-            for key, value in certificate.items()
-            if key != "target_atom_relations"
+            key: value for key, value in certificate.items() if key != "target_atom_relations"
         }
         certificates[signature_hash]["target_atom_relations"] = targets
 
@@ -182,17 +173,13 @@ def _build_compact(raw: dict[str, Any]) -> dict[str, Any]:
             ),
             "numeric_identity_table": columnar(numeric_rows),
             "numeric_edge_binding_table": columnar(binding_rows),
-            "certificate_summaries": {
-                key: certificates[key] for key in sorted(certificates)
-            },
+            "certificate_summaries": {key: certificates[key] for key in sorted(certificates)},
             "relation_table": columnar(relation_rows),
         }
     )
     if len(numeric_rows) != raw["coverage_manifest"]["simulation_rows_seen"]:
         raise SystemExit("numeric_identity_denominator_drift")
-    if len(relation_rows) != raw["coverage_manifest"][
-        "atom_x_numeric_edge_pairs_evaluated"
-    ]:
+    if len(relation_rows) != raw["coverage_manifest"]["atom_x_numeric_edge_pairs_evaluated"]:
         raise SystemExit("relation_denominator_drift")
     output = {**payload, "content_hash": gy_content_hash(payload)}
     return output
@@ -241,8 +228,7 @@ def _validate(payload: dict[str, Any]) -> dict[str, Any]:
     if len(relation_rows) != expected_relations:
         raise ValueError("relation_denominator_drift")
     formula_total = len(payload["atoms"]) * (
-        expected_bindings
-        + int(manifest["numeric_identities_without_exact_bound_edge"])
+        expected_bindings + int(manifest["numeric_identities_without_exact_bound_edge"])
     )
     if formula_total != expected_relations:
         raise ValueError("relation_denominator_formula_drift")
@@ -308,8 +294,7 @@ def _validate(payload: dict[str, Any]) -> dict[str, Any]:
 
 def _write(payload: dict[str, Any], target: Path) -> bytes:
     encoded = (
-        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-        + "\n"
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
     ).encode()
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(encoded)
@@ -325,7 +310,16 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--source", type=Path, default=SOURCE)
     parser.add_argument("--output", type=Path, default=TARGET)
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--write",
+        ),
+    )
 
     if args.check:
         report = _validate(json.loads(args.output.read_text(encoding="utf-8")))

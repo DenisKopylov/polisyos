@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -100,10 +100,14 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     worker = _as_dict(audit.get("production_job_worker_dag"))
     real_probe = _as_dict(worker.get("real_dag_probe"))
     if real_probe.get("job_response_state") != "completed":
-        violations.append(_violation("worker_job_not_completed", real_probe.get("job_response_state")))
+        violations.append(
+            _violation("worker_job_not_completed", real_probe.get("job_response_state"))
+        )
     if real_probe.get("workflow_report_status") != "fail":
         violations.append(
-            _violation("worker_workflow_report_not_failed", real_probe.get("workflow_report_status"))
+            _violation(
+                "worker_workflow_report_not_failed", real_probe.get("workflow_report_status")
+            )
         )
     if real_probe.get("mismatch_observed") in (None, ""):
         violations.append(_violation("missing_worker_status_mismatch_finding", "mismatch_observed"))
@@ -113,11 +117,19 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     firewall = _as_dict(audit.get("candidate_positive_firewall"))
     counts = _as_dict(firewall.get("counts"))
     if counts.get("candidate_positive_status_count") != 406:
-        violations.append(_violation("candidate_positive_count_drift", counts.get("candidate_positive_status_count")))
+        violations.append(
+            _violation(
+                "candidate_positive_count_drift", counts.get("candidate_positive_status_count")
+            )
+        )
     if counts.get("positive_status_count") != 0:
-        violations.append(_violation("positive_status_count_not_zero", counts.get("positive_status_count")))
+        violations.append(
+            _violation("positive_status_count_not_zero", counts.get("positive_status_count"))
+        )
     if counts.get("by_firewall_rule") != EXPECTED_FIREWALL_COUNTS:
-        violations.append(_violation("firewall_reason_counts_drift", counts.get("by_firewall_rule")))
+        violations.append(
+            _violation("firewall_reason_counts_drift", counts.get("by_firewall_rule"))
+        )
 
     rows = _as_list(firewall.get("rows"))
     if len(rows) != 406:
@@ -152,7 +164,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             violations.append(_violation("missing_blocked_input_node", alias))
             continue
         if required_read not in _as_list(row.get("triggering_missing_reads")):
-            violations.append(_violation("blocked_input_missing_read_drift", f"{alias}:{required_read}"))
+            violations.append(
+                _violation("blocked_input_missing_read_drift", f"{alias}:{required_read}")
+            )
         if not _as_list(row.get("declared_state_reads")):
             violations.append(_violation("blocked_input_declared_reads_missing", alias))
         if not _as_list(row.get("missing_producer_or_ref")):
@@ -165,7 +179,9 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     depth2 = _as_dict(audit.get("depth2_generalization"))
     catalog = _as_dict(depth2.get("catalog_search"))
     if catalog.get("classification") != "semantic_adequacy_and_jurisdiction_filter_gap":
-        violations.append(_violation("depth2_catalog_classification_drift", catalog.get("classification")))
+        violations.append(
+            _violation("depth2_catalog_classification_drift", catalog.get("classification"))
+        )
     filtered = _as_list(catalog.get("country_filtered_results"))
     if len(filtered) < 3 or any(_as_dict(row).get("returned") != 0 for row in filtered):
         violations.append(_violation("depth2_country_filter_probe_drift", filtered))
@@ -182,9 +198,13 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
 
     reducer = _as_dict(depth2.get("reducer_probe"))
     if reducer.get("cli_accepts_case_input") is not False:
-        violations.append(_violation("depth2_reducer_case_input_greenwash", reducer.get("cli_accepts_case_input")))
+        violations.append(
+            _violation("depth2_reducer_case_input_greenwash", reducer.get("cli_accepts_case_input"))
+        )
     if reducer.get("classification") != "route_omitted_case_not_parameterized":
-        violations.append(_violation("depth2_reducer_classification_drift", reducer.get("classification")))
+        violations.append(
+            _violation("depth2_reducer_classification_drift", reducer.get("classification"))
+        )
 
     return violations
 
@@ -194,12 +214,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)
     if args.json:
-        print(json.dumps({"status": "fail" if violations else "pass", "violations": violations}, indent=2))
+        print(
+            json.dumps(
+                {"status": "fail" if violations else "pass", "violations": violations}, indent=2
+            )
+        )
     elif violations:
         print("FAIL")
         for violation in violations:

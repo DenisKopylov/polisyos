@@ -8,6 +8,7 @@ FetchPlan admission.
 Usage:
     python3 tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py [--json]
 """
+
 from __future__ import annotations
 
 from time import perf_counter as _timing_perf_counter
@@ -19,7 +20,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -123,25 +124,31 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     """Return audit integrity violations."""
     violations: list[dict[str, Any]] = []
     if audit.get("schema_version") != "layer3_gy_data_requirement_compiler_audit.v1":
-        violations.append({
-            "code": "bad_schema_version",
-            "detail": audit.get("schema_version"),
-        })
+        violations.append(
+            {
+                "code": "bad_schema_version",
+                "detail": audit.get("schema_version"),
+            }
+        )
 
     methodology = audit.get("methodology")
     if not isinstance(methodology, dict):
         violations.append({"code": "missing_methodology", "detail": "methodology missing"})
         methodology = {}
     if methodology.get("network_fetches_run") is not False:
-        violations.append({
-            "code": "network_scope_laundering",
-            "detail": "audit must not imply live connector fetch coverage",
-        })
+        violations.append(
+            {
+                "code": "network_scope_laundering",
+                "detail": "audit must not imply live connector fetch coverage",
+            }
+        )
     if methodology.get("agents_used") is not False:
-        violations.append({
-            "code": "agent_scope_drift",
-            "detail": "user requested independent audit without agents",
-        })
+        violations.append(
+            {
+                "code": "agent_scope_drift",
+                "detail": "user requested independent audit without agents",
+            }
+        )
 
     classification = audit.get("classification")
     if not isinstance(classification, dict):
@@ -159,10 +166,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_classification.items():
         if classification.get(key) != expected:
-            violations.append({
-                "code": "classification_drift",
-                "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "classification_drift",
+                    "detail": f"{key}={classification.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     summary = audit.get("summary")
     if not isinstance(summary, dict):
@@ -202,54 +211,65 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in expected_summary.items():
         if summary.get(key) != expected:
-            violations.append({
-                "code": "summary_semantics_drift",
-                "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "summary_semantics_drift",
+                    "detail": f"{key}={summary.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     statuses = set(summary.get("mapped_g1_binding_statuses") or [])
     if statuses != {"blocked_construct_not_observed"}:
-        violations.append({
-            "code": "mapped_g1_status_drift",
-            "detail": sorted(statuses),
-        })
+        violations.append(
+            {
+                "code": "mapped_g1_status_drift",
+                "detail": sorted(statuses),
+            }
+        )
 
     facets = set(_nested(audit, ("probes", "data_requirement_contract", "mandatory_facets")) or [])
     if facets != REQUIRED_FACETS:
-        violations.append({
-            "code": "mandatory_facets_drift",
-            "detail": sorted(facets),
-        })
+        violations.append(
+            {
+                "code": "mandatory_facets_drift",
+                "detail": sorted(facets),
+            }
+        )
 
     predicates = set(
-        _nested(audit, ("probes", "data_requirement_contract", "admissibility_predicates"))
-        or []
+        _nested(audit, ("probes", "data_requirement_contract", "admissibility_predicates")) or []
     )
     if predicates != REQUIRED_PREDICATES:
-        violations.append({
-            "code": "admissibility_predicates_drift",
-            "detail": sorted(predicates),
-        })
+        violations.append(
+            {
+                "code": "admissibility_predicates_drift",
+                "detail": sorted(predicates),
+            }
+        )
 
     default_probe = _nested(audit, ("probes", "default_public_scenario_compile"))
     if not isinstance(default_probe, dict):
         violations.append({"code": "missing_default_compile_probe", "detail": "probe missing"})
         default_probe = {}
     if default_probe.get("spec_count") != 0 or default_probe.get("resolver_injected") is not False:
-        violations.append({
-            "code": "default_compile_probe_greenwash",
-            "detail": default_probe,
-        })
+        violations.append(
+            {
+                "code": "default_compile_probe_greenwash",
+                "detail": default_probe,
+            }
+        )
 
     scenario_probe = _nested(audit, ("probes", "scenario_evidence_contract_probe"))
     if not isinstance(scenario_probe, dict):
         violations.append({"code": "missing_scenario_contract_probe", "detail": "probe missing"})
         scenario_probe = {}
     if scenario_probe.get("data_requirement_specs_count") != 0:
-        violations.append({
-            "code": "scenario_contract_specs_greenwash",
-            "detail": scenario_probe.get("data_requirement_specs_count"),
-        })
+        violations.append(
+            {
+                "code": "scenario_contract_specs_greenwash",
+                "detail": scenario_probe.get("data_requirement_specs_count"),
+            }
+        )
 
     fetch_probe = _nested(audit, ("probes", "fetch_route_absence_probe"))
     if not isinstance(fetch_probe, dict):
@@ -263,10 +283,12 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
     }
     for key, expected in fetch_expectations.items():
         if fetch_probe.get(key) != expected:
-            violations.append({
-                "code": "fetch_route_absence_drift",
-                "detail": f"{key}={fetch_probe.get(key)!r}; expected {expected!r}",
-            })
+            violations.append(
+                {
+                    "code": "fetch_route_absence_drift",
+                    "detail": f"{key}={fetch_probe.get(key)!r}; expected {expected!r}",
+                }
+            )
 
     rows = _row_map(audit)
     missing_rows = REQUIRED_ROUTE_ROWS - set(rows)
@@ -278,32 +300,40 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
         if row is None:
             continue
         if row.get("reaches_pinned_fetch_admission") is not True:
-            violations.append({
-                "code": "pinned_absence_row_not_on_route",
-                "detail": route_id,
-            })
+            violations.append(
+                {
+                    "code": "pinned_absence_row_not_on_route",
+                    "detail": route_id,
+                }
+            )
         labels = _labels(row)
         if "bridge_missing" not in labels:
-            violations.append({
-                "code": "pinned_bridge_gap_missing",
-                "detail": route_id,
-            })
+            violations.append(
+                {
+                    "code": "pinned_bridge_gap_missing",
+                    "detail": route_id,
+                }
+            )
 
     census_row = rows.get("gy_engine_census.coverage")
     if census_row is not None and "verification_missing" not in _labels(census_row):
-        violations.append({
-            "code": "census_verification_gap_missing",
-            "detail": census_row.get("gap_labels"),
-        })
+        violations.append(
+            {
+                "code": "census_verification_gap_missing",
+                "detail": census_row.get("gap_labels"),
+            }
+        )
 
     for row in rows.values():
         labels = _labels(row)
         unknown = labels - ALLOWED_GAP_LABELS
         if unknown:
-            violations.append({
-                "code": "unknown_gap_label",
-                "detail": sorted(unknown),
-            })
+            violations.append(
+                {
+                    "code": "unknown_gap_label",
+                    "detail": sorted(unknown),
+                }
+            )
 
     return violations
 
@@ -312,12 +342,21 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
     parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+    args = parse_args_for_timing(
+        parser,
+        mode_options=(),
+    )
 
     audit = json.loads(args.audit.read_text(encoding="utf-8"))
     violations = validate(audit)
     if args.json:
-        print(json.dumps({"status": "pass" if not violations else "fail", "violations": violations}, indent=2, sort_keys=True))
+        print(
+            json.dumps(
+                {"status": "pass" if not violations else "fail", "violations": violations},
+                indent=2,
+                sort_keys=True,
+            )
+        )
     elif violations:
         for violation in violations:
             print(f"{violation['code']}: {violation.get('detail', '')}")

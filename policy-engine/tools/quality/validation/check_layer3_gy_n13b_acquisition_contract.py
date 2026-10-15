@@ -24,7 +24,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.fabric.data_plane import canonical_json_bytes
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
     DEFAULT_GENERATED_ARTIFACTS,
     DEFAULT_N13B_CONTRACT,
@@ -111,7 +111,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    args = parse_args_for_timing(
+        build_parser(),
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
     args.derivation_registry, args.universality_output = _canonical_derivation_paths(
         registry_path=args.derivation_registry,
         universality_output=args.universality_output,

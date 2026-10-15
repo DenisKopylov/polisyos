@@ -88,7 +88,7 @@ from polisyos.runtime.quality.confidence_ledger import (
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSemanticReceiptProjection as FrozenLedgerReceiptProjection,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 from tools.quality.validation.layer3_gy_confidence_ledger_contract import (
     N10OwnerProjection,
     N13bOwnerProjection,
@@ -286,12 +286,10 @@ def _code_owned_owner_certificate_contracts() -> tuple[
     """Return N10/N13b owner contracts; instrument choice stays registry-owned."""
 
     n10_owner = (
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census."
-        "extract_route_projection"
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census.extract_route_projection"
     )
     n10_verifier = (
-        "tools.quality.validation."
-        "check_layer3_gy_depth_n_universality_contract.validate_payload"
+        "tools.quality.validation.check_layer3_gy_depth_n_universality_contract.validate_payload"
     )
     return (
         _CodeOwnedOwnerCertificateContract(
@@ -327,13 +325,9 @@ def _code_owned_owner_certificate_contracts() -> tuple[
             obligation_class=PromotionObligationClass.DATA,
             certificate_role="admission",
             claim_polarity="confident_wrong_admission",
-            owner_ref=(
-                "polisyos.runtime.quality.acquisition_executor."
-                "build_admission_passport"
-            ),
+            owner_ref=("polisyos.runtime.quality.acquisition_executor.build_admission_passport"),
             verifier_ref=(
-                "polisyos.runtime.quality.acquisition_executor."
-                "revalidate_admission_passport"
+                "polisyos.runtime.quality.acquisition_executor.revalidate_admission_passport"
             ),
         ),
     )
@@ -355,10 +349,7 @@ def _bind_code_owned_owner_certificate_routes(
             route.verifier_kernel_id in contract_kernels
             and route.certificate_class not in contract_classes
         ):
-            raise ValueError(
-                "owner_certificate_route_contract_unowned:"
-                f"{route.certificate_class}"
-            )
+            raise ValueError(f"owner_certificate_route_contract_unowned:{route.certificate_class}")
     bound: dict[
         str,
         tuple[_CodeOwnedOwnerCertificateContract, CertificateClassRoute],
@@ -368,13 +359,11 @@ def _bind_code_owned_owner_certificate_routes(
             route = registry.resolve_certificate_route(contract.certificate_class)
         except ConfidenceLedgerError as exc:
             raise ValueError(
-                "owner_certificate_route_contract_missing:"
-                f"{contract.certificate_class}"
+                f"owner_certificate_route_contract_missing:{contract.certificate_class}"
             ) from exc
         if not contract.route_matches(route):
             raise ValueError(
-                "owner_certificate_route_contract_mismatch:"
-                f"{contract.certificate_class}"
+                f"owner_certificate_route_contract_mismatch:{contract.certificate_class}"
             )
         bound[contract.certificate_class] = (contract, route)
     return bound
@@ -787,9 +776,7 @@ def _validated_confidence_contract_projection(
     """Validate one raw representation without permitting normalization drift."""
 
     is_model = isinstance(payload, BaseModel)
-    raw_payload = (
-        payload.model_dump(mode="json", exclude_none=False) if is_model else payload
-    )
+    raw_payload = payload.model_dump(mode="json", exclude_none=False) if is_model else payload
     if not isinstance(raw_payload, Mapping):
         return FrozenConfidenceLedgerContract.model_validate(payload, strict=True), []
     issues = _confidence_comparison_identity_issues(
@@ -801,12 +788,10 @@ def _validated_confidence_contract_projection(
         _canonical_contract_projection_bytes(projected),
         strict=True,
     )
-    reparsed_projection = (
-        GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(parsed)
-    )
-    if _canonical_contract_projection_bytes(
-        projected
-    ) != _canonical_contract_projection_bytes(reparsed_projection):
+    reparsed_projection = GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(parsed)
+    if _canonical_contract_projection_bytes(projected) != _canonical_contract_projection_bytes(
+        reparsed_projection
+    ):
         issues.append({"code": "confidence_contract_representation_drift"})
     return parsed, issues
 
@@ -1614,9 +1599,7 @@ def build_live_contract(
         **payload,
         artifact_content_hash="sha256:" + "0" * 64,
     )
-    contract_payload = GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(
-        contract
-    )
+    contract_payload = GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(contract)
     _set_confidence_contract_identities(contract_payload)
     report("frozen_contract_derived")
     return FrozenConfidenceLedgerContract.model_validate(contract_payload)
@@ -2988,12 +2971,10 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
             ),
             probe_nodeid=(
-                promotion_test
-                + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
+                promotion_test + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
             ),
             expected_red_signal=(
-                promotion_test
-                + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
+                promotion_test + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
             ),
         ),
         _SourceFlipCase(
@@ -3133,11 +3114,11 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     source_path=CONFIDENCE_LEDGER_SOURCE_PATH,
                     old=(
                         '            "registry_content_hash": self._registry.content_hash,\n'
-                        "            \"instrument_definition_hash\": (_content_hash(instrument) if instrument else None),\n"
+                        '            "instrument_definition_hash": (_content_hash(instrument) if instrument else None),\n'
                     ),
                     new=(
                         '            "registry_content_hash": history_token.precheck_history_hash,\n'
-                        "            \"instrument_definition_hash\": (_content_hash(instrument) if instrument else None),\n"
+                        '            "instrument_definition_hash": (_content_hash(instrument) if instrument else None),\n'
                     ),
                 ),
             ),
@@ -4493,11 +4474,7 @@ def _run_one_process_closeout(
             "cold_closeout_budget_disposition": ("incomplete" if cold else "not_applicable"),
         }
     first = _parse_contract_bytes(first_bytes)
-    second = (
-        _parse_contract_bytes(second_bytes)
-        if second_bytes is not None
-        else None
-    )
+    second = _parse_contract_bytes(second_bytes) if second_bytes is not None else None
     if second is not None:
         second = _reconcile_confidence_contracts(first, second)
         second_bytes = contract_bytes(second)
@@ -4630,7 +4607,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    args = parse_args_for_timing(
+        build_parser(),
+        argv,
+        mode_options=(
+            "--check",
+            "--cold-rederive",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+            "--warm-closeout",
+            "--write",
+        ),
+    )
     root = args.repo_root.resolve()
     output = args.output if args.output.is_absolute() else root / args.output
     started = time.monotonic()

@@ -67,7 +67,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayUsage,
 )
-from tools.lib.timing import run_timed_entrypoint
+from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
 RECORDING_FIXTURE_PATH = (
@@ -80,16 +80,10 @@ POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID = (
 )
 NL_SOURCE_FLIP_MUTATION_ID = "source_flip_nl_contract_agents_reconnected_to_production"
 S2_SOURCE_FLIP_MUTATION_ID = "source_flip_s2_fixed_candidate_body_restored"
-DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID = (
-    "source_flip_drafter_naive_json_parser_restored"
-)
-RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID = (
-    "source_flip_recorded_effective_runtime_config_ignored"
-)
+DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID = "source_flip_drafter_naive_json_parser_restored"
+RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID = "source_flip_recorded_effective_runtime_config_ignored"
 PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID = "source_flip_prompt_size_estimate_fixed_default"
-CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID = (
-    "source_flip_candidate_lever_provenance_removed"
-)
+CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID = "source_flip_candidate_lever_provenance_removed"
 CURRENT_WMR_REISSUE_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.current_wmr_reissue_receipt.v1"
 )
@@ -126,9 +120,7 @@ class RecordedGenerationReplayClient:
     def __init__(self, recording: dict[str, Any]) -> None:
         self._recording = recording
         self._responses = [
-            dict(item)
-            for item in recording.get("responses") or []
-            if isinstance(item, dict)
+            dict(item) for item in recording.get("responses") or [] if isinstance(item, dict)
         ]
         self._cursor = 0
 
@@ -182,8 +174,7 @@ class RecordedGenerationReplayClient:
         actual_hash = gy_content_hash(raw)
         if actual_hash != recorded_hash:
             raise RuntimeError(
-                "gy_n4_recorded_raw_response_hash_mismatch:"
-                f"{label}:{actual_hash}!={recorded_hash}"
+                f"gy_n4_recorded_raw_response_hash_mismatch:{label}:{actual_hash}!={recorded_hash}"
             )
         usage = recorded.get("usage")
         usage_payload = usage if isinstance(usage, dict) else {}
@@ -245,16 +236,10 @@ def _verify_recording_content_hash(recording: Mapping[str, Any]) -> None:
     if not isinstance(recorded, str) or not recorded:
         raise RuntimeError("gy_n4_recording_content_hash_missing")
     computed = gy_content_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
     if computed != recorded:
-        raise RuntimeError(
-            f"gy_n4_recording_content_hash_mismatch:{computed}!={recorded}"
-        )
+        raise RuntimeError(f"gy_n4_recording_content_hash_mismatch:{computed}!={recorded}")
 
 
 def _resolve_current_wmr_owner_projection(repo_root: Path) -> dict[str, str]:
@@ -341,30 +326,20 @@ def _reissue_recordings_to_current_wmr(
         reissued = copy.deepcopy(historical)
         reissued["world_model_record_ref"] = current_ref
         reissued["recording_content_hash"] = gy_content_hash(
-            {
-                key: value
-                for key, value in reissued.items()
-                if key != "recording_content_hash"
-            }
+            {key: value for key, value in reissued.items() if key != "recording_content_hash"}
         )
         _assert_wmr_only_recording_reissue(historical, reissued)
         _validate_recording_fixture(reissued)
         reissued_recordings.append(reissued)
         receipt_rows.append(
             {
-                "historical_recording_content_hash": historical[
-                    "recording_content_hash"
-                ],
-                "historical_world_model_record_ref": historical.get(
-                    "world_model_record_ref"
-                ),
+                "historical_recording_content_hash": historical["recording_content_hash"],
+                "historical_world_model_record_ref": historical.get("world_model_record_ref"),
                 "preserved_non_wmr_projection_hash": gy_content_hash(
                     _recording_non_wmr_projection(historical)
                 ),
                 "recording_id": historical.get("recording_id"),
-                "reissued_recording_content_hash": reissued[
-                    "recording_content_hash"
-                ],
+                "reissued_recording_content_hash": reissued["recording_content_hash"],
                 "reissued_world_model_record_ref": current_ref,
             }
         )
@@ -409,9 +384,7 @@ def _current_wmr_reissue_receipt_issues(
     if recorded.get("owner_projection_content_hash") != expected.get(
         "owner_projection_content_hash"
     ):
-        issues.append(
-            {"code": "current_wmr_reissue_receipt_owner_projection_hash_drift"}
-        )
+        issues.append({"code": "current_wmr_reissue_receipt_owner_projection_hash_drift"})
     if recorded.get("recordings") != expected.get("recordings"):
         issues.append({"code": "current_wmr_reissue_receipt_recording_binding_drift"})
     if recorded.get("content_hash") != gy_content_hash(
@@ -464,8 +437,7 @@ def _recorded_effective_runtime_config(
     missing_inputs = sorted(_RECORDED_RUNTIME_INPUT_FIELDS.difference(payload))
     if missing_inputs:
         raise RuntimeError(
-            "recorded_effective_runtime_config_input_missing:"
-            + ",".join(missing_inputs)
+            "recorded_effective_runtime_config_input_missing:" + ",".join(missing_inputs)
         )
     try:
         config = EffectiveGenerationRuntimeConfig.model_validate(payload)
@@ -487,9 +459,7 @@ def _recorded_runtime_input_projection(
     }
     missing = sorted(key for key, value in optional_inputs.items() if value is None)
     if missing:
-        raise RuntimeError(
-            "recorded_effective_runtime_config_input_missing:" + ",".join(missing)
-        )
+        raise RuntimeError("recorded_effective_runtime_config_input_missing:" + ",".join(missing))
     return {
         "drafter_pass_timeout_s": config.drafter_pass_timeout_s,
         "drafter_pass_retry_count": config.drafter_pass_retry_count,
@@ -516,9 +486,7 @@ def _recorded_runtime_environment_values(
         "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": str(inputs["formalizer_timeout_s"]),
         "POLISYOS_FORMALIZER_LLM_RETRIES": str(inputs["formalizer_retry_count"]),
         "POLISYOS_CRITIC_LLM_TIMEOUT_S": str(inputs["critic_timeout_s"]),
-        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": str(
-            inputs["terminal_salvage_retry_count"]
-        ),
+        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": str(inputs["terminal_salvage_retry_count"]),
         "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": str(
             inputs["terminal_salvage_backoff_base_s"]
         ),
@@ -526,9 +494,7 @@ def _recorded_runtime_environment_values(
         "POLISYOS_LLM_GATEWAY_MAX_RETRIES": str(inputs["gateway_max_retries"]),
         "POLISYOS_LLM_CACHE_TTL_S": str(inputs["prompt_cache_ttl_s"]),
         "POLISYOS_LLM_CACHE_MAXSIZE": str(inputs["prompt_cache_maxsize"]),
-        "POLISYOS_N4_PREWARM_CG1_INDEX": (
-            "1" if inputs["cg1_index_prewarm_enabled"] else "0"
-        ),
+        "POLISYOS_N4_PREWARM_CG1_INDEX": ("1" if inputs["cg1_index_prewarm_enabled"] else "0"),
         # Historical v1 receipts did not persist the mode field itself. Their
         # non-empty healing-event denominator proves audit mode: strict mode
         # would have refused before emitting the captured result.
@@ -543,9 +509,7 @@ def _recorded_runtime_environment(
     expected = _recorded_effective_runtime_config(recording)
     runtime_environment = _recorded_runtime_environment_values(expected)
     missing = object()
-    previous: dict[str, object] = {
-        key: os.environ.get(key, missing) for key in runtime_environment
-    }
+    previous: dict[str, object] = {key: os.environ.get(key, missing) for key in runtime_environment}
     try:
         os.environ.update(runtime_environment)
         yield expected
@@ -687,9 +651,7 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "supported_model_ids": list(SUPPORTED_GENERATION_MODEL_IDS),
         "recording_fixture_ref": RECORDING_FIXTURE_PATH,
         "recording_fixture_hash": _fixture_hash(repo_root),
-        "recording_fixture_integrity": _recording_fixture_integrity_report(
-            historical_recordings
-        ),
+        "recording_fixture_integrity": _recording_fixture_integrity_report(historical_recordings),
         "current_wmr_reissue_receipt": current_wmr_reissue_receipt,
         "diagnostic_projection": dict(_FROZEN_DIAGNOSTIC_PROJECTION),
         "prompt_size_gate": _prompt_size_gate(result_payloads),
@@ -773,7 +735,9 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "problem_variation_probe": variation_report,
         "positive_gate": {
             "min_diverse_model_generated_candidates": 3,
-            "status": "generated" if all(item.status == "generated" for item in results) else "fail",
+            "status": "generated"
+            if all(item.status == "generated" for item in results)
+            else "fail",
             "recording_count": len(results),
             "candidate_count": set_coverage["candidate_count"],
             "grounding_disposition_count": set_coverage["grounding_disposition_count"],
@@ -856,9 +820,7 @@ def _grounding_payoff_projection(
                     "cg3_decision": item.get("cg3_decision"),
                     "cg3_reason": item.get("cg3_reason"),
                     "certificate_chain": chain_payload,
-                    "bridge_missing_records": list(
-                        item.get("bridge_missing_records") or []
-                    ),
+                    "bridge_missing_records": list(item.get("bridge_missing_records") or []),
                 }
             )
         if item.get("disposition") == "veto_false_analog":
@@ -896,9 +858,7 @@ def _grounding_payoff_projection(
 def _recording_set_coverage(results: list[GenerationUnderAResult]) -> dict[str, Any]:
     """Project typed live results through the canonical coverage owner."""
 
-    return _recording_set_coverage_from_payloads(
-        [item.model_dump(mode="json") for item in results]
-    )
+    return _recording_set_coverage_from_payloads([item.model_dump(mode="json") for item in results])
 
 
 def _recording_set_coverage_from_payloads(
@@ -925,7 +885,6 @@ def _recording_set_coverage_from_payloads(
         for candidate in candidates
         if isinstance(candidate.get("diversity_key"), list | tuple)
     }
-
 
     diversity_keys.update(
         (
@@ -991,19 +950,14 @@ def _prompt_size_gate(results: list[Mapping[str, Any]]) -> dict[str, Any]:
     return {
         "schema_version": "policyos.gy.n4.prompt_size_gate.v1",
         "source_field": (
-            "generation_results[].effective_runtime_config."
-            "prompt_size_estimate.slice_added_chars"
+            "generation_results[].effective_runtime_config.prompt_size_estimate.slice_added_chars"
         ),
         "limit_slice_added_chars": _PROMPT_SLICE_LIMIT_CHARS,
         "result_count": len(results),
         "within_limit_by_index": within_limit,
         "measurement_consistent_by_index": measurement_consistent,
         "status": (
-            "pass"
-            if within_limit
-            and all(within_limit)
-            and all(measurement_consistent)
-            else "fail"
+            "pass" if within_limit and all(within_limit) and all(measurement_consistent) else "fail"
         ),
     }
 
@@ -1104,12 +1058,9 @@ def _prompt_size_measurement(value: object) -> tuple[bool, int | None]:
     derived_slice = max(0, with_chars - without_chars)
     consistent = (
         int(value["slice_added_chars"]) == derived_slice
-        and int(value["frame_without_slice_estimated_tokens"])
-        == (without_chars + 3) // 4
-        and int(value["frame_with_slice_estimated_tokens"])
-        == (with_chars + 3) // 4
-        and int(value["slice_added_estimated_tokens"])
-        == (derived_slice + 3) // 4
+        and int(value["frame_without_slice_estimated_tokens"]) == (without_chars + 3) // 4
+        and int(value["frame_with_slice_estimated_tokens"]) == (with_chars + 3) // 4
+        and int(value["slice_added_estimated_tokens"]) == (derived_slice + 3) // 4
     )
     return consistent, derived_slice
 
@@ -1132,9 +1083,7 @@ def _prompt_size_projection_issues(
     presence: list[bool] = []
     for result in results:
         config = result.get("effective_runtime_config")
-        presence.append(
-            isinstance(config, Mapping) and "prompt_size_estimate" in config
-        )
+        presence.append(isinstance(config, Mapping) and "prompt_size_estimate" in config)
     if presence and all(presence):
         expected = _prompt_size_gate(results)
         if not _json_exact_equal(dict(gate), expected):
@@ -1297,9 +1246,7 @@ def _adapter_honesty_probe(recording: dict[str, Any]) -> dict[str, Any]:
             "intensity": Decimal("0.35"),
             "target_world_slot": "government.procurement_queue",
         },
-        notes=[
-            "Audit counter-case: candidate asserts only operator, slot, and direct param."
-        ],
+        notes=["Audit counter-case: candidate asserts only operator, slot, and direct param."],
     )
     proposal = _grounding_proposal_for_intervention(
         intervention,
@@ -1307,9 +1254,7 @@ def _adapter_honesty_probe(recording: dict[str, Any]) -> dict[str, Any]:
         bundle_ref="sha256:" + "0" * 64,
     )
     signature = _json_safe_dict(proposal.get("signature") or {})
-    forbidden_present = sorted(
-        key for key in _ADAPTER_FORBIDDEN_AUTHORED_AXES if key in signature
-    )
+    forbidden_present = sorted(key for key in _ADAPTER_FORBIDDEN_AUTHORED_AXES if key in signature)
     return {
         "probe_id": "adapter_map_and_omit_procurement_counter_case",
         "adapter_authority": "map_and_omit",
@@ -1329,9 +1274,7 @@ def _adapter_honesty_payload_issues(payload: Mapping[str, Any]) -> list[dict[str
     if not isinstance(signature, Mapping):
         issues.append({"code": "adapter_honesty_signature_missing"})
         signature = {}
-    authored_axes = sorted(
-        key for key in _ADAPTER_FORBIDDEN_AUTHORED_AXES if key in signature
-    )
+    authored_axes = sorted(key for key in _ADAPTER_FORBIDDEN_AUTHORED_AXES if key in signature)
     recorded_present = probe.get("forbidden_axis_fields_present")
     if authored_axes or recorded_present not in ([], ()):
         issues.append(
@@ -1414,9 +1357,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         result_payloads = [result_payload] if isinstance(result_payload, dict) else []
     if not result_payloads:
         issues.append({"code": "design_generation_result_missing"})
-    raw_result_payloads = [
-        item for item in result_payloads if isinstance(item, Mapping)
-    ]
+    raw_result_payloads = [item for item in result_payloads if isinstance(item, Mapping)]
     issues.extend(_prompt_size_projection_issues(payload, raw_result_payloads))
     results: list[GenerationUnderAResult] = []
     for index, result_payload in enumerate(result_payloads):
@@ -1427,9 +1368,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         try:
             result = GenerationUnderAResult.model_validate(result_payload)
         except ValueError as exc:
-            issues.append(
-                {"code": "generation_result_invalid", "index": index, "error": str(exc)}
-            )
+            issues.append({"code": "generation_result_invalid", "index": index, "error": str(exc)})
             continue
         results.append(result)
         issues.extend(firewall_issues_for_result(result))
@@ -1441,9 +1380,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         if not result.lever_space_prompt_slice.content_hash:
             issues.append({"code": "lever_space_prompt_slice_hash_missing", "index": index})
         if not result.lever_space_prompt_slice.non_constraining:
-            issues.append(
-                {"code": "lever_space_prompt_slice_not_non_constraining", "index": index}
-            )
+            issues.append({"code": "lever_space_prompt_slice_not_non_constraining", "index": index})
         for disposition in result.grounding_dispositions:
             issues.extend(_disposition_certificate_verdict_issues(disposition))
             chain = disposition.certificate_chain
@@ -1514,8 +1451,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         issues.append({"code": "replay_fixture_versioning_note_missing"})
     else:
         if (
-            replay.get("follow_up")
-            != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
+            replay.get("follow_up") != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
             or replay.get("status") != "closed"
         ):
             issues.append({"code": "replay_fixture_versioning_followup_not_closed"})
@@ -1543,9 +1479,8 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(prompt_hashes, list) or not prompt_hashes:
                 issues.append({"code": "problem_variation_prompt_hashes_missing"})
             generator_paths = case.get("generator_paths")
-            if (
-                not isinstance(generator_paths, list)
-                or any(item != "model_generated" for item in generator_paths)
+            if not isinstance(generator_paths, list) or any(
+                item != "model_generated" for item in generator_paths
             ):
                 issues.append({"code": "problem_variation_generator_path_not_real"})
     positive = payload.get("positive_gate")
@@ -1580,8 +1515,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             issues.append({"code": "positive_candidates_not_shadow"})
     receipt_issues = payload.get("strangle_receipts")
     if not isinstance(receipt_issues, list) or any(
-        not isinstance(item, dict) or item.get("status") != "strangled"
-        for item in receipt_issues
+        not isinstance(item, dict) or item.get("status") != "strangled" for item in receipt_issues
     ):
         issues.append({"code": "strangle_receipts_not_recomputed_strangled"})
     mutation_statuses = {
@@ -1804,8 +1738,7 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
         if receipt.get("mode") != "frozen_real_output_payoff_receipt":
             issues.append({"code": "frozen_payoff_receipt_mode_drift"})
         if (
-            receipt.get("follow_up")
-            != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
+            receipt.get("follow_up") != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
             or receipt.get("status") != "closed"
         ):
             issues.append({"code": "frozen_payoff_followup_not_closed"})
@@ -1849,7 +1782,9 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
                 "expected": expected_summary,
             }
         )
-    coverage_projection = {key: value for key, value in coverage.items() if key != "grounding_summary"}
+    coverage_projection = {
+        key: value for key, value in coverage.items() if key != "grounding_summary"
+    }
     expected_coverage_projection = {
         key: value for key, value in expected_coverage.items() if key != "grounding_summary"
     }
@@ -1863,9 +1798,7 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
         )
     for index, result in enumerate(_mutable_generation_results(payload)):
         dispositions = [
-            item
-            for item in result.get("grounding_dispositions") or []
-            if isinstance(item, dict)
+            item for item in result.get("grounding_dispositions") or [] if isinstance(item, dict)
         ]
         diversity = result.get("diversity_report")
         grounding_summary = result.get("grounding_disposition_summary")
@@ -2435,9 +2368,10 @@ def _effective_runtime_config_issues(result_payload: Mapping[str, Any]) -> list[
     prompt_size = config.get("prompt_size_estimate")
     if prompt_size is not None and not isinstance(prompt_size, Mapping):
         issues.append({"code": "prompt_size_estimate_invalid"})
-    elif isinstance(prompt_size, Mapping) and int(
-        prompt_size.get("slice_added_chars") or 0
-    ) > _PROMPT_SLICE_LIMIT_CHARS:
+    elif (
+        isinstance(prompt_size, Mapping)
+        and int(prompt_size.get("slice_added_chars") or 0) > _PROMPT_SLICE_LIMIT_CHARS
+    ):
         issues.append(
             {
                 "code": "lever_space_prompt_slice_not_compact",
@@ -2530,9 +2464,9 @@ def _mutate_atom_content_hash(payload: dict[str, Any]) -> None:
 
 
 def _mutate_pending_wmr_ref(payload: dict[str, Any]) -> None:
-    _first_mutable_candidate(payload)["atom"][
-        "world_model_record_ref"
-    ] = "world_model_record_pending:mutated"
+    _first_mutable_candidate(payload)["atom"]["world_model_record_ref"] = (
+        "world_model_record_pending:mutated"
+    )
 
 
 def _mutate_restore_exact_match_authority(payload: dict[str, Any]) -> None:
@@ -2553,8 +2487,7 @@ def _mutate_restore_exact_match_authority(payload: dict[str, Any]) -> None:
                     if any(
                         item.get("candidate_id") == candidate.get("candidate_id")
                         for item in result.get("grounding_dispositions") or []
-                        if isinstance(item, dict)
-                        and item.get("disposition") == "shadow_bound"
+                        if isinstance(item, dict) and item.get("disposition") == "shadow_bound"
                     )
                 ]
                 break
@@ -2798,7 +2731,9 @@ def _recording_payload(recording: dict[str, Any], role: str) -> dict[str, Any]:
     raise RuntimeError(f"gy_n4_recording_role_missing:{role}")
 
 
-def _replace_recording_placeholders(payload: dict[str, Any], interventions: list[dict[str, Any]]) -> None:
+def _replace_recording_placeholders(
+    payload: dict[str, Any], interventions: list[dict[str, Any]]
+) -> None:
     for key, value in list(payload.items()):
         if value == "__draft_interventions__":
             payload[key] = copy.deepcopy(interventions)
@@ -2861,15 +2796,15 @@ def _variation_case_payload(
         "domain": recording.get("domain"),
         "status": result.status,
         "candidate_set": candidate_set,
-        "grounding_disposition_count": (
-            result.grounding_disposition_summary.total_candidates
-        ),
+        "grounding_disposition_count": (result.grounding_disposition_summary.total_candidates),
         "diversity_report": result.diversity_report.model_dump(mode="json"),
         "generator_paths": [candidate.generator_path for candidate in result.candidates],
         "llm_success_count": sum(1 for call in result.llm_calls if call.status == "success"),
         "llm_error_count": sum(1 for call in result.llm_calls if call.status == "error"),
         "prompt_hashes": [call.prompt_hash for call in result.llm_calls],
-        "raw_response_hashes": [_stable_json_hash(call.raw_llm_response) for call in result.llm_calls],
+        "raw_response_hashes": [
+            _stable_json_hash(call.raw_llm_response) for call in result.llm_calls
+        ],
     }
 
 
@@ -3091,9 +3026,7 @@ def _corrupt_field_drift_report(repo_root: Path) -> dict[str, Any]:
         "status": "pass" if corruption_red else "fail",
         "corruption_status": "red" if corruption_red else "green",
         "corruption_report": report,
-        "issues": []
-        if corruption_red
-        else [{"code": "corrupt_field_drift_not_detected"}],
+        "issues": [] if corruption_red else [{"code": "corrupt_field_drift_not_detected"}],
         "outputs": declared_outputs(),
     }
 
@@ -3228,8 +3161,7 @@ def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
             (
                 sys.executable,
                 str(
-                    repo_root
-                    / "tools/quality/validation/"
+                    repo_root / "tools/quality/validation/"
                     "check_layer3_gy_design_generation_contract.py"
                 ),
                 "--repo-root",
@@ -3368,9 +3300,7 @@ def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
 def _run_recorded_config_source_flip(repo_root: Path) -> dict[str, Any]:
     """Ignore recorded replay config and require the behavioral lane to go RED."""
 
-    relative_path = Path(
-        "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
-    )
+    relative_path = Path("tools/quality/validation/check_layer3_gy_design_generation_contract.py")
     source_path = repo_root / relative_path
     original = source_path.read_bytes()
     original_hash = hashlib.sha256(original).hexdigest()
@@ -3898,8 +3828,7 @@ def _run_s2_source_flip(repo_root: Path) -> dict[str, Any]:
         "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
         "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
         "guard": (
-            "S2 candidate family and parameterization derive from the input-carried "
-            "candidate space"
+            "S2 candidate family and parameterization derive from the input-carried candidate space"
         ),
         "proof": {
             "command": [str(item) for item in completed.args],
@@ -3950,7 +3879,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
-    args = parser.parse_args(argv)
+    args = parse_args_for_timing(
+        parser,
+        argv,
+        mode_options=(
+            "--check",
+            "--corrupt-field-drift-check",
+            "--rederive-audit",
+            "--source-flip-mutations",
+            "--write",
+        ),
+    )
 
     repo_root = args.repo_root.resolve()
     inserted = [str(repo_root), str(repo_root / "src")]

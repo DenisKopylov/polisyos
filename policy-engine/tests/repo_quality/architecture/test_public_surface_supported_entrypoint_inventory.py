@@ -52,10 +52,16 @@ def test_supported_entrypoint_inventory_resolves_module_and_package_facades() ->
         assert entrypoints[module].source_file == (f"src/{module.replace('.', '/')}/__init__.py")
 
 
-def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
+def test_foundry_public_surface_registers_backend_entrypoint_without_leaking_exports() -> None:
     import polisyos.foundry as facade
     from polisyos.foundry.methods import backends
 
+    manifest = tomllib.loads(
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
+    )
+    foundry_contract = next(
+        row for row in manifest["package"] if row["module"] == "polisyos.foundry"
+    )
     foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
     root_entrypoint = next(row for row in foundry.entrypoints if row.module == foundry.module)
     assert foundry.export_count is None
@@ -65,16 +71,19 @@ def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() 
     # Real declaration consumers preserve the original embedding boundary;
     # import/name checks do not execute any optional estimator backend.
     root_exports = set(facade.__all__)
-    internal_backend_exports = set(backends.__all__)
+    backend_exports = set(backends.__all__)
+    backend_entrypoint = "polisyos.foundry.methods.backends"
     embedding_exports = {
         "EmbedderProtocol",
         "SentenceTransformerEmbedder",
         "TFIDFEmbedder",
     }
 
-    assert "polisyos.foundry.methods.backends" not in foundry.supported_entrypoints
+    assert backend_entrypoint in foundry_contract["supported_entrypoints"]
+    assert backend_entrypoint in foundry.supported_entrypoints
+    assert backend_entrypoint in {entrypoint.module for entrypoint in foundry.entrypoints}
     assert embedding_exports <= root_exports
-    assert root_exports.isdisjoint(internal_backend_exports)
+    assert root_exports.isdisjoint(backend_exports)
 
 
 def test_supported_entrypoint_inventory_rejects_missing_or_ambiguous_facade(
@@ -258,6 +267,31 @@ def test_public_surface_inventory_corrupt_supported_entrypoint_fails_check(
     output = capsys.readouterr().out
     assert "Public surface inventory JSON drift detected" in output
     assert '"HumanDecisionRecord"' in output
+
+    facade.write_text(
+        '"""Fixture facade."""\n__all__ = ["HumanDecisionRecord"]\n',
+        encoding="utf-8",
+    )
+    public_inventory = guardrails.build_public_surface_inventory(policies)
+    public_generated_families = guardrails._parse_public_generated_artifact_families(manifest)
+    public_json.write_text(
+        guardrails.render_public_surface_json(
+            public_inventory,
+            generated_artifact_families=public_generated_families,
+        ),
+        encoding="utf-8",
+    )
+    public_md.write_text(
+        guardrails.render_public_surface_markdown(public_inventory), encoding="utf-8"
+    )
+    generated_md.write_text("corrupted generated-artifacts reference\n", encoding="utf-8")
+
+    assert guardrails.run_check(args) == 1
+    output = capsys.readouterr().out
+    assert "Generated-artifacts reference doc drift detected." in output
+    assert "Public surface inventory JSON drift detected." not in output
+    assert "Public surface reference doc drift detected." not in output
+    assert "Deep-import baseline drift detected." not in output
 
 
 def test_generated_inventory_serializes_each_resolved_facade() -> None:

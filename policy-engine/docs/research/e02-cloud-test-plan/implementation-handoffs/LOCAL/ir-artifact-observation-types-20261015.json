@@ -1,0 +1,390 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "ir-artifact-observation-types",
+  "status": "implemented_independently_reviewed_bounded; final_composition_not_frozen",
+  "slice_bases": {
+    "repair_entry": {
+      "sha": "4bef78b9cb4d81d3d8c0b5b4f7e971a23751bb23",
+      "tree": "2c9fdecccffe39766a2c8424ebf22c39e38e8d31",
+      "parents": [
+        "a42b2abafb072e0d3ea58a989c1ca855e1ce05b6"
+      ]
+    }
+  },
+  "application_parent": {
+    "sha": "c8a7c6f762ae0959443b7750b37033eab9c33f31",
+    "tree": "07916a6c0066c4fa4c9669a258e88adc3e39cb4c",
+    "parents": [
+      "b0ce6074d93f0c02b6165161e9cba48794e10fb5"
+    ]
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "fcb20a072b8e1926e371a879fa1ea8bffde24592",
+    "tree": "f94eee86c7ced4d521ffac2e9b3a40429342bd71",
+    "parents": [
+      "c8a7c6f762ae0959443b7750b37033eab9c33f31"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "git_blob": "630a5d8157a7c7c94d4d13bcd4d9f3e863552001",
+      "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+      "bytes": 12663,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/causal_execution.py",
+      "git_blob": "ad19e4a727f8190e91cad7f0a4cddfed3ff9398f",
+      "sha256": "66aed1251608a98bf2407239047ff112fc0f26fc6db68ba6e0b144b97ccc1807",
+      "bytes": 12504,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/contract_compilers.py",
+      "git_blob": "c14130fce4f4b58696c6f353da2a656fab760ac8",
+      "sha256": "195f701c8195b447c22642aa90b80c90864be4d65e7f3422bc097d9ce2aecfba",
+      "bytes": 98119,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_ncm.py",
+      "git_blob": "f54a16ca6c0fdb4ac93dbcb8bf24df8d53b3961d",
+      "sha256": "ab1b9cf4217aee8f45598e145f55f34b1a435fe4649c731af9569f210528ff75",
+      "bytes": 7852,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/artifacts/test_selected_profile_write.py",
+      "git_blob": "9148fdf0d06140b5b4a31937bf7b29343090d248",
+      "sha256": "1ca5b7a358c8b6099a1112e2f63351052f65fae7f9159ef14657ddda2f0f46db",
+      "bytes": 6694,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/observation/test_contract_compilers.py",
+      "git_blob": "e1b2daafeda1d21ff5b79bff69593121660ea53d",
+      "sha256": "d4c3bbe70199727e956d32ffae35f05229b02fb5b9e1e4bab9cf9ff29f630634",
+      "bytes": 32217,
+      "branch_readback_equal": true
+    }
+  ],
+  "selected_input_profile_backend": "OWN Python3.14.3, Pydantic/NumPy/pandas and real temporary CAS; locked lint stubs; controlled inputs, no production authority fact",
+  "changes": [
+    "Typed IR profile callbacks preserve validated CanonInfo/CanonSpec and raw selected-profile re-encoding semantics.",
+    "Heterogeneous loop locals and structural records/artifact-name contracts remove unsafe type ambiguity.",
+    "NPZ writer rejects reserved file/allow_pickle payload keys and uses actual no-pickle NumPy API.",
+    "Scientist date fixtures preserve actual compiler time_index and flattened metrics; unresolved-date guard remains active.",
+    "Frozen ArtifactWriteOptions test copies use dataclasses.replace instead of a nonexistent Pydantic method."
+  ],
+  "real_chain": "selected profile+raw bytes -> IR codec validation -> Core adapter tests; compiler panel timeline -> persisted historical input -> actual Scientist masker/backtest; NPZ actual bytes -> transport reader",
+  "verification": {
+    "independent_strict_mypy": "PASS3source files original strict unsuppressed config",
+    "pytest": "134PASS3lifelines convergence warnings, final post-format replay",
+    "ruff_and_format": "PASS6changedpaths",
+    "negative_controls": "selected-profile forbidden raw float rejection; NPZ reserved-key refusals; date failures repaired at actual input fixture",
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-observation-types-20261015/receipt.md",
+        "sha256": "b9eca309bfcf60c1ea68d5d44ac6beb18791e569404af040896330869a8a8a22",
+        "bytes": 4075,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/corrected-junit.xml",
+        "sha256": "96400a745f55ad2d9501ffccbd90f0272dd99cd1b96a4e823ddde73515a626dc",
+        "bytes": 37064,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/junit.xml",
+        "sha256": "39940a76aba358022e9fc5c9fe7e002c9f1cd0a2da22674026d8b14e8210c9f8",
+        "bytes": 249,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/mypy-full-ir.stderr.txt",
+        "sha256": "befe69c4b4a41e3c48ea69edb5aec9dfa57c0e8f03bcc8c1a42c5f952866ea94",
+        "bytes": 34829,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/mypy-full-ir.stdout.txt",
+        "sha256": "2ffdebb672457ca2bea5ba12487a455625ba599263fbad046bfd27685d7fb282",
+        "bytes": 24440,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-corrected.result.json",
+        "sha256": "c678c3a201d09f623f08231c1ae67aac34a38838d736f88b605fa9f5293694ac",
+        "bytes": 820,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-corrected.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-corrected.stdout.txt",
+        "sha256": "37a2ac034944c8c7dc170a25bcc783db8cec3328cd952aa2387db9a7e535d38e",
+        "bytes": 16303,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-date-fixtures.command.txt",
+        "sha256": "b47c1519e2a9d25355678e147bb8d029372ebb8a5f92ef8aba49fd4845ade472",
+        "bytes": 295,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-date-fixtures.exit-code.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-date-fixtures.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest-date-fixtures.stdout.txt",
+        "sha256": "5384b7010c59d1a62e255db566a15f05c1a240dcbb9e04f555c6c143422a5950",
+        "bytes": 2092,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest.stderr.txt",
+        "sha256": "a5fd77466ff4ad8e2d6721bb97bbce243954e1210a2792d2fa8f557a47a4cc09",
+        "bytes": 82,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/pytest.stdout.txt",
+        "sha256": "a76c54a6ccf0d022c4f7feadf6e0a911f73f0276a7817c6a558120bd024ee0d2",
+        "bytes": 23,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-observation-root-20261015/results.json",
+        "sha256": "d28883d0181d3d5b2f6aa48619008dab23c5103368d5cbdd9878f4f174bffebd",
+        "bytes": 46499,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/junit.xml",
+        "sha256": "b1ad0dafd8ff472cceae8d765aca2f4cd4c41e3ebd0d5f54be0572e21e8f2b96",
+        "bytes": 23197,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-selected.command.json",
+        "sha256": "4e13001fbfbb535a4b3d25315eb564e6bdc0d8e13e00bc668c9ae9a025b2d26f",
+        "bytes": 1846,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-selected.stderr.txt",
+        "sha256": "4dd8c3bad89607536e14297694ed8869d78863c6102c54d593d3cfe834cb88be",
+        "bytes": 36163,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-selected.stdout.txt",
+        "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+        "bytes": 43,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-strict-selected.command.json",
+        "sha256": "f16104b9a0699e4602fd5335eff45a5f8b7f0a4eef2ee692610d4305ba27a241",
+        "bytes": 2262,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-strict-selected.stderr.txt",
+        "sha256": "f26aff122351368518f121cf1603f95f18ff55a28270cc5a9444bdbeed730244",
+        "bytes": 36151,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy-strict-selected.stdout.txt",
+        "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+        "bytes": 43,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/mypy.selected.strict.ini",
+        "sha256": "2d1736aff36efe3393e93a702f39980eb6d4a17580460d94bc35be8bf03a65e6",
+        "bytes": 36853,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/postformat-junit.xml",
+        "sha256": "646261ba6a57cb6e7510cf7c4981ba49375b2d0245410aafdf4a1fb71f80e39c",
+        "bytes": 23197,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/preflight.json",
+        "sha256": "3d9fa7b4cc01ab569bcf8fc0608217d6a32f261fb3879ecd72eae901a8ee6360",
+        "bytes": 1745,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest-command.json",
+        "sha256": "7144c237b7a26aa28c12089933d2337effb8efe27ff92c695a0a140637f3a519",
+        "bytes": 766,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest-postformat.command.json",
+        "sha256": "ba309eda43e7674432848628319db2da317e980bb30aacc223a83bd2b09ef938",
+        "bytes": 2627,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest-postformat.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest-postformat.stdout.txt",
+        "sha256": "5776f08d8c085ee0ea67504e59adb71e3fd271aa39111dc78b7bad43f9cbc6dd",
+        "bytes": 2205,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/pytest.stdout.txt",
+        "sha256": "e255c7840b579d5c9aa4813a7bcab412cb731c373fe2047ad8f44c179aaddf54",
+        "bytes": 2205,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/review-hashes.json",
+        "sha256": "67c240bbe5dfddec9e23e0b02c8ac32d9a5186c65ae6b3c6c180489007f4f025",
+        "bytes": 232,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/review.json",
+        "sha256": "b50fe0f368456b96261be5e1d765c6abe09fa696a68a4c695bf50b34c39bd21d",
+        "bytes": 21459,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/review.md",
+        "sha256": "4eb1de15e22e1c69e11828cec9bf12de855e26ee9bd5b0465b60f1516d6f4010",
+        "bytes": 2173,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-check.command.json",
+        "sha256": "7b2a766d7488283ce35e432ad6256108912c52ee73f7ccc278fb40763651a077",
+        "bytes": 2072,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format-postformat.command.json",
+        "sha256": "e49e72bd8ba2e4ff24c021d729315aba2f554eebe248c71a0d07a9c8a8adfbf5",
+        "bytes": 2206,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format-postformat.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format-postformat.stdout.txt",
+        "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+        "bytes": 26,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format.command.json",
+        "sha256": "9248d9a52f8dcf667152da60f4b8842ddb8b53bdffd50b15bce736bbfe79eb05",
+        "bytes": 2102,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format.stderr.txt",
+        "sha256": "b30dbc43d847a598a699cc8c91fd9f6f8cbca23552a2bf9c0c3e6a56aa7c22aa",
+        "bytes": 55,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-format.stdout.txt",
+        "sha256": "7d2dfab177001c1043bc9c664136842ef240f20c8c56ffb5bbe2af79be4e5184",
+        "bytes": 739,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-postformat.command.json",
+        "sha256": "b548013d99e57d5ac48a699e8ff2bbb6c95408dd8dc46f6b4997930f9054ed75",
+        "bytes": 1445,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-postformat.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-io-observation-independent-20261015/ruff-postformat.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored RAW"
+      }
+    ]
+  },
+  "P40": "Typed structural boundary/local-binding class widened to affected modules; verification is scoped to properties and real consumers stated above.",
+  "P41": "No inherited red claim; exact bases named, cross-input intersection prevents exempting generated docs.",
+  "composed_diagnostic": {
+    "source_files": 192,
+    "result": "FAIL1: ArtifactRefModel.__iter__ Mapping vs BaseModel contract collision",
+    "meaning": "Diagnostic selected192-source overlay, hashes stable during run; imported input denominator/global freeze not yet frozen; not native green",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/result.json",
+      "sha256": "637b598163fd42b9d142c6f839f48baf970e5bc63d13f2d799377c44047fa8d2",
+      "bytes": 45337,
+      "availability": "local ignored RAW"
+    }
+  },
+  "limitations": [
+    "No formal G code acceptance or closure adjudication.",
+    "Other parallel Core/Fabric/Foundry/tooling source remains uncommitted and excluded from these candidate footprints.",
+    "Full backend/CI/native13-row and exact installed wheel/rebuilt-sdist consumer wave pending."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_acceptance": false,
+    "author_proposals": []
+  },
+  "next_check": "Composed source/input/backend freeze then actual N4/N5/installed consumers; Parquet transport only with row-count proof, no new full content/schema authority claim."
+}

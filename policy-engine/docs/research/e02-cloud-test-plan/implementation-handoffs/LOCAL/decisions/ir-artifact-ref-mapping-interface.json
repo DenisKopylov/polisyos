@@ -1,0 +1,313 @@
+{
+  "record_type": "g_decision_packet",
+  "decision_id": "IR-ARTIFACT-REF-MAPPING-INTERFACE-20261015",
+  "title": "Choose the public iteration and Mapping contract for ArtifactRefModel",
+  "status": "proposed_for_G",
+  "author_role": "local candidate author; independent code acceptance and formal adjudication remain with G",
+  "formal_findings": {
+    "affected_original_finding_ids": [],
+    "closure_ids": [],
+    "note": "This packet addresses a composed native MyPy interface diagnostic. It assigns no E02 finding closure and is not a formal adjudication."
+  },
+  "source_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head_at_packet_authoring": "fcb20a072b8e1926e371a879fa1ea8bffde24592",
+    "head_tree_at_packet_authoring": "f94eee86c7ced4d521ffac2e9b3a40429342bd71",
+    "whole_worktree_status": "Shared candidate worktree was dirty from other active lanes. This author changed no product source and did not stage or commit. The HEAD tree hash is the committed tree only, not a claim that the shared working tree was clean.",
+    "source_candidate": null,
+    "source_under_question": {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72",
+      "status": "unmodified by this author"
+    },
+    "diagnostic_scope": "The composed diagnostic is an overlay, not a final global freeze. Its result records pre/post hashes for all 192 selected IR source files and changed_during_run=[]; those hashes are the diagnostic input identity. The complete imported-source denominator and a final E02 source freeze remain outstanding."
+  },
+  "issue": {
+    "class": "new_public_interface_liskov_contract_conflict",
+    "property": "ArtifactRefModel is a Pydantic BaseModel and a collections.abc.Mapping[str, object]. Mapping iteration yields string keys. Pydantic BaseModel iteration is typed and implemented as a generator of key/value pairs. One Python method cannot honestly satisfy both inherited contracts with these incompatible return types.",
+    "current_implementation": "ArtifactRefModel(BaseModel, Mapping[str, object]) overrides __iter__ as Iterator[str] and yields projected keys; it also supplies __len__ and __getitem__. Runtime callers get Mapping behavior, but MyPy compares the override with BaseModel.__iter__ and rejects it.",
+    "divergent_case": {
+      "mapping_runtime": "For a profileless ref, list(ref) is ['artifact_id', 'kind', 'media_type']; dict(ref) uses those keys and the Mapping lookup protocol.",
+      "pydantic_base_model_contract": "BaseModel.__iter__ is typed Generator[tuple[str, Any], None, None] and yields key/value pairs. Calling BaseModel.__iter__(ref) directly also emits manifest_profile_sha256=None for a profileless ref, whereas the current Mapping projection omits that field.",
+      "why_this_is_not_a_proxy_false_positive": "The diagnostic identifies a real override incompatibility. The runtime Mapping path works, but satisfying it with the current key-only __iter__ violates the public Pydantic static contract."
+    },
+    "exact_diagnostic": {
+      "working_directory": "policy-engine/",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "mypy",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "--show-error-codes",
+        "--config-file",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/leaf-static-ratchets-current-20261015-de010f35dd91/mypy.generated.unsuppressed.ini",
+        "src/polisyos/ir"
+      ],
+      "config_sha256": "2cc86f2e8de4a69265647b4ff4951288044fea15717a535e51d66f7e6f603712",
+      "selected_source_file_count": 192,
+      "elapsed_seconds": 28.007372790947556,
+      "exit_code": 1,
+      "complete_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/mypy.stdout.txt",
+      "complete_stdout_sha256": "856a2ba135c72dc37cfbd0ee9ff11f853c208502c9cc91b8e1453ed4a0b98584",
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/result.json",
+      "result_sha256": "637b598163fd42b9d142c6f839f48baf970e5bc63d13f2d799377c44047fa8d2",
+      "stdout": "src/polisyos/ir/registry/refs.py:33: error: Return type \"Iterator[str]\" of \"__iter__\" incompatible with return type \"Generator[tuple[str, Any], None, None]\" in supertype \"pydantic.main.BaseModel\" [override]\nFound 1 error in 1 file (checked 192 source files)"
+    }
+  },
+  "source_history": [
+    {
+      "commit": "d78af65e050d53950cf8c05b9d884644d3231781",
+      "parent": "047f9517d31b0126c71d88c202ea650c5158f976",
+      "date": "2026-02-03",
+      "path_at_commit": "policy-engine/src/polisyos/ir/refs.py",
+      "evidence": "The prior snapshot defines EvidenceBundleRef directly as BaseModel and has no shared Mapping base.",
+      "tree": "3099ce5795fbe41ca0dc03e5a3efb1c9a40236fb"
+    },
+    {
+      "commit": "674dd2166b976910f03dfcaa517ea9e5eea98369",
+      "parent": "2e3857fdd0dce8a599f6c7c7d918fe2056da8c8a",
+      "date": "2026-02-10",
+      "path_at_commit": "policy-engine/src/polisyos/ir/refs.py",
+      "evidence": "Introduced ArtifactRefModel(BaseModel, Mapping[str, object]) with key-yielding __iter__, __len__, and __getitem__, then made several ref classes inherit it.",
+      "tree": "56f4c1b1af6c7ad759a59f25bf00d65c064d963e"
+    },
+    {
+      "commit": "6f1248efb8a80633e75ffeb7a18ce2c94c700351",
+      "parent": "6fa28dfc0de848a0c9d1c13e71e9fb443b7958da",
+      "date": "2026-04-03",
+      "path_at_commit": "policy-engine/src/polisyos/ir/refs.py",
+      "evidence": "The source snapshot describes mapping-compatible refs as stable handles exchanged between persistence helpers, bundle manifests, and downstream loaders.",
+      "tree": "cd7c0fb5a0e5f279babf5c25cbf6e5f8edcfed16"
+    },
+    {
+      "commit": "b2cd1fbb0c9aaa21a05cbf999330a2e07fe81f23",
+      "parent": "00c200c2ec33786a80dd41209eca46a2539dac5c",
+      "date": "2026-10-09",
+      "path_at_commit": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "evidence": "E02 selected-profile composition adds manifest_profile_sha256 to the shared model and its projected Mapping surface; its test changes pin selected and profileless dict/len behavior.",
+      "tree": "65c44e4872c0efb0772ee955c2b92351c2486892"
+    }
+  ],
+  "public_surface_and_behavior": {
+    "canonical_class": "polisyos.ir.registry.refs.ArtifactRefModel",
+    "stable_facade": {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "evidence": "ArtifactRefModel is present in __all__ and _LAZY_IMPORTS, so the type is an explicit lazy public export. The refs module also includes ArtifactRefModel in its dynamic __all__."
+    },
+    "current_runtime_contract": [
+      "isinstance(ref, Mapping) is true.",
+      "iter(ref) yields string keys.",
+      "dict(ref), len(ref), string-key indexing, and inherited Mapping keys/items/values/get work for the projected selected/profileless view.",
+      "model_validate and model_dump remain Pydantic operations; model_dump(mode='python') omits the None profile field due to exclude_if.",
+      "For an omitted profile key, the current explicit __getitem__ returns None even though iteration omits that key. This is inconsistent with Mapping's missing-key convention and must be resolved explicitly when a facade contract is chosen."
+    ],
+    "current_tests": [
+      "policy-engine/tests/unit/ir/registry/test_refs.py asserts selected/profileless dict(ref) and len(ref), strict model_validate behavior, and selected-profile persistence through a fresh CAS reader.",
+      "policy-engine/tests/unit/ir/test_semantic_group_imports.py asserts the public facade and dict(ref) projection."
+    ],
+    "api_impact_if_recommended_option_is_selected": [
+      "ArtifactRefModel remains the exported Pydantic DTO; model_validate/model_dump and the selected-profile schema remain available.",
+      "The model's __iter__ follows BaseModel's typed key/value-pair contract, so dict(ref) can remain stable, but list(ref) changes from keys to pairs.",
+      "The model ceases to satisfy isinstance(ref, Mapping); callers needing Mapping methods use an explicit mapping projection.",
+      "The projection preserves keys/items/values/get and uses KeyError for a key absent from its selected/profileless view. The current model's direct omitted-profile lookup returns None; preserving or intentionally migrating that direct indexing behavior must be pinned in the approved contract.",
+      "The internal normalize_artifact_ref consumer can use model_dump(mode='python') after validation rather than relying on dict(validated) through dual inheritance."
+    ]
+  },
+  "consumer_inventory": {
+    "scan_roots": [
+      "policy-engine/src/polisyos/**/*.py",
+      "policy-engine/tests/**/*.py"
+    ],
+    "python_file_denominator": 5784,
+    "reference_type_names_from_refs_module": 118,
+    "files_with_reference_type_tokens": 315,
+    "direct_ref_typed_functions": 350,
+    "syntactic_ref_constructor_calls": 126,
+    "syntactic_class_model_validate_calls": 351,
+    "direct_model_dump_calls_on_ref_typed_names": 34,
+    "direct_mapping_protocol_uses": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py",
+        "line": 799,
+        "consumer": "_coerce_regime_shift_forecast_bundle_ref",
+        "operation": "dict(value) in a union accepting ArtifactRefModel or Mapping",
+        "qualification": "The function checks model_dump first, so ArtifactRefModel takes the Pydantic branch; direct Mapping behavior serves other Mapping inputs here."
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "line": 313,
+        "consumer": "normalize_artifact_ref",
+        "operation": "dict(validated) after ArtifactRefModel.model_validate",
+        "qualification": "This is the direct production consumer that currently relies on the model's key iteration after validation; model_dump or the explicit facade can replace that dependence."
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 34,
+        "consumer": "test_artifact_ref_model_preserves_selected_manifest_profile",
+        "operation": "dict(ref)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 40,
+        "consumer": "test_artifact_ref_model_preserves_selected_manifest_profile",
+        "operation": "len(ref)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 47,
+        "consumer": "test_artifact_ref_model_keeps_profileless_legacy_mapping",
+        "operation": "dict(ref)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 52,
+        "consumer": "test_artifact_ref_model_keeps_profileless_legacy_mapping",
+        "operation": "len(ref)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 97,
+        "consumer": "test_normalize_artifact_ref_uses_the_strict_shared_ref_schema",
+        "operation": "dict(legacy)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 210,
+        "consumer": "test_normalize_artifact_ref_uses_the_strict_shared_ref_schema",
+        "operation": "dict(legacy)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 211,
+        "consumer": "test_normalize_artifact_ref_uses_the_strict_shared_ref_schema",
+        "operation": "dict(legacy)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 212,
+        "consumer": "test_normalize_artifact_ref_uses_the_strict_shared_ref_schema",
+        "operation": "dict(legacy)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "line": 319,
+        "consumer": "test_typed_artifact_ref_fresh_load_keeps_selected_manifest_view",
+        "operation": "dict(typed_ref)"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py",
+        "line": 53,
+        "consumer": "test_ir_registry_group_preserves_refs_fragments_and_public_surface",
+        "operation": "dict(ref)"
+      }
+    ],
+    "mapping_method_scan": "The AST inventory also checked direct typed .keys(), .items(), .values(), and .get() calls; none were found in the in-repository statically bound references. The exact direct-use set and source scan are cited below.",
+    "inventory_limit": "The 5,784 count is the Python-file denominator under the two roots; the script AST-parses name-matched candidate files, not every file. It binds direct imports/annotations/simple aliases only. Dynamic Any, reflection, source packages outside these roots, and public downstream consumers are not established. This is not proof that no external caller relies on Mapping identity, key iteration, or direct indexing.",
+    "scan_script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/artifact_ref_consumer_scan.py",
+    "scan_script_sha256": "8682e2faafa6ae03e51226687894b7f44ffc14cac932fe4e05a37b4087aa6bca",
+    "scan_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/artifact_ref_consumer_scan.json",
+    "scan_output_sha256": "213a5c325226eddde246c6e3c27d4b5cc0bd8e95a8128640bd1b7ba1d07296ad"
+  },
+  "prototype_and_falsifier": {
+    "existing_composition_prototype": {
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/artifact_ref_mapping_prototype.py",
+      "script_sha256": "1e1b0cb7b42f018436d20589778cc1f295aced18c5c46b6b7100d983c71e0e92",
+      "runtime_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/artifact_ref_mapping_prototype.stdout.txt",
+      "runtime_output_sha256": "6d984d688b72ff917e4ec9c47a97feb06f24218c464d541ddf8fab9ad442fc11",
+      "mypy_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/artifact_ref_mapping_prototype.mypy.txt",
+      "mypy_output_sha256": "3038e53cf7acfa332299122a83d7a5f5fa1736360c9322bf29aab7b38be4284a",
+      "witness": "A disposable composition model typed with __iter__ -> Generator[tuple[str, object], None, None] passes MyPy and, for both profileless and selected refs, preserves dict(ref), len, model_validate/model_dump, and an explicit Mapping view with keys/items/values. The model itself is not Mapping and its iteration yields pairs."
+    },
+    "strict_facade_falsifier": {
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-ref-decision-20261015/mapping_facade_falsifier.py",
+      "script_sha256": "d466150be2cf3ff2642d4fee0230bb999050bde00254669da00c4ed48825fb3d",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-artifact-ref-decision-20261015/mapping_facade_falsifier.final.stdout.txt",
+      "output_sha256": "f39ce1ee5269fc16858c8365b5b0ea6edd948789c92ba2eeee54dde03281c4e0",
+      "command": "PYTHONPATH=LOCAL/raw/resume-ir-composed-diagnostic-20261015:src .venv/bin/python -B LOCAL/raw/resume-ir-artifact-ref-decision-20261015/mapping_facade_falsifier.py",
+      "result": "Exit 0. For selected and profileless cases, dict/model_dump projections agree; keys/len/get match; an omitted profile key is absent and strict facade indexing raises KeyError. The probe also confirms the current model's direct omitted-profile __getitem__ returns None, a behavior the product patch must preserve or explicitly migrate."
+    },
+    "falsifier_for_implementation": "After G selects the contract, remove the Mapping facade while keeping its field names and marker helpers; tests must fail on real Mapping operations. Also test that a profileless facade does not expose the omitted profile key, selected profile survives model_validate/model_dump and fresh CAS read, unknown keys raise, dict(ref) remains equal to the projected model_dump, and MyPy accepts the exact typed public class without Any/ignore."
+  },
+  "options": [
+    {
+      "option": "reuse-current-dual-inheritance",
+      "approach": "Keep ArtifactRefModel as BaseModel and Mapping, retain key iteration, and suppress or locally weaken the incompatible override check.",
+      "assessment": "Rejected for this native gate. It leaves a real subtype contract contradiction, and a local ignore, Any escape, global Pydantic stub change, or environment patch would only hide it."
+    },
+    {
+      "option": "extend-pydantic-model-with-explicit-mapping-facade",
+      "approach": "Keep ArtifactRefModel as the Pydantic DTO and stable root export; let model iteration satisfy BaseModel's key/value-pair contract; provide an explicit typed Mapping projection for callers that need Mapping semantics; migrate normalize_artifact_ref to model_dump or the facade.",
+      "assessment": "Recommended narrow option. It reuses the current DTO and serialization, separates two protocols, and has a passing disposable runtime/type prototype. It changes Mapping identity and key iteration on the model itself, so G must decide compatibility and migration treatment before product code changes."
+    },
+    {
+      "option": "consolidate-to-pydantic-only",
+      "approach": "Treat ArtifactRefModel only as a model DTO and require callers to use model_dump(mode='python') for mapping projections; do not add a Mapping facade.",
+      "assessment": "Sound and smaller internally, but more disruptive to consumers that rely on keys/items/get or isinstance(ref, Mapping); static in-repository inventory cannot establish the public downstream denominator."
+    },
+    {
+      "option": "upstream-typing-contract",
+      "approach": "Seek a supported Pydantic contract that permits Mapping's key iterator on a BaseModel subclass.",
+      "assessment": "No sound upstream route was established. Pydantic's declared BaseModel iteration is key/value pairs and its runtime implementation follows that declaration. Changing its global type contract to accommodate this subclass would weaken unrelated BaseModel consumers; package or stub patching is not an acceptable local fix. Reopen only if an independently supported upstream design can be demonstrated without weakening BaseModel."
+    },
+    {
+      "option": "build-new-ref-framework",
+      "approach": "Replace the existing typed refs with a new custom hierarchy.",
+      "assessment": "Unnecessary; it would widen the compatibility and migration surface without helping resolve the single protocol conflict."
+    }
+  ],
+  "recommended_option": {
+    "id": "extend-pydantic-model-with-explicit-mapping-facade",
+    "api_shape": "ArtifactRefModel remains Pydantic-only at runtime. It keeps typed pair iteration, stable field/schema/model_validate/model_dump behavior, and the existing root-package export. A named method such as as_mapping() returns a Mapping[str, object] projection whose visible keys match the selected/profileless model_dump projection and whose absent keys raise KeyError.",
+    "internal_migration": "Change normalize_artifact_ref's post-validation projection to model_dump(mode='python') with the same string normalization, or use the explicit facade if that is the agreed semantic source. Preserve strict unknown-field refusal and selected-profile inclusion.",
+    "public_compatibility": "Before implementation, G must decide whether losing isinstance(ref, Mapping), model key iteration, Mapping methods on the model, or omitted-field direct indexing is acceptable and how existing downstream callers will migrate. No complete external caller census is available; preserve the root export and do not claim zero external users."
+  },
+  "decision_effects": {
+    "plane": "internal typed API/source contract and native verification; no external institution act or authority input is implicated.",
+    "authority": "No law, issuer, permission, custody, or publication authority fact is supplied or inferred.",
+    "time": "No time/currentness semantics change.",
+    "status": "Current composed MyPy gate remains FAIL until a selected type-correct implementation and its complete affected consumer replay pass. This proposal does not self-waive or self-close the gate.",
+    "migration_and_rollback": "Use an ordinary forward migration commit and an explicit compatibility note after G decision; no history replacement. A rollback, if required, is another forward commit and does not waive the native type conflict."
+  },
+  "pattern_pass": {
+    "relevant_register_ids": [
+      "P38",
+      "P40"
+    ],
+    "existing_antipattern": "P38: a superficially working runtime Mapping projection is treated as proof that the declared Pydantic subtype contract is sound. The actual divergent case is BaseModel key/value iteration versus Mapping key iteration. P40: patching only the one annotation would be instance-level and cannot make one method satisfy both protocols.",
+    "target_pattern": "Separate the DTO's Pydantic contract from an explicit Mapping projection, then verify both real protocols and mixed selected/profileless states.",
+    "missing_capability_labels": [],
+    "acceptance_signal": "Independent G decision on public semantics followed by no-ignore MyPy success for all selected IR sources, mirrored public-surface/consumer tests, and behavioral remove-the-facade control. No product capability closure is claimed here."
+  },
+  "p40_bucket": {
+    "classification": "NEW class",
+    "class_name": "public dual-interface / Liskov contract conflict",
+    "rationale": "This is not another local binding/type-inference error: the public class inherits two protocols that assign incompatible meanings and return types to __iter__. The correct unit is one interface separation plus caller migration, not a per-reference or per-call-site patch.",
+    "second_same_class_rule": "If review finds a deeper consumer depending on Mapping identity or key iteration, widen the migration/facade contract to that consumer denominator or record its exact bounded residual and falsifier; do not create per-consumer one-off workarounds."
+  },
+  "g_decision_needed": {
+    "question": "Should the stable ArtifactRefModel export be a Pydantic DTO whose Mapping projection is explicit (recommended), or must the model instance itself remain a Mapping? If model-level Mapping identity is mandatory, what supported, type-sound contract can satisfy it without suppressing or weakening BaseModel.__iter__?",
+    "minimum_input_or_ruling": "G must state the intended public semantic for iteration/Mapping identity and the compatibility/migration treatment for existing external consumers. No external issuer or production packet is needed.",
+    "next_check_after_decision": [
+      "Implement only the selected API shape in refs.py and the actual normalization consumer, preserving selected/profileless serialization and strict validation.",
+      "Update mirrored tests to pin model iteration, dict(ref), explicit facade methods, direct absent-profile indexing, root exports, and selected-profile fresh-reader behavior.",
+      "Run the native unsuppressed MyPy command against the then-current complete IR source set enumerated from the actual source tree, then the full required post-freeze native gate and affected importer tests.",
+      "Re-run consumer inventory and report any newly bound caller; do not convert the proposal into a formal E02 closure without G adjudication."
+    ],
+    "ready_work_while_pending": [
+      "Do not edit refs.py or change its public semantics until G answers this interface decision.",
+      "Continue unrelated source lanes and retain this native gate as FAIL in composed status."
+    ]
+  },
+  "evidence_boundary": {
+    "decision_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-artifact-ref-mapping-interface.json",
+    "candidate_source_changes_by_author": [],
+    "formal_acceptance": "pending independent G review and decision",
+    "limitations": [
+      "The static inventory's Python denominator is complete only for the two named in-repository roots; it is not an external package/API census.",
+      "The MyPy run is a composed diagnostic overlay, not the final global source freeze.",
+      "The composition/facade prototype is disposable evidence, not product code or an API acceptance."
+    ]
+  }
+}

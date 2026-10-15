@@ -1728,8 +1728,7 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     assert raw_response["candidate_only"] is True
     assert raw_response["requirement_projection"]["disposition"] == "candidate_only"
     assert (
-        raw_response["requirement_projection"]["capability_resolution_status"]
-        == "not_established"
+        raw_response["requirement_projection"]["capability_resolution_status"] == "not_established"
     )
     assert raw_response["data_needs"][0]["geography"] == geography
     assert raw_response["data_needs"][0]["time_start"] == start
@@ -2255,9 +2254,9 @@ def test_real_owner_gateway_capture_rejects_injected_foreign_store_before_resolv
                 "claim_id": "claim-fetch-capture-foreign-store",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2347,9 +2346,9 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
                 "claim_id": "claim-fetch-capture",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2538,9 +2537,9 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
                 "claim_id": f"claim-fetch-capture-plan-{plan_count}",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2605,9 +2604,9 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
                 "claim_id": "claim-fetch-capture-remote-effective",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2675,9 +2674,9 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
                 "claim_id": "claim-fetch-capture-empty-params",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2748,9 +2747,9 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
                 "claim_id": "claim-fetch-capture-relative-effective",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -2957,9 +2956,9 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
                 "claim_id": f"claim-fetch-capture-{mutation}",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
@@ -3105,6 +3104,102 @@ def test_n7_network_counter_fails_routine_offline_if_gateway_leaks_owner_call() 
     assert counter.assert_offline_check()["code"] == "routine_check_hit_network"
 
 
+def test_openalex_gateway_uses_academic_facade_and_keeps_response_candidate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge.read_api import academic
+
+    scholar_spec = _compiled_requirement_specs()[3]
+    requirement_gap = requirement_gaps_from_compiled_specs(
+        scholar_support_requirement_specs=(scholar_spec,)
+    )[0]
+    record = plan_requirement_gap_acquisition(
+        run_id="run-openalex-facade-candidate",
+        requirement_gaps=(requirement_gap,),
+    ).acquisition_records[0]
+    observed_requests: list[object] = []
+    response = {
+        "results": [
+            {
+                "id": "https://openalex.org/W123",
+                "title": "Controlled candidate result",
+                "publication_year": 2024,
+                "cited_by_count": 3,
+            }
+        ],
+        "meta": {"count": 1},
+    }
+
+    class _ControlledOpenAlexClient:
+        def __init__(self, **_kwargs: object) -> None:
+            pass
+
+        async def __aenter__(self) -> _ControlledOpenAlexClient:
+            return self
+
+        async def __aexit__(self, *_exc: object) -> None:
+            return None
+
+        async def list_works(self, request: object) -> dict[str, object]:
+            observed_requests.append(request)
+            return response
+
+    monkeypatch.setattr(academic, "OpenAlexClient", _ControlledOpenAlexClient)
+    counter = AcquisitionNetworkCallCounter()
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        network_counter=counter,
+        allow_openalex_network=True,
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+    )
+
+    artifact = gateway.acquire(
+        record=record,
+        compiled_requirement_spec=scholar_spec.model_dump(mode="json"),
+    )
+
+    assert artifact is not None
+    assert artifact.owner_component == "data_forge.openalex"
+    assert artifact.payload["owner_response"]["openalex"] == response
+    assert artifact.payload["owner_response"]["owner_response_kind"] == "openalex_live_response"
+    assert artifact.capture_provenance is not None
+    assert artifact.capture_provenance.network_call is True
+    assert counter.network_calls == 1
+    assert len(observed_requests) == 1
+    request = observed_requests[0]
+    assert isinstance(request, academic.OpenAlexRequest)
+    assert request.filter_expr == 'title.search:"policy"'
+    assert request.sort == "cited_by_count:desc"
+    assert request.per_page == 1
+    assert request.select == "id,title,publication_year,cited_by_count"
+
+
+def test_openalex_gateway_default_refuses_before_owner_call(tmp_path: Path) -> None:
+    scholar_spec = _compiled_requirement_specs()[3]
+    requirement_gap = requirement_gaps_from_compiled_specs(
+        scholar_support_requirement_specs=(scholar_spec,)
+    )[0]
+    record = plan_requirement_gap_acquisition(
+        run_id="run-openalex-facade-opt-out",
+        requirement_gaps=(requirement_gap,),
+    ).acquisition_records[0]
+    counter = AcquisitionNetworkCallCounter()
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        network_counter=counter,
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+    )
+
+    artifact = gateway.acquire(
+        record=record,
+        compiled_requirement_spec=scholar_spec.model_dump(mode="json"),
+    )
+
+    assert artifact is None
+    assert counter.network_calls == 0
+
+
 @pytest.mark.integration
 @pytest.mark.skipif(
     os.environ.get("POLISYOS_N7_LIVE_OWNER_LANE") != "1",
@@ -3114,12 +3209,9 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
     """Cloud lane: call a real owner once, then validate the normal N7 receipt path."""
 
     async def _fetch_openalex_payload() -> dict[str, object]:
-        from polisyos.data_forge.domains.academic.openalex.client import (
-            OpenAlexClient,
-            OpenAlexRequest,
-        )
+        from polisyos.data_forge.read_api import academic as academic_read_api
 
-        async with OpenAlexClient(
+        async with academic_read_api.OpenAlexClient(
             email=os.environ.get("OPENALEX_MAILTO", ""),
             max_rps=1,
             max_concurrent=1,
@@ -3127,7 +3219,7 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
             max_retries=1,
         ) as client:
             return await client.list_works(
-                OpenAlexRequest(
+                academic_read_api.OpenAlexRequest(
                     filter_expr='title.search:"minimum wage"',
                     sort="cited_by_count:desc",
                     per_page=1,
@@ -3493,9 +3585,9 @@ def test_real_owner_gateway_store_removal_probe_refuses_before_fetch(
                 "claim_id": "claim-fetch-capture-store-removal",
                 "required_data_families": ("metric.test",),
                 "metadata": {
-                "fabric_capture_mode": "persisted_payload",
-                "scope_profile": _catalog_capture_scope_profile(),
-            },
+                    "fabric_capture_mode": "persisted_payload",
+                    "scope_profile": _catalog_capture_scope_profile(),
+                },
             }
         )
         gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]

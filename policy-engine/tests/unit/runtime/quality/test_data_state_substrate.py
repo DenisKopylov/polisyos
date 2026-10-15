@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pytest
@@ -39,7 +42,6 @@ def test_missing_catalog_and_unlisted_variable_have_distinct_owner_outcomes(
         unavailable.metric_binding_count,
         unavailable.observation_count,
     ) == (0, 0, 0)
-
 
 
 def test_l1_dcat_count_queries_return_positive_counts_from_duckdb(tmp_path: Path) -> None:
@@ -112,3 +114,55 @@ def test_l1_dcat_scalar_consumer_fails_closed_on_absent_or_malformed_rows(
 
     assert failure.value.code == expected_code
     assert connection.closed
+
+
+def test_snapshot_binding_uses_read_api_publishers_and_preserves_surface(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge import read_api
+
+    publish = read_api.write_publish_manifest
+    finalize = read_api.finalize_snapshot
+    calls: list[tuple[str, object]] = []
+
+    def _publish(**kwargs: Any) -> Path:
+        calls.append(("publish", kwargs))
+        return publish(**kwargs)
+
+    def _finalize(snapshot_root: str | Path, **kwargs: Any) -> Path:
+        calls.append(("finalize", (snapshot_root, kwargs)))
+        return finalize(snapshot_root, **kwargs)
+
+    monkeypatch.setattr(read_api, "write_publish_manifest", _publish)
+    monkeypatch.setattr(read_api, "finalize_snapshot", _finalize)
+
+    payload = {"fixture": "controlled", "rows": [{"metric": "income", "value": 2}]}
+    binding_path = data_state_substrate_module._write_data_forge_snapshot_binding(
+        workspace_dir=tmp_path / "snapshots",
+        snapshot_id="fixture-snapshot",
+        payload=payload,
+        payload_content_hash=hashlib.sha256(b"controlled-payload").hexdigest(),
+        lineage_refs=("fixture://controlled-payload",),
+        claim_requirement_bindings=(),
+    )
+
+    assert data_state_substrate_module._data_forge_snapshot_role() == "domain"
+    assert read_api.pipeline_binding_surface("ukraine") == ("domain", "ukraine")
+    assert [kind for kind, _detail in calls] == ["publish", "finalize"]
+    assert binding_path.is_file()
+    snapshot_root = tmp_path / "snapshots" / "fixture-snapshot"
+    publish_manifest = json.loads(
+        (snapshot_root / "ukraine" / "publish" / "manifest.json").read_text(encoding="utf-8")
+    )
+    snapshot_manifest = json.loads(
+        (snapshot_root / "snapshot_manifest.json").read_text(encoding="utf-8")
+    )
+    binding = json.loads(binding_path.read_text(encoding="utf-8"))
+
+    assert publish_manifest["kind"] == "publish"
+    assert publish_manifest["pipeline"] == "ukraine"
+    assert snapshot_manifest["pipelines"]["ukraine"] == publish_manifest
+    assert binding["bindings"][0]["role"] == "domain"
+    assert binding["bindings"][0]["read_api_surface"] == "ukraine"
+    assert binding["bindings"][0]["read_api_identity"] == "ukraine@fixture-snapshot"

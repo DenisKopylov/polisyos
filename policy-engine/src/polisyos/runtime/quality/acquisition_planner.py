@@ -1645,15 +1645,16 @@ class RealAcquisitionOwnerGateway:
     ) -> AcquisitionOwnerArtifact | None:
         import asyncio
 
-        from polisyos.data_forge.domains.academic.openalex.client import (
-            OpenAlexClient,
-            OpenAlexRequest,
-        )
+        from polisyos.data_forge.read_api import academic as academic_read_api
 
         async def _run() -> dict[str, Any]:
-            async with OpenAlexClient(max_rps=1, max_concurrent=1, max_retries=1) as client:
+            async with academic_read_api.OpenAlexClient(
+                max_rps=1,
+                max_concurrent=1,
+                max_retries=1,
+            ) as client:
                 return await client.list_works(
-                    OpenAlexRequest(
+                    academic_read_api.OpenAlexRequest(
                         filter_expr='title.search:"policy"',
                         sort="cited_by_count:desc",
                         per_page=1,

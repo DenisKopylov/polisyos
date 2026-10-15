@@ -22,6 +22,7 @@ from polisyos.core.contracts import CatalogRunProfile as CoreCatalogRunProfile
 from polisyos.core.contracts.control import (
     CatalogRunProfile as CanonicalCoreCatalogRunProfile,
 )
+from polisyos.data_forge import read_api
 from polisyos.data_forge.domains.academic.knowledge.skg_query import (
     PreparedSKGCredalSourceRows as CanonicalPreparedSKGCredalSourceRows,
 )
@@ -76,6 +77,50 @@ def test_catalog_type_checking_exports_match_lazy_mapping() -> None:
         for alias in statement.names
     }
     assert type_only_exports == set(catalog_module._EXPORTS)
+
+
+def test_academic_openalex_exports_are_typed_lazy_canonical_objects() -> None:
+    academic_module = import_module("polisyos.data_forge.read_api.academic")
+    tree = ast.parse(Path(academic_module.__file__).read_text(encoding="utf-8"))
+    type_only_exports = {
+        alias.asname or alias.name
+        for node in tree.body
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Name)
+        and node.test.id == "TYPE_CHECKING"
+        for statement in node.body
+        if isinstance(statement, ast.ImportFrom)
+        and statement.module is not None
+        and statement.module.startswith("polisyos.data_forge.")
+        for alias in statement.names
+    }
+
+    assert {"OpenAlexClient", "OpenAlexRequest"} <= type_only_exports
+    assert {"OpenAlexClient", "OpenAlexRequest"} <= set(academic._EXPORTS)
+
+    from polisyos.data_forge.domains.academic.openalex.client import (
+        OpenAlexClient as CanonicalOpenAlexClient,
+    )
+    from polisyos.data_forge.domains.academic.openalex.client import (
+        OpenAlexRequest as CanonicalOpenAlexRequest,
+    )
+
+    assert academic.OpenAlexClient is CanonicalOpenAlexClient
+    assert academic.OpenAlexRequest is CanonicalOpenAlexRequest
+
+
+def test_snapshot_publication_facade_resolves_canonical_owners() -> None:
+    from polisyos.data_forge.kernel.pipeline.manifests import (
+        write_publish_manifest as canonical_write_publish_manifest,
+    )
+    from polisyos.data_forge.kernel.snapshot import (
+        finalize_snapshot as canonical_finalize_snapshot,
+    )
+
+    assert read_api.write_publish_manifest is canonical_write_publish_manifest
+    assert read_api.finalize_snapshot is canonical_finalize_snapshot
+    assert read_api.pipeline_binding_surface("ukraine") == ("domain", "ukraine")
+    assert read_api.pipeline_binding_surface("unregistered-pipeline") is None
 
 
 def test_existing_facade_exports_preserve_canonical_object_identity() -> None:

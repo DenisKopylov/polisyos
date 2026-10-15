@@ -2,7 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ._lazy import lazy_dir, load_lazy_export
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.openalex.client import (
+        OpenAlexClient as OpenAlexClient,
+    )
+    from polisyos.data_forge.domains.academic.openalex.client import (
+        OpenAlexRequest as OpenAlexRequest,
+    )
 
 _ACADEMIC_DOMAIN = "polisyos.data_forge.domains.academic"
 _ACADEMIC_KNOWLEDGE = f"{_ACADEMIC_DOMAIN}.knowledge"
@@ -65,6 +75,8 @@ _EXPORTS = {
     "WorkRecord": f"{_ACADEMIC_KNOWLEDGE}.types",
     "WorkSearchResult": f"{_ACADEMIC_KNOWLEDGE}.types",
     "GonkaMultiKeyPool": "polisyos.data_forge.domains.academic.batch._resolve_extract_providers",
+    "OpenAlexClient": "polisyos.data_forge.domains.academic.openalex.client",
+    "OpenAlexRequest": "polisyos.data_forge.domains.academic.openalex.client",
     "build_academic_batch_asset_group": _ACADEMIC_DOMAIN,
     "build_academic_schema_registry": _ACADEMIC_DOMAIN,
     "compare_academic_shadow_bundles": _ACADEMIC_DOMAIN,

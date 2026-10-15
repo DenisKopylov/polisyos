@@ -18,7 +18,11 @@ quality checks, provenance manifests, and golden/differential migration tests.
 keeps domain surfaces lazy: importing the facade does not load `domains/` or
 `kernel/` internals. Laziness does not make every exported operation a read;
 the facade currently also exposes producer/execution operations, including
-legal `run_batch_pipeline` and academic `run_edge_synthesize`.
+legal `run_batch_pipeline`, academic `run_edge_synthesize`, and the existing
+snapshot publisher/finalizer. Its pipeline binding lookup returns an immutable
+role/surface pair from the canonical snapshot owner. The academic facade also
+exposes the existing OpenAlex request/client types lazily for the explicitly
+opted-in acquisition route; returned records remain candidate evidence.
 
 The narrow boundary is not fully enforced. `architecture/packages/boundaries.toml`
 allows Fabric to depend on `polisyos.data_forge.read_api` and forbids

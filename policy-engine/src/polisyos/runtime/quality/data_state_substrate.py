@@ -42,11 +42,6 @@ from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
-from polisyos.data_forge.kernel.snapshot import (
-    PIPELINE_BINDING_SURFACES,
-    finalize_snapshot,
-)
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.substrate_registry import (
@@ -82,7 +77,6 @@ canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
 ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v1"
 _DATA_FORGE_SNAPSHOT_PIPELINE = "ukraine"
-_DATA_FORGE_SNAPSHOT_ROLE = PIPELINE_BINDING_SURFACES[_DATA_FORGE_SNAPSHOT_PIPELINE][0]
 ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
     "source_to_target_measurement_contract_not_established",
@@ -110,6 +104,17 @@ class DataStateSubstrateError(ValueError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(f"{code}: {message or code}")
+
+
+def _data_forge_snapshot_role() -> str:
+    """Resolve the canonical Data Forge role lazily through its public facade."""
+    role_surface = data_forge_read_api.pipeline_binding_surface(_DATA_FORGE_SNAPSHOT_PIPELINE)
+    if role_surface is None:
+        raise DataStateSubstrateError(
+            "data_forge_snapshot_pipeline_binding_missing",
+            _DATA_FORGE_SNAPSHOT_PIPELINE,
+        )
+    return role_surface[0]
 
 
 def _required_l1_scalar_count(
@@ -573,7 +578,7 @@ def materialize_l4_data_state_snapshot(
     return DataStateMaterializationResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
-        data_forge_role=_DATA_FORGE_SNAPSHOT_ROLE,
+        data_forge_role=_data_forge_snapshot_role(),
         data_snapshot_stats=stats,
         l1_availability=availability,
         l5_profile=l5_profile,
@@ -887,7 +892,7 @@ def materialize_acquired_observation_snapshot(
     return AcquiredObservationDataSnapshotResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
-        data_forge_role=_DATA_FORGE_SNAPSHOT_ROLE,
+        data_forge_role=_data_forge_snapshot_role(),
         snapshot_id=snapshot_id,
         payload_content_hash=payload_content_hash,
         selected_dataset_id=observation.dataset_id,
@@ -1809,7 +1814,7 @@ def _write_data_forge_snapshot_binding(
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    write_publish_manifest(
+    data_forge_read_api.write_publish_manifest(
         manifest_path=pipeline_root / "publish" / "manifest.json",
         pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
         artifacts=(artifact_path,),
@@ -1846,7 +1851,7 @@ def _write_data_forge_snapshot_binding(
             ],
         },
     )
-    finalize_snapshot(
+    data_forge_read_api.finalize_snapshot(
         snapshot_root,
         update_latest_symlink=False,
         pipelines=(_DATA_FORGE_SNAPSHOT_PIPELINE,),

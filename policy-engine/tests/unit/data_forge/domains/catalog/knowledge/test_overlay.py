@@ -1530,6 +1530,13 @@ def test_legacy_native_row_is_recorded_and_blocks_positive_epoch(tmp_path: Path)
     _downgrade_to_authentic_v1(scenario)
     owner_query = scenario.service.acquisition_owner_query(query=scenario.query)
     native = scenario.overlay.resolve_native_membership(query=owner_query)
+    owner_snapshot_bytes = scenario.overlay.load_acquisition_owner_snapshot(
+        ref=native.owner_source_snapshot_ref
+    )
+    semantic_epoch_runtime._validate_owner_snapshot_reference_graph(
+        json.loads(owner_snapshot_bytes[8:]),
+        owner_kind="catalog_acquisition",
+    )
     semantic = scenario.overlay.resolve_semantic_candidate_denominator(
         query=owner_query,
         native_membership=native,

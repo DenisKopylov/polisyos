@@ -2558,10 +2558,7 @@ def _catalog_passport_models(
     snapshot: _CatalogAcquisitionOwnerSnapshot,
 ) -> tuple[tuple[BaseModel, tuple[str, ...], dict[str, object], _CatalogAcquisitionOwnerRow], ...]:
     """Decode each current or historical passport with its owning strict schema."""
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
-        LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION,
-        LegacyAdmissionPassport,
-    )
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.runtime.quality.acquisition_executor import (
         PASSPORT_SCHEMA_VERSION,
         AdmissionPassport,
@@ -2583,8 +2580,8 @@ def _catalog_passport_models(
         version = value.get("schema_version")
         if version == PASSPORT_SCHEMA_VERSION:
             passport = AdmissionPassport.model_validate(value)
-        elif version == LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION:
-            passport = LegacyAdmissionPassport.model_validate(value)
+        elif version == catalog_read_api.LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION:
+            passport = catalog_read_api.LegacyAdmissionPassport.model_validate(value)
         else:
             raise ValueError("acquisition owner passport schema is not registered")
         decoded.append((passport, ("rows", "*", "observed_passport_json"), value, row))

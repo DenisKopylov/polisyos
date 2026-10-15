@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from . import surfaces
 from .surfaces import (
     READ_API_SURFACES,
@@ -11,6 +13,10 @@ from .surfaces import (
     load_surface,
     surface_module,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
+    from polisyos.data_forge.kernel.snapshot import finalize_snapshot
 
 _SURFACE_NAMES = frozenset(available_surfaces())
 _EXPORTS = {
@@ -26,11 +32,19 @@ _EXPORTS = {
         "polisyos.data_forge.read_api.compliance",
         "normalize_privacy_compliance_report",
     ),
+    "write_publish_manifest": (
+        "polisyos.data_forge.kernel.pipeline.manifests",
+        "write_publish_manifest",
+    ),
+    "finalize_snapshot": (
+        "polisyos.data_forge.kernel.snapshot",
+        "finalize_snapshot",
+    ),
 }
 
 
 def __getattr__(name: str) -> object:
-    """Lazily import domain read_api modules only when explicitly requested."""
+    """Lazily import the selected public implementation only when requested."""
     if name in _SURFACE_NAMES:
         module = load_surface(name)
         globals()[name] = module
@@ -51,6 +65,28 @@ def __dir__() -> list[str]:
     return sorted({*globals(), *_SURFACE_NAMES, *_EXPORTS})
 
 
+def pipeline_binding_surface(pipeline: str) -> tuple[str, str] | None:
+    """Return Data Forge's immutable role/surface pair for one pipeline.
+
+    The canonical mapping remains owned by snapshot finalization and is loaded
+    only when a caller asks to resolve one pipeline.
+
+    Args:
+        pipeline: Canonical snapshot pipeline identifier.
+
+    Returns:
+        The role/surface pair owned by snapshot finalization, or ``None`` when
+        the pipeline has no registered binding surface.
+    """
+    from importlib import import_module
+
+    bindings = import_module("polisyos.data_forge.kernel.snapshot").PIPELINE_BINDING_SURFACES
+    selected = bindings.get(pipeline)
+    if selected is None:
+        return None
+    return (selected[0], selected[1])
+
+
 __all__ = [
     "READ_API_SURFACES",
     "OfficialSnapshotAnswer",
@@ -60,12 +96,15 @@ __all__ = [
     "build_privacy_compliance_report",
     "catalog",
     "compliance",
+    "finalize_snapshot",
     "get_surface",
     "legal",
     "load_surface",
     "normalize_privacy_compliance_report",
+    "pipeline_binding_surface",
     "provenance",
     "surface_module",
     "surfaces",
     "ukraine",
+    "write_publish_manifest",
 ]

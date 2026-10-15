@@ -230,6 +230,30 @@ def test_runtime_consumers_do_not_import_data_forge_internals_directly() -> None
     )
 
 
+def test_runtime_import_gate_rejects_internal_bypass_and_accepts_public_facade(
+    tmp_path: Path,
+) -> None:
+    runtime_root = tmp_path / "runtime"
+    runtime_root.mkdir()
+    consumer = runtime_root / "consumer.py"
+    consumer.write_text(
+        "from polisyos.data_forge.kernel.snapshot import finalize_snapshot\n",
+        encoding="utf-8",
+    )
+
+    violations = _direct_import_violations(runtime_root, RUNTIME_BLOCKED_INTERNAL_PREFIXES)
+
+    assert len(violations) == 1
+    assert "polisyos.data_forge.kernel.snapshot" in violations[0]
+
+    consumer.write_text(
+        "from polisyos.data_forge.read_api import finalize_snapshot\n",
+        encoding="utf-8",
+    )
+
+    assert _direct_import_violations(runtime_root, RUNTIME_BLOCKED_INTERNAL_PREFIXES) == []
+
+
 def test_runtime_consumers_do_not_import_legacy_read_facades_directly() -> None:
     violations = _direct_import_violations(RUNTIME_ROOT, RUNTIME_BLOCKED_LEGACY_READ_PREFIXES)
 
@@ -300,9 +324,13 @@ def _import_name(node: ast.Import | ast.ImportFrom) -> str:
 
 def _direct_import_violations(root: Path, blocked_prefixes: tuple[str, ...]) -> list[str]:
     violations: list[str] = []
+    repo_root = Path(__file__).resolve().parents[3]
     for path in sorted(item for item in root.rglob("*.py") if "__pycache__" not in item.parts):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        relative_path = path.relative_to(Path(__file__).resolve().parents[3]).as_posix()
+        try:
+            relative_path = path.relative_to(repo_root).as_posix()
+        except ValueError:
+            relative_path = path.as_posix()
         for node in ast.walk(tree):
             if not isinstance(node, ast.Import | ast.ImportFrom):
                 continue

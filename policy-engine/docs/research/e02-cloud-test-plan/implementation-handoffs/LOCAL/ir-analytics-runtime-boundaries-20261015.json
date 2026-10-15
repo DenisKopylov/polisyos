@@ -1,0 +1,477 @@
+{
+  "P40": [
+    {
+      "bucket": "same callable-surface class widened to shared checker; real backend compatibility remains open.",
+      "review": "IR-ANALYTICS-01"
+    },
+    {
+      "bucket": "lossy count conversion class closed by integer-index parser.",
+      "review": "IR-ANALYTICS-02"
+    },
+    {
+      "bucket": "local annotation repair; public return preserved.",
+      "review": "IR-ANALYTICS-03"
+    }
+  ],
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "parents": [
+      "fa560d6bd59b6a3b2eada1481b84dda844ca83e3"
+    ],
+    "sha": "6aec787612367840d9808d4dbf3a7878bba37098",
+    "tree": "d555b04b42f7f945f991ed3dd4c222d064ad01da"
+  },
+  "changes": [
+    "Shared callable Protocol invariant guards current Kuzu/Rustworkx adapters.",
+    "Kuzu counts use integer-index parsing; bool, float, text and negative values fail.",
+    "Analytics type boundaries tightened; Backtest trust remains source-bound and Phase4 persistence uses its schema producer."
+  ],
+  "closure_ids": [],
+  "composed_diagnostic": {
+    "P41": "not_established: composed 192-file run includes this slice; no exact slice-base zero-overlap replay. Not inherited.",
+    "issue": "refs.py:33 BaseModel/Mapping __iter__ conflict",
+    "refs_G_packet_source_output": {
+      "G_packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-artifact-ref-mapping-interface.json",
+        "a4eb230e7497e7a43f05a271a0b590eed0902eefc91045f80c7ac83c1e225c8e"
+      ],
+      "output": [
+        "resume-ir-composed-diagnostic-20261015/mypy.stdout.txt",
+        "856a2ba135c72dc37cfbd0ee9ff11f853c208502c9cc91b8e1453ed4a0b98584"
+      ],
+      "source": [
+        "policy-engine/src/polisyos/ir/registry/refs.py",
+        "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+      ]
+    },
+    "status": "FAIL; no global native green"
+  },
+  "denominator": {
+    "source": 22,
+    "tests": 8,
+    "total": 30
+  },
+  "evidence_policy": {
+    "raw_outputs_embedded": false,
+    "raw_references": "relative to raw_root with full SHA-256; readable local files",
+    "source_copies_embedded": false
+  },
+  "footprint": [
+    [
+      "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "a25ecf05e6c94535556958c6c85cb3587a019ac9",
+      "8952e4f2795c8f15520a11a2e5a5e92194c3588e163b09b5135e47090aaa0362",
+      43201
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "94980dcc0848226a5fab44f21088ea4f7f87b65d",
+      "8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264",
+      91753
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/literature.py",
+      "a835840b183cd977fb8c4dece82b0eeadb4e50bf",
+      "ad89e48e595b8db208360568e1ec5ae04258c41b75c5c59ae8f457eddefd8a20",
+      80776
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/strategic.py",
+      "e01194a13eef8b5f1ddb044837ca7a23c3f3fff7",
+      "a08db125c85e5e8035f6964fc38e1627091dddbd2309657b39ae4d3e8219183a",
+      111854
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "b2c5e4ff0eaa284252255ebd21c138c5eea7bc17",
+      "3f2b2de8ff552879ee663a5bc4fa456b137c432b85cfb4ceaaa3c8e51ccaa0c0",
+      16385
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/diagnostic_dashboard.py",
+      "042ee29b1777912fd910d7885193ce7f1a4d9ab5",
+      "62004298ecfe4e0887e6c8f9ea469fb12e633e7d917febbdebdf941ef6910f73",
+      13197
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/abstraction.py",
+      "5c0f6171dd895de66f0388673f95e573aa9ed686",
+      "2c1b41ff85b96270eda5dbc80260638f12a1544e357990bc0dbd924c5fcd7b90",
+      74454
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "48e287186eb441df362c25737f876abb691b65b4",
+      "39649790968e524afddd1bdf75305742d662c1ed1b6f49901ec8acb055729903",
+      38301
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+      "ecdedc8eecdc52bc05a044dc0c4d3beade495d83",
+      "7d4ad225c9504f6bcb9c02b3eb6e28068456379aea2e09198c3a4544b6f450ae",
+      9875
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/dependence_structure.py",
+      "4653bef190a1f20a561f393b58f3750e032f84bb",
+      "07845309290892752337e4bef6ddcd04d4530e4d6603c132ac45284171be574e",
+      8412
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/dependent_sensitivity.py",
+      "a5fde5f388d68280cbaed9473b0e3191dadef286",
+      "e06265bb7dae63d156086ba9b0ef71adb8ddd5f2af6fc58f06958fe4db8e200a",
+      18593
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/ecosystem_bridges.py",
+      "136edfd0431b895035c2e9c5097859f744695cb1",
+      "bca632cd82caa3b81ea0f580825a8bbe9195e75df167a896aaf67e37cf57298a",
+      6708
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/falsification_report.py",
+      "21c522b31723ff6467a243bed2db3fd0d1a2f442",
+      "011478fd602f8d8af9cdd183d5161f600135d68bca8234a71c868ce721e1273a",
+      6779
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/mediation_effects.py",
+      "44cb09c922940545af5f2c27883d9c8f50921617",
+      "34dee939918e13d7bd0b29877fbc49296bd8804f09799d6b1aca7649eeb08d02",
+      11765
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/microsim_calibration.py",
+      "333b4bdc896c18b7bd9a9b2f3e729441ffc2ca64",
+      "ffca5bfcfcbce391c6ef25dab850930a0e0f47d643ec6b2ce373b1516c14deb0",
+      8885
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/mobility.py",
+      "a047c1adfa085c6b5c7355773f16de74bfe88500",
+      "7267345fde4164a7f76192c781ef92e1256b66b8fa33179382b35a5547f9b773",
+      11805
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/negative_certificate.py",
+      "12427ac0aa429cbdf9f26dedf4f3faf2525fac97",
+      "778dc964e65dc0caa7f40a5869e7523e918220f9685aafbb4854606d8f912c60",
+      39136
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py",
+      "f2ef592d5ab4028394b178c1a607a1690870cc58",
+      "3867ee3eea7f38dd4f32a4373e7d6fdbd252adc7659ea49d7264a9576f6586a0",
+      35644
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/recourse_manifold.py",
+      "494649c9ab1b749ca1720a14e5be212ffaf804cd",
+      "ea529a7b2a140af23188595cbe8285b4cbcd5c757f6012545f987085a194a305",
+      41187
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/recoverability.py",
+      "c517cf3fb32026bdb1bfb4db6f9739b45eea01ee",
+      "d99d11932f1ccac1676c934076bd82409554ee20c4ec1a989ecaa580086f63a3",
+      11427
+    ],
+    [
+      "policy-engine/src/polisyos/ir/analytics/survey_quality.py",
+      "6f36ae22fc5a13d7bd229a30a1199dc8521523da",
+      "d048d207dfff3f632f04ffe7d230c960a138c577d0d25691d0b8ed4f544ce047",
+      16261
+    ],
+    [
+      "policy-engine/src/polisyos/ir/_internal/runtime_protocols.py",
+      "ccaf328433f56d896cea6004ffc08b914fb641ee",
+      "b322ae6489a92e99a79bb8840e2bbd958d8555ab0cadea94512f9a870ae60e8f",
+      3142
+    ],
+    [
+      "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+      "fa735761b9f452e9ed2188331c955a1baf3d29fd",
+      "de97965410b330cbcfe0c6ead256f8333458b2694b46989fb8626fa067714317",
+      21697
+    ],
+    [
+      "policy-engine/tests/unit/ir/test_causal_graph_kuzu.py",
+      "4627618f06c1ae614a876f62566651cbae87608a",
+      "3040f97e53294d33224b38eaf09ae6d7cec488445acd00895b925ee86c927afb",
+      8927
+    ],
+    [
+      "policy-engine/tests/unit/ir/analytics/test_diagnostic_dashboard.py",
+      "ff85e798ea41e6b922d7e5e1dd9f21f2206926fa",
+      "2ea148d5379b6f1b1aeaaeffd2214f9784f2415b1793b046554888e8db7eacbd",
+      2145
+    ],
+    [
+      "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "77c078da012a1c4321b7b1a6611da20aacea6ff5",
+      "13ce0bfa6a6a5746d1161a8f31e06578170113c0fdab325cd136d0e6bbb218f0",
+      7919
+    ],
+    [
+      "policy-engine/tests/unit/ir/analytics/test_falsification_report.py",
+      "25111e765ce4110e967e342491e83273863e9fb3",
+      "aa0c7ae987dea714d1aa5c74b8252df888b49b90e3fb3e58e644620aa9a2c1ea",
+      1446
+    ],
+    [
+      "policy-engine/tests/unit/ir/analytics/test_phase4_dynamics_closure.py",
+      "c24fd9bc520d93d1ca32e57d3c9d7e3cb36a4d34",
+      "6663dfafc8a6220f580f431a95dae18d478e088bc44697b23b33897b3f2b2718",
+      17918
+    ],
+    [
+      "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+      "0433c45835db9e9d5ef7d7649b293fc0b910e0d8",
+      "3a3ccfbf9792f6c90210ef2c65d60e91491dcffcc749e9870c962e65c8ead26e",
+      12580
+    ],
+    [
+      "policy-engine/tests/unit/ir/test_hte_backtest.py",
+      "c2947dc693dcff465abbec414fa27a9522b72553",
+      "7b22e9cdf470054714b42350710f0db9057f591ffa13b71a2d9f88c826dd3598",
+      9293
+    ]
+  ],
+  "footprint_columns": [
+    "path",
+    "git_blob",
+    "sha256",
+    "bytes"
+  ],
+  "formal_closure_ids": [],
+  "limitations": [
+    "Host Kuzu test remains SKIP; exact Linux Kuzu smoke PASS14 has separate bounded four-file source identity. Real Rustworkx remains unverified; no pinned repository recipe.",
+    "Kuzu/Rustworkx backend integration unverified; Kuzu host smoke SKIP, Linux UNRUN.",
+    "No external issuer/authority/custody/workload/currentness facts.",
+    "No whole original E02 occurrence or complete public capability chain adjudicated.",
+    "Global native gates not green; separate refs.py MyPy decision is FAIL."
+  ],
+  "next_check": [
+    "Final committed-composition installed Linux Kuzu consumer replay remains required; current bounded four-file smoke is separately source-qualified.",
+    "G maps the 30 committed paths to original criteria and adjudicates whole properties.",
+    "Resolve refs.py G contract, then rerun complete current IR MyPy and required native gates."
+  ],
+  "pattern_pass": {
+    "found": "protocol shape vs callable behavior; lossy count coercion; raw fixture bypassed producer schema; unbound grade trust.",
+    "ids": [
+      "P01",
+      "P02",
+      "P29",
+      "P30",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "predicates": "local behavior recomputed; real optional backends/external authority not_established.",
+    "target": "reuse producer/consumer; generic runtime invariant; exact count discriminator; behavioral tests."
+  },
+  "proposal_fields": [
+    {
+      "original_e02_ids": [],
+      "proposal": "After G maps original occurrences, consider callable/count/producer-backed Phase4 and backtest evidence only for those narrow properties; keep whole chain, surface, real backend and authority criteria open."
+    },
+    {
+      "original_e02_ids": [],
+      "proposal": "IR-ANALYTICS-01/02/03 are reviewer labels only, not formal E02 IDs or closures."
+    }
+  ],
+  "raw_available": true,
+  "raw_evidence": {
+    "format_ast_docstring_equivalence": [
+      "resume-ir-analytics-canonical-format-20261015/format-equivalence.json",
+      "041ecdefebc84ee4173c7d9339d6e7b3b80805618b08ba186886e1a5fb47550a"
+    ],
+    "format_check_output": [
+      "resume-ir-analytics-canonical-format-20261015/ruff-format-check-30.txt",
+      "5a29981aebe12cf610955c0455e62c60bdd53f693ac0d954a67db9c7f9e5042a"
+    ],
+    "independent_review": [
+      "resume-ir-analytics-independent-final-20261015/assessment.md",
+      "8d72b0bbbc71e83a20fe2b42a4b9c87a5868c33bd56b9e2b6a64e2d650fdae4d"
+    ],
+    "mypy_22_output": [
+      "resume-ir-analytics-canonical-format-20261015/mypy-22.txt",
+      "5ca59a2361304496c36048048a43aa6f41eb23e74111d16719b962637888fc08"
+    ],
+    "postformat_source_hashes_and_commands": [
+      "resume-ir-analytics-canonical-format-20261015/final-format-receipt.json",
+      "7476bbd36283d1e65b377c41ab6feb10c2c24280bf2b630b83e10569467ffa8e"
+    ],
+    "pre-fix_callable_count_falsifier_superseded": [
+      "resume-ir-analytics-independent-final-20261015/runtime-boundary-falsifiers.stdout.txt",
+      "9a2ab9a3ad466dc839a4c16d561dbebcc9db951663d76f6eb8231efbd3083426"
+    ],
+    "pre-fix_falsifier_input_index": [
+      "resume-ir-analytics-independent-final-20261015/runtime-boundary-falsifiers.index.json",
+      "369df610c7757e17da6637136b55b5a9817934ef65fbf8bc488766e3e3abff2d"
+    ],
+    "pytest_8_modules_output": [
+      "resume-ir-analytics-canonical-format-20261015/pytest-118.txt",
+      "eede00cf5b8aa8d056e79c20e87acdd06628ae0d60f713f41009fe51b946d970"
+    ],
+    "pytest_junit": [
+      "resume-ir-analytics-canonical-format-20261015/pytest-118.xml",
+      "b8bfeb83c033e9644a0c640c2de6ff2ec1ac748638bfe0076bdd2f12c86906a5"
+    ],
+    "review_run_and_exact_preformat_argv": [
+      "resume-ir-analytics-independent-final-20261015/post-fix-stable-r3.index.json",
+      "a0f1ec822f0c0cdb11443d72643e09506f715399afce13d3064d1d86bd9a34b3"
+    ],
+    "ruff_30_correct_root_context_output": [
+      "resume-ir-analytics-canonical-format-20261015/ruff-repo-workspace-root.full.txt",
+      "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    ],
+    "ruff_correct_root_context_argv_and_comparison": [
+      "resume-ir-analytics-canonical-format-20261015/ruff-context-comparison.json",
+      "5020141e2df89c3a450ffc7235c8affac1854d57b2e6f847f9be00fb5731914d"
+    ],
+    "stable_input_hash_inventory": [
+      "resume-ir-analytics-independent-final-20261015/post-fix-stable-r3.inputs.post.json",
+      "916a7af79119c9c11576adf3389a0561fbee4121a946d40c7254abd45dd98640"
+    ]
+  },
+  "raw_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/",
+  "readback": {
+    "30_paths_match_candidate": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "global_freeze": false,
+    "head": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "shared_worktree_dirty_outside_slice": true,
+    "tree": "91689d6a82c604ee5375dd2d7f8ac7f26db9dc26"
+  },
+  "real_chain": [
+    "Runtime adapter: actual Kuzu materialization/schema/count parity PASS on the exact four-file Linux closure; runtime callable negative controls pass on Mac; Rustworkx compatibility unestablished.",
+    "AttractorAnalysisResult -> existing producer -> schema-qualified CAS -> Phase4 attach/load consumer.",
+    "Source diagnostics -> BacktestOrchestrator._aggregate/TrustScorer -> report and limited persistence/readback.",
+    "Existing Python IR surface only; no new public API/dashboard/audit/publication chain."
+  ],
+  "schema": "policyos.e02.local_handoff.v1",
+  "selected_input_profile_backend": {
+    "env": "local product venv",
+    "inputs": "local fakes/test fixtures/temp CAS; no production authority/custody/currentness/workload facts",
+    "kuzu": "absent; real smoke SKIP",
+    "linux": "UNRUN; parent provisioning in progress",
+    "rustworkx": "absent; fake adapter only",
+    "linux_replay": "PASS14 focused Kuzu tests including actual engine smoke; bounded four-file overlay identity in backend_supplement, not whole-source freeze"
+  },
+  "semantic_controls": [
+    "Callable valid/missing/None/noncallable on both adapters.",
+    "Counts: int/numpy.int64 accepted; bool/2.75/string/negative refused.",
+    "Graph copy/mutation/nodes/edges; source-qualified backtest positive and unbound legacy negative.",
+    "Phase4 artifact is written by canonical schema producer."
+  ],
+  "slice": "ir-analytics-runtime-boundaries-20261015",
+  "slice_base": {
+    "parents": [
+      "85254c789634c671fc8804ad0571c8d9a8cbc0b0"
+    ],
+    "sha": "fa560d6bd59b6a3b2eada1481b84dda844ca83e3",
+    "tree": "c2d55627393bbf5a39b34d1fd2b5827b37c5ed83"
+  },
+  "status": "bounded_implementation_committed_and_reviewed; whole_E02_freeze/G_adjudication_pending",
+  "verification": {
+    "commands": "Stable index contains exact argv for earlier byte-equivalent source; final-format receipt and Ruff comparison bind postformat bytes and command context.",
+    "format": "PASS 30; AST/docstring equality for all, three text-only changes; hashes cited",
+    "mypy": "PASS strict 22; complete output and exact original argv in raw evidence",
+    "review": "bounded independent review, not G; IR-ANALYTICS-01/02/03 are review labels, not original E02 IDs",
+    "ruff": "PASS 30/zero with workspace config from repo root and policy-engine/ prefixes; argv and output cited",
+    "tests": "118 passed/1 skipped/0 failures (119); output/JUnit cited; skip is missing kuzu"
+  },
+  "backend_supplement": {
+    "scope": "Actual four-file committed IR import closure over B61 fcb20a base plus separately identified prior19 Core overlay; not whole30-path/global composition",
+    "source_inputs": {
+      "src/polisyos/ir/_internal/runtime_protocols.py": "b322ae6489a92e99a79bb8840e2bbd958d8555ab0cadea94512f9a870ae60e8f",
+      "src/polisyos/ir/analytics/causal_graph.py": "8952e4f2795c8f15520a11a2e5a5e92194c3588e163b09b5135e47090aaa0362",
+      "src/polisyos/ir/analytics/causal_graph_kuzu.py": "7d4ad225c9504f6bcb9c02b3eb6e28068456379aea2e09198c3a4544b6f450ae",
+      "tests/unit/ir/test_causal_graph_kuzu.py": "3040f97e53294d33224b38eaf09ae6d7cec488445acd00895b925ee86c927afb"
+    },
+    "runtime": {
+      "container": "e02-local-worker-provision",
+      "existing_dependencies": {
+        "numpy": "2.3.5",
+        "pandas": "2.3.3",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2"
+      },
+      "platform": "Linux aarch64, glibc 2.41",
+      "postinstall": {
+        "installed_distributions": 162,
+        "kuzu": "0.11.3",
+        "only_new_package": "kuzu==0.11.3",
+        "uv_pip_check": "pass"
+      },
+      "postinstall_evidence": {
+        "path": "postinstall-check.stdout.txt",
+        "sha256": "badc09339929c024dd91417cc961fe28fcf3bf7e5f802f67630dffe89e701287"
+      },
+      "preinstall": {
+        "installed_distributions": 161,
+        "kuzu": "absent",
+        "uv_pip_check": "pass"
+      },
+      "python": "3.14.0"
+    },
+    "wheel": {
+      "installed_size_approx": "19 MiB package + 48 KiB dist-info",
+      "lock_version": "0.11.3",
+      "platform_recipe": "Locked cp314 manylinux aarch64 wheel matches actual Linux/aarch64/glibc 2.41 runtime. uv.lock lists no CPython 3.14 macOS wheel; use the bounded Linux worker recipe rather than a macOS source build.",
+      "project_optional_extra": "kuzu = ['kuzu>=0.1.0']",
+      "provision_command": "uv pip install --python /scratch/root-venv/bin/python3.14 --no-deps /tmp/kuzu-0.11.3-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl",
+      "selected_locked_wheel": "kuzu-0.11.3-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl",
+      "source_distribution_size_bytes": 19430620,
+      "wheel_metadata_requires": null,
+      "wheel_sha256": "9d2752a9e37adda6aef3bf041932ae3a1cf74ca7e893bbbacdd5e62b3ac6f8c2",
+      "wheel_sha256_matches_uv_lock": true,
+      "wheel_size_bytes": 6795649
+    },
+    "verification": {
+      "focused_module": {
+        "command": "PYTHONPATH=src /scratch/root-venv/bin/python3.14 -m pytest -q tests/unit/ir/test_causal_graph_kuzu.py",
+        "result": "14 passed; no skip/failure (exit 0)",
+        "stdout": {
+          "path": "pytest-kuzu-module.stdout.txt",
+          "sha256": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f"
+        }
+      },
+      "real_backend_smoke": {
+        "command": "PYTHONPATH=src /scratch/root-venv/bin/python3.14 -m pytest -vv -rs tests/unit/ir/test_causal_graph_kuzu.py::test_materialize_causal_kuzu_real_smoke",
+        "result": "1 passed in 0.31s",
+        "stdout": {
+          "path": "real-kuzu-smoke.stdout.txt",
+          "sha256": "79b2d8f4e7659d60cd6c63702d3b476023aa11306844c627373bfc4b1f425fe4"
+        }
+      },
+      "semantic_limit": "Demonstrates actual Kuzu schema application, bulk materialization, and node/edge COUNT parity for the fixture. It does not establish causal validity, provenance, or policy meaning."
+    },
+    "evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-optional-backend-readiness-20261015/readiness.json",
+        "sha256": "96c4823b53ed58aa2f2617264821a50629ab2e6d4d5c2459277afb2d1985c5ca",
+        "bytes": 5315,
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-optional-backend-readiness-20261015/pytest-kuzu-module.stdout.txt",
+        "sha256": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f",
+        "bytes": 80,
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-optional-backend-readiness-20261015/real-kuzu-smoke.stdout.txt",
+        "sha256": "79b2d8f4e7659d60cd6c63702d3b476023aa11306844c627373bfc4b1f425fe4",
+        "bytes": 1131,
+        "availability": "local ignored RAW; complete deciding output retained"
+      }
+    ],
+    "formal_closure_ids": []
+  }
+}

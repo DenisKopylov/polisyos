@@ -1,0 +1,298 @@
+{
+  "P40": {
+    "bounded_residual": null,
+    "bucket": "same UnitSpec.kind runtime/schema escape class; generic base preserves the enum contract and covers all six Literal subtypes",
+    "second_escape_found": false
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "parents": [
+      "6aec787612367840d9808d4dbf3a7878bba37098"
+    ],
+    "sha": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "subject": "fix(ir): preserve generic unit coercion and literal subtype schemas",
+    "tree": "91689d6a82c604ee5375dd2d7f8ac7f26db9dc26"
+  },
+  "changes": [
+    "Makes UnitSpec generic over a constrained UnitKindT defaulted to UnitKind, preserving the bare model enum runtime and schema.",
+    "Specializes the six public concrete unit classes with their corresponding Literal value so each keeps the expected const/default schema and typed discriminator.",
+    "Keeps existing UnitSpecType and UnitsRegistry behavior; no schema/status field or unit semantics are removed."
+  ],
+  "closure_ids": [],
+  "composed_diagnostic": {
+    "G_decision_packet": {
+      "availability": "available in local raw/ or tracked source; referenced, not embedded",
+      "bytes": 24812,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-artifact-ref-mapping-interface.json",
+      "sha256": "a4eb230e7497e7a43f05a271a0b590eed0902eefc91045f80c7ac83c1e225c8e"
+    },
+    "P41": "not_established; no exact slice-base pre-change replay and complete denominator intersection proof was supplied; this is not inherited debt",
+    "diagnostic": "ArtifactRefModel Mapping iteration conflicts with Pydantic BaseModel.__iter__ at refs.py:33",
+    "full_output": {
+      "availability": "available in local raw/ or tracked source; referenced, not embedded",
+      "bytes": 259,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-composed-diagnostic-20261015/mypy.stdout.txt",
+      "sha256": "856a2ba135c72dc37cfbd0ee9ff11f853c208502c9cc91b8e1453ed4a0b98584"
+    },
+    "result": "FAIL on the separate composed 192-file MyPy diagnostic; no full native green claim",
+    "source_path": "policy-engine/src/polisyos/ir/registry/refs.py",
+    "source_sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+  },
+  "current_candidate_readback": {
+    "branch": "codex/e02-unified-local-20261009",
+    "global_source_freeze": false,
+    "head": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "parents": [
+      "6aec787612367840d9808d4dbf3a7878bba37098"
+    ],
+    "shared_worktree_dirty_outside_this_slice": true,
+    "tree": "91689d6a82c604ee5375dd2d7f8ac7f26db9dc26",
+    "two_path_bytes_match_candidate_commit": true
+  },
+  "evidence_policy": {
+    "complete_deciding_outputs": "Cited by local path, SHA-256, byte length, and availability; raw outputs remain local.",
+    "raw_outputs_embedded": false,
+    "source_copies_embedded": false
+  },
+  "footprint": [
+    {
+      "branch_readback_equal": true,
+      "bytes": 3708,
+      "git_blob": "b6cdaf4c59d5e952a2afb4eccd7d89203988516f",
+      "path": "policy-engine/src/polisyos/ir/kernel/units.py",
+      "sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47"
+    },
+    {
+      "branch_readback_equal": true,
+      "bytes": 2315,
+      "git_blob": "f04bec609a0931f72cdad93a8f88ff462bcfee10",
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_units.py",
+      "sha256": "0b9b82892d954a29334d45ee52fd697f2c9a1f77f7f532ea05a88bdbb2749412"
+    }
+  ],
+  "formal_closure_ids": [],
+  "limitations": [
+    "The independent GO is limited to UnitSpec generic runtime/schema and in-repository registry/facade behavior; no whole E02 row is adjudicated.",
+    "The broader 193-file MyPy output is not green: refs.py:33 remains a separate G-bound interface decision; no P41 inherited classification and no full native pass claim."
+  ],
+  "next_check": [
+    "G independently maps this exact committed source/test footprint to the original finding/occurrence criteria and adjudicates any proposal.",
+    "After G selects the separate ArtifactRefModel interface semantics, rerun the complete current IR strict MyPy and required native gates; no current global green claim is available."
+  ],
+  "pattern_pass": {
+    "anti_pattern_found": "A generic UnitSpec base type had to preserve its pre-existing enum runtime/schema while concrete subtypes remained Literal-constrained; treating a typing change as harmless without roundtrip/schema/consumer tests could silently alter public serialization or subtype schemas.",
+    "gate_predicates": "model parsing/schema/dumps and registry resolution are recomputed by runtime tests; external consumer inventory and production authority remain not_established.",
+    "register_ids": [
+      "P01",
+      "P03",
+      "P29",
+      "P30",
+      "P32",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "extend existing UnitSpec/UnitsRegistry and existing kernel facade; verify serialization, schema, all concrete literal discriminators, and a real registry consumer."
+  },
+  "proposal_fields": [
+    {
+      "original_e02_ids": [],
+      "proposal": "After G maps an exact original criterion, consider the generic UnitSpec/base-enum and six concrete Literal schema behavior for that bounded technical property only; keep broader capability and global closure undecided."
+    }
+  ],
+  "read_only_consumer_inputs": [
+    {
+      "branch_readback_equal": true,
+      "bytes": 778,
+      "git_blob": "defe43d23655f9e4e095fd2aa62a6031b942429a",
+      "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+      "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a"
+    },
+    {
+      "branch_readback_equal": true,
+      "bytes": 101433,
+      "git_blob": "d0051c0ff0a81286aa62ed6067c74fce32b4bd1e",
+      "path": "policy-engine/src/polisyos/runtime/quality/derived_observations.py",
+      "sha256": "a2a4f7a16b71a020999fbd201e48d500ae4670d53de04aab6ad0b360f5bba07a"
+    },
+    {
+      "branch_readback_equal": true,
+      "bytes": 6887,
+      "git_blob": "d74fd85b6a78de7af8f7b45c47ddb233e68d2767",
+      "path": "policy-engine/architecture/production_quality/derivation_family_registry.toml",
+      "sha256": "6b013cfc3d3a753940fb9f043208f564543b5ac99e682170bac4b21298497e1b"
+    }
+  ],
+  "real_chain": [
+    {
+      "chain": "raw string/UnitKind input -> UnitSpec.model_validate -> Python/JSON dump and full schema",
+      "consumer": "bare UnitSpec preserves UnitKind.MONEY; Python dump retains enum; JSON dump remains money string; schema equals baseline kind: UnitKind"
+    },
+    {
+      "chain": "six concrete Literal models -> UnitsRegistry -> existing derived-observation registry caller",
+      "consumer": "real UnitsRegistry resolves MoneyUnit/GenericUnit; checked-in derivation family TOML loads, index resolves, unsupported percent_gdp basis remains absent"
+    },
+    {
+      "surface": "runtime polisyos.ir.kernel facade exports UnitKind, UnitSpecType, and UnitsRegistry to the same defining objects; no new external/UI surface"
+    },
+    {
+      "semantic_tests": "actual validation/dump/schema/facade/registry consumer plus invalid-ID/contract and registry behavior tests; not constructor-only"
+    }
+  ],
+  "schema": "policyos.e02.local_handoff.v1",
+  "selected_input_profile_backend": {
+    "environment": "local policy-engine virtual environment with the repository Pydantic model runtime; no production profile or authority input",
+    "external_authority": "none; test establishes model/registry compatibility only",
+    "input": "checked-in derivation_family_registry.toml and local model/registry payloads"
+  },
+  "slice": "ir-generic-unit-compatibility-20261015",
+  "slice_base": {
+    "meaning": "committed parent source state before generic UnitSpec repair",
+    "parents": [
+      "fa560d6bd59b6a3b2eada1481b84dda844ca83e3"
+    ],
+    "sha": "6aec787612367840d9808d4dbf3a7878bba37098",
+    "tree": "d555b04b42f7f945f991ed3dd4c222d064ad01da"
+  },
+  "status": "bounded_implementation_committed_independent_review_go_global_acceptance_pending",
+  "verification": {
+    "behavioral_probe": {
+      "claims": "raw-string and enum input; full baseline schema equality; six Literal subtype defaults; actual registry member types; public kernel API identity",
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 239,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/runtime-probe.txt",
+        "sha256": "7477f81ef6744291d65d058cb469e5938c5da18f5b2aa9a6f568672504ecabbb"
+      },
+      "script": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 2703,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/runtime_probe.py",
+        "sha256": "6caa2783ad15e33c37788a2ceae22bf5b79e14b78aa9e982062cefc3e061d1b9"
+      }
+    },
+    "command_provenance": "Exact post-format root pytest argv/cwd/exit/wall time and source before/after hashes retained; earlier independent MyPy/format commands remain qualified by original reports.",
+    "diff_check": {
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 12,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/diff-check-final.txt",
+        "sha256": "1ca4a13146b2891c0e462123ac0cb848f92e6221f18b870a1b78c232d1956c35"
+      },
+      "result": "PASS"
+    },
+    "focused_tests": {
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 2732,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/pytest-20.txt",
+        "sha256": "068a5e7d205487d952d24f7c1bbfd34f80d14b34b9175238f1ccc96dbdfc0797"
+      },
+      "postformat_test_rerun": {
+        "command": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-q",
+          "tests/unit/ir/mirror_contracts/test_units.py",
+          "tests/contract/test_kernel_models.py",
+          "tests/unit/ir/test_phase2_passes.py",
+          "tests/unit/ir/test_registry_fragments.py",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-units-postformat-root-20261015/junit.xml"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "wall_seconds": 20.39210179192014,
+        "exit_code": 0,
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-units-postformat-root-20261015/result.json",
+          "sha256": "f3ada972891e448da2092210f29dd7ab6bea199b1270b5acb87520174be894b3",
+          "bytes": 1852,
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-units-postformat-root-20261015/stdout.txt",
+          "sha256": "165d2e8f91205b725ec8992a487099e7028472bd6d87c7bc85a82bdbd6fa7f51",
+          "bytes": 100,
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-units-postformat-root-20261015/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-units-postformat-root-20261015/junit.xml",
+          "sha256": "e7df5fb1116d93546fde1da14b4725d02177c36d326a831520b11a52e91ca583",
+          "bytes": 2865,
+          "availability": "local ignored RAW; complete deciding output retained"
+        }
+      },
+      "result": "20 PASS after final canonical formatting, exact source/test hashes stable",
+      "test_files": [
+        "tests/unit/ir/mirror_contracts/test_units.py",
+        "tests/contract/test_kernel_models.py",
+        "tests/unit/ir/test_phase2_passes.py",
+        "tests/unit/ir/test_registry_fragments.py"
+      ]
+    },
+    "independent_review": {
+      "machine_readable_review": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 2833,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/review.json",
+        "sha256": "11d72e1cbb8571c457710ea37097817592df04e116ba3002dbd392b2c77b15a0"
+      },
+      "report": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 4449,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/review.md",
+        "sha256": "465be3dfea7ace92394ac2121771f67c91846a11f1bc4f10e2c8fd16d15a0824"
+      },
+      "review_source_base": "85254c789634c671fc8804ad0571c8d9a8cbc0b0",
+      "review_source_sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47",
+      "review_test_ast_equal_to_final": true,
+      "review_test_preformat_sha256": "baaac91065af1e70406e0f18b784802c4a46b604c31846f75bbb0c509e86a819",
+      "verdict": "GO for the UnitSpec slice only"
+    },
+    "ruff_check": {
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 32,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/ruff-check-final.txt",
+        "sha256": "51b647c5a6e3ee36024c1c39603f285eb31f4ebb3d3d87d8f96ac5732c43b112"
+      },
+      "result": "PASS on units.py and test_units.py"
+    },
+    "ruff_format": {
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 39,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/ruff-format-final.txt",
+        "sha256": "8fb30ade9af1c5b072255fdca3e0c8e21c45d20a20ca207fbca530ea9b5fdc4a"
+      },
+      "exact_root_format_receipt": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 1316,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-units-root-format-20261015/result.json",
+        "sha256": "414b9d18d647bd206a3d5302f520e3cbf655dc461a7aa05f0c8f0e73a2cf8e0f"
+      },
+      "result": "PASS; two files already formatted",
+      "source_and_test_AST_equal": true
+    },
+    "strict_mypy": {
+      "complete_output": {
+        "availability": "available in local raw/ or tracked source; referenced, not embedded",
+        "bytes": 55,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-generic-units-independent-20261015/mypy-units.txt",
+        "sha256": "c521c2435dddb6e4cf2c0fc54c24a8c1b74629064bbe0045d869d4c5ed986db0"
+      },
+      "result": "PASS, no issues in src/polisyos/ir/kernel/units.py"
+    }
+  }
+}

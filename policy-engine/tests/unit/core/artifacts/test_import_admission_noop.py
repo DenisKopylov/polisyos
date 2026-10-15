@@ -339,6 +339,180 @@ def test_import_keeps_its_actual_artifact_lease_through_staging_and_publication(
     assert reopened.get_bytes(competing_ref) == PAYLOAD
 
 
+@pytest.mark.parametrize("pause_at", ["staging", "publication"])
+@pytest.mark.parametrize("package_format", ["directory", "tar"])
+def test_import_lease_rejects_same_blob_competing_selected_view(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    pause_at: str,
+    package_format: str,
+    record_property: Any,
+) -> None:
+    """A competing manifest profile waits through import staging and publication."""
+    tenant_id = "tenant-b148"
+
+    def options(owner: str) -> PutOptions:
+        return PutOptions(
+            kind=f"tests.b148.owner-{owner}",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(name=f"tests.b148.owner-{owner}", version="1"),
+            producer=ProducerInfo(component=f"tests.b148.owner-{owner}", version="1"),
+            tenant_context=ArtifactTenantContextInfo(tenant_id=tenant_id),
+        )
+
+    source_a = FileSystemCAS(tmp_path / "source-a", tenant_id=tenant_id)
+    ref_a = source_a.put_bytes(PAYLOAD, options("a"), return_selected_profile=True)
+    source_b = FileSystemCAS(tmp_path / "source-b", tenant_id=tenant_id)
+    ref_b = source_b.put_bytes(PAYLOAD, options("b"), return_selected_profile=True)
+    assert ref_a.artifact_id == ref_b.artifact_id
+    assert ref_a.manifest_profile_sha256 is not None
+    assert ref_b.manifest_profile_sha256 is not None
+    assert ref_a.manifest_profile_sha256 != ref_b.manifest_profile_sha256
+    assert ref_a.kind != ref_b.kind
+    assert source_a.get_bytes(ref_a) == source_b.get_bytes(ref_b) == PAYLOAD
+    manifest_a = source_a.get_manifest_bytes(ref_a)
+    manifest_b = source_b.get_manifest_bytes(ref_b)
+    assert manifest_a != manifest_b
+    record_property("b148_pause_at", pause_at)
+    record_property("b148_package_format", package_format)
+    record_property("b148_backend", "FileSystemCAS")
+    record_property("b148_tenant_id", tenant_id)
+    record_property("b148_payload_sha256", ref_a.artifact_id.hex)
+    record_property("b148_source_a_selected_ref", ref_a.model_dump_json())
+    record_property("b148_source_b_selected_ref", ref_b.model_dump_json())
+    record_property("b148_source_a_manifest_sha256", hashlib.sha256(manifest_a).hexdigest())
+    record_property("b148_source_b_manifest_sha256", hashlib.sha256(manifest_b).hexdigest())
+
+    compress = package_format == "tar"
+    package_a = source_a.export_subgraph([ref_a], tmp_path / "package-a", compress=compress)
+    package_b = source_b.export_subgraph([ref_b], tmp_path / "package-b", compress=compress)
+    target_root = tmp_path / "target"
+    target = FileSystemCAS(target_root, tenant_id=tenant_id)
+
+    first_stage_entered = threading.Event()
+    first_publication_entered = threading.Event()
+    release_first = threading.Event()
+    competing_admission_attempted = threading.Event()
+    competing_admission_acquired = threading.Event()
+    competing_stage_entered = threading.Event()
+    competing_done = threading.Event()
+    first_snapshot: dict[str, dict[str, bytes]] = {}
+    stage_threads: list[str] = []
+    stage_threads_lock = threading.Lock()
+
+    def durable_snapshot() -> dict[str, bytes]:
+        return {
+            str(path.relative_to(target_root)): path.read_bytes()
+            for path in target_root.rglob("*")
+            if path.is_file()
+            and not path.name.endswith(".lock")
+            and not any(
+                part.startswith(".cas-import-") for part in path.relative_to(target_root).parts
+            )
+        }
+
+    current_admit = target._admit_import_members
+
+    @contextmanager
+    def observe_admission(members: dict[str, Any]) -> Any:
+        is_competitor = threading.current_thread().name.startswith("b148-competitor")
+        if is_competitor:
+            competing_admission_attempted.set()
+        with current_admit(members) as admission:
+            if is_competitor:
+                competing_admission_acquired.set()
+            yield admission
+
+    monkeypatch.setattr(target, "_admit_import_members", observe_admission)
+
+    make_stage = store_module.tempfile.mkdtemp
+
+    def observe_stage(*args: Any, **kwargs: Any) -> str:
+        path = make_stage(*args, **kwargs)
+        if not str(kwargs.get("prefix", "")).startswith(".cas-import"):
+            return path
+        thread_name = threading.current_thread().name
+        with stage_threads_lock:
+            stage_threads.append(thread_name)
+        if thread_name.startswith("b148-competitor"):
+            competing_stage_entered.set()
+        elif thread_name.startswith("b148-first"):
+            first_stage_entered.set()
+            if pause_at == "staging":
+                assert release_first.wait(10)
+        return path
+
+    monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
+
+    publish_staged = target._publish_staged_import
+
+    def observe_publication(staging_root: Path, members: set[str], artifact_refs: set[str]) -> Any:
+        is_first = threading.current_thread().name.startswith("b148-first")
+        if is_first:
+            first_publication_entered.set()
+            if pause_at == "publication":
+                assert release_first.wait(10)
+        result = publish_staged(staging_root, members, artifact_refs)
+        if is_first:
+            first_snapshot["value"] = durable_snapshot()
+        return result
+
+    monkeypatch.setattr(target, "_publish_staged_import", observe_publication)
+
+    def import_competitor() -> Any:
+        try:
+            return target.import_subgraph(package_b.output_path, verify_integrity=True)
+        finally:
+            competing_done.set()
+
+    with (
+        ThreadPoolExecutor(max_workers=1, thread_name_prefix="b148-first") as first_pool,
+        ThreadPoolExecutor(max_workers=1, thread_name_prefix="b148-competitor") as competitor_pool,
+    ):
+        first_import = first_pool.submit(
+            target.import_subgraph, package_a.output_path, verify_integrity=True
+        )
+        first_pause = first_stage_entered if pause_at == "staging" else first_publication_entered
+        competing_import: Any | None = None
+        try:
+            assert first_pause.wait(10), "first import did not reach the requested lease boundary"
+            competing_import = competitor_pool.submit(import_competitor)
+            assert competing_admission_attempted.wait(10), (
+                "competing import did not reach its actual admission boundary"
+            )
+            admitted_before_release = competing_admission_acquired.wait(0.2)
+            staged_before_release = competing_stage_entered.wait(0.2)
+            completed_before_release = competing_done.wait(0.2)
+        finally:
+            release_first.set()
+
+        try:
+            first_result = first_import.result(timeout=20)
+        except Exception as exc:
+            first_result = exc
+        try:
+            competing_result = competing_import.result(timeout=20) if competing_import else None
+        except Exception as exc:
+            competing_result = exc
+
+    assert not (admitted_before_release or staged_before_release or completed_before_release), (
+        "competing selected view crossed the held import lease: "
+        f"admitted={admitted_before_release}, staged={staged_before_release}, "
+        f"completed={completed_before_release}"
+    )
+    assert isinstance(competing_result, ArtifactOwnershipError)
+    assert "exact view is not owned" in str(competing_result)
+    assert isinstance(first_result, transfer.ImportReport)
+    assert first_result.published_refs == (ref_a,)
+    assert first_snapshot["value"] == durable_snapshot()
+    assert not any(name.startswith("b148-competitor") for name in stage_threads)
+
+    assert target.get_bytes(ref_a) == PAYLOAD
+    assert target.get_manifest_bytes(ref_a) == source_a.get_manifest_bytes(ref_a)
+    assert target.get_manifest(ref_a).kind == ref_a.kind
+    assert target.verify(ref_a).ok
+
+
 def test_mixed_package_stages_only_unclaimed_artifact_members(tmp_path: Path) -> None:
     target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-a")
     existing = target.put_bytes(PAYLOAD, _options("tenant-a"))

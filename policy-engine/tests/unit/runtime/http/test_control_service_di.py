@@ -4213,7 +4213,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         EmpiricalCalibrationEvidenceRef,
         load_empirical_calibration_evidence,
     )
-    from polisyos.core.artifacts import PutOptions
+    from polisyos.core.artifacts import (
+        PutOptions,
+        artifact_manifest_profile_sha256,
+    )
     from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
     from polisyos.core.contracts.runtime import RunCandidateSimulationProjection
     from polisyos.core.security.tenant_context import tenant_scope
@@ -4229,9 +4232,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
 
     def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
-        ir_store = _ensure_ir_artifact_store(store)
-        report_ref = BacktestReportRef.model_validate(stored_association["backtest_report_ref"])
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            ir_store = _ensure_ir_artifact_store(store)
+            report_ref = BacktestReportRef.model_validate(stored_association["backtest_report_ref"])
             report = load_backtest_report(ir_store, report_ref)
             evidence = load_empirical_calibration_evidence(
                 ir_store,
@@ -4239,48 +4242,70 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                     stored_association["empirical_evidence_ref"]
                 ),
             )
-        reopened_association = PredictiveCalibrationAssociation.model_validate(stored_association)
-        assert reopened_association.evidence_reason_codes == evidence.failure_codes
-
-        assert len("run-bound candidate report ") + len(report.report_id) > 120
-        assert evidence.evidence_origin == "run-bound candidate report"
-        assert evidence.report_id == report.report_id
-        assert evidence.report_ref == report_ref
-        assert (
-            evidence.report_ref.model_dump(mode="json") == stored_association["backtest_report_ref"]
-        )
-        assert evidence.report_ref.manifest_profile_sha256 is not None
-        assert report.metadata["run_binding"]["run_id"] == core_run_id
-        assert report.metadata["run_binding"]["intent_id"] == stored_association["intent_id"]
-
-        role_refs = (
-            ("scope_binding", evidence.scope_binding_ref),
-            ("calibration_threshold", evidence.calibration_threshold_ref),
-            ("observed_outcome", evidence.observed_outcome_ref),
-            ("prediction", evidence.prediction_ref),
-            ("evaluation_design", evidence.evaluation_design_ref),
-            ("credible_evaluation", evidence.credible_evaluation_evidence_ref),
-            *(("source_lineage", ref) for ref in evidence.source_lineage_refs),
-            *(("method_lineage", ref) for ref in evidence.method_lineage_refs),
-        )
-        parent_manifest = ir_store.get_manifest(report_ref)
-        for role, source_roles in REFERENCE_SOURCE_INPUT_ROLES.items():
-            selected_refs = [ref for candidate_role, ref in role_refs if candidate_role == role]
-            assert len(selected_refs) == 1
-            role_ref = selected_refs[0]
-            assert role_ref is not None
-            role_manifest = ir_store.get_manifest(role_ref)
-            actual_edges = tuple(
-                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-                for item in role_manifest.inputs
+            reopened_association = PredictiveCalibrationAssociation.model_validate(
+                stored_association
             )
-            expected_edges = tuple(
-                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-                for item in parent_manifest.inputs
-                if item.role in source_roles
+            assert reopened_association.evidence_reason_codes == evidence.failure_codes
+
+            assert len("run-bound candidate report ") + len(report.report_id) > 120
+            assert evidence.evidence_origin == "run-bound candidate report"
+            assert evidence.report_id == report.report_id
+            assert evidence.report_ref == report_ref
+            assert (
+                evidence.report_ref.model_dump(mode="json")
+                == stored_association["backtest_report_ref"]
             )
-            assert len(expected_edges) == len(source_roles)
-            assert sorted(actual_edges) == sorted(expected_edges)
+            assert evidence.report_ref.manifest_profile_sha256 is not None
+            assert report.metadata["run_binding"]["run_id"] == core_run_id
+            assert report.metadata["run_binding"]["intent_id"] == stored_association["intent_id"]
+
+            role_refs = (
+                ("scope_binding", evidence.scope_binding_ref),
+                ("calibration_threshold", evidence.calibration_threshold_ref),
+                ("observed_outcome", evidence.observed_outcome_ref),
+                ("prediction", evidence.prediction_ref),
+                ("evaluation_design", evidence.evaluation_design_ref),
+                ("credible_evaluation", evidence.credible_evaluation_evidence_ref),
+                *(("source_lineage", ref) for ref in evidence.source_lineage_refs),
+                *(("method_lineage", ref) for ref in evidence.method_lineage_refs),
+            )
+            parent_manifest = ir_store.get_manifest(report_ref)
+            for role, source_roles in REFERENCE_SOURCE_INPUT_ROLES.items():
+                selected_refs = [ref for candidate_role, ref in role_refs if candidate_role == role]
+                assert len(selected_refs) == 1
+                role_ref = selected_refs[0]
+                assert role_ref is not None
+                assert role_ref.manifest_profile_sha256 is not None
+                role_manifest = ir_store.get_manifest_by_profile(
+                    role_ref.artifact_id, role_ref.manifest_profile_sha256
+                )
+                selected_role_identity = ArtifactRef(
+                    artifact_id=ArtifactID.model_validate(str(role_ref.artifact_id)),
+                    kind=role_ref.kind,
+                    media_type=role_ref.media_type,
+                    manifest_profile_sha256=role_ref.manifest_profile_sha256,
+                )
+                resolved_role_identity = ArtifactRef(
+                    artifact_id=role_manifest.artifact_id,
+                    kind=role_manifest.kind,
+                    media_type=role_manifest.media_type,
+                    manifest_profile_sha256=artifact_manifest_profile_sha256(role_manifest),
+                )
+                assert resolved_role_identity == selected_role_identity
+                assert role_manifest.artifact_schema == SchemaInfo(
+                    name=role_ref.schema_name, version=role_ref.schema_version
+                )
+                actual_edges = tuple(
+                    (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+                    for item in role_manifest.inputs
+                )
+                expected_edges = tuple(
+                    (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+                    for item in parent_manifest.inputs
+                    if item.role in source_roles
+                )
+                assert len(expected_edges) == len(source_roles)
+                assert sorted(actual_edges) == sorted(expected_edges)
 
     captured_inputs: list[ArtifactRef] = []
 

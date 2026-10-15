@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "ir-type-dependencies-20261015",
+  "status": "locked_recipe_verified; full_IR_gate_not_closed",
+  "slice_base": {
+    "sha": "a1aaa82387ff315ebed2ec9a96567f7b19ab058b",
+    "tree": "c5d97b24c86197591efc5c265d5b2ee8b36108ca",
+    "parents": [
+      "ecfb39795d5e12e7323784807ec8e65a1f754d60"
+    ]
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "20e9499d7861904b20c27a362e9fc899ba3ecf80",
+    "tree": "6856bb1828eb43e461ce63097984ec9460efaa90",
+    "parents": [
+      "a1aaa82387ff315ebed2ec9a96567f7b19ab058b"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "141d426c3b20fef0d5bca3a1b12b5ab64ea28198",
+      "sha256": "14b2378feb0a5bc02798e62db2198162d98df4d0f4213c8ed50d6f41623d075a",
+      "bytes": 11146,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "git_blob": "fe546f91f1d30676e7609cee113e744ddec5fba3",
+      "sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+      "bytes": 788441,
+      "branch_readback_equal": true
+    }
+  ],
+  "dependency_delta": {
+    "added": {
+      "pandas-stubs": "2.3.3.260113",
+      "types-networkx": "3.6.1.20261006",
+      "types-pytz": "2026.5.0.20261006",
+      "types-pyyaml": "6.0.12.20260906"
+    },
+    "removed": {},
+    "existing_version_changes": {}
+  },
+  "property_and_chain": "lint extra declarations -> uv locked wheels/hashes -> installed only typed stubs with --no-deps --require-hashes -> actual MyPy imports; scientific runtime versions preserved",
+  "selected_profile_backend": "OWN Python3.14.3, pandas2.3.3, networkx3.6.1, PyYAML; no production inputs",
+  "verification": {
+    "uv_lock_check": "PASS",
+    "uv_pip_check": "PASS",
+    "package_install": "PASS only hash-locked stub packages; no runtime reinstall",
+    "commands": [
+      {
+        "name": "install",
+        "argv": [
+          "uv",
+          "pip",
+          "install",
+          "--python",
+          ".venv/bin/python",
+          "--no-deps",
+          "--require-hashes",
+          "-r",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/stubs.requirements.txt"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.2989046659786254
+      },
+      {
+        "name": "lock-check",
+        "argv": [
+          "uv",
+          "lock",
+          "--check"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.041121791931800544
+      },
+      {
+        "name": "pip-check",
+        "argv": [
+          "uv",
+          "pip",
+          "check",
+          "--python",
+          ".venv/bin/python"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.12912825006060302
+      }
+    ],
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/commands.json",
+        "sha256": "ffa9632295facace190d1a43e4f7c516a4b10a40c389e9f8116ba1eff34c257d",
+        "bytes": 838,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/install.stderr.txt",
+        "sha256": "850301e4c4a2345ea9ff6c3eb40d878ca77ad4377cf384620b2b002fd088606a",
+        "bytes": 151,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/install.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/lock-check.stderr.txt",
+        "sha256": "ffc6d177a5df3ae2b7c5c0b9fb2a75be2987bf78966bc36607eb0c20c9f384fe",
+        "bytes": 29,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/lock-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/pip-check.stderr.txt",
+        "sha256": "f7a3374f23c7c20cab703d37afc7a654fa8ba54b55e5a232091f5d68fe8d52f4",
+        "bytes": 66,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/pip-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-type-dependencies-20261015/stubs.requirements.txt",
+        "sha256": "b2ed53799171b781621441fc4c8847c96a3e39601ce8c492a14002c6bc760bf4",
+        "bytes": 219,
+        "availability": "local ignored RAW"
+      }
+    ]
+  },
+  "limitations": [
+    "Typing dependencies remove import-stub diagnostics; they do not prove scientific capability or full IR gate.",
+    "Rustworkx optional export has no locked recipe yet and remains separately investigated."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_acceptance": false,
+    "author_proposals": []
+  },
+  "next_check": "Composed unsuppressed IR gate after independently reviewed source freeze."
+}

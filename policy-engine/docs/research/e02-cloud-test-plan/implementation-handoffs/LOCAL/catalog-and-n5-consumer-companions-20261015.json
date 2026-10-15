@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "catalog-and-n5-consumer-companions-20261015",
+  "status": "implemented_bounded_consumer_verification; final_composition_not_frozen",
+  "slice_base": {
+    "sha": "20e9499d7861904b20c27a362e9fc899ba3ecf80",
+    "tree": "6856bb1828eb43e461ce63097984ec9460efaa90",
+    "parents": [
+      "a1aaa82387ff315ebed2ec9a96567f7b19ab058b"
+    ]
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "b3e9a2c03c58c3eb9bf073f9d65f0b28e66ad608",
+    "tree": "75094b6b12edcd6167fd5acbb29d1772c3335e5a",
+    "parents": [
+      "20e9499d7861904b20c27a362e9fc899ba3ecf80"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "git_blob": "aca00546bb3d1ae4e9c7d0a90b8fbc6ff3b66402",
+      "sha256": "e349bff38d4c8e946d4aaf5759fe5286d2e60e43f09faae166a6918c916feabe",
+      "bytes": 60481,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "git_blob": "a7084e6396ede62b72608422b16006ce739e087b",
+      "sha256": "12ed6ca982596c22399fbd2f9020ea39e70096dc0b0aa1d3ba084f828e2421a2",
+      "bytes": 33358,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "git_blob": "c5c161537d305d81ed7134cf194aa6a4ec245885",
+      "sha256": "52d17dc9fc0af53e61aff1427ff9781c6c0c31d464c7620cd351156ce4d0dc52",
+      "bytes": 245376,
+      "branch_readback_equal": true
+    }
+  ],
+  "property_and_chain": [
+    "canonical SKG source -> public lazy read_api.catalog export -> actual catalog consumers",
+    "controlled real catalog builder -> actual publish receipt with canonical profile input coverage -> warm and fresh RetrievalService -> changed same-id source registry invalidates receipt/refuses until republished",
+    "actual CAN artifact bytes -> canonical decoder -> N5 lineage/history validation -> fresh run-details GET test; missing body retains explicit typed limitation, residual sampling removal distinguishes missing-summary vs missing-basis refusal"
+  ],
+  "selected_input_profile_backend": {
+    "backend": "OWN Python3.14.3, real local DuckDB/CAS/FastAPI tests",
+    "profile": "controlled prod_core_blocking fixture_profile with known no headers; canonical resolver coverage established",
+    "authentic_production_currentness": "not_established; this is a controlled source-owned witness"
+  },
+  "verification": {
+    "DFK_and_read_api": "53 PASS",
+    "N5_control_service_di": "63 PASS module;3 focused controls PASS",
+    "ruff": "PASS",
+    "diff_check": "PASS",
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-dfk-facade-20261015/finding.json",
+        "sha256": "af8d7394138663996b1cbee0109258b9ccf8e574041911990f13b18fe80bd452",
+        "bytes": 18424,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-dfk-facade-20261015/pytest-dfk-and-read-api.txt",
+        "sha256": "3bf5ea7c2adce2a8def4d6995c21f699dd10c4eed53d65d3beca9cf0b2731e93",
+        "bytes": 80,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-dfk-facade-20261015/pytest-dfk-read-api-final-command.json",
+        "sha256": "2a261f52f022e2120d0dc15890cb6a7ea2cba8d511a54aa732eb01251170362e",
+        "bytes": 205,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-dfk-facade-20261015/pytest-dfk-read-api-final.txt",
+        "sha256": "3bf5ea7c2adce2a8def4d6995c21f699dd10c4eed53d65d3beca9cf0b2731e93",
+        "bytes": 80,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-dfk-facade-20261015/repair-verification.json",
+        "sha256": "325f8586af2ce2acf6cd805ed35b4aa0ffd73ef6f1aaf339cf4974b3ba23150e",
+        "bytes": 2750,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/diagnosis.md",
+        "sha256": "aedc16eacd79ad2dbec56761e282ff90d8f108f6bccc55cabd84f794efeb562e",
+        "bytes": 5837,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/module-r1/command.txt",
+        "sha256": "e309afb82251cbfa0adca0a6b41164d80532d3833f40396a0a7bd124ce9373cc",
+        "bytes": 148,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/module-r1/result.txt",
+        "sha256": "94dac7c5f2328130ac7d0c146aa7e35f1a22e3653a52a9a17f15575249261368",
+        "bytes": 64,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/module-r1/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/module-r1/stdout.txt",
+        "sha256": "507d77e3e83bdcc66a98625ec565f463f4d62602e7f16c1db78bc2cffc6d9715",
+        "bytes": 9611,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/selected-three-r1/command.txt",
+        "sha256": "63cb4044454ebc1ec694a8f8f984c7a00611dd5a6e41d94c77e18e31ca504e8e",
+        "bytes": 470,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/selected-three-r1/result.txt",
+        "sha256": "d6f1f782ead4a711640e1bc82bb12d4f8e8f47c3d8d94717cbb0aa5fa9b68c03",
+        "bytes": 64,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/selected-three-r1/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-n5-companions-20261015/selected-three-r1/stdout.txt",
+        "sha256": "134645ee53a0e416be64d958eca568858362acb41f365c43a8dc162e6e78743b",
+        "bytes": 1583,
+        "availability": "local ignored RAW"
+      }
+    ]
+  },
+  "adversarial_removal_controls": [
+    "source policy change invalidates receipt for both warm/fresh readers",
+    "malformed supplied registry raises ValueError instead of absence/default",
+    "separate one-sided residual summary and whole-basis removal refuse with exact typed reasons",
+    "fresh historical lineage removal reports candidate_simulation_cycle_binding_incomplete"
+  ],
+  "limitations": [
+    "Generated public surface inventory/docs regeneration still required for the composed source.",
+    "Actual served N4/N5 ordinaryPOST, later independent sibling failure, browser, and full C05 composition are separate pending work.",
+    "No full-property finding closure from these fixture companions."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_acceptance": false,
+    "author_proposals": []
+  },
+  "next_check": "Freeze canonical producers/profile/DTO/receiver then composed C05 and V1/V2/V6 consumers."
+}

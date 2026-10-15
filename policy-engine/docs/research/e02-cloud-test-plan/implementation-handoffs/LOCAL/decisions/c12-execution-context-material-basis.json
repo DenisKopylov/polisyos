@@ -1,0 +1,232 @@
+{
+  "alternatives": [
+    {
+      "action": "Reuse the current v2 rule unchanged and make producer/consumer launch contexts canonical byte-for-byte, including script-entrypoint and PYTHONPATH spellings.",
+      "benefit": "No new mechanism or generation schema; strict fail-closed response; the same-context actual HTTP producer/reader compatibility has now passed.",
+      "cost_and_migration": "A harmless entrypoint path change invalidates vector use and forces typed text fallback even when all selected modules, source, model and encoder bytes are unchanged. Every deployment and job must share an identical canonical path list. No schema migration, but path coordination is operationally load-bearing.",
+      "id": "A_REUSE_V2_FULL_SYS_PATH",
+      "risk": "Conservatism protects against path changes but does not hash the contents of every existing sys.path directory or prove all lazy import resolution.",
+      "status_authority_time": "No external authority or time claim is introduced. Runtime identity remains a candidate executable-material predicate only."
+    },
+    {
+      "action": "Extend the existing owner to a versioned v3 material basis. Reuse _SOURCE_FILES, the recursive installed distribution file closure, nine-file model manifest/member hashes, actual loaded asset identity and actual encoder fingerprint. Replace literal whole-sys.path equality with a typed selected-module resolution witness: actual loaded origin and bytes, distribution/file ownership where available, and a first-effective-resolution check for the model/encoder/required runtime modules. Bind interpreter/ABI and relevant import controls. Keep fail-closed for missing files, non-file loaders, ambiguous namespace packages, unsupported meta_path finders, or unverifiable first-hit resolution.",
+      "benefit": "Different launcher/script directories can share one basis only when they resolve the exact same selected code/material; real selected shadows still change origin/content or fail resolution proof.",
+      "cost_and_migration": "New typed module/provenance schema and adversarial importer tests are required. The current v2 generation cannot be silently reinterpreted as v3: either retain an explicit v2 reader with exact-path semantics or regenerate/reissue selected generations under v3. Consumer/API intent DTO shape can remain unchanged; only rule identity and source-owned material owner change.",
+      "id": "B_EXTEND_TO_TYPED_SELECTED_EFFECTIVE_BASIS",
+      "risk": "A naive omission of sys.path is unsafe: it could miss imports from an unbound path. Resolution evidence must be generic enough to cover the modules used by actual encoder/model code; unsupported dynamics must refuse.",
+      "status_authority_time": "Still internal technical material identity. It cannot certify package provenance beyond the recorded local distribution bytes, production currentness, legal truth, issuer authority or custody."
+    },
+    {
+      "action": "No standalone consolidation is required now: current runtime digest, source digest, encoder fingerprint, model digest and final binding are already centralized in one source-owned owner and lease.",
+      "benefit": "Avoids duplicate material ledgers or parallel cache identities.",
+      "cost_and_migration": "If B is chosen, add its selected resolution proof to that same owner/binding rather than a second independent authority object.",
+      "id": "C_CONSOLIDATE_EXISTING_COMPONENTS",
+      "status_authority_time": "No change."
+    },
+    {
+      "action": "If importlib/metadata cannot produce a generic, behaviorally verified first-hit proof within the existing owner, build only a small typed import-resolution component and let the existing Legal owner compose it.",
+      "benefit": "Creates a dedicated owner for import provenance only when existing primitives cannot express the needed proof.",
+      "cost_and_migration": "Additional component, tests and rule-version migration; avoid a new general runtime registry or broad architecture unless a concrete unsupported import case requires it.",
+      "id": "D_BUILD_NEW_RESOLVER_ONLY_IF_REQUIRED",
+      "status_authority_time": "No change."
+    }
+  ],
+  "author_recommendation": "Keep current v2 execution and artifact semantics unchanged while G records the equality choice. A is a defensible conservative contract only if canonical producer/consumer launch profiles are operationally acceptable. B remains conditional on cross-entrypoint portability being a product requirement and G accepting the broader source-bound import-resolution falsifiers. Do not locally weaken v2 before that choice.",
+  "candidate_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d6b83342ad81362cb36afbcc23cd7407b0711c0f",
+    "parents": [
+      "ae86a04c44b4594944171952e03d0b07cd14dc08"
+    ],
+    "scope_note": "Shared dirty candidate; all product edits shown in this status belong to concurrent root work. This C12 author added only raw evidence plus this decision packet; no C12 product file changed.",
+    "tree": "793cc3ea791df5f80022e916918d0792987fb54f",
+    "worktree_status": "dirty shared candidate; concurrent root changes remain; exact C12 source hashes were unchanged through the C12 replay."
+  },
+  "current_contract_and_code": {
+    "defining_source": "policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+    "existing_owner_and_api": "LegalRuntimeMaterialOwner, LegalRuntimeMaterialHandle, LegalQueryEncoderProvider, generation selection/member reader, GET /api/v1/control/lex/search-profile and POST /api/v1/control/lex/search; all were invoked through current source APIs.",
+    "material_components": {
+      "composition_and_lease": "_binding_digest composes model files, loaded asset identity, runtime digest, source digest, encode fingerprint and settings; LegalRuntimeMaterialHandle recomputes live model/runtime/source/encode basis before and after a checked encode lease.",
+      "encoder": "_encode_method_fingerprint hashes the actual bound SentenceTransformer.encode code object and its module/name/defaults; not a caller label or callable self-attestation.",
+      "model": "_model_file_inventory resolves and hashes the nine named files in the pinned revision and manifest; _binding_digest also binds the owner-derived loaded asset identity.",
+      "python_and_installed_runtime": "_installed_runtime_digest recursively resolves the locked root distributions and dependency files, then embeds _python_execution_profile: interpreter/version/flags, prefixes, site/sysconfig paths, every literal+resolved sys.path entry, and actual origin/content hashes for _RUNTIME_PROFILE_MODULES.",
+      "source": "_source_closure_digest hashes the current eight _SOURCE_FILES that define producer projection, generation, façade, store and search behavior."
+    },
+    "pattern_pass": {
+      "acceptance_signal": "Same selected generation succeeds across harmless entrypoint-path differences; a real module-origin/content shadow is refused with a typed code before vector/HNSW use; missing or ambiguous resolution remains not_established.",
+      "capability_labels": "Producer, persisted generations, GET/profile bridge, fresh HTTP consumer, and typed fallback exist in this controlled slice. External production currentness/authority is out of scope and not established.",
+      "existing_risk": "P38: a property about material equality is gated by the full sys.path spelling, which can differ while the effective selected model/runtime bytes remain equal. Dropping sys.path wholesale would create a shadow-import blind spot.",
+      "relevant_patterns": [
+        "P01",
+        "P02",
+        "P05",
+        "P32",
+        "P37",
+        "P38",
+        "P40"
+      ],
+      "target_pattern": "Keep one source-owned typed basis; either explicitly require canonical identical process path profiles or derive a selected effective import-resolution/material basis with fail-closed shadow controls."
+    },
+    "rule_version": "legal.runtime_material.v2"
+  },
+  "decision_question": {
+    "affected_original_findings": [
+      "LA-040"
+    ],
+    "boundary": "Internal material identity used by the Legal generation producer/reader. This does not adjudicate Catalog or other I4 rows, legal truth, external authority, custody, or production currentness.",
+    "criterion": "I4 / C12 actual selected Legal generation → immutable GET intent → fresh HTTP reader, with wrong or missing profile refusing.",
+    "question": "Should a generation bind the entire literal sys.path (including script entrypoint directories), or bind a typed, selected effective import/material basis that proves actual origins and bytes while refusing real shadow resolution?"
+  },
+  "original_finding_binding": {
+    "LA-040": {
+      "c12_overlap": "The current runtime binding supplies one executable-material/profile subcomponent of the Legal producer/reader basis. This proposal does not test incremental reuse, submitted-text edits, withdrawal/current membership, or the complete reuse key.",
+      "coverage_citation": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01#/findings[id=LA-040]",
+      "coverage_state": "primary_bundle=EMB-03; closure_now=not_adjudicated; capability_label=producer_missing",
+      "disposition": "NARROW_INTERSECTION_ONLY; NOT_CLOSED_BY_C12",
+      "original_criterion": "Legal incremental reuse must account for submitted text/projection, encoder/model provenance, current membership and withdrawal—not only record ID.",
+      "original_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727:2556-2594",
+      "source_excerpt_sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a"
+    },
+    "crosswalk_review_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c12-decision-independent-20261015/report.json@749d59b2547664f4a725e1e35a0b7f1f0c869de524f3096fb09065f484188384",
+    "formal_closure_ids": [],
+    "removed_unrelated_findings": {
+      "LA-033": {
+        "coverage_citation": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01#/findings[id=LA-033]",
+        "disposition": "REMOVED_AS_UNRELATED",
+        "original_property": "Runtime replay compatibility migration for lazy root exports, Core CLI dynamic import, and benchmark/test consumers of polisyos.runtime.replay.",
+        "original_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727:1994-2028",
+        "reason": "This is unrelated to the Legal embedding producer/reader; current coverage maps it to REP-01, not C12."
+      }
+    }
+  },
+  "formal_closure_ids": [],
+  "g_choice_required": {
+    "A": "Keep v2 exact full sys.path identity and declare canonical producer/consumer launch path a required operational contract.",
+    "B": "Authorize a versioned typed effective-import/material basis with the listed shadow-resolution controls and migration.",
+    "decision_owner": "G independent acceptance/adjudication; local author does not self-adjudicate.",
+    "recommendation": "Keep v2 unchanged pending G's choice. A is defensible if identical canonical launch profiles are operationally acceptable; choose B only if cross-entrypoint portability is required and its broader selected-import-resolution falsifiers are accepted."
+  },
+  "migration_and_compatibility": {
+    "api_surfaces": "Keep existing read_api exports, GET DTO, immutable intent fields, provider API and consumer response contract. No new enum or external status is required.",
+    "current_v2": "Keep exact current v2 meaning until G chooses; no source edit has changed v2 behavior.",
+    "if_v3_selected": "Version the runtime-material rule and generation-basis field; preserve v2 artifacts and receipts; never relabel or recompute an old v2 generation as v3. Fresh v3 readers must accept only v3 bindings; choose explicitly whether a v2 exact-path reader remains during migration or source-owned producers regenerate selected generations.",
+    "refusal": "A mismatched or unestablished basis remains a typed refusal with truthful text fallback; it never becomes vector-positive by missing/default substitution."
+  },
+  "next_checks_for_G": [
+    "Assess the completed independent source review of the current owner, _SOURCE_FILES, distribution closure, model identity, and encode fingerprint against this packet; the review is not a finding closure.",
+    "If B is selected, require a source-bound falsifier pair: harmless alternate script/sys.path entry with identical effective module origins must remain vector-positive; pre-import shadow module and changed module bytes must typed-refuse before callable/HNSW use.",
+    "Exercise nested SentenceTransformer class-module shadow, package namespace, lazy top-level dependency and custom meta_path finder; accept only a proof that rejects unsupported cases closed.",
+    "Confirm explicit v2/v3 reader migration and generated-generation reissue behavior, plus removal-the-property-keep-markers tests.",
+    "Re-run composed source/input freeze after any decision or source change; this synthetic witness does not establish production legal currentness, law, authority or custody."
+  ],
+  "p40_bucket": {
+    "classification": "same C12 execution-context material-binding class one level deeper: the source-owned producer/consumer equality contract treats launch-path spelling as material identity even when selected executable material is unchanged.",
+    "distinction": "This is separate from the historical callable-swap residual (same-assets runtime encode implementation differs). No per-script override or new generation is warranted; if the property requires portability, widen the material-basis mechanism once and apply its falsifier.",
+    "falsifier": "The no-model synthetic shadow probe changes loaded module origin/content and still changes the candidate binding after sys.path is removed; the actual same-process empty-path insertion yields the current typed refusal. Nested/lazy import closure remains to be independently reviewed."
+  },
+  "property_code_divergence": {
+    "code_measures": "All runtime package bytes plus the loaded fixed module list and every path spelling/target in sys.path, along with the pinned model, source closure, asset identity and encode code fingerprint.",
+    "observed_divergent_case": "The prior r3 consumer used a different script directory and inserted the profile path. The no-model r4 comparison found exactly one runtime-profile difference, python_execution_profile.sys_path; distributions, model members, source closure, encode fingerprint and persisted asset identity were equal. It reconstructed producer binding 4fb915...b91c4 and consumer-context binding cb2d04...6db94. A subsequent real current-context consumer using the r2 producer entrypoint succeeded with the same persisted binding and actual loaded identity. Thus the observed divergence is a path-only refusal across distinct entrypoints, while identical path context is viable.",
+    "property": "A consumer may admit vector search only when the executable material that produced the selected generation is the material that will encode the query.",
+    "real_negative_boundary": "In the successful actual HTTP process, inserting a real empty directory at sys.path[0] after owner load caused query_encoder_runtime_material_changed and text fallback. This confirms current path mutation detection; it does not show that every added path can shadow a selected module.",
+    "residual_to_resolve": "The current runtime profile stores loaded origins for a fixed module list, not a general first-hit resolution proof for all relevant modules, nested encoder class modules, custom import finders, or lazy imports. The decision must retain a concrete shadow falsifier."
+  },
+  "proposal_disposition": "Open G choice on the meaning of source-owned runtime-material equality across producer and consumer execution contexts.",
+  "proposals": {
+    "closed_ids": [],
+    "formal_closure_claims": [],
+    "proposal_ids": [
+      "C12_EXECUTION_CONTEXT_MATERIAL_BASIS"
+    ],
+    "proposal_scope": "This packet proposes only a contract decision; it records no finding closure."
+  },
+  "prototype_and_falsifiers": {
+    "actual_positive": {
+      "command": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/command.txt",
+        "sha256": "3cb89c3948e5a61d2c83874884b3a93a43e44d255e0d7cbc62df684746976bc6"
+      },
+      "driver": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/fresh_http_consumer_matching_context.py",
+        "sha256": "df618c02497bd1279f5e87a657571a3dbaae845957a900741137cf9ce7a3ebaf"
+      },
+      "observed": "GET 200/available; actual loaded handle binding equals persisted binding 4fb915...b91c4, actual asset identity f9ca...7b880; live model/runtime/source/encode component recomputations equal captured values. POST is vector/200/fact-1. Stale intent is text/200/query_profile_stale_or_mismatched. A real empty sys.path[0] insertion after owner load is text/200/query_encoder_runtime_material_changed.",
+      "postflight": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/postflight.json",
+        "sha256": "f4cfe974e273795e9a84a308532ea7180bb6e72fe26853ca6f9dbd3a2e4c7fcd"
+      },
+      "preflight": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/preflight.json",
+        "sha256": "6d8c7473530a1a4993fbd302f1f53bf342704bf9cf875a97c6a2b4be50de5a5e"
+      },
+      "profile": "Python 3.14.3/macOS arm64; retained offline venv; sentence-transformers 2.7.0; model intfloat/multilingual-e5-large@3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3; three r2 generations reused without producer rebuild.",
+      "resource": "37.017 s total; model load 9.961 s; peak RSS 4,504,764,416 bytes; zero swaps; old r2 generation artifacts unchanged; all nine model files matched manifest again after run; all 13 C12 source paths unchanged before/after.",
+      "run_output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/stdout.json",
+        "sha256": "46ebd04c96d739cfbb74e38d09e76b76b9357f7efbaf24472dd6b697d464e6b0"
+      },
+      "run_stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/stderr.txt",
+        "sha256": "1be3f8b2b64c09a86ce152a007218b0460271e765bb1cd060396ff8c8e745110"
+      },
+      "runtime_note": "ASGI TestClient only; stderr shows Prometheus exporter disabled after address-in-use; GET/POST chain still completed. This is not TCP or process-restart evidence."
+    },
+    "effective_origin_content_prototype": {
+      "command": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/falsifier-r1/command.txt",
+        "sha256": "7b4d09cd028411eb36364f24c118015296b02fe6d42b814da8d57675d4bbebaa"
+      },
+      "driver": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/c12_shadow_origin_falsifier.py",
+      "driver_sha256": "430e562b261b97f3d3454d5dd903f62ae4e2ec68aadeb4f04895ae8e7620deb5",
+      "observed": "A synthetic top-level sentence_transformers shadow was selected from a real added search root. After removing sys.path from both candidate profile payloads, only loaded_modules.sentence_transformers origin/path/content fields differed; the normalized runtime basis and same-generation binding still changed. No model constructor or weights were loaded. This is a bounded proof for one selected top-level module, not complete import-resolution closure.",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/falsifier-r1/output/stdout.json",
+        "sha256": "561cdc29e8f7dfc25cee8778880376e5615e72762bc000580db78f00d85f45c3"
+      },
+      "postflight": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/falsifier-r1/postflight.json",
+        "sha256": "672a825b97761b75b734234b5d7433570930537df6cd1b0283f38885cd4d4c80"
+      },
+      "preflight": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/falsifier-r1/preflight.json",
+        "sha256": "077eba724ed90a33c3fb01abb837a3c04467718fa5aef9d6e4cc4afb1f5887b9"
+      },
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/falsifier-r1/output/stderr.txt",
+        "sha256": "faba61044ea161621acc9243ebc50fb99e25d10822eb052207250bab67221985"
+      }
+    },
+    "no_model_same_context_rebind": {
+      "encode_fingerprint": "ab3b9572...495b60",
+      "model_digest": "825d9654...e83d8",
+      "observed": "Recomputed binding in exact producer entrypoint context equals 4fb915...b91c4; all 13 C12 affected source paths equal r2 postflight; all eight _SOURCE_FILES equal current r4 profile records; no model constructor, weights or embedding call.",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/no-model-verified-r1/stdout.json",
+        "sha256": "8ea12f24c714edbcfacda544acb2ec3432bfcd97b7d5f51c275653f9fa30d634"
+      },
+      "runtime_digest": "5f75b957...9679c014",
+      "source_closure_digest": "08f275c5...201784",
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/no-model-verified-r1/stderr.txt",
+        "sha256": "97165da346df42b36a0352a546366c3b37212ee97abb6d0648fdce2f05a47718"
+      }
+    },
+    "prior_separate_entrypoint_context": {
+      "fresh_consumer_result": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r3/fresh-consumer/result.json",
+        "sha256": "9729ab3918f42d5b9de8deded4457b03c1c325882c6bda6b59096bb14ffd8094"
+      },
+      "no_model_context_diff": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/r4-runtime-context-no-model-20261015/stdout.json",
+        "sha256": "1e92e44dd3212c971a65fe0b85ca2171346ef0cbd9deb2404618d42898f94e64"
+      },
+      "runtime_identity": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/r4-runtime-context-no-model-20261015/runtime-identity.stdout.json",
+        "sha256": "dfad62d3d42532f86ae1b0294f4056a1e9cbe5ff73a12ee47b447033f77b2224"
+      },
+      "status": "Historical failed context evidence retained as diagnostic only; its refusal is not called a product capability closure."
+    }
+  },
+  "record_status": "INDEPENDENT_REVIEW_COMPLETE; G_DECISION_PENDING; no product-source changes; not a closure",
+  "schema": "policyos.e02.c12.execution_context_material_basis_decision.v1"
+}

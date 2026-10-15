@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.c12.original_finding_crosswalk_correction.v1",
+  "status": "AUTHOR_CROSSWALK_CORRECTION_FOR_G; NO_FORMAL_ADJUDICATION",
+  "candidate_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head_at_packet_authoring": "d6b83342ad81362cb36afbcc23cd7407b0711c0f",
+    "tree_at_packet_authoring": "793cc3ea791df5f80022e916918d0792987fb54f",
+    "note": "The shared candidate has since advanced through other owners' work. This correction is bound to the current packet bytes and cites the independent reviewer’s source-rebind evidence; it does not claim a frozen composed source tree."
+  },
+  "decision_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c12-execution-context-material-basis.json",
+    "pre_correction_sha256": "8180ee9e6e7ad205566cc7138402b7ca609a0357bee37016499d0a437d7e5d41",
+    "independent_review_read_sha256": "8180ee9e6e7ad205566cc7138402b7ca609a0357bee37016499d0a437d7e5d41",
+    "post_correction_sha256": "d3f45cb4bdd37f4c716bf05ef2d4c2f69ed300e9db6accfddc775485eefedb48",
+    "correction": "decision_question.affected_original_findings contains LA-040 only. LA-033 is explicitly recorded as unrelated under original_finding_binding.removed_unrelated_findings. formal_closure_ids remains empty; proposal fields make no closure claim."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c12-decision-independent-20261015/report.json",
+    "sha256": "749d59b2547664f4a725e1e35a0b7f1f0c869de524f3096fb09065f484188384",
+    "disposition": "GO_FOR_G_CHOICE; HOLD_B_AS_IMPLEMENTATION_AUTHORIZATION; NO_FINDING_CLOSURE",
+    "review_limit": "Read-only review of the packet, original criteria, current code and retained receipts. The report independently confirms LA-033 is unrelated, LA-040 is only a narrow adjacent impact, and no finding closure follows. Its source_rebind_receipt reports all 13 C12 source/test paths still equal the fresh-consumer postflight hashes after shared-branch advance."
+  },
+  "original_criterion_sources": {
+    "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+  },
+  "criterion_dispositions": {
+    "LA-033": {
+      "original_criterion_citation": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727:1994-2028",
+      "original_property": "Runtime replay compatibility migration for lazy root exports, Core CLI dynamic import, and benchmark/test consumers of polisyos.runtime.replay.",
+      "coverage_citation": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01#/findings[id=LA-033]",
+      "coverage_readback": "primary_bundle=REP-01; closure_now=not_adjudicated; capability_label=verification_missing",
+      "disposition": "UNRELATED_TO_C12; REMOVED_FROM_AFFECTED_FINDINGS",
+      "reason": "C12 is Legal embedding generation-to-reader executable-material identity. It neither changes nor exercises runtime replay export/CLI/benchmark compatibility. The pinned coverage ledger assigns LA-033 to REP-01, not C12.",
+      "formal_closure_ids": []
+    },
+    "LA-040": {
+      "original_criterion_citation": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727:2556-2594",
+      "source_excerpt_sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+      "original_property": "Legal incremental reuse must account for submitted text/projection, encoder/model provenance, current membership and withdrawal, and must not key only on record ID.",
+      "coverage_citation": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01#/findings[id=LA-040]",
+      "coverage_readback": "primary_bundle=EMB-03; closure_now=not_adjudicated; capability_label=producer_missing",
+      "disposition": "NARROW_ADJACENT_INTERSECTION_ONLY; WHOLE_CRITERION_NOT_CLOSED",
+      "what_c12_exercises": "The current source-owned runtime binding is one executable-material/profile input to the Legal generation producer and fresh reader. Same-context selected generation, GET profile intent, and fresh HTTP POST consumer behavior have a bounded retained witness.",
+      "what_c12_does_not_exercise": "Incremental reuse key completeness; submitted-text or projection edits; current membership; withdrawal; full encoder/model provenance lifecycle; or the whole LA-040 producer requirement.",
+      "next_check_for_whole_criterion": "Independently exercise the EMB-03 reuse producer against paired input changes for submitted text/projection, encoder/model identity, current membership and withdrawal; show each relevant mutation invalidates or reissues the reused artifact under a source-bound complete reuse key. Reconcile the consumer result and retain exact source/input receipts before any G adjudication.",
+      "formal_closure_ids": []
+    }
+  },
+  "g_choice_boundary": {
+    "proposal_id": "C12_EXECUTION_CONTEXT_MATERIAL_BASIS",
+    "decision": "Choose whether current v2 exact interpreter/path/package-profile equality remains the explicit operational contract (A), or whether a versioned v3 selected effective-import/material basis is authorized (B). Keep v2 and existing artifacts unchanged pending that choice.",
+    "independent_review_recommendation": "A is defensible if canonical identical launch profiles are operationally acceptable. B is conditional on cross-entrypoint portability being required and on broader importer/shadow falsifiers; the retained top-level no-model shadow prototype alone does not authorize B.",
+    "closure_ids": [],
+    "decision_owner": "G independent acceptance/adjudication; the local author makes no formal finding disposition."
+  }
+}

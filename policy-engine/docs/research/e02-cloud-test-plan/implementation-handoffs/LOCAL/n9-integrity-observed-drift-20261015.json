@@ -1,0 +1,205 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "n9-integrity-observed-drift-and-pass-local-cache",
+  "unit": "LOCAL",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "d0c379349432af51ac33174d57903e64b427bb01",
+  "implementation_commits": ["cf5913cddd96070526744f14140172369926ebfc"],
+  "candidate_tree_sha": "148823dec134d66cc25e111978bd92c59addf8aa",
+  "parents": ["d0c379349432af51ac33174d57903e64b427bb01"],
+  "candidate_scope": "Exact two-file implementation slice only; not the final composed E02 source freeze.",
+  "closure_ids": [],
+  "proposal_ids": [],
+  "proposal_mapping": "No original E02 finding IDs are assigned in this narrow slice. Root must bind claims below to the complete original occurrence denominator; author proposals are not formal G closures.",
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "git_blob": "7e7a89b480ce163a1a8e1dc83b44f06fc0f8aa8b",
+      "sha256": "ec3fee240173aaea2b4c7f83105eb55d42158ac743f0645fc7a99f1ebdfefc5c",
+      "bytes": 377644,
+      "change": "Pass-local exact-source/AST and immutable CodeType normalization reuse; distinguish unavailable identity observation from an actually observed changed identity before durable poison admission."
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "git_blob": "eb0634b385ecf6d0bfe10806d098716e3fda7d69",
+      "sha256": "bb4914881e1b5299f5591a94d532fafabf91d4c9b59c9fc6dc8c57538d651a83",
+      "bytes": 229178,
+      "change": "Source-bound transient-observation recovery and observed-drift terminal-poison controls."
+    }
+  ],
+  "change_boundary": {
+    "committed_paths_only": [
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+    ],
+    "other_code_config_or_generated_companion_changes_in_commit": [],
+    "candidate_commit": "cf5913cddd96070526744f14140172369926ebfc",
+    "branch_tip_at_handoff_authoring": "db51beb76163cfce795645d9b2be0ae8805228b0",
+    "branch_tip_note": "Later E02 commits and a dirty shared candidate worktree exist; they are outside this slice and must be included in final composed-source review and exact input freeze."
+  },
+  "source_closure_during_deciding_pair": {
+    "kind": "Actual _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE path/content manifest",
+    "count": 103,
+    "before_manifest": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat-source-closure-before.json",
+      "sha256": "e30f37165b28f7ec9337db683bde4c0c739313b27a66a763973482f84ea31f06"
+    },
+    "after_manifest": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat-source-closure-after.json",
+      "sha256": "e30f37165b28f7ec9337db683bde4c0c739313b27a66a763973482f84ea31f06"
+    },
+    "canonical_closure_digest_before_and_after": "63894a9eaa0277c0c2c746c9aeacbdc115983c44e2f35240024f95a088f51f7a",
+    "measured_comparison_to_candidate_commit": {
+      "equal_entries": 100,
+      "different_worktree_overlay_entries": 3,
+      "classification_correction": "The three differences are IR overlays, not Core overlays. Earlier Core attribution was incorrect; this is corrected from the measured 103-entry comparison.",
+      "overlays": [
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+          "worktree_sha256": "fab66db4b801cdfda17cf8bc6c0f04c71eb983998a30ef75dbb66d843144d572",
+          "candidate_commit_sha256": "3db58a179cd48e8a101034cc8b54fdfba039c8c77389c46af91a079aaae4193f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+          "worktree_sha256": "95021b068bbf25c784556db0163a3c2bdabbb63659a2179acc44fbbcb7ffe65c",
+          "candidate_commit_sha256": "da4b7f01893f286b3061a1a8a2c51b1d56374a4080f53ce75be8bcf3f63ca994"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/model_layer/predicate.py",
+          "worktree_sha256": "e24297f9463b643d3647b1a9b8000e2c4adf4de22d47492a2a837ede20d759ef",
+          "candidate_commit_sha256": "5662a0b2cd33c568e2ff7ccf8950f1c1e4a66aff8fb5485c12259247b0033dc1"
+        }
+      ],
+      "scope_limit": "The deciding tests used these exact 103 bytes, including three then-uncommitted IR overlays. Root reports those three overlays plus two additional kernel sources still await R2 shared-companion integration. Rebind the full closure after integration; this receipt does not claim the later whole candidate has identical inputs."
+    }
+  },
+  "selected_input_profile_backend": {
+    "input": "Controlled temporary copied deployment under pytest tmp_path; tests mutate a copied source after state load, restore exact bytes, and exercise actual ConfidenceLedgerSession methods.",
+    "source_profile": "Local source-bound repository/runtime profile only; no production profile or live serving instance selected.",
+    "backend": "Local .venv CPython and pytest; temporary filesystem fixture and in-process loader. No external ML/vector/production backend selected.",
+    "authority_limit": "No external issuer, custody, production currentness, or live deployment fact is established."
+  },
+  "real_chain_and_property": {
+    "trigger": "A loaded deployment source changes during a ledger operation, or the changed source cannot be read for a stable identity snapshot.",
+    "producer": "The confidence-ledger runtime derives deployment identity from loaded module/spec/source evidence and checks identity at operation boundaries. Integrity derivations are reused only inside one assertion/manifest pass.",
+    "artifact_and_persistence": "Only an observed different identity enters the existing typed deployment-drift poison path, retaining contract/CAS/profile/readback/WAL checks. An unavailable observation refuses the current operation with canonical_deployment_identity_invalid and is not stored as a fabricated changed identity.",
+    "bridge_and_consumer": "ConfidenceLedgerSession construction, prepare_check, observe_history, and reopen/replay enforce the refusal or fresh admission through actual ledger methods.",
+    "surface": "Internal runtime-quality confidence-ledger surface; no external API, UI, publication, or production-serving surface is proven here.",
+    "semantic_property": "Unknown observation fails closed for the current operation without becoming a durable observed-drift fact; true observed drift remains durably terminal after source bytes are restored."
+  },
+  "adversarial_and_removal_controls": [
+    {
+      "case": "transient unavailable snapshot then recovery",
+      "test": "test_unavailable_mid_operation_deployment_identity_does_not_poison_recovered_source",
+      "expected": "The copied source is restored before its single snapshot read fails; the in-flight operation refuses, no durable poison is fabricated, and a fresh session admits matching recovered source and observes history."
+    },
+    {
+      "case": "observed drift then source restore",
+      "test": "test_mid_operation_deployment_drift_poison_is_irreversible",
+      "expected": "The actual copied source differs at final identity observation; after restoring bytes, fresh admission still refuses with deployment_drift_poisoned."
+    },
+    {
+      "case": "pass-local cache boundary",
+      "control": "Analysis context is scoped to one integrity pass; source bytes are reread and compared at pass end. Live loader/spec/code/function/closure/default checks remain per assertion. No cross-assertion/global cache or authority-verdict memo."
+    },
+    {
+      "case": "existing poison integrity guards",
+      "control": "CAS verification, typed payload/profile readback and WAL commit/replay checks remain on the observed-drift path. Full composed-source removal probes remain required."
+    }
+  ],
+  "source_bound_deciding_receipt": {
+    "receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat-receipt.md",
+      "sha256": "72f31355ed653c33957dad1bb5198ed7b5982aef71566f805d102dcd3d3472bd"
+    },
+    "execution_metadata": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat-execution.json",
+      "sha256": "68642544e9196e341f1da2bd9bb9d0dc7271799d26695c5205b6e83f1760691a"
+    },
+    "command": {
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/runtime/quality/test_confidence_ledger.py",
+        "-k",
+        "unavailable_mid_operation_deployment_identity_does_not_poison_recovered_source or mid_operation_deployment_drift_poison_is_irreversible",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat.junit.xml"
+      ],
+      "timeout_seconds": 600,
+      "elapsed_seconds": 184.529275416,
+      "return_code": 0,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timed_out": false,
+      "head_during_run": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+      "source_hashes_before_and_after": {
+        "src/polisyos/runtime/quality/confidence_ledger.py": "ec3fee240173aaea2b4c7f83105eb55d42158ac743f0645fc7a99f1ebdfefc5c",
+        "tests/unit/runtime/quality/test_confidence_ledger.py": "bb4914881e1b5299f5591a94d532fafabf91d4c9b59c9fc6dc8c57538d651a83"
+      }
+    },
+    "complete_stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat.stdout.txt",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "bytes": 80
+    },
+    "complete_stderr": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "junit": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/identity-paired-tests-postformat.junit.xml",
+      "sha256": "395546b384d124e86819c91c5fca9e52425bf39b323e21e1db46129c07203a4c"
+    },
+    "result": "PASS for the two named paired tests only; not the full N9 suite or full composed E02 source."
+  },
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-independent-20261015/review.md",
+      "sha256": "0277d533cf4d225ee751730fd9aa2a9ec526ee183dfe45b06a036a812f0bdf76",
+      "disposition": "GO for pass-local performance and observed-drift denial; identified the unavailable-observation poison residual later addressed by identity delta. Predates the current code change."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n9-identity-independent-20261015/review.md",
+      "sha256": "00a7efce76b238e1e0c5c1029ffbe8c56d3c8173d5d6d818805058de2a7c1fe4",
+      "disposition": "GO on narrow identity delta; reviewed pre-Ruff-format source/test and explicitly did not rerun pytest. Root's exact Ruff receipt proves per-file AST equality; the final pair was rerun separately."
+    }
+  ],
+  "format_and_lint_receipt": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n9-root-canonical-format-20261015/result.json",
+    "sha256": "723140010a4145b251dbafe313068bb8cdb85fcbc573da5564df2efc9437df04",
+    "result": "Ruff format, Ruff check and Ruff format --check passed on the exact two paths; AST hashes match before/after per file. This is not a native repository green result."
+  },
+  "bounded_author_receipts": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/focused-tests-final.txt",
+      "sha256": "8e4d3f7edd8fef4098fdda3a50f1242b78b09f688d362f85756b10fc6b79c8d9",
+      "result": "13 selected tests passed in 87.68 seconds; not full N9."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/RAWresume-n9-integrity-performance-repair-20261015/after-integrity-pass-final.txt",
+      "sha256": "644f72d51f6ed091a5c8564f1fd898de3322928d7aa3306d415cb4051cc495fa",
+      "result": "One profiled assertion took 2.582 seconds versus 4.569 seconds before and its 103-module live manifest projection matched import-time identity; a single assertion measurement, not full-suite performance evidence."
+    }
+  ],
+  "pattern_pass_and_P40": {
+    "patterns": ["P05", "P29", "P32", "P37", "P38", "P40"],
+    "P40_bucket": "Same identity-observation/poison class, one level deeper: distinguish an unestablished snapshot from a positively observed different identity. Refuse the current operation without durable poison for unavailable evidence; preserve terminal poison for actual drift.",
+    "falsifiers": [
+      "Transient read failure after quick-fence change plus exact source recovery must refuse that operation but allow fresh healthy admission.",
+      "A positively observed changed source followed by byte restoration must remain terminally denied on fresh admission."
+    ]
+  },
+  "limitations_and_next_check": [
+    "Full N9 suite, composed 103-entry post-integration replay, native SOTA row-by-row, complete repo gates, installed-wheel/sdist consumers, and live serving profile are UNRUN in this slice. No skip is presented as PASS.",
+    "The earlier independent reviewer interrupted a nine-case subset after five cases; it exited KeyboardInterrupt and is not a passing receipt.",
+    "After R2 shared-companion integration, freeze actual source/profile/input bytes, rebind the entire closure, rerun transient-versus-observed-drift controls and the required composed N9 consumer wave, then obtain G independent review and adjudication.",
+    "Do not infer custody, external authority, deployment currentness, or publication readiness from the local synthetic fixture."
+  ]
+}

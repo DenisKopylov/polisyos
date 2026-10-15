@@ -39,11 +39,11 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts._profiled_ref import profile_bound_ref
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.ir.analytics.backtest import load_backtest_report
+from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
 from polisyos.ir.artifacts import InputRef, get_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 from polisyos.runtime.http.dependencies import get_runtime_api_context
 from polisyos.scientist.methods.backtesting.forecast_owner import (
     CalibrationRuleBinding,
@@ -59,10 +59,22 @@ RULE_ID = "rolling-origin-residual-conformal.v1"
 RULE_KIND = "ir.forecast_calibration_rule"
 
 
-def _put_json(store: FileSystemCAS, payload: object, *, kind: str) -> ArtifactRef:
+def _put_json(
+    store: FileSystemCAS,
+    payload: object,
+    *,
+    kind: str,
+    schema: SchemaInfo | None = None,
+    authority: ArtifactAuthorityInfo | None = None,
+) -> ArtifactRef:
     return store.put_json(
         payload,
-        PutOptions(kind=kind, media_type="application/json"),
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=schema,
+            authority=authority,
+        ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
@@ -425,8 +437,16 @@ def test_real_ets_owner_preserves_same_id_selected_model_policy_profiles(
         if item.role in {"model_spec", "policy_spec"}
     }
     assert exact_spec_edges == {
-        (str(selected_model_ref.artifact_id), "model_spec", selected_model_ref.manifest_profile_sha256),
-        (str(selected_policy_ref.artifact_id), "policy_spec", selected_policy_ref.manifest_profile_sha256),
+        (
+            str(selected_model_ref.artifact_id),
+            "model_spec",
+            selected_model_ref.manifest_profile_sha256,
+        ),
+        (
+            str(selected_policy_ref.artifact_id),
+            "policy_spec",
+            selected_policy_ref.manifest_profile_sha256,
+        ),
     }
 
 
@@ -481,12 +501,10 @@ def test_real_ets_owner_merges_run_binding_edges_with_required_owner_edges(
         report_profile,
     )
     edges = {
-        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-        for item in manifest.inputs
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in manifest.inputs
     }
     assert {
-        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-        for item in run_inputs
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in run_inputs
     }.issubset(edges)
     expected_owner_roles = {
         "observed_source",
@@ -666,10 +684,7 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
             runtime_context = app.state.runtime_api_ctx
             default_disabled = fetch_diagnostic(report_refs[0], selected_profile=False)
             assert default_disabled.status_code == 409
-            assert (
-                default_disabled.json()["code"]
-                == "predictive_coverage_diagnostic_not_admitted"
-            )
+            assert default_disabled.json()["code"] == "predictive_coverage_diagnostic_not_admitted"
 
             app.dependency_overrides[get_runtime_api_context] = lambda: replace(
                 runtime_context,
@@ -765,48 +780,105 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
             assert owner_results[1].empirical_suitability == "limited"
 
             report_bytes = store.get_bytes(report_refs[0])
-            wrong_kind_ref = store.put_bytes(
-                report_bytes,
+            profileless_canon_ref = store.put_bytes(
+                report_bytes + b" ",
                 PutOptions(
-                    kind="test.not_backtest_report",
+                    kind="ir.backtest_report",
                     media_type="application/json",
-                    schema=SchemaInfo(name="test.not_backtest_report", version="1.0"),
+                    schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
                 ),
             )
-            wrong_kind_ref = profile_bound_ref(store, wrong_kind_ref)
+            _record_fixture_owner(
+                store,
+                profileless_canon_ref,
+                tenant_id=env["tenant_a"],
+                cell_id=env["cell_a"],
+                runtime_api_env=env,
+            )
+            profileless_canon_response = fetch_diagnostic(
+                profileless_canon_ref,
+                selected_profile=False,
+            )
+            assert profileless_canon_response.status_code == 409
+            assert profileless_canon_response.json()["code"] == "canon_profile_absent"
+
+            wrong_kind_ref = _put_json(
+                store,
+                json.loads(report_bytes),
+                kind="test.not_backtest_report",
+                schema=SchemaInfo(name="test.not_backtest_report", version="1.0"),
+            )
             assert wrong_kind_ref.artifact_id == report_refs[0].artifact_id
             assert wrong_kind_ref.manifest_profile_sha256 != report_refs[0].manifest_profile_sha256
-            wrong_schema_ref = profile_bound_ref(
+            report_manifest = store.get_manifest(report_refs[0])
+            assert report_manifest.canon is not None
+            wrong_media_ref = profile_bound_ref(
                 store,
                 store.put_bytes(
                     report_bytes,
                     PutOptions(
                         kind="ir.backtest_report",
-                        media_type="application/json",
-                        schema=SchemaInfo(name="ir.backtest_report", version="2.0"),
-                    ),
-                ),
-            )
-            _record_fixture_owner(
-                store,
-                wrong_schema_ref,
-                tenant_id=env["tenant_a"],
-                cell_id=env["cell_a"],
-                runtime_api_env=env,
-            )
-            oversized_ref = profile_bound_ref(
-                store,
-                store.put_bytes(
-                    b" " * 2_000_001,
-                    PutOptions(
-                        kind="ir.backtest_report",
-                        media_type="application/json",
+                        media_type="application/octet-stream",
                         schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                        canon=report_manifest.canon,
                     ),
                 ),
             )
+            assert wrong_media_ref.artifact_id == report_refs[0].artifact_id
+            assert wrong_media_ref.manifest_profile_sha256 != report_refs[0].manifest_profile_sha256
+            assert store.get_manifest(wrong_media_ref).media_type == "application/octet-stream"
+            wrong_schema_ref = _put_json(
+                store,
+                json.loads(report_bytes),
+                kind="ir.backtest_report",
+                schema=SchemaInfo(name="ir.backtest_report", version="2.0"),
+            )
+            assert wrong_schema_ref.artifact_id == report_refs[0].artifact_id
+            assert (
+                wrong_schema_ref.manifest_profile_sha256 != report_refs[0].manifest_profile_sha256
+            )
+            oversized_base_report = load_backtest_report(
+                _ensure_ir_artifact_store(store),
+                BacktestReportRef.model_validate(report_refs[0].model_dump(mode="json")),
+            )
+            oversized_payload = oversized_base_report.model_dump(mode="json")
+            oversized_payload["metadata"] = {
+                **oversized_payload["metadata"],
+                "fixture_note": "x" * 2_000_001,
+            }
+            oversized_report = BacktestReport.model_validate(oversized_payload)
+            oversized_payload = oversized_report.model_dump(mode="json")
+            assert BacktestReport.model_validate(oversized_payload) == oversized_report
+            oversized_ref = _put_json(
+                store,
+                oversized_payload,
+                kind="ir.backtest_report",
+                schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+            )
+            oversized_manifest = store.get_manifest(oversized_ref)
+            assert oversized_manifest.kind == "ir.backtest_report"
+            assert oversized_manifest.media_type == "application/json"
+            assert oversized_manifest.artifact_schema == SchemaInfo(
+                name="ir.backtest_report", version="1.0"
+            )
+            assert oversized_manifest.canon is not None
+            assert oversized_manifest.canon.forbid_floats is False
+            assert artifact_manifest_profile_sha256(oversized_manifest) == (
+                oversized_ref.manifest_profile_sha256
+            )
+            assert store.verify(oversized_ref).ok
+            oversized_bytes = store.get_bytes(oversized_ref)
+            assert len(oversized_bytes) > 2_000_000
+            loaded_oversized_report = load_backtest_report(
+                _ensure_ir_artifact_store(store),
+                BacktestReportRef.model_validate(oversized_ref.model_dump(mode="json")),
+            )
+            assert loaded_oversized_report.metadata["fixture_note"] == "x" * 2_000_001
             _record_fixture_owner(
                 store,
+                wrong_kind_ref,
+                wrong_media_ref,
+                wrong_schema_ref,
                 oversized_ref,
                 tenant_id=env["tenant_a"],
                 cell_id=env["cell_a"],
@@ -822,26 +894,23 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                 denial_boundary,
                 producer_version="frc-diagnostic-dashboard-denial-v1",
             )
-            denied_ref = profile_bound_ref(
+            denied_ref = _put_json(
                 store,
-                store.put_bytes(
-                    report_bytes,
-                    PutOptions(
-                        kind="ir.backtest_report",
-                        media_type="application/json",
-                        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
-                        authority=ArtifactAuthorityInfo(
-                            authority_envelope_ref=str(denial_envelope_ref.artifact_id),
-                            authority_envelope_manifest_profile_sha256=(
-                                denial_envelope_ref.manifest_profile_sha256
-                            ),
-                            diagnostic_event_ref="event://tests/frc-02/dashboard-denial",
-                            manifest_ref=f"cas-manifest://{report_refs[0].artifact_id}",
-                            payload_sha256=hashlib.sha256(report_bytes).hexdigest(),
-                        ),
+                json.loads(report_bytes),
+                kind="ir.backtest_report",
+                schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                authority=ArtifactAuthorityInfo(
+                    authority_envelope_ref=str(denial_envelope_ref.artifact_id),
+                    authority_envelope_manifest_profile_sha256=(
+                        denial_envelope_ref.manifest_profile_sha256
                     ),
+                    diagnostic_event_ref="event://tests/frc-02/dashboard-denial",
+                    manifest_ref=f"cas-manifest://{report_refs[0].artifact_id}",
+                    payload_sha256=hashlib.sha256(report_bytes).hexdigest(),
                 ),
             )
+            assert denied_ref.artifact_id == report_refs[0].artifact_id
+            assert denied_ref.manifest_profile_sha256 != report_refs[0].manifest_profile_sha256
             _record_fixture_owner(
                 store,
                 denied_ref,
@@ -949,6 +1018,9 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
             wrong_response = fetch_diagnostic(wrong_kind_ref)
             assert wrong_response.status_code == 409
             assert wrong_response.json()["code"] == "predictive_coverage_source_unsupported"
+            wrong_media_response = fetch_diagnostic(wrong_media_ref)
+            assert wrong_media_response.status_code == 409
+            assert wrong_media_response.json()["code"] == "predictive_coverage_source_unsupported"
             wrong_schema_response = fetch_diagnostic(wrong_schema_ref)
             assert wrong_schema_response.status_code == 409
             assert wrong_schema_response.json()["code"] == "predictive_coverage_source_unsupported"
@@ -958,7 +1030,7 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
             denied_response = fetch_diagnostic(denied_ref)
             assert denied_response.status_code == 409
             assert denied_response.json()["code"] == "authority_surface_admission_blocked"
-            denied_decision = denied_response.json()["authority_surface_decision"]
+            denied_decision = denied_response.json()["extensions"]["authority_surface_decision"]
             assert "dashboard_display" in denied_decision["may_not_use_for"]
             assert any(
                 row["basis"] == "selected_manifest" and row["status"] != "allowed"

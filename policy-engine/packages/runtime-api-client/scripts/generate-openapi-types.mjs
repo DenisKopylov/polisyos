@@ -27,6 +27,27 @@ const SCHEMA_CHILD_KEYS = [
   "unevaluatedItems",
   "unevaluatedProperties",
 ];
+const JSON_SCHEMA_TYPES = new Set([
+  "array",
+  "boolean",
+  "integer",
+  "null",
+  "number",
+  "object",
+  "string",
+]);
+const JSON_SCHEMA_SCOPE_KEYWORDS = [
+  "$id",
+  "$schema",
+  "$anchor",
+  "$dynamicAnchor",
+  "$dynamicRef",
+  "$recursiveAnchor",
+  "$recursiveRef",
+  "$vocabulary",
+];
+const OPENAPI_31_BASE_DIALECT =
+  "https://spec.openapis.org/oas/3.1/dialect/base";
 const HTTP_METHODS = new Set([
   "delete",
   "get",
@@ -128,9 +149,26 @@ function objectEntries(value) {
     : [];
 }
 
+function hasUnsupportedSchemaScope(schema) {
+  return (
+    schema &&
+    typeof schema === "object" &&
+    !Array.isArray(schema) &&
+    JSON_SCHEMA_SCOPE_KEYWORDS.some((keyword) => Object.hasOwn(schema, keyword))
+  );
+}
+
+function hasUnsupportedDocumentDialect(document) {
+  return (
+    Object.hasOwn(document, "jsonSchemaDialect") &&
+    document.jsonSchemaDialect !== OPENAPI_31_BASE_DIALECT
+  );
+}
+
 function createReferenceTargetCatalog(document) {
   const objectKinds = new Map();
   const schemaNodes = new Set();
+  const scopedSchemaNodes = new Set();
 
   function addObject(kind, value, segments) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return;
@@ -140,17 +178,20 @@ function createReferenceTargetCatalog(document) {
     objectKinds.set(pointer, kinds);
   }
 
-  function addSchema(schema, segments) {
+  function addSchema(schema, segments, inheritedScope = false) {
+    const pointer = pointerFor(segments);
     if (typeof schema === "boolean") {
-      schemaNodes.add(pointerFor(segments));
+      schemaNodes.add(pointer);
+      if (inheritedScope) scopedSchemaNodes.add(pointer);
       return;
     }
     if (!schema || typeof schema !== "object" || Array.isArray(schema)) return;
-    const pointer = pointerFor(segments);
     if (schemaNodes.has(pointer)) return;
     schemaNodes.add(pointer);
-    schemaChildren(schema, (child, relative) =>
-      addSchema(child, [...segments, ...relative]),
+    const scopeApplies = inheritedScope || hasUnsupportedSchemaScope(schema);
+    if (scopeApplies) scopedSchemaNodes.add(pointer);
+    schemaResourceScopeChildren(schema, (child, relative) =>
+      addSchema(child, [...segments, ...relative], scopeApplies),
     );
   }
 
@@ -252,7 +293,7 @@ function createReferenceTargetCatalog(document) {
     addPathItem(pathItem, ["webhooks", name]);
   }
 
-  return { objectKinds, schemaNodes };
+  return { objectKinds, schemaNodes, scopedSchemaNodes };
 }
 
 function assertReferenceTarget(
@@ -600,6 +641,13 @@ function schemaChildren(schema, visit) {
   }
 }
 
+function schemaResourceScopeChildren(schema, visit) {
+  schemaChildren(schema, visit);
+  if (Object.hasOwn(schema, "contentSchema")) {
+    visit(schema.contentSchema, ["contentSchema"]);
+  }
+}
+
 function normalizeRequiredProperties(schema, pointer, visited = new WeakSet()) {
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return;
   if (visited.has(schema)) return;
@@ -608,9 +656,7 @@ function normalizeRequiredProperties(schema, pointer, visited = new WeakSet()) {
   if (Array.isArray(schema.required) && schema.required.length > 0) {
     const names = schema.required;
     if (names.some((name) => typeof name !== "string")) {
-      throw new Error(
-        `Malformed required property name in request schema ${pointer}`,
-      );
+      throw new Error(`Malformed required property name in schema ${pointer}`);
     }
     const existingProperties = objectEntries(schema.properties);
     const existingNames = new Set(existingProperties.map(([name]) => name));
@@ -618,7 +664,7 @@ function normalizeRequiredProperties(schema, pointer, visited = new WeakSet()) {
     if (missingNames.length > 0) {
       if (schema.additionalProperties === false) {
         throw new Error(
-          `Request schema ${pointer} has required property ${JSON.stringify(missingNames[0])} but excludes it with additionalProperties: false`,
+          `Schema ${pointer} has required property ${JSON.stringify(missingNames[0])} but excludes it with additionalProperties: false`,
         );
       }
       if (
@@ -682,6 +728,22 @@ function rewriteSchemaReferences(schema, views) {
     }
   }
   schemaChildren(schema, (child) => rewriteSchemaReferences(child, views));
+}
+
+function normalizeDocumentRequiredProperties(document) {
+  const { schemaNodes } = createReferenceTargetCatalog(document);
+  const ordered = [...schemaNodes].sort(
+    (left, right) => left.length - right.length,
+  );
+  const roots = [];
+  for (const pointer of ordered) {
+    if (roots.some((root) => pointer.startsWith(`${root}/`))) continue;
+    roots.push(pointer);
+  }
+  for (const pointer of roots) {
+    const { value } = resolveLocalReference(document, pointer, "schema");
+    normalizeRequiredProperties(value, pointer);
+  }
 }
 
 function rewriteParameterSchemaReferences(parameter, views) {
@@ -864,6 +926,305 @@ function addDefaultedOptionalPointers(
   }
 }
 
+function combineNullConstraints(states) {
+  if (states.some((state) => state === false)) return false;
+  if (states.some((state) => state === undefined)) return undefined;
+  return true;
+}
+
+function combineNullAlternatives(schemas, document, targets, activeReferences) {
+  if (!Array.isArray(schemas) || schemas.length === 0) return undefined;
+  const states = schemas.map((schema) =>
+    allowsNull(document, schema, targets, activeReferences),
+  );
+  if (states.some((state) => state === true)) return true;
+  if (states.some((state) => state === undefined)) return undefined;
+  return false;
+}
+
+function allowNullFromOneOf(schemas, document, targets, activeReferences) {
+  if (!Array.isArray(schemas) || schemas.length === 0) return undefined;
+  const states = schemas.map((schema) =>
+    allowsNull(document, schema, targets, activeReferences),
+  );
+  const definiteMatches = states.filter((state) => state === true).length;
+  const unresolvedMatches = states.filter(
+    (state) => state === undefined,
+  ).length;
+  if (definiteMatches > 1) return false;
+  if (unresolvedMatches > 0) return undefined;
+  return definiteMatches === 1;
+}
+
+function allowsNull(
+  document,
+  schema,
+  targets,
+  activeReferences = new Set(),
+  inheritedScope = false,
+) {
+  if (hasUnsupportedDocumentDialect(document) || inheritedScope)
+    return undefined;
+  if (schema === true) return true;
+  if (schema === false) return false;
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) {
+    return undefined;
+  }
+  if (hasUnsupportedSchemaScope(schema)) return undefined;
+
+  const constraints = [];
+  if (Object.hasOwn(schema, "$ref") && typeof schema.$ref !== "string") {
+    constraints.push(undefined);
+  }
+  if (typeof schema.$ref === "string") {
+    const { segments, value } = resolveLocalReference(
+      document,
+      schema.$ref,
+      "nullable default",
+    );
+    assertReferenceTarget(
+      targets,
+      "schema",
+      segments,
+      schema.$ref,
+      "nullable default",
+    );
+    const targetPointer = pointerFor(segments);
+    if (targets.scopedSchemaNodes.has(targetPointer)) {
+      constraints.push(undefined);
+    } else if (activeReferences.has(targetPointer)) {
+      constraints.push(undefined);
+    } else {
+      const nextReferences = new Set(activeReferences);
+      nextReferences.add(targetPointer);
+      constraints.push(allowsNull(document, value, targets, nextReferences));
+    }
+  }
+
+  if (Object.hasOwn(schema, "type")) {
+    if (schema.type === "null") {
+      constraints.push(true);
+    } else if (
+      typeof schema.type === "string" &&
+      JSON_SCHEMA_TYPES.has(schema.type)
+    ) {
+      constraints.push(false);
+    } else if (
+      Array.isArray(schema.type) &&
+      schema.type.length > 0 &&
+      schema.type.every(
+        (type) => typeof type === "string" && JSON_SCHEMA_TYPES.has(type),
+      )
+    ) {
+      constraints.push(schema.type.includes("null"));
+    } else {
+      constraints.push(undefined);
+    }
+  }
+  if (Object.hasOwn(schema, "const")) {
+    constraints.push(schema.const === null);
+  }
+  if (Object.hasOwn(schema, "enum")) {
+    constraints.push(
+      Array.isArray(schema.enum) ? schema.enum.includes(null) : undefined,
+    );
+  }
+  if (Object.hasOwn(schema, "allOf")) {
+    if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
+      constraints.push(undefined);
+    } else {
+      constraints.push(
+        combineNullConstraints(
+          schema.allOf.map((branch) =>
+            allowsNull(document, branch, targets, activeReferences),
+          ),
+        ),
+      );
+    }
+  }
+  if (Object.hasOwn(schema, "anyOf")) {
+    constraints.push(
+      combineNullAlternatives(
+        schema.anyOf,
+        document,
+        targets,
+        activeReferences,
+      ),
+    );
+  }
+  if (Object.hasOwn(schema, "oneOf")) {
+    constraints.push(
+      allowNullFromOneOf(schema.oneOf, document, targets, activeReferences),
+    );
+  }
+  if (Object.hasOwn(schema, "not")) {
+    const excluded = allowsNull(
+      document,
+      schema.not,
+      targets,
+      activeReferences,
+    );
+    constraints.push(excluded === undefined ? undefined : !excluded);
+  }
+  if (Object.hasOwn(schema, "if")) {
+    const condition = allowsNull(
+      document,
+      schema.if,
+      targets,
+      activeReferences,
+    );
+    if (condition === true) {
+      constraints.push(
+        Object.hasOwn(schema, "then")
+          ? allowsNull(document, schema.then, targets, activeReferences)
+          : true,
+      );
+    } else if (condition === false) {
+      constraints.push(
+        Object.hasOwn(schema, "else")
+          ? allowsNull(document, schema.else, targets, activeReferences)
+          : true,
+      );
+    } else {
+      const whenTrue = Object.hasOwn(schema, "then")
+        ? allowsNull(document, schema.then, targets, activeReferences)
+        : true;
+      const whenFalse = Object.hasOwn(schema, "else")
+        ? allowsNull(document, schema.else, targets, activeReferences)
+        : true;
+      constraints.push(whenTrue === whenFalse ? whenTrue : undefined);
+    }
+  }
+
+  return combineNullConstraints(constraints);
+}
+
+/**
+ * Classify null admission for the generator's supported OpenAPI 3.1 subset.
+ *
+ * @param {object} document Parsed OpenAPI document with local schema targets.
+ * @param {object|boolean} schema Schema whose null acceptance is evaluated.
+ * @returns {boolean|undefined} True, false, or indeterminate for unsupported input.
+ */
+function supportsNullableDefaultPresenceProjection(document, targets) {
+  // Resource and dialect scope affect the meaning of every descendant `$ref`.
+  // The generator intentionally supports only the OpenAPI 3.1 base resource
+  // context; if any reachable schema declares scope, suppress this projection
+  // for the document instead of resolving a possibly-relative ref at root.
+  return (
+    /^3\.1(?:\.|$)/.test(document.openapi ?? "") &&
+    !hasUnsupportedDocumentDialect(document) &&
+    targets.scopedSchemaNodes.size === 0
+  );
+}
+
+export function schemaAdmitsNull(document, schema) {
+  if (
+    !/^3\.1(?:\.|$)/.test(document.openapi ?? "") ||
+    hasUnsupportedDocumentDialect(document)
+  ) {
+    return undefined;
+  }
+  const targets = createReferenceTargetCatalog(document);
+  if (!supportsNullableDefaultPresenceProjection(document, targets)) {
+    return undefined;
+  }
+  return allowsNull(document, schema, targets);
+}
+
+function addNullableDefaultOptionalPointers(
+  document,
+  targets,
+  schema,
+  pointer,
+  nullableDefaultOptionalPointers,
+  inheritedRequired = new Set(),
+  inheritedScope = false,
+) {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) return;
+  const scopeApplies =
+    inheritedScope ||
+    targets.scopedSchemaNodes.has(pointer) ||
+    hasUnsupportedSchemaScope(schema);
+  const required = new Set(inheritedRequired);
+  for (const name of schema.required ?? []) required.add(name);
+  for (const branch of schema.allOf ?? []) {
+    for (const name of branch?.required ?? []) required.add(name);
+  }
+
+  for (const [name, child] of objectEntries(schema.properties)) {
+    if (
+      child &&
+      typeof child === "object" &&
+      Object.hasOwn(child, "default") &&
+      child.default === null &&
+      allowsNull(
+        document,
+        child,
+        targets,
+        new Set(),
+        scopeApplies ||
+          targets.scopedSchemaNodes.has(`${pointer}/${escapePointer(name)}`),
+      ) === true &&
+      !required.has(name)
+    ) {
+      nullableDefaultOptionalPointers.add(`${pointer}/${escapePointer(name)}`);
+    }
+  }
+
+  schemaChildren(schema, (child, relative) => {
+    addNullableDefaultOptionalPointers(
+      document,
+      targets,
+      child,
+      `${pointer}/${relative.map(escapePointer).join("/")}`,
+      nullableDefaultOptionalPointers,
+      relative[0] === "allOf" ? required : new Set(),
+      scopeApplies,
+    );
+  });
+}
+
+function collectNullableDefaultOptionalPointers(document) {
+  // This source generator currently consumes OpenAPI 3.1.0's JSON Schema
+  // dialect. Do not infer wire presence for unknown or legacy dialects.
+  if (
+    !/^3\.1(?:\.|$)/.test(document.openapi ?? "") ||
+    hasUnsupportedDocumentDialect(document)
+  ) {
+    return new Set();
+  }
+  const targets = createReferenceTargetCatalog(document);
+  if (!supportsNullableDefaultPresenceProjection(document, targets)) {
+    return new Set();
+  }
+  const { schemaNodes } = targets;
+  const ordered = [...schemaNodes].sort(
+    (left, right) => left.length - right.length,
+  );
+  const roots = [];
+  for (const pointer of ordered) {
+    if (roots.some((root) => pointer.startsWith(`${root}/`))) continue;
+    roots.push(pointer);
+  }
+  const result = new Set();
+  for (const pointer of roots) {
+    const { value } = resolveLocalReference(
+      document,
+      pointer,
+      "nullable default",
+    );
+    addNullableDefaultOptionalPointers(
+      document,
+      targets,
+      value,
+      pointer,
+      result,
+    );
+  }
+  return result;
+}
+
 function prepareInputDocument(sourceDocument) {
   const document = structuredClone(sourceDocument);
   const directions = analyzeRequestSchemaDirections(sourceDocument);
@@ -897,6 +1258,7 @@ function prepareInputDocument(sourceDocument) {
     }
   }
   rewriteRequestPathReferences(document, viewNames);
+  normalizeDocumentRequiredProperties(document);
 
   const optionalPointers = new Set();
   for (const name of requestSchemaNames) {
@@ -908,7 +1270,15 @@ function prepareInputDocument(sourceDocument) {
       );
     }
   }
-  return { document, directions, viewNames, optionalPointers };
+  const nullableDefaultOptionalPointers =
+    collectNullableDefaultOptionalPointers(document);
+  return {
+    document,
+    directions,
+    viewNames,
+    optionalPointers,
+    nullableDefaultOptionalPointers,
+  };
 }
 
 function propertyName(node) {
@@ -1079,20 +1449,26 @@ function privatizeRequestViews(source, viewNames) {
 }
 
 /**
- * Generate one TypeScript projection that honors OpenAPI request presence without changing responses.
+ * Generate a TypeScript projection that preserves request and response presence
+ * without rewriting the OpenAPI document or its wire behavior.
  *
  * @param {object} sourceDocument Parsed OpenAPI document.
  * @returns {Promise<string>} Generated and normalized TypeScript source.
  */
 export async function generateOpenApiTypes(sourceDocument) {
-  const { document, viewNames, optionalPointers } =
-    prepareInputDocument(sourceDocument);
+  const {
+    document,
+    viewNames,
+    optionalPointers,
+    nullableDefaultOptionalPointers,
+  } = prepareInputDocument(sourceDocument);
   const nodes = await openapiTS(document, {
     transformProperty(property, schema, options) {
       const schemaPointer = options.path?.replace(/^\\#/, "#");
       if (
         !Object.hasOwn(schema, "default") ||
-        !optionalPointers.has(schemaPointer)
+        (!optionalPointers.has(schemaPointer) &&
+          !nullableDefaultOptionalPointers.has(schemaPointer))
       ) {
         return undefined;
       }

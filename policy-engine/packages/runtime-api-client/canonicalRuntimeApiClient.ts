@@ -1006,6 +1006,10 @@ export type InvalidGovernedProjectionPacket =
 export type IterationLifecycleView =
   RuntimeApiComponents["schemas"]["IterationLifecycleView"];
 
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars -- preserve the colliding schema binding without changing the package-root support type */
+type __RuntimeApiSchema_JsonValue =
+  RuntimeApiComponents["schemas"]["JsonValue"];
+
 export type JurisdictionTimeSemantics =
   RuntimeApiComponents["schemas"]["JurisdictionTimeSemantics"];
 
@@ -1451,8 +1455,20 @@ export type RunFeedbackView =
 export type RunGenericCycleSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationChildProfileBinding"];
 
+export type RunGenericCycleSimulationN5Horizon =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5Horizon"];
+
 export type RunGenericCycleSimulationN5Observation =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5Observation"];
+
+export type RunGenericCycleSimulationN5ResultBody =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5ResultBody"];
+
+export type RunGenericCycleSimulationN5Trajectory =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5Trajectory"];
+
+export type RunGenericCycleSimulationN5TrajectoryPoint =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5TrajectoryPoint"];
 
 export type RunGenericCycleSimulationProjection =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationProjection"];
@@ -1583,6 +1599,9 @@ export type RunsListResponse =
 
 export type RuntimeApiProblem =
   RuntimeApiComponents["schemas"]["RuntimeApiProblem"];
+
+export type RuntimeApiProblemContext =
+  RuntimeApiComponents["schemas"]["RuntimeApiProblemContext"];
 
 export type RuntimePermission =
   RuntimeApiComponents["schemas"]["RuntimePermission"];

@@ -41,8 +41,18 @@ a downstream compatibility surface, not a second owner.
   and the dashboard's
   [`generate-api-client.sh`](../../apps/runtime-dashboard/scripts/generate-api-client.sh)
   both call [`scripts/generate-openapi-types.mjs`](scripts/generate-openapi-types.mjs)
-  for the same source-derived request and response projections. The runtime
-  entrypoint also composes the private raw-client handoff and canonicalizer;
+  for the same source-derived request and response projections. The generator
+  preserves OpenAPI presence semantics: a `default: null` property becomes
+  optional in generated TypeScript only when its schema admits null and the
+  containing schema does not require it. Explicitly required nullable fields
+  remain required, and the generator does not rewrite the OpenAPI document or
+  server behavior. Null admission is evaluated for OpenAPI 3.1 using boolean
+  schemas, local `$ref` targets with sibling conjunctions, `type`, `const`,
+  `enum`, `allOf`, `anyOf`, `oneOf`, `not`, and `if`/`then`/`else`. A `oneOf`
+  null branch counts only when exactly one branch accepts null. Cyclic/dynamic references, inherited resource scopes (`$id`, `$schema`, `$anchor` and related keywords), custom vocabularies, and non-default document dialects stay required rather than being guessed optional. The resource-context scan covers the complete OpenAPI 3.1 schema graph, including nested `contentSchema` schemas; unresolved or invalid local references retain the
+  generator's existing hard error. This is a narrow null-admission decision,
+  not a general JSON Schema validator. The runtime entrypoint also composes the
+  private raw-client handoff and canonicalizer;
   the dashboard formats its compatibility file with its existing Prettier step.
   Only `types.ts` and the canonical TS/JS pair are written under the output root.
 

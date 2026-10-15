@@ -3228,15 +3228,17 @@ export interface components {
             /**
              * Kind
              * @default foundry.attractor_analysis_result
+             * @constant
              */
-            kind: string;
+            kind: "foundry.attractor_analysis_result";
             /** Manifest Profile Sha256 */
             manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json
+             * @constant
              */
-            media_type: string;
+            media_type: "application/json";
         };
         /**
          * AttractorBasinEstimate
@@ -4022,15 +4024,17 @@ export interface components {
             /**
              * Kind
              * @default foundry.basin_map
+             * @constant
              */
-            kind: string;
+            kind: "foundry.basin_map";
             /** Manifest Profile Sha256 */
             manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json
+             * @constant
              */
-            media_type: string;
+            media_type: "application/json";
         };
         /**
          * BasinMapSample
@@ -5795,15 +5799,17 @@ export interface components {
             /**
              * Kind
              * @default foundry.continuation_branch
+             * @constant
              */
-            kind: string;
+            kind: "foundry.continuation_branch";
             /** Manifest Profile Sha256 */
             manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json
+             * @constant
              */
-            media_type: string;
+            media_type: "application/json";
         };
         /**
          * ControlApprovalProjection
@@ -5886,7 +5892,12 @@ export interface components {
         };
         /**
          * ControlJobResponse
-         * @description Represent one durable control-plane job and its progress/error state.
+         * @description Represent durable control-job state and its open progress projection.
+         *
+         *     Worker-owned evidence payloads in ``progress`` carry their own schema
+         *     versions. Consumers that use an evidence projection must validate that
+         *     payload's schema and provenance rather than treating generic progress as
+         *     an authority declaration.
          */
         ControlJobResponse: {
             approval_projection?: components["schemas"]["ControlApprovalProjection"];
@@ -10414,24 +10425,24 @@ export interface components {
              * Basis Digest
              * @default null
              */
-            basis_digest: string | null;
+            basis_digest?: string | null;
             /**
              * Basis Ref
              * @default null
              */
-            basis_ref: string | null;
+            basis_ref?: string | null;
             /**
              * Binding Sha256
              * @default null
              */
-            binding_sha256: string | null;
+            binding_sha256?: string | null;
             /**
              * Blocking Reason
              * @default null
              */
-            blocking_reason: string | null;
+            blocking_reason?: string | null;
             /** @default null */
-            canonical_actor: components["schemas"]["HumanDecisionCanonicalActor"] | null;
+            canonical_actor?: components["schemas"]["HumanDecisionCanonicalActor"] | null;
             /** Case Id */
             case_id: string;
             /**
@@ -10441,17 +10452,17 @@ export interface components {
              */
             created_at: string;
             /** @default null */
-            custody_boundary: components["schemas"]["AuthorityBoundary"] | null;
+            custody_boundary?: components["schemas"]["AuthorityBoundary"] | null;
             /**
              * Custody Key Id
              * @default null
              */
-            custody_key_id: string | null;
+            custody_key_id?: string | null;
             /**
              * Custody Signer Identity
              * @default null
              */
-            custody_signer_identity: string | null;
+            custody_signer_identity?: string | null;
             /**
              * Decided At
              * Format: date-time
@@ -10466,52 +10477,52 @@ export interface components {
              * Decision Attempt Id
              * @default null
              */
-            decision_attempt_id: string | null;
+            decision_attempt_id?: string | null;
             /**
              * Decision Mode
              * @default null
              */
-            decision_mode: ("ordinary" | "override" | "blocking") | null;
+            decision_mode?: ("ordinary" | "override" | "blocking") | null;
             /**
              * Decision Request Digest
              * @default null
              */
-            decision_request_digest: string | null;
+            decision_request_digest?: string | null;
             /** Disconfirming Evidence Refs */
             disconfirming_evidence_refs: string[];
             /**
              * Dissent Statement
              * @default null
              */
-            dissent_statement: string | null;
+            dissent_statement?: string | null;
             /** Evidence Summary Ref */
             evidence_summary_ref: string;
             /**
              * Exposure Artifact Digests
              * @default null
              */
-            exposure_artifact_digests: string[] | null;
+            exposure_artifact_digests?: string[] | null;
             /**
              * Exposure Event Refs
              * @default null
              */
-            exposure_event_refs: string[] | null;
+            exposure_event_refs?: string[] | null;
             /**
              * Exposure Session Digest
              * @default null
              */
-            exposure_session_digest: string | null;
+            exposure_session_digest?: string | null;
             /**
              * Exposure Session Ref
              * @default null
              */
-            exposure_session_ref: string | null;
+            exposure_session_ref?: string | null;
             five_rights_check: components["schemas"]["FiveRightsCheck"];
             /**
              * Governed Action Key
              * @default null
              */
-            governed_action_key: string | null;
+            governed_action_key?: string | null;
             /** Human Decision Request Ref */
             human_decision_request_ref: string;
             /** Mandate Record Ref */
@@ -10522,37 +10533,37 @@ export interface components {
              * Observed At
              * @default null
              */
-            observed_at: string | null;
+            observed_at?: string | null;
             /**
              * Override Reason
              * @default null
              */
-            override_reason: string | null;
+            override_reason?: string | null;
             /**
              * Predicate Receipts
              * @default null
              */
-            predicate_receipts: components["schemas"]["HumanDecisionPredicateReceipt"][] | null;
+            predicate_receipts?: components["schemas"]["HumanDecisionPredicateReceipt"][] | null;
             /**
              * Presentation Contract Digest
              * @default null
              */
-            presentation_contract_digest: string | null;
+            presentation_contract_digest?: string | null;
             /**
              * Presentation Contract Ref
              * @default null
              */
-            presentation_contract_ref: string | null;
+            presentation_contract_ref?: string | null;
             /**
              * Principal Binding Digest
              * @default null
              */
-            principal_binding_digest: string | null;
+            principal_binding_digest?: string | null;
             /**
              * Principal Binding Ref
              * @default null
              */
-            principal_binding_ref: string | null;
+            principal_binding_ref?: string | null;
             /** Provenance Refs */
             provenance_refs?: string[];
             /** Record Id */
@@ -10563,40 +10574,40 @@ export interface components {
              * Recorded At
              * @default null
              */
-            recorded_at: string | null;
+            recorded_at?: string | null;
             /**
              * Requested At
              * @default null
              */
-            requested_at: string | null;
+            requested_at?: string | null;
             /**
              * Reservation Id
              * @default null
              */
-            reservation_id: string | null;
+            reservation_id?: string | null;
             /**
              * Reservation Version
              * @default null
              */
-            reservation_version: number | null;
+            reservation_version?: number | null;
             responsibility_integrity: components["schemas"]["ResponsibilityIntegrityCheck"];
             /**
              * Reviewer Separation Digest
              * @default null
              */
-            reviewer_separation_digest: string | null;
+            reviewer_separation_digest?: string | null;
             /**
              * Reviewer Separation Ref
              * @default null
              */
-            reviewer_separation_ref: string | null;
+            reviewer_separation_ref?: string | null;
             /** Rule Version Ref */
             rule_version_ref: string;
             /**
              * Run Id
              * @default null
              */
-            run_id: string | null;
+            run_id?: string | null;
             /**
              * Schema Version
              * @default policyos.policy_design_case.layer2_s7_delegation.v1
@@ -10607,37 +10618,37 @@ export interface components {
              * Source Digest
              * @default null
              */
-            source_digest: string | null;
+            source_digest?: string | null;
             /**
              * Source Kind
              * @default null
              */
-            source_kind: ("agent_action_authority" | "production_approval") | null;
+            source_kind?: ("agent_action_authority" | "production_approval") | null;
             /**
              * Source Ref
              * @default null
              */
-            source_ref: string | null;
+            source_ref?: string | null;
             /**
              * Tenant Id
              * @default null
              */
-            tenant_id: string | null;
+            tenant_id?: string | null;
             /**
              * Valid From
              * @default null
              */
-            valid_from: string | null;
+            valid_from?: string | null;
             /**
              * Valid Until
              * @default null
              */
-            valid_until: string | null;
+            valid_until?: string | null;
             /**
              * Verifier Epoch
              * @default null
              */
-            verifier_epoch: string | null;
+            verifier_epoch?: string | null;
         };
         /**
          * HumanDecisionRequestSurface
@@ -11375,6 +11386,7 @@ export interface components {
             /** Stop Reason */
             stop_reason?: ("approved" | "budget_exhausted" | "no_delta" | "guardrail_violation") | null;
         };
+        JsonValue: unknown;
         /**
          * JurisdictionTimeSemantics
          * @description Bind jurisdiction and time-role semantics for the design problem.
@@ -15700,6 +15712,8 @@ export interface components {
             /** Errors */
             errors?: components["schemas"]["RunErrorView"][];
             meta: components["schemas"]["ApiMeta"];
+            /** Notes */
+            notes?: string[];
             /** Run Id */
             run_id: string;
         };
@@ -15949,6 +15963,24 @@ export interface components {
             source_result_ref: string;
         };
         /**
+         * RunGenericCycleSimulationN5Horizon
+         * @description Publicly readable valid-time horizon from one verified N5 result.
+         */
+        RunGenericCycleSimulationN5Horizon: {
+            /** End */
+            end: number;
+            /** Scenario Branch Policy */
+            scenario_branch_policy: string;
+            /** Start */
+            start: number;
+            /** Step */
+            step: number;
+            /** Transaction Time Role */
+            transaction_time_role: string;
+            /** Valid Time Role */
+            valid_time_role: string;
+        };
+        /**
          * RunGenericCycleSimulationN5Observation
          * @description One historical, candidate-only N5 observation and its persisted lineage.
          */
@@ -16047,6 +16079,11 @@ export interface components {
              * @default []
              */
             selected_outcomes: string[];
+            simulation_result_body?: components["schemas"]["RunGenericCycleSimulationN5ResultBody"] | null;
+            /** Simulation Result Body Limitation Code */
+            simulation_result_body_limitation_code?: ("generic_n5_result_body_request_binding_not_established" | "generic_n5_result_body_selected_manifest_view_not_established" | "generic_n5_result_body_execution_not_successful" | "generic_n5_result_body_content_refused") | null;
+            /** Simulation Result Body Status */
+            simulation_result_body_status?: ("not_applicable" | "resolved" | "not_established") | null;
             simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /**
              * Status
@@ -16055,6 +16092,108 @@ export interface components {
             status: "joint_simulated" | "simulation_pending_n5" | "simulation_blocked";
             /** World Model Record Content Hash */
             world_model_record_content_hash: string;
+        };
+        /**
+         * RunGenericCycleSimulationN5ResultBody
+         * @description Typed candidate-only body read from the selected, verified N5 CAS view.
+         */
+        RunGenericCycleSimulationN5ResultBody: {
+            artifact_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Artifact Schema Name
+             * @constant
+             */
+            artifact_schema_name: "policyos.runtime.n5.joint_simulation_result";
+            /**
+             * Artifact Schema Version
+             * @enum {string}
+             */
+            artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0";
+            /** Atom Ids */
+            atom_ids: string[];
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            /**
+             * Candidate Status
+             * @default candidate_unverified
+             * @constant
+             */
+            candidate_status: "candidate_unverified";
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            horizon: components["schemas"]["RunGenericCycleSimulationN5Horizon"];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /**
+             * Result Schema Version
+             * @enum {string}
+             */
+            result_schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4";
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1";
+            /** Selected Manifest Profile Sha256 */
+            selected_manifest_profile_sha256: string;
+            /** Selected Outcomes */
+            selected_outcomes: string[];
+            /** Trajectories */
+            trajectories: components["schemas"]["RunGenericCycleSimulationN5Trajectory"][];
+            /**
+             * Uncertainty Kind
+             * @default K_sim
+             * @constant
+             */
+            uncertainty_kind: "K_sim";
+            /** World Model Record Content Hash */
+            world_model_record_content_hash: string;
+            /** World Model Record Ref */
+            world_model_record_ref: string;
+        };
+        /**
+         * RunGenericCycleSimulationN5Trajectory
+         * @description One verified individual, pairwise, or joint numerical trajectory.
+         */
+        RunGenericCycleSimulationN5Trajectory: {
+            /** Atom Ids */
+            atom_ids: string[];
+            /** Points */
+            points: components["schemas"]["RunGenericCycleSimulationN5TrajectoryPoint"][];
+            /**
+             * Run Level
+             * @enum {string}
+             */
+            run_level: "individual" | "pairwise" | "joint";
+        };
+        /**
+         * RunGenericCycleSimulationN5TrajectoryPoint
+         * @description One finite outcome/effect row surfaced from a verified N5 trajectory.
+         */
+        RunGenericCycleSimulationN5TrajectoryPoint: {
+            /** Effects */
+            effects: {
+                [key: string]: number;
+            };
+            /** Outcomes */
+            outcomes: {
+                [key: string]: number;
+            };
+            /** Step */
+            step: number;
         };
         /**
          * RunGenericCycleSimulationProjection
@@ -16329,6 +16468,8 @@ export interface components {
             meta: components["schemas"]["ApiMeta"];
             /** Nodes */
             nodes?: components["schemas"]["RunNodeRecord"][];
+            /** Notes */
+            notes?: string[];
             /** Run Id */
             run_id: string;
             /**
@@ -17202,28 +17343,37 @@ export interface components {
         };
         /**
          * RuntimeApiProblem
-         * @description Runtime api problem public type.
+         * @description Runtime API problem with a closed envelope and namespaced diagnostics.
          */
         RuntimeApiProblem: {
             /** Code */
             code: string;
+            /** @default null */
+            context?: components["schemas"]["RuntimeApiProblemContext"] | null;
             /** Detail */
             detail: string;
             /**
              * Error
              * @default null
              */
-            error: string | null;
+            error?: string | null;
+            /**
+             * Extensions
+             * @default null
+             */
+            extensions?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            } | null;
             /**
              * Instance
              * @default null
              */
-            instance: string | null;
+            instance?: string | null;
             /**
              * Request Id
              * @default null
              */
-            request_id: string | null;
+            request_id?: string | null;
             /**
              * Status
              * @default 500
@@ -17241,6 +17391,52 @@ export interface components {
              * @default about:blank
              */
             type: string;
+        };
+        /**
+         * RuntimeApiProblemContext
+         * @description Sanitized request and exception context carried by a runtime problem.
+         */
+        RuntimeApiProblemContext: {
+            /**
+             * Artifact Id
+             * @default null
+             */
+            artifact_id?: string | null;
+            /**
+             * Category
+             * @default null
+             */
+            category?: string | null;
+            /**
+             * Dependency
+             * @default null
+             */
+            dependency?: string | null;
+            /**
+             * Request Id
+             * @default null
+             */
+            request_id?: string | null;
+            /**
+             * Retry State
+             * @default null
+             */
+            retry_state?: string | null;
+            /**
+             * Run Id
+             * @default null
+             */
+            run_id?: string | null;
+            /**
+             * Stage
+             * @default null
+             */
+            stage?: string | null;
+            /**
+             * Tenant
+             * @default null
+             */
+            tenant?: string | null;
         };
         /**
          * RuntimePermission
@@ -23890,6 +24086,15 @@ export interface operations {
             };
             /** @description Requested representation is not supported for this resource. */
             406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

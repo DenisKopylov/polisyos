@@ -1,0 +1,49 @@
+id = "2026-10-15-runtime-api-nullable-default-presence"
+title = "Align generated Runtime API presence types with nullable defaults"
+type = "changed"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "The OpenAPI type generator now preserves optional presence for nullable properties with an explicit null default when the schema does not require them, matching the existing response contract and producer output."
+evidence = [
+  "packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+  "packages/runtime-api-client/scripts/generate-openapi-types.test.mjs",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "Nullable default-null properties absent from the OpenAPI required set are optional in generated TypeScript and still accept null. Explicitly required nullable properties and existing non-null default projections retain their requiredness. Runtime wire behavior and routes are unchanged; clients must handle undefined for these optional properties."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API v1 OpenAPI schema and generated runtime client/dashboard TypeScript surfaces"
+migration = "Regenerate both Runtime API type surfaces. TypeScript consumers should handle omission as well as null for optional nullable default-null response fields; no stored data or server behavior is migrated."
+api = "The actual 409 application/problem+json response may omit context and extensions; the OpenAPI required list leaves them optional, and generated DTOs now represent that presence contract without treating default:null as required."
+limitations = "Null admission is evaluated for OpenAPI 3.1 boolean schemas, local $ref with sibling conjunction, type, const, enum, allOf, anyOf, oneOf (exactly one matching branch), not, and if/then/else. Cyclic/dynamic references, scoped ids/anchors or custom vocabularies, and unsupported dialects remain required rather than guessed. This is not a general JSON Schema validator and does not change runtime response production, OpenAPI nullability, authority, or endpoint status semantics."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-nullable-default-presence"
+change_class = "schema-openapi-abi"
+impact = "requires_regeneration"
+surface = "public_stable: Runtime API v1 OpenAPI response DTO presence"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The OpenAPI snapshot and generated response DTOs reflect the existing optional nullable default-null fields, including omitted context and extensions in problem responses."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-nullable-default-presence"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client and runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Generated TypeScript fields with nullable schemas, explicit default:null, and no required-list membership are optional and nullable; current public export names remain unchanged."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

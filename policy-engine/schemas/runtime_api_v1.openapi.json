@@ -3039,6 +3039,7 @@
             "type": "string"
           },
           "kind": {
+            "const": "foundry.attractor_analysis_result",
             "default": "foundry.attractor_analysis_result",
             "title": "Kind",
             "type": "string"
@@ -3056,6 +3057,7 @@
             "title": "Manifest Profile Sha256"
           },
           "media_type": {
+            "const": "application/json",
             "default": "application/json",
             "title": "Media Type",
             "type": "string"
@@ -5092,6 +5094,7 @@
             "type": "string"
           },
           "kind": {
+            "const": "foundry.basin_map",
             "default": "foundry.basin_map",
             "title": "Kind",
             "type": "string"
@@ -5109,6 +5112,7 @@
             "title": "Manifest Profile Sha256"
           },
           "media_type": {
+            "const": "application/json",
             "default": "application/json",
             "title": "Media Type",
             "type": "string"
@@ -9606,6 +9610,7 @@
             "type": "string"
           },
           "kind": {
+            "const": "foundry.continuation_branch",
             "default": "foundry.continuation_branch",
             "title": "Kind",
             "type": "string"
@@ -9623,6 +9628,7 @@
             "title": "Manifest Profile Sha256"
           },
           "media_type": {
+            "const": "application/json",
             "default": "application/json",
             "title": "Media Type",
             "type": "string"
@@ -9878,7 +9884,7 @@
       },
       "ControlJobResponse": {
         "additionalProperties": false,
-        "description": "Represent one durable control-plane job and its progress/error state.",
+        "description": "Represent durable control-job state and its open progress projection.\n\nWorker-owned evidence payloads in ``progress`` carry their own schema\nversions. Consumers that use an evidence projection must validate that\npayload's schema and provenance rather than treating generic progress as\nan authority declaration.",
         "properties": {
           "approval_projection": {
             "$ref": "#/components/schemas/ControlApprovalProjection"
@@ -23621,6 +23627,7 @@
         "title": "IterationLifecycleView",
         "type": "object"
       },
+      "JsonValue": {},
       "JurisdictionTimeSemantics": {
         "additionalProperties": false,
         "description": "Bind jurisdiction and time-role semantics for the design problem.",
@@ -34173,6 +34180,13 @@
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
           },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
           "run_id": {
             "title": "Run Id",
             "type": "string"
@@ -34850,6 +34864,52 @@
         "title": "RunGenericCycleSimulationChildProfileBinding",
         "type": "object"
       },
+      "RunGenericCycleSimulationN5Horizon": {
+        "additionalProperties": false,
+        "description": "Publicly readable valid-time horizon from one verified N5 result.",
+        "properties": {
+          "end": {
+            "minimum": 0.0,
+            "title": "End",
+            "type": "integer"
+          },
+          "scenario_branch_policy": {
+            "minLength": 1,
+            "title": "Scenario Branch Policy",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "step": {
+            "minimum": 1.0,
+            "title": "Step",
+            "type": "integer"
+          },
+          "transaction_time_role": {
+            "minLength": 1,
+            "title": "Transaction Time Role",
+            "type": "string"
+          },
+          "valid_time_role": {
+            "minLength": 1,
+            "title": "Valid Time Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "step",
+          "valid_time_role",
+          "transaction_time_role",
+          "scenario_branch_policy"
+        ],
+        "title": "RunGenericCycleSimulationN5Horizon",
+        "type": "object"
+      },
       "RunGenericCycleSimulationN5Observation": {
         "additionalProperties": false,
         "description": "One historical, candidate-only N5 observation and its persisted lineage.",
@@ -35107,6 +35167,49 @@
             "title": "Selected Outcomes",
             "type": "array"
           },
+          "simulation_result_body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunGenericCycleSimulationN5ResultBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "simulation_result_body_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "generic_n5_result_body_request_binding_not_established",
+                  "generic_n5_result_body_selected_manifest_view_not_established",
+                  "generic_n5_result_body_execution_not_successful",
+                  "generic_n5_result_body_content_refused"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Result Body Limitation Code"
+          },
+          "simulation_result_body_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_applicable",
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Result Body Status"
+          },
           "simulation_result_ref": {
             "anyOf": [
               {
@@ -35148,6 +35251,203 @@
           "n8_lineage_status"
         ],
         "title": "RunGenericCycleSimulationN5Observation",
+        "type": "object"
+      },
+      "RunGenericCycleSimulationN5ResultBody": {
+        "additionalProperties": false,
+        "description": "Typed candidate-only body read from the selected, verified N5 CAS view.",
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "artifact_schema_name": {
+            "const": "policyos.runtime.n5.joint_simulation_result",
+            "title": "Artifact Schema Name",
+            "type": "string"
+          },
+          "artifact_schema_version": {
+            "enum": [
+              "1.0.0",
+              "2.0.0",
+              "3.0.0",
+              "4.0.0"
+            ],
+            "title": "Artifact Schema Version",
+            "type": "string"
+          },
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "cycle_input_candidate_only",
+            "default": "cycle_input_candidate_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "candidate_status": {
+            "const": "candidate_unverified",
+            "default": "candidate_unverified",
+            "title": "Candidate Status",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/RunGenericCycleSimulationN5Horizon"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "result_schema_version": {
+            "enum": [
+              "policyos.runtime.joint_simulation_horizon.v1",
+              "policyos.runtime.joint_simulation_horizon.v2",
+              "policyos.runtime.joint_simulation_horizon.v3",
+              "policyos.runtime.joint_simulation_horizon.v4"
+            ],
+            "title": "Result Schema Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+            "default": "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Manifest Profile Sha256",
+            "type": "string"
+          },
+          "selected_outcomes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Selected Outcomes",
+            "type": "array"
+          },
+          "trajectories": {
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN5Trajectory"
+            },
+            "minItems": 1,
+            "title": "Trajectories",
+            "type": "array"
+          },
+          "uncertainty_kind": {
+            "const": "K_sim",
+            "default": "K_sim",
+            "title": "Uncertainty Kind",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Content Hash",
+            "type": "string"
+          },
+          "world_model_record_ref": {
+            "minLength": 1,
+            "title": "World Model Record Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_ref",
+          "artifact_schema_name",
+          "artifact_schema_version",
+          "result_schema_version",
+          "selected_manifest_profile_sha256",
+          "world_model_record_ref",
+          "world_model_record_content_hash",
+          "atom_ids",
+          "selected_outcomes",
+          "horizon",
+          "trajectories"
+        ],
+        "title": "RunGenericCycleSimulationN5ResultBody",
+        "type": "object"
+      },
+      "RunGenericCycleSimulationN5Trajectory": {
+        "additionalProperties": false,
+        "description": "One verified individual, pairwise, or joint numerical trajectory.",
+        "properties": {
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN5TrajectoryPoint"
+            },
+            "minItems": 1,
+            "title": "Points",
+            "type": "array"
+          },
+          "run_level": {
+            "enum": [
+              "individual",
+              "pairwise",
+              "joint"
+            ],
+            "title": "Run Level",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_level",
+          "atom_ids",
+          "points"
+        ],
+        "title": "RunGenericCycleSimulationN5Trajectory",
+        "type": "object"
+      },
+      "RunGenericCycleSimulationN5TrajectoryPoint": {
+        "additionalProperties": false,
+        "description": "One finite outcome/effect row surfaced from a verified N5 trajectory.",
+        "properties": {
+          "effects": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Effects",
+            "type": "object"
+          },
+          "outcomes": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Outcomes",
+            "type": "object"
+          },
+          "step": {
+            "minimum": 0.0,
+            "title": "Step",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "step",
+          "outcomes",
+          "effects"
+        ],
+        "title": "RunGenericCycleSimulationN5TrajectoryPoint",
         "type": "object"
       },
       "RunGenericCycleSimulationProjection": {
@@ -35857,6 +36157,13 @@
               "$ref": "#/components/schemas/RunNodeRecord"
             },
             "title": "Nodes",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
             "type": "array"
           },
           "run_id": {
@@ -37860,11 +38167,22 @@
       },
       "RuntimeApiProblem": {
         "additionalProperties": false,
-        "description": "Runtime api problem public type.",
+        "description": "Runtime API problem with a closed envelope and namespaced diagnostics.",
         "properties": {
           "code": {
             "title": "Code",
             "type": "string"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuntimeApiProblemContext"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "detail": {
             "title": "Detail",
@@ -37881,6 +38199,21 @@
             ],
             "default": null,
             "title": "Error"
+          },
+          "extensions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Extensions"
           },
           "instance": {
             "anyOf": [
@@ -37936,6 +38269,110 @@
           "code"
         ],
         "title": "RuntimeApiProblem",
+        "type": "object"
+      },
+      "RuntimeApiProblemContext": {
+        "additionalProperties": false,
+        "description": "Sanitized request and exception context carried by a runtime problem.",
+        "properties": {
+          "artifact_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifact Id"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Category"
+          },
+          "dependency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Dependency"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Request Id"
+          },
+          "retry_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Retry State"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Id"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stage"
+          },
+          "tenant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tenant"
+          }
+        },
+        "title": "RuntimeApiProblemContext",
         "type": "object"
       },
       "RuntimePermission": {
@@ -47364,7 +47801,7 @@
               "application/json": {
                 "examples": {
                   "controlled_no_call_refusal": {
-                    "description": "Projected from the durable pre-admission owner after its actual start and refused/no-call transitions in an in-memory controlled fixture. The actor, tenant, cell, run, request, and timestamps are documentation fixtures; no provider call, production attempt, authorization grant, or reusable evidence is asserted.",
+                    "description": "Projected from the durable pre-admission owner after its actual start and refused/no-call transitions in an in-memory controlled fixture. The actor, tenant, cell, run, request, timestamps, and deterministic event IDs are documentation fixtures; no provider call, production attempt, authorization grant, or reusable evidence is asserted.",
                     "summary": "Actor-scoped attempt refused before provider preflight",
                     "value": {
                       "attempt_id": "4ab13b90a788e3264aa47cbfaa76973e",
@@ -47373,7 +47810,7 @@
                       "failure_code": "provider_preflight_not_started",
                       "history": [
                         {
-                          "event_id": "b5b15add6ceb43d2a580af08039d9044",
+                          "event_id": "d8386b23c844591991575d0ccc435095",
                           "event_type": "started",
                           "failure_code": null,
                           "job_id": null,
@@ -47384,7 +47821,7 @@
                           "sequence": 1
                         },
                         {
-                          "event_id": "a7d3e939cd08404e8a5a6c8c8ce0b330",
+                          "event_id": "f2ca4326b40d576b961cd19294806f1b",
                           "event_type": "refused",
                           "failure_code": "provider_preflight_not_started",
                           "job_id": null,
@@ -47645,7 +48082,7 @@
               "application/json": {
                 "examples": {
                   "controlled_no_call_refusal": {
-                    "description": "Projected from the durable pre-admission owner after its actual start and refused/no-call transitions in an in-memory controlled fixture. The actor, tenant, cell, run, request, and timestamps are documentation fixtures; no provider call, production attempt, authorization grant, or reusable evidence is asserted.",
+                    "description": "Projected from the durable pre-admission owner after its actual start and refused/no-call transitions in an in-memory controlled fixture. The actor, tenant, cell, run, request, timestamps, and deterministic event IDs are documentation fixtures; no provider call, production attempt, authorization grant, or reusable evidence is asserted.",
                     "summary": "Actor-scoped history after provider preflight was not started",
                     "value": {
                       "attempt_id": "4ab13b90a788e3264aa47cbfaa76973e",
@@ -47654,7 +48091,7 @@
                       "failure_code": "provider_preflight_not_started",
                       "history": [
                         {
-                          "event_id": "b5b15add6ceb43d2a580af08039d9044",
+                          "event_id": "d8386b23c844591991575d0ccc435095",
                           "event_type": "started",
                           "failure_code": null,
                           "job_id": null,
@@ -47665,7 +48102,7 @@
                           "sequence": 1
                         },
                         {
-                          "event_id": "a7d3e939cd08404e8a5a6c8c8ce0b330",
+                          "event_id": "f2ca4326b40d576b961cd19294806f1b",
                           "event_type": "refused",
                           "failure_code": "provider_preflight_not_started",
                           "job_id": null,
@@ -58933,6 +59370,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "The selected Core canonical profile is malformed or not byte-conformant.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/debug/runs/{run_id}/errors",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "The selected Core canonical profile is malformed or not byte-conformant."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -64476,18 +64939,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:92b19eff055fc97250d30da3cecc1d9cb150525827479f8bafbc7a689339a30e",
+                      "projection_hash": "sha256:42342f3f21a95912c32c7c1409a409c68d896b5a14a3ef8ecdd1fe05855ff862",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A92b19eff055fc97250d30da3cecc1d9cb150525827479f8bafbc7a689339a30e&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ab5b3451ff315f3ed9b11e524756944c955bc1c8fbea9205fee0cf08e231628d3",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A42342f3f21a95912c32c7c1409a409c68d896b5a14a3ef8ecdd1fe05855ff862&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A70f0df4801f5476644d36a3a10cb8faec3cf5ad021ddddee0aa93b307bf90476",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:92b19eff055fc97250d30da3cecc1d9cb150525827479f8bafbc7a689339a30e",
+                        "projection_hash": "sha256:42342f3f21a95912c32c7c1409a409c68d896b5a14a3ef8ecdd1fe05855ff862",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:b5b3451ff315f3ed9b11e524756944c955bc1c8fbea9205fee0cf08e231628d3"
+                        "source_dependency_hash": "sha256:70f0df4801f5476644d36a3a10cb8faec3cf5ad021ddddee0aa93b307bf90476"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -64496,8 +64959,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:b5b3451ff315f3ed9b11e524756944c955bc1c8fbea9205fee0cf08e231628d3",
-                          "bound_dependency_count": 1468,
+                          "bound_dependency_aggregate_identity": "sha256:70f0df4801f5476644d36a3a10cb8faec3cf5ad021ddddee0aa93b307bf90476",
+                          "bound_dependency_count": 1467,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -64512,16 +64975,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:cbaa5f83a2b3f139cf9d7ceef58cd652ca428ec38dfd0f0f580891b11909674f"
+                          "worker_validation_receipt_hash": "sha256:ae14ce405482c6398b0d0dd638344f90baaf6e432c9987f9c8816e91a6563e66"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:b5b3451ff315f3ed9b11e524756944c955bc1c8fbea9205fee0cf08e231628d3",
+                      "source_dependency_hash": "sha256:70f0df4801f5476644d36a3a10cb8faec3cf5ad021ddddee0aa93b307bf90476",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:cbaa5f83a2b3f139cf9d7ceef58cd652ca428ec38dfd0f0f580891b11909674f",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:cbaa5f83a2b3f139cf9d7ceef58cd652ca428ec38dfd0f0f580891b11909674f"
+                      "worker_validation_receipt_hash": "sha256:ae14ce405482c6398b0d0dd638344f90baaf6e432c9987f9c8816e91a6563e66",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:ae14ce405482c6398b0d0dd638344f90baaf6e432c9987f9c8816e91a6563e66"
                     }
                   }
                 },

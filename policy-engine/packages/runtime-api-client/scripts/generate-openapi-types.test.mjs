@@ -7,7 +7,10 @@ import { fileURLToPath } from "node:url";
 import openapiTS, { astToString, COMMENT_HEADER } from "openapi-typescript";
 import ts from "typescript";
 
-import { generateOpenApiTypes } from "./generate-openapi-types.mjs";
+import {
+  generateOpenApiTypes,
+  schemaAdmitsNull,
+} from "./generate-openapi-types.mjs";
 import { normalizeRecursiveOpenApiTypes } from "./normalize-recursive-openapi-types.mjs";
 
 const COMPONENTS = {
@@ -341,6 +344,327 @@ void suppliedRequiredDefault;
     typeErrors(
       `${await generateOpenApiTypes(requiredDefaultDocument)}\n${consumer}`,
     ),
+    [],
+  );
+});
+
+test("nullable null defaults outside the OpenAPI required list become omittable, with a removal control", async () => {
+  const response = `
+type Filter = components["schemas"]["FilterBase"];
+const omittedNullableDefault: Filter = {query: "policy", top_k: 20};
+void omittedNullableDefault;
+`;
+  const generated = await generateOpenApiTypes(DOCUMENT);
+  const rawNodes = await openapiTS(DOCUMENT);
+  const raw = normalizeRecursiveOpenApiTypes(
+    `${COMMENT_HEADER}${astToString(rawNodes)}`,
+  );
+  assert.ok(
+    typeErrors(`${raw}\n${response}`).some((diagnostic) =>
+      /nullable_filter/.test(diagnostic.message),
+    ),
+    "removing the narrow presence transform must restore the default-null requiredness mismatch",
+  );
+  assert.deepEqual(typeErrors(`${generated}\n${response}`), []);
+});
+
+test("an explicitly required nullable default remains required", async () => {
+  const requiredDocument = structuredClone(DOCUMENT);
+  requiredDocument.components.schemas.FilterBase.required.push(
+    "nullable_filter",
+  );
+  const consumer = `
+type Filter = components["schemas"]["FilterBase"];
+// @ts-expect-error the OpenAPI required list outranks a nullable default
+const missingRequiredNullable: Filter = {query: "policy", top_k: 20};
+const suppliedRequiredNullable: Filter = {
+  query: "policy",
+  top_k: 20,
+  nullable_filter: null,
+};
+void [missingRequiredNullable, suppliedRequiredNullable];
+`;
+  assert.deepEqual(
+    typeErrors(`${await generateOpenApiTypes(requiredDocument)}\n${consumer}`),
+    [],
+  );
+});
+
+test("the source-emitted RuntimeApiProblem shape accepts the actual body without context or extensions", async () => {
+  const sourceDocument = JSON.parse(
+    await fs.readFile(
+      new URL("../../../schemas/runtime_api_v1.openapi.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const sourceSchemas = sourceDocument.components.schemas;
+  const problemSchema = sourceSchemas.RuntimeApiProblem;
+  assert.equal(
+    problemSchema.properties.context.anyOf[0].$ref,
+    "#/components/schemas/RuntimeApiProblemContext",
+  );
+  assert.deepEqual(problemSchema.properties.context.anyOf[1], { type: "null" });
+  assert.deepEqual(problemSchema.required, ["title", "detail", "code"]);
+
+  const document = {
+    openapi: sourceDocument.openapi,
+    info: { title: "Runtime API problem source-shape test", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        RuntimeApiProblem: structuredClone(problemSchema),
+        RuntimeApiProblemContext: structuredClone(
+          sourceSchemas.RuntimeApiProblemContext,
+        ),
+        JsonValue: structuredClone(sourceSchemas.JsonValue),
+      },
+    },
+  };
+  const actualBody = `
+type Problem = components["schemas"]["RuntimeApiProblem"];
+const actual409Body: Problem = {
+  code: "candidate_conflict",
+  detail: "Selected candidate is no longer current",
+  error: "candidate_conflict",
+  instance: null,
+  request_id: "req_e02_api_presence",
+  status: 409,
+  status_code: 409,
+  title: "Candidate conflict",
+  type: "https://polisyos.dev/problems/conflict",
+};
+const explicitNullProblem: Problem = {
+  ...actual409Body,
+  context: null,
+  extensions: null,
+};
+void [actual409Body, explicitNullProblem];
+`;
+  const rawNodes = await openapiTS(document);
+  const raw = normalizeRecursiveOpenApiTypes(
+    `${COMMENT_HEADER}${astToString(rawNodes)}`,
+  );
+  const removalDiagnostics = typeErrors(`${raw}\n${actualBody}`);
+  assert.ok(
+    removalDiagnostics.some((diagnostic) => /context/.test(diagnostic.message)),
+    "without the presence transform the source-emitted context reference is required",
+  );
+  assert.ok(
+    removalDiagnostics.some((diagnostic) =>
+      /extensions/.test(diagnostic.message),
+    ),
+    "without the presence transform the source-emitted nullable object is required",
+  );
+  assert.deepEqual(
+    typeErrors(`${await generateOpenApiTypes(document)}\n${actualBody}`),
+    [],
+  );
+});
+
+test("null admission follows OpenAPI 3.1 references and compositions conservatively", async () => {
+  const document = {
+    openapi: "3.1.0",
+    info: { title: "Null admission grammar", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        StringValue: { type: "string" },
+        NullableUnion: {
+          anyOf: [
+            { $ref: "#/components/schemas/StringValue" },
+            { type: "null" },
+          ],
+        },
+        NullCandidates: {
+          type: "object",
+          properties: {
+            referenced: {
+              $ref: "#/components/schemas/NullableUnion",
+              default: null,
+            },
+            all_of_accepts: {
+              allOf: [
+                { $ref: "#/components/schemas/NullableUnion" },
+                { type: ["string", "null"] },
+              ],
+              default: null,
+            },
+            one_of_accepts: {
+              oneOf: [{ type: "string" }, { type: "null" }],
+              default: null,
+            },
+            all_of_rejects: {
+              allOf: [
+                { $ref: "#/components/schemas/NullableUnion" },
+                { type: "string" },
+              ],
+              default: null,
+            },
+            one_of_overlaps: {
+              oneOf: [{ type: "null" }, true],
+              default: null,
+            },
+            ref_sibling_rejects: {
+              $ref: "#/components/schemas/NullableUnion",
+              not: { type: "null" },
+              default: null,
+            },
+            required_nullable: {
+              $ref: "#/components/schemas/NullableUnion",
+              default: null,
+            },
+            nonnullable_default: { type: "string", default: null },
+          },
+          required: ["required_nullable"],
+        },
+      },
+    },
+  };
+  const consumer = `
+type Candidate = components["schemas"]["NullCandidates"];
+const accepted: Candidate = {
+  referenced: null,
+  all_of_accepts: null,
+  one_of_accepts: null,
+  all_of_rejects: "kept required",
+  one_of_overlaps: "kept required",
+  ref_sibling_rejects: "kept required",
+  required_nullable: null,
+  nonnullable_default: "kept required",
+};
+// @ts-expect-error allOf's string constraint rejects null, so default is not optionalized
+const missingAllOfRejected: Pick<Candidate, "all_of_rejects"> = {};
+// @ts-expect-error oneOf must match exactly one branch; null matches both branches
+const missingOverlappingOneOf: Pick<Candidate, "one_of_overlaps"> = {};
+// @ts-expect-error a $ref and its not sibling are conjunctive in OpenAPI 3.1
+const missingRefSiblingRejected: Pick<Candidate, "ref_sibling_rejects"> = {};
+// @ts-expect-error a nonnullable default-null schema remains required
+const missingNonnullable: Pick<Candidate, "nonnullable_default"> = {};
+// @ts-expect-error required list still controls presence even with a nullable default
+const missingExplicitlyRequired: Pick<Candidate, "required_nullable"> = {};
+void [accepted, missingAllOfRejected, missingOverlappingOneOf, missingRefSiblingRejected, missingNonnullable, missingExplicitlyRequired];
+`;
+  const generated = await generateOpenApiTypes(document);
+  assert.deepEqual(typeErrors(`${generated}\n${consumer}`), []);
+});
+
+test("recursive or dynamic null decisions remain indeterminate", () => {
+  const document = {
+    openapi: "3.1.0",
+    components: {
+      schemas: {
+        RecursiveUnion: {
+          anyOf: [
+            { $ref: "#/components/schemas/RecursiveUnion" },
+            { type: "string" },
+          ],
+        },
+      },
+    },
+  };
+  assert.equal(
+    schemaAdmitsNull(document, {
+      $ref: "#/components/schemas/RecursiveUnion",
+    }),
+    undefined,
+  );
+  assert.equal(schemaAdmitsNull(document, { $dynamicRef: "#node" }), undefined);
+  assert.equal(
+    schemaAdmitsNull(
+      { openapi: "3.0.3", components: { schemas: {} } },
+      {
+        anyOf: [{ type: "null" }],
+      },
+    ),
+    undefined,
+    "unsupported dialects must not authorize a nullable optional projection",
+  );
+  assert.equal(
+    schemaAdmitsNull(
+      { openapi: "3.1.0", components: { schemas: {} } },
+      { type: ["null", "custom"] },
+    ),
+    undefined,
+    "invalid type members must not authorize optional presence",
+  );
+  assert.equal(
+    schemaAdmitsNull(
+      { openapi: "3.1.0", components: { schemas: {} } },
+      { $ref: 42 },
+    ),
+    undefined,
+    "a malformed supplied $ref must not be treated as an unconstrained schema",
+  );
+  assert.equal(
+    schemaAdmitsNull(
+      { openapi: "3.1.0", components: { schemas: {} } },
+      { allOf: [] },
+    ),
+    undefined,
+    "malformed empty allOf must not authorize optional presence",
+  );
+});
+
+test("malformed supplied refs fail closed instead of becoming unconstrained nullable schemas", async () => {
+  const document = {
+    openapi: "3.1.0",
+    info: { title: "Malformed ref", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        Malformed: {
+          type: "object",
+          properties: { field: { $ref: 42, default: null } },
+        },
+      },
+    },
+  };
+  assert.equal(
+    schemaAdmitsNull(
+      document,
+      document.components.schemas.Malformed.properties.field,
+    ),
+    undefined,
+  );
+  await assert.rejects(() => generateOpenApiTypes(document));
+});
+
+test("a required allOf sibling keeps the composed property required", async () => {
+  const document = {
+    openapi: "3.1.0",
+    info: { title: "Required sibling composition", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        Base: {
+          type: "object",
+          properties: {
+            field: {
+              anyOf: [{ type: "string" }, { type: "null" }],
+              default: null,
+            },
+          },
+        },
+        Composed: {
+          allOf: [
+            { $ref: "#/components/schemas/Base" },
+            { type: "object", required: ["field"] },
+          ],
+        },
+      },
+    },
+  };
+  const consumer = `
+type Base = components["schemas"]["Base"];
+const baseStillAllowsOmission: Base = {};
+type Composed = components["schemas"]["Composed"];
+// @ts-expect-error a required allOf sibling must be materialized in the composed projection
+const missingRequiredSibling: Composed = {};
+const suppliedRequiredSibling: Composed = {field: null};
+void [baseStillAllowsOmission, missingRequiredSibling, suppliedRequiredSibling];
+`;
+  assert.deepEqual(
+    typeErrors(`${await generateOpenApiTypes(document)}\n${consumer}`),
     [],
   );
 });
@@ -905,5 +1229,147 @@ test("reusable OpenAPI object refs must target the object kind of their source s
   await assert.rejects(
     generateOpenApiTypes(wrongCallback),
     /invalid callback reference.*not an OpenAPI Callback Object/i,
+  );
+});
+
+test("schema resource scopes are preflighted before nullable-default presence inference", async () => {
+  const makeDocument = (scope = {}) => ({
+    openapi: "3.1.0",
+    info: { title: "Scoped schema context", version: "1" },
+    paths: {},
+    components: {
+      schemas: {
+        NullableText: { anyOf: [{ type: "string" }, { type: "null" }] },
+        Container: {
+          ...scope,
+          type: "object",
+          properties: {
+            field: {
+              default: null,
+              $ref: "#/components/schemas/NullableText",
+            },
+          },
+        },
+      },
+    },
+  });
+  const missingField = `
+type Container = components["schemas"]["Container"];
+const omittedContainer: Container = {};
+void omittedContainer;
+`;
+  for (const [keyword, value] of [
+    ["$id", "https://example.test/resources/container.json"],
+    ["$schema", "https://json-schema.org/draft/2020-12/schema"],
+    ["$anchor", "container"],
+  ]) {
+    const document = makeDocument({ [keyword]: value });
+    const fieldSchema = document.components.schemas.Container.properties.field;
+    assert.equal(
+      schemaAdmitsNull(document, fieldSchema),
+      undefined,
+      `${keyword} makes the document resource context unsupported, including descendant refs`,
+    );
+    const generated = await generateOpenApiTypes(document);
+    assert.ok(
+      typeErrors(`${generated}${missingField}`).some((diagnostic) =>
+        /field/.test(diagnostic.message),
+      ),
+      `${keyword} must preserve descendant field presence when local refs are resource-relative`,
+    );
+
+    delete document.components.schemas.Container[keyword];
+    const afterScopeRemoval = await generateOpenApiTypes(document);
+    assert.deepEqual(
+      typeErrors(`${afterScopeRemoval}${missingField}`),
+      [],
+      `removing ${keyword} restores the ordinary OpenAPI 3.1 nullable-default projection`,
+    );
+  }
+
+  const nestedScope = makeDocument();
+  nestedScope.components.schemas.Unrelated = {
+    type: "object",
+    properties: {
+      nested: {
+        $anchor: "nested-resource-boundary",
+        properties: { value: { type: "string" } },
+      },
+    },
+  };
+  const nestedScopeTypes = await generateOpenApiTypes(nestedScope);
+  assert.ok(
+    typeErrors(`${nestedScopeTypes}${missingField}`).some((diagnostic) =>
+      /field/.test(diagnostic.message),
+    ),
+    "scope preflight covers schema descendants throughout the document, not just the inferred schema",
+  );
+
+  const contentSchemaScope = makeDocument();
+  contentSchemaScope.components.schemas.Unrelated = {
+    type: "string",
+    contentEncoding: "base64",
+    contentMediaType: "application/json",
+    contentSchema: {
+      $id: "https://example.test/resources/decoded-content.json",
+      type: "object",
+      properties: { nested: { type: "string" } },
+    },
+  };
+  assert.equal(
+    schemaAdmitsNull(
+      contentSchemaScope,
+      contentSchemaScope.components.schemas.Container.properties.field,
+    ),
+    undefined,
+    "contentSchema is part of the OpenAPI 3.1 base dialect's nested schema graph",
+  );
+  const contentSchemaTypes = await generateOpenApiTypes(contentSchemaScope);
+  assert.ok(
+    typeErrors(`${contentSchemaTypes}${missingField}`).some((diagnostic) =>
+      /field/.test(diagnostic.message),
+    ),
+    "resource scope inside contentSchema conservatively blocks unrelated nullable-default optionality",
+  );
+  delete contentSchemaScope.components.schemas.Unrelated.contentSchema;
+  const afterContentSchemaRemoval =
+    await generateOpenApiTypes(contentSchemaScope);
+  assert.deepEqual(
+    typeErrors(`${afterContentSchemaRemoval}${missingField}`),
+    [],
+    "removing the only contentSchema resource scope restores the proven base-dialect projection",
+  );
+
+  const customDialect = makeDocument();
+  customDialect.jsonSchemaDialect =
+    "https://example.test/policy-schema-dialect";
+  assert.equal(
+    schemaAdmitsNull(
+      customDialect,
+      customDialect.components.schemas.Container.properties.field,
+    ),
+    undefined,
+  );
+  const customDialectTypes = await generateOpenApiTypes(customDialect);
+  assert.ok(
+    typeErrors(`${customDialectTypes}${missingField}`).some((diagnostic) =>
+      /field/.test(diagnostic.message),
+    ),
+    "an unsupported document dialect cannot authorize an optional projection",
+  );
+  delete customDialect.jsonSchemaDialect;
+  const afterDialectRemoval = await generateOpenApiTypes(customDialect);
+  assert.deepEqual(
+    typeErrors(`${afterDialectRemoval}${missingField}`),
+    [],
+    "removing the unsupported document dialect restores only the proven base-dialect projection",
+  );
+
+  const defaultDialect = makeDocument();
+  const defaultDialectTypes = await generateOpenApiTypes(defaultDialect);
+  assert.deepEqual(
+    typeErrors(`${defaultDialectTypes}${missingField}`),
+    [],
+    "an unscoped schema with the OpenAPI 3.1 base dialect keeps its nullable default optional",
   );
 });

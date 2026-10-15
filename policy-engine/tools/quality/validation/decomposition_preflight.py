@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import median
-from typing import Any
+from typing import Any, Literal
 
 from tools.lib.fs import atomic_write_bytes, atomic_write_json, atomic_write_text
 from tools.lib.imports import repo_root_from
@@ -140,6 +140,14 @@ class ImportGraphInputError(RuntimeError):
     def __init__(self, message: str, *, source_snapshot: _ImportSourceSnapshot) -> None:
         super().__init__(message)
         self.source_snapshot = source_snapshot
+
+
+class DynamicImportCollectionError(RuntimeError):
+    """Raised when selected source cannot be completely inventoried."""
+
+
+class DynamicImportSourcePathError(DynamicImportCollectionError):
+    """Raised when a selected source path cannot be safely labeled in-repository."""
 
 
 def _import_source_path(path: Path) -> str:
@@ -305,9 +313,7 @@ def _collect_import_source_snapshot() -> _ImportSourceSnapshot:
 
 def _import_source_errors(snapshot: _ImportSourceSnapshot) -> list[dict[str, Any]]:
     errors = [dict(item) for item in snapshot.discovery_errors]
-    errors.extend(
-        dict(item) for item in snapshot.input_manifest if item["outcome"] != "parsed"
-    )
+    errors.extend(dict(item) for item in snapshot.input_manifest if item["outcome"] != "parsed")
     return errors
 
 
@@ -335,9 +341,9 @@ def _import_graph_input_receipt(snapshot: _ImportSourceSnapshot) -> dict[str, An
         "discovery_errors": discovery_errors,
     }
     manifest_hash = hashlib.sha256(
-        json.dumps(hashed_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
-            "utf-8"
-        )
+        json.dumps(
+            hashed_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
     ).hexdigest()
     counts: dict[str, int] = {}
     for item in inputs:
@@ -374,6 +380,19 @@ def _import_graph_input_receipt(snapshot: _ImportSourceSnapshot) -> dict[str, An
 
 def _rel(path: Path) -> str:
     return path.resolve().relative_to(REPO_ROOT).as_posix()
+
+
+def _diagnostic_path(path: Path) -> str:
+    """Format a path for diagnostics without weakening repository containment checks.
+
+    Validators may be given temporary paths by tests or callers. Keep `_rel`
+    strict for inventory identities, but make an out-of-repository diagnostic
+    useful instead of raising while handling the original input error.
+    """
+    try:
+        return _rel(path)
+    except (OSError, RuntimeError, ValueError):
+        return path.as_posix()
 
 
 def _sha(value: str, length: int = 12) -> str:
@@ -484,8 +503,8 @@ def _literal_string(node: ast.AST | None) -> str | None:
     return None
 
 
-def _call_pattern(node: ast.Call) -> tuple[str, str, list[str]]:
-    call_name = _imported_module_name(node.func)
+def _call_pattern(node: ast.Call, *, call_name: str | None = None) -> tuple[str, str, list[str]]:
+    call_name = call_name or _imported_module_name(node.func)
     first_arg = _literal_string(node.args[0]) if node.args else None
     keyword_group = next(
         (_literal_string(keyword.value) for keyword in node.keywords if keyword.arg == "group"),
@@ -530,8 +549,8 @@ def _allowed_targets_for_pattern(call_name: str, pattern: str) -> list[str]:
     return []
 
 
-def _owner_for_path(path: Path) -> str:
-    rel = _rel(path)
+def _owner_for_path(path: Path, *, relative_path: str | None = None) -> str:
+    rel = relative_path or _rel(path)
     if "/scientist/" in rel or rel.startswith("src/polisyos/scientist"):
         return "team-scientist"
     if "/foundry/" in rel or rel.startswith("src/polisyos/foundry"):
@@ -543,37 +562,1648 @@ def _owner_for_path(path: Path) -> str:
     return "team-architecture"
 
 
+_DYNAMIC_IMPORT_GUARDED_ROOTS = frozenset(
+    {"importlib", "metadata", "pkgutil", "pkg_resources", "__import__", "list_entry_points"}
+)
+_DYNAMIC_IMPORT_MODULE_PREFIXES = frozenset(
+    {
+        "importlib",
+        "importlib.metadata",
+        "importlib.resources",
+        "metadata",
+        "pkgutil",
+        "pkg_resources",
+    }
+)
+_DYNAMIC_IMPORT_CALLABLE_NAMES = frozenset(
+    {
+        "import_module",
+        "__import__",
+        "iter_modules",
+        "walk_packages",
+        "files",
+        "entry_points",
+        "iter_entry_points",
+        "list_entry_points",
+    }
+)
+
+
+@dataclass(frozen=True, slots=True)
+class _DynamicImportBinding:
+    """A bounded source-level binding fact for the dynamic-import collector."""
+
+    kind: Literal[
+        "module",
+        "callable",
+        "unknown",
+        "other",
+        "ambiguous",
+        "sequence",
+        "iterable",
+        "mapping",
+    ]
+    name: str | None = None
+    guarded: bool = False
+    items: tuple[_DynamicImportBinding, ...] | None = None
+    values: tuple[_DynamicImportBinding, ...] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _PendingDynamicImportScope:
+    node: ast.AST
+    environment_at_definition: Mapping[str, _DynamicImportBinding]
+
+
+_DYNAMIC_UNKNOWN = _DynamicImportBinding("unknown")
+_DYNAMIC_OTHER = _DynamicImportBinding("other")
+_DYNAMIC_AMBIGUOUS = _DynamicImportBinding("ambiguous", guarded=True)
+
+
+def _dynamic_call_name(name: str) -> str:
+    if name == "builtins.__import__":
+        return "__import__"
+    if name == "importlib.metadata.entry_points":
+        return "metadata.entry_points"
+    return name
+
+
+def _dynamic_binding_for_import(module: str, name: str | None = None) -> _DynamicImportBinding:
+    imported = module if name is None else f"{module}.{name}"
+    canonical = _dynamic_call_name(imported)
+    if canonical == "metadata":
+        return _DYNAMIC_OTHER
+    if canonical in DYNAMIC_CALL_NAMES:
+        return _DynamicImportBinding("callable", canonical, guarded=True)
+    if module.startswith("polisyos.") and name == "list_entry_points":
+        return _DynamicImportBinding("callable", "list_entry_points", guarded=True)
+    if any(call_name.startswith(canonical + ".") for call_name in DYNAMIC_CALL_NAMES):
+        return _DynamicImportBinding("module", canonical, guarded=True)
+    if canonical in {"importlib.metadata", "importlib.resources"}:
+        return _DynamicImportBinding("module", canonical, guarded=True)
+    if canonical == "builtins":
+        return _DynamicImportBinding("module", canonical)
+    return _DYNAMIC_OTHER
+
+
+def _dynamic_attribute_binding(
+    binding: _DynamicImportBinding,
+    attribute: str,
+) -> _DynamicImportBinding:
+    if binding.kind == "module" and binding.name is not None:
+        return _dynamic_binding_for_import(binding.name, attribute)
+    if binding.kind == "ambiguous" and binding.name is not None:
+        candidate = _dynamic_call_name(f"{binding.name}.{attribute}")
+        if candidate in DYNAMIC_CALL_NAMES or candidate in _DYNAMIC_IMPORT_MODULE_PREFIXES:
+            return _DynamicImportBinding("ambiguous", candidate, guarded=True)
+        if any(call_name.startswith(candidate + ".") for call_name in DYNAMIC_CALL_NAMES):
+            return _DynamicImportBinding("ambiguous", candidate, guarded=True)
+        return _DYNAMIC_OTHER
+    if binding.guarded or binding.kind == "ambiguous":
+        return _DYNAMIC_AMBIGUOUS
+    return _DYNAMIC_OTHER
+
+
+def _join_dynamic_bindings(
+    bindings: Sequence[_DynamicImportBinding],
+) -> _DynamicImportBinding:
+    if not bindings:
+        return _DYNAMIC_UNKNOWN
+    first = bindings[0]
+    if all(binding == first for binding in bindings[1:]):
+        return first
+    if all(binding.kind == first.kind for binding in bindings[1:]) and first.kind in {
+        "sequence",
+        "iterable",
+        "mapping",
+    }:
+        item_lists = [binding.items for binding in bindings]
+        if all(items is not None for items in item_lists):
+            concrete_item_lists = [items for items in item_lists if items is not None]
+            if all(len(items) == len(concrete_item_lists[0]) for items in concrete_item_lists):
+                items = tuple(
+                    _join_dynamic_bindings(tuple(values))
+                    for values in zip(*concrete_item_lists, strict=True)
+                )
+                if first.kind in {"sequence", "iterable"}:
+                    return _dynamic_sequence_binding(items, kind=first.kind)
+                value_lists = [binding.values for binding in bindings]
+                if all(values is not None for values in value_lists):
+                    concrete_value_lists = [values for values in value_lists if values is not None]
+                    if all(
+                        len(values) == len(concrete_value_lists[0])
+                        for values in concrete_value_lists
+                    ):
+                        values = tuple(
+                            _join_dynamic_bindings(tuple(joined_values))
+                            for joined_values in zip(*concrete_value_lists, strict=True)
+                        )
+                        return _dynamic_mapping_binding(items, values)
+    guarded_names = {
+        binding.name
+        for binding in bindings
+        if binding.name is not None
+        and (
+            binding.guarded
+            or binding.name in _DYNAMIC_IMPORT_GUARDED_ROOTS
+            or binding.kind == "ambiguous"
+        )
+    }
+    if len(guarded_names) == 1:
+        return _DynamicImportBinding("ambiguous", next(iter(guarded_names)), guarded=True)
+    if any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
+        return _DYNAMIC_AMBIGUOUS
+    return _DYNAMIC_UNKNOWN
+
+
+def _dynamic_sequence_binding(
+    items: Sequence[_DynamicImportBinding] | None,
+    *,
+    kind: Literal["sequence", "iterable"] = "sequence",
+    guarded: bool = False,
+) -> _DynamicImportBinding:
+    """Return an iterable value whose importer provenance stays attached to its items."""
+    materialized = tuple(items) if items is not None else None
+    has_guarded_item = any(item.guarded or item.kind == "ambiguous" for item in materialized or ())
+    return _DynamicImportBinding(
+        kind,
+        guarded=guarded or has_guarded_item,
+        items=materialized,
+    )
+
+
+def _dynamic_mapping_binding(
+    keys: Sequence[_DynamicImportBinding] | None,
+    values: Sequence[_DynamicImportBinding] | None,
+    *,
+    guarded: bool = False,
+) -> _DynamicImportBinding:
+    """Return a mapping value while retaining key iteration and value provenance."""
+    materialized_keys = tuple(keys) if keys is not None else None
+    materialized_values = tuple(values) if values is not None else None
+    members = tuple(materialized_keys or ()) + tuple(materialized_values or ())
+    return _DynamicImportBinding(
+        "mapping",
+        guarded=guarded or any(item.guarded or item.kind == "ambiguous" for item in members),
+        items=materialized_keys,
+        values=materialized_values,
+    )
+
+
+class _DynamicImportScopeNames(ast.NodeVisitor):
+    """Collect lexical bindings without crossing function/class/comprehension scopes."""
+
+    def __init__(self) -> None:
+        self.names: set[str] = set()
+        self.globals: set[str] = set()
+        self.nonlocals: set[str] = set()
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            self.names.add(node.id)
+
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self.names.add(alias.asname or alias.name.split(".", 1)[0])
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        for alias in node.names:
+            if alias.name != "*":
+                self.names.add(alias.asname or alias.name)
+
+    def visit_Global(self, node: ast.Global) -> None:
+        self.globals.update(node.names)
+
+    def visit_Nonlocal(self, node: ast.Nonlocal) -> None:
+        self.nonlocals.update(node.names)
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+        if node.name:
+            self.names.add(node.name)
+        self.generic_visit(node)
+
+    def visit_MatchAs(self, node: ast.MatchAs) -> None:
+        if node.name:
+            self.names.add(node.name)
+        self.generic_visit(node)
+
+    def visit_MatchStar(self, node: ast.MatchStar) -> None:
+        if node.name:
+            self.names.add(node.name)
+
+    def visit_MatchMapping(self, node: ast.MatchMapping) -> None:
+        if node.rest:
+            self.names.add(node.rest)
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self.names.add(node.name)
+        self._visit_definition_expressions(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self.names.add(node.name)
+        self._visit_definition_expressions(node)
+
+    def _visit_definition_expressions(
+        self,
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+    ) -> None:
+        for expression in (*node.decorator_list, *node.args.defaults):
+            self.visit(expression)
+        for expression in node.args.kw_defaults:
+            if expression is not None:
+                self.visit(expression)
+        for argument in (
+            *node.args.posonlyargs,
+            *node.args.args,
+            *node.args.kwonlyargs,
+        ):
+            if argument.annotation is not None:
+                self.visit(argument.annotation)
+        for argument in (node.args.vararg, node.args.kwarg):
+            if argument is not None and argument.annotation is not None:
+                self.visit(argument.annotation)
+        if node.returns is not None:
+            self.visit(node.returns)
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        for expression in (*node.args.defaults, *node.args.kw_defaults):
+            if expression is not None:
+                self.visit(expression)
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self.names.add(node.name)
+        for expression in (*node.decorator_list, *node.bases):
+            self.visit(expression)
+        for keyword in node.keywords:
+            self.visit(keyword.value)
+
+    def visit_ListComp(self, node: ast.ListComp) -> None:
+        self._visit_comprehension_outer_bindings(node)
+
+    def visit_SetComp(self, node: ast.SetComp) -> None:
+        self._visit_comprehension_outer_bindings(node)
+
+    def visit_DictComp(self, node: ast.DictComp) -> None:
+        self._visit_comprehension_outer_bindings(node)
+
+    def visit_GeneratorExp(self, node: ast.GeneratorExp) -> None:
+        self._visit_comprehension_outer_bindings(node)
+
+    def _visit_comprehension_outer_bindings(
+        self,
+        node: ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp,
+    ) -> None:
+        generators = node.generators
+        if generators:
+            self.visit(generators[0].iter)
+        stack = list(ast.iter_child_nodes(node))
+        while stack:
+            child = stack.pop()
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+                continue
+            if isinstance(child, ast.NamedExpr):
+                self.names.update(
+                    name.id for name in ast.walk(child.target) if isinstance(name, ast.Name)
+                )
+                stack.extend(ast.iter_child_nodes(child.value))
+                continue
+            if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store):
+                continue
+            stack.extend(ast.iter_child_nodes(child))
+
+
+def _scope_local_bindings(nodes: Sequence[ast.stmt]) -> tuple[set[str], set[str], set[str]]:
+    collector = _DynamicImportScopeNames()
+    for node in nodes:
+        collector.visit(node)
+    locals_ = collector.names - collector.globals - collector.nonlocals
+    return locals_, collector.globals, collector.nonlocals
+
+
+def _dynamic_source_paths(*scopes: str) -> list[Path]:
+    """Enumerate all selected Python paths, surfacing missing roots and walk errors."""
+    ignored_parts = {
+        ".git",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        "__pycache__",
+        "_build",
+        "_cache",
+        ".venv",
+        "node_modules",
+    }
+    selected: list[Path] = []
+    for scope in scopes:
+        root = REPO_ROOT / scope
+        try:
+            root_mode = os.lstat(root).st_mode
+        except OSError as error:
+            raise DynamicImportCollectionError(
+                f"source root {scope!r} is unavailable: {type(error).__name__}: {error}"
+            ) from error
+        if stat.S_ISLNK(root_mode):
+            raise DynamicImportCollectionError(f"source root {scope!r} is a directory symlink")
+        if not stat.S_ISDIR(root_mode):
+            raise DynamicImportCollectionError(f"source root {scope!r} is unavailable")
+        walk_errors: list[OSError] = []
+
+        def record_walk_error(error: OSError, errors: list[OSError] = walk_errors) -> None:
+            errors.append(error)
+
+        for current, directories, filenames in os.walk(
+            root,
+            topdown=True,
+            onerror=record_walk_error,
+            followlinks=False,
+        ):
+            selected_directories: list[str] = []
+            for name in sorted(directories):
+                if name in ignored_parts:
+                    continue
+                directory_path = Path(current) / name
+                try:
+                    directory_mode = os.lstat(directory_path).st_mode
+                except OSError as error:
+                    raise DynamicImportCollectionError(
+                        "source directory inspection failed under "
+                        f"{scope!r}: {_import_source_path(directory_path)}: "
+                        f"{type(error).__name__}: {error}"
+                    ) from error
+                if stat.S_ISLNK(directory_mode):
+                    raise DynamicImportCollectionError(
+                        "non-ignored directory symlink under "
+                        f"{scope!r}: {_import_source_path(directory_path)}"
+                    )
+                selected_directories.append(name)
+            directories[:] = selected_directories
+            for filename in sorted(filenames):
+                if Path(filename).suffix == ".py":
+                    selected.append(Path(current) / filename)
+        if walk_errors:
+            error = walk_errors[0]
+            raise DynamicImportCollectionError(
+                f"source traversal failed under {scope!r}: {type(error).__name__}: {error}"
+            ) from error
+    return sorted(selected)
+
+
+def _dynamic_source_label(path: Path) -> str:
+    """Validate a selected source path and return its lexical repository label.
+
+    Source symlinks are permitted only when their resolved target remains inside the
+    repository. Keeping the label lexical preserves the selected path in diagnostics,
+    while the resolved containment check prevents reading through an external link.
+    """
+    repository = REPO_ROOT.absolute()
+    try:
+        lexical_path = path.absolute().relative_to(repository)
+    except ValueError as error:
+        raise DynamicImportSourcePathError(
+            f"selected source path is outside repository: {path.as_posix()}"
+        ) from error
+
+    try:
+        resolved_repository = REPO_ROOT.resolve(strict=True)
+        resolved_path = path.resolve(strict=True)
+        resolved_path.relative_to(resolved_repository)
+    except ValueError as error:
+        raise DynamicImportSourcePathError(
+            f"{lexical_path.as_posix()}: selected source resolves outside repository"
+        ) from error
+    except (OSError, RuntimeError) as error:
+        raise DynamicImportSourcePathError(
+            f"{lexical_path.as_posix()}: selected source path cannot be resolved: "
+            f"{type(error).__name__}: {error}"
+        ) from error
+    return lexical_path.as_posix()
+
+
+class _DynamicImportSourceScanner:
+    """Collect dynamic calls with statically proven importer provenance.
+
+    Resolves import statements, direct and chained aliases, same-origin joins, lexical
+    closures, literal built-in ``getattr``, and known sequence/mapping transfers. Guarded
+    provenance is retained across recognized value flows; an unsupported expression or
+    boundary that could carry it fails closed. Arbitrary callables supplied by callers,
+    returned by unmodeled calls, or obtained through computed reflection remain outside the
+    static inventory guarantee.
+    """
+
+    def __init__(self, source_path: Path, *, relative_path: str | None = None) -> None:
+        self.source_path = source_path
+        self.relative_path = relative_path or _dynamic_source_label(source_path)
+        self.entries: list[dict[str, Any]] = []
+
+    def scan(self, tree: ast.Module) -> list[dict[str, Any]]:
+        locals_, _, _ = _scope_local_bindings(tree.body)
+        environment = {name: self._unknown_binding(name) for name in locals_}
+        pending: list[_PendingDynamicImportScope] = []
+        self._scan_statements(tree.body, environment, locals_, {}, pending, {})
+        for deferred in pending:
+            scope = deferred.node
+            # Module names are globals resolved at call time, not closure cells.
+            closure = environment
+            if isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self._scan_function(scope, closure, environment)
+            elif isinstance(scope, ast.ClassDef):
+                self._scan_class(scope, closure, environment)
+            elif isinstance(scope, ast.Lambda):
+                self._scan_function(scope, closure, environment)
+            elif isinstance(scope, ast.TypeAlias):
+                self._scan_type_parameter_fields(scope, environment, pending)
+        return self.entries
+
+    @staticmethod
+    def _unknown_binding(_name: str) -> _DynamicImportBinding:
+        return _DYNAMIC_UNKNOWN
+
+    def _reject_guarded_escape(
+        self, binding: _DynamicImportBinding, node: ast.AST, boundary: str
+    ) -> None:
+        if binding.guarded or binding.kind == "ambiguous":
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{getattr(node, 'lineno', 1)}: guarded importer value "
+                f"escapes through {boundary}; value flow at this boundary is unsupported"
+            )
+
+    def _scan_type_parameter_fields(
+        self,
+        owner: ast.AST,
+        environment: Mapping[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+    ) -> None:
+        """Scan every expression-bearing AST field in a PEP 695 type-parameter scope."""
+        owner_fields = dict(ast.iter_fields(owner))
+        if "type_params" not in owner_fields:
+            return
+        parameters = owner_fields["type_params"]
+        if not isinstance(parameters, (list, tuple)):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{getattr(owner, 'lineno', 1)}: unsupported type parameter collection"
+            )
+        parameter_types = tuple(
+            node_type
+            for node_type in (
+                getattr(ast, "TypeVar", None),
+                getattr(ast, "ParamSpec", None),
+                getattr(ast, "TypeVarTuple", None),
+            )
+            if isinstance(node_type, type)
+        )
+        parameters = tuple(parameters)
+        parameter_names: list[str] = []
+        for parameter in parameters:
+            if not isinstance(parameter, parameter_types):
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(owner, 'lineno', 1)}: unsupported type parameter AST carrier {type(parameter).__name__}"
+                )
+            name = getattr(parameter, "name", None)
+            if not isinstance(name, str) or not name:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(owner, 'lineno', 1)}: unsupported type parameter name"
+                )
+            parameter_names.append(name)
+
+        annotation_environment = dict(environment)
+        for name in parameter_names:
+            # PEP 695 names shadow same-spelled outer bindings in annotation scopes.
+            annotation_environment[name] = _DYNAMIC_OTHER
+
+        inert_ast_markers = (
+            ast.expr_context,
+            ast.operator,
+            ast.unaryop,
+            ast.boolop,
+            ast.cmpop,
+        )
+
+        def expression_roots(value: object) -> list[ast.expr]:
+            roots: list[ast.expr] = []
+            stack = [value]
+            while stack:
+                current = stack.pop()
+                if isinstance(current, ast.expr):
+                    roots.append(current)
+                    continue
+                if isinstance(current, (list, tuple)):
+                    stack.extend(reversed(current))
+                    continue
+                if not isinstance(current, ast.AST):
+                    # Names, flags, and other scalar fields are syntax metadata.
+                    continue
+                if isinstance(current, inert_ast_markers):
+                    continue
+                if isinstance(current, (ast.stmt, ast.pattern, ast.mod)):
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{getattr(owner, 'lineno', 1)}: unsupported executable AST carrier in type parameter"
+                    )
+                children = [child for _, child in ast.iter_fields(current)]
+                if not children:
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{getattr(owner, 'lineno', 1)}: unsupported type parameter AST carrier {type(current).__name__}"
+                    )
+                stack.extend(reversed(children))
+            return roots
+
+        for parameter in parameters:
+            # Field discovery is intentionally generic: new expression-bearing PEP 695
+            # fields flow through the same transfer domain without another spelling list.
+            for _, value in ast.iter_fields(parameter):
+                for expression in expression_roots(value):
+                    binding = self._expression_binding(
+                        expression,
+                        annotation_environment,
+                        pending,
+                        {},
+                    )
+                    self._reject_guarded_escape(
+                        binding,
+                        expression,
+                        "a type parameter bound, constraint, or default",
+                    )
+
+    def _lookup(
+        self, name: str, environment: Mapping[str, _DynamicImportBinding]
+    ) -> _DynamicImportBinding:
+        if name in environment:
+            return environment[name]
+        if name == "__import__":
+            return _DynamicImportBinding("callable", "__import__", guarded=True)
+        return _DYNAMIC_OTHER
+
+    def _expression_binding(
+        self,
+        node: ast.AST,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+        *,
+        comprehension_outer: dict[str, _DynamicImportBinding] | None = None,
+    ) -> _DynamicImportBinding:
+        if isinstance(node, ast.Name):
+            return self._lookup(node.id, environment)
+        if isinstance(node, ast.Attribute):
+            base = self._expression_binding(
+                node.value,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            return _dynamic_attribute_binding(base, node.attr)
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            items: list[_DynamicImportBinding] = []
+            shape_known = True
+            guarded = False
+            for element in node.elts:
+                if isinstance(element, ast.Starred):
+                    spread = self._expression_binding(
+                        element.value,
+                        environment,
+                        pending,
+                        scope_info,
+                        comprehension_outer=comprehension_outer,
+                    )
+                    guarded = guarded or spread.guarded or spread.kind == "ambiguous"
+                    if spread.kind == "sequence" and spread.items is not None:
+                        items.extend(spread.items)
+                    else:
+                        shape_known = False
+                    continue
+                item = self._expression_binding(
+                    element,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                items.append(item)
+                guarded = guarded or item.guarded or item.kind == "ambiguous"
+            kind: Literal["sequence", "iterable"] = (
+                "iterable" if isinstance(node, ast.Set) else "sequence"
+            )
+            return _dynamic_sequence_binding(
+                items if shape_known else None,
+                kind=kind,
+                guarded=guarded,
+            )
+        if isinstance(node, ast.Dict):
+            keys: list[_DynamicImportBinding] = []
+            values: list[_DynamicImportBinding] = []
+            shape_known = True
+            guarded = False
+            for key_node, value_node in zip(node.keys, node.values, strict=True):
+                value = self._expression_binding(
+                    value_node,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                if key_node is None:
+                    guarded = guarded or value.guarded or value.kind == "ambiguous"
+                    if (
+                        value.kind == "mapping"
+                        and value.items is not None
+                        and value.values is not None
+                    ):
+                        keys.extend(value.items)
+                        values.extend(value.values)
+                    else:
+                        shape_known = False
+                    continue
+                key = self._expression_binding(
+                    key_node,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                keys.append(key)
+                values.append(value)
+                guarded = guarded or key.guarded or key.kind == "ambiguous"
+                guarded = guarded or value.guarded or value.kind == "ambiguous"
+            return _dynamic_mapping_binding(
+                keys if shape_known else None,
+                values if shape_known else None,
+                guarded=guarded,
+            )
+        if isinstance(node, ast.Call):
+            callee = self._expression_binding(
+                node.func,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            self._record_call(node, callee)
+            argument_bindings = [
+                self._expression_binding(
+                    argument,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                for argument in node.args
+            ]
+            argument_bindings.extend(
+                self._expression_binding(
+                    keyword.value,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                for keyword in node.keywords
+            )
+            if isinstance(node.func, ast.Name) and node.func.id == "getattr":
+                if node.func.id not in environment and len(argument_bindings) >= 2:
+                    module_binding = argument_bindings[0]
+                    attribute = _literal_string(node.args[1])
+                    if module_binding.kind == "module":
+                        if attribute is not None:
+                            return _dynamic_attribute_binding(module_binding, attribute)
+                        if module_binding.guarded:
+                            return _DYNAMIC_AMBIGUOUS
+                    if module_binding.kind in {"callable", "ambiguous"} and module_binding.guarded:
+                        return _DYNAMIC_AMBIGUOUS
+            for binding in argument_bindings:
+                self._reject_guarded_escape(binding, node, "a call argument")
+            return _DYNAMIC_OTHER
+        if isinstance(node, ast.NamedExpr):
+            value = self._expression_binding(
+                node.value,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            if not isinstance(node.target, ast.Name):
+                if value.guarded:
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: guarded importer has an unsupported assignment target"
+                    )
+                return _DYNAMIC_OTHER
+            target_name = node.target.id
+            self._check_cross_scope_write(node.target, value, environment, scope_info, node.lineno)
+            if comprehension_outer is not None:
+                old = comprehension_outer.get(target_name, self._unknown_binding(target_name))
+                if old.guarded or value.guarded:
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: comprehension walrus mutates a guarded importer alias"
+                    )
+                comprehension_outer[target_name] = value
+            environment[target_name] = value
+            return value
+        if isinstance(node, ast.Lambda):
+            for expression in (*node.args.defaults, *node.args.kw_defaults):
+                if expression is not None:
+                    binding = self._expression_binding(expression, environment, pending, scope_info)
+                    self._reject_guarded_escape(binding, expression, "a lambda default")
+            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            return _DYNAMIC_OTHER
+        if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            return self._scan_comprehension(node, environment, pending, scope_info)
+        if isinstance(node, ast.IfExp):
+            self._expression_binding(
+                node.test,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            body_env = environment.copy()
+            else_env = environment.copy()
+            body_outer = comprehension_outer.copy() if comprehension_outer is not None else None
+            else_outer = comprehension_outer.copy() if comprehension_outer is not None else None
+            body_value = self._expression_binding(
+                node.body,
+                body_env,
+                pending,
+                scope_info,
+                comprehension_outer=body_outer,
+            )
+            else_value = self._expression_binding(
+                node.orelse,
+                else_env,
+                pending,
+                scope_info,
+                comprehension_outer=else_outer,
+            )
+            self._join_expression_paths(environment, (body_env, else_env))
+            if (
+                comprehension_outer is not None
+                and body_outer is not None
+                and else_outer is not None
+            ):
+                self._join_expression_paths(comprehension_outer, (body_outer, else_outer))
+            return _join_dynamic_bindings((body_value, else_value))
+        if isinstance(node, ast.BoolOp):
+            paths: list[Mapping[str, _DynamicImportBinding]] = []
+            outer_paths: list[Mapping[str, _DynamicImportBinding]] = []
+            values: list[_DynamicImportBinding] = []
+            for value_node in node.values:
+                values.append(
+                    self._expression_binding(
+                        value_node,
+                        environment,
+                        pending,
+                        scope_info,
+                        comprehension_outer=comprehension_outer,
+                    )
+                )
+                paths.append(environment.copy())
+                if comprehension_outer is not None:
+                    outer_paths.append(comprehension_outer.copy())
+            self._join_expression_paths(environment, paths)
+            if comprehension_outer is not None and outer_paths:
+                self._join_expression_paths(comprehension_outer, outer_paths)
+            return _join_dynamic_bindings(values)
+        if isinstance(node, ast.Compare):
+            self._expression_binding(
+                node.left,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            paths: list[Mapping[str, _DynamicImportBinding]] = []
+            outer_paths: list[Mapping[str, _DynamicImportBinding]] = []
+            for comparator in node.comparators:
+                self._expression_binding(
+                    comparator,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                paths.append(environment.copy())
+                if comprehension_outer is not None:
+                    outer_paths.append(comprehension_outer.copy())
+            if paths:
+                self._join_expression_paths(environment, paths)
+            if comprehension_outer is not None and outer_paths:
+                self._join_expression_paths(comprehension_outer, outer_paths)
+            return _DYNAMIC_OTHER
+        if isinstance(node, (ast.Yield, ast.YieldFrom)):
+            value_node = getattr(node, "value", None)
+            value = (
+                self._expression_binding(
+                    value_node,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                )
+                if value_node is not None
+                else _DYNAMIC_OTHER
+            )
+            self._reject_guarded_escape(value, node, "yield")
+            return _DYNAMIC_OTHER
+
+        child_values = [
+            self._expression_binding(
+                child,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            for child in ast.iter_child_nodes(node)
+            if isinstance(child, ast.expr)
+        ]
+        if any(binding.guarded or binding.kind == "ambiguous" for binding in child_values):
+            return _DYNAMIC_AMBIGUOUS
+        return _DYNAMIC_OTHER
+
+    def _scan_comprehension(
+        self,
+        node: ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+    ) -> _DynamicImportBinding:
+        generators = node.generators
+        if not generators:
+            return _DYNAMIC_OTHER
+        # Python evaluates the first iterable in the containing scope.
+        first_iterable = self._expression_binding(
+            generators[0].iter, environment, pending, scope_info
+        )
+        local_env = environment.copy()
+        comp_outer = environment
+        for index, generator in enumerate(generators):
+            iterable = (
+                first_iterable
+                if index == 0
+                else self._expression_binding(generator.iter, local_env, pending, scope_info)
+            )
+            self._assign_target(
+                generator.target,
+                self._iterable_element_binding(iterable),
+                local_env,
+                pending,
+                scope_info,
+            )
+            for condition in generator.ifs:
+                self._expression_binding(
+                    condition,
+                    local_env,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comp_outer,
+                )
+        if isinstance(node, ast.DictComp):
+            key = self._expression_binding(
+                node.key,
+                local_env,
+                pending,
+                scope_info,
+                comprehension_outer=comp_outer,
+            )
+            value = self._expression_binding(
+                node.value,
+                local_env,
+                pending,
+                scope_info,
+                comprehension_outer=comp_outer,
+            )
+            return _dynamic_mapping_binding(
+                None,
+                None,
+                guarded=key.guarded
+                or key.kind == "ambiguous"
+                or value.guarded
+                or value.kind == "ambiguous",
+            )
+        else:
+            element = self._expression_binding(
+                node.elt,
+                local_env,
+                pending,
+                scope_info,
+                comprehension_outer=comp_outer,
+            )
+            return _dynamic_sequence_binding(
+                None,
+                kind="iterable" if isinstance(node, ast.SetComp) else "sequence",
+                guarded=element.guarded or element.kind == "ambiguous",
+            )
+
+    @staticmethod
+    def _iterable_element_binding(binding: _DynamicImportBinding) -> _DynamicImportBinding:
+        if binding.kind in {"sequence", "iterable", "mapping"}:
+            if binding.items is not None:
+                return _join_dynamic_bindings(binding.items)
+            return _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_UNKNOWN
+        return _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_UNKNOWN
+
+    def _assign_target(
+        self,
+        target: ast.AST,
+        value: _DynamicImportBinding,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+    ) -> None:
+        if isinstance(target, ast.Name):
+            environment[target.id] = (
+                self._unknown_binding(target.id)
+                if value.kind == "unknown" and not value.guarded
+                else value
+            )
+            return
+        if isinstance(target, (ast.Tuple, ast.List)):
+            items = value.items if value.kind in {"sequence", "mapping"} else None
+            star_positions = [
+                index
+                for index, element in enumerate(target.elts)
+                if isinstance(element, ast.Starred)
+            ]
+            if items is not None and not star_positions and len(items) == len(target.elts):
+                children = tuple(zip(target.elts, items, strict=True))
+            elif items is not None and len(star_positions) == 1:
+                star_index = star_positions[0]
+                trailing_count = len(target.elts) - star_index - 1
+                if len(items) >= star_index + trailing_count:
+                    children_list: list[tuple[ast.AST, _DynamicImportBinding]] = []
+                    children_list.extend(
+                        zip(target.elts[:star_index], items[:star_index], strict=True)
+                    )
+                    middle_stop = len(items) - trailing_count if trailing_count else len(items)
+                    children_list.append(
+                        (
+                            target.elts[star_index],
+                            _dynamic_sequence_binding(items[star_index:middle_stop]),
+                        )
+                    )
+                    if trailing_count:
+                        children_list.extend(
+                            zip(
+                                target.elts[star_index + 1 :],
+                                items[middle_stop:],
+                                strict=True,
+                            )
+                        )
+                    children = tuple(children_list)
+                else:
+                    children = ()
+            else:
+                children = ()
+            if children:
+                for element, child_value in children:
+                    self._assign_target(element, child_value, environment, pending, scope_info)
+                return
+            child_value = _DYNAMIC_AMBIGUOUS if value.guarded else _DYNAMIC_UNKNOWN
+            for element in target.elts:
+                self._assign_target(
+                    element.value if isinstance(element, ast.Starred) else element,
+                    child_value,
+                    environment,
+                    pending,
+                    scope_info,
+                )
+            return
+        if isinstance(target, ast.Starred):
+            self._assign_target(target.value, value, environment, pending, scope_info)
+            return
+        if isinstance(target, ast.Attribute):
+            self._reject_guarded_escape(value, target, "attribute storage")
+            self._expression_binding(target.value, environment, pending, scope_info)
+            return
+        if isinstance(target, ast.Subscript):
+            base = self._expression_binding(target.value, environment, pending, scope_info)
+            self._expression_binding(target.slice, environment, pending, scope_info)
+            self._reject_guarded_escape(base, target, "container mutation")
+            self._reject_guarded_escape(value, target, "container storage")
+
+    def _check_cross_scope_write(
+        self,
+        target: ast.AST,
+        value: _DynamicImportBinding,
+        environment: Mapping[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+        line: int,
+    ) -> None:
+        names = {node.id for node in ast.walk(target) if isinstance(node, ast.Name)}
+        cross_scope = scope_info.get("globals", set()) | scope_info.get("nonlocals", set())
+        for name in names & cross_scope:
+            prior = environment.get(name, self._unknown_binding(name))
+            if name in _DYNAMIC_IMPORT_GUARDED_ROOTS or prior.guarded or value.guarded:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{line}: cross-scope write changes guarded importer binding {name!r}"
+                )
+
+    def _record_call(self, node: ast.Call, binding: _DynamicImportBinding) -> None:
+        if binding.kind == "callable" and binding.name in DYNAMIC_CALL_NAMES:
+            resolved_call = str(binding.name)
+        elif binding.kind == "ambiguous" or binding.guarded:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: dynamic importer binding is ambiguous or unresolved"
+            )
+        else:
+            return
+
+        resolved_call, pattern, allowed_targets = _call_pattern(node, call_name=resolved_call)
+        identity = f"{self.relative_path}:{node.lineno}:{resolved_call}:{pattern}"
+        self.entries.append(
+            {
+                "id": f"dynamic-{_sha(identity)}",
+                "pattern": pattern,
+                "source_file": self.relative_path,
+                "line": node.lineno,
+                "call": resolved_call,
+                "owner": _owner_for_path(self.source_path, relative_path=self.relative_path),
+                "target": pattern,
+                "verifier": "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports",
+                "allowed_targets": allowed_targets,
+                "notes": _dynamic_notes(self.relative_path, pattern, allowed_targets),
+            }
+        )
+
+    def _import_binding(
+        self, module: str, name: str | None, bound_name: str
+    ) -> _DynamicImportBinding:
+        if module.startswith("."):
+            if (
+                bound_name in _DYNAMIC_IMPORT_GUARDED_ROOTS
+                or bound_name in _DYNAMIC_IMPORT_CALLABLE_NAMES
+            ):
+                return self._unknown_binding(bound_name)
+            return _DYNAMIC_OTHER
+        binding = _dynamic_binding_for_import(module, name)
+        if binding.kind == "other" and (
+            bound_name in _DYNAMIC_IMPORT_GUARDED_ROOTS
+            or bound_name in _DYNAMIC_IMPORT_CALLABLE_NAMES
+        ):
+            return self._unknown_binding(bound_name)
+        return binding
+
+    def _process_statement(
+        self,
+        node: ast.stmt,
+        environment: dict[str, _DynamicImportBinding],
+        local_names: set[str],
+        scope_info: Mapping[str, set[str]],
+        pending: list[_PendingDynamicImportScope],
+        closure_env: Mapping[str, _DynamicImportBinding],
+    ) -> dict[str, _DynamicImportBinding]:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for expression in node.decorator_list:
+                binding = self._expression_binding(expression, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, expression, "a function decorator")
+            for expression in node.args.defaults:
+                binding = self._expression_binding(expression, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, expression, "a function default")
+            for expression in node.args.kw_defaults:
+                if expression is not None:
+                    binding = self._expression_binding(expression, environment, pending, scope_info)
+                    self._reject_guarded_escape(binding, expression, "a function default")
+            for argument in (
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+                *((node.args.vararg,) if node.args.vararg else ()),
+                *((node.args.kwarg,) if node.args.kwarg else ()),
+            ):
+                if argument.annotation is not None:
+                    binding = self._expression_binding(
+                        argument.annotation, environment, pending, scope_info
+                    )
+                    self._reject_guarded_escape(
+                        binding, argument.annotation, "a function annotation"
+                    )
+            if node.returns is not None:
+                binding = self._expression_binding(node.returns, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, node.returns, "a function annotation")
+            environment[node.name] = _DYNAMIC_OTHER
+            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            return environment
+        if isinstance(node, ast.ClassDef):
+            for expression in (*node.decorator_list, *node.bases):
+                binding = self._expression_binding(expression, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, expression, "a class definition")
+            for keyword in node.keywords:
+                binding = self._expression_binding(keyword.value, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, keyword.value, "a class definition")
+            environment[node.name] = _DYNAMIC_OTHER
+            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            return environment
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                bound_name = alias.asname or alias.name.split(".", 1)[0]
+                imported_module = alias.name if alias.asname else alias.name.split(".", 1)[0]
+                value = self._import_binding(imported_module, None, bound_name)
+                self._check_cross_scope_write(
+                    ast.Name(id=bound_name, ctx=ast.Store()),
+                    value,
+                    environment,
+                    scope_info,
+                    node.lineno,
+                )
+                environment[bound_name] = value
+            return environment
+        if isinstance(node, ast.ImportFrom):
+            if any(alias.name == "*" for alias in node.names):
+                for name, value in tuple(environment.items()):
+                    if value.guarded:
+                        environment[name] = _DYNAMIC_AMBIGUOUS
+                for name in _DYNAMIC_IMPORT_GUARDED_ROOTS:
+                    environment[name] = self._unknown_binding(name)
+                return environment
+            module = ("." * node.level) + (node.module or "")
+            for alias in node.names:
+                bound_name = alias.asname or alias.name
+                value = self._import_binding(module, alias.name, bound_name)
+                self._check_cross_scope_write(
+                    ast.Name(id=bound_name, ctx=ast.Store()),
+                    value,
+                    environment,
+                    scope_info,
+                    node.lineno,
+                )
+                environment[bound_name] = value
+            return environment
+        if isinstance(node, ast.Assign):
+            value = self._expression_binding(node.value, environment, pending, scope_info)
+            for target in node.targets:
+                self._check_cross_scope_write(target, value, environment, scope_info, node.lineno)
+                self._assign_target(target, value, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.AnnAssign):
+            annotation = self._expression_binding(node.annotation, environment, pending, scope_info)
+            self._reject_guarded_escape(annotation, node.annotation, "an annotation")
+            value = (
+                self._expression_binding(node.value, environment, pending, scope_info)
+                if node.value is not None
+                else _DYNAMIC_UNKNOWN
+            )
+            self._check_cross_scope_write(node.target, value, environment, scope_info, node.lineno)
+            self._assign_target(node.target, value, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.TypeAlias):
+            value = self._expression_binding(node.value, environment, pending, scope_info)
+            self._reject_guarded_escape(value, node.value, "a type alias")
+            self._assign_target(node.name, _DYNAMIC_OTHER, environment, pending, scope_info)
+            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            return environment
+        if isinstance(node, ast.NamedExpr):
+            value = self._expression_binding(node.value, environment, pending, scope_info)
+            self._assign_target(node.target, value, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.Expr):
+            self._expression_binding(node.value, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.Delete):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self._check_cross_scope_write(
+                        target,
+                        self._unknown_binding(target.id),
+                        environment,
+                        scope_info,
+                        node.lineno,
+                    )
+                    environment[target.id] = self._unknown_binding(target.id)
+                else:
+                    self._assign_target(target, _DYNAMIC_OTHER, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.If):
+            self._expression_binding(node.test, environment, pending, scope_info)
+            body = self._scan_statements(
+                node.body, environment.copy(), local_names, scope_info, pending, closure_env
+            )
+            otherwise = self._scan_statements(
+                node.orelse, environment.copy(), local_names, scope_info, pending, closure_env
+            )
+            return self._join_environments((body, otherwise), local_names)
+        if isinstance(node, (ast.For, ast.AsyncFor, ast.While)):
+            if isinstance(node, ast.While):
+                self._expression_binding(node.test, environment, pending, scope_info)
+                loop_value = _DYNAMIC_UNKNOWN
+            else:
+                iterable = self._expression_binding(node.iter, environment, pending, scope_info)
+                loop_value = self._iterable_element_binding(iterable)
+            body_env = environment.copy()
+            if not isinstance(node, ast.While):
+                self._check_cross_scope_write(
+                    node.target,
+                    loop_value,
+                    body_env,
+                    scope_info,
+                    node.lineno,
+                )
+                self._assign_target(node.target, loop_value, body_env, pending, scope_info)
+            body = self._scan_statements(
+                node.body, body_env, local_names, scope_info, pending, closure_env
+            )
+            otherwise = self._scan_statements(
+                node.orelse, environment.copy(), local_names, scope_info, pending, closure_env
+            )
+            return self._join_environments((environment, body, otherwise), local_names)
+        if isinstance(node, (ast.With, ast.AsyncWith)):
+            for item in node.items:
+                context = self._expression_binding(
+                    item.context_expr, environment, pending, scope_info
+                )
+                self._reject_guarded_escape(
+                    context, item.context_expr, "a context-manager boundary"
+                )
+                if item.optional_vars is not None:
+                    self._check_cross_scope_write(
+                        item.optional_vars,
+                        _DYNAMIC_UNKNOWN,
+                        environment,
+                        scope_info,
+                        node.lineno,
+                    )
+                    self._assign_target(
+                        item.optional_vars, _DYNAMIC_UNKNOWN, environment, pending, scope_info
+                    )
+            return self._scan_statements(
+                node.body, environment, local_names, scope_info, pending, closure_env
+            )
+        if isinstance(node, (ast.Try, ast.TryStar)):
+            branches = [
+                self._scan_statements(
+                    node.body, environment.copy(), local_names, scope_info, pending, closure_env
+                )
+            ]
+            for handler in node.handlers:
+                branch = environment.copy()
+                if handler.type is not None:
+                    self._expression_binding(handler.type, environment, pending, scope_info)
+                if handler.name:
+                    branch[handler.name] = _DYNAMIC_UNKNOWN
+                branches.append(
+                    self._scan_statements(
+                        handler.body, branch, local_names, scope_info, pending, closure_env
+                    )
+                )
+            joined = self._join_environments(branches, local_names)
+            joined = self._scan_statements(
+                node.orelse, joined, local_names, scope_info, pending, closure_env
+            )
+            return self._scan_statements(
+                node.finalbody, joined, local_names, scope_info, pending, closure_env
+            )
+        if isinstance(node, ast.Match):
+            subject = self._expression_binding(node.subject, environment, pending, scope_info)
+            branches = [environment.copy()]
+            for case in node.cases:
+                branch = environment.copy()
+                self._bind_match_pattern(case.pattern, subject, branch, pending, scope_info)
+                if case.guard is not None:
+                    self._expression_binding(case.guard, branch, pending, scope_info)
+                branches.append(
+                    self._scan_statements(
+                        case.body, branch, local_names, scope_info, pending, closure_env
+                    )
+                )
+            return self._join_environments(branches, local_names)
+        if isinstance(node, ast.Assert):
+            self._expression_binding(node.test, environment, pending, scope_info)
+            if node.msg is not None:
+                self._expression_binding(node.msg, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.Return):
+            if node.value is not None:
+                returned = self._expression_binding(node.value, environment, pending, scope_info)
+                if returned.guarded or returned.kind == "ambiguous":
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: guarded importer value escapes through a function return"
+                    )
+            return environment
+        if isinstance(node, ast.Raise):
+            for expression in (
+                getattr(node, "exc", None),
+                getattr(node, "cause", None),
+            ):
+                if expression is not None:
+                    self._expression_binding(expression, environment, pending, scope_info)
+            return environment
+        if isinstance(node, ast.AugAssign):
+            current = (
+                self._lookup(node.target.id, environment)
+                if isinstance(node.target, ast.Name)
+                else self._expression_binding(node.target, environment, pending, scope_info)
+            )
+            value = self._expression_binding(node.value, environment, pending, scope_info)
+            joined = _join_dynamic_bindings((current, value))
+            self._check_cross_scope_write(node.target, joined, environment, scope_info, node.lineno)
+            self._assign_target(node.target, joined, environment, pending, scope_info)
+            return environment
+        if isinstance(node, (ast.Global, ast.Nonlocal, ast.Pass, ast.Break, ast.Continue)):
+            return environment
+
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.expr):
+                self._expression_binding(child, environment, pending, scope_info)
+        return environment
+
+    @staticmethod
+    def _pattern_names(pattern: ast.AST) -> set[str]:
+        names: set[str] = set()
+        for node in ast.walk(pattern):
+            if isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name:
+                names.add(node.name)
+            elif isinstance(node, ast.MatchMapping) and node.rest:
+                names.add(node.rest)
+        return names
+
+    def _assign_match_capture(
+        self,
+        name: str,
+        value: _DynamicImportBinding,
+        pattern: ast.AST,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+    ) -> None:
+        target = ast.Name(id=name, ctx=ast.Store())
+        line = getattr(pattern, "lineno", 1)
+        self._check_cross_scope_write(target, value, environment, scope_info, line)
+        self._assign_target(target, value, environment, pending, scope_info)
+
+    def _bind_match_pattern(
+        self,
+        pattern: ast.AST,
+        value: _DynamicImportBinding,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+    ) -> None:
+        if isinstance(pattern, ast.MatchAs):
+            if pattern.pattern is not None:
+                self._bind_match_pattern(pattern.pattern, value, environment, pending, scope_info)
+            if pattern.name is not None:
+                self._assign_match_capture(
+                    pattern.name,
+                    value,
+                    pattern,
+                    environment,
+                    pending,
+                    scope_info,
+                )
+            return
+        if isinstance(pattern, ast.MatchSequence):
+            items = value.items if value.kind == "sequence" else None
+            star_positions = [
+                index
+                for index, child in enumerate(pattern.patterns)
+                if isinstance(child, ast.MatchStar)
+            ]
+            if items is not None and not star_positions and len(items) == len(pattern.patterns):
+                children = tuple(zip(pattern.patterns, items, strict=True))
+            elif items is not None and len(star_positions) == 1:
+                star_index = star_positions[0]
+                trailing_count = len(pattern.patterns) - star_index - 1
+                if len(items) >= star_index + trailing_count:
+                    middle_stop = len(items) - trailing_count if trailing_count else len(items)
+                    children_list: list[tuple[ast.AST, _DynamicImportBinding]] = []
+                    children_list.extend(
+                        zip(pattern.patterns[:star_index], items[:star_index], strict=True)
+                    )
+                    children_list.append(
+                        (
+                            pattern.patterns[star_index],
+                            _dynamic_sequence_binding(items[star_index:middle_stop]),
+                        )
+                    )
+                    if trailing_count:
+                        children_list.extend(
+                            zip(
+                                pattern.patterns[star_index + 1 :],
+                                items[middle_stop:],
+                                strict=True,
+                            )
+                        )
+                    children = tuple(children_list)
+                else:
+                    children = ()
+            else:
+                children = ()
+            if children:
+                for child_pattern, child_value in children:
+                    self._bind_match_pattern(
+                        child_pattern, child_value, environment, pending, scope_info
+                    )
+            elif value.guarded:
+                for name in self._pattern_names(pattern):
+                    self._assign_match_capture(
+                        name,
+                        _DYNAMIC_AMBIGUOUS,
+                        pattern,
+                        environment,
+                        pending,
+                        scope_info,
+                    )
+            return
+        if isinstance(pattern, ast.MatchStar) and pattern.name is not None:
+            self._assign_match_capture(
+                pattern.name,
+                value,
+                pattern,
+                environment,
+                pending,
+                scope_info,
+            )
+            return
+        if value.guarded:
+            for name in self._pattern_names(pattern):
+                self._assign_match_capture(
+                    name,
+                    _DYNAMIC_AMBIGUOUS,
+                    pattern,
+                    environment,
+                    pending,
+                    scope_info,
+                )
+
+    def _join_environments(
+        self,
+        environments: Sequence[Mapping[str, _DynamicImportBinding]],
+        local_names: set[str],
+    ) -> dict[str, _DynamicImportBinding]:
+        merged = dict(environments[0]) if environments else {}
+        all_names = set().union(*(environment.keys() for environment in environments))
+        for name in all_names | local_names:
+            values = [
+                environment.get(name, self._unknown_binding(name)) for environment in environments
+            ]
+            merged[name] = _join_dynamic_bindings(values)
+        return merged
+
+    def _join_expression_paths(
+        self,
+        destination: dict[str, _DynamicImportBinding],
+        paths: Sequence[Mapping[str, _DynamicImportBinding]],
+    ) -> None:
+        """Join expression side effects across every possible short-circuit path."""
+        if not paths:
+            return
+        names = set().union(*(path.keys() for path in paths))
+        joined = self._join_environments(paths, names)
+        destination.clear()
+        destination.update(joined)
+
+    def _scan_statements(
+        self,
+        statements: Sequence[ast.stmt],
+        environment: dict[str, _DynamicImportBinding],
+        local_names: set[str],
+        scope_info: Mapping[str, set[str]],
+        pending: list[_PendingDynamicImportScope],
+        closure_env: Mapping[str, _DynamicImportBinding],
+    ) -> dict[str, _DynamicImportBinding]:
+        for statement in statements:
+            environment = self._process_statement(
+                statement, environment, local_names, scope_info, pending, closure_env
+            )
+        return environment
+
+    def _scan_function(
+        self,
+        node: ast.FunctionDef | ast.AsyncFunctionDef | ast.Lambda,
+        parent_env: Mapping[str, _DynamicImportBinding],
+        module_env: Mapping[str, _DynamicImportBinding],
+        *,
+        type_parameter_environment: Mapping[str, _DynamicImportBinding] | None = None,
+    ) -> None:
+        body_nodes = [] if isinstance(node, ast.Lambda) else node.body
+        local_names, global_names, nonlocal_names = _scope_local_bindings(body_nodes)
+        inherited = dict(module_env)
+        inherited.update(parent_env)
+        pending: list[_PendingDynamicImportScope] = []
+        if not isinstance(node, ast.Lambda):
+            self._scan_type_parameter_fields(
+                node,
+                inherited if type_parameter_environment is None else type_parameter_environment,
+                pending,
+            )
+        environment = inherited
+        for name in global_names:
+            environment[name] = self._lookup(name, module_env)
+        for name in nonlocal_names:
+            environment[name] = parent_env.get(name, self._unknown_binding(name))
+        for name in local_names:
+            environment[name] = self._unknown_binding(name)
+        for argument in (
+            *node.args.posonlyargs,
+            *node.args.args,
+            *node.args.kwonlyargs,
+            *((node.args.vararg,) if node.args.vararg else ()),
+            *((node.args.kwarg,) if node.args.kwarg else ()),
+        ):
+            environment[argument.arg] = self._unknown_binding(argument.arg)
+        if isinstance(node, ast.Lambda):
+            returned = self._expression_binding(
+                node.body,
+                environment,
+                pending,
+                {"globals": global_names, "nonlocals": nonlocal_names},
+            )
+            self._reject_guarded_escape(returned, node.body, "a lambda implicit return")
+            final_env = environment
+        else:
+            final_env = self._scan_statements(
+                body_nodes,
+                environment,
+                local_names,
+                {"globals": global_names, "nonlocals": nonlocal_names},
+                pending,
+                parent_env,
+            )
+        for deferred in pending:
+            scope = deferred.node
+            child_parent = self._join_environments(
+                (deferred.environment_at_definition, final_env), local_names
+            )
+            if isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self._scan_function(scope, child_parent, module_env)
+            elif isinstance(scope, ast.ClassDef):
+                self._scan_class(scope, child_parent, module_env)
+            elif isinstance(scope, ast.Lambda):
+                self._scan_function(scope, child_parent, module_env)
+            elif isinstance(scope, ast.TypeAlias):
+                child_parent = self._join_environments(
+                    (deferred.environment_at_definition, final_env), local_names
+                )
+                self._scan_type_parameter_fields(scope, child_parent, pending)
+
+    def _scan_class(
+        self,
+        node: ast.ClassDef,
+        closure_env: Mapping[str, _DynamicImportBinding],
+        module_env: Mapping[str, _DynamicImportBinding],
+    ) -> None:
+        local_names, global_names, nonlocal_names = _scope_local_bindings(node.body)
+        environment = dict(module_env)
+        environment.update(closure_env)
+        for name in global_names:
+            environment[name] = self._lookup(name, module_env)
+        for name in nonlocal_names:
+            environment[name] = closure_env.get(name, self._unknown_binding(name))
+        pending: list[_PendingDynamicImportScope] = []
+        self._scan_type_parameter_fields(node, environment, pending)
+        for name in local_names:
+            environment[name] = self._unknown_binding(name)
+        class_environment = self._scan_statements(
+            node.body,
+            environment,
+            local_names,
+            {"globals": global_names, "nonlocals": nonlocal_names},
+            pending,
+            closure_env,
+        )
+        for name in local_names:
+            self._reject_guarded_escape(
+                class_environment.get(name, self._unknown_binding(name)),
+                node,
+                "the class namespace",
+            )
+        for deferred in pending:
+            scope = deferred.node
+            if isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                # Methods do not close over class attributes.
+                type_parameter_environment = self._join_environments(
+                    (deferred.environment_at_definition, class_environment), local_names
+                )
+                self._scan_function(
+                    scope,
+                    closure_env,
+                    module_env,
+                    type_parameter_environment=type_parameter_environment,
+                )
+            elif isinstance(scope, ast.ClassDef):
+                child_parent = self._join_environments(
+                    (deferred.environment_at_definition, closure_env), local_names
+                )
+                self._scan_class(scope, child_parent, module_env)
+            elif isinstance(scope, ast.Lambda):
+                self._scan_function(scope, closure_env, module_env)
+            elif isinstance(scope, ast.TypeAlias):
+                child_parent = self._join_environments(
+                    (deferred.environment_at_definition, class_environment), local_names
+                )
+                self._scan_type_parameter_fields(scope, child_parent, pending)
+
+
 def collect_dynamic_imports() -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
-    for path in _iter_text_files("src", "tools", "apps", "packages"):
-        if path.suffix != ".py":
-            continue
-        tree = _parse_python(path)
-        if tree is None:
-            continue
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.Call):
-                continue
-            call_name = _imported_module_name(node.func)
-            if call_name not in DYNAMIC_CALL_NAMES:
-                continue
-            resolved_call, pattern, allowed_targets = _call_pattern(node)
-            rel_path = _rel(path)
-            identity = f"{rel_path}:{node.lineno}:{resolved_call}:{pattern}"
-            entries.append(
-                {
-                    "id": f"dynamic-{_sha(identity)}",
-                    "pattern": pattern,
-                    "source_file": rel_path,
-                    "line": node.lineno,
-                    "call": resolved_call,
-                    "owner": _owner_for_path(path),
-                    "target": pattern,
-                    "verifier": "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports",
-                    "allowed_targets": allowed_targets,
-                    "notes": _dynamic_notes(rel_path, pattern, allowed_targets),
-                }
-            )
+    for path in _dynamic_source_paths("src", "tools", "apps", "packages"):
+        relative_path = _dynamic_source_label(path)
+        try:
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+        except (OSError, SyntaxError, UnicodeError) as error:
+            raise DynamicImportCollectionError(
+                f"{relative_path}: {type(error).__name__}: {error}"
+            ) from error
+        entries.extend(_DynamicImportSourceScanner(path, relative_path=relative_path).scan(tree))
     return sorted(entries, key=lambda item: (item["source_file"], item["line"], item["pattern"]))
 
 
@@ -869,9 +2499,7 @@ def _public_surface_definition_record(
 ) -> dict[str, Any]:
     if isinstance(node, ast.ClassDef):
         bases = (
-            sorted(set().union(*(_base_names(base) for base in node.bases)))
-            if node.bases
-            else []
+            sorted(set().union(*(_base_names(base) for base in node.bases))) if node.bases else []
         )
         return {
             "kind": "class",
@@ -1030,6 +2658,7 @@ def collect_public_surface_snapshot() -> dict[str, Any]:
         "packages": packages,
     }
 
+
 def _literal_all(tree: ast.Module) -> list[str]:
     exports: list[str] = []
     for node in tree.body:
@@ -1146,12 +2775,15 @@ def _callable_definitions(
     walk(tree.body)
     return functions, classes
 
+
 def _binding_names(target: ast.AST) -> set[str]:
     """Return names assigned by an assignment target."""
     if isinstance(target, ast.Name):
         return {target.id}
     if isinstance(target, (ast.Tuple, ast.List)):
-        return set().union(*(_binding_names(item) for item in target.elts)) if target.elts else set()
+        return (
+            set().union(*(_binding_names(item) for item in target.elts)) if target.elts else set()
+        )
     if isinstance(target, ast.Starred):
         return _binding_names(target.value)
     return set()
@@ -1160,9 +2792,11 @@ def _binding_names(target: ast.AST) -> set[str]:
 def _binding_target_owner_names(target: ast.AST) -> set[str]:
     """Return names owning attribute or subscript targets in an assignment."""
     if isinstance(target, (ast.Tuple, ast.List)):
-        return set().union(
-            *(_binding_target_owner_names(item) for item in target.elts)
-        ) if target.elts else set()
+        return (
+            set().union(*(_binding_target_owner_names(item) for item in target.elts))
+            if target.elts
+            else set()
+        )
     if isinstance(target, ast.Starred):
         return _binding_target_owner_names(target.value)
     if isinstance(target, (ast.Attribute, ast.Subscript)):
@@ -1193,11 +2827,23 @@ def _pattern_binding_names(pattern: ast.pattern) -> set[str]:
         return names
     if isinstance(pattern, ast.MatchClass):
         children = [*pattern.patterns, *pattern.kwd_patterns]
-        return set().union(*(_pattern_binding_names(child) for child in children)) if children else set()
+        return (
+            set().union(*(_pattern_binding_names(child) for child in children))
+            if children
+            else set()
+        )
     if isinstance(pattern, ast.MatchSequence):
-        return set().union(*(_pattern_binding_names(child) for child in pattern.patterns)) if pattern.patterns else set()
+        return (
+            set().union(*(_pattern_binding_names(child) for child in pattern.patterns))
+            if pattern.patterns
+            else set()
+        )
     if isinstance(pattern, ast.MatchOr):
-        return set().union(*(_pattern_binding_names(child) for child in pattern.patterns)) if pattern.patterns else set()
+        return (
+            set().union(*(_pattern_binding_names(child) for child in pattern.patterns))
+            if pattern.patterns
+            else set()
+        )
     return set()
 
 
@@ -1467,9 +3113,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.global_effect_frames: list[dict[str, _GlobalEffect]] = []
         self.function_local_names_stack: list[set[str]] = []
         self.dispatch_observations: dict[tuple[Any, ...], dict[str, Any]] = {}
-        self.pending_class_constructor_calls: list[
-            tuple[ast.Call, set[tuple[str, str]]]
-        ] = []
+        self.pending_class_constructor_calls: list[tuple[ast.Call, set[tuple[str, str]]]] = []
         self.visited_functions: set[tuple[tuple[str, str, int, int], tuple[Any, ...]]] = set()
         self.import_bindings: dict[str, set[tuple[str, str | None]]] = {}
         self.callable_aliases: dict[str, set[tuple[str, str, int, int]]] = {}
@@ -1484,9 +3128,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.class_member_bindings: dict[str, dict[str, _BindingKnowledge]] = {}
         # Object/member state is keyed by source-identified class or allocation-site
         # identity, not by the spelling of the variable currently holding it.
-        self.owner_member_bindings: dict[
-            _BindingTarget, dict[str, _BindingKnowledge]
-        ] = {}
+        self.owner_member_bindings: dict[_BindingTarget, dict[str, _BindingKnowledge]] = {}
         self.owner_member_wildcard_overrides: dict[_BindingTarget, set[str]] = {}
         self.external_owner_member_exports: Mapping[
             str, Mapping[_BindingTarget, Mapping[str, _BindingKnowledge]]
@@ -1570,9 +3212,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if target.kind in source_kinds and target.module in self.module_names
         }
 
-    def _instance_class_target(
-        self, target: _BindingTarget
-    ) -> tuple[str, str] | None:
+    def _instance_class_target(self, target: _BindingTarget) -> tuple[str, str] | None:
         """Decode the class carried by an allocation-site instance identity."""
         return _instance_class_for_target(target)
 
@@ -1597,8 +3237,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if target.symbol is None and target.module in self.module_names
         )
         unsupported_targets = any(
-            target.kind == "source_call"
-            or (target.kind == "instance" and target not in owners)
+            target.kind == "source_call" or (target.kind == "instance" and target not in owners)
             for target in expanded.known_possible_targets
         )
         incomplete = expanded.possible_unknown or unsupported_targets
@@ -1682,9 +3321,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         )
         return {name: self._binding_knowledge(name) for name in names}
 
-    def _write_binding_knowledge(
-        self, name: str, knowledge: _BindingKnowledge
-    ) -> None:
+    def _write_binding_knowledge(self, name: str, knowledge: _BindingKnowledge) -> None:
         self.import_bindings.pop(name, None)
         self.callable_aliases.pop(name, None)
         self.unknown_bindings.discard(name)
@@ -1695,9 +3332,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.builtin_value_kind_bindings.pop(name, None)
         for target in knowledge.known_possible_targets:
             if target.kind == "import":
-                self.import_bindings.setdefault(name, set()).add(
-                    (target.module, target.symbol)
-                )
+                self.import_bindings.setdefault(name, set()).add((target.module, target.symbol))
             elif target.kind == "callable":
                 self.callable_aliases.setdefault(name, set()).add(
                     (target.module, target.symbol or "", target.line, target.column)
@@ -1707,9 +3342,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     (target.module, target.symbol or "", target.line, target.column)
                 )
             elif target.kind == "class":
-                self.class_aliases.setdefault(name, set()).add(
-                    (target.module, target.symbol or "")
-                )
+                self.class_aliases.setdefault(name, set()).add((target.module, target.symbol or ""))
             elif target.kind == "instance":
                 self.instance_aliases.setdefault(name, set()).add(
                     (target.module, target.symbol or "", target.line, target.column)
@@ -1717,15 +3350,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         if knowledge.possible_unknown:
             self.unknown_bindings.add(name)
         if knowledge.source_value_origins:
-            self.source_value_origin_bindings[name] = set(
-                knowledge.source_value_origins
-            )
+            self.source_value_origin_bindings[name] = set(knowledge.source_value_origins)
         if knowledge.builtin_value_kinds:
             self.builtin_value_kind_bindings[name] = set(knowledge.builtin_value_kinds)
 
-    def _install_binding_knowledge(
-        self, bindings: Mapping[str, _BindingKnowledge]
-    ) -> None:
+    def _install_binding_knowledge(self, bindings: Mapping[str, _BindingKnowledge]) -> None:
         self.import_bindings = {}
         self.callable_aliases = {}
         self.unknown_bindings = set()
@@ -1745,10 +3374,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 class_name: members.copy()
                 for class_name, members in self.class_member_bindings.items()
             },
-            {
-                owner: members.copy()
-                for owner, members in self.owner_member_bindings.items()
-            },
+            {owner: members.copy() for owner, members in self.owner_member_bindings.items()},
             {
                 owner: members.copy()
                 for owner, members in self.owner_member_wildcard_overrides.items()
@@ -1763,9 +3389,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.class_member_bindings = {
             class_name: members.copy() for class_name, members in classes.items()
         }
-        self.owner_member_bindings = {
-            owner: members.copy() for owner, members in owners.items()
-        }
+        self.owner_member_bindings = {owner: members.copy() for owner, members in owners.items()}
         self.owner_member_wildcard_overrides = {
             owner: members.copy() for owner, members in wildcard_overrides.items()
         }
@@ -1787,23 +3411,17 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 
         class_names = set().union(*(set(state[2]) for state in states))
         for class_name in class_names:
-            member_names = set().union(
-                *(set(state[2].get(class_name, {})) for state in states)
-            )
+            member_names = set().union(*(set(state[2].get(class_name, {})) for state in states))
             for member in member_names:
                 for state in states:
                     knowledge = state[2].get(class_name, {}).get(member)
                     if knowledge is None:
                         knowledge = _BindingKnowledge(possible_unknown=True)
                     member_map = class_members.setdefault(class_name, {})
-                    member_map[member] = member_map.get(member, _BindingKnowledge()).join(
-                        knowledge
-                    )
+                    member_map[member] = member_map.get(member, _BindingKnowledge()).join(knowledge)
         owner_ids = set().union(*(set(state[3]) for state in states))
         for owner in owner_ids:
-            member_names = set().union(
-                *(set(state[3].get(owner, {})) for state in states)
-            )
+            member_names = set().union(*(set(state[3].get(owner, {})) for state in states))
             for member in member_names:
                 for state in states:
                     knowledge = state[3].get(owner, {}).get(member)
@@ -1812,15 +3430,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                         # or a wildcard effect. Resolve that state before using
                         # the unknown sentinel for a genuinely absent member.
                         self._restore_bindings(state)
-                        knowledge, found = self._owner_member_knowledge(
-                            {owner}, member
-                        )
+                        knowledge, found = self._owner_member_knowledge({owner}, member)
                         if not found:
                             knowledge = _BindingKnowledge(possible_unknown=True)
                     member_map = owner_members.setdefault(owner, {})
-                    member_map[member] = member_map.get(
-                        member, _BindingKnowledge()
-                    ).join(knowledge)
+                    member_map[member] = member_map.get(member, _BindingKnowledge()).join(knowledge)
         override_owners = set().union(*(set(state[4]) for state in states))
         wildcard_overrides: dict[_BindingTarget, set[str]] = {}
         for owner in override_owners:
@@ -1886,12 +3500,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 name,
                 tuple(sorted(target.sort_key() for target in knowledge.known_possible_targets)),
                 knowledge.possible_unknown,
-                tuple(
-                    sorted(
-                        target.sort_key()
-                        for target in knowledge.source_value_origins
-                    )
-                ),
+                tuple(sorted(target.sort_key() for target in knowledge.source_value_origins)),
                 tuple(sorted(knowledge.builtin_value_kinds)),
             )
             for name, knowledge in sorted(self._binding_knowledge_snapshot().items())
@@ -1903,17 +3512,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     (
                         member,
                         tuple(
-                            sorted(
-                                target.sort_key()
-                                for target in knowledge.known_possible_targets
-                            )
+                            sorted(target.sort_key() for target in knowledge.known_possible_targets)
                         ),
                         knowledge.possible_unknown,
                         tuple(
-                            sorted(
-                                target.sort_key()
-                                for target in knowledge.source_value_origins
-                            )
+                            sorted(target.sort_key() for target in knowledge.source_value_origins)
                         ),
                         tuple(sorted(knowledge.builtin_value_kinds)),
                     )
@@ -1929,17 +3532,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     (
                         member,
                         tuple(
-                            sorted(
-                                target.sort_key()
-                                for target in knowledge.known_possible_targets
-                            )
+                            sorted(target.sort_key() for target in knowledge.known_possible_targets)
                         ),
                         knowledge.possible_unknown,
                         tuple(
-                            sorted(
-                                target.sort_key()
-                                for target in knowledge.source_value_origins
-                            )
+                            sorted(target.sort_key() for target in knowledge.source_value_origins)
                         ),
                         tuple(sorted(knowledge.builtin_value_kinds)),
                     )
@@ -2047,13 +3644,9 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             key = (target.module, target.symbol)
             if key in seen:
                 continue
-            exported = self.external_module_exports.get(target.module, {}).get(
-                target.symbol
-            )
+            exported = self.external_module_exports.get(target.module, {}).get(target.symbol)
             if exported is not None:
-                expanded = expanded.join(
-                    self._expand_import_bindings(exported, seen | {key})
-                )
+                expanded = expanded.join(self._expand_import_bindings(exported, seen | {key}))
         return expanded
 
     def _class_targets_from_knowledge(
@@ -2073,13 +3666,9 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     continue
                 if key in seen:
                     continue
-                exported = self.external_module_exports.get(target.module, {}).get(
-                    target.symbol
-                )
+                exported = self.external_module_exports.get(target.module, {}).get(target.symbol)
                 if exported is not None:
-                    targets.update(
-                        self._class_targets_from_knowledge(exported, seen | {key})
-                    )
+                    targets.update(self._class_targets_from_knowledge(exported, seen | {key}))
         return targets
 
     def _class_targets(self, node: ast.AST) -> set[tuple[str, str]]:
@@ -2119,19 +3708,15 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 if exported is not None:
                     targets.update(self._class_targets_from_knowledge(exported))
                 if suffix:
-                    candidate_module = ".".join(
-                        [imported.module, imported.symbol, *suffix[:-1]]
-                    )
-                    resolved_module = _nearest_known_module(
-                        candidate_module, self.module_names
-                    )
+                    candidate_module = ".".join([imported.module, imported.symbol, *suffix[:-1]])
+                    resolved_module = _nearest_known_module(candidate_module, self.module_names)
                     if resolved_module:
                         candidate_symbol = suffix[-1]
                         if (resolved_module, candidate_symbol) in self.class_index:
                             targets.add((resolved_module, candidate_symbol))
-                        exported = self.external_module_exports.get(
-                            resolved_module, {}
-                        ).get(candidate_symbol)
+                        exported = self.external_module_exports.get(resolved_module, {}).get(
+                            candidate_symbol
+                        )
                         if exported is not None:
                             targets.update(self._class_targets_from_knowledge(exported))
             elif suffix:
@@ -2217,15 +3802,12 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 knowledge = knowledge.join(member_knowledge)
                 found = True
                 continue
-            direct_methods = self._indexed_source_method_targets(
-                (module, class_name), member
-            )
+            direct_methods = self._indexed_source_method_targets((module, class_name), member)
             if direct_methods:
                 knowledge = knowledge.join(
                     _BindingKnowledge(
                         frozenset(
-                            _BindingTarget("callable", *reference)
-                            for reference in direct_methods
+                            _BindingTarget("callable", *reference) for reference in direct_methods
                         )
                     )
                 )
@@ -2233,9 +3815,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 continue
             bases = self.source_class_bases.get((module, class_name), set())
             if bases:
-                inherited = self._class_member_knowledge(
-                    bases, member, seen | {key}
-                )
+                inherited = self._class_member_knowledge(bases, member, seen | {key})
                 knowledge = knowledge.join(inherited)
                 found = found or bool(inherited.known_possible_targets)
                 continue
@@ -2298,20 +3878,12 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 class_targets = {(target.module, target.symbol)}
                 constructors = self._class_member_knowledge(
                     class_targets, "__new__", seen | {class_key}
-                ).join(
-                    self._class_member_knowledge(
-                        class_targets, "__init__", seen | {class_key}
-                    )
-                )
-                invocation = self._callable_targets_for_knowledge(
-                    constructors, seen | {class_key}
-                )
+                ).join(self._class_member_knowledge(class_targets, "__init__", seen | {class_key}))
+                invocation = self._callable_targets_for_knowledge(constructors, seen | {class_key})
                 callable_targets.update(invocation.known_possible_targets)
                 possible_unknown = possible_unknown or invocation.possible_unknown
                 if not constructors.known_possible_targets and not constructors.possible_unknown:
-                    callable_targets.add(
-                        _BindingTarget("class_call", target.module, target.symbol)
-                    )
+                    callable_targets.add(_BindingTarget("class_call", target.module, target.symbol))
                 continue
             if target.kind == "instance" and target.symbol is not None:
                 instance_class = self._instance_class_target(target)
@@ -2326,8 +3898,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     instance_class, "__call__"
                 )
                 callable_targets.update(
-                    _BindingTarget("callable", *reference)
-                    for reference in method_targets
+                    _BindingTarget("callable", *reference) for reference in method_targets
                 )
                 possible_unknown = possible_unknown or method_incomplete
                 if not method_targets:
@@ -2406,9 +3977,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
     def _callable_target(self, node: ast.AST) -> set[tuple[str, str, int, int]]:
         targets: set[tuple[str, str, int, int]] = set()
         if isinstance(node, ast.Call):
-            invocation = self._callable_targets_for_knowledge(
-                self._knowledge_for_expression(node)
-            )
+            invocation = self._callable_targets_for_knowledge(self._knowledge_for_expression(node))
             return {
                 (target.module, target.symbol or "", target.line, target.column)
                 for target in invocation.known_possible_targets
@@ -2431,9 +4000,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 if target.kind == "callable"
             )
             for imported in knowledge.targets_for("import"):
-                targets.update(
-                    self._targets_from_import(imported.module, imported.symbol, ())
-                )
+                targets.update(self._targets_from_import(imported.module, imported.symbol, ()))
             if (
                 not targets
                 and not knowledge.targets_for("import")
@@ -2448,19 +4015,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         for target in knowledge.targets_for("callable"):
             if len(suffix) == 1:
                 targets.update(
-                    self._callable_in_module(
-                        target.module, f"{target.symbol}.{suffix[0]}"
-                    )
+                    self._callable_in_module(target.module, f"{target.symbol}.{suffix[0]}")
                 )
         for imported in knowledge.targets_for("import"):
-            targets.update(
-                self._targets_from_import(imported.module, imported.symbol, suffix)
-            )
-        if (
-            not targets
-            and not knowledge.targets_for("import")
-            and not knowledge.possible_unknown
-        ):
+            targets.update(self._targets_from_import(imported.module, imported.symbol, suffix))
+        if not targets and not knowledge.targets_for("import") and not knowledge.possible_unknown:
             for class_symbol in self._local_class_symbols(first):
                 targets.update(
                     self._callable_in_module(
@@ -2497,9 +4056,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             return {reference for reference in self.functions if reference[1] == constructor}
         if "." in symbol:
             class_name, _, member = symbol.rpartition(".")
-            knowledge = self.external_class_exports.get(module, {}).get(class_name, {}).get(
-                member
-            )
+            knowledge = self.external_class_exports.get(module, {}).get(class_name, {}).get(member)
             if knowledge is not None:
                 invocation = self._callable_targets_for_knowledge(knowledge)
                 return {
@@ -2559,9 +4116,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             self.pending_class_constructor_calls.append((call, class_targets))
         for module, class_name in sorted(class_targets):
             for method in ("__new__", "__init__"):
-                self._record_targets(
-                    self._class_method_targets({(module, class_name)}, method)
-                )
+                self._record_targets(self._class_method_targets({(module, class_name)}, method))
 
     def _inherited_source_method_targets(
         self,
@@ -2591,9 +4146,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 for method in ("__new__", "__init__"):
                     if self._callable_in_module(target[0], f"{target[1]}.{method}"):
                         continue
-                    inherited_targets.update(
-                        self._inherited_source_method_targets(target, method)
-                    )
+                    inherited_targets.update(self._inherited_source_method_targets(target, method))
             if not inherited_targets:
                 continue
             for target in sorted(inherited_targets):
@@ -2687,21 +4240,15 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if not isinstance(decorator, ast.Call):
                 self._record_callable(decorator)
             self.visit(decorator)
-        qualified_name = (
-            f"{self.scope_prefix}.{node.name}" if self.scope_prefix else node.name
-        )
+        qualified_name = f"{self.scope_prefix}.{node.name}" if self.scope_prefix else node.name
         reference = (self.module, qualified_name, node.lineno, node.col_offset)
         default_bindings: dict[str, _BindingKnowledge] = {}
         positional = [*node.args.posonlyargs, *node.args.args]
         first_default = len(positional) - len(node.args.defaults)
-        for parameter, default in zip(
-            positional[first_default:], node.args.defaults, strict=True
-        ):
+        for parameter, default in zip(positional[first_default:], node.args.defaults, strict=True):
             default_bindings[parameter.arg] = self._knowledge_for_expression(default)
             self.visit(default)
-        for parameter, default in zip(
-            node.args.kwonlyargs, node.args.kw_defaults, strict=True
-        ):
+        for parameter, default in zip(node.args.kwonlyargs, node.args.kw_defaults, strict=True):
             if default is not None:
                 default_bindings[parameter.arg] = self._knowledge_for_expression(default)
                 self.visit(default)
@@ -2770,11 +4317,9 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         if unknown_base:
             self.source_class_base_unknown.add(class_target)
         if metaclass_knowledge is not None:
-            self.source_class_metaclasses[class_target] = (
-                self.source_class_metaclasses.get(class_target, _BindingKnowledge()).join(
-                    metaclass_knowledge
-                )
-            )
+            self.source_class_metaclasses[class_target] = self.source_class_metaclasses.get(
+                class_target, _BindingKnowledge()
+            ).join(metaclass_knowledge)
         if base_targets:
             self.source_class_bases.setdefault((self.module, qualified_name), set()).update(
                 base_targets
@@ -2823,9 +4368,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             for name, knowledge in class_knowledge.items()
             if name in class_bound_names
         }
-        constructor_targets = self._callable_in_module(
-            self.module, f"{qualified_name}.__init__"
-        )
+        constructor_targets = self._callable_in_module(self.module, f"{qualified_name}.__init__")
         class_knowledge = _BindingKnowledge(
             frozenset(
                 {
@@ -2844,9 +4387,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         for global_name, effect in class_effects.items():
             self._apply_global_effect(global_name, effect, shadowed_names=caller_locals)
 
-    def _bind_knowledge_to_names(
-        self, names: set[str], knowledge: _BindingKnowledge
-    ) -> None:
+    def _bind_knowledge_to_names(self, names: set[str], knowledge: _BindingKnowledge) -> None:
         """Write one complete binding lattice through the shared assignment sink."""
         self._clear_name_bindings(names)
         for name in names:
@@ -2865,9 +4406,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             return
         if subject_knowledge is None:
             subject_knowledge = self._knowledge_for_expression(subject)
-        self._bind_unknown(
-            names, source_value_origins=subject_knowledge.source_value_origins
-        )
+        self._bind_unknown(names, source_value_origins=subject_knowledge.source_value_origins)
         # A top-level MatchAs captures the subject itself. Nested captures may
         # select an element or attribute, so retain provenance but not its type.
         if isinstance(pattern, ast.MatchAs) and pattern.name:
@@ -2881,9 +4420,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             self._bind_target_knowledge(target, knowledge)
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        knowledge = (
-            self._knowledge_for_expression(node.value) if node.value is not None else None
-        )
+        knowledge = self._knowledge_for_expression(node.value) if node.value is not None else None
         self.visit(node.target)
         if self.scope_kind != "function" and not self.future_annotations:
             self.visit(node.annotation)
@@ -2903,11 +4440,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 
     def _storage_targets(self, target: ast.AST) -> list[ast.AST]:
         if isinstance(target, (ast.Tuple, ast.List)):
-            return [
-                stored
-                for item in target.elts
-                for stored in self._storage_targets(item)
-            ]
+            return [stored for item in target.elts for stored in self._storage_targets(item)]
         if isinstance(target, ast.Starred):
             return self._storage_targets(target.value)
         return [target] if isinstance(target, (ast.Attribute, ast.Subscript)) else []
@@ -2951,10 +4484,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         origins = set(owner_knowledge.source_value_origins)
         origins.update(value_knowledge.source_value_origins)
         effect_is_exact = (
-            must_apply
-            and not owner_incomplete
-            and len(owners) == 1
-            and member is not None
+            must_apply and not owner_incomplete and len(owners) == 1 and member is not None
         )
 
         # Exact owner/key state can retain a possible effect without producing a
@@ -2966,7 +4496,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             and member is not None
             and member.startswith("sub:")
         )
-        if origins and (not owners or owner_incomplete or member is None) and not exact_builtin_dict_storage:
+        if (
+            origins
+            and (not owners or owner_incomplete or member is None)
+            and not exact_builtin_dict_storage
+        ):
             self._record_unresolved_storage(node, origins)
 
         effect_knowledge = (
@@ -2977,15 +4511,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         for owner in owners:
             member_map = self.owner_member_bindings.setdefault(owner, {})
             if member is None:
-                member_map["*"] = member_map.get("*", _BindingKnowledge()).join(
-                    effect_knowledge
-                )
+                member_map["*"] = member_map.get("*", _BindingKnowledge()).join(effect_knowledge)
                 self.owner_member_wildcard_overrides.pop(owner, None)
             elif effect_is_exact:
                 member_map[member] = effect_knowledge
-                self.owner_member_wildcard_overrides.setdefault(owner, set()).add(
-                    member
-                )
+                self.owner_member_wildcard_overrides.setdefault(owner, set()).add(member)
             else:
                 prior, _found = self._owner_member_knowledge({owner}, member)
                 member_map[member] = prior.join(effect_knowledge)
@@ -3004,9 +4534,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 
         for owner_name in _binding_target_owner_names(target):
             owner_knowledge = self._binding_knowledge(owner_name).join(
-                _BindingKnowledge(
-                    source_value_origins=knowledge.source_value_origins
-                )
+                _BindingKnowledge(source_value_origins=knowledge.source_value_origins)
             )
             self._bind_knowledge_to_names({owner_name}, owner_knowledge)
 
@@ -3111,9 +4639,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if handler.type is not None:
                 self.visit(handler.type)
             if handler.name:
-                self._bind_unknown(
-                    {handler.name}, source_value_origins=handler_origins
-                )
+                self._bind_unknown({handler.name}, source_value_origins=handler_origins)
             for statement in (*handler.body, *node.finalbody):
                 self.visit(statement)
             if handler.name:
@@ -3126,16 +4652,12 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 
     def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
         handler_origins = (
-            self._source_value_origins_for_expression(node.type)
-            if node.type is not None
-            else set()
+            self._source_value_origins_for_expression(node.type) if node.type is not None else set()
         )
         if node.type is not None:
             self.visit(node.type)
         if node.name:
-            self._bind_unknown(
-                {node.name}, source_value_origins=handler_origins
-            )
+            self._bind_unknown({node.name}, source_value_origins=handler_origins)
         for statement in node.body:
             self.visit(statement)
         if node.name:
@@ -3143,9 +4665,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 
     def visit_With(self, node: ast.With) -> None:
         for item in node.items:
-            context_origins = self._source_value_origins_for_expression(
-                item.context_expr
-            )
+            context_origins = self._source_value_origins_for_expression(item.context_expr)
             self.visit(item.context_expr)
             if item.optional_vars is not None:
                 self._bind_unknown_target(item.optional_vars, context_origins)
@@ -3159,9 +4679,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self, node: ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp
     ) -> None:
         generators = node.generators
-        target_names = set().union(
-            *(_binding_names(generator.target) for generator in generators)
-        ) if generators else set()
+        target_names = (
+            set().union(*(_binding_names(generator.target) for generator in generators))
+            if generators
+            else set()
+        )
         previous_bindings = self._binding_knowledge_snapshot()
         previous_type_bindings = self.type_checking_bindings.copy()
         try:
@@ -3173,9 +4695,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                     _BindingKnowledge(
                         possible_unknown=True,
                         source_value_origins=iter_knowledge.source_value_origins,
-                        builtin_value_kinds=self._iterated_builtin_value_kinds(
-                            iter_knowledge
-                        ),
+                        builtin_value_kinds=self._iterated_builtin_value_kinds(iter_knowledge),
                     ),
                     member_effect_must_apply=False,
                 )
@@ -3353,9 +4873,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             unresolved = unresolved or incomplete
         return targets, unresolved
 
-    def _function_returns_exact_builtin_strings(
-        self, reference: tuple[str, str, int, int]
-    ) -> bool:
+    def _function_returns_exact_builtin_strings(self, reference: tuple[str, str, int, int]) -> bool:
         """Prove a hook returns only literal, exact builtin strings on all returns."""
         function = self.source_functions.get(reference)
         if function is None or function.decorator_list or not function.body:
@@ -3389,8 +4907,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if not isinstance(value, (ast.List, ast.Tuple)):
                 return False
             if any(
-                not isinstance(element, ast.Constant)
-                or type(element.value) is not str
+                not isinstance(element, ast.Constant) or type(element.value) is not str
                 for element in value.elts
             ):
                 return False
@@ -3479,8 +4996,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 unresolved = unresolved or incomplete
 
         if not class_targets and not any(
-            target.kind == "import" and target.symbol is None
-            and target.module in self.module_names
+            target.kind == "import" and target.symbol is None and target.module in self.module_names
             for target in knowledge.known_possible_targets
         ):
             if knowledge.source_value_origins or self._source_origins_from_targets(
@@ -3503,9 +5019,10 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         hooks, unresolved, origins, _class_targets = self._builtin_dir_hook_summary(node)
         if not hooks and not unresolved:
             return _BindingKnowledge(builtin_value_kinds=frozenset({"sequence[str]"}))
-        if hooks and not unresolved and all(
-            self._function_returns_exact_builtin_strings(reference)
-            for reference in hooks
+        if (
+            hooks
+            and not unresolved
+            and all(self._function_returns_exact_builtin_strings(reference) for reference in hooks)
         ):
             return _BindingKnowledge(builtin_value_kinds=frozenset({"sequence[str]"}))
         return _BindingKnowledge(
@@ -3519,9 +5036,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         result = self._builtin_dir_result_knowledge(node)
         return result.builtin_value_kinds if result is not None else frozenset()
 
-    def _iterated_builtin_value_kinds(
-        self, knowledge: _BindingKnowledge
-    ) -> frozenset[str]:
+    def _iterated_builtin_value_kinds(self, knowledge: _BindingKnowledge) -> frozenset[str]:
         """Transfer known element kinds from builtin string sequences."""
         if (
             "sequence[str]" in knowledge.builtin_value_kinds
@@ -3594,34 +5109,24 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 and not receiver_knowledge.source_value_origins
             ):
                 # Exact builtin strings cannot resolve to source-defined methods.
-                return _BindingKnowledge(
-                    builtin_value_kinds=frozenset({"builtin_member"})
-                )
+                return _BindingKnowledge(builtin_value_kinds=frozenset({"builtin_member"}))
             receiver_classes = self._instance_class_targets(node.value)
             receiver_classes.update(self._class_targets(node.value))
-            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(
-                receiver_knowledge
-            )
+            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(receiver_knowledge)
             stored_member, stored_found = self._owner_member_knowledge(
                 owner_targets, f"attr:{node.attr}"
             )
             if stored_found:
                 if owner_incomplete:
-                    stored_member = stored_member.join(
-                        _BindingKnowledge(possible_unknown=True)
-                    )
-                return stored_member.join(
-                    _BindingKnowledge(source_value_origins=origins)
-                )
+                    stored_member = stored_member.join(_BindingKnowledge(possible_unknown=True))
+                return stored_member.join(_BindingKnowledge(source_value_origins=origins))
             if receiver_classes:
                 member_knowledge = self._class_member_knowledge(receiver_classes, node.attr)
                 if receiver_knowledge.possible_unknown or owner_incomplete:
                     member_knowledge = member_knowledge.join(
                         _BindingKnowledge(possible_unknown=True)
                     )
-                return member_knowledge.join(
-                    _BindingKnowledge(source_value_origins=origins)
-                )
+                return member_knowledge.join(_BindingKnowledge(source_value_origins=origins))
             parts = self._dotted_name(node)
             if len(parts) > 1:
                 root = self._binding_knowledge(parts[0])
@@ -3630,53 +5135,35 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 for imported in root.targets_for("import"):
                     if imported.symbol is not None:
                         symbol = ".".join([imported.symbol, *suffix])
-                        exported = self.external_module_exports.get(imported.module, {}).get(
-                            symbol
-                        )
+                        exported = self.external_module_exports.get(imported.module, {}).get(symbol)
                         if exported is not None:
                             resolved = resolved.join(exported)
                     elif suffix:
                         candidate_module = ".".join([imported.module, *suffix[:-1]])
-                        resolved_module = _nearest_known_module(
-                            candidate_module, self.module_names
-                        )
+                        resolved_module = _nearest_known_module(candidate_module, self.module_names)
                         if resolved_module:
-                            exported = self.external_module_exports.get(
-                                resolved_module, {}
-                            ).get(suffix[-1])
+                            exported = self.external_module_exports.get(resolved_module, {}).get(
+                                suffix[-1]
+                            )
                             if exported is not None:
                                 resolved = resolved.join(exported)
                 if resolved.known_possible_targets or resolved.possible_unknown:
                     if root.possible_unknown:
                         resolved = resolved.join(_BindingKnowledge(possible_unknown=True))
-                    return resolved.join(
-                        _BindingKnowledge(source_value_origins=origins)
-                    )
-            return _BindingKnowledge(
-                possible_unknown=True, source_value_origins=origins
-            )
+                    return resolved.join(_BindingKnowledge(source_value_origins=origins))
+            return _BindingKnowledge(possible_unknown=True, source_value_origins=origins)
 
         if isinstance(node, ast.Subscript):
             owner_knowledge = self._knowledge_for_expression(node.value)
-            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(
-                owner_knowledge
-            )
+            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(owner_knowledge)
             member = self._storage_member_name(node)
             if member is not None:
-                stored_member, stored_found = self._owner_member_knowledge(
-                    owner_targets, member
-                )
+                stored_member, stored_found = self._owner_member_knowledge(owner_targets, member)
                 if stored_found:
                     if owner_incomplete:
-                        stored_member = stored_member.join(
-                            _BindingKnowledge(possible_unknown=True)
-                        )
-                    return stored_member.join(
-                        _BindingKnowledge(source_value_origins=origins)
-                    )
-            return _BindingKnowledge(
-                possible_unknown=True, source_value_origins=origins
-            )
+                        stored_member = stored_member.join(_BindingKnowledge(possible_unknown=True))
+                    return stored_member.join(_BindingKnowledge(source_value_origins=origins))
+            return _BindingKnowledge(possible_unknown=True, source_value_origins=origins)
 
         if isinstance(node, ast.Call):
             callee_knowledge = self._knowledge_for_expression(node.func)
@@ -3727,8 +5214,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
     ) -> _BindingKnowledge:
         targets = set(base.known_possible_targets)
         targets.update(
-            _BindingTarget("dispatch_class", module, symbol)
-            for module, symbol in class_targets
+            _BindingTarget("dispatch_class", module, symbol) for module, symbol in class_targets
         )
         targets.update(
             _BindingTarget("dispatch_callable", module, symbol, line, column)
@@ -3740,9 +5226,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             base.source_value_origins,
         )
 
-    def _record_dispatch_resolution(
-        self, node: ast.AST, *, call: ast.Call | None = None
-    ) -> None:
+    def _record_dispatch_resolution(self, node: ast.AST, *, call: ast.Call | None = None) -> None:
         function_knowledge = self._knowledge_for_expression(node)
         invocation = self._callable_targets_for_knowledge(function_knowledge)
         callable_targets = {
@@ -3758,13 +5242,12 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if class_targets:
                 # Constructor dispatch has its own observation and allocation rules.
                 return
-            source_derived_receiver = (
-                invocation.possible_unknown and bool(function_knowledge.source_value_origins)
+            source_derived_receiver = invocation.possible_unknown and bool(
+                function_knowledge.source_value_origins
             )
             instance_classes = self._instance_class_targets(node)
             has_unresolved_known_value = invocation.possible_unknown and bool(
-                function_knowledge.known_possible_targets
-                or function_knowledge.source_value_origins
+                function_knowledge.known_possible_targets or function_knowledge.source_value_origins
             )
             if not instance_classes and not has_unresolved_known_value:
                 return
@@ -3773,9 +5256,8 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         elif isinstance(node, ast.Attribute):
             receiver = node.value
             receiver_knowledge = self._knowledge_for_expression(receiver)
-            source_derived_receiver = (
-                receiver_knowledge.possible_unknown
-                and bool(receiver_knowledge.source_value_origins)
+            source_derived_receiver = receiver_knowledge.possible_unknown and bool(
+                receiver_knowledge.source_value_origins
             )
             class_targets = self._instance_class_targets(receiver)
             class_targets.update(self._class_targets(receiver))
@@ -3783,9 +5265,8 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             receiver_form = type(receiver).__name__
         elif isinstance(node, ast.Call):
             class_targets = self._instance_class_targets(node)
-            source_derived_receiver = (
-                function_knowledge.possible_unknown
-                and bool(function_knowledge.source_value_origins)
+            source_derived_receiver = function_knowledge.possible_unknown and bool(
+                function_knowledge.source_value_origins
             )
             receiver_form = "Call"
         else:
@@ -3928,9 +5409,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         }
         if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
             if any(
-                target.kind == "import"
-                and target.module == "builtins"
-                and target.symbol is None
+                target.kind == "import" and target.module == "builtins" and target.symbol is None
                 for target in known_targets
             ):
                 mutators.add(function.attr)
@@ -4054,11 +5533,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 )
             )
             member = None
-        must_apply = (
-            mutator_is_guaranteed
-            and has_valid_shape
-            and len(mutators) == 1
-        )
+        must_apply = mutator_is_guaranteed and has_valid_shape and len(mutators) == 1
         self._apply_owner_member_effect(
             node,
             owner_knowledge,
@@ -4870,6 +6345,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         for global_name, effect in function_global_effects.items():
             self._apply_global_effect(global_name, effect, shadowed_names=caller_locals)
 
+
 def _collect_runtime_import_edges(
     trees: Mapping[str, ast.Module],
     module_paths: Mapping[str, Path],
@@ -4902,15 +6378,16 @@ def _collect_runtime_import_edges(
 
     def run_collectors(
         external_module_exports: Mapping[str, Mapping[str, _BindingKnowledge]] | None = None,
-        external_class_exports: Mapping[
-            str, Mapping[str, Mapping[str, _BindingKnowledge]]
-        ] | None = None,
+        external_class_exports: Mapping[str, Mapping[str, Mapping[str, _BindingKnowledge]]]
+        | None = None,
         external_owner_member_exports: Mapping[
             str, Mapping[_BindingTarget, Mapping[str, _BindingKnowledge]]
-        ] | None = None,
+        ]
+        | None = None,
         external_function_default_bindings: Mapping[
             tuple[str, str, int, int], Mapping[str, _BindingKnowledge]
-        ] | None = None,
+        ]
+        | None = None,
     ) -> dict[str, _RuntimeImportCollector]:
         collectors = {
             module: _RuntimeImportCollector(
@@ -4932,12 +6409,8 @@ def _collect_runtime_import_edges(
         for collector in collectors.values():
             collector.external_module_exports = external_module_exports or {}
             collector.external_class_exports = external_class_exports or {}
-            collector.external_owner_member_exports = (
-                external_owner_member_exports or {}
-            )
-            collector.external_function_default_bindings = (
-                external_function_default_bindings or {}
-            )
+            collector.external_owner_member_exports = external_owner_member_exports or {}
+            collector.external_function_default_bindings = external_function_default_bindings or {}
         for module, tree in trees.items():
             collectors[module].set_future_annotations(tree)
             collectors[module].visit(tree)
@@ -4967,8 +6440,7 @@ def _collect_runtime_import_edges(
     ) -> dict[str, dict[_BindingTarget, dict[str, _BindingKnowledge]]]:
         return {
             module: {
-                owner: members.copy()
-                for owner, members in collector.owner_member_bindings.items()
+                owner: members.copy() for owner, members in collector.owner_member_bindings.items()
             }
             for module, collector in selected.items()
         }
@@ -5012,9 +6484,7 @@ def _collect_runtime_import_edges(
         module, symbol, _line, _column = reference
         class_name, separator, member = symbol.rpartition(".")
         knowledge = (
-            class_exports.get(module, {}).get(class_name, {}).get(member)
-            if separator
-            else None
+            class_exports.get(module, {}).get(class_name, {}).get(member) if separator else None
         )
         if knowledge is None:
             knowledge = module_exports.get(module, {}).get(symbol)
@@ -5031,9 +6501,7 @@ def _collect_runtime_import_edges(
         resolved: set[tuple[str, str, int, int]] = set()
         for member in members:
             resolved.update(
-                resolve_reference(
-                    (module, f"{class_name}.{member}", -1, -1), seen.copy()
-                )
+                resolve_reference((module, f"{class_name}.{member}", -1, -1), seen.copy())
             )
         return resolved
 
@@ -5052,9 +6520,7 @@ def _collect_runtime_import_edges(
                 )
             elif target.kind == "import" and target.symbol is not None:
                 resolved.update(
-                    resolve_reference(
-                        (target.module, target.symbol, -1, -1), seen.copy()
-                    )
+                    resolve_reference((target.module, target.symbol, -1, -1), seen.copy())
                 )
             elif target.kind == "class" and target.symbol is not None:
                 resolved.update(
@@ -5086,8 +6552,7 @@ def _collect_runtime_import_edges(
         finalized_constructor_calls = False
         for collector in collectors.values():
             finalized_constructor_calls = (
-                collector.resolve_pending_class_constructor_calls()
-                or finalized_constructor_calls
+                collector.resolve_pending_class_constructor_calls() or finalized_constructor_calls
             )
         pending_contexts = [
             context
@@ -5100,9 +6565,7 @@ def _collect_runtime_import_edges(
             visited_contexts.add((reference, context))
             target_collector = collectors.get(reference[0])
             if target_collector is not None:
-                target_collector.visit_callable(
-                    reference, parameter_bindings=dict(context)
-                )
+                target_collector.visit_callable(reference, parameter_bindings=dict(context))
             continue
         pending = [
             target
@@ -5142,6 +6605,7 @@ def _collect_runtime_import_edges(
     )
     return edges, dispatch_observations
 
+
 def collect_import_graph(
     *,
     runtime_only: bool = False,
@@ -5154,8 +6618,7 @@ def collect_import_graph(
     if input_errors and not allow_incomplete:
         first = input_errors[0]
         raise ImportGraphInputError(
-            "cannot build a complete import graph: "
-            f"{first.get('path')} [{first.get('outcome')}]",
+            f"cannot build a complete import graph: {first.get('path')} [{first.get('outcome')}]",
             source_snapshot=snapshot,
         )
     module_paths = snapshot.module_paths
@@ -5534,7 +6997,7 @@ def validate_dynamic_imports() -> list[Finding]:
             Finding(
                 "dynamic_imports_gate",
                 "dynamic import registry is missing",
-                _rel(DYNAMIC_IMPORTS_PATH),
+                _diagnostic_path(DYNAMIC_IMPORTS_PATH),
             )
         ]
     except (OSError, UnicodeError) as error:
@@ -5542,7 +7005,7 @@ def validate_dynamic_imports() -> list[Finding]:
             Finding(
                 "dynamic_imports_gate",
                 "dynamic import registry cannot be read",
-                f"{_rel(DYNAMIC_IMPORTS_PATH)}: {type(error).__name__}: {error}",
+                f"{_diagnostic_path(DYNAMIC_IMPORTS_PATH)}: {type(error).__name__}: {error}",
             )
         ]
     try:
@@ -5552,11 +7015,20 @@ def validate_dynamic_imports() -> list[Finding]:
             Finding(
                 "dynamic_imports_gate",
                 "dynamic import registry is malformed",
-                f"{_rel(DYNAMIC_IMPORTS_PATH)}: {error}",
+                f"{_diagnostic_path(DYNAMIC_IMPORTS_PATH)}: {error}",
             )
         ]
 
-    current = collect_dynamic_imports()
+    try:
+        current = collect_dynamic_imports()
+    except DynamicImportCollectionError as error:
+        return [
+            Finding(
+                "dynamic_imports_gate",
+                "dynamic import source inventory is incomplete",
+                str(error),
+            )
+        ]
     try:
         canonical = tomllib.loads(render_dynamic_imports_toml(current))
     except (KeyError, TypeError, ValueError) as error:
@@ -5674,9 +7146,7 @@ def validate_dynamic_imports() -> list[Finding]:
             return None
         return source_file, line, call, pattern
 
-    canonical_by_signature: dict[
-        tuple[str, int, str, str], list[Mapping[str, Any]]
-    ] = {}
+    canonical_by_signature: dict[tuple[str, int, str, str], list[Mapping[str, Any]]] = {}
     for index, entry in enumerate(canonical_rows):
         if not isinstance(entry, dict):
             findings.append(
@@ -5699,9 +7169,7 @@ def validate_dynamic_imports() -> list[Finding]:
             continue
         canonical_by_signature.setdefault(entry_signature, []).append(entry)
 
-    registered_by_signature: dict[
-        tuple[str, int, str, str], list[Mapping[str, Any]]
-    ] = {}
+    registered_by_signature: dict[tuple[str, int, str, str], list[Mapping[str, Any]]] = {}
     for index, entry in enumerate(registered_rows):
         if not isinstance(entry, dict):
             findings.append(
@@ -5803,7 +7271,9 @@ def validate_import_cycles(
     findings: list[Finding] = []
     if not LAZY_IMPORTS_PATH.exists():
         findings.append(
-            Finding("import_cycles_gate", "lazy import registry is missing", _rel(LAZY_IMPORTS_PATH))
+            Finding(
+                "import_cycles_gate", "lazy import registry is missing", _rel(LAZY_IMPORTS_PATH)
+            )
         )
     else:
         data = tomllib.loads(LAZY_IMPORTS_PATH.read_text(encoding="utf-8"))
@@ -5857,6 +7327,7 @@ def validate_import_cycles(
                 )
             )
     return findings
+
 
 def validate_public_surface_snapshot() -> list[Finding]:
     return _compare_json_snapshot(
@@ -6002,14 +7473,10 @@ def _is_public_surface_object_record(value: Any) -> bool:
     line = value.get("line")
     if not isinstance(line, int) or isinstance(line, bool) or line <= 0:
         return False
-    if not isinstance(value.get("name"), str) or not isinstance(
-        value.get("fqn"), str
-    ):
+    if not isinstance(value.get("name"), str) or not isinstance(value.get("fqn"), str):
         return False
     if value.get("kind") == "class":
-        return isinstance(value.get("bases"), list) and isinstance(
-            value.get("pydantic"), bool
-        )
+        return isinstance(value.get("bases"), list) and isinstance(value.get("pydantic"), bool)
     return value.get("kind") in {"function", "async_function"} and isinstance(
         value.get("signature"), str
     )
@@ -6044,9 +7511,7 @@ def _normalize_public_surface_snapshot(value: Any) -> Any:
     return normalized
 
 
-def generate_blueprint(
-    *, import_source_snapshot: _ImportSourceSnapshot | None = None
-) -> str:
+def generate_blueprint(*, import_source_snapshot: _ImportSourceSnapshot | None = None) -> str:
     move_map = collect_move_map()
     move_paths = [REPO_ROOT / item["source_path"] for item in move_map]
     importers = collect_external_importers(move_map)
@@ -6274,7 +7739,6 @@ def write_phase3a_artifacts(
     return _import_graph_input_receipt(import_source_snapshot)
 
 
-
 def _print_import_graph_input_receipt(receipt: Mapping[str, Any]) -> None:
     """Print selector facts and every selected path/hash/outcome for text callers."""
     print("Import graph input receipt:")
@@ -6286,7 +7750,9 @@ def _print_import_graph_input_receipt(receipt: Mapping[str, Any]) -> None:
                 "outcome_counts": receipt["outcome_counts"],
                 "input_manifest_sha256": receipt["input_manifest_sha256"],
                 "selector": receipt["selector"],
-                "dispatch_resolution": receipt["observed_graphs"]["module_initialization"]["dispatch_resolution"],
+                "dispatch_resolution": receipt["observed_graphs"]["module_initialization"][
+                    "dispatch_resolution"
+                ],
             },
             ensure_ascii=False,
             sort_keys=True,
@@ -6296,6 +7762,7 @@ def _print_import_graph_input_receipt(receipt: Mapping[str, Any]) -> None:
         print(json.dumps(item, ensure_ascii=False, sort_keys=True))
     for error in receipt["discovery_errors"]:
         print(json.dumps(error, ensure_ascii=False, sort_keys=True))
+
 
 def run_all_gates(
     *,
@@ -6335,9 +7802,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         except ImportGraphInputError as error:
             print(f"Phase 3A decomposition preflight artifacts NOT generated: {error}")
-            _print_import_graph_input_receipt(
-                _import_graph_input_receipt(error.source_snapshot)
-            )
+            _print_import_graph_input_receipt(_import_graph_input_receipt(error.source_snapshot))
             return 1
         print("Phase 3A decomposition preflight artifacts generated.")
         _print_import_graph_input_receipt(import_receipt)

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
+import runpy
 import shlex
 import shutil
 import subprocess
@@ -145,8 +147,7 @@ def test_dynamic_imports_gate_rejects_every_canonical_row_field_corruption(
             ), field
         else:
             assert any(
-                finding.message
-                == "registered dynamic import row differs from canonical collector"
+                finding.message == "registered dynamic import row differs from canonical collector"
                 and field in finding.detail
                 for finding in findings
             ), field
@@ -236,12 +237,24 @@ def test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry(
     assert [finding.message for finding in missing_findings] == [
         "dynamic import registry is missing"
     ]
+    assert missing_findings[0].detail == registry_path.as_posix()
+
+    registry_path.mkdir()
+    unreadable_findings = preflight.validate_dynamic_imports()
+    assert [finding.message for finding in unreadable_findings] == [
+        "dynamic import registry cannot be read"
+    ]
+    assert unreadable_findings[0].detail.startswith(
+        f"{registry_path.as_posix()}: IsADirectoryError:"
+    )
+    registry_path.rmdir()
 
     registry_path.write_text("[dynamic_imports\n", encoding="utf-8")
     malformed_findings = preflight.validate_dynamic_imports()
     assert [finding.message for finding in malformed_findings] == [
         "dynamic import registry is malformed"
     ]
+    assert malformed_findings[0].detail.startswith(f"{registry_path.as_posix()}:")
 
     registry_path.write_text("[unrelated]\nvalue = 1\n", encoding="utf-8")
     missing_header_findings = preflight.validate_dynamic_imports()
@@ -267,8 +280,7 @@ def test_dynamic_imports_gate_rejects_incomplete_and_open_row_schemas(
     registry_path.write_text(canonical_text.replace(removed_id, "", 1), encoding="utf-8")
     missing_field_findings = preflight.validate_dynamic_imports()
     assert any(
-        finding.message
-        == "registered dynamic import row differs from canonical collector"
+        finding.message == "registered dynamic import row differs from canonical collector"
         and "id" in finding.detail
         for finding in missing_field_findings
     )
@@ -280,8 +292,7 @@ def test_dynamic_imports_gate_rejects_incomplete_and_open_row_schemas(
     )
     unexpected_field_findings = preflight.validate_dynamic_imports()
     assert any(
-        finding.message
-        == "registered dynamic import row differs from canonical collector"
+        finding.message == "registered dynamic import row differs from canonical collector"
         and "unowned_field" in finding.detail
         for finding in unexpected_field_findings
     )
@@ -291,7 +302,6 @@ def test_import_cycles_gate_allows_only_phase3a_lazy_cycles() -> None:
     findings = validate_import_cycles()
 
     assert findings == [], "\n".join(finding.render() for finding in findings)
-
 
 
 def _write_runtime_import_fixture(
@@ -350,10 +360,11 @@ def test_import_cycle_gate_rejects_guard_removal_even_when_markers_remain(
     (tmp_path / "src/polisyos/scientist/a.py").write_text(source, encoding="utf-8")
     findings = validate_import_cycles()
     assert len(findings) == 1
-    assert findings[0].message == "registered deferred-cycle signature contains a module-eager cycle"
+    assert (
+        findings[0].message == "registered deferred-cycle signature contains a module-eager cycle"
+    )
     assert "polisyos.scientist.a" in findings[0].detail
     assert "polisyos.scientist.b" in findings[0].detail
-
 
 
 def test_import_cycle_gate_does_not_trust_shadowed_type_checking_bindings(
@@ -453,8 +464,7 @@ def test_runtime_import_graph_includes_only_evaluated_function_annotations(
             root,
             {
                 "polisyos/scientist/a.py": (
-                    prefix
-                    + "def annotation_import():\n"
+                    prefix + "def annotation_import():\n"
                     "    from polisyos.scientist import b\n"
                     "    return int\n"
                     "def declared(value: annotation_import()):\n"
@@ -465,9 +475,7 @@ def test_runtime_import_graph_includes_only_evaluated_function_annotations(
             monkeypatch,
         )
         graph = preflight.collect_import_graph(runtime_only=True)
-        cycle_modules = {
-            module for cycle in graph["cycles"] for module in cycle["modules"]
-        }
+        cycle_modules = {module for cycle in graph["cycles"] for module in cycle["modules"]}
         has_cycle = {
             "polisyos.scientist.a",
             "polisyos.scientist.b",
@@ -496,6 +504,7 @@ def test_function_local_variable_annotations_are_not_evaluated(
     graph = preflight.collect_import_graph(runtime_only=True)
     cycle_modules = {module for cycle in graph["cycles"] for module in cycle["modules"]}
     assert "polisyos.scientist.a" not in cycle_modules
+
 
 def test_runtime_import_graph_follows_module_time_calls_and_class_bodies_only(
     tmp_path: Path,
@@ -527,8 +536,7 @@ def test_runtime_import_graph_follows_module_time_calls_and_class_bodies_only(
                 "module_bootstrap.register()\n"
             ),
             "polisyos/scientist/module_bootstrap.py": (
-                "def register():\n"
-                "    from polisyos.scientist import imported_call_edge\n"
+                "def register():\n    from polisyos.scientist import imported_call_edge\n"
             ),
             "polisyos/scientist/direct_call_edge.py": "from polisyos.scientist.a import _bootstrap\n",
             "polisyos/scientist/decorator_edge.py": "from polisyos.scientist.a import decorated\n",
@@ -579,8 +587,6 @@ def test_runtime_import_graph_normalizes_package_import_spellings(
     assert edge_sets[0] == edge_sets[1]
     assert ("polisyos.scientist.a", "polisyos.scientist.pkg") in edge_sets[0]
     assert ("polisyos.scientist.a", "polisyos.scientist.pkg.child") in edge_sets[0]
-
-
 
 
 def test_import_cycle_gate_handles_global_and_match_type_checking_rebindings(
@@ -725,12 +731,10 @@ def test_runtime_import_graph_joins_all_branch_callable_targets(
                 "selected()\n"
             ),
             "polisyos/scientist/one.py": (
-                "def launch():\n"
-                "    from polisyos.scientist import first_edge\n"
+                "def launch():\n    from polisyos.scientist import first_edge\n"
             ),
             "polisyos/scientist/two.py": (
-                "def launch():\n"
-                "    from polisyos.scientist import second_edge\n"
+                "def launch():\n    from polisyos.scientist import second_edge\n"
             ),
             "polisyos/scientist/first_edge.py": "VALUE = 1\n",
             "polisyos/scientist/second_edge.py": "VALUE = 2\n",
@@ -837,8 +841,7 @@ def test_runtime_import_graph_resolves_branch_definition_set_across_module_impor
         tmp_path,
         {
             "polisyos/scientist/a.py": (
-                "from polisyos.scientist.implementation import selected\n"
-                "selected()\n"
+                "from polisyos.scientist.implementation import selected\nselected()\n"
             ),
             "polisyos/scientist/implementation.py": (
                 "if runtime_flag:\n"
@@ -867,8 +870,7 @@ def test_runtime_import_graph_resolves_cross_module_source_order_overwrite(
         tmp_path,
         {
             "polisyos/scientist/a.py": (
-                "from polisyos.scientist.implementation import selected\n"
-                "selected()\n"
+                "from polisyos.scientist.implementation import selected\nselected()\n"
             ),
             "polisyos/scientist/implementation.py": (
                 "def selected():\n"
@@ -982,9 +984,7 @@ def test_import_cycle_gate_rejects_named_instance_method_dispatch(
     )
 
     (tmp_path / "src/polisyos/scientist/a.py").write_text(
-        "class Entry:\n"
-        "    def boot(self):\n"
-        "        from polisyos.scientist import edge\n",
+        "class Entry:\n    def boot(self):\n        from polisyos.scientist import edge\n",
         encoding="utf-8",
     )
     assert not any(
@@ -1100,8 +1100,7 @@ def test_import_cycle_gate_joins_named_instance_sets_and_follows_both_methods(
     assert [(finding.message, finding.detail) for finding in findings] == [
         (
             "registered deferred-cycle signature contains a module-eager cycle",
-            "polisyos.scientist.a, polisyos.scientist.left_edge, "
-            "polisyos.scientist.right_edge",
+            "polisyos.scientist.a, polisyos.scientist.left_edge, polisyos.scientist.right_edge",
         )
     ]
     runtime_graph = preflight.collect_import_graph(runtime_only=True)
@@ -1117,9 +1116,7 @@ def test_import_cycle_gate_joins_named_instance_sets_and_follows_both_methods(
 
     source_path = tmp_path / "src/polisyos/scientist/a.py"
     source_text = source_path.read_text(encoding="utf-8")
-    source_path.write_text(
-        source_text.replace("selected.boot()\n", "", 1), encoding="utf-8"
-    )
+    source_path.write_text(source_text.replace("selected.boot()\n", "", 1), encoding="utf-8")
     source_after = source_path.read_text(encoding="utf-8")
     assert "from polisyos.scientist import left_edge" in source_after
     assert "from polisyos.scientist import right_edge" in source_after
@@ -1276,7 +1273,7 @@ def test_import_cycle_gate_rejects_new_unregistered_deferred_scc(
     )
     lazy_registry = tmp_path / "architecture/imports/lazy.toml"
     lazy_registry.parent.mkdir(parents=True, exist_ok=True)
-    lazy_registry.write_text('[lazy_imports]\nversion = 1\n', encoding="utf-8")
+    lazy_registry.write_text("[lazy_imports]\nversion = 1\n", encoding="utf-8")
     monkeypatch.setattr(preflight, "LAZY_IMPORTS_PATH", lazy_registry)
 
     findings = validate_import_cycles()
@@ -1318,7 +1315,7 @@ def test_import_cycle_scan_preserves_partial_cycles_and_parse_failures(
     lazy_registry = tmp_path / "architecture/imports/lazy.toml"
     lazy_registry.parent.mkdir(parents=True, exist_ok=True)
     lazy_registry.write_text(
-        '[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n'
+        "[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n"
         'modules = ["polisyos.scientist.a", "polisyos.scientist.b"]\n',
         encoding="utf-8",
     )
@@ -1366,7 +1363,7 @@ def test_import_cycle_scan_records_portable_read_failure(
     lazy_registry = tmp_path / "architecture/imports/lazy.toml"
     lazy_registry.parent.mkdir(parents=True, exist_ok=True)
     lazy_registry.write_text(
-        '[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n'
+        "[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n"
         'modules = ["polisyos.scientist.a", "polisyos.scientist.b"]\n',
         encoding="utf-8",
     )
@@ -1413,7 +1410,7 @@ def test_gate_cli_emits_complete_import_input_receipt_and_fails_closed(
     bad_path.write_bytes(bad_bytes)
     lazy_registry = tmp_path / "architecture/imports/lazy.toml"
     lazy_registry.parent.mkdir(parents=True, exist_ok=True)
-    lazy_registry.write_text('[lazy_imports]\nversion = 1\n', encoding="utf-8")
+    lazy_registry.write_text("[lazy_imports]\nversion = 1\n", encoding="utf-8")
     monkeypatch.setattr(preflight, "LAZY_IMPORTS_PATH", lazy_registry)
     monkeypatch.setattr(preflight, "validate_dynamic_imports", lambda: [])
     monkeypatch.setattr(preflight, "validate_pickle_fixtures", lambda: [])
@@ -1470,6 +1467,7 @@ def test_phase3a_generator_refuses_incomplete_import_input_before_writes(
     assert "parse_error" in stdout
     assert hashlib.sha256(b"def broken(:\n    pass\n").hexdigest() in stdout
     assert not generated_root.exists()
+
 
 def test_reexport_shim_shape_gate_forbids_star_import_shims() -> None:
     findings = validate_reexport_shim_shapes()
@@ -1745,7 +1743,9 @@ def test_move_module_codemod_rewrites_parent_leaf_imports(tmp_path: Path) -> Non
     assert "import *" not in shim
 
 
-@pytest.mark.skipif(os.name != "posix", reason="POSIX subprocess lookup honors cwd for PATH entries")
+@pytest.mark.skipif(
+    os.name != "posix", reason="POSIX subprocess lookup honors cwd for PATH entries"
+)
 @pytest.mark.parametrize(
     ("path_mode", "expected_shim"),
     [
@@ -1784,7 +1784,7 @@ def test_move_module_git_lookup_preserves_child_cwd_path_search(
         executable.write_text(
             "#!/bin/sh\n"
             f"printf '%s' {shlex.quote(label)} > \"$GIT_SHIM_MARKER\"\n"
-            f"exec {shlex.quote(real_git)} \"$@\"\n",
+            f'exec {shlex.quote(real_git)} "$@"\n',
             encoding="utf-8",
         )
         executable.chmod(0o755)
@@ -2021,8 +2021,7 @@ def test_import_cycle_gate_resolves_source_inherited_method_dispatch(
         ("selected = make()\n", "selected.child.boot()"),
         ("selected = [make()]\n", "selected[0].boot()"),
         (
-            "if runtime_flag:\n    selected = Entry()\n"
-            "else:\n    selected = make()\n",
+            "if runtime_flag:\n    selected = Entry()\nelse:\n    selected = make()\n",
             "selected.boot()",
         ),
         (
@@ -2043,10 +2042,7 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
         "        from polisyos.scientist import edge\n"
         "def make():\n"
         "    return Entry()\n"
-        "runtime_flag = False\n"
-        + binding_setup
-        + property_call
-        + "\n"
+        "runtime_flag = False\n" + binding_setup + property_call + "\n"
     )
     edge_source = "from polisyos.scientist.a import make\n"
     _write_runtime_import_fixture(
@@ -2068,9 +2064,7 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
 
     graph = preflight.collect_import_graph(runtime_only=True)
     receipt = graph["dispatch_resolution"]
-    unresolved = next(
-        row for row in receipt["unresolved"] if row["expression"] == property_call
-    )
+    unresolved = next(row for row in receipt["unresolved"] if row["expression"] == property_call)
     assert receipt["status"] == "not_established"
     assert unresolved["reason"] in {
         "source_callable_return_not_summarized",
@@ -2093,9 +2087,7 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
     source_path = tmp_path / "src/polisyos/scientist/a.py"
     source_path.write_text(a_source.replace(property_call + "\n", "", 1), encoding="utf-8")
     assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
-    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(
-        encoding="utf-8"
-    )
+    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     after = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert after["unresolved"] == []
@@ -2104,7 +2096,6 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
     assert ["polisyos.scientist.a", "polisyos.scientist.edge"] in [
         cycle["modules"] for cycle in preflight.collect_import_graph()["cycles"]
     ]
-
 
 
 @pytest.mark.parametrize(
@@ -2117,13 +2108,9 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
             "item.boot()",
         ),
         (
-            "import asyncio\n"
-            "async def values():\n    yield make()\n"
-            "async def exercise():\n",
-            "    async for item in values():\n        item.boot()\n"
-            "asyncio.run(exercise())\n",
-            "    async for item in values():\n        pass\n"
-            "asyncio.run(exercise())\n",
+            "import asyncio\nasync def values():\n    yield make()\nasync def exercise():\n",
+            "    async for item in values():\n        item.boot()\nasyncio.run(exercise())\n",
+            "    async for item in values():\n        pass\nasyncio.run(exercise())\n",
             "item.boot()",
         ),
         (
@@ -2136,8 +2123,7 @@ def test_import_cycle_gate_preserves_source_origins_through_expression_transform
             "import asyncio\nasync def exercise():\n",
             "    async with AsyncManager() as item:\n        item.boot()\n"
             "asyncio.run(exercise())\n",
-            "    async with AsyncManager() as item:\n        pass\n"
-            "asyncio.run(exercise())\n",
+            "    async with AsyncManager() as item:\n        pass\nasyncio.run(exercise())\n",
             "item.boot()",
         ),
         (
@@ -2234,9 +2220,7 @@ def test_import_cycle_gate_preserves_provenance_at_unknown_binding_sinks(
         "    async def __aexit__(self, *args):\n"
         "        return False\n"
         "class EntryError(Exception):\n"
-        "    pass\n"
-        + setup
-        + property_statement
+        "    pass\n" + setup + property_statement
     )
     edge_source = "from polisyos.scientist.a import make\n"
     _write_runtime_import_fixture(
@@ -2258,9 +2242,7 @@ def test_import_cycle_gate_preserves_provenance_at_unknown_binding_sinks(
 
     graph = preflight.collect_import_graph(runtime_only=True)
     receipt = graph["dispatch_resolution"]
-    unresolved = [
-        row for row in receipt["unresolved"] if row["expression"] == property_call
-    ]
+    unresolved = [row for row in receipt["unresolved"] if row["expression"] == property_call]
     assert len(unresolved) == 1
     assert receipt["status"] == "not_established"
     assert unresolved[0]["reason"] in {
@@ -2270,9 +2252,7 @@ def test_import_cycle_gate_preserves_provenance_at_unknown_binding_sinks(
     }
     if "holder = KnownOwner()" in setup:
         ready = next(
-            row
-            for row in receipt["observations"]
-            if row["expression"] == "holder.ready()"
+            row for row in receipt["observations"] if row["expression"] == "holder.ready()"
         )
         assert ready["status"] == "resolved"
         assert any(
@@ -2293,12 +2273,8 @@ def test_import_cycle_gate_preserves_provenance_at_unknown_binding_sinks(
         a_source.replace(property_statement, without_property_statement, 1),
         encoding="utf-8",
     )
-    assert "from polisyos.scientist import edge" in source_path.read_text(
-        encoding="utf-8"
-    )
-    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(
-        encoding="utf-8"
-    )
+    assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
+    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     after = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert after["unresolved"] == []
@@ -2516,6 +2492,7 @@ def test_import_cycle_gate_binds_callee_before_argument_side_effects_and_removal
     assert ("polisyos.scientist.first_edge", "polisyos.scientist.a") in edges_after
     assert ("polisyos.scientist.second_edge", "polisyos.scientist.a") in edges_after
 
+
 def test_import_cycle_gate_rejects_unresolved_source_base_constructor_dispatch(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2663,7 +2640,6 @@ def test_import_cycle_gate_rejects_joined_known_and_unknown_receiver(
     ]
 
 
-
 def test_import_cycle_gate_preserves_complete_exported_member_knowledge(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2729,21 +2705,15 @@ def test_import_cycle_gate_preserves_complete_exported_member_knowledge(
         target.startswith("polisyos.scientist.a.Handler.__call__@")
         for target in routed["known_source_targets"]
     )
-    direct = next(
-        row for row in receipt["observations"] if row["expression"] == "Handler()()"
-    )
+    direct = next(row for row in receipt["observations"] if row["expression"] == "Handler()()")
     assert direct["status"] == "resolved"
-    partial = next(
-        row for row in receipt["unresolved"] if row["expression"] == "Partial().load()"
-    )
+    partial = next(row for row in receipt["unresolved"] if row["expression"] == "Partial().load()")
     assert partial["reason"] == "source_member_call_target_not_summarized"
     assert any(
         target.startswith("polisyos.scientist.caller.inert@")
         for target in partial["known_source_targets"]
     )
-    assert {
-        (row["source"], row["target"]) for row in graph["edges"]
-    } >= {
+    assert {(row["source"], row["target"]) for row in graph["edges"]} >= {
         ("polisyos.scientist.a", "polisyos.scientist.edge"),
         ("polisyos.scientist.caller", "polisyos.scientist.a"),
     }
@@ -2765,25 +2735,22 @@ def test_import_cycle_gate_preserves_complete_exported_member_knowledge(
     # Remove only the actual source calls. Keep the class-suite candidates, both
     # import markers, and the exact deferred-SCC registration intact.
     source_path = tmp_path / "src/polisyos/scientist/caller.py"
-    after_source = caller_source.replace("RoutedEntry().load()\n", "", 1).replace(
-        "Handler()()\n", "", 1
-    ).replace("Partial().load()\n", "", 1)
+    after_source = (
+        caller_source.replace("RoutedEntry().load()\n", "", 1)
+        .replace("Handler()()\n", "", 1)
+        .replace("Partial().load()\n", "", 1)
+    )
     source_path.write_text(after_source, encoding="utf-8")
-    edge_marker = (tmp_path / "src/polisyos/scientist/a.py").read_text(
-        encoding="utf-8"
-    )
+    edge_marker = (tmp_path / "src/polisyos/scientist/a.py").read_text(encoding="utf-8")
     assert "from polisyos.scientist import edge" in edge_marker
-    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(
-        encoding="utf-8"
-    )
+    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     after = preflight.collect_import_graph(runtime_only=True)
     assert after["dispatch_resolution"]["unresolved_count"] == 0
     assert after["dispatch_resolution"]["status"] == "resolved_within_scope"
     assert after["dispatch_resolution"]["unresolved"] == []
     assert not any(
-        row["source"] == "polisyos.scientist.a"
-        and row["target"] == "polisyos.scientist.edge"
+        row["source"] == "polisyos.scientist.a" and row["target"] == "polisyos.scientist.edge"
         for row in after["edges"]
     )
     # Removing the three actual dispatches leaves the callback and __call__
@@ -2792,8 +2759,7 @@ def test_import_cycle_gate_preserves_complete_exported_member_knowledge(
     assert "def __call__(self):" in edge_marker
     assert validate_import_cycles() == []
     assert ["polisyos.scientist.a", "polisyos.scientist.edge"] in [
-        cycle["modules"]
-        for cycle in preflight.collect_import_graph()["cycles"]
+        cycle["modules"] for cycle in preflight.collect_import_graph()["cycles"]
     ]
 
 
@@ -2811,11 +2777,11 @@ def test_import_cycle_gate_binds_callback_arguments_across_signature_forms(
         "def invoke_varargs(*callbacks):\n"
         "    callbacks[0]()\n"
         "def invoke_kwargs(**callbacks):\n"
-        "    callbacks[\"callback\"]()\n"
+        '    callbacks["callback"]()\n'
         "invoke_posonly(callback_target)\n"
         "invoke_keyword_only(callback=callback_target)\n"
         "invoke_varargs(*(callback_target,))\n"
-        "invoke_kwargs(**{\"callback\": callback_target})\n"
+        'invoke_kwargs(**{"callback": callback_target})\n'
     )
     edge_source = "from polisyos.scientist.a import callback_target\n"
     _write_runtime_import_fixture(
@@ -2844,9 +2810,10 @@ def test_import_cycle_gate_binds_callback_arguments_across_signature_forms(
     assert receipt["unresolved_count"] == 2
     assert len(callback_rows) == 2
     assert all(row["status"] == "not_established" for row in callback_rows)
-    assert {
-        row["expression"].split("(", maxsplit=1)[0] for row in callback_rows
-    } == {"invoke_varargs", "invoke_kwargs"}
+    assert {row["expression"].split("(", maxsplit=1)[0] for row in callback_rows} == {
+        "invoke_varargs",
+        "invoke_kwargs",
+    }
     assert all(
         any(
             target.startswith("polisyos.scientist.a.callback_target@")
@@ -2855,8 +2822,7 @@ def test_import_cycle_gate_binds_callback_arguments_across_signature_forms(
         for row in callback_rows
     )
     assert any(
-        row["source"] == "polisyos.scientist.a"
-        and row["target"] == "polisyos.scientist.edge"
+        row["source"] == "polisyos.scientist.a" and row["target"] == "polisyos.scientist.edge"
         for row in preflight.collect_import_graph(runtime_only=True)["edges"]
     )
 
@@ -2868,16 +2834,12 @@ def test_import_cycle_gate_binds_callback_arguments_across_signature_forms(
         "invoke_posonly(callback_target)\n",
         "invoke_keyword_only(callback=callback_target)\n",
         "invoke_varargs(*(callback_target,))\n",
-        'invoke_kwargs(**{\"callback\": callback_target})\n',
+        'invoke_kwargs(**{"callback": callback_target})\n',
     ):
         after_source = after_source.replace(call, "", 1)
     source_path.write_text(after_source, encoding="utf-8")
-    assert "from polisyos.scientist import edge" in source_path.read_text(
-        encoding="utf-8"
-    )
-    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(
-        encoding="utf-8"
-    )
+    assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
+    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     after = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert after["unresolved_count"] == 0
@@ -2937,8 +2899,7 @@ def test_import_cycle_gate_uses_definition_time_callback_defaults(
     assert callbacks == []
     assert receipt["unresolved_count"] == 0
     assert any(
-        row["source"] == "polisyos.scientist.a"
-        and row["target"] == "polisyos.scientist.edge"
+        row["source"] == "polisyos.scientist.a" and row["target"] == "polisyos.scientist.edge"
         for row in preflight.collect_import_graph(runtime_only=True)["edges"]
     )
     assert any(
@@ -2959,12 +2920,8 @@ def test_import_cycle_gate_uses_definition_time_callback_defaults(
     assert "from polisyos.scientist import edge" in (
         tmp_path / "src/polisyos/scientist/a.py"
     ).read_text(encoding="utf-8")
-    assert "from polisyos.scientist.a import inert" in caller_path.read_text(
-        encoding="utf-8"
-    )
-    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(
-        encoding="utf-8"
-    )
+    assert "from polisyos.scientist.a import inert" in caller_path.read_text(encoding="utf-8")
+    assert edge_source == (tmp_path / "src/polisyos/scientist/edge.py").read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     after = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert after["unresolved_count"] == 0
@@ -2990,7 +2947,7 @@ def test_import_cycle_gate_tracks_member_values_by_shared_owner_identity(
         "if runtime_flag:\n"
         "    stable_owner.item = Entry()\n"
         "else:\n"
-        "    write_member(Holder, \"item\", Entry())\n"
+        '    write_member(Holder, "item", Entry())\n'
         "Holder.item.boot()\n"
     )
     edge_source = "from polisyos.scientist.a import Holder\n"
@@ -3055,7 +3012,7 @@ def test_import_cycle_gate_joins_possible_owner_member_mutator_effects(
         "runtime_flag = False\n"
         "if runtime_flag:\n"
         "    write_member = noop\n"
-        "write_member(Holder, \"item\", Entry())\n"
+        'write_member(Holder, "item", Entry())\n'
         "Holder.item.boot()\n"
     )
     edge_source = "from polisyos.scientist.a import Holder\n"
@@ -3106,9 +3063,7 @@ def test_import_cycle_gate_joins_possible_owner_member_mutator_effects(
     after = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert after["unresolved_count"] == 0
     assert validate_import_cycles() == []
-    assert "from polisyos.scientist import edge" in source_path.read_text(
-        encoding="utf-8"
-    )
+    assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
 
 
@@ -3163,9 +3118,7 @@ def test_import_cycle_gate_preserves_owner_member_across_optional_loop_write(
     # must clear the finding while all source import markers remain in place.
     source_path = tmp_path / "src/polisyos/scientist/a.py"
     source_path.write_text(a_source.replace("Holder.item.boot()\n", "", 1), encoding="utf-8")
-    assert "from polisyos.scientist import edge" in source_path.read_text(
-        encoding="utf-8"
-    )
+    assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
     assert lazy_registry.read_text(encoding="utf-8") == registry_text
     assert validate_import_cycles() == []
 
@@ -3235,10 +3188,7 @@ def test_import_cycle_gate_exports_owner_member_knowledge_as_uncertain_cross_mod
         "alias = Holder\n"
         "alias.item = Entry()\n"
     )
-    caller_source = (
-        "from polisyos.scientist.holder import Holder\n"
-        "Holder.item.boot()\n"
-    )
+    caller_source = "from polisyos.scientist.holder import Holder\nHolder.item.boot()\n"
     edge_source = "from polisyos.scientist.holder import Holder\n"
     _write_runtime_import_fixture(
         tmp_path,
@@ -3334,7 +3284,7 @@ def test_import_cycle_gate_marks_deleted_owner_member_not_established(
         "        from polisyos.scientist import edge\n"
         "owner = Holder\n"
         "owner.item = Entry()\n"
-        "delattr(owner, \"item\")\n"
+        'delattr(owner, "item")\n'
         "Holder.item.boot()\n"
     )
     edge_source = "from polisyos.scientist.a import Holder\n"
@@ -3378,7 +3328,7 @@ def test_import_cycle_gate_rejects_dynamic_builtin_member_name(
         "    def boot(self):\n"
         "        from polisyos.scientist import edge\n"
         "owner = Holder\n"
-        "member_name = \"item\"\n"
+        'member_name = "item"\n'
         "setattr(owner, member_name, Entry())\n"
         "Holder.item.boot()\n"
     )
@@ -3402,14 +3352,11 @@ def test_import_cycle_gate_rejects_dynamic_builtin_member_name(
 
     receipt = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     assert any(
-        row["status"] == "not_established"
-        and row["expression"].startswith("setattr(")
+        row["status"] == "not_established" and row["expression"].startswith("setattr(")
         for row in receipt["unresolved"]
     )
     dispatch = next(
-        row
-        for row in receipt["unresolved"]
-        if row["expression"] == "Holder.item.boot()"
+        row for row in receipt["unresolved"] if row["expression"] == "Holder.item.boot()"
     )
     assert any(
         target.startswith("polisyos.scientist.a.Prior.boot@")
@@ -3538,7 +3485,7 @@ def test_import_cycle_gate_binds_method_receiver_before_callback_formals(
     registry = tmp_path / "architecture/imports/lazy.toml"
     registry.parent.mkdir(parents=True, exist_ok=True)
     registry_text = (
-        '[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n'
+        "[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n"
         'modules = ["polisyos.scientist.a", "polisyos.scientist.edge"]\n'
     )
     registry.write_text(registry_text, encoding="utf-8")
@@ -3546,14 +3493,14 @@ def test_import_cycle_gate_binds_method_receiver_before_callback_formals(
 
     receipt = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     callback_rows = [
-        row for row in receipt["unresolved"]
+        row
+        for row in receipt["unresolved"]
         if row["reason"] == "source_callback_argument_not_summarized"
     ]
     assert callback_rows == []
     assert receipt["unresolved_count"] == 0
     assert any(
-        row["source"] == "polisyos.scientist.a"
-        and row["target"] == "polisyos.scientist.edge"
+        row["source"] == "polisyos.scientist.a" and row["target"] == "polisyos.scientist.edge"
         for row in preflight.collect_import_graph(runtime_only=True)["edges"]
     )
 
@@ -3567,12 +3514,10 @@ def test_import_cycle_gate_binds_method_receiver_before_callback_formals(
     after_graph = preflight.collect_import_graph(runtime_only=True)
     after = after_graph["dispatch_resolution"]
     assert not any(
-        row["reason"] == "source_callback_argument_not_summarized"
-        for row in after["unresolved"]
+        row["reason"] == "source_callback_argument_not_summarized" for row in after["unresolved"]
     )
     assert not any(
-        row["source"] == "polisyos.scientist.a"
-        and row["target"] == "polisyos.scientist.edge"
+        row["source"] == "polisyos.scientist.a" and row["target"] == "polisyos.scientist.edge"
         for row in after_graph["edges"]
     )
     assert not any(
@@ -3714,7 +3659,7 @@ def test_import_cycle_gate_keeps_custom_descriptor_suffix_unresolved(
     registry = tmp_path / "architecture/imports/lazy.toml"
     registry.parent.mkdir(parents=True, exist_ok=True)
     registry_text = (
-        '[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n'
+        "[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n"
         'modules = ["polisyos.scientist.a", "polisyos.scientist.edge"]\n'
     )
     registry.write_text(registry_text, encoding="utf-8")
@@ -3722,7 +3667,8 @@ def test_import_cycle_gate_keeps_custom_descriptor_suffix_unresolved(
 
     receipt = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     unresolved = next(
-        row for row in receipt["unresolved"]
+        row
+        for row in receipt["unresolved"]
         if row["expression"] == "Entry().invoke(callback_target)"
     )
     assert unresolved["reason"] == "source_callback_argument_not_summarized"
@@ -3736,7 +3682,9 @@ def test_import_cycle_gate_keeps_custom_descriptor_suffix_unresolved(
     )
 
     source_path = tmp_path / "src/polisyos/scientist/a.py"
-    source_path.write_text(source.replace("Entry().invoke(callback_target)\n", ""), encoding="utf-8")
+    source_path.write_text(
+        source.replace("Entry().invoke(callback_target)\n", ""), encoding="utf-8"
+    )
     assert "from polisyos.scientist import edge" in source_path.read_text(encoding="utf-8")
     assert registry.read_text(encoding="utf-8") == registry_text
     assert validate_import_cycles() == []
@@ -3767,7 +3715,7 @@ def test_import_cycle_gate_preserves_source_dir_string_subclass_dispatch_and_rem
     registry = tmp_path / "architecture/imports/lazy.toml"
     registry.parent.mkdir(parents=True, exist_ok=True)
     registry_text = (
-        '[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n'
+        "[lazy_imports]\nversion = 1\n[[allowed_cycle]]\n"
         'modules = ["polisyos.scientist.a", "polisyos.scientist.edge"]\n'
     )
     registry.write_text(registry_text, encoding="utf-8")
@@ -3775,8 +3723,7 @@ def test_import_cycle_gate_preserves_source_dir_string_subclass_dispatch_and_rem
 
     receipt = preflight.collect_import_graph(runtime_only=True)["dispatch_resolution"]
     unresolved = next(
-        row for row in receipt["unresolved"]
-        if row["expression"] == "name.startswith('e')"
+        row for row in receipt["unresolved"] if row["expression"] == "name.startswith('e')"
     )
     assert unresolved["reason"] == "source_callable_return_not_summarized"
     assert any(
@@ -4003,3 +3950,863 @@ def test_import_cycle_gate_joins_effects_from_same_call_alternatives(
     assert ("polisyos.scientist.deferred_edge", "polisyos.scientist.a") in edges_after
     assert registry.read_text(encoding="utf-8") == registry_text
     assert validate_import_cycles() == []
+
+
+def _dynamic_import_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+) -> Path:
+    """Build a minimal source root for exercising the production collector."""
+    for scope in ("src", "tools", "apps", "packages"):
+        (tmp_path / scope).mkdir()
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    source_path.write_text(source, encoding="utf-8")
+    registry_path = tmp_path / "architecture" / "imports" / "dynamic.toml"
+    registry_path.parent.mkdir(parents=True)
+    monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    return registry_path
+
+
+def _dynamic_import_validator_refusal(
+    source: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[preflight.Finding]:
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    return preflight.validate_dynamic_imports()
+
+
+def test_dynamic_import_type_parameter_fields_reach_inventory_and_registry_removal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """
+import importlib
+
+def function_bound[T: importlib.import_module("math")]():
+    pass
+
+class class_bound[T: importlib.import_module("json")]:
+    pass
+
+type alias_bound[T: importlib.import_module("pathlib")] = int
+
+def function_default[T = importlib.import_module("collections")]():
+    pass
+
+def function_constraint[T: (int, importlib.import_module("re"))]():
+    pass
+
+def parameter_spec[**P = importlib.import_module("itertools")]():
+    pass
+
+def variable_tuple[*Ts = importlib.import_module("functools")]():
+    pass
+
+"""
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        source,
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    expected_patterns = {
+        "math",
+        "json",
+        "pathlib",
+        "collections",
+        "re",
+        "itertools",
+        "functools",
+    }
+    assert {str(entry["pattern"]) for entry in entries} == expected_patterns
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    for entry in entries:
+        remaining = [candidate for candidate in entries if candidate["id"] != entry["id"]]
+        registry_path.write_text(preflight.render_dynamic_imports_toml(remaining), encoding="utf-8")
+        findings = preflight.validate_dynamic_imports()
+        assert any(
+            finding.message == "dynamic import call is not registered"
+            and str(entry["pattern"]) in finding.detail
+            for finding in findings
+        )
+
+    namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
+    assert namespace["function_bound"].__type_params__[0].__bound__.__name__ == "math"
+    assert namespace["class_bound"].__type_params__[0].__bound__.__name__ == "json"
+    assert namespace["alias_bound"].__type_params__[0].__bound__.__name__ == "pathlib"
+    assert namespace["function_default"].__type_params__[0].__default__.__name__ == "collections"
+    constraints = namespace["function_constraint"].__type_params__[0].__constraints__
+    assert constraints[1].__name__ == "re"
+    assert namespace["parameter_spec"].__type_params__[0].__default__.__name__ == "itertools"
+    assert namespace["variable_tuple"].__type_params__[0].__default__.__name__ == "functools"
+
+
+def test_dynamic_import_type_parameter_fields_resolve_late_module_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "def late_bound[T: importlib.import_module('itertools')]():\n    pass\nimport importlib\n"
+    )
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        source,
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["itertools"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+    namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
+    assert namespace["late_bound"].__type_params__[0].__bound__.__name__ == "itertools"
+
+
+def test_dynamic_import_type_parameter_annotation_scope_shadows_outer_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        "import importlib\ndef shadowed[importlib: importlib.import_module('math')]():\n    pass\n",
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_method_type_parameter_uses_enclosing_class_namespace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "import importlib\n"
+        "class Example:\n"
+        "    import json as importlib\n"
+        "    def method[T: importlib.import_module('math')]():\n"
+        "        pass\n"
+    )
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        source,
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+    namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
+    with pytest.raises(AttributeError, match="import_module"):
+        _ = namespace["Example"].method.__type_params__[0].__bound__
+
+
+def test_dynamic_import_type_parameter_refuses_guarded_bare_value(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(
+        "import importlib\ndef guarded[T: importlib.import_module]():\n    pass\n",
+        tmp_path,
+        monkeypatch,
+    )
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "type parameter bound" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_type_parameter_scanner_refuses_unknown_ast_carrier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class UnknownTypeParameter(ast.AST):
+        _fields = ("value",)
+
+    parameter = UnknownTypeParameter()
+    parameter.value = ast.Call(
+        func=ast.Name(id="__import__", ctx=ast.Load()),
+        args=[ast.Constant(value="unknown_type_parameter")],
+        keywords=[],
+    )
+    function = ast.FunctionDef(
+        name="unknown_parameter",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        body=[ast.Pass()],
+        decorator_list=[],
+        type_params=[parameter],
+    )
+    tree = ast.Module(body=[function], type_ignores=[])
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    monkeypatch.setattr(preflight.ast, "parse", lambda *_args, **_kwargs: tree)
+
+    findings = preflight.validate_dynamic_imports()
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "unsupported type parameter" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_collector_resolves_aliases_through_real_validator(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import builtins
+import importlib
+from importlib import import_module as imported_loader
+
+loader = importlib.import_module
+chained_loader = loader
+loader("direct_alias")
+chained_loader("chained_alias")
+imported_loader("imported_alias")
+reflected_loader = getattr(importlib, "import_module")
+reflected_loader("reflected_alias")
+builtin_loader = getattr(builtins, "__import__")
+builtin_loader("builtin_alias")
+
+if condition:
+    branch_loader = importlib.import_module
+else:
+    branch_loader = importlib.import_module
+branch_loader("unanimous_branch")
+
+def closes_over_alias():
+    captured_loader = importlib.import_module
+
+    def inner():
+        captured_loader("closure_alias")
+
+    inner()
+""",
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    expected_patterns = {
+        "direct_alias",
+        "chained_alias",
+        "imported_alias",
+        "reflected_alias",
+        "builtin_alias",
+        "unanimous_branch",
+        "closure_alias",
+    }
+    assert {str(entry["pattern"]) for entry in entries} >= expected_patterns
+    assert all(
+        entry["call"] == "importlib.import_module"
+        for entry in entries
+        if entry["pattern"] in expected_patterns - {"builtin_alias"}
+    )
+    builtin_entry = next(entry for entry in entries if entry["pattern"] == "builtin_alias")
+    assert builtin_entry["call"] == "__import__"
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    registry_path.write_text(
+        preflight.render_dynamic_imports_toml(
+            [entry for entry in entries if entry["pattern"] != "direct_alias"]
+        ),
+        encoding="utf-8",
+    )
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "direct_alias" in finding.detail
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        """
+def shadowed_module(importlib):
+    importlib.import_module("shadowed")
+""",
+        """
+def shadowed_builtin(__import__):
+    __import__("shadowed")
+""",
+        """
+def assigned_shadow():
+    importlib = supplied_value
+    importlib.import_module("shadowed")
+""",
+    ],
+)
+def test_dynamic_import_collector_ignores_shadowed_candidate_roots(
+    source: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_collector_refuses_conflicting_alias_join(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+import pkgutil
+
+if condition:
+    loader = importlib.import_module
+else:
+    loader = pkgutil.iter_modules
+loader("ambiguous_alias")
+""",
+    )
+
+    with pytest.raises(RuntimeError, match=r"ambiguous|conflicting|unresolved"):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_collector_tracks_comprehension_scope_and_rebinding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+
+loader = importlib.import_module
+[loader("comprehension_alias") for item in paths]
+loader = ordinary_function
+loader("overwritten_alias")
+deleted_loader = importlib.import_module
+del deleted_loader
+deleted_loader("deleted_alias")
+""",
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["comprehension_alias"]
+
+
+def test_dynamic_import_collector_ignores_shadow_inside_comprehension(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+
+[importlib.import_module("shadowed_comprehension") for importlib in modules]
+""",
+    )
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_collector_joins_nested_closure_mutations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+
+def outer():
+    loader = importlib.import_module
+
+    def inner():
+        loader("possibly_dynamic_closure")
+
+    inner()
+    loader = ordinary_function
+""",
+    )
+
+    with pytest.raises(RuntimeError, match=r"ambiguous|conflicting|unresolved"):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_collector_refuses_cross_scope_alias_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+loader = importlib.import_module
+
+def replace_global_loader():
+    global loader
+    loader = ordinary_function
+""",
+    )
+
+    with pytest.raises(RuntimeError, match=r"cross-scope|guarded importer"):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_collector_refuses_transformed_guarded_alias(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+
+loader = transform(importlib.import_module)
+loader("transformed_alias")
+""",
+    )
+
+    with pytest.raises(RuntimeError, match=r"alias|binding|unresolved|escapes"):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_collector_refuses_incomplete_source_roots(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for scope in ("src", "tools", "apps"):
+        (tmp_path / scope).mkdir()
+    monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
+
+    with pytest.raises(RuntimeError, match=r"packages|root|incomplete"):
+        preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize("scope", ["src", "tools", "apps", "packages"])
+@pytest.mark.parametrize("target_kind", ["outside", "internal", "ancestor_cycle"])
+def test_dynamic_import_validator_fails_closed_on_nonignored_directory_symlinks(
+    scope: str,
+    target_kind: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "repo"
+    repository.mkdir()
+    registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    source_root = repository / scope
+
+    if target_kind == "outside":
+        target_root = tmp_path / "external-source"
+    elif target_kind == "internal":
+        target_root = repository / "unselected-source"
+    else:
+        target_root = repository
+    target_root.mkdir(parents=True, exist_ok=True)
+    (target_root / "hidden_dynamic_source.py").write_text(
+        'import importlib\nimportlib.import_module("hidden_dynamic_import")\n',
+        encoding="utf-8",
+    )
+    link = source_root / f"linked_{scope}_{target_kind}"
+    link.symlink_to(target_root, target_is_directory=True)
+
+    findings = preflight.validate_dynamic_imports()
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and scope in finding.detail
+        and "directory symlink" in finding.detail
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize("scope", ["src", "tools", "apps", "packages"])
+def test_dynamic_import_validator_keeps_named_ignored_symlink_subtrees_excluded(
+    scope: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "repo"
+    repository.mkdir()
+    registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    ignored_target = tmp_path / "ignored-source"
+    ignored_target.mkdir()
+    (ignored_target / "hidden_dynamic_source.py").write_text(
+        'import importlib\nimportlib.import_module("ignored_hidden_import")\n',
+        encoding="utf-8",
+    )
+    (repository / scope / "node_modules").symlink_to(
+        ignored_target,
+        target_is_directory=True,
+    )
+
+    assert preflight.validate_dynamic_imports() == []
+
+
+@pytest.mark.parametrize("scope", ["src", "tools", "apps", "packages"])
+def test_dynamic_import_validator_fails_closed_when_selected_root_is_symlink(
+    scope: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "repo"
+    repository.mkdir()
+    registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    source_root = repository / scope
+    shutil.rmtree(source_root)
+    external_root = tmp_path / "external-source-root"
+    external_root.mkdir()
+    (external_root / "hidden_dynamic_source.py").write_text(
+        'import importlib\nimportlib.import_module("hidden_root_import")\n',
+        encoding="utf-8",
+    )
+    source_root.symlink_to(external_root, target_is_directory=True)
+
+    findings = preflight.validate_dynamic_imports()
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "source root" in finding.detail
+        and "directory symlink" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_validator_reports_typed_source_traversal_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    def failed_walk(*_args, onerror, **_kwargs):
+        onerror(PermissionError("fixture subtree is unreadable"))
+        return iter(())
+
+    monkeypatch.setattr(preflight.os, "walk", failed_walk)
+
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "fixture subtree is unreadable" in finding.detail
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        """
+import importlib
+loader = ordinary_function
+(loader := importlib.import_module) if condition else (loader := ordinary_function)
+loader("call_after_ifexp")
+""",
+        """
+import importlib
+loader = importlib.import_module
+condition and (loader := ordinary_function)
+loader("call_after_and")
+""",
+        """
+import importlib
+loader = importlib.import_module
+condition or (loader := ordinary_function)
+loader("call_after_or")
+""",
+        """
+import importlib
+loader = importlib.import_module
+left < (loader := ordinary_function) < (loader := importlib.import_module)
+loader("call_after_chained_compare")
+""",
+        """
+import importlib
+loader = importlib.import_module
+condition and ((loader := ordinary_function) if branch else (loader := importlib.import_module))
+loader("call_after_nested_expression")
+""",
+    ],
+)
+def test_dynamic_import_validator_refuses_guarded_values_across_expression_paths(
+    source: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(source, tmp_path, monkeypatch)
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_expression_path_join_preserves_same_origin_alias_and_removal_probe(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """
+import importlib
+loader = ordinary_function
+(loader := importlib.import_module) if condition else (loader := importlib.import_module)
+condition and (loader := importlib.import_module)
+loader("same_origin_expression_branch")
+""",
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["same_origin_expression_branch"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "same_origin_expression_branch" in finding.detail
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        """
+import importlib
+def make_loader():
+    return importlib.import_module
+""",
+        """
+import importlib
+consume(importlib.import_module)
+""",
+        """
+import importlib
+holder.loader = importlib.import_module
+""",
+        """
+import importlib
+consume([importlib.import_module])
+""",
+        """
+import importlib
+def make_loader(loader=importlib.import_module):
+    return None
+""",
+        """
+import importlib
+class ImportHooks:
+    loader = importlib.import_module
+""",
+        """
+import importlib
+def make_loader():
+    yield importlib.import_module
+""",
+    ],
+)
+def test_dynamic_import_validator_refuses_guarded_importer_escape_boundaries(
+    source: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(source, tmp_path, monkeypatch)
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "guarded importer" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_validator_reports_outside_source_symlink_as_typed_input_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "repo"
+    repository.mkdir()
+    registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    outside_path = tmp_path / "outside.py"
+    outside_path.write_text(
+        'import importlib\nimportlib.import_module("outside_symlink_call")\n',
+        encoding="utf-8",
+    )
+    selected_path = repository / "src" / "linked.py"
+    selected_path.symlink_to(outside_path)
+
+    findings = preflight.validate_dynamic_imports()
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "src/linked.py" in finding.detail
+        and "outside repository" in finding.detail
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_pattern"),
+    [
+        (
+            "import importlib\n"
+            "for loader in [importlib.import_module]:\n"
+            "    loader('for_target_origin')\n",
+            "for_target_origin",
+        ),
+        (
+            "import importlib\n"
+            "match (importlib.import_module,):\n"
+            "    case (loader,):\n"
+            "        loader('match_capture_origin')\n",
+            "match_capture_origin",
+        ),
+        (
+            "import importlib\n"
+            "[loader('comprehension_target_origin') "
+            "for loader in (importlib.import_module,)]\n",
+            "comprehension_target_origin",
+        ),
+        (
+            "import importlib\n"
+            "for loader in {importlib.import_module: None}:\n"
+            "    loader('mapping_key_origin')\n",
+            "mapping_key_origin",
+        ),
+        (
+            "import importlib\n"
+            "for ((loader,),) in [((importlib.import_module,),)]:\n"
+            "    loader('nested_sequence_origin')\n",
+            "nested_sequence_origin",
+        ),
+    ],
+)
+def test_dynamic_import_guarded_provenance_survives_container_consumers(
+    source: str,
+    expected_pattern: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == [expected_pattern]
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and expected_pattern in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_validator_refuses_lambda_implicit_guarded_return(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(
+        "import importlib\n"
+        "loader_factory = lambda: importlib.import_module\n"
+        "loader_factory()('lambda_implicit_return')\n",
+        tmp_path,
+        monkeypatch,
+    )
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "lambda implicit return" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_guarded_transfer_allows_unrelated_callable_values(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        "def ordinary_loader():\n"
+        "    return None\n"
+        "ordinary_loaders = [ordinary_loader for item in ordinary_values]\n"
+        "for loader in ordinary_loaders:\n"
+        "    loader()\n",
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_validator_refuses_guarded_value_through_unsupported_expression(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(
+        "import importlib\n"
+        "loader = (importlib,)[0].import_module\n"
+        "loader('unsupported_subscript_origin')\n",
+        tmp_path,
+        monkeypatch,
+    )
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+        for finding in findings
+    )
+
+
+def test_dynamic_import_match_capture_refuses_cross_scope_guarded_rebind(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    findings = _dynamic_import_validator_refusal(
+        "import importlib\n"
+        "loader = ordinary_loader\n"
+        "def replace_global_loader():\n"
+        "    global loader\n"
+        "    match (importlib.import_module,):\n"
+        "        case (loader,):\n"
+        "            loader('cross_scope_match_capture')\n",
+        tmp_path,
+        monkeypatch,
+    )
+
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "cross-scope" in finding.detail
+        for finding in findings
+    )

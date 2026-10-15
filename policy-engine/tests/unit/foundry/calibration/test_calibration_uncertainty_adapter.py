@@ -344,7 +344,7 @@ def test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer(tmp_
         summary.persisted_candidate_ref,
         simulation_fn=lambda **params: calls.append(float(params["theta"]))
         or {"theta": params["theta"]},
-        nominal_params={},
+        nominal_params={"theta": 0.2},
         output_metric_ids=["theta"],
     )
 
@@ -449,7 +449,7 @@ def test_legacy_posterior_carrier_survives_cas_and_actual_single_parameter_consu
             mc_min_valid_samples=10,
             compute_sensitivity=False,
         )
-    ).propagate(evaluate, {}, {"theta": fresh}, ["metric"])[0]
+    ).propagate(evaluate, {"theta": 0.3}, {"theta": fresh}, ["metric"])[0]
 
     assert result.envelope.metadata["mc_n_valid"] == 100
     assert result.envelope.gate_eligible is False

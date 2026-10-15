@@ -56,9 +56,7 @@ def _coupled_plan() -> EnginePlan:
 
 def _single_step_request():
     """Use one point when exercising the static NCM path."""
-    return _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    return _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
 
 
 def _trajectory(
@@ -90,7 +88,7 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
 
     request = _request(policy_domain="unemployment_claims_benefit").model_copy(
         update={
-            "horizon": HorizonSpec(start=0, end=0, step=1),
+            "horizon": HorizonSpec(start=0, end=1, step=1),
             "coupling_graph": _coupling_graph("shared_resource"),
             "selected_outcomes": ("final_queue_length",),
             "baseline_state": {"final_queue_length": 0.0},
@@ -105,13 +103,43 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
     assert result.engine_decisions[1].engine_kind == "coupled_des_abm"
     assert result.engine_decisions[1].decision == "selected"
     assert result.trajectories
-    assert all(
-        trajectory.engine_kind == "coupled_des_abm" for trajectory in result.trajectories
-    )
+    assert all(trajectory.engine_kind == "coupled_des_abm" for trajectory in result.trajectories)
     status, blockers = _joint_simulation_port_outcome(result)
     assert status == "joint_simulated"
     assert _joint_simulation_is_unsupported(result) is False
     assert "n5_coupling_blocked" not in blockers
+
+
+def test_fallback_does_not_select_an_engine_without_the_required_coupling() -> None:
+    """A same-coupling fallback with no capable engine must remain blocked."""
+
+    base_request = _request(policy_domain="unemployment_claims_benefit")
+    first_plan = base_request.engine_plan[0]
+    unsupported_fallback = first_plan.model_copy(
+        update={"objective_ref": "objective://no-coupled-fallback"}
+    )
+    request = base_request.model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=1, step=1),
+            "coupling_graph": _coupling_graph("shared_resource"),
+            "selected_outcomes": ("final_queue_length",),
+            "baseline_state": {"final_queue_length": 0.0},
+            "engine_plan": (first_plan, unsupported_fallback),
+        }
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert [item.decision for item in result.engine_decisions] == ["unsupported", "unsupported"]
+    assert [item.reason for item in result.engine_decisions] == [
+        "coupling_composition_gate_unsupported",
+        "coupling_composition_gate_unsupported",
+    ]
+    assert not result.trajectories
+    status, blockers = _joint_simulation_port_outcome(result)
+    assert status == "simulation_blocked"
+    assert _joint_simulation_is_unsupported(result) is True
+    assert "n5_coupling_blocked" in blockers
 
 
 @pytest.mark.parametrize("engine_kind", get_args(EngineKind))
@@ -140,11 +168,15 @@ def test_shared_horizon_admission_rejects_non_multi_period_capability_for_every_
     """Every engine kind needs selector evidence of multi-period support."""
 
     controller = JointSimulationHorizonController()
-    plan = _single_step_request().engine_plan[0].model_copy(
-        update={
-            "engine_kind": cast("EngineKind", engine_kind),
-            "eligibility_conditions": (),
-        }
+    plan = (
+        _single_step_request()
+        .engine_plan[0]
+        .model_copy(
+            update={
+                "engine_kind": cast("EngineKind", engine_kind),
+                "eligibility_conditions": (),
+            }
+        )
     )
     request = _single_step_request().model_copy(
         update={
@@ -312,11 +344,7 @@ def test_composition_rejection_falls_back_before_execution(
     def fixed_result(state: object, params: object) -> dict[str, object]:
         del params
         calls.append(state)
-        return {
-            "counterfactual_result": {
-                "world_summaries": [{"firm_survival": {"mean": 1.0}}]
-            }
-        }
+        return {"counterfactual_result": {"world_summaries": [{"firm_survival": {"mean": 1.0}}]}}
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_result))
     result = JointSimulationHorizonController().run(request)
@@ -325,17 +353,13 @@ def test_composition_rejection_falls_back_before_execution(
     assert result.engine_decisions[0].reason == "intervention_assignment_conflict"
     assert result.engine_decisions[1].objective_ref == supported_plan.objective_ref
     assert calls
-    assert {item.objective_ref for item in result.trajectories} == {
-        supported_plan.objective_ref
-    }
+    assert {item.objective_ref for item in result.trajectories} == {supported_plan.objective_ref}
 
 
 def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
     """B07: no coupling-compatible candidate remains a typed no-run refusal."""
 
-    first = _coupled_plan().model_copy(
-        update={"declared_equilibrium_semantics": "game_model"}
-    )
+    first = _coupled_plan().model_copy(update={"declared_equilibrium_semantics": "game_model"})
     second = _request().engine_plan[0]
     request = _request(policy_domain="unemployment_claims_benefit").model_copy(
         update={
@@ -361,22 +385,16 @@ def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
         result.feedback_classification.support_blockers
     )
     assert "all_engine_candidates_rejected" in result.feedback_classification.support_blockers
-    assert "declared_semantics_unbacked:game_model" in (
-        result.feedback_classification.limitations
-    )
+    assert "declared_semantics_unbacked:game_model" in (result.feedback_classification.limitations)
     assert result.diagnostics["unsupported_objectives"] == [
         first.objective_ref,
         second.objective_ref,
     ]
-    assert [
-        item["reason"] for item in result.diagnostics["unsupported_reasons"]
-    ] == [
+    assert [item["reason"] for item in result.diagnostics["unsupported_reasons"]] == [
         "equilibrium_semantics_not_backed_by_engine",
         "coupling_composition_gate_unsupported",
     ]
-    assert {
-        item["reason"] for item in result.content_bound_payload()["engine_decisions"]
-    } == {
+    assert {item["reason"] for item in result.content_bound_payload()["engine_decisions"]} == {
         "equilibrium_semantics_not_backed_by_engine",
         "coupling_composition_gate_unsupported",
     }
@@ -398,7 +416,7 @@ def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
                         "method_fqn": None,
                     }
                 ),
-            )
+            ),
         }
     )
     no_coupling_result = JointSimulationHorizonController().run(no_coupling_request)
@@ -440,11 +458,13 @@ def test_selected_plan_requires_its_executed_trajectory(
 def test_rejected_engine_reasons_do_not_override_selected_success() -> None:
     """B06: history retains why an earlier candidate was rejected."""
 
-    first = _request().engine_plan[0].model_copy(
-        update={"eligibility_conditions": ("multi_period",)}
+    first = (
+        _request().engine_plan[0].model_copy(update={"eligibility_conditions": ("multi_period",)})
     )
-    second = _request().engine_plan[0].model_copy(
-        update={"objective_ref": "objective://fallback-after-temporal-rejection"}
+    second = (
+        _request()
+        .engine_plan[0]
+        .model_copy(update={"objective_ref": "objective://fallback-after-temporal-rejection"})
     )
     request = _single_step_request().model_copy(update={"engine_plan": (first, second)})
 
@@ -466,9 +486,7 @@ def test_foreign_trajectory_cannot_satisfy_selected_plan(
     monkeypatch.setattr(
         controller,
         "_engine_runners",
-        lambda: {
-            "ncm_parallel_worlds": lambda request, plan, decision: [_trajectory()]
-        },
+        lambda: {"ncm_parallel_worlds": lambda request, plan, decision: [_trajectory()]},
     )
 
     with pytest.raises(

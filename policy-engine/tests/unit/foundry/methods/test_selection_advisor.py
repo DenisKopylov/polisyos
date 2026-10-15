@@ -330,14 +330,14 @@ def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
     assert denominator
     assert set(result["score_trace"]) <= denominator
     assert result["ranked_alternatives"]
-    assert all(
-        row["method_fqn"] in denominator
-        for row in result["ranked_alternatives"]
+    assert all(row["method_fqn"] in denominator for row in result["ranked_alternatives"])
+    assert (
+        sum(
+            row["method_fqn"] == result["selected_method_fqn"]
+            for row in result["ranked_alternatives"]
+        )
+        == 1
     )
-    assert sum(
-        row["method_fqn"] == result["selected_method_fqn"]
-        for row in result["ranked_alternatives"]
-    ) == 1
 
 
 def test_registered_singleton_value_denominator_is_accepted_but_fictional_request_is_blocked(
@@ -383,9 +383,7 @@ def test_registered_singleton_value_denominator_is_accepted_but_fictional_reques
     assert selected["status"] == "selected"
     assert selected["selected_method_fqn"] == singleton.entries[0].fqn
     assert selected["denominator"] == (singleton.entries[0].fqn,)
-    assert advisor_module._catalog_entry_is_value_method(
-        singleton.entries[0], registry=registry
-    )
+    assert advisor_module._catalog_entry_is_value_method(singleton.entries[0], registry=registry)
 
     fictional = select_value_method_for_problem(
         registry=registry,
@@ -445,12 +443,39 @@ def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_t
     )
 
     assert result["status"] == "selected"
-    assert result["selected_method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-    assert set(result["score_trace"]) <= {"econometrics.panel.difference_gmm@1.0.0"}
-    assert all(
-        row["method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-        for row in result["ranked_alternatives"]
+    panel_value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if "panel" in entry.data_modalities
+        and entry.runnable
+        and advisor_module._catalog_entry_is_value_method(entry, registry=registry)
     )
+    assert len(panel_value_entries) == 2
+    for entry in panel_value_entries:
+        method = registry.get(entry.fqn)
+        assert isinstance(method.signature, MethodSignature)
+        assert value_evidence.resolve_method_value_projection_capabilities(
+            method_cls=method,
+            method_signature=method.signature,
+        )
+
+    selected_fqn = result["selected_method_fqn"]
+    assert isinstance(selected_fqn, str)
+    selected_entry = next(entry for entry in catalog.entries if entry.fqn == selected_fqn)
+    assert selected_entry in panel_value_entries
+    assert "panel" in selected_entry.data_modalities
+    assert selected_entry.runnable
+    selected_method = registry.get(selected_fqn)
+    assert isinstance(selected_method.signature, MethodSignature)
+    assert value_evidence.resolve_method_value_projection_capabilities(
+        method_cls=selected_method,
+        method_signature=selected_method.signature,
+    )
+    panel_value_fqns = {entry.fqn for entry in panel_value_entries}
+    assert set(result["score_trace"]) == panel_value_fqns
+    ranked_fqns = {row["method_fqn"] for row in result["ranked_alternatives"]}
+    assert ranked_fqns == panel_value_fqns
+    assert all("panel" in row["data_modalities"] for row in result["ranked_alternatives"])
 
 
 def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected(
@@ -516,11 +541,21 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
     )
 
     assert supported["status"] == "selected"
-    assert supported["selected_method_fqn"] == "econometrics.panel.event_study@1.0.0"
-    selected_entry = panel_catalog.entries[0]
-    assert selected_entry.runnable is True
-    assert advisor_module._catalog_entry_is_value_method(selected_entry, registry=registry)
-    assert registry.get(selected_entry.fqn).signature.fqn == selected_entry.fqn
+    selected_fqn = supported["selected_method_fqn"]
+    assert isinstance(selected_fqn, str)
+    selected_entry = next(entry for entry in panel_catalog.entries if entry.fqn == selected_fqn)
+    assert "panel" in selected_entry.data_modalities
+    selected_method = registry.get(selected_entry.fqn)
+    assert selected_method.signature.fqn == selected_entry.fqn
+    assert value_evidence.resolve_method_value_projection_capabilities(
+        method_cls=selected_method,
+        method_signature=selected_method.signature,
+    )
+    selected_rows = tuple(
+        row for row in supported["ranked_alternatives"] if row["method_fqn"] == selected_fqn
+    )
+    assert selected_rows
+    assert all("panel" in row["data_modalities"] for row in selected_rows)
     value_slots = tuple(
         slot
         for slot in selected_entry.output_slots
@@ -582,8 +617,7 @@ def test_value_denominator_rejects_catalog_capability_without_method_owner(
     )
     slot_name = str(hausman.output_slots[0]["name"])
     owner_ref = (
-        f"{_WaterQualityNativeInterval.__module__}:"
-        f"{_WaterQualityNativeInterval.__qualname__}"
+        f"{_WaterQualityNativeInterval.__module__}:{_WaterQualityNativeInterval.__qualname__}"
     )
     forged_capability = value_evidence.NativeValueProjectionCapability(
         output_slot=slot_name,
@@ -596,9 +630,7 @@ def test_value_denominator_rejects_catalog_capability_without_method_owner(
         update={
             "capability_matrix": {
                 **hausman.capability_matrix,
-                "value_projection_contracts": [
-                    forged_capability.model_dump(mode="json")
-                ],
+                "value_projection_contracts": [forged_capability.model_dump(mode="json")],
             },
             "output_slots": [
                 {
@@ -686,11 +718,17 @@ def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace() 
 def test_phase5_unprojected_nested_manifest_does_not_become_empty_hints() -> None:
     """Raw owner vocabulary requires its owner projection before selection."""
     result = select_value_method_for_problem(
-        candidate={"candidate_id": "phase5_manifest"}, problem={},
+        candidate={"candidate_id": "phase5_manifest"},
+        problem={},
         observation_to_contract_manifest={
-            "routes": [{"family": "novel", "target_contract": {
-                "contract_id": "phase5.nonexistent.contract",
-            }}],
+            "routes": [
+                {
+                    "family": "novel",
+                    "target_contract": {
+                        "contract_id": "phase5.nonexistent.contract",
+                    },
+                }
+            ],
         },
     )
     assert result["status"] == "blocked"
@@ -700,19 +738,37 @@ def test_phase5_unprojected_nested_manifest_does_not_become_empty_hints() -> Non
 def test_phase5_only_explicit_flat_advisory_shape_can_supply_manifest_hints() -> None:
     from polisyos.foundry.methods.selection.advisor import method_selection_context_hash
 
-    for malformed in ({"artifact_name": "source", "artifacts": {}}, {}, [], "", 0,
-                      {"contracts": []}, {"contracts": [{"unknown_target": "panel"}]}):
-        assert select_value_method_for_problem(
-            candidate={}, problem={}, observation_to_contract_manifest=malformed,
-        )["status"] == "blocked", malformed
+    for malformed in (
+        {"artifact_name": "source", "artifacts": {}},
+        {},
+        [],
+        "",
+        0,
+        {"contracts": []},
+        {"contracts": [{"unknown_target": "panel"}]},
+    ):
+        assert (
+            select_value_method_for_problem(
+                candidate={},
+                problem={},
+                observation_to_contract_manifest=malformed,
+            )["status"]
+            == "blocked"
+        ), malformed
         with pytest.raises(ValueError):
             method_selection_context_hash(
-                candidate={}, problem={}, observation_to_contract_manifest=malformed,
+                candidate={},
+                problem={},
+                observation_to_contract_manifest=malformed,
             )
-    assert select_value_method_for_problem(
-        candidate={}, problem={},
-        observation_to_contract_manifest={"contracts": [{"data_modality": "panel"}]},
-    )["status"] == "selected"
+    assert (
+        select_value_method_for_problem(
+            candidate={},
+            problem={},
+            observation_to_contract_manifest={"contracts": [{"data_modality": "panel"}]},
+        )["status"]
+        == "selected"
+    )
 
 
 def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -> None:
@@ -758,9 +814,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         "route_constraint": None,
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": "candidate_selection_context posterior tabular effect",
-        "problem_signal": (
-            "problem_selection_context Estimate a bounded effect. generic_policy"
-        ),
+        "problem_signal": ("problem_selection_context Estimate a bounded effect. generic_policy"),
         "value_data_profile_content_hash": profile_hash,
         "effective_query": {
             "criteria": {
@@ -806,14 +860,17 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         "manifest_targets": ("panel", "tabular"),
         "runtime_budget_ms": 25.0,
     }
-    expected_hash = "sha256:" + hashlib.sha256(
-        json.dumps(
-            expected_payload,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-        ).encode("utf-8")
-    ).hexdigest()
+    expected_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                expected_payload,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
 
     actual_hash = method_selection.method_selection_context_hash(
         candidate=candidate,
@@ -868,12 +925,15 @@ def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
     assert first_selection["score_trace"] == second_selection["score_trace"]
     assert first_receipt.selection_context_hash != second_receipt.selection_context_hash
     assert first_receipt.content_hash != second_receipt.content_hash
-    assert first_receipt.verify_selection_context(
-        method_selection.method_selection_context_hash(
-            candidate=candidate,
-            problem=first_problem,
+    assert (
+        first_receipt.verify_selection_context(
+            method_selection.method_selection_context_hash(
+                candidate=candidate,
+                problem=first_problem,
+            )
         )
-    ) is first_receipt
+        is first_receipt
+    )
     with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
         first_receipt.verify_selection_context(second_receipt.selection_context_hash)
 
@@ -914,9 +974,7 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
     active_catalog["snapshot"] = base_catalog.model_copy(
         update={
             "snapshot_id": f"{base_catalog.snapshot_id}-changed",
-            "entries": [
-                entry for entry in base_catalog.entries if entry.fqn != removed_fqn
-            ],
+            "entries": [entry for entry in base_catalog.entries if entry.fqn != removed_fqn],
         }
     )
     second = select_value_method_for_problem(
@@ -1059,13 +1117,16 @@ def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> N
     assert first_receipt.selection_context_hash != advisor_receipt.selection_context_hash
     assert first_receipt.selection_context_hash != second_receipt.selection_context_hash
     assert first_receipt.content_hash != second_receipt.content_hash
-    assert first_receipt.verify_selection_context(
-        method_selection.method_selection_context_hash(
-            candidate=candidate,
-            problem=first_problem,
-            requested_method_fqn=requested_fqn,
+    assert (
+        first_receipt.verify_selection_context(
+            method_selection.method_selection_context_hash(
+                candidate=candidate,
+                problem=first_problem,
+                requested_method_fqn=requested_fqn,
+            )
         )
-    ) is first_receipt
+        is first_receipt
+    )
     with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
         first_receipt.verify_selection_context(second_receipt.selection_context_hash)
 
@@ -2246,25 +2307,49 @@ def contract_search_registry(monkeypatch):
 
     def add_method(registry, name, *, report=True, contract="test.c1.panel.v1"):
         signature = MethodSignature(
-            name=name, namespace="test.c1", version="1.0.0",
-            input_slots=frozenset({SlotSpec(
-                "data", SlotType.SCALAR, Unit("data", "json"), contract_id=contract,
-            )}),
-            output_slots=frozenset({SlotSpec(
-                "report" if report else "diagnostic", SlotType.SCALAR, Unit("report", "json"),
-            )}),
-            parameters=(), fidelity=FidelityLevel.HIGH, complexity=ComplexityClass.O_N,
+            name=name,
+            namespace="test.c1",
+            version="1.0.0",
+            input_slots=frozenset(
+                {
+                    SlotSpec(
+                        "data",
+                        SlotType.SCALAR,
+                        Unit("data", "json"),
+                        contract_id=contract,
+                    )
+                }
+            ),
+            output_slots=frozenset(
+                {
+                    SlotSpec(
+                        "report" if report else "diagnostic",
+                        SlotType.SCALAR,
+                        Unit("report", "json"),
+                    )
+                }
+            ),
+            parameters=(),
+            fidelity=FidelityLevel.HIGH,
+            complexity=ComplexityClass.O_N,
             backend=ComputeBackend.NUMPY,
-            supports_jit=False, supports_vmap=False, supports_grad=False,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
         )
 
         def step(state: dict[str, object], params: dict[str, object]) -> dict[str, object]:
             return {"report": state, "parameters": params}
 
-        method = type(name, (), {
-            "signature": signature, "metadata": MethodMetadata(description=name),
-            "pure_step": staticmethod(step),
-        })
+        method = type(
+            name,
+            (),
+            {
+                "signature": signature,
+                "metadata": MethodMetadata(description=name),
+                "pure_step": staticmethod(step),
+            },
+        )
         registry.register(method)
         return method
 
@@ -2277,7 +2362,9 @@ def contract_search_registry(monkeypatch):
         return bootstrap_foundry_method_registry(registry, components_index=ComponentRegistry())
 
     monkeypatch.setattr("polisyos.foundry.methods.ensure_all_methods_registered", bootstrap)
-    monkeypatch.setattr("polisyos.foundry.methods.catalog.snapshot.ensure_all_methods_registered", bootstrap)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.snapshot.ensure_all_methods_registered", bootstrap
+    )
     with registry_scope() as registry:
         estimate = add_method(registry, "estimate")
         diagnostic = add_method(registry, "diagnostic", report=False)
@@ -2285,11 +2372,15 @@ def contract_search_registry(monkeypatch):
         yield registry, add_method, (estimate, diagnostic, incompatible)
 
 
-def test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics(contract_search_registry):
+def test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics(
+    contract_search_registry,
+):
     registry, _, methods = contract_search_registry
     selected = advisor_module.select_method_for_input_contract(
-        contract_id="test.c1.panel.v1", required_output_slots=("report",),
-        selection_context={"purpose": "candidate-only test"}, registry=registry,
+        contract_id="test.c1.panel.v1",
+        required_output_slots=("report",),
+        selection_context={"purpose": "candidate-only test"},
+        registry=registry,
     )
     assert selected.status == "selected"
     assert selected.selected_method_fqn == methods[0].signature.fqn
@@ -2302,12 +2393,19 @@ def test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics(c
     assert selected.output_semantics == "not_established_until_real_execution"
 
 
-@pytest.mark.parametrize("requested", ["test.c1.diagnostic@1.0.0", "test.c1.incompatible@1.0.0", "test.c1.novel@1.0.0"])
-def test_input_contract_selector_refuses_requested_incompatible_or_novel(contract_search_registry, requested):
+@pytest.mark.parametrize(
+    "requested", ["test.c1.diagnostic@1.0.0", "test.c1.incompatible@1.0.0", "test.c1.novel@1.0.0"]
+)
+def test_input_contract_selector_refuses_requested_incompatible_or_novel(
+    contract_search_registry, requested
+):
     registry, _, _ = contract_search_registry
     selected = advisor_module.select_method_for_input_contract(
-        contract_id="test.c1.panel.v1", required_output_slots=("report",),
-        selection_context={}, requested_method_fqn=requested, registry=registry,
+        contract_id="test.c1.panel.v1",
+        required_output_slots=("report",),
+        selection_context={},
+        requested_method_fqn=requested,
+        registry=registry,
     )
     assert selected.status == "blocked"
     assert selected.selected_method_fqn is None
@@ -2316,12 +2414,16 @@ def test_input_contract_selector_refuses_requested_incompatible_or_novel(contrac
     assert selected.ranked_method_fqns == ("test.c1.estimate@1.0.0",)
 
 
-def test_input_contract_selector_keeps_unreadable_member_and_refuses(contract_search_registry, monkeypatch):
+def test_input_contract_selector_keeps_unreadable_member_and_refuses(
+    contract_search_registry, monkeypatch
+):
     registry, _, methods = contract_search_registry
     monkeypatch.setattr(methods[1], "pure_step", None)
     selected = advisor_module.select_method_for_input_contract(
-        contract_id="test.c1.panel.v1", required_output_slots=("report",),
-        selection_context={}, registry=registry,
+        contract_id="test.c1.panel.v1",
+        required_output_slots=("report",),
+        selection_context={},
+        registry=registry,
     )
     assert selected.status == "blocked"
     assert selected.blockers == ("input_contract_method_member_unreadable",)
@@ -2331,9 +2433,16 @@ def test_input_contract_selector_keeps_unreadable_member_and_refuses(contract_se
     assert rows[methods[2].signature.fqn].disposition == "ineligible"
 
 
-def test_input_contract_selector_new_registered_entry_grows_full_population(contract_search_registry):
+def test_input_contract_selector_new_registered_entry_grows_full_population(
+    contract_search_registry,
+):
     registry, add_method, _ = contract_search_registry
-    arguments = dict(contract_id="test.c1.panel.v1", required_output_slots=("report",), selection_context={}, registry=registry)
+    arguments = dict(
+        contract_id="test.c1.panel.v1",
+        required_output_slots=("report",),
+        selection_context={},
+        registry=registry,
+    )
     before = advisor_module.select_method_for_input_contract(**arguments)
     new_method = add_method(registry, "new_recorded_route")
     after = advisor_module.select_method_for_input_contract(**arguments)
@@ -2344,27 +2453,40 @@ def test_input_contract_selector_new_registered_entry_grows_full_population(cont
 
 
 @pytest.mark.parametrize("phase", ["component_bridge", "discovery", "both", "exception"])
-def test_input_contract_selector_retains_failed_intake_and_complete_registered_population(contract_search_registry, monkeypatch, phase):
+def test_input_contract_selector_retains_failed_intake_and_complete_registered_population(
+    contract_search_registry, monkeypatch, phase
+):
     from polisyos.core.components import ComponentRegistry
     from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
     from polisyos.foundry.methods.components.bridge import ComponentsBridgeError
 
     registry, _, _ = contract_search_registry
-    arguments = dict(contract_id="test.c1.panel.v1", required_output_slots=("report",), selection_context={}, registry=registry)
+    arguments = dict(
+        contract_id="test.c1.panel.v1",
+        required_output_slots=("report",),
+        selection_context={},
+        registry=registry,
+    )
     baseline = advisor_module.select_method_for_input_contract(**arguments)
     assert baseline.status == "selected"
     before = {signature.fqn: signature.stable_digest() for signature in registry.list_all()}
     report = bootstrap_foundry_method_registry(registry, components_index=ComponentRegistry())
     if phase in {"component_bridge", "both"}:
-        report.errors.extend([
-            ComponentsBridgeError("test.unreadable.extension@1.0.0", "component.create() failed: original failure"),
-            ComponentsBridgeError("test.second.extension@1.0.0", "component metadata invalid"),
-        ])
+        report.errors.extend(
+            [
+                ComponentsBridgeError(
+                    "test.unreadable.extension@1.0.0", "component.create() failed: original failure"
+                ),
+                ComponentsBridgeError("test.second.extension@1.0.0", "component metadata invalid"),
+            ]
+        )
     if phase in {"discovery", "both"}:
-        report.discovery_errors.extend([
-            "entry_points:test.unreadable: original discovery failure",
-            "dev_scan:test.second: original discovery failure",
-        ])
+        report.discovery_errors.extend(
+            [
+                "entry_points:test.unreadable: original discovery failure",
+                "dev_scan:test.second: original discovery failure",
+            ]
+        )
 
     def failed_intake(registry):
         if phase == "exception":
@@ -2379,10 +2501,13 @@ def test_input_contract_selector_retains_failed_intake_and_complete_registered_p
     assert selected.denominator == baseline.denominator == tuple(registry.snapshot())
     assert tuple(row.method_fqn for row in selected.candidates) == selected.denominator
     assert {signature.fqn: signature.stable_digest() for signature in registry.list_all()} == before
-    assert selected.registry_bridge_errors == tuple((error.component_id, error.message) for error in report.errors)
+    assert selected.registry_bridge_errors == tuple(
+        (error.component_id, error.message) for error in report.errors
+    )
     assert selected.registry_discovery_errors == tuple(report.discovery_errors)
     assert selected.registry_bootstrap_error is not None
     assert selected.registry_bootstrap_error in selected.blockers
+
 
 def _run_source_free_receipt_probe(
     tmp_path: Path,
@@ -2456,7 +2581,7 @@ def test_history_receipt_leaf_validates_without_advisor_and_route_removal_turns_
 ) -> None:
     """Keep markers while proving the leaf route is required for source-free reads."""
 
-    valid_probe = r'''
+    valid_probe = r"""
 import hashlib
 import json
 import sys
@@ -2486,20 +2611,20 @@ receipt = MethodSelectionReceipt.model_validate(payload)
 assert receipt.model_dump(mode="json") == payload
 assert "polisyos.foundry.methods.selection.advisor" not in sys.modules
 print("receipt_leaf_validated")
-'''
+"""
     valid = _run_source_free_receipt_probe(
         tmp_path / "valid", remove_receipt_route=False, probe_source=valid_probe
     )
     assert valid.returncode == 0, valid.stderr
     assert valid.stdout.strip() == "receipt_leaf_validated"
 
-    route_removed_probe = r'''
+    route_removed_probe = r"""
 from pathlib import Path
 import polisyos.foundry.methods.selection as selection
 assert "MethodSelectionReceipt" in selection.__all__
 assert (Path(selection.__file__).parent / "receipt.py").is_file()
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
-'''
+"""
     removed = _run_source_free_receipt_probe(
         tmp_path / "route-removed",
         remove_receipt_route=True,

@@ -704,11 +704,6 @@ def _existing_authority_result_for_visible_views(
             or replace(candidate, cas_ref=selected.cas_ref) != selected
         ):
             raise ValueError("authority_profile_inventory_multiple_matches")
-        if (
-            candidate.cas_ref.manifest_profile_sha256 is None
-            and selected.cas_ref.manifest_profile_sha256 is not None
-        ):
-            selected = candidate
     return selected
 
 
@@ -970,7 +965,7 @@ def _existing_authority_result(
             return None
         raise ValueError("existing authority identity mismatch")
     return AuthorityArtifactWriteResult(
-        cas_ref=artifact_ref,
+        cas_ref=core_artifacts.artifact_ref_for_manifest(manifest),
         payload_sha256=payload_sha256,
         manifest_ref=authority.manifest_ref,
         authority_envelope_ref=envelope_ref,

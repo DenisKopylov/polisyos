@@ -9,6 +9,7 @@ from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistryEntry,
     ParetoRegistrySnapshot,
 )
+from polisyos.scientist.methods.search.transfer_context import TransferContext, TransferSourceScope
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
@@ -174,7 +175,7 @@ def test_limited_frontier_snapshot_does_not_receive_frontier_score() -> None:
     assert decision.recommended_action == "advance"
 
 
-def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp_path) -> None:
+def test_source_bound_v1_registry_frontier_stays_unassessed_through_voi_scheduler(tmp_path) -> None:
     candidate_hash = "sha256:" + "b" * 64
     evaluation = PolicyEvaluationVector(
         candidate_id="legacy-candidate",
@@ -193,9 +194,16 @@ def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp
         candidate_id="legacy-candidate",
         evaluation=evaluation,
     )
+    source_context = TransferContext(
+        task_family="policy",
+        domain="general",
+        run_id="legacy-loop",
+        tenant_hash="tenant-a",
+    )
     historical = ParetoRegistrySnapshot(
         schema_version="1.0",
         loop_id="legacy-loop",
+        source_scope=TransferSourceScope.from_context(source_context),
         entries={candidate_hash: entry},
         frontiers={"global_feasible": [candidate_hash]},
     )
@@ -204,8 +212,8 @@ def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp
     snapshot_path = registry._snapshot_path("legacy-loop")
     historical_bytes = snapshot_path.read_bytes()
 
-    loaded = registry.get_snapshot("legacy-loop")
-    voi_snapshot = registry.to_voi_snapshot("legacy-loop")
+    loaded = registry.get_snapshot("legacy-loop", transfer_context=source_context)
+    voi_snapshot = registry.to_voi_snapshot("legacy-loop", transfer_context=source_context)
     ticket = _ticket(
         candidate_hash=candidate_hash,
         next_level=3,
@@ -224,6 +232,7 @@ def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp
     )[0]
 
     assert loaded.schema_version == "1.0"
+    assert loaded.source_scope == TransferSourceScope.from_context(source_context)
     assert snapshot_path.read_bytes() == historical_bytes
     assert voi_snapshot.assessment_status == "legacy_limited"
     assert candidate_hash in voi_snapshot.unassessed_candidate_hashes

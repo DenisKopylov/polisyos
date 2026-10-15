@@ -628,9 +628,13 @@ def test_versioned_pareto_scope_keeps_none_global_and_foreign_distinct(tmp_path:
     registry = ParetoRegistry(root)
     candidate = _candidate()
     evaluation = _evaluation_vector(candidate)
+    with pytest.raises(ValueError, match="tenant hash must be a non-empty identity"):
+        TransferContext(
+            task_family="policy", domain="fiscal", run_id="invalid-empty", tenant_hash=""
+        )
     sources = [
         TransferContext(task_family="policy", domain="fiscal", run_id=f"run-{i}", tenant_hash=value)
-        for i, value in enumerate((None, "", "global", "tenant-b", "x" * 300))
+        for i, value in enumerate((None, "global", "tenant-b", "x" * 300))
     ]
     for source in sources:
         registry.update(
@@ -642,7 +646,7 @@ def test_versioned_pareto_scope_keeps_none_global_and_foreign_distinct(tmp_path:
         )
     fresh = ParetoRegistry(root)
     partitions = {source.tenant_hash: fresh._catalog_path(source) for source in sources}
-    assert len(set(partitions.values())) == 5
+    assert len(set(partitions.values())) == 4
     for index, source in enumerate(sources):
         isolated = ParetoRegistry(tmp_path / f"isolated-{index}")
         isolated.update(
@@ -803,11 +807,17 @@ def test_pareto_fresh_reader_refuses_path_body_mismatch_and_legacy_namespace(
     )
     catalog_path = registry._catalog_path(source)
     payload = json.loads(catalog_path.read_text())
-    payload["source_scope"]["tenant_hash"] = None
+    payload["source_scope"]["tenant_hash"] = "tenant-other"
     catalog_path.write_text(json.dumps(payload))
     fresh = ParetoRegistry(root).get_seed_bundle(source.model_copy(update={"run_id": "target"}))
     assert fresh.entries == []
     assert fresh.scope_refusals[0].reason is TransferScopeRefusalReason.PATH_BODY_MISMATCH
+
+    payload["source_scope"]["tenant_hash"] = None
+    catalog_path.write_text(json.dumps(payload))
+    malformed = ParetoRegistry(root).get_seed_bundle(source.model_copy(update={"run_id": "target"}))
+    assert malformed.entries == []
+    assert malformed.scope_refusals[0].reason is TransferScopeRefusalReason.INVALID_SOURCE_BODY
 
     legacy_root = tmp_path / "legacy"
     legacy_registry = ParetoRegistry(legacy_root)
@@ -824,7 +834,7 @@ def test_pareto_fresh_reader_refuses_path_body_mismatch_and_legacy_namespace(
             }
         )
     )
-    malformed_path = legacy_root / "catalog" / "v2" / "not-a-digest" / "pareto_registry.json"
+    malformed_path = legacy_root / "catalog" / "v3" / "not-a-digest" / "pareto_registry.json"
     malformed_path.parent.mkdir(parents=True)
     malformed_path.write_text("{}")
     legacy = ParetoRegistry(legacy_root).get_seed_bundle(
@@ -856,17 +866,18 @@ def test_registry_refuses_non_finite_metrics_before_persisted_json(
     candidate = _candidate()
     candidate_hash = candidate.candidate_hash()
     evaluation = _evaluation_vector(candidate)
+    transfer_context = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="loop-finite",
+        tenant_hash="tenant-a",
+    )
     registry.update(
         "loop-finite",
         candidate_hash=candidate_hash,
         evaluation=evaluation,
         seed_payload=candidate.model_dump(mode="json"),
-        transfer_context=TransferContext(
-            task_family="policy",
-            domain="fiscal",
-            run_id="loop-finite",
-            tenant_hash="tenant-a",
-        ),
+        transfer_context=transfer_context,
     )
     snapshot_path = registry._snapshot_path("loop-finite")
     prior_bytes = snapshot_path.read_bytes()
@@ -885,6 +896,7 @@ def test_registry_refuses_non_finite_metrics_before_persisted_json(
             candidate_hash=f"{candidate_hash}-invalid",
             evaluation=invalid_evaluation,
             seed_payload=candidate.model_dump(mode="json"),
+            transfer_context=transfer_context,
         )
 
     assert snapshot_path.read_bytes() == prior_bytes

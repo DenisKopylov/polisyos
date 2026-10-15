@@ -1,0 +1,327 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "r3-durable-monetary-settlement-20261015",
+  "author_role": "candidate author; independent G acceptance and adjudication pending",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "42d31bf7099bf4b651a9c04735f5b5955fce25b5",
+  "candidate": "85254c789634c671fc8804ad0571c8d9a8cbc0b0",
+  "tree": "5d97ce862a67621459bb81597013eb05446a783f",
+  "parents": [
+    "42d31bf7099bf4b651a9c04735f5b5955fce25b5"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "ade92f65357cf5acb9a6d31bdfa0a826c47bae35",
+      "sha256": "7c5ce272b09aa51a16e2c580f94f274b9572f0e8de87b155a2a958dc6840b5b4",
+      "bytes": 11307,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "git_blob": "6512b12e36ec7c6b603bb72446aa1879cc725397",
+      "sha256": "2f8fcc414500af2eddf90eb14d0ca9d2ebe65e3b10581f00173a03e4145bc52a",
+      "bytes": 13425,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "a1c4fcb7cc0c269056b8e59df95ad58742c0ee50",
+      "sha256": "34a6c07f3892c1395cd3079dfbb9e7475e193df272705462422b9964b047c21e",
+      "bytes": 60370,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_blob": "e2dcea6bdd63613b6cb044aa1b097d295f906ab6",
+      "sha256": "56f86f1c976b54c8b91d6d3baf915053d91f920dc380672ee6d564bda526ab79",
+      "bytes": 45298,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+      "git_blob": "651b54838d79614cbf700935e4d43383e61c4061",
+      "sha256": "a65feed2093ba0b45c21693588bd60b1302276186b45c365d8cee99280c0d800",
+      "bytes": 27327,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "git_blob": "29e95f3464b04398231e59165488fa2f18cd5463",
+      "sha256": "2482d9c6f7ff6e1d1c435c0c0aa47c7d0b42c8a21b6bda9b11bb0089e1695c38",
+      "bytes": 14124,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "git_blob": "5003342c226411b13ec247f8a4e43ba8ec2404a2",
+      "sha256": "289fd025b6d6c5a0e57dc7e362fbf578389849445baba50398eb49563bd52d80",
+      "bytes": 60593,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "git_blob": "3adcf2179375f7ae5f8f510e65184b419547b4dd",
+      "sha256": "e26bad3b5e1b7bbb467c37dfd60520305b4676f32a176e06b3b6e0b86924a8f9",
+      "bytes": 118081,
+      "branch_readback_equal": true
+    }
+  ],
+  "selected_input_profile_backend": "OWN CPython3.14.3, controlled provider/observer/cache inputs, durable ledger and real temporary CAS; no production pricing/currentness claim",
+  "property": "One traversable physical provider outcome has one durable owner-bound settlement; nested wrapper response bytes and acknowledgments must equal recomputed durable readback; reuse is zero incremental spend bound to a genuine same-request physical origin; unknown cost remains unknown.",
+  "real_chain": "configured invoke/ainvoke provider -> durable settlement event/readback -> reopened budget ledger -> ordinary POST/N5 orchestration -> fresh GET/N6 refusing unknown monetary spend",
+  "independent_review": "GO for exact eight-path bounded R3 property at pre-format hashes; _client chain is explicit discovery boundary",
+  "format_delta": {
+    "ast_equivalence": true,
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/result.json",
+      "sha256": "06d600555079886f4dc72dc048af55bc8e7777057e3b1c1d7593d064303d7d14",
+      "bytes": 8038,
+      "availability": "local ignored raw; retained complete deciding output"
+    }
+  },
+  "verification": {
+    "commands": [
+      {
+        "name": "format",
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/llm/response.py",
+          "policy-engine/src/polisyos/core/llm/settlement.py",
+          "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/unit/runtime/http/test_control_api.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "wall_seconds": 0.04638266598340124
+      },
+      {
+        "name": "ruff",
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/llm/response.py",
+          "policy-engine/src/polisyos/core/llm/settlement.py",
+          "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/unit/runtime/http/test_control_api.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "wall_seconds": 0.048780665965750813
+      },
+      {
+        "name": "format-check",
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/llm/response.py",
+          "policy-engine/src/polisyos/core/llm/settlement.py",
+          "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/unit/runtime/http/test_control_api.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "wall_seconds": 0.04841249994933605
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "faulthandler_timeout=60",
+          "-q",
+          "tests/unit/core/llm/test_traced_client_settlement.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+          "tests/unit/runtime/http/test_control_api.py::TestLaunchNlRun::test_launch_nl_run_research_preflight_preserves_refusal_or_unresolved_owner",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/junit.xml"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 22.20261479099281
+      }
+    ],
+    "root_post_format_pytest": "36 PASS,22.2026s",
+    "independent_pytest": "36 PASS,24.002s",
+    "independent_nested_invoke_ainvoke": "both PASS actual one-provider/one-durable-settlement/exact spend",
+    "ruff_check_and_format": "PASS8finalpaths",
+    "negative_controls": [
+      "distinct durable stores refused before dispatch",
+      "nested response digest/readback mismatch refused",
+      "orphan/self/reuse-origin and mismatched request bindings refused on ledger read/retry",
+      "unknown physical amount plus zero reuse remains None at fresh GET and N6 refuses without spending"
+    ],
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/result.json",
+        "sha256": "06d600555079886f4dc72dc048af55bc8e7777057e3b1c1d7593d064303d7d14",
+        "bytes": 8038,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/format.stdout.txt",
+        "sha256": "ac6a274b96185caa355f878815d16d0d259e70114eb6db24fa202aaeffeea0d6",
+        "bytes": 44,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/format-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/pytest.stdout.txt",
+        "sha256": "d2a89bb290fe92c0e55c1c6520d0530ce14cdfc9ba662b6e158b0f20f114c4b4",
+        "bytes": 99,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/format-check.stdout.txt",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+        "bytes": 26,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/junit.xml",
+        "sha256": "defa388f321d0c0293f2b9366c59ccc0b9853b59533a7e3665ca68110b3e25d2",
+        "bytes": 6603,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-format-root-20261015/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/review.md",
+        "sha256": "6bd244605525fa352f2073bd1701fa9eb8707ad65bb8252f0b0e4b6770ac5059",
+        "bytes": 5246,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/source-freeze.json",
+        "sha256": "fbdcd3eb97848d474038f24a531357ec772596b44cec0e599cea0dfb8c253bf9",
+        "bytes": 2394,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/focused-final-r3-tests.stdout.txt",
+        "sha256": "12a9a4a8915fb8d2bb5b4227220247cde267c1a0620203589fe47280d5be4a7f",
+        "bytes": 80,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/focused-final-r3-tests.receipt.json",
+        "sha256": "836c7c1b25927012b11a74a2f86c423294bb01493e3195bb0c527d0fb714d9e8",
+        "bytes": 913,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/invoke-ainvoke-nested-owner.stdout.txt",
+        "sha256": "270e37ff80c9e80fe9fcb15b48c09d4d23b7acef208e3af0aea045990e2ed1cc",
+        "bytes": 536,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/invoke-ainvoke-nested-owner.receipt.json",
+        "sha256": "c17579a6e46155b634edb202f325b14b3901eb107d8bb6e45672c1a1d87aac92",
+        "bytes": 292,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/ruff-final.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/ruff-final.receipt.json",
+        "sha256": "d1e77933d82cfe24d58a50a4d7182f640f31d22461ab7289f62846e9d3308633",
+        "bytes": 624,
+        "availability": "local ignored raw; retained complete deciding output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-independent-final-20261015/broad-batch-attempts.json",
+        "sha256": "2dcbd9f38e742a0d79cb61fc6bdec1efc2ff6159b85fb9444d194e9edd1fed08",
+        "bytes": 1389,
+        "availability": "local ignored raw; retained complete deciding output"
+      }
+    ]
+  },
+  "P40": "Same owner/readback/reuse-origin class one level deeper; widened actual traversable wrapper chain and complete persisted reuse-origin graph rather than per-wrapper labels.",
+  "P41": "No inherited red assertion. Narrow delta base is exact parent42d31bf; broader imported-input/global source freeze not established.",
+  "limitations": [
+    "No whole-module control API PASS: broad attempts had timeout/capture failure and are retained as incomplete.",
+    "No whole-R4 competing workload or external issuer/currentness claim.",
+    "Adapters hiding their client graph outside the traversable _client route are outside this bounded discovery claim.",
+    "Composed source/input/backend freeze and authentic closeout replay still pending."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_closures": [],
+    "bounded_source_proposal": "accept eight-path R3 implementation for independent G review",
+    "related_ids": [
+      "B10",
+      "B66",
+      "B67",
+      "B68"
+    ],
+    "whole_criterion_proposals": "pending individual original criterion and all dependencies assessment; no ID closed by this receipt"
+  },
+  "next_check": "Source/input/profile freeze; current C08 retry/cancel/cache scopes and shared workload, complete fresh served/browser and installed consumer wave; individual original-criterion assessment."
+}

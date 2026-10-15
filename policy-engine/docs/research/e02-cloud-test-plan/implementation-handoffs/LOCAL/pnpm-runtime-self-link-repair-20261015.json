@@ -1,0 +1,26 @@
+{
+  "schema": "policyos.e02.local_environment_receipt.v1",
+  "slice": "pnpm-runtime-self-link-repair-20261015",
+  "candidate": "85254c789634c671fc8804ad0571c8d9a8cbc0b0",
+  "tree": "5d97ce862a67621459bb81597013eb05446a783f",
+  "source_change": false,
+  "action": "Move only accidental node_modules/node_modules self-symlink object into native Trash; dependency directory and all targets retained.",
+  "verification": "CI=1 corepack pnpm install --frozen-lockfile --offline PASS; existing lock up-to-date; actual guardrails runtime-link install receipt verification PASS",
+  "authority_boundary": "Environment readiness only; architecture/global product gates not claimed green",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-pnpm-link-repair-20261015/trash-receipt.json",
+      "sha256": "e843d0539befb52d7bc7f7a0e463cf1419893af553384cbdcf79711d85d30643",
+      "bytes": 647,
+      "availability": "local ignored raw; retained complete deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-pnpm-link-repair-20261015/runtime-verify.json",
+      "sha256": "c074c2e4a6498b13f4e77b348f1f817fc8348db9854e8d6b2d357e7c606edf39",
+      "bytes": 294,
+      "availability": "local ignored raw; retained complete deciding output"
+    }
+  ],
+  "closure_ids": [],
+  "next_check": "Canonical generated/surface regeneration and architecture guardrails after final source freeze."
+}

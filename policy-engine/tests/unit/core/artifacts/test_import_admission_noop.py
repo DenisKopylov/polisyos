@@ -1,5 +1,6 @@
 """Exercise import admission before staging and exact same-owner no-op."""
 
+import hashlib
 import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -359,6 +360,93 @@ def test_mixed_package_stages_only_unclaimed_artifact_members(tmp_path: Path) ->
     assert target.get_bytes(new) == b"unclaimed payload"
     for member, content in old_members.items():
         assert (target.root / member).read_bytes() == content
+
+
+@pytest.mark.parametrize("consumer", ["directory", "archive"])
+@pytest.mark.parametrize("foreign_scope", ["tenant", "cell"])
+def test_mixed_package_with_foreign_member_refuses_before_stage_and_preserves_prior(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    consumer: str,
+    foreign_scope: str,
+) -> None:
+    """A valid new member cannot publish alongside a foreign tenant/cell member."""
+    tenant_id, cell_id = "tenant-a", "cell-a"
+    target = FileSystemCAS(tmp_path / "target", tenant_id=tenant_id, cell_id=cell_id)
+    prior_payload = b"previously readable tenant-a cell-a artifact"
+    prior = target.put_bytes(prior_payload, _options(tenant_id, cell_id))
+    prior_manifest = target.get_manifest_bytes(prior)
+
+    # The ordinary exporter sorts members by content id. Choose authentic
+    # payloads with the valid member first, so an incremental admission/stage
+    # implementation cannot pass merely because the foreign member arrived first.
+    for index in range(128):
+        valid_payload = f"valid-new-{index}".encode()
+        foreign_payload = f"foreign-member-{index}".encode()
+        valid_digest = hashlib.sha256(valid_payload).hexdigest()
+        foreign_digest = hashlib.sha256(foreign_payload).hexdigest()
+        if valid_digest < foreign_digest:
+            break
+    else:
+        pytest.fail("could not construct deterministic valid-first transfer input")
+
+    valid_source = FileSystemCAS(tmp_path / "valid-source", tenant_id=tenant_id, cell_id=cell_id)
+    valid_new = valid_source.put_bytes(valid_payload, _options(tenant_id, cell_id))
+    foreign_tenant, foreign_cell = (
+        ("tenant-b", cell_id) if foreign_scope == "tenant" else (tenant_id, "cell-b")
+    )
+    foreign_source = FileSystemCAS(
+        tmp_path / "foreign-source", tenant_id=foreign_tenant, cell_id=foreign_cell
+    )
+    foreign = foreign_source.put_bytes(foreign_payload, _options(foreign_tenant, foreign_cell))
+    assert valid_source._ownership_index.is_owned_by(
+        valid_new.artifact_id, tenant_id=tenant_id, cell_id=cell_id
+    )
+    assert foreign_source._ownership_index.is_owned_by(
+        foreign.artifact_id, tenant_id=foreign_tenant, cell_id=foreign_cell
+    )
+    assert valid_new.artifact_id.hex < foreign.artifact_id.hex
+
+    # Rebuild one authentic transfer set from the two scoped producer views. The
+    # unscoped bundle is only a byte-preserving transport cache; it has no owner
+    # claim and cannot turn either producer's manifest into a local assertion.
+    bundle = FileSystemCAS(tmp_path / "bundle")
+    valid_manifest = valid_source.get_manifest_bytes(valid_new)
+    foreign_manifest = foreign_source.get_manifest_bytes(foreign)
+    bundle.import_exact_view(valid_payload, valid_manifest, artifact_id=valid_new)
+    bundle.import_exact_view(foreign_payload, foreign_manifest, artifact_id=foreign)
+    assert bundle.get_manifest_bytes(valid_new) == valid_manifest
+    assert bundle.get_manifest_bytes(foreign) == foreign_manifest
+    assert not bundle._ownership_index.has_any_tenant_claim(valid_new.artifact_id)
+    assert not bundle._ownership_index.has_any_tenant_claim(foreign.artifact_id)
+    package = bundle.export_subgraph(
+        [valid_new, foreign],
+        tmp_path / "mixed-package",
+        compress=consumer == "archive",
+    )
+
+    before = _snapshot(target.root)
+    staged: list[Path] = []
+    make_stage = store_module.tempfile.mkdtemp
+
+    def observe_stage(*args: Any, **kwargs: Any) -> str:
+        result = make_stage(*args, **kwargs)
+        if str(kwargs.get("prefix", "")).startswith(".cas-import"):
+            staged.append(Path(result))
+        return result
+
+    monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
+    with pytest.raises(ArtifactOwnershipError):
+        target.import_subgraph(package.output_path, verify_integrity=True)
+
+    assert staged == [], "mixed-set admission occurred after private filesystem staging"
+    assert _snapshot(target.root) == before
+    reopened = FileSystemCAS(target.root, tenant_id=tenant_id, cell_id=cell_id)
+    assert reopened.get_bytes(prior) == prior_payload
+    assert reopened.get_manifest_bytes(prior) == prior_manifest
+    assert reopened.verify(prior).ok
+    assert not reopened.has(valid_new.artifact_id)
+    assert not reopened.has(foreign.artifact_id)
 
 
 def test_mixed_import_reports_profile_identity_and_actual_manifest_disposition(

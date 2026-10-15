@@ -4236,6 +4236,124 @@ def closes_over_alias():
 
 
 @pytest.mark.parametrize(
+    ("source", "expected_call"),
+    [
+        ('import builtins\nbuiltins.__import__("private.module")', "__import__"),
+        ('__builtins__.__import__("private.module")', "__import__"),
+        ('__builtins__["__import__"]("private.module")', "__import__"),
+        (
+            'import builtins\nvars(builtins)["__import__"]("private.module")',
+            "__import__",
+        ),
+        (
+            'import importlib\ng = getattr\ng(importlib, "import_module")("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            'import importlib\ngetattr(importlib, "import_module")("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            'import importlib\nglobals()["importlib"].import_module("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            'import importlib\nglobals().get("importlib").import_module("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            'import sys\nsys.modules["importlib"].import_module("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            'import importlib\nnames = set(globals())\nimportlib.import_module("private.module")',
+            "importlib.import_module",
+        ),
+        (
+            "import importlib\nfrom builtins import getattr as reflect\n"
+            'reflect(importlib, "import_module")("private.module")',
+            "importlib.import_module",
+        ),
+    ],
+)
+def test_dynamic_import_collector_resolves_reflection_roots(
+    source: str,
+    expected_call: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    entries = scanner.scan(ast.parse(source))
+
+    assert [entry["pattern"] for entry in entries] == ["private.module"]
+    assert [entry["call"] for entry in entries] == [expected_call]
+
+
+def test_dynamic_import_scanner_returns_exact_sink_ast_nodes() -> None:
+    tree = ast.parse(
+        "import builtins\n"
+        "import importlib\n"
+        "from builtins import getattr as reflect\n"
+        "loader = reflect(importlib, 'import_module')\n"
+        "loader('private.module')\n"
+        "builtins.__import__('private.module')\n"
+    )
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    entries, sites = scanner.scan_with_sites(tree)
+
+    call_by_line = {
+        node.lineno: node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and node.lineno in {5, 6}
+    }
+    assert [site.call_name for site in sites] == [
+        "importlib.import_module",
+        "__import__",
+    ]
+    assert [site.node.lineno for site in sites] == [5, 6]
+    assert all(site.node is call_by_line[site.node.lineno] for site in sites)
+    assert [entry["call"] for entry in entries] == [site.call_name for site in sites]
+
+
+def test_dynamic_import_scanner_does_not_treat_plain_root_words_as_capabilities() -> None:
+    tree = ast.parse(
+        "from pathlib import Path\n"
+        "def make(root: Path) -> None:\n"
+        "    for child in ('provenance', 'metadata'):\n"
+        "        (root / child).mkdir(parents=True, exist_ok=True)\n"
+    )
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    assert scanner.scan(tree) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "eval(\"__import__(\\'private.module\\')\")",
+        "exec(\"__import__(\\'private.module\\')\")",
+        "import importlib\nconsume(importlib.import_module)",
+        "import builtins\nname = supplied_name\ngetattr(builtins, name)",
+    ],
+)
+def test_dynamic_import_collector_refuses_dynamic_code_or_unknown_capability_flow(
+    source: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    with pytest.raises(RuntimeError, match=r"dynamic|guarded|importer|escapes|unresolved"):
+        scanner.scan(ast.parse(source))
+
+
+@pytest.mark.parametrize(
     "source",
     [
         """

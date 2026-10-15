@@ -6,6 +6,15 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge._ukraine_release_contracts import (
+    D5ReleaseContentRef as NeutralD5ReleaseContentRef,
+)
+from polisyos.data_forge._ukraine_release_contracts import (
+    D5ReleaseHandoffRequest as NeutralD5ReleaseHandoffRequest,
+)
+from polisyos.data_forge._ukraine_release_contracts import (
+    D5ReleaseProducerFacts as NeutralD5ReleaseProducerFacts,
+)
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
@@ -23,6 +32,59 @@ from polisyos.data_forge.read_api.ukraine import (
     load_verified_stage_artifacts,
     load_verified_stage_output_bytes,
 )
+
+
+def test_d5_handoff_contract_is_neutral_strict_and_legacy_exports_are_identical() -> None:
+    from polisyos.data_forge.read_api import ukraine
+
+    assert D5ReleaseContentRef is NeutralD5ReleaseContentRef
+    assert D5ReleaseProducerFacts is NeutralD5ReleaseProducerFacts
+    assert D5ReleaseHandoffRequest is NeutralD5ReleaseHandoffRequest
+    assert ukraine.D5ReleaseHandoffRequest is NeutralD5ReleaseHandoffRequest
+    assert NeutralD5ReleaseHandoffRequest.__module__ == (
+        "polisyos.data_forge._ukraine_release_contracts"
+    )
+    assert NeutralD5ReleaseHandoffRequest.model_config["extra"] == "forbid"
+    assert NeutralD5ReleaseHandoffRequest.model_config["frozen"] is True
+
+    payload = {
+        "declared_release_root": "/candidate/release",
+        "producer_facts": {
+            "primary_region_id": "01",
+            "primary_sector_id": "A",
+            "graph_compression_degree_preservation_score": 0.98,
+            "graph_compression_edge_weight_reconstruction_error": 0.02,
+        },
+        "content_refs": {
+            name: {"path": f"/candidate/{name}", "sha256": "a" * 64, "size_bytes": 4}
+            for name in (
+                "cell_registry",
+                "d4_governance_request",
+                "graph_compression_bundle",
+            )
+        },
+    }
+    handoff = NeutralD5ReleaseHandoffRequest.model_validate(payload)
+    assert NeutralD5ReleaseHandoffRequest.model_validate_json(handoff.model_dump_json()) == handoff
+    assert (
+        NeutralD5ReleaseHandoffRequest.model_json_schema()["properties"]["schema_version"]["const"]
+        == "policyos.data_forge.ukraine.d5_release_handoff_request.v1"
+    )
+    assert NeutralD5ReleaseHandoffRequest.model_json_schema()["description"] == (
+        "Purpose-limited candidate request from DataForge to the D5 consumer."
+    )
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        NeutralD5ReleaseHandoffRequest.model_validate({**payload, "unreviewed": True})
+    with pytest.raises(ValidationError):
+        NeutralD5ReleaseHandoffRequest.model_validate(
+            {
+                **payload,
+                "content_refs": {
+                    **payload["content_refs"],
+                    "cell_registry": {"path": "incomplete", "sha256": "a" * 64},
+                },
+            }
+        )
 
 
 def _release_manifest(root: Path) -> tuple[Path, dict[str, Path]]:
@@ -76,9 +138,7 @@ def _release_manifest(root: Path) -> tuple[Path, dict[str, Path]]:
         },
         bundle_contents={
             "runtime_bundle_v1": {"runtime.json": ArtifactRecord.from_path(runtime_file)},
-            "method_contract_bundle_v1": {
-                "contract.json": ArtifactRecord.from_path(method_file)
-            },
+            "method_contract_bundle_v1": {"contract.json": ArtifactRecord.from_path(method_file)},
         },
         evidence_refs={
             **content_records,
@@ -180,8 +240,7 @@ def test_verified_stage_artifacts_recompute_and_bind_the_producer_outputs(
     manifest_path.write_text('{"status": "mutated"}\n', encoding="utf-8")
 
     assert (
-        load_verified_stage_output_bytes(store, receipt, output_path.name)
-        == original_output_bytes
+        load_verified_stage_output_bytes(store, receipt, output_path.name) == original_output_bytes
     )
     assert store.get_bytes(receipt.manifest_ref.artifact_id) == original_manifest_bytes
 
@@ -358,9 +417,9 @@ def test_verified_release_artifacts_reject_nonexact_evidence_and_path_escape(
             "bundle_contents": {
                 **manifest.bundle_contents,
                 "runtime_bundle_v1": {
-                    "forged-runtime-name.json": manifest.bundle_contents[
-                        "runtime_bundle_v1"
-                    ]["runtime.json"]
+                    "forged-runtime-name.json": manifest.bundle_contents["runtime_bundle_v1"][
+                        "runtime.json"
+                    ]
                 },
             }
         }
@@ -387,9 +446,7 @@ def test_verified_release_artifacts_reject_self_consistent_handoff_manifest_mism
         update={
             "content_refs": {
                 **handoff.content_refs,
-                "graph_compression_bundle": D5ReleaseContentRef.from_artifact_record(
-                    cell_record
-                ),
+                "graph_compression_bundle": D5ReleaseContentRef.from_artifact_record(cell_record),
             }
         }
     )

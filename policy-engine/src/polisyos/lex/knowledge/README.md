@@ -30,6 +30,7 @@ policy, and search flows.
 | Type/Function                                                    | Description                                                   |
 | ---------------------------------------------------------------- | ------------------------------------------------------------- |
 | `LegalKnowledgeGraph`                                            | High-level read-only API over the legal knowledge graph       |
+| `LegalKnowledgeStore`                                            | Read-only owner store for typed legal queries and evaluations |
 | `LegalQueryProfile`, `LegalQueryInput`, `LegalQueryProfileError` | Immutable request intent and typed refusal for vector queries |
 | `LegalEntity`, `LegalFact`, `LegalProvision`                     | Canonical graph record types                                  |
 | `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult`   | Typed result envelopes for retrieval                          |
@@ -75,7 +76,7 @@ same-assets callable-swap and matched-removal witness tests the executable behav
 
 - Last updated: 2026-10-09
 - Files: 8 Python files
-- Exports: 14 lazy exports in `__init__.py`
+- Exports: 15 lazy exports in `__init__.py`
 - Notable delta: extraction payloads moved to `polisyos.data_forge.domains.legal.contracts`; Lex keeps runtime graph/search result models.
 
 ## Candidate multilingual assurance

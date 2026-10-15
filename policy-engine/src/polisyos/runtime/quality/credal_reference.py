@@ -2820,8 +2820,9 @@ def _iter_l6_edges(
     world_model_record: WorldModelRecord,
 ) -> Iterable[CredalReferenceEdge]:
     bundle = load_l6_intervention_substrate(repo_root)
-    lex_module = importlib.import_module("polisyos.lex.knowledge.store")
-    lex_store = lex_module.LegalKnowledgeStore(
+    from polisyos.lex.knowledge import LegalKnowledgeStore
+
+    lex_store = LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_KG_PATH,
         (repo_root / DEFAULT_L3_LEX_KG_PATH).parent,
         canonical_db_ref_path=DEFAULT_L3_LEX_KG_PATH,

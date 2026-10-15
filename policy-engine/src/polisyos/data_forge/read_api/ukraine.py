@@ -20,9 +20,7 @@ from pydantic import (
 from typing_extensions import TypeForm  # noqa: TC002
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.data_forge.domains.ukraine.manifests import (
-    D5ReleaseHandoffRequest,
-)
+from polisyos.data_forge._ukraine_release_contracts import D5ReleaseHandoffRequest
 
 from ._lazy import lazy_dir, load_lazy_export
 
@@ -65,7 +63,7 @@ _EXPORTS = {
     "CalibrationBundleManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "ReleaseManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "ArtifactRecord": "polisyos.data_forge.domains.ukraine.manifests",
-    "D5ReleaseHandoffRequest": "polisyos.data_forge.domains.ukraine.manifests",
+    "D5ReleaseHandoffRequest": "polisyos.data_forge._ukraine_release_contracts",
     "HouseholdDiagnosticPanelBasis": "polisyos.data_forge.domains.ukraine.manifests",
     "NormalizedArtifactManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "SourceSnapshotManifest": "polisyos.data_forge.domains.ukraine.manifests",
@@ -902,12 +900,11 @@ def load_verified_release_artifacts(
             malformed, out of scope, incomplete, or content-drifted.
     """
 
-    from polisyos.data_forge.domains.ukraine.manifests import (
-        ArtifactRecord,
+    from polisyos.data_forge._ukraine_release_contracts import (
         D5ReleaseContentRef,
         D5ReleaseHandoffRequest,
-        ReleaseManifest,
     )
+    from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord, ReleaseManifest
 
     required_evidence = {
         "cell_registry",

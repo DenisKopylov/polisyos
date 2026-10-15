@@ -445,6 +445,50 @@ def test_phase5_law_owner_refusal_survives_credal_and_atom_consumers() -> None:
     _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
 
 
+def test_l6_projection_opens_selected_lex_database_through_public_facade(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    import duckdb
+
+    from polisyos.lex import knowledge
+    from polisyos.runtime.quality import credal_reference as owner
+
+    relative_db_path = Path("fixture/lex.duckdb")
+    db_path = tmp_path / relative_db_path
+    db_path.parent.mkdir()
+    connection = duckdb.connect(str(db_path))
+    connection.close()
+    monkeypatch.setattr(owner, "DEFAULT_L3_LEX_KG_PATH", relative_db_path)
+    monkeypatch.setattr(
+        owner,
+        "load_l6_intervention_substrate",
+        lambda _root: SimpleNamespace(
+            content_hash="fixture-content",
+            knob_dictionary={},
+            lex_intervention_map={},
+        ),
+    )
+    monkeypatch.setattr(owner, "_iter_l6_observation_route_edges", lambda *_args, **_kwargs: ())
+
+    store_type = knowledge.LegalKnowledgeStore
+    opened: list[store_type] = []
+
+    class TrackedLegalKnowledgeStore(store_type):
+        def __init__(self, *args, **kwargs) -> None:
+            super().__init__(*args, **kwargs)
+            opened.append(self)
+
+    monkeypatch.setattr(knowledge, "LegalKnowledgeStore", TrackedLegalKnowledgeStore)
+
+    assert list(owner._iter_l6_edges(tmp_path, world_model_record=object())) == []
+    assert len(opened) == 1
+    assert opened[0]._db_path == db_path
+    opened[0].close()
+
+
 def test_phase5_law_resolution_exception_keeps_declared_dependency(monkeypatch) -> None:
     from polisyos.runtime.quality import credal_reference as owner
     from polisyos.runtime.quality.intervention_substrate import InterventionSubstrateError

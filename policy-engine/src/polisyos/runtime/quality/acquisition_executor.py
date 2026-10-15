@@ -2024,9 +2024,10 @@ def admit_acquisition_with_production_semantic_epoch(
                 "semantic facet source-binding denominator differs",
             )
         l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root))
-        lex_module = importlib.import_module("polisyos.lex.knowledge.store")
+        from polisyos.lex.knowledge import LegalKnowledgeStore
+
         lex_path = root / DEFAULT_L3_LEX_KG_PATH
-        lex_store = lex_module.LegalKnowledgeStore(
+        lex_store = LegalKnowledgeStore(
             lex_path,
             lex_path.parent,
             canonical_db_ref_path=DEFAULT_L3_LEX_KG_PATH,

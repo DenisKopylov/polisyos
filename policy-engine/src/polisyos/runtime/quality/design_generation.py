@@ -140,7 +140,7 @@ _DEGRADED_GENERATOR_PATH = "degraded_mock_fallback"
 _SEARCH_SURROGATE_OWNERS = (
     "polisyos.foundry.methods.catalog.causal.ncm_engine.NCMEngineMethod",
     "polisyos.foundry.methods.catalog.causal.gcm_fit.HybridSCMFit",
-    "polisyos.data_forge.domains.academic.knowledge.skg_query.SKGQuery",
+    "polisyos.data_forge.read_api.academic.SKGQuery",
     "polisyos.runtime.quality.intervention_substrate.load_l6_intervention_substrate",
 )
 
@@ -4723,7 +4723,10 @@ def _resolve_owner_symbol(owner_ref: str) -> tuple[str, str, object]:
         owner = getattr(importlib.import_module(module_name), symbol_name)
     except (AttributeError, ImportError, ModuleNotFoundError) as exc:
         raise DesignGenerationError("surrogate_owner_ref_unresolved", owner_ref) from exc
-    return module_name, symbol_name, owner
+    canonical_module_name = getattr(owner, "__module__", None)
+    if not isinstance(canonical_module_name, str) or not canonical_module_name:
+        raise DesignGenerationError("surrogate_owner_ref_unresolved", owner_ref)
+    return canonical_module_name, symbol_name, owner
 
 
 def _model_variant_id(model_id: str) -> str:

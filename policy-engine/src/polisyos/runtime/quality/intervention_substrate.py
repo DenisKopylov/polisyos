@@ -1552,8 +1552,9 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     bundle = load_l6_intervention_substrate(repo_root)
     world_record = _production_composed_world_model_record(repo_root.as_posix())
-    lex_module = importlib.import_module("polisyos.lex.knowledge.store")
-    lex_store = lex_module.LegalKnowledgeStore(
+    from polisyos.lex.knowledge import LegalKnowledgeStore
+
+    lex_store = LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_DB_PATH,
         (repo_root / DEFAULT_L3_LEX_DB_PATH).parent,
         canonical_db_ref_path=DEFAULT_L3_LEX_DB_PATH,

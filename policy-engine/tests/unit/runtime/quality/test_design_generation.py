@@ -3619,6 +3619,27 @@ def test_fake_surrogate_owner_ref_resolver_rejects() -> None:
         dg._resolve_owner_symbol("polisyos.fake.DoesNotExist")
 
 
+def test_skg_owner_uses_read_api_route_and_emits_canonical_owner_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge.read_api import academic
+
+    owner = academic.SKGQuery
+    owner_ref = "polisyos.data_forge.read_api.academic.SKGQuery"
+    monkeypatch.setattr(dg, "_SEARCH_SURROGATE_OWNERS", (owner_ref,))
+
+    module_name, symbol_name, resolved_owner = dg._resolve_owner_symbol(owner_ref)
+    feature_refs = dg._resolved_surrogate_owner_feature_refs()
+
+    assert resolved_owner is owner
+    assert symbol_name == "SKGQuery"
+    assert module_name == owner.__module__
+    assert any(
+        reference.startswith(f"skg_prior:{owner.__module__}.SKGQuery.")
+        for reference in feature_refs
+    )
+
+
 def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

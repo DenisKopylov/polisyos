@@ -10,6 +10,7 @@ __all__ = [
     "LegalFact",
     "LegalFactResult",
     "LegalKnowledgeGraph",
+    "LegalKnowledgeStore",
     "LegalProvision",
     "LegalProvisionResult",
     "LegalQueryInput",
@@ -24,6 +25,7 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
+    "LegalKnowledgeStore": ("polisyos.lex.knowledge.store", "LegalKnowledgeStore"),
     "LegalQueryInput": ("polisyos.lex.knowledge.store", "LegalQueryInput"),
     "LegalQueryProfile": ("polisyos.lex.knowledge.store", "LegalQueryProfile"),
     "LegalQueryProfileError": ("polisyos.lex.knowledge.store", "LegalQueryProfileError"),

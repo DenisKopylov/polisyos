@@ -77,12 +77,15 @@ def test_candidate_scenario_set_to_gate_recomputes_operator_value_and_write_set(
         minimum=0,
         maximum=1,
     )
-    assert candidate_scenario_set_to_value(
-        rule,
-        operator_kind="procurement_shock_intensity",
-        parameters={"intensity": 1},
-        linked_write_slots=("cells.distress_score",),
-    ) == 1
+    assert (
+        candidate_scenario_set_to_value(
+            rule,
+            operator_kind="procurement_shock_intensity",
+            parameters={"intensity": 1},
+            linked_write_slots=("cells.distress_score",),
+        )
+        == 1
+    )
 
     invalid_actions = (
         ("other_operator", {"intensity": 1}, ("cells.distress_score",)),
@@ -175,12 +178,8 @@ def test_candidate_scenario_linker_selects_only_the_source_bound_intervention(
         "registry_source": None,
     }
     assert linked.intervention_id == "selected_procurement"
-    expected_selected_spec = source.policy_spec.model_copy(
-        update={"interventions": [selected]}
-    )
-    assert selected_spec_ref == gy_content_hash(
-        expected_selected_spec.model_dump(mode="json")
-    )
+    expected_selected_spec = source.policy_spec.model_copy(update={"interventions": [selected]})
+    assert selected_spec_ref == gy_content_hash(expected_selected_spec.model_dump(mode="json"))
     assert tuple(item.intervention_id for item in source.policy_spec.interventions) == (
         "selected_procurement",
         "unselected_credit_guarantee",
@@ -272,9 +271,7 @@ def test_candidate_scenario_linker_uses_revalidated_context_bundle_without_root_
     )
     assert operator_kind in bundle.knob_dictionary
 
-    forged_payload = bundle.model_copy(
-        update={"content_hash": "sha256:" + "0" * 64}
-    )
+    forged_payload = bundle.model_copy(update={"content_hash": "sha256:" + "0" * 64})
     with pytest.raises(
         InterventionSubstrateError,
         match="intervention_substrate_bundle_content_hash_mismatch",
@@ -303,9 +300,7 @@ def test_candidate_scenario_linker_uses_revalidated_context_bundle_without_root_
             repo_root=tmp_path,
             substrate_bundle=definition_removed,
         )
-    assert missing_definition.value.code == (
-        "candidate_scenario_selected_intervention_not_linked"
-    )
+    assert missing_definition.value.code == ("candidate_scenario_selected_intervention_not_linked")
 
 
 def test_phase5_n8_default_rejects_every_corrupted_real_route() -> None:
@@ -369,20 +364,41 @@ def test_phase5_supplied_manifest_cannot_disappear_from_selection_or_context() -
     missing_routes = copy.deepcopy(bundle.observation_manifest)
     del missing_routes["routes"]
     assert _select_value_method(candidate={}, problem={}, inputs={})["status"] == "selected"
-    assert _select_value_method(candidate={}, problem={}, inputs={
-        "observation_to_contract_manifest": bundle.observation_manifest,
-        "observation_family": "budget_flows",
-    })["status"] == "selected"
-    for malformed in (missing_routes, None, {}, [], "", 0, {"contracts": [{"data_modality": "panel"}]}):
-        inputs = {"observation_to_contract_manifest": malformed,
-                  "observation_family": "budget_flows"}
-        assert _select_value_method(candidate={}, problem={}, inputs=inputs)["status"] == "blocked", malformed
+    assert (
+        _select_value_method(
+            candidate={},
+            problem={},
+            inputs={
+                "observation_to_contract_manifest": bundle.observation_manifest,
+                "observation_family": "budget_flows",
+            },
+        )["status"]
+        == "selected"
+    )
+    for malformed in (
+        missing_routes,
+        None,
+        {},
+        [],
+        "",
+        0,
+        {"contracts": [{"data_modality": "panel"}]},
+    ):
+        inputs = {
+            "observation_to_contract_manifest": malformed,
+            "observation_family": "budget_flows",
+        }
+        assert (
+            _select_value_method(candidate={}, problem={}, inputs=inputs)["status"] == "blocked"
+        ), malformed
         # The receipt verification path calls this exact source intake again.
         with pytest.raises(ValueError):
             _value_method_route_constraint(candidate={}, problem={}, inputs=inputs)
 
 
-def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(monkeypatch) -> None:
+def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(
+    monkeypatch,
+) -> None:
     """Known route scope travels through the real port's configuration bridge."""
     from polisyos.foundry.methods.selection import (
         MethodSelectionReceipt,
@@ -401,38 +417,62 @@ def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(
 
     def port(family: str | None, method: str | None = None):
         return runtime.FoundryValuePort(
-            evaluation_context=context, observation_to_contract_manifest=source,
-            observation_family=family, requested_method_fqn=method,
+            evaluation_context=context,
+            observation_to_contract_manifest=source,
+            observation_family=family,
+            requested_method_fqn=method,
         )
 
     configured = port("budget_flows")
     source_missing = runtime.FoundryValuePort(
-        evaluation_context=context, observation_family="budget_flows",
+        evaluation_context=context,
+        observation_family="budget_flows",
     )
-    assert runtime._select_value_method(candidate={}, problem=problem,
-        inputs=source_missing._selection_inputs())["status"] == "blocked"
+    assert (
+        runtime._select_value_method(
+            candidate={}, problem=problem, inputs=source_missing._selection_inputs()
+        )["status"]
+        == "blocked"
+    )
     inputs = configured._selection_inputs()
     positive = runtime._select_value_method(candidate={}, problem=problem, inputs=inputs)
     assert positive["status"] == "selected", positive
-    for refused in (port(None), port("unknown_observation_family"),
-                    port("budget_flows", "bayesian.gp.gp_regression@1.0.0")):
-        result = runtime._select_value_method(candidate={}, problem=problem,
-                                               inputs=refused._selection_inputs())
+    for refused in (
+        port(None),
+        port("unknown_observation_family"),
+        port("budget_flows", "bayesian.gp.gp_regression@1.0.0"),
+    ):
+        result = runtime._select_value_method(
+            candidate={}, problem=problem, inputs=refused._selection_inputs()
+        )
         assert result["status"] == "blocked", result
     receipt = MethodSelectionReceipt.model_validate(positive["selection_receipt"])
-    constraint = runtime._value_method_route_constraint(candidate={}, problem=problem, inputs=inputs)
-    receipt.verify_selection_context(method_selection_context_hash(
-        candidate={}, problem=problem, route_constraint=constraint,
-    ))
+    constraint = runtime._value_method_route_constraint(
+        candidate={}, problem=problem, inputs=inputs
+    )
+    receipt.verify_selection_context(
+        method_selection_context_hash(
+            candidate={},
+            problem=problem,
+            route_constraint=constraint,
+        )
+    )
     changed = runtime._value_method_route_constraint(
-        candidate={}, problem=problem, inputs=port("firm_fundamentals")._selection_inputs(),
+        candidate={},
+        problem=problem,
+        inputs=port("firm_fundamentals")._selection_inputs(),
     )
     with pytest.raises(ValueError):
-        receipt.verify_selection_context(method_selection_context_hash(
-            candidate={}, problem=problem, route_constraint=changed,
-        ))
+        receipt.verify_selection_context(
+            method_selection_context_hash(
+                candidate={},
+                problem=problem,
+                route_constraint=changed,
+            )
+        )
     controller = runtime.GenerationCycleController(
-        repo_root=REPO_ROOT, observation_to_contract_manifest=source,
+        repo_root=REPO_ROOT,
+        observation_to_contract_manifest=source,
         observation_family="budget_flows",
     )
     assert controller._value_port.observation_family == "budget_flows"
@@ -440,27 +480,38 @@ def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(
     # override. Its other fixture fields are not a canonical population claim.
     bound = _cycle_context(intervention_substrate=load_l6_intervention_substrate(REPO_ROOT))
     bound_controller = runtime.GenerationCycleController(
-        repo_root=REPO_ROOT, cycle_substrate_context=bound, observation_family="budget_flows",
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=bound,
+        observation_family="budget_flows",
     )
     lazy = bound_controller._value_port
     bound_port = runtime.FoundryValuePort(
-        evaluation_context=context, **lazy._selection_configuration(),
+        evaluation_context=context,
+        **lazy._selection_configuration(),
     )
     default_inputs = bound_port._selection_inputs()
     assert default_inputs["observation_to_contract_manifest"] == source
-    assert runtime._select_value_method(candidate={}, problem=problem,
-                                       inputs=default_inputs)["status"] == "selected"
+    assert (
+        runtime._select_value_method(candidate={}, problem=problem, inputs=default_inputs)["status"]
+        == "selected"
+    )
     mismatched = copy.deepcopy(source)
     mismatched["annotation"] = "different source"
     with pytest.raises(ValueError, match="value_method_manifest_context_mismatch"):
-        runtime.FoundryValuePort(evaluation_context=context, cycle_substrate_context=bound,
-            observation_to_contract_manifest=mismatched, observation_family="budget_flows",
+        runtime.FoundryValuePort(
+            evaluation_context=context,
+            cycle_substrate_context=bound,
+            observation_to_contract_manifest=mismatched,
+            observation_family="budget_flows",
         )._selection_inputs()
     tampered = bound.model_copy(deep=True)
     tampered.intervention_substrate.observation_manifest["routes"] = []
     with pytest.raises(ValueError, match="cycle_substrate_intervention_bundle_hash_mismatch"):
-        runtime.FoundryValuePort(evaluation_context=context, cycle_substrate_context=tampered,
-                               observation_family="budget_flows")._selection_inputs()
+        runtime.FoundryValuePort(
+            evaluation_context=context,
+            cycle_substrate_context=tampered,
+            observation_family="budget_flows",
+        )._selection_inputs()
     original = runtime._value_method_selection_inputs
 
     def remove_family_forwarding(**kwargs):
@@ -472,18 +523,21 @@ def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(
     # Constructor/configuration marker remains; removing only the forwarding
     # breaks the unchanged positive control through the actual selection owner.
     assert configured._observation_family == "budget_flows"
-    removed = runtime._select_value_method(candidate={}, problem=problem,
-                                           inputs=configured._selection_inputs())
+    removed = runtime._select_value_method(
+        candidate={}, problem=problem, inputs=configured._selection_inputs()
+    )
     with pytest.raises(AssertionError):
         assert removed["status"] == "selected", removed
+
     def remove_bound_source_forwarding(**kwargs):
         result = original(**kwargs)
         result.pop("observation_to_contract_manifest", None)
         return result
 
     monkeypatch.setattr(runtime, "_value_method_selection_inputs", remove_bound_source_forwarding)
-    source_removed = runtime._select_value_method(candidate={}, problem=problem,
-                                                  inputs=bound_port._selection_inputs())
+    source_removed = runtime._select_value_method(
+        candidate={}, problem=problem, inputs=bound_port._selection_inputs()
+    )
     with pytest.raises(AssertionError):
         assert source_removed.get("selected_method_fqn") == positive["selected_method_fqn"]
 
@@ -494,8 +548,11 @@ def test_phase5_real_unrelated_law_target_cannot_authorize_a_knob() -> None:
     lex = _lex_store()
     bundle = _with_subject_spine(bundle, lex)
     positive = resolve_law_bound_lever(
-        bundle, law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
-        parameter_value=0.24, legal_store=lex,
+        bundle,
+        law_token=BUDGET_LAW,
+        knob_id="budget_allocation_multiplier",
+        parameter_value=0.24,
+        legal_store=lex,
     )
     assert positive.recognition.status == "passed"
     assert positive.legal_threshold_evaluation["status"] == "admitted"
@@ -533,7 +590,8 @@ def test_missing_legal_subject_is_ambiguous_before_numeric_units(monkeypatch) ->
         if row["law_token"] == BUDGET_LAW:
             row["measurement_expectations"]["candidate_unit"] = "corr.invalid.unit"
     bundle = replace_intervention_substrate_bundle(
-        bundle, update={"lex_authority_manifest": manifest})
+        bundle, update={"lex_authority_manifest": manifest}
+    )
     lex = _lex_store()
     evaluations = []
     evaluate = lex.evaluate_rule_threshold
@@ -544,8 +602,11 @@ def test_missing_legal_subject_is_ambiguous_before_numeric_units(monkeypatch) ->
 
     monkeypatch.setattr(lex, "evaluate_rule_threshold", observed_evaluate)
     result = resolve_law_bound_lever(
-        bundle, law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
-        parameter_value=1.0, legal_store=lex,
+        bundle,
+        law_token=BUDGET_LAW,
+        knob_id="budget_allocation_multiplier",
+        parameter_value=1.0,
+        legal_store=lex,
     )
     assert evaluations == []
     assert result.recognition.status == "ambiguous"
@@ -567,8 +628,11 @@ def test_subject_forwarding_removal_turns_real_positive_gate_red(monkeypatch) ->
     from polisyos.runtime.quality import intervention_substrate as owner
 
     original = owner.recognize_legal_correspondence
-    monkeypatch.setattr(owner, "recognize_legal_correspondence",
-                        lambda store, ref, request: original(store, None, request))
+    monkeypatch.setattr(
+        owner,
+        "recognize_legal_correspondence",
+        lambda store, ref, request: original(store, None, request),
+    )
     with pytest.raises(AssertionError):
         test_phase5_real_unrelated_law_target_cannot_authorize_a_knob()
 
@@ -647,8 +711,9 @@ def test_historical_v2_law_record_cannot_be_restamped_with_current_binding() -> 
 
     from polisyos.runtime.quality.intervention_substrate import LawLeverResolution
 
-    payload = json.loads((Path(__file__).parent / "fixtures/intervention_law_lift_v2.json")
-                         .read_text())
+    payload = json.loads(
+        (Path(__file__).parent / "fixtures/intervention_law_lift_v2.json").read_text()
+    )
     historical = LawLeverResolution.model_validate(payload)
     assert historical.content_hash == payload["content_hash"]
     assert historical.current_authority_status == "blocked"
@@ -671,8 +736,9 @@ def test_historical_v2_law_nested_serialization_preserves_original_bytes() -> No
     raw = json.loads((Path(__file__).parent / "fixtures/intervention_law_lift_v2.json").read_text())
     nested = Container(law=LawLeverResolution.model_validate(raw))
     spec = canon.CanonSpec(forbid_floats=False, exclude_none=False)
-    assert canon.to_canonical_bytes(nested.model_dump(mode="json"), spec) == canon.to_canonical_bytes(
-        {"law": raw}, spec)
+    assert canon.to_canonical_bytes(
+        nested.model_dump(mode="json"), spec
+    ) == canon.to_canonical_bytes({"law": raw}, spec)
 
 
 def test_phase5_route_context_binds_source_and_rejects_forged_method_constraint() -> None:
@@ -683,21 +749,32 @@ def test_phase5_route_context_binds_source_and_rejects_forged_method_constraint(
     )
 
     bundle = load_l6_intervention_substrate(REPO_ROOT)
-    inputs = {"observation_to_contract_manifest": bundle.observation_manifest,
-              "observation_family": "budget_flows"}
+    inputs = {
+        "observation_to_contract_manifest": bundle.observation_manifest,
+        "observation_family": "budget_flows",
+    }
     first = _select_value_method(candidate={}, problem={}, inputs=inputs)
     assert first["status"] == "selected"
     changed = copy.deepcopy(bundle.observation_manifest)
     changed["projection_probe_annotation"] = "same method, different manifest content"
-    second = _select_value_method(candidate={}, problem={}, inputs={
-        **inputs, "observation_to_contract_manifest": changed,
-    })
+    second = _select_value_method(
+        candidate={},
+        problem={},
+        inputs={
+            **inputs,
+            "observation_to_contract_manifest": changed,
+        },
+    )
     assert second["status"] == "selected"
     assert first["selected_method_fqn"] == second["selected_method_fqn"]
-    assert first["selection_receipt"]["selection_context_hash"] != (
-        second["selection_receipt"]["selection_context_hash"])
+    assert (
+        first["selection_receipt"]["selection_context_hash"]
+        != (second["selection_receipt"]["selection_context_hash"])
+    )
     constraint = project_value_method_route_constraint(bundle, family="budget_flows")
-    fake = constraint.model_copy(update={"allowed_method_fqns": ("bayesian.gp.gp_regression@1.0.0",)})
+    fake = constraint.model_copy(
+        update={"allowed_method_fqns": ("bayesian.gp.gp_regression@1.0.0",)}
+    )
     result = select_value_method_for_problem(candidate={}, problem={}, route_constraint=fake)
     assert result["status"] == "blocked"
     assert result["blockers"] == ("value_method_route_contract_mismatch",)
@@ -722,15 +799,11 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
 
     frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
     pack = frozen["pack"]
-    problem = DesignProblem.model_validate(
-        frozen["smoke_problem"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected_hashes = tuple(
-        pack["components"]["substrate_registry"]["selected_entry_hashes"]
-    )
+    selected_hashes = tuple(pack["components"]["substrate_registry"]["selected_entry_hashes"])
     world = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
@@ -801,17 +874,26 @@ def _with_subject_spine(bundle, lex):
     )
 
     ref = produce_intervention_legal_subject_spine(
-        REPO_ROOT, bundle, legal_store=lex, store=FileSystemCAS(REPO_ROOT / ".polisyos/cas"))
-    return replace_intervention_substrate_bundle(bundle, update={
-        "owner_authority_manifest": {**bundle.owner_authority_manifest,
-                                     "legal_subject_spine_ref": ref.model_dump(mode="json")}})
+        REPO_ROOT, bundle, legal_store=lex, store=FileSystemCAS(REPO_ROOT / ".polisyos/cas")
+    )
+    return replace_intervention_substrate_bundle(
+        bundle,
+        update={
+            "owner_authority_manifest": {
+                **bundle.owner_authority_manifest,
+                "legal_subject_spine_ref": ref.model_dump(mode="json"),
+            }
+        },
+    )
 
 
 def test_l6_world_slot_authority_is_not_hardcoded_in_default_mechanisms() -> None:
     assert L6_MECHANISM_IDS.isdisjoint(DEFAULT_MECHANISM_REGISTRY.mechanisms)
 
 
-def test_real_knob_dictionary_resolves_domain_and_fails_closed_for_unknown_or_out_of_range() -> None:
+def test_real_knob_dictionary_resolves_domain_and_fails_closed_for_unknown_or_out_of_range() -> (
+    None
+):
     bundle = load_l6_intervention_substrate(REPO_ROOT)
 
     resolved = resolve_intervention_lever(
@@ -900,17 +982,16 @@ def test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value() -
 def test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authority() -> None:
     bundle = load_l6_intervention_substrate(REPO_ROOT)
     assert all(
-        not (
-            isinstance(raw, dict)
-            and (raw.get("provision_ref") or raw.get("threshold_id"))
-        )
+        not (isinstance(raw, dict) and (raw.get("provision_ref") or raw.get("threshold_id")))
         for raw in bundle.lex_intervention_map.values()
     )
     lex = _lex_store()
     traced = {}
     for law_token, raw_knobs in bundle.lex_intervention_map.items():
         if isinstance(raw_knobs, dict):
-            knob_ids = raw_knobs.get("knob_ids") or raw_knobs.get("knobs") or raw_knobs.get("knob_id")
+            knob_ids = (
+                raw_knobs.get("knob_ids") or raw_knobs.get("knobs") or raw_knobs.get("knob_id")
+            )
         else:
             knob_ids = raw_knobs
         assert isinstance(knob_ids, (list, tuple)), (law_token, knob_ids)
@@ -925,9 +1006,11 @@ def test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authori
                 legal_store=lex,
             )
 
-    owner_pairs = {(row["law_token"], knob_id)
-                   for row in bundle.lex_authority_manifest["intervention_map_entries"]
-                   for knob_id in row["knob_ids"]}
+    owner_pairs = {
+        (row["law_token"], knob_id)
+        for row in bundle.lex_authority_manifest["intervention_map_entries"]
+        for knob_id in row["knob_ids"]
+    }
     assert set(traced) == owner_pairs
     assert {law for law, _knob in traced} == set(bundle.lex_intervention_map)
     assert all(item.provision_ref.startswith("duckdb://") for item in traced.values())
@@ -945,17 +1028,25 @@ def test_frozen_subject_producer_is_invariant_to_the_proposed_law_mapping(tmp_pa
     store = artifacts.FileSystemCAS(tmp_path)
     lex = _lex_store()
     original = produce_intervention_legal_subject_spine(
-        REPO_ROOT, bundle, legal_store=lex, store=store)
+        REPO_ROOT, bundle, legal_store=lex, store=store
+    )
     manifest = copy.deepcopy(bundle.lex_authority_manifest)
     entries = manifest["intervention_map_entries"]
     targets = [row["provision_ref"] for row in entries]
     for row, target in zip(entries, targets[1:] + targets[:1], strict=True):
         row["provision_ref"] = target
-    changed = replace_intervention_substrate_bundle(bundle, update={
-        "lex_authority_manifest": manifest, "lex_intervention_map": {"novel": ["fake_knob"]}})
+    changed = replace_intervention_substrate_bundle(
+        bundle,
+        update={
+            "lex_authority_manifest": manifest,
+            "lex_intervention_map": {"novel": ["fake_knob"]},
+        },
+    )
     assert changed.content_hash != bundle.content_hash
-    assert produce_intervention_legal_subject_spine(
-        REPO_ROOT, changed, legal_store=lex, store=store) == original
+    assert (
+        produce_intervention_legal_subject_spine(REPO_ROOT, changed, legal_store=lex, store=store)
+        == original
+    )
 
 
 def test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sources() -> None:
@@ -963,27 +1054,38 @@ def test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sourc
     from polisyos.runtime.quality import intervention_substrate as owner
 
     bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), _lex_store())
-    expected = {(law, knob) for law in bundle.lex_intervention_map
-                for knob in owner._lex_map_knobs(bundle.lex_intervention_map, law)}
-    independently_derived = {(row["law_token"], knob)
-                             for row in bundle.lex_authority_manifest["intervention_map_entries"]
-                             for knob in row["knob_ids"]}
+    expected = {
+        (law, knob)
+        for law in bundle.lex_intervention_map
+        for knob in owner._lex_map_knobs(bundle.lex_intervention_map, law)
+    }
+    independently_derived = {
+        (row["law_token"], knob)
+        for row in bundle.lex_authority_manifest["intervention_map_entries"]
+        for knob in row["knob_ids"]
+    }
     assert expected == independently_derived
     observed = set()
     for law, knob in sorted(expected):
         value = owner._representative_knob_value(bundle.knob_dictionary[knob], knob_id=knob)
         result = resolve_law_bound_lever(
-            bundle, law_token=law, knob_id=knob, parameter_value=value, legal_store=_lex_store())
+            bundle, law_token=law, knob_id=knob, parameter_value=value, legal_store=_lex_store()
+        )
         observed.add((result.law_token, result.knob_id))
         assert result.recognition.status == "passed"
         assert result.synthetic is True
         assert result.current_authority_status == "blocked"
         assert result.mapping_evidence_ref is not None
     assert observed == expected
-    print({"denominator": "complete L6 law/knob pairs", "total": len(expected),
-           "identity_hash": gy_content_hash(sorted(expected)),
-           "independent_identity_hash": gy_content_hash(sorted(independently_derived)),
-           "identity_symmetric_difference": sorted(expected ^ independently_derived)})
+    print(
+        {
+            "denominator": "complete L6 law/knob pairs",
+            "total": len(expected),
+            "identity_hash": gy_content_hash(sorted(expected)),
+            "independent_identity_hash": gy_content_hash(sorted(independently_derived)),
+            "identity_symmetric_difference": sorted(expected ^ independently_derived),
+        }
+    )
 
 
 def test_current_law_resolution_rejects_rehashed_recognition_splices() -> None:
@@ -993,11 +1095,16 @@ def test_current_law_resolution_rejects_rehashed_recognition_splices() -> None:
     lex = _lex_store()
     result = resolve_law_bound_lever(
         _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), lex),
-        law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
-        parameter_value=0.24, legal_store=lex)
+        law_token=BUDGET_LAW,
+        knob_id="budget_allocation_multiplier",
+        parameter_value=0.24,
+        legal_store=lex,
+    )
     assert result.recognition.status == "passed"
-    for key, value in (("lever_ref", "knob:tax_relief_rate"),
-                       ("norm_ref", "lex_rule_thresholds:other")):
+    for key, value in (
+        ("lever_ref", "knob:tax_relief_rate"),
+        ("norm_ref", "lex_rule_thresholds:other"),
+    ):
         payload = result.model_dump(mode="json")
         payload["recognition"]["request"][key] = value
         payload.pop("content_hash")
@@ -1022,29 +1129,56 @@ def test_subject_membership_and_actual_law_route_grow_as_data(tmp_path) -> None:
 
     lex = _lex_store()
     threshold = lex.resolve_rule_threshold(
-        threshold_id=FREE_GROW_L3_THRESHOLD_ID, as_of=FREE_GROW_L3_AS_OF)
+        threshold_id=FREE_GROW_L3_THRESHOLD_ID, as_of=FREE_GROW_L3_AS_OF
+    )
     assert threshold is not None
-    grown = owner._free_grow_bundle(load_l6_intervention_substrate(REPO_ROOT),
-                                    threshold=threshold, as_of=FREE_GROW_L3_AS_OF)
+    grown = owner._free_grow_bundle(
+        load_l6_intervention_substrate(REPO_ROOT), threshold=threshold, as_of=FREE_GROW_L3_AS_OF
+    )
     declarations = {}
-    for role, entity in (("lever", "knob:" + FREE_GROW_KNOB),
-                         ("norm", "lex_rule_thresholds:" + FREE_GROW_L3_THRESHOLD_ID)):
-        path = REPO_ROOT / "architecture/policy_design_case" / (
-            f"legal_subject_{role}_annotations.synthetic.json")
+    for role, entity in (
+        ("lever", "knob:" + FREE_GROW_KNOB),
+        ("norm", "lex_rule_thresholds:" + FREE_GROW_L3_THRESHOLD_ID),
+    ):
+        path = (
+            REPO_ROOT
+            / "architecture/policy_design_case"
+            / (f"legal_subject_{role}_annotations.synthetic.json")
+        )
         raw = json.loads(path.read_text(encoding="utf-8"))
-        raw["annotations"].append({"entity_ref": entity, "subject": {
-            "namespace": "synthetic.legal-subject-controls", "namespace_version": "1",
-            "subject_id": "data_only_new_subject", "valid_from": "1990-01-01"}})
+        raw["annotations"].append(
+            {
+                "entity_ref": entity,
+                "subject": {
+                    "namespace": "synthetic.legal-subject-controls",
+                    "namespace_version": "1",
+                    "subject_id": "data_only_new_subject",
+                    "valid_from": "1990-01-01",
+                },
+            }
+        )
         declarations[role] = LegalSubjectAnnotationSource.model_validate(raw)
     store = artifacts.FileSystemCAS(tmp_path)
     ref = owner.produce_intervention_legal_subject_spine(
-        REPO_ROOT, grown, legal_store=lex, store=store, annotations=declarations)
-    grown = replace_intervention_substrate_bundle(grown, update={
-        "owner_authority_manifest": {**grown.owner_authority_manifest,
-                                     "legal_subject_spine_ref": ref.model_dump(mode="json")}})
+        REPO_ROOT, grown, legal_store=lex, store=store, annotations=declarations
+    )
+    grown = replace_intervention_substrate_bundle(
+        grown,
+        update={
+            "owner_authority_manifest": {
+                **grown.owner_authority_manifest,
+                "legal_subject_spine_ref": ref.model_dump(mode="json"),
+            }
+        },
+    )
     result = resolve_law_bound_lever(
-        grown, law_token=FUTURE_RELIEF_LAW, knob_id=FREE_GROW_KNOB, parameter_value=0.2,
-        legal_store=lex, correspondence_store=store)
+        grown,
+        law_token=FUTURE_RELIEF_LAW,
+        knob_id=FREE_GROW_KNOB,
+        parameter_value=0.2,
+        legal_store=lex,
+        correspondence_store=store,
+    )
     assert result.recognition.status == "passed"
     assert result.knob.operator_kind == FREE_GROW_KNOB
     assert result.knob.target_world_slots == (FREE_GROW_SLOT,)
@@ -1059,10 +1193,12 @@ def test_synthetic_recognition_does_not_authorize_credal_or_atom_consumers() -> 
     # This integration positive must share the actual credal consumer's logical
     # evidence identity. An absolute DB URI correctly fails content binding.
     lex = LegalKnowledgeStore(
-        L3_DB, L3_DB.parent, canonical_db_ref_path=owner.DEFAULT_L3_LEX_DB_PATH)
+        L3_DB, L3_DB.parent, canonical_db_ref_path=owner.DEFAULT_L3_LEX_DB_PATH
+    )
     bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), lex)
     report = owner._law_credal_consumer_behavior_report(
-        REPO_ROOT, bundle, owner.production_composed_world_model_record(REPO_ROOT))
+        REPO_ROOT, bundle, owner.production_composed_world_model_record(REPO_ROOT)
+    )
     assert report["source_relative_recognition_passed"] is True
     assert report["status"] == "pass"
     assert not report["law_denominator"]["consumer_identity_difference"]
@@ -1080,7 +1216,7 @@ def test_law_bound_lever_fails_closed_for_dangling_map_entries() -> None:
                 **base_bundle.lex_intervention_map,
                 DANGLING_LAW: ("not_a_real_knob",),
             }
-        }
+        },
     )
 
     with pytest.raises(InterventionSubstrateError) as dangling_knob:
@@ -1274,9 +1410,7 @@ def test_default_method_route_excludes_changed_ambient_entry_points(
 
     assert baseline.registry_method_count > 0
     assert changed_ambient == baseline
-    assert explicitly_extended.registry_method_count == (
-        baseline.registry_method_count + 1
-    )
+    assert explicitly_extended.registry_method_count == (baseline.registry_method_count + 1)
     assert explicitly_extended.content_hash != baseline.content_hash
 
 
@@ -1434,7 +1568,10 @@ def test_intervention_substrate_behavior_report_exercises_real_space_and_mutatio
     assert report["status"] == "pass"
     assert report["coverage"]["world_slot"]["bound"] == report["coverage"]["world_slot"]["total"]
     assert report["coverage"]["law_trace"]["traced"] == report["coverage"]["law_trace"]["total"]
-    assert report["coverage"]["method_route"]["available"] == report["coverage"]["method_route"]["total"]
+    assert (
+        report["coverage"]["method_route"]["available"]
+        == report["coverage"]["method_route"]["total"]
+    )
     assert report["coverage"]["method_route"]["unresolved"] == 0
     assert {
         "all_real_knobs_resolve_world_slots",
@@ -1474,3 +1611,50 @@ def test_intervention_substrate_behavior_report_exercises_real_space_and_mutatio
         mutation_signals["law_provision_reference_binds_without_l3_validation"]
         == "law_threshold_unresolved"
     )
+
+
+def test_behavior_report_opens_selected_lex_database_through_public_facade(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    import duckdb
+
+    from polisyos.lex import knowledge
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    relative_db_path = Path("fixture/lex.duckdb")
+    db_path = tmp_path / relative_db_path
+    db_path.parent.mkdir()
+    connection = duckdb.connect(str(db_path))
+    connection.close()
+    monkeypatch.setattr(owner, "DEFAULT_L3_LEX_DB_PATH", relative_db_path)
+    monkeypatch.setattr(
+        owner,
+        "load_l6_intervention_substrate",
+        lambda _root: SimpleNamespace(content_hash="fixture-content"),
+    )
+    monkeypatch.setattr(
+        owner,
+        "_production_composed_world_model_record",
+        lambda _root: object(),
+    )
+
+    store_type = knowledge.LegalKnowledgeStore
+    opened: list[store_type] = []
+
+    class TrackedLegalKnowledgeStore(store_type):
+        def __init__(self, *args, **kwargs) -> None:
+            super().__init__(*args, **kwargs)
+            opened.append(self)
+
+    monkeypatch.setattr(knowledge, "LegalKnowledgeStore", TrackedLegalKnowledgeStore)
+
+    with pytest.raises(owner.InterventionSubstrateError) as refusal:
+        owner.intervention_substrate_behavior_report(tmp_path)
+
+    assert refusal.value.code == "representative_l3_threshold_unresolved"
+    assert len(opened) == 1
+    assert opened[0]._db_path == db_path
+    opened[0].close()

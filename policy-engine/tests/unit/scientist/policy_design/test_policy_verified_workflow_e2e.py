@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from polisyos.core.artifacts import input_ref_from_artifact_ref, profile_bound_ref
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle
@@ -53,16 +55,36 @@ def _passing_judge_verdict() -> dict[str, object]:
 def _put_data_snapshot(
     store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef
 ) -> DataSnapshotRef:
-    snapshot = DataSnapshot(data_ref=state_snapshot_ref)
+    selected_state_snapshot_ref = profile_bound_ref(store, state_snapshot_ref)
+    snapshot = DataSnapshot(data_ref=selected_state_snapshot_ref)
     ref = store.put_json(
         snapshot,
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.1.0"),
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    selected_state_snapshot_ref,
+                    role="data_ref",
+                )
+            ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return DataSnapshotRef(artifact_id=ref.artifact_id)
+    snapshot_ref = DataSnapshotRef.model_validate(ref.model_dump(mode="python"))
+    manifest = store.get_manifest(snapshot_ref)
+    assert manifest.artifact_schema == SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version="0.2.0",
+    )
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert any(
+        edge.role == "data_ref" and edge.manifest_profile_sha256 is not None
+        for edge in manifest.inputs
+    )
+    return snapshot_ref
 
 
 def _put_supplied_trinity(store: FileSystemCAS, data_snapshot_ref: DataSnapshotRef):

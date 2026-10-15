@@ -7,7 +7,11 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts import (
+    CoreArtifactOwnerProfile,
+    validate_owned_core_model_json_artifact,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
@@ -225,6 +229,38 @@ class VerifiedPolicyReport(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+_LEGAL_CANDIDATE_PACK_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.legal_candidate_pack",
+    media_type="application/json",
+    schema_variants=(
+        SchemaInfo(name="polisyos.scientist.LegalCandidatePack", version="1.0"),
+        SchemaInfo(name="polisyos.scientist.LegalCandidatePack", version="1.1"),
+    ),
+    payload_schema_version_by_manifest=(
+        (("polisyos.scientist.LegalCandidatePack", "1.0"), "1.0"),
+        (("polisyos.scientist.LegalCandidatePack", "1.1"), "1.1"),
+    ),
+)
+_SOURCE_VERIFICATION_REPORT_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.source_verification_report",
+    media_type="application/json",
+    schema_variants=(
+        SchemaInfo(name="polisyos.scientist.SourceVerificationReport", version="1.0"),
+    ),
+    payload_schema_version_by_manifest=(
+        (("polisyos.scientist.SourceVerificationReport", "1.0"), "1.0"),
+    ),
+)
+_VERIFIED_POLICY_REPORT_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.verified_policy_report",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.scientist.VerifiedPolicyReport", version="1.0"),),
+    payload_schema_version_by_manifest=(
+        (("polisyos.scientist.VerifiedPolicyReport", "1.0"), "1.0"),
+    ),
+)
+
+
 def _persist_model(
     store: FileSystemCAS,
     model: BaseModel,
@@ -232,20 +268,61 @@ def _persist_model(
     kind: str,
     schema_name: str,
     inputs: list[InputRef] | None = None,
+    owner_profile: CoreArtifactOwnerProfile | None = None,
 ) -> dict[str, Any]:
+    payload_schema_version = getattr(model, "schema_version", "1.0")
+    if owner_profile is None:
+        schema_version = str(payload_schema_version)
+        return_selected_profile = False
+    else:
+        if (
+            kind != owner_profile.kind
+            or owner_profile.media_type != "application/json"
+            or type(payload_schema_version) is not str
+        ):
+            raise ValueError("core_artifact_owner_profile_writer_mismatch")
+        schema = SchemaInfo(name=schema_name, version=payload_schema_version)
+        schema_variants = owner_profile.schema_variants
+        payload_version_rules = owner_profile.payload_schema_version_by_manifest
+        if (
+            type(schema_variants) is not tuple
+            or schema not in schema_variants
+            or type(payload_version_rules) is not tuple
+            or dict(payload_version_rules).get((schema_name, payload_schema_version))
+            != payload_schema_version
+        ):
+            raise ValueError("core_artifact_owner_payload_version_mismatch")
+        schema_version = payload_schema_version
+        return_selected_profile = True
+
     artifact = store.put_json(
         model,
         PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(
-                name=schema_name, version=str(getattr(model, "schema_version", "1.0"))
-            ),
+            schema=SchemaInfo(name=schema_name, version=schema_version),
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return artifact.model_dump()
+
+
+def _load_owned_model[ModelT: BaseModel](
+    model: type[ModelT],
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    owner_profile: CoreArtifactOwnerProfile,
+) -> ModelT:
+    """Load a strict model only from a selected Core view matching its owner ABI."""
+    return validate_owned_core_model_json_artifact(
+        model,
+        store,
+        ref,
+        expected_owner=owner_profile,
+    ).value
 
 
 def persist_policy_request_frame(
@@ -289,6 +366,7 @@ def persist_legal_candidate_pack(
             kind="scientist.legal_candidate_pack",
             schema_name="polisyos.scientist.LegalCandidatePack",
             inputs=inputs,
+            owner_profile=_LEGAL_CANDIDATE_PACK_OWNER,
         )
     )
 
@@ -297,9 +375,12 @@ def load_legal_candidate_pack(
     store: FileSystemCAS, ref: LegalCandidatePackRef
 ) -> LegalCandidatePack:
     """Load legal candidate pack."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return LegalCandidatePack.model_validate(load_core_json_artifact(store, ref))
+    return _load_owned_model(
+        LegalCandidatePack,
+        store,
+        ref,
+        owner_profile=_LEGAL_CANDIDATE_PACK_OWNER,
+    )
 
 
 def persist_legal_source_pack(
@@ -341,6 +422,7 @@ def persist_source_verification_report(
             kind="scientist.source_verification_report",
             schema_name="polisyos.scientist.SourceVerificationReport",
             inputs=inputs,
+            owner_profile=_SOURCE_VERIFICATION_REPORT_OWNER,
         )
     )
 
@@ -350,9 +432,12 @@ def load_source_verification_report(
     ref: SourceVerificationReportRef,
 ) -> SourceVerificationReport:
     """Load source verification report."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return SourceVerificationReport.model_validate(load_core_json_artifact(store, ref))
+    return _load_owned_model(
+        SourceVerificationReport,
+        store,
+        ref,
+        owner_profile=_SOURCE_VERIFICATION_REPORT_OWNER,
+    )
 
 
 def persist_policy_option_set(
@@ -394,6 +479,7 @@ def persist_verified_policy_report(
             kind="scientist.verified_policy_report",
             schema_name="polisyos.scientist.VerifiedPolicyReport",
             inputs=inputs,
+            owner_profile=_VERIFIED_POLICY_REPORT_OWNER,
         )
     )
 
@@ -403,9 +489,12 @@ def load_verified_policy_report(
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
     """Load verified policy report."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return VerifiedPolicyReport.model_validate(load_core_json_artifact(store, ref))
+    return _load_owned_model(
+        VerifiedPolicyReport,
+        store,
+        ref,
+        owner_profile=_VERIFIED_POLICY_REPORT_OWNER,
+    )
 
 
 __all__ = [

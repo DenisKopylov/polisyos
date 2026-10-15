@@ -2,20 +2,33 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import UTC, datetime
 
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
+from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
+from polisyos.ir.model_layer.queries import DataViewRequest
 from polisyos.lex.knowledge.types import (
     LegalFactResult,
     LegalSourceAnchor,
     LegalSourceBundle,
 )
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
+from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.evidence.claims.projections import project_governance_report_claims
+from polisyos.scientist.governance.report import (
+    GovernanceReport,
+    GovernanceReportLinks,
+    load_governance_report_artifact,
+)
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import RunSourceGapReviewNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -65,6 +78,91 @@ def _make_ctx(tmp_path, run_id: str) -> tuple[FileSystemCAS, ExecutionContext, o
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger(run_id))
     return store, ctx, registry_bundle
+
+
+def _persist_test_data_snapshot(store: FileSystemCAS, request_id: str) -> DataSnapshotRef:
+    """Use the real Fabric producer with an explicit deterministic fixture source."""
+    now = datetime(2026, 10, 15, tzinfo=UTC)
+
+    def fetch_data(
+        *,
+        dataset_id: str,
+        connector_id: str | None = None,
+        constraints: dict[str, object] | None = None,
+        registry: object | None = None,
+    ) -> FetchResult[object]:
+        del connector_id, constraints, registry
+        return FetchResult(
+            data=[{"dataset_id": dataset_id, "value": 0.5}],
+            row_count=1,
+            schema_id="e02.policy_verified.fixture",
+            schema_version="1.0",
+            version=DataVersion(
+                strategy=VersionStrategy.TIMESTAMP,
+                value=now.isoformat(),
+                timestamp=now,
+            ),
+            fetched_at=now,
+            source_updated_at=now,
+            completeness=1.0,
+            quality_tier=QualityTier.GOLD,
+            quality_flags=frozenset(),
+            bytes_transferred=64,
+        )
+
+    request_ref = store.put_json(
+        DataViewRequest(
+            schema_version="1.0",
+            request_id=request_id,
+            view_type="table",
+            metrics=["policy_verified_fixture"],
+        ),
+        ArtifactWriteOptions(
+            kind="ir.data_view_request",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+        ),
+    )
+    snapshot_ref = DefaultFabricPort(fetch_data=fetch_data).snapshot(
+        store,
+        DataViewRequestRef(artifact_id=request_ref.artifact_id),
+    )
+    manifest = store.get_manifest(snapshot_ref)
+    assert manifest.artifact_schema == SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version="0.2.0",
+    )
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert any(
+        edge.role == "data_ref" and edge.manifest_profile_sha256 is not None
+        for edge in manifest.inputs
+    )
+    return snapshot_ref
+
+
+def _persist_test_governance_report(
+    store: FileSystemCAS, report: GovernanceReport
+) -> GovernanceReportRef:
+    """Persist one controlled report through the governance producer ABI."""
+    ref = store.put_json(
+        report,
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.GovernanceReport",
+                version="1.0",
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    report_ref = GovernanceReportRef.model_validate(ref.model_dump(mode="python"))
+    assert report_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(report_ref).artifact_schema == SchemaInfo(
+        name="polisyos.scientist.GovernanceReport",
+        version="1.0",
+    )
+    return report_ref
 
 
 def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, tmp_path) -> None:
@@ -229,14 +327,7 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
             schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
         ),
     )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
-    )
+    data_snapshot_ref = _persist_test_data_snapshot(store, "req_policy_verified_packet")
     verification_ref = persist_source_verification_report(
         store,
         SourceVerificationReport(
@@ -270,6 +361,31 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
             intervention_legal_basis_map={"verified_option_1": ["стаття 1"]},
         ),
     )
+    governance_report = GovernanceReport(
+        verdict="approve",
+        issues=[],
+        links=GovernanceReportLinks(
+            source_verification_report_ref=verification_ref,
+            verified_policy_report_ref=verified_policy_ref,
+        ),
+    )
+    claims_candidate = project_governance_report_claims(
+        governance_report,
+        run_id="R_policy_verified_packet",
+        source_artifact_refs=[verification_ref, verified_policy_ref],
+    )
+    claims_ref = build_default_claim_ledger_owner(store=store).persist_candidate_ledger(
+        ledger=claims_candidate
+    )
+    governance_report = governance_report.model_copy(
+        update={
+            "links": governance_report.links.model_copy(update={"claims_ref": claims_ref}),
+        }
+    )
+    governance_ref = _persist_test_governance_report(store, governance_report)
+    reopened_governance_report = load_governance_report_artifact(store, governance_ref)
+    assert reopened_governance_report.links == governance_report.links
+    assert reopened_governance_report.links.claims_ref == claims_ref
 
     state = ExperimentState(
         run_id="R_policy_verified_packet",
@@ -315,13 +431,13 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verific
             schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
         ),
     )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    data_snapshot_ref = _persist_test_data_snapshot(
+        store,
+        "req_policy_verified_packet_degraded",
     )
-    governance_ref = store.put_json(
+    governance_ref = _persist_test_governance_report(
+        store,
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
     )
     invalid_verification_ref = store.put_json(
         ["invalid"],

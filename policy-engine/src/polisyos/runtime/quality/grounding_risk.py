@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.fabric import atomic_write_json, file_lock
 from polisyos.pdc import gy_content_hash
@@ -29,7 +29,20 @@ RELATION_ADMISSION_ALLOWANCE = 0.04
 RELATION_ADMISSION_CEILING = 0.01
 CONSTRUCTION_RESERVE = 0.01
 _KIND = "runtime.grounding_risk_admission"
+_MEDIA_TYPE = "application/json"
 _SCHEMA = "policyos.runtime.grounding_risk_admission.v1"
+_SCHEMA_VERSION = "1.0"
+_ADMISSION_EVENT_CANON_SPEC = canon.CanonSpec(
+    forbid_floats=False,
+    exclude_none=False,
+    ensure_ascii=True,
+)
+_ADMISSION_EVENT_OWNER = artifacts.CoreArtifactOwnerProfile(
+    kind=_KIND,
+    media_type=_MEDIA_TYPE,
+    schema_variants=(artifacts.SchemaInfo(name=_SCHEMA, version=_SCHEMA_VERSION),),
+    payload_schema_version_by_manifest=(((_SCHEMA, _SCHEMA_VERSION), _SCHEMA),),
+)
 
 
 class GroundingRiskStateError(ValueError):
@@ -205,9 +218,10 @@ class GroundingRunBudget:
                     _json_bytes(event.model_dump(mode="json")),
                     artifacts.ArtifactWriteOptions(
                         kind=_KIND,
-                        media_type="application/json",
-                        schema=artifacts.SchemaInfo(name=_SCHEMA, version="1.0"),
+                        media_type=_MEDIA_TYPE,
+                        schema=artifacts.SchemaInfo(name=_SCHEMA, version=_SCHEMA_VERSION),
                         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+                        canon=artifacts.CanonInfo.from_spec(_ADMISSION_EVENT_CANON_SPEC),
                     ),
                 )
                 event_ref = str(ref.artifact_id)
@@ -242,7 +256,6 @@ class GroundingRunBudget:
         )
 
     def _read_chain(self) -> list[tuple[str, _AdmissionEvent]]:
-        from polisyos.core.artifacts import validate_core_model_json_artifact
         if self._root is None or self._store is None:
             raise GroundingRiskStateError("grounding_run_persistence_missing")
         rows: list[tuple[str, _AdmissionEvent]] = []
@@ -270,7 +283,12 @@ class GroundingRunBudget:
             report = self._store.verify(artifact_id)
             if not report.ok:
                 raise GroundingRiskStateError("grounding_run_artifact_integrity_invalid")
-            row = validate_core_model_json_artifact(_AdmissionEvent, self._store, artifact_id)
+            row = artifacts.validate_owned_core_model_json_artifact(
+                _AdmissionEvent,
+                self._store,
+                artifact_id,
+                expected_owner=_ADMISSION_EVENT_OWNER,
+            ).value
             if row.run_id != self.run_id or row.synthetic != self._synthetic:
                 raise GroundingRiskStateError("grounding_run_artifact_scope_invalid")
             if row.binding_key != gy_content_hash(
@@ -408,7 +426,8 @@ class GroundingRunBudget:
 
 
 def _json_bytes(value: object) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    """Serialize durable events under their declared Core canonical profile."""
+    return canon.to_canonical_bytes(value, _ADMISSION_EVENT_CANON_SPEC)
 
 
 def _budget_has_capacity(admission_count: int) -> bool:

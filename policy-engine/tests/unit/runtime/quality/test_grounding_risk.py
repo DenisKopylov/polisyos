@@ -139,6 +139,175 @@ def test_corrupt_established_head_is_unknown_never_zero(tmp_path: Path) -> None:
     assert gate.certificate_for(good[1]).decisive_reason == "durable_run_budget_unavailable"
 
 
+def test_new_admission_event_has_core_profile_and_replays_without_reset(tmp_path: Path) -> None:
+    """A newly written event is Core-profiled and remains visible to replay."""
+    from polisyos.core import canon
+    from polisyos.core.artifacts import CanonInfo
+
+    _, good, _, budget, gate = _exercise(tmp_path)
+    result = gate.certificate_for(good[0])
+
+    assert result.decision == "bind"
+    event_ref = result.run_admission.event_ref
+    assert event_ref is not None
+    manifest = budget._store.get_manifest(event_ref)
+    expected_canon = CanonInfo.from_spec(
+        canon.CanonSpec(forbid_floats=False, exclude_none=False, ensure_ascii=True)
+    )
+    assert manifest.kind == "runtime.grounding_risk_admission"
+    assert manifest.media_type == "application/json"
+    assert manifest.artifact_schema.name == "policyos.runtime.grounding_risk_admission.v1"
+    assert manifest.artifact_schema.version == "1.0"
+    assert manifest.canon == expected_canon
+
+    replay = budget.to_payload()
+    assert replay["status"] == "current"
+    assert replay["admission_count"] == 1
+    assert replay["admitted_spend"] == 0.01
+
+
+@pytest.mark.parametrize(
+    ("kind", "media_type", "schema_name", "schema_version"),
+    [
+        (
+            "runtime.other_admission",
+            "application/json",
+            "policyos.runtime.grounding_risk_admission.v1",
+            "1.0",
+        ),
+        (
+            "runtime.grounding_risk_admission",
+            "text/plain",
+            "policyos.runtime.grounding_risk_admission.v1",
+            "1.0",
+        ),
+        (
+            "runtime.grounding_risk_admission",
+            "application/json",
+            "policyos.runtime.other_admission.v1",
+            "1.0",
+        ),
+        (
+            "runtime.grounding_risk_admission",
+            "application/json",
+            "policyos.runtime.grounding_risk_admission.v1",
+            "2.0",
+        ),
+    ],
+)
+def test_replay_rejects_same_event_bytes_under_a_foreign_owner_profile(
+    tmp_path: Path,
+    kind: str,
+    media_type: str,
+    schema_name: str,
+    schema_version: str,
+) -> None:
+    """Typed payload validity cannot substitute for the exact producer ABI."""
+    from polisyos.core.artifacts import (
+        ArtifactWriteOptions,
+        FileSystemCAS,
+        SchemaInfo,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.runtime.quality import grounding_risk
+
+    _, good, _, source_budget, gate = _exercise(tmp_path / "source")
+    admitted = gate.certificate_for(good[0])
+    assert admitted.decision == "bind"
+    event_ref = admitted.run_admission.event_ref
+    assert event_ref is not None
+    event_bytes = source_budget._store.get_bytes(event_ref)
+    source_manifest = source_budget._store.get_manifest(event_ref)
+    assert source_manifest.canon is not None
+
+    forged_store = FileSystemCAS(tmp_path / "forged-cas")
+    forged_ref = forged_store.put_bytes(
+        event_bytes,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type=media_type,
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+            producer=source_manifest.producer,
+            canon=source_manifest.canon,
+        ),
+    )
+    assert str(forged_ref.artifact_id) == event_ref
+    assert forged_store.get_bytes(forged_ref) == event_bytes
+    # The generic typed decoder accepts these bytes. Only owner-profile admission
+    # distinguishes a valid event from a counterfeit manifest around it.
+    decoded = validate_core_model_json_artifact(
+        grounding_risk._AdmissionEvent,
+        forged_store,
+        forged_ref.artifact_id,
+    )
+    assert decoded.run_id == "one-run"
+
+    replay = GroundingRunBudget.for_contract_testing(tmp_path / "replay", run_id="one-run")
+    replay._store = forged_store
+    report = replay.to_payload()
+    assert report["status"] == "unavailable"
+    assert report["admitted_spend"] is None
+    assert report["admission_count"] is None
+
+
+def test_replay_owner_check_removal_control_keeps_event_bytes_and_markers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing owner admission makes the unchanged wrong-media event count."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import (
+        ArtifactWriteOptions,
+        FileSystemCAS,
+        SchemaInfo,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.runtime.quality import grounding_risk
+
+    _, good, _, source_budget, gate = _exercise(tmp_path / "source")
+    admitted = gate.certificate_for(good[0])
+    assert admitted.decision == "bind"
+    event_ref = admitted.run_admission.event_ref
+    assert event_ref is not None
+    event_bytes = source_budget._store.get_bytes(event_ref)
+    source_manifest = source_budget._store.get_manifest(event_ref)
+    forged_store = FileSystemCAS(tmp_path / "forged-cas")
+    forged_ref = forged_store.put_bytes(
+        event_bytes,
+        ArtifactWriteOptions(
+            kind="runtime.grounding_risk_admission",
+            media_type="text/plain",
+            schema=SchemaInfo(
+                name="policyos.runtime.grounding_risk_admission.v1",
+                version="1.0",
+            ),
+            producer=source_manifest.producer,
+            canon=source_manifest.canon,
+        ),
+    )
+    assert str(forged_ref.artifact_id) == event_ref
+    replay = GroundingRunBudget.for_contract_testing(tmp_path / "replay", run_id="one-run")
+    replay._store = forged_store
+    assert replay.to_payload()["status"] == "unavailable"
+
+    def generic_typed_read(model, store, selector, *, expected_owner, **kwargs):
+        del expected_owner
+        return SimpleNamespace(
+            value=validate_core_model_json_artifact(model, store, selector, **kwargs)
+        )
+
+    with monkeypatch.context() as removed_owner_gate:
+        removed_owner_gate.setattr(
+            grounding_risk.artifacts,
+            "validate_owned_core_model_json_artifact",
+            generic_typed_read,
+        )
+        bypassed = replay.to_payload()
+    assert bypassed["status"] == "current"
+    assert bypassed["admission_count"] == 1
+
+
 def test_synthetic_production_refusal_is_not_an_absent_calibration_mask() -> None:
     reference = _reference()
     reference = replace(
@@ -165,15 +334,13 @@ def test_existing_v1_records_stay_readable_without_claiming_run_accounting() -> 
     repository_root = Path(__file__).resolve().parents[4]
     historical_sources = (
         (
-            repository_root
-            / "docs/superpowers/journals/gy-phase5-evidence/pr1/"
+            repository_root / "docs/superpowers/journals/gy-phase5-evidence/pr1/"
             "promotion-comparison-complete-observation.json",
             "7d8da6840453491a3194a8830ca4a5f732324b42e8511a731450c086b82eb979",
             8,
         ),
         (
-            repository_root
-            / "tests/repo_quality/tools/fixtures/"
+            repository_root / "tests/repo_quality/tools/fixtures/"
             "layer3_gy_promotion_contract_credal_v1.json",
             "4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a",
             2,
@@ -224,6 +391,7 @@ def test_existing_v1_records_stay_readable_without_claiming_run_accounting() -> 
         assert TypeAdapter(dict[str, GroundingDecisionCertificate]).dump_python(
             {"historical": decoded}, mode="json"
         ) == {"historical": record}
+
 
 def test_preemptive_cap_removal_is_detected(tmp_path: Path, monkeypatch) -> None:
     from polisyos.runtime.quality import grounding_risk

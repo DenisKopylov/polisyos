@@ -1048,9 +1048,6 @@ def load_calibration_validation_bundle(
     ):
         raise ValueError("calibration validation bundle manifest schema does not match its payload")
     report_ref = bundle.backtest_report_ref
-    if report_ref is None:
-        bundle._fresh_backtest_report_status = "not_linked"
-        return bundle
     try:
         (
             bundle._fresh_source_json_snapshot_binding_status,
@@ -1058,6 +1055,21 @@ def load_calibration_validation_bundle(
         ) = _source_json_snapshot_input_status(
             store, bundle.source_json_snapshot_reads, manifest.inputs
         )
+    except Exception:
+        if report_ref is not None:
+            bundle._fresh_backtest_report_status = "unavailable"
+            bundle._fresh_backtest_report_reason = "c5b_manifest_unavailable"
+            if bundle.source_json_snapshot_reads:
+                bundle._fresh_source_json_snapshot_binding_status = "unavailable"
+                bundle._fresh_source_json_snapshot_binding_reason = "c5b_manifest_unavailable"
+        else:
+            bundle._fresh_source_json_snapshot_binding_status = "unavailable"
+            bundle._fresh_source_json_snapshot_binding_reason = "c5b_manifest_unavailable"
+        return bundle
+    if report_ref is None:
+        bundle._fresh_backtest_report_status = "not_linked"
+        return bundle
+    try:
         _input_edges_for_role(manifest.inputs, "backtest_report")
     except Exception:
         bundle._fresh_backtest_report_status = "unavailable"

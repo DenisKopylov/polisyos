@@ -23,10 +23,12 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+    CoreArtifactOwnerProfile,
+    validate_core_model_json_artifact,
+    validate_owned_core_model_json_artifact,
 )
 from polisyos.core.artifacts import (
-    validate_core_model_json_artifact,
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -161,6 +163,27 @@ _CHANNEL_FAMILY_MAP: tuple[tuple[str, ObservationFamily], ...] = (
 _UKRAINE_D4_REQUEST_OUTPUT = "d4_governance_request.json"
 _IDENTITY_RESOLUTION_COHORT_OUTPUT = "identity_resolution_cohort_v1.json"
 _IDENTITY_RESOLUTION_COHORT_SCHEMA = "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
+_VERIFIED_STAGE_RECEIPT_KIND = "scientist.verified_producer_artifact_receipt"
+_VERIFIED_STAGE_RECEIPT_MEDIA_TYPE = "application/json"
+_VERIFIED_STAGE_RECEIPT_SCHEMA_NAME = "polisyos.data_forge.ukraine.VerifiedUkraineStageArtifacts"
+_VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION = "v2"
+_VERIFIED_STAGE_RECEIPT_PAYLOAD_SCHEMA_VERSION = "policyos.data_forge.ukraine.verified_stage.v2"
+_VERIFIED_STAGE_RECEIPT_OWNER = CoreArtifactOwnerProfile(
+    kind=_VERIFIED_STAGE_RECEIPT_KIND,
+    media_type=_VERIFIED_STAGE_RECEIPT_MEDIA_TYPE,
+    schema_variants=(
+        SchemaInfo(
+            name=_VERIFIED_STAGE_RECEIPT_SCHEMA_NAME,
+            version=_VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION,
+        ),
+    ),
+    payload_schema_version_by_manifest=(
+        (
+            (_VERIFIED_STAGE_RECEIPT_SCHEMA_NAME, _VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION),
+            _VERIFIED_STAGE_RECEIPT_PAYLOAD_SCHEMA_VERSION,
+        ),
+    ),
+)
 _AGENT_REGISTRY_RUNTIME_OUTPUT = "agent_registry_runtime.parquet"
 _UKRAINE_D4_COVERAGE_THRESHOLD = 0.95
 
@@ -567,6 +590,19 @@ def _clip01(value: float) -> float:
 
 def _ensure_datetime_series(frame: pd.DataFrame, column: str) -> pd.Series:
     return pd.to_datetime(frame[column], errors="coerce", utc=False)
+
+
+def _resolve_backtest_intervention_step(
+    time_index: Sequence[object], intervention_date: str
+) -> int | None:
+    """Return the unique ordered history index for an exact intervention date."""
+    if not time_index or any(not isinstance(value, str) or not value for value in time_index):
+        return None
+    parsed = pd.to_datetime(list(time_index), errors="coerce", utc=False)
+    if parsed.isna().any() or parsed.has_duplicates or not parsed.is_monotonic_increasing:
+        return None
+    matches = [index for index, value in enumerate(time_index) if value == intervention_date]
+    return matches[0] if len(matches) == 1 else None
 
 
 def _weighted_mean(values: pd.Series, weights: pd.Series) -> float:
@@ -1375,6 +1411,19 @@ def build_required_backtest_bundles(
                 gap_reason=f"no_source_rows:{kind.value}",
             )
             continue
+        if kind_frame["period_start_dt"].isna().any():
+            bundles[kind] = BacktestPlanBundle(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=f"{kind.value}_bundle",
+                    contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+                ),
+                required_fields=["observed_value"],
+                selected_training_role=selected_training_role,
+                selected_validation_role=selected_validation_role,
+                selected_holdout_role=selected_holdout_role,
+                gap_reason=f"intervention_time_axis_unresolved:{kind.value}",
+            )
+            continue
         aggregated = (
             kind_frame.groupby("period_start_dt", as_index=False)
             .agg(
@@ -1431,6 +1480,23 @@ def build_required_backtest_bundles(
                 gap_reason=reason,
             )
             continue
+        time_index = aggregated["period_start_dt"].dt.strftime("%Y-%m-%d").tolist()
+        intervention_date = str(holdout["period_start_dt"].iloc[0].date())
+        intervention_step = _resolve_backtest_intervention_step(time_index, intervention_date)
+        if intervention_step is None:
+            bundles[kind] = BacktestPlanBundle(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=f"{kind.value}_bundle",
+                    contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+                ),
+                required_fields=["observed_value"],
+                holdout_windows=[f"{holdout_window['start']}::{holdout_window['end']}"],
+                selected_training_role=selected_training_role,
+                selected_validation_role=selected_validation_role,
+                selected_holdout_role=selected_holdout_role,
+                gap_reason=f"intervention_time_axis_unresolved:{kind.value}",
+            )
+            continue
         baseline = float(train["observed_value"].mean())
         predicted = [baseline] * len(holdout)
         historical_path = ensure_dir / f"{kind.value}_historical.json"
@@ -1438,6 +1504,7 @@ def build_required_backtest_bundles(
             json.dumps(
                 {
                     "period_start": aggregated["period_start_dt"].dt.strftime("%Y-%m-%d").tolist(),
+                    "time_index": time_index,
                     "observed_value": aggregated["observed_value"].astype(float).tolist(),
                 },
                 ensure_ascii=True,
@@ -1460,8 +1527,8 @@ def build_required_backtest_bundles(
                     "plan_id": f"{kind.value}_real_history",
                     "plan_label": f"{kind.value} real history",
                     "historical_data_path": str(historical_path),
-                    "intervention_date": str(holdout["period_start_dt"].iloc[0].date()),
-                    "intervention_step": max(len(train), 1),
+                    "intervention_date": intervention_date,
+                    "intervention_step": intervention_step,
                     "ground_truth_outcomes": {
                         "observed_value": holdout["observed_value"].astype(float).tolist()
                     },
@@ -1566,11 +1633,11 @@ def _persist_verified_stage_receipt(
     return store.put_json(
         receipt,
         PutOptions(
-            kind="scientist.verified_producer_artifact_receipt",
-            media_type="application/json",
+            kind=_VERIFIED_STAGE_RECEIPT_KIND,
+            media_type=_VERIFIED_STAGE_RECEIPT_MEDIA_TYPE,
             schema=SchemaInfo(
-                name="polisyos.data_forge.ukraine.VerifiedUkraineStageArtifacts",
-                version="v2",
+                name=_VERIFIED_STAGE_RECEIPT_SCHEMA_NAME,
+                version=_VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION,
             ),
         ),
         return_selected_profile=True,
@@ -2248,6 +2315,7 @@ def run_verified_ukraine_d4_candidate_diagnostic(
                 inputs=candidate_inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         ).model_dump(mode="python")
     )
     bundles = build_required_backtest_bundles(
@@ -2558,15 +2626,17 @@ def _run_d4_release_predicate(
             receipt_ref = ArtifactRef.model_validate(raw_ref)
             if (
                 receipt_ref.manifest_profile_sha256 is None
-                or receipt_ref.kind != "scientist.verified_producer_artifact_receipt"
-                or receipt_ref.media_type != "application/json"
+                or receipt_ref.kind != _VERIFIED_STAGE_RECEIPT_KIND
+                or receipt_ref.media_type != _VERIFIED_STAGE_RECEIPT_MEDIA_TYPE
             ):
                 raise ValueError(f"D4 {stage_id} receipt lacks an exact selected Core profile")
-            stage_receipt = validate_core_model_json_artifact(
+            stage_receipt = validate_owned_core_model_json_artifact(
                 VerifiedUkraineStageArtifacts,
                 store,
                 receipt_ref,
-            )
+                expected_owner=_VERIFIED_STAGE_RECEIPT_OWNER,
+                manifest_profile_sha256=receipt_ref.manifest_profile_sha256,
+            ).value
             if stage_receipt.stage_id != stage_id:
                 raise ValueError(f"D4 validation bundle references the wrong {stage_id} stage")
             read = load_verified_stage_json_output(

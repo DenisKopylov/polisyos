@@ -443,6 +443,171 @@ def _install_admissible_d4_result(
     )
 
 
+def _forge_d4_receipt_manifest_profile(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    field: str,
+) -> None:
+    """Republish the exact D4 receipt bytes under one counterfeit manifest field."""
+    original_persist = blueprint_release._persist_verified_stage_receipt
+
+    def _persist_with_profile_mismatch(store, receipt):
+        selected_ref = original_persist(store, receipt)
+        if receipt.stage_id != "d4":
+            return selected_ref
+        manifest = store.get_manifest(selected_ref)
+        payload = store.get_bytes(selected_ref)
+        schema = manifest.artifact_schema
+        assert schema is not None
+        mismatches = {
+            "kind": {
+                "kind": "scientist.other_verified_producer_receipt",
+                "media_type": manifest.media_type,
+                "schema": schema,
+            },
+            "media_type": {
+                "kind": manifest.kind,
+                "media_type": "application/octet-stream",
+                "schema": schema,
+            },
+            "schema_name": {
+                "kind": manifest.kind,
+                "media_type": manifest.media_type,
+                "schema": blueprint_release.SchemaInfo(
+                    name="polisyos.data_forge.ukraine.OtherReceipt",
+                    version=schema.version,
+                ),
+            },
+            "schema_version": {
+                "kind": manifest.kind,
+                "media_type": manifest.media_type,
+                "schema": blueprint_release.SchemaInfo(
+                    name=schema.name,
+                    version="v3",
+                ),
+            },
+        }
+        options = mismatches[field]
+        forged_ref = store.put_bytes(
+            payload,
+            blueprint_release.PutOptions(
+                kind=options["kind"],
+                media_type=options["media_type"],
+                schema=options["schema"],
+                producer=manifest.producer,
+                canon=manifest.canon,
+            ),
+            return_selected_profile=True,
+        )
+        assert forged_ref.artifact_id == selected_ref.artifact_id
+        assert store.get_bytes(forged_ref) == payload
+        # The generic model validator accepts the typed payload; only the owner
+        # reader should reject these same bytes when their producer ABI differs.
+        blueprint_release.validate_core_model_json_artifact(
+            blueprint_release.VerifiedUkraineStageArtifacts,
+            store,
+            forged_ref,
+            manifest_profile_sha256=forged_ref.manifest_profile_sha256,
+        )
+        return forged_ref
+
+    monkeypatch.setattr(
+        blueprint_release,
+        "_persist_verified_stage_receipt",
+        _persist_with_profile_mismatch,
+    )
+
+
+@pytest.mark.parametrize("profile_field", ["kind", "media_type", "schema_name", "schema_version"])
+def test_d4_reopen_rejects_same_receipt_bytes_under_foreign_owner_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    profile_field: str,
+) -> None:
+    """D4 receipt admission binds the real receipt payload to the writer's ABI."""
+    build_root, _, _, _ = _d5_release_fixture(tmp_path)
+    _forge_d4_receipt_manifest_profile(monkeypatch, field=profile_field)
+    _install_admissible_d4_result(monkeypatch, build_root=build_root)
+
+    context = blueprint_release._run_d4_release_predicate(
+        blueprint_release.FileSystemCAS(build_root / "cas"),
+        build_root=build_root,
+        cas_root=build_root / "cas",
+    )
+
+    assert context.status == "not_established"
+    assert context.predicate_provenance == "not_established"
+    assert context.reason == "d4_governance_not_established"
+    assert context.stage_receipt is None
+
+
+def test_d4_reopen_accepts_current_owner_profile_before_candidate_source_refs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A good D4 receipt reaches the unchanged profileless-source limitation."""
+    build_root, _, _, _ = _d5_release_fixture(tmp_path)
+    _install_admissible_d4_result(monkeypatch, build_root=build_root)
+
+    context = blueprint_release._run_d4_release_predicate(
+        blueprint_release.FileSystemCAS(build_root / "cas"),
+        build_root=build_root,
+        cas_root=build_root / "cas",
+    )
+
+    assert context.status == "not_established"
+    assert context.reason == "d4_json_snapshot_profile_not_conformant"
+    assert context.stage_receipt is not None
+    assert context.stage_receipt_ref is not None
+    assert context.stage_receipt.schema_version == ("policyos.data_forge.ukraine.verified_stage.v2")
+
+
+def test_d4_receipt_owner_gate_removal_control_keeps_same_bytes_and_markers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Without owner admission, the unchanged wrong-version D4 receipt is accepted."""
+    from types import SimpleNamespace
+
+    build_root, _, _, _ = _d5_release_fixture(tmp_path)
+    _forge_d4_receipt_manifest_profile(monkeypatch, field="schema_version")
+    _install_admissible_d4_result(monkeypatch, build_root=build_root)
+
+    context = blueprint_release._run_d4_release_predicate(
+        blueprint_release.FileSystemCAS(build_root / "cas"),
+        build_root=build_root,
+        cas_root=build_root / "cas",
+    )
+    assert context.status == "not_established"
+    assert context.stage_receipt is None
+
+    def generic_typed_read(model, store, selector, *, expected_owner, **kwargs):
+        del expected_owner
+        return SimpleNamespace(
+            value=blueprint_release.validate_core_model_json_artifact(
+                model,
+                store,
+                selector,
+                **kwargs,
+            )
+        )
+
+    with monkeypatch.context() as removed_owner_gate:
+        removed_owner_gate.setattr(
+            blueprint_release,
+            "validate_owned_core_model_json_artifact",
+            generic_typed_read,
+        )
+        bypassed = blueprint_release._run_d4_release_predicate(
+            blueprint_release.FileSystemCAS(build_root / "cas"),
+            build_root=build_root,
+            cas_root=build_root / "cas",
+        )
+    assert bypassed.status == "not_established"
+    assert bypassed.reason == "d4_json_snapshot_profile_not_conformant"
+    assert bypassed.stage_receipt is not None
+
+
 def _rewrite_release_compression(
     manifest_path: Path,
     *,
@@ -724,11 +889,15 @@ def test_verified_ukraine_d5_release_recomputes_profileless_snapshot_refusals(
     assert report.packet_ref
     store = blueprint_release.FileSystemCAS(build_root / "cas")
     postflight = json.loads(store.get_bytes(report.postflight_receipt_ref))
-    assert postflight["status"] == "blocked"
+    assert postflight["status"] == "admissible"
     assert postflight["predicate_provenance"] == "recomputed"
+    assert postflight["reasons"] == []
     predicates = json.loads(store.get_bytes(report.predicate_receipt_ref))
+    assert predicates["status"] == "blocked"
+    assert "release_manifest_profile_unqualified_candidate" in predicates["reasons"]
     assert predicates["manifest_no_errors_provenance"] == "recomputed"
-    assert predicates["compression_predicate_provenance"] == "independently_reconciled"
+    assert predicates["compression_predicate_provenance"] == "not_established"
+    assert predicates["compression_status"] == "not_established"
     assert predicates["d4_predicate_provenance"] == "not_established"
     assert predicates["d4_status"] == "not_established"
     assert predicates["manifest_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
@@ -858,7 +1027,17 @@ def test_verified_ukraine_d5_release_blocks_manifest_with_error_finding(
     assert report.passed is False
     assert report.governance_verdict == "reject"
     assert report.release_admissibility_status == "blocked"
-    assert "producer_manifest_contains_errors" in report.notes
+    assert "release_manifest_profile_unqualified_candidate" in report.notes
+    assert "producer_manifest_contains_errors" not in report.notes
+    store = blueprint_release.FileSystemCAS(build_root / "cas")
+    predicates = json.loads(store.get_bytes(report.predicate_receipt_ref))
+    assert predicates["status"] == "blocked"
+    assert predicates["manifest_snapshot_profile_status"] == (
+        "profile_absent_raw_snapshot_candidate"
+    )
+    assert predicates["manifest_no_errors"] is False
+    assert "release_manifest_profile_unqualified_candidate" in predicates["reasons"]
+    assert "producer_manifest_contains_errors" not in predicates["reasons"]
 
 
 def test_verified_ukraine_d5_release_blocks_compression_aggregate_mismatch(
@@ -950,7 +1129,7 @@ def test_release_receipt_cas_check_rehashes_manifest_bytes(tmp_path: Path) -> No
     class _TamperedManifestCAS:
         def get_bytes(self, artifact_id):
             payload = store.get_bytes(artifact_id)
-            if artifact_id == receipt.manifest_ref.artifact_id:
+            if artifact_id == receipt.manifest_ref:
                 return bytes([payload[0] ^ 1]) + payload[1:]
             return payload
 
@@ -998,8 +1177,10 @@ def test_release_receipt_scientist_check_rejects_forged_admitted_path(
 def test_calibration_validation_schema_1_0_remains_readable_and_unbound(
     tmp_path: Path,
 ) -> None:
+    from polisyos.core.artifacts import CanonInfo
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
     store = blueprint_release.FileSystemCAS(tmp_path / "cas")
     candidate_ref = store.put_json(
@@ -1061,9 +1242,18 @@ def test_calibration_validation_schema_1_0_remains_readable_and_unbound(
             ),
         ),
     )
+    canon_spec = CanonSpec(forbid_floats=False)
     for index, options in enumerate(bad_manifests):
         mismatched_payload = {**payload, "run_id": f"manifest-mismatch-{index}"}
-        mismatched_ref = store.put_json(mismatched_payload, options)
+        mismatched_ref = store.put_bytes(
+            to_canonical_bytes(mismatched_payload, canon_spec),
+            PutOptions(
+                kind=options.kind,
+                media_type=options.media_type,
+                schema=options.schema,
+                canon=CanonInfo.from_spec(canon_spec),
+            ),
+        )
         with pytest.raises(ValueError, match="manifest schema"):
             load_calibration_validation_bundle(store, mismatched_ref)
 
@@ -1180,13 +1370,130 @@ def _s1_controlled_candidate_fixture(
 
 
 @pytest.mark.parametrize(
-    ("holdout_truths", "expected_status"),
-    [([90.0, 90.0, 90.0], "not_computable"), ([99.5, 98.5, 97.5], "available")],
+    ("time_index", "intervention_date"),
+    [
+        ([], "2020-01-01"),
+        (["2020-01-01", "2021-01-01", "2021-01-01"], "2021-01-01"),
+        (["2020-01-01", "2022-01-01", "2021-01-01"], "2021-01-01"),
+        (["2020-01-01", "2021-01-01"], "2022-01-01"),
+    ],
+)
+def test_backtest_intervention_step_refuses_ambiguous_time_axes(
+    time_index: list[str], intervention_date: str
+) -> None:
+    """A cutoff is only derivable from a complete, unique, ordered date axis."""
+
+    assert (
+        blueprint_release._resolve_backtest_intervention_step(time_index, intervention_date) is None
+    )
+
+
+def test_required_backtest_bundle_masks_from_full_sorted_time_axis(tmp_path: Path) -> None:
+    """The persisted intervention cutoff is the date's index in the full history."""
+    from polisyos.ir.observation.contracts import ObservationFamily
+    from polisyos.scientist.methods.backtesting.masking import (
+        MaskingValidationError,
+        OutcomeMasker,
+    )
+    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+
+    time_index = [f"{year}-01-01" for year in range(2020, 2026)]
+    panel = pd.DataFrame(
+        {
+            "family": [ObservationFamily.MACRO_STATE.value] * len(time_index),
+            "period_start": list(reversed(time_index)),
+            "observed_value": list(reversed(range(len(time_index)))),
+        }
+    )
+    bundle = blueprint_release.build_required_backtest_bundles(
+        panel,
+        stage_dir=tmp_path,
+        splits={
+            "training": {"start": "2020-01-01", "end": "2020-12-31"},
+            "validation": {"start": "2022-01-01", "end": "2022-12-31"},
+            "holdout": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+        selected_training_role="training",
+        selected_validation_role="validation",
+        selected_holdout_role="holdout",
+    )[blueprint_release.BacktestKind.MACRO]
+
+    assert bundle.gap_reason is None
+    assert len(bundle.plans) == 1
+    plan_payload = bundle.plans[0]
+    historical_path = Path(plan_payload["historical_data_path"])
+    historical_data = json.loads(historical_path.read_text(encoding="utf-8"))
+    assert historical_data["period_start"] == time_index
+    assert historical_data["time_index"] == time_index
+    assert plan_payload["intervention_date"] == "2025-01-01"
+    assert plan_payload["intervention_step"] == time_index.index("2025-01-01")
+
+    plan = HistoricalValidationPlan.model_validate(plan_payload)
+    masked = OutcomeMasker().mask(historical_data, plan)
+    assert masked["observed_value"] == [0.0, 1.0, 2.0, 3.0, 4.0]
+    assert masked["time_index"] == time_index[:5]
+    assert masked["_backtest_metadata"]["intervention_step"] == 5
+    without_axis = {key: value for key, value in historical_data.items() if key != "time_index"}
+    with pytest.raises(MaskingValidationError) as exc_info:
+        OutcomeMasker().mask(without_axis, plan)
+    assert exc_info.value.code == "intervention_date_unresolved"
+
+
+@pytest.mark.parametrize(
+    "period_start",
+    [
+        ["2020-01-01", "not-a-date", "2022-01-01", "2025-01-01"],
+        [
+            "2020-01-01 00:00:00",
+            "2021-01-01 00:00:00",
+            "2021-01-01 12:00:00",
+            "2022-01-01 00:00:00",
+            "2025-01-01 00:00:00",
+        ],
+    ],
+)
+def test_required_backtest_bundle_gaps_when_time_axis_is_ambiguous(
+    tmp_path: Path, period_start: list[str]
+) -> None:
+    """Missing or duplicate civil dates cannot produce a guessed intervention index."""
+    from polisyos.ir.observation.contracts import ObservationFamily
+
+    panel = pd.DataFrame(
+        {
+            "family": [ObservationFamily.MACRO_STATE.value] * len(period_start),
+            "period_start": period_start,
+            "observed_value": list(range(len(period_start))),
+        }
+    )
+    bundle = blueprint_release.build_required_backtest_bundles(
+        panel,
+        stage_dir=tmp_path,
+        splits={
+            "training": {"start": "2020-01-01", "end": "2020-12-31"},
+            "validation": {"start": "2022-01-01", "end": "2022-12-31"},
+            "holdout": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+        selected_training_role="training",
+        selected_validation_role="validation",
+        selected_holdout_role="holdout",
+    )[blueprint_release.BacktestKind.MACRO]
+
+    assert bundle.plans == []
+    assert bundle.gap_reason == "intervention_time_axis_unresolved:macro"
+
+
+@pytest.mark.parametrize(
+    ("holdout_truths", "expected_status", "expected_mean_residual"),
+    [
+        ([90.0, 90.0, 90.0], "not_computable", 10.0),
+        ([99.5, 98.5, 97.5], "available", 1.5),
+    ],
 )
 def test_s1_b172_b173_test_owned_d4_diagnostic_backtest_cas_fresh_read(
     tmp_path: Path,
     holdout_truths: list[float],
     expected_status: str,
+    expected_mean_residual: float,
 ) -> None:
     from polisyos.ir.analytics.backtest import load_backtest_report
     from polisyos.scientist.governance.calibration_validation import (
@@ -1236,13 +1543,15 @@ def test_s1_b172_b173_test_owned_d4_diagnostic_backtest_cas_fresh_read(
         assert len(edges) == 1
         assert edges[0].artifact_id == provenance.artifact_ref.artifact_id
         assert edges[0].manifest_profile_sha256 == provenance.selected_manifest_profile_sha256
-    legacy_schema_payload = json.loads(store.get_bytes(result.bundle_ref.artifact_id))
+    legacy_schema_payload = fresh.model_dump(mode="json")
     legacy_schema_payload["schema_version"] = "1.0"
     with pytest.raises(
         ValidationError, match="source JSON snapshot provenance requires bundle schema 1.1"
     ):
         CalibrationValidationBundle.model_validate(legacy_schema_payload)
-    assert summary["source_json_snapshot_binding_status"] == "available"
+    assert summary["source_json_snapshot_binding_status"] == "available", summary[
+        "source_json_snapshot_binding_reason"
+    ]
     assert set(summary["source_json_snapshot_reads"]) == expected_source_contracts
     for source_read in fresh.source_json_snapshot_reads.values():
         assert source_read.profile_status == "profile_absent_raw_snapshot_candidate"
@@ -1270,8 +1579,8 @@ def test_s1_b172_b173_test_owned_d4_diagnostic_backtest_cas_fresh_read(
     assert diagnostic.scope["selected_training_roles"] == ["fixture_training"]
     assert diagnostic.scope["selected_validation_roles"] == ["fixture_validation"]
     assert diagnostic.scope["selected_holdout_roles"] == ["fixture_holdout"]
-    assert diagnostic.mean_residual == pytest.approx(10.0)
-    assert diagnostic.magnitude == pytest.approx(10.0)
+    assert diagnostic.mean_residual == pytest.approx(expected_mean_residual)
+    assert diagnostic.magnitude == pytest.approx(abs(expected_mean_residual))
     assert (
         diagnostic.residual_sign == "positive" and diagnostic.direction_status == "not_established"
     )

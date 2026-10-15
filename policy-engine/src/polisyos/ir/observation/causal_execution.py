@@ -202,43 +202,43 @@ class CausalExecutionBundle(KernelModel):
     def root_artifact_ids(self) -> tuple[ArtifactID, ...]:
         """Return result artifacts that act as lineage roots for this execution bundle."""
         root_ids: set[str] = set()
-        for entry in self.bounds_results:
-            if entry.bounds_bundle_ref is not None:
-                root_ids.add(str(entry.bounds_bundle_ref.artifact_id))
-        for entry in self.temporal_results:
-            if entry.dynamic_treatment_regime_ref is not None:
-                root_ids.add(str(entry.dynamic_treatment_regime_ref.artifact_id))
-            if entry.effect_trajectory_bundle_ref is not None:
-                root_ids.add(str(entry.effect_trajectory_bundle_ref.artifact_id))
+        for bounds_entry in self.bounds_results:
+            if bounds_entry.bounds_bundle_ref is not None:
+                root_ids.add(str(bounds_entry.bounds_bundle_ref.artifact_id))
+        for temporal_entry in self.temporal_results:
+            if temporal_entry.dynamic_treatment_regime_ref is not None:
+                root_ids.add(str(temporal_entry.dynamic_treatment_regime_ref.artifact_id))
+            if temporal_entry.effect_trajectory_bundle_ref is not None:
+                root_ids.add(str(temporal_entry.effect_trajectory_bundle_ref.artifact_id))
         return tuple(ArtifactID.model_validate(artifact_id) for artifact_id in sorted(root_ids))
 
     def artifact_task_bindings(self) -> tuple[ArtifactTaskBinding, ...]:
         """Map execution task ids onto the artifacts they produced."""
         bindings: list[ArtifactTaskBinding] = []
-        for entry in sorted(self.bounds_results, key=lambda item: item.task_id):
-            produced: list[ArtifactID] = []
-            if entry.bounds_bundle_ref is not None:
-                produced.append(entry.bounds_bundle_ref.artifact_id)
+        for bounds_entry in sorted(self.bounds_results, key=lambda item: item.task_id):
+            bounds_produced: list[ArtifactID] = []
+            if bounds_entry.bounds_bundle_ref is not None:
+                bounds_produced.append(bounds_entry.bounds_bundle_ref.artifact_id)
             bindings.append(
                 ArtifactTaskBinding(
-                    task_id=entry.task_id,
+                    task_id=bounds_entry.task_id,
                     task_kind="bounds_estimation",
-                    produced_artifact_ids=tuple(sorted(produced, key=str)),
-                    metadata={"status": entry.status, "family": entry.family.value},
+                    produced_artifact_ids=tuple(sorted(bounds_produced, key=str)),
+                    metadata={"status": bounds_entry.status, "family": bounds_entry.family.value},
                 )
             )
-        for entry in sorted(self.temporal_results, key=lambda item: item.task_id):
-            produced = []
-            if entry.dynamic_treatment_regime_ref is not None:
-                produced.append(entry.dynamic_treatment_regime_ref.artifact_id)
-            if entry.effect_trajectory_bundle_ref is not None:
-                produced.append(entry.effect_trajectory_bundle_ref.artifact_id)
+        for temporal_entry in sorted(self.temporal_results, key=lambda item: item.task_id):
+            temporal_produced: list[ArtifactID] = []
+            if temporal_entry.dynamic_treatment_regime_ref is not None:
+                temporal_produced.append(temporal_entry.dynamic_treatment_regime_ref.artifact_id)
+            if temporal_entry.effect_trajectory_bundle_ref is not None:
+                temporal_produced.append(temporal_entry.effect_trajectory_bundle_ref.artifact_id)
             bindings.append(
                 ArtifactTaskBinding(
-                    task_id=entry.task_id,
+                    task_id=temporal_entry.task_id,
                     task_kind="temporal_dtr",
-                    produced_artifact_ids=tuple(sorted(produced, key=str)),
-                    metadata={"status": entry.status, "method": entry.dtr_method},
+                    produced_artifact_ids=tuple(sorted(temporal_produced, key=str)),
+                    metadata={"status": temporal_entry.status, "method": temporal_entry.dtr_method},
                 )
             )
         return tuple(bindings)

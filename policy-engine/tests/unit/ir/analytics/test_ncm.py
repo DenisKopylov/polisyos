@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -127,22 +129,25 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
         from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
         from polisyos.ir.model_layer.canon import CanonViolation
 
-        legacy_options = _candidate_simulation_write_options(
-            kind="ir.ncm_spec",
-            schema_name="ir.ncm_spec",
-            schema_version="1.0",
-            job_id=job_id,
-            run_id=run_id,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            source_ref=declaration.profile_content_hash,
-            input_refs=(
-                input_ref_from_artifact_ref(
-                    declaration_ref,
-                    role="candidate_model_declaration",
+        legacy_options = replace(
+            _candidate_simulation_write_options(
+                kind="ir.ncm_spec",
+                schema_name="ir.ncm_spec",
+                schema_version="1.0",
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                source_ref=declaration.profile_content_hash,
+                input_refs=(
+                    input_ref_from_artifact_ref(
+                        declaration_ref,
+                        role="candidate_model_declaration",
+                    ),
                 ),
             ),
-        ).model_copy(update={"canon": None})
+            canon=None,
+        )
         legacy_ref = store.put_bytes(spec_bytes, legacy_options)
         with pytest.raises(CanonViolation, match="unsupported_ir_canon_profile"):
             load_ncm_spec_selected_view(

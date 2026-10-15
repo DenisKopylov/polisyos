@@ -144,6 +144,30 @@ def _validated_ir_canon_info(value: Any) -> CanonInfo:
     return profile
 
 
+def _make_ir_canon_spec(profile: object) -> CanonSpec:
+    """Build IR's typed encoder spec from the selected, validated IR profile."""
+    if not isinstance(profile, CanonInfo):
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    return CanonSpec(
+        name=profile.name,
+        version=profile.version,
+        forbid_floats=profile.forbid_floats,
+        forbid_nan_inf=profile.forbid_nan_inf,
+        exclude_none=profile.exclude_none,
+        max_depth=profile.max_depth,
+        sort_keys=profile.sort_keys,
+        separators=profile.separators,
+        ensure_ascii=profile.ensure_ascii,
+    )
+
+
+def _encode_ir_profiled_value(value: object, spec: object) -> bytes:
+    """Encode with IR's public codec after checking the shared callback result type."""
+    if not isinstance(spec, CanonSpec):
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    return to_canonical_bytes(value, spec)
+
+
 def _artifact_selector(value: ArtifactSelector) -> ArtifactSelector:
     """Validate an artifact ID or typed selected-view ref without dropping its selector."""
     if isinstance(value, (ArtifactID, str)) or _is_string_root_model(value):
@@ -256,19 +280,9 @@ def _get_json_artifact_with_bytes(
             raw_bytes,
             declaration,
             profile_model=CanonInfo,
-            make_spec=lambda profile: CanonSpec(
-                name=profile.name,
-                version=profile.version,
-                forbid_floats=profile.forbid_floats,
-                forbid_nan_inf=profile.forbid_nan_inf,
-                exclude_none=profile.exclude_none,
-                max_depth=profile.max_depth,
-                sort_keys=profile.sort_keys,
-                separators=profile.separators,
-                ensure_ascii=profile.ensure_ascii,
-            ),
+            make_spec=_make_ir_canon_spec,
             decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
-            encode=lambda value, spec: to_canonical_bytes(value, spec),
+            encode=_encode_ir_profiled_value,
         )
     except CanonicalProfileRefusalError as exc:
         code = {

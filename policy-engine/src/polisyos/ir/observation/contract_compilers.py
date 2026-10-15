@@ -11,7 +11,7 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 import numpy as np
 import pandas as pd
@@ -80,6 +80,22 @@ else:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
+_NPZ_RESERVED_KEY_NAMES = frozenset({"allow_pickle", "file"})
+
+
+@runtime_checkable
+class _ArtifactNamedBundle(Protocol):
+    """Describe compiled IR bundles that name their persisted artifact."""
+
+    artifact_name: str
+
+
+@runtime_checkable
+class _ParquetRecordsFrame(Protocol):
+    """Describe the DataFrame operation used to read row-oriented parquet data."""
+
+    def to_dict(self, orient: Literal["records"]) -> list[dict[str, object]]:
+        """Return rows as dictionaries."""
 
 
 class ObservationContractCompileError(ValueError):
@@ -222,17 +238,17 @@ class GraphArtifacts(KernelModel):
         ensure_unique_ids(self.node_ids, key_fn=lambda item: item, label="node_ids")
         unknown_nodes: set[str] = set()
         node_set = set(self.node_ids)
-        for edges in self.layer_edges.values():
-            for edge in edges:
-                if edge.src_id not in node_set:
-                    unknown_nodes.add(edge.src_id)
-                if edge.dst_id not in node_set:
-                    unknown_nodes.add(edge.dst_id)
-        for edge in self.bipartite_edges:
-            if edge.treatment_node_id not in node_set:
-                unknown_nodes.add(edge.treatment_node_id)
-            if edge.outcome_node_id not in node_set:
-                unknown_nodes.add(edge.outcome_node_id)
+        for layer_edges in self.layer_edges.values():
+            for layer_edge in layer_edges:
+                if layer_edge.src_id not in node_set:
+                    unknown_nodes.add(layer_edge.src_id)
+                if layer_edge.dst_id not in node_set:
+                    unknown_nodes.add(layer_edge.dst_id)
+        for bipartite_edge in self.bipartite_edges:
+            if bipartite_edge.treatment_node_id not in node_set:
+                unknown_nodes.add(bipartite_edge.treatment_node_id)
+            if bipartite_edge.outcome_node_id not in node_set:
+                unknown_nodes.add(bipartite_edge.outcome_node_id)
         if unknown_nodes:
             raise ValueError(f"graph references unknown node ids: {sorted(unknown_nodes)}")
         if self.index_map:
@@ -2078,7 +2094,11 @@ def load_json_bundle(path: str | Path, model_cls: type[KernelModel]) -> KernelMo
 
 
 def write_npz_payload(payload: Mapping[str, Any], path: str | Path) -> Path:
-    """Write array and JSON-compatible payload values into an ``.npz`` container."""
+    """Write array and JSON-compatible values into an ``.npz`` container.
+
+    NumPy reserves ``file`` and ``allow_pickle`` as writer arguments, so payloads
+    cannot use those names as array keys.
+    """
     destination = Path(path)
     arrays: dict[str, np.ndarray] = {}
     for key, value in payload.items():
@@ -2089,7 +2109,10 @@ def write_npz_payload(payload: Mapping[str, Any], path: str | Path) -> Path:
             )
         else:
             arrays[key] = array
-    np.savez(destination, **arrays)
+    reserved_keys = _NPZ_RESERVED_KEY_NAMES.intersection(arrays)
+    if reserved_keys:
+        raise ValueError(f"NPZ payload keys are reserved by NumPy: {sorted(reserved_keys)}")
+    np.savez(destination, allow_pickle=False, **arrays)
     return destination
 
 
@@ -2146,7 +2169,16 @@ def write_parquet_rows(rows: Sequence[Mapping[str, Any]], path: str | Path) -> P
 def load_parquet_rows(path: str | Path) -> list[dict[str, Any]]:
     """Load parquet rows."""
     frame = pd.read_parquet(Path(path))
+    if not isinstance(frame, _ParquetRecordsFrame):
+        raise TypeError("pandas parquet reader must return a records-capable DataFrame")
     return frame.to_dict(orient="records")
+
+
+def _artifact_name(bundle: KernelModel) -> str:
+    """Return a compiled bundle's name after verifying its structural contract."""
+    if not isinstance(bundle, _ArtifactNamedBundle):
+        raise TypeError("compiled observation bundle must expose artifact_name")
+    return bundle.artifact_name
 
 
 class ObservationContractCompilerSuite:
@@ -2210,7 +2242,7 @@ class ObservationContractCompilerSuite:
             manifest_artifacts.append(
                 ObservationContractArtifact(
                     compiler_id=artifact.compiler_id,
-                    artifact_name=artifact.bundle.artifact_name,
+                    artifact_name=_artifact_name(artifact.bundle),
                     target_contract=target_contract,
                     status="compiled",
                     lineage=list(getattr(artifact.bundle, "lineage", [])),

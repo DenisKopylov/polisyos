@@ -549,6 +549,12 @@ def test_load_npz_payload_raises_on_malformed_json_scalar(tmp_path) -> None:
         load_npz_payload(npz_path)
 
 
+@pytest.mark.parametrize("reserved_key", ["allow_pickle", "file"])
+def test_write_npz_payload_rejects_numpy_reserved_keys(tmp_path, reserved_key: str) -> None:
+    with pytest.raises(ValueError, match="NPZ payload keys are reserved by NumPy"):
+        write_npz_payload({reserved_key: np.asarray([1.0])}, tmp_path / "reserved.npz")
+
+
 def test_proxy_map_rejects_duplicate_targets() -> None:
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -580,15 +586,40 @@ def test_network_causal_compiler_shapes() -> None:
     assert contract.bipartite_edges.shape[1] == 2
 
 
+def test_compile_all_records_artifact_name_from_concrete_bundle() -> None:
+    result = ObservationContractCompilerSuite().compile_all(
+        observation_panel=_observation_panel(),
+        survey_spec=SurveyMicroDataCompileSpec(
+            spec_id="survey_spec",
+            income_metric_id="income",
+            weight_metric_id="weight",
+            feature_metric_ids=["cov_a", "cov_b"],
+        ),
+    )
+
+    assert result.manifest.artifacts[0].artifact_name == "microsim_survey_contract_v1.json"
+
+
 def test_historical_validation_bundle_runs_through_scientist_matrix(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
+    panel = _observation_panel(n_units=2, n_periods=4)
+    historical_time_index = sorted(
+        {
+            record.period_start.isoformat()
+            for record in panel.records
+            if record.metric_id == "outcome_score"
+        }
+    )
     historical_ref = store.put_json(
-        {"outcome_score": [5.2, 6.65, 7.35, 8.05]},
+        {
+            "time_index": historical_time_index,
+            "outcome_score": [5.2, 6.65, 7.35, 8.05],
+        },
         PutOptions(kind="test.historical_data", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
     compilation = HistoricalValidationPlanCompiler().compile(
-        _observation_panel(n_units=2, n_periods=4),
+        panel,
         HistoricalValidationCompileSpec(
             spec_id="neutral_backtest_plan",
             metric_ids=["outcome_score"],
@@ -598,10 +629,18 @@ def test_historical_validation_bundle_runs_through_scientist_matrix(tmp_path) ->
             historical_data_ref=str(historical_ref.artifact_id),
         ),
     )
+    assert (
+        compilation.historical_payloads["neutral_backtest_plan"]["time_index"]
+        == historical_time_index
+    )
 
     plan_payload = compilation.bundle.plans[0]
     assert isinstance(plan_payload, dict)
     assert "prediction_source" not in plan_payload
+    assert (
+        historical_time_index.index(plan_payload["intervention_date"])
+        == plan_payload["intervention_step"]
+    )
 
     result = BacktestMatrixRunner(store).run({BacktestKind.HOUSEHOLD: compilation.bundle})
     household = next(item for item in result.kind_results if item.kind is BacktestKind.HOUSEHOLD)
@@ -722,8 +761,12 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     leontief_out = LeontiefInputOutput.pure_step(result.artifacts["leontief_io_input"].contract, {})
 
     historical_path = tmp_path / "historical_data.json"
-    backtest_series = result.backtest.historical_payloads["historical_validation_spec"]["series"]
-    historical_path.write_text(json.dumps(backtest_series), encoding="utf-8")
+    historical_payload = result.backtest.historical_payloads["historical_validation_spec"]
+    backtest_data = {
+        "time_index": historical_payload["time_index"],
+        **historical_payload["series"],
+    }
+    historical_path.write_text(json.dumps(backtest_data), encoding="utf-8")
     backtest_plan_payload = {
         **result.backtest.plans[0],
         "historical_data_path": str(historical_path),

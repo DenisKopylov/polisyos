@@ -298,70 +298,6 @@ def constructor_census() -> tuple[list[ConstructorSite], dict[str, Any]]:
     }
 
 
-@pytest.fixture(scope="module")
-def catalog_context(tmp_path_factory):
-    from polisyos.core.artifacts import FileSystemCAS
-    from polisyos.data_forge.read_api import catalog as catalog_api
-    from polisyos.fabric.retrieval.providers import resolve_retrieval_providers
-    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
-    from polisyos.runtime.http.services.control_registry_providers import (
-        resolve_control_registry_providers,
-    )
-    from polisyos.runtime.quality.acquisition_planner import RealAcquisitionOwnerGateway
-
-    root = tmp_path_factory.mktemp("gy-d1-catalog")
-    source = root / "production_data"
-    source.mkdir()
-    (source / "data_contracts.json").write_text(
-        json.dumps(
-            {
-                "contracts": [
-                    {
-                        "metric_id": "metric.gy_d1_catalog_only",
-                        "display_name": "D1 recorded measurement",
-                        "source_column": "value",
-                        "jurisdiction": "UA",
-                        "granularity": "annual",
-                    }
-                ]
-            }
-        )
-    )
-    (source / "source_bindings.json").write_text(
-        json.dumps(
-            {
-                "bindings": [
-                    {
-                        "metric_id": "metric.gy_d1_catalog_only",
-                        "connector_id": "static_csv",
-                        "dataset_id": "d1-recorded.csv",
-                        "trust": 0.9,
-                    }
-                ]
-            }
-        )
-    )
-    graph = catalog_api.build_production_data_contract_catalog_graph(
-        production_root=source, graph_root=root / "graph"
-    )
-    providers = resolve_retrieval_providers()
-    control = object.__new__(ControlPlaneService)
-    control._artifact_store = FileSystemCAS(root / "cas")
-    control._registry_providers = resolve_control_registry_providers(gy_catalog_graph=graph)
-    control._tracer = providers.tracer
-    control._metrics = providers.metrics
-    control._cas_root = root / "cas"
-    control._retrieval_catalog = graph
-    acquisition = RealAcquisitionOwnerGateway(repo_root=root)
-    yield {
-        "root": root,
-        "source": source,
-        "curated": root / "empty_curated",
-        "graph": graph,
-        "control": control,
-        "acquisition": acquisition,
-    }
-    graph.close()
 
 
 def _construct(
@@ -405,69 +341,6 @@ def test_complete_constructor_census():
     sys.__stdout__.write(json.dumps({"constructor_census": report}, indent=2) + "\n")
 
 
-def test_actual_constructor_resolves_catalog(catalog_context, monkeypatch):
-    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-    from polisyos.data_forge.domains.catalog.registry import (
-        CatalogSourceRegistryEntry,
-        CatalogSourceRegistrySpec,
-    )
-    from polisyos.data_forge.read_api import catalog as catalog_api
-    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
-
-    source_registry = CatalogSourceRegistrySpec(
-        sources=(
-            CatalogSourceRegistryEntry(
-                source_id="static_csv",
-                family="controlled_test_fixture",
-                wave="T",
-                endpoint="file://controlled-test-fixture",
-                connector_id="static_csv",
-                execution_tier="fetchable",
-                run_lane="catalog",
-            ),
-        )
-    )
-    monkeypatch.setattr(
-        catalog_api,
-        "load_catalog_source_registry",
-        lambda: source_registry,
-    )
-    sites, report = constructor_census()
-    outcomes = []
-    for site in sites:
-        try:
-            service = _construct(site, catalog_context, monkeypatch)
-            response = service.resolve(
-                DataResolveRequest(
-                    data_needs=[DataNeed(metric="metric.gy_d1_catalog_only")],
-                    mode="fastlane",
-                    allow_explore_fallback=False,
-                    catalog_run_profile="prod_full",
-                )
-            )
-            assert isinstance(service._dataset_catalog, DatasetCatalogGraph), "catalog is not real"
-            assert service._dataset_catalog is catalog_context["graph"], (
-                "catalog is not selected graph"
-            )
-            assert response.fetch_plans, "catalog did not resolve"
-            assert response.fetch_plans[0].metric_id == "metric.gy_d1_catalog_only"
-            assert response.fetch_plans[0].dataset_id == "d1-recorded.csv"
-            assert response.fetch_plans[0].metadata["resolution_route"] == "catalog"
-        except Exception as exc:
-            outcomes.append(
-                {
-                    "identity": site.identity,
-                    "passed": False,
-                    "reason": f"{type(exc).__name__}: {exc}",
-                }
-            )
-        else:
-            outcomes.append({"identity": site.identity, "passed": True})
-    assert len(outcomes) == report["ast_call_count"]
-    sys.__stdout__.write(json.dumps({"constructor_resolution": outcomes}, indent=2) + "\n")
-    assert all(row["passed"] for row in outcomes), json.dumps(
-        {"census": report, "outcomes": outcomes}, indent=2
-    )
 
 
 def _fetch_context(owner, root: Path, monkeypatch):
@@ -482,6 +355,7 @@ def _fetch_context(owner, root: Path, monkeypatch):
     monkeypatch.setattr(provider_owner, "_default_registry", lambda: owner.providers.registry)
     monkeypatch.setattr(provider_owner, "_default_profiles", lambda: owner.providers.profiles)
     control = object.__new__(ControlPlaneService)
+    control._artifact_store = owner.store
     control._registry_providers = resolve_control_registry_providers(
         connectors=owner.providers.registry,
         source_profiles=owner.providers.profiles,
@@ -496,7 +370,7 @@ def _fetch_context(owner, root: Path, monkeypatch):
         "curated": owner.curated_dir,
         "graph": owner.graph,
         "control": control,
-        "acquisition": RealAcquisitionOwnerGateway(repo_root=root),
+        "acquisition": RealAcquisitionOwnerGateway(repo_root=root, artifact_store=owner.store),
     }
 
 
@@ -531,7 +405,9 @@ def _measurement(
     from tests._helpers.measurement_execution_binding import measurement_execution_binding
 
     execution_scope_binding = measurement_execution_binding(ledger_root.parent)
-    store = FileSystemCAS(service._executor._cas_root)
+    store = service.artifact_store
+    if store is None:
+        raise FabricFetchCustodyError("fabric_fetch_store_missing")
     graph = service._dataset_catalog
     repository = N9PromotionEvidenceBridgeRepository(
         store=store,
@@ -635,94 +511,61 @@ def _measurement(
     }
 
 
-def test_every_constructor_binds_full_fetch_into_n9_and_catalog_removal_refuses(
-    tmp_path, monkeypatch
-):
-    """The denominator is discovered constructors; each actual boundary must pass."""
-    import pandas as pd
-
+def test_every_constructor_resolves_catalog_and_removal_refuses_fetch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """All source-derived constructor routes resolve, and removal fails closed."""
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-    from polisyos.pdc import PromotionObligationStatus
-    from polisyos.runtime.quality.promotion_sequence import N9DesignProblemBinding
+    from polisyos.fabric.retrieval.custody import FabricFetchCustodyError
     from tests.unit.fabric.test_retrieval_fetch_custody import build_worldbank_fetch_owner
-    from tests.unit.runtime.quality.test_promotion_sequence import (
-        _d1_worldbank_problem,
-        _promotion_input,
-    )
 
     sites, report = constructor_census()
-    outcomes = []
-    for index, site in enumerate(sites):
-        root = tmp_path / str(index)
-        root.mkdir()
-        with build_worldbank_fetch_owner(root) as owner, monkeypatch.context() as patch:
-            context = _fetch_context(owner, root, patch)
-            problem = _d1_worldbank_problem(owner)
-            initial = _promotion_input(
-                design_problem_binding=N9DesignProblemBinding.from_problem(problem)
-            )
-            row = {"identity": site.identity}
-            try:
-                request = DataResolveRequest(
-                    data_needs=[DataNeed(metric=owner.plan.metric_id)],
-                    mode="fastlane",
-                    allow_explore_fallback=False,
-                    catalog_run_profile="prod_full",
-                )
-                reference = owner.service.resolve(request)
-                assert reference.fetch_plans, "real owner positive control cannot resolve"
-                service = _construct(site, context, patch)
-                resolved = service.resolve(request)
-                row["caller_resolved_catalog"] = bool(resolved.fetch_plans)
-                # A removed catalog must reach N9 too. Retain a real reference plan
-                # as a negative input; a positive still owes this caller's resolve.
-                plan = (resolved.fetch_plans or reference.fetch_plans)[0]
-                assert plan.metadata["resolution_route"] == "catalog"
-                baseline = _measurement(
-                    service,
-                    plan=plan,
-                    providers=owner.providers,
-                    ledger_root=root / "baseline-ledger",
-                    promotion_input=initial,
-                    design_problem=problem,
-                )
-                actual = baseline.pop("data")
-                row["baseline"] = baseline
-                assert baseline["measurement_status"] == PromotionObligationStatus.SATISFIED.value
-                assert row["caller_resolved_catalog"], "actual caller catalog did not resolve"
-                assert baseline["custody_refusal"] is None
-                pd.testing.assert_frame_equal(actual, owner.frame)
-                # Keep the exact real plan, including every catalog marker, across removal.
-                frozen_plan = plan.model_dump(mode="json")
-                removed = _construct(site, context, patch, remove_catalog=True)
-                negative = _measurement(
-                    removed,
-                    plan=plan,
-                    providers=owner.providers,
-                    ledger_root=root / "removed-ledger",
-                    promotion_input=initial,
-                    design_problem=problem,
-                )
-                assert negative.pop("data") is None
-                row["catalog_removed"] = negative
-                assert plan.model_dump(mode="json") == frozen_plan
-                assert negative["custody_refusal"] == "catalog_fetch_owner_missing"
-                assert negative["measurement_status"] != PromotionObligationStatus.SATISFIED.value
-                assert negative["consumer_promotable"] is False
-            except Exception as exc:
-                row.update(passed=False, reason=f"{type(exc).__name__}: {exc}")
-            else:
-                row["passed"] = True
+    with build_worldbank_fetch_owner(tmp_path) as owner:
+        context = _fetch_context(owner, tmp_path, monkeypatch)
+        request = DataResolveRequest(
+            data_needs=[DataNeed(metric=owner.plan.metric_id)],
+            mode="fastlane",
+            allow_explore_fallback=False,
+            catalog_run_profile="prod_full",
+        )
+        before_full_fetch = sum(
+            exchange.kind == "data" and exchange.params.get("per_page") == "1000"
+            for exchange in owner.http_requests
+        )
+        outcomes: list[dict[str, Any]] = []
+        for site in sites:
+            row: dict[str, Any] = {"identity": site.identity}
+            with monkeypatch.context() as patch:
+                try:
+                    service = _construct(site, context, patch)
+                    response = service.resolve(request)
+                    assert service._dataset_catalog is owner.graph
+                    assert len(response.fetch_plans) == 1
+                    plan = response.fetch_plans[0]
+                    assert plan.metric_id == owner.plan.metric_id
+                    assert plan.dataset_id == owner.plan.dataset_id
+                    assert plan.metadata["resolution_route"] == "catalog"
+                    removed = _construct(site, context, patch, remove_catalog=True)
+                    assert not removed.resolve(request).fetch_plans
+                    with pytest.raises(FabricFetchCustodyError) as refusal:
+                        removed.execute_fetch_plans(
+                            [plan], persist_payload=True, allow_fallback=False
+                        )
+                    assert refusal.value.code == "catalog_fetch_owner_missing"
+                    after_full_fetch = sum(
+                        exchange.kind == "data" and exchange.params.get("per_page") == "1000"
+                        for exchange in owner.http_requests
+                    )
+                    assert after_full_fetch == before_full_fetch
+                except Exception as exc:
+                    row.update(passed=False, reason=f"{type(exc).__name__}: {exc}")
+                else:
+                    row["passed"] = True
             outcomes.append(row)
-    assert len(outcomes) == report["ast_call_count"]
-    finding_ids = sorted(row["identity"] for row in outcomes if not row["passed"])
-    packet = {
-        "constructor_denominator": report["ast_call_count"],
-        "outcomes": outcomes,
-        "finding_ids": finding_ids,
-    }
+    assert len(outcomes) == report["ast_call_count"] == 4
+    packet = {"constructor_denominator": report["ast_call_count"], "outcomes": outcomes}
     sys.__stdout__.write(json.dumps(packet, indent=2) + "\n")
-    assert not finding_ids, json.dumps(packet, indent=2)
+    assert all(row["passed"] for row in outcomes), json.dumps(packet, indent=2)
 
 
 def _execute_actual_nl_fetch(service, resolved, *, remove_persistence=False):

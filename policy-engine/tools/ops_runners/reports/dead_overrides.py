@@ -84,6 +84,7 @@ class RepoIndex:
     source_modules: tuple[str, ...]
     files_by_name: dict[str, tuple[str, ...]]
     init_files_by_package: dict[str, tuple[str, ...]]
+    ruff_files: tuple[str, ...] | None = None
 
 
 def build_report(
@@ -92,6 +93,7 @@ def build_report(
     mypy_config: str | None = None,
     ruff_config: str | None = None,
     metadata_config: str = "architecture/tooling/static_analysis_overrides.toml",
+    _fixture_filesystem_fallback: bool = False,
 ) -> dict[str, Any]:
     """Build a Phase 3.6 dead-override report.
 
@@ -110,11 +112,19 @@ def build_report(
         *_collect_ruff_entries(repo_root, ruff_config, project_root=ruff_project_root),
     ]
     scopes = _load_metadata_scopes(metadata)
-    index = _build_repo_index(repo_root)
+    index = _build_repo_index(
+        repo_root,
+        fixture_filesystem_fallback=_fixture_filesystem_fallback,
+    )
 
     findings: list[Finding] = []
     for entry in entries:
-        existence = _entry_existence(repo_root, entry, index)
+        existence = _entry_existence(
+            repo_root,
+            entry,
+            index,
+            fixture_filesystem_fallback=_fixture_filesystem_fallback,
+        )
         if not existence["exists"]:
             findings.append(
                 Finding(
@@ -404,10 +414,21 @@ def _load_metadata_scopes(data: dict[str, Any]) -> list[OverrideScope]:
     return scopes
 
 
-def _entry_existence(repo_root: Path, entry: OverrideEntry, index: RepoIndex) -> dict[str, object]:
+def _entry_existence(
+    repo_root: Path,
+    entry: OverrideEntry,
+    index: RepoIndex,
+    *,
+    fixture_filesystem_fallback: bool = False,
+) -> dict[str, object]:
     if entry.tool == "mypy":
         return _mypy_entry_existence(repo_root, entry.subject, index)
-    return _ruff_entry_existence(repo_root, entry.subject, index)
+    return _ruff_entry_existence(
+        repo_root,
+        entry.subject,
+        index,
+        fixture_filesystem_fallback=fixture_filesystem_fallback,
+    )
 
 
 def _mypy_entry_existence(repo_root: Path, module: str, index: RepoIndex) -> dict[str, object]:
@@ -446,35 +467,154 @@ def _mypy_entry_existence(repo_root: Path, module: str, index: RepoIndex) -> dic
     }
 
 
-def _ruff_entry_existence(repo_root: Path, subject: str, index: RepoIndex) -> dict[str, object]:
-    if any(marker in subject for marker in GLOB_MARKERS):
-        matches = _safe_glob(repo_root, subject)
+def _ruff_entry_existence(
+    repo_root: Path,
+    subject: str,
+    index: RepoIndex,
+    *,
+    fixture_filesystem_fallback: bool = False,
+) -> dict[str, object]:
+    if subject.startswith("!"):
+        raise ValueError(f"unsupported negated Ruff per-file pattern: {subject!r}")
+    pattern = subject
+    if index.ruff_files is not None:
+        matches = _matching_current_ruff_files(index.ruff_files, subject)
         if matches:
             return {
                 "exists": True,
-                "detail": f"pattern matches {len(matches)} live path(s)",
+                "detail": f"pattern matches {len(matches)} current Ruff input path(s)",
+            }
+        if any(marker in pattern for marker in GLOB_MARKERS):
+            return {
+                "exists": False,
+                "detail": f"Ruff per-file pattern matches no current input paths: {subject}",
+            }
+        moved = _path_moved_candidates(pattern, index)
+        if moved:
+            return {
+                "exists": False,
+                "detail": (
+                    f"expected path is missing from current Ruff inputs: {subject}; "
+                    f"possible moved file candidates: {', '.join(moved)}"
+                ),
             }
         return {
             "exists": False,
-            "detail": f"Ruff per-file pattern matches no live paths: {subject}",
+            "detail": (
+                f"expected path is missing from current Ruff inputs: {subject}; "
+                "no live file with matching basename found"
+            ),
         }
 
-    path = repo_root / subject
-    if path.exists():
-        return {"exists": True, "detail": subject}
-    moved = _path_moved_candidates(subject, index)
+    if not fixture_filesystem_fallback:
+        raise ValueError(
+            "current Ruff input liveness is not established; "
+            "explicit fixture filesystem context is required"
+        )
+
+    # This branch is restricted to explicitly marked, small synthetic test roots.
+    # It uses Ruff's matcher against only that fixture tree, never the ambient repo.
+    _ruff_pattern_parts(pattern)
+    fixture_paths = tuple(
+        sorted(
+            candidate.relative_to(repo_root).as_posix()
+            for candidate in repo_root.rglob("*")
+            if candidate.is_file()
+        )
+    )
+    matches = _matching_current_ruff_files(fixture_paths, subject)
+    if matches:
+        return {
+            "exists": True,
+            "detail": f"pattern matches {len(matches)} fixture path(s)",
+        }
+    if any(marker in pattern for marker in GLOB_MARKERS):
+        return {
+            "exists": False,
+            "detail": f"Ruff per-file pattern matches no fixture paths: {subject}",
+        }
+    moved = _path_moved_candidates(pattern, index)
     if moved:
         return {
             "exists": False,
             "detail": (
-                f"expected path is missing: {subject}; possible moved file candidates: "
+                f"expected fixture path is missing: {pattern}; possible moved file candidates: "
                 f"{', '.join(moved)}"
             ),
         }
     return {
         "exists": False,
-        "detail": f"expected path is missing: {subject}; no live file with matching basename found",
+        "detail": (
+            f"expected fixture path is missing: {pattern}; "
+            "no live file with matching basename found"
+        ),
     }
+
+
+def _matching_current_ruff_files(paths: tuple[str, ...], subject: str) -> tuple[str, ...]:
+    """Match Ruff per-file patterns against current file inputs."""
+
+    if subject.startswith("!"):
+        raise ValueError(f"unsupported negated Ruff per-file pattern: {subject!r}")
+    pattern = subject
+    pattern_parts = _ruff_pattern_parts(pattern)
+    matcher = _ruff_pattern_regex(pattern_parts)
+    matches: list[str] = []
+    for path in paths:
+        path_parts = path.split("/")
+        if (
+            not path
+            or path.startswith("/")
+            or "\\" in path
+            or any(part in {"", ".", ".."} for part in path_parts)
+        ):
+            raise ValueError(f"invalid current Ruff input path: {path!r}")
+        candidate = path_parts[-1] if len(pattern_parts) == 1 else path
+        matched = matcher.fullmatch(candidate) is not None
+        if matched:
+            matches.append(path)
+    return tuple(matches)
+
+
+def _ruff_pattern_parts(pattern: str) -> tuple[str, ...]:
+    """Validate and split the positive Ruff glob subset used by repository config."""
+
+    if not pattern or pattern.startswith("/") or "\\" in pattern:
+        raise ValueError(f"unsupported Ruff per-file pattern: {pattern!r}")
+    parts = tuple(pattern.split("/"))
+    if any(part in {"", ".", ".."} for part in parts):
+        raise ValueError(f"unsupported Ruff per-file pattern: {pattern!r}")
+    for part in parts:
+        if any(token in part for token in "?[]{}!"):
+            raise ValueError(f"unsupported Ruff per-file pattern: {pattern!r}")
+        if "**" in part and part != "**":
+            raise ValueError(f"unsupported Ruff per-file pattern: {pattern!r}")
+    return parts
+
+
+def _ruff_pattern_regex(pattern_parts: tuple[str, ...]) -> re.Pattern[str]:
+    """Compile the supported Ruff glob subset with Ruff's path matching rules."""
+
+    pattern = "/".join(pattern_parts)
+    translated: list[str] = []
+    index = 0
+    while index < len(pattern):
+        if pattern.startswith("**/", index):
+            # Ruff treats a full ``**/`` component as zero or more directories.
+            translated.append("(?:.*/)?")
+            index += 3
+        elif pattern.startswith("**", index):
+            # Validation permits this only as a complete terminal component.
+            translated.append(".*")
+            index += 2
+        elif pattern[index] == "*":
+            # Ruff's single-star matcher may cross separators (confirmed against Ruff).
+            translated.append(".*")
+            index += 1
+        else:
+            translated.append(re.escape(pattern[index]))
+            index += 1
+    return re.compile("".join(translated), re.DOTALL)
 
 
 def _module_candidate_paths(repo_root: Path, module: str) -> tuple[Path, ...]:
@@ -495,7 +635,11 @@ def _matching_source_modules(index: RepoIndex, pattern: str) -> tuple[str, ...]:
     return tuple(sorted(set(modules)))
 
 
-def _build_repo_index(repo_root: Path) -> RepoIndex:
+def _build_repo_index(
+    repo_root: Path,
+    *,
+    fixture_filesystem_fallback: bool = False,
+) -> RepoIndex:
     modules: set[str] = set()
     files_by_name: dict[str, set[str]] = {}
     init_files_by_package: dict[str, set[str]] = {}
@@ -515,7 +659,52 @@ def _build_repo_index(repo_root: Path) -> RepoIndex:
         init_files_by_package={
             name: tuple(sorted(paths)) for name, paths in sorted(init_files_by_package.items())
         },
+        ruff_files=_current_ruff_files(
+            repo_root,
+            fixture_filesystem_fallback=fixture_filesystem_fallback,
+        ),
     )
+
+
+def _current_ruff_files(
+    repo_root: Path,
+    *,
+    fixture_filesystem_fallback: bool = False,
+) -> tuple[str, ...] | None:
+    """Return canonical Ruff inputs or explicit fixture absence.
+
+    Filesystem-only liveness is available solely to a caller that marks a small
+    synthetic test fixture explicitly. Unknown roots fail closed.
+    """
+
+    if repo_root.resolve() != REPO_ROOT.resolve():
+        if fixture_filesystem_fallback:
+            return None
+        raise ValueError(
+            "current Ruff input selectors are unavailable for non-canonical root: "
+            f"{repo_root}; explicit fixture context is required for synthetic roots"
+        )
+
+    from tools.devx.workspace._repo_hygiene import (
+        AUTHORED_PYTHON_LINT_SCOPE,
+        BENCHMARK_RESEARCH_SCOPE,
+        PHASE8_LIMITED_PYTHON_SCOPE,
+        current_python_files,
+        evidence_python_files,
+    )
+
+    try:
+        selected = {
+            *current_python_files(
+                AUTHORED_PYTHON_LINT_SCOPE,
+                exclude_roots=PHASE8_LIMITED_PYTHON_SCOPE,
+            ),
+            *current_python_files(BENCHMARK_RESEARCH_SCOPE),
+            *evidence_python_files(),
+        }
+    except (OSError, SystemExit) as error:
+        raise ValueError(f"could not enumerate current Ruff inputs: {error}") from error
+    return tuple(sorted(selected))
 
 
 def _module_name_from_path(source_root: Path, path: Path) -> str:
@@ -539,13 +728,6 @@ def _path_moved_candidates(subject: str, index: RepoIndex) -> tuple[str, ...]:
         return ()
     candidates = index.files_by_name.get(basename, ())
     return tuple(sorted(set(candidates))[:8])
-
-
-def _safe_glob(repo_root: Path, pattern: str) -> tuple[Path, ...]:
-    try:
-        return tuple(repo_root.glob(pattern))
-    except ValueError:
-        return ()
 
 
 def _metadata_match(entry: OverrideEntry, scopes: list[OverrideScope]) -> dict[str, object]:
@@ -662,7 +844,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def run_cli(argv: list[str] | None = None) -> int:
+def run_cli(
+    argv: list[str] | None = None,
+    *,
+    _fixture_filesystem_fallback: bool = False,
+) -> int:
     args = _parse_args(argv)
     repo_root = args.repo_root.resolve()
     try:
@@ -671,6 +857,7 @@ def run_cli(argv: list[str] | None = None) -> int:
             mypy_config=args.mypy_config,
             ruff_config=args.ruff_config,
             metadata_config=args.metadata_config,
+            _fixture_filesystem_fallback=_fixture_filesystem_fallback,
         )
     except (OSError, ValueError) as error:
         payload = {

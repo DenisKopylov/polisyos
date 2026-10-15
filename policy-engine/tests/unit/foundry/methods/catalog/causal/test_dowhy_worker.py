@@ -79,6 +79,30 @@ def test_missing_installed_profile_assets_are_a_typed_unavailability(tmp_path, m
         bridge._worker_directory()
 
 
+def test_every_runtime_required_worker_asset_is_part_of_the_shared_profile_inventory(
+    tmp_path, monkeypatch
+):
+    required = bridge._WORKER_PROFILE_REQUIRED_ASSETS
+    assert required == frozenset(
+        {"worker.py", "protocol.py", "pyproject.toml", "uv.lock", ".python-version", "README.md"}
+    )
+    module = tmp_path / "isolated_installation" / "causal" / "_dowhy_worker.py"
+    module.parent.mkdir(parents=True)
+    module.touch()
+    profile = module.parent / "_dowhy_profile"
+    profile.mkdir()
+    for name in required:
+        (profile / name).write_bytes(b"profile asset\n")
+    monkeypatch.setattr(bridge, "__file__", str(module))
+    assert bridge._worker_directory() == profile
+
+    for missing_name in sorted(required):
+        (profile / missing_name).unlink()
+        with pytest.raises(bridge.WorkerUnavailableError, match="profile assets unavailable"):
+            bridge._worker_directory()
+        (profile / missing_name).write_bytes(b"profile asset\n")
+
+
 def test_public_complete_report_builder_abi_and_real_producer_invocation(
     tmp_path, selected_worker, monkeypatch
 ):

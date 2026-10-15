@@ -7,6 +7,7 @@ import argparse
 import ast
 import gzip
 import hashlib
+import importlib.util
 import json
 import os
 import platform
@@ -21,9 +22,12 @@ import zipfile
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from defusedxml import ElementTree as SafeET
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 
 def _git_executable() -> str:
@@ -37,6 +41,7 @@ def _git_executable() -> str:
 HERE = Path(__file__).resolve().parent
 HANDOFF_ROOT = HERE.parent
 REQUIRED_PRODUCT = "policy-engine"
+RESOURCE_CONTRACT_RELATIVE = "tools/quality/validation/packaged_resource_contract.py"
 PROFILE_TARGET_ROOT = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/"
 RESOURCE_TARGET_ROOTS = (
     "polisyos/data_forge/domains/catalog/_resources/",
@@ -448,6 +453,57 @@ def safe_relative_member(name: str) -> PurePosixPath:
     return path
 
 
+def load_resource_contract_module(frozen_product: Path) -> ModuleType:
+    """Load the source-owned reusable resource contract from the frozen archive."""
+    helper_path = frozen_product / RESOURCE_CONTRACT_RELATIVE
+    resolved, _ = _read_regular_without_symlink_components(
+        helper_path, "runtime resource contract helper"
+    )
+    spec = importlib.util.spec_from_file_location("e02_q2_packaged_resource_contract", resolved)
+    if spec is None or spec.loader is None:
+        raise WaveFailure("cannot load source-owned runtime resource contract helper")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if not callable(getattr(module, "validate_manifest_resources", None)):
+        raise WaveFailure("runtime resource contract helper has no manifest validator")
+    return module
+
+
+def source_resource_inventory(
+    python: Path,
+    frozen_product: Path,
+    run_root: Path,
+    log_dir: Path,
+) -> dict[str, Any]:
+    """Derive the complete resource set by importing runtime owners from the archive."""
+    helper_path = frozen_product / RESOURCE_CONTRACT_RELATIVE
+    result = run_command(
+        [
+            str(python),
+            "-I",
+            str(helper_path),
+            "source",
+            "--product-root",
+            str(frozen_product),
+        ],
+        cwd=run_root,
+        env=clean_child_env(),
+        log_stem=log_dir / "source-runtime-resource-inventory",
+    )
+    try:
+        inventory = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise WaveFailure("source runtime resource helper did not emit valid JSON") from error
+    if (
+        type(inventory) is not dict
+        or inventory.get("schema") != "polisyos.packaged-resource-contract.v1"
+        or type(inventory.get("assets")) is not list
+        or not inventory["assets"]
+    ):
+        raise WaveFailure("source runtime resource helper returned an incomplete inventory")
+    return inventory
+
+
 def extract_git_archive(
     repo: Path, source_sha: str, destination: Path, log_dir: Path
 ) -> dict[str, Any]:
@@ -534,7 +590,9 @@ def extract_git_archive(
 
 
 def read_asset_manifest(
-    frozen_product: Path, manifest: dict[str, Any]
+    frozen_product: Path,
+    manifest: dict[str, Any],
+    owner_inventory: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     if not exact_nonbool_count_matches(manifest.get("schema_version"), 1):
         raise WaveFailure("primary manifest has an unsupported schema version")
@@ -584,6 +642,18 @@ def read_asset_manifest(
     missing_sdist = sorted(set(expected_mapping) - sdist_include)
     if missing_sdist:
         raise WaveFailure(f"frozen sdist config omits force-include source files: {missing_sdist}")
+    if owner_inventory is not None:
+        contract = load_resource_contract_module(frozen_product)
+        try:
+            contract.validate_manifest_resources(
+                owner_inventory,
+                assets,
+                force_include,
+                sdist_include,
+            )
+            contract.verify_source_resource_bytes(frozen_product, owner_inventory["assets"])
+        except (OSError, ValueError, TypeError, KeyError) as error:
+            raise WaveFailure(f"runtime-owned resource contract failed: {error}") from error
     for asset in assets:
         path = frozen_product / asset["source"]
         if not path.is_file() or path.is_symlink():
@@ -1118,11 +1188,51 @@ def installed_runtime_proof(
     profile: str,
     env: dict[str, str],
     log_dir: Path,
+    owner_inventory_path: Path,
     origin_gate_source: bytes,
 ) -> dict[str, Any]:
     expected = {
         asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets
     }
+    resource_helper = source_product / RESOURCE_CONTRACT_RELATIVE
+    resource_result = run_command(
+        [
+            str(python),
+            "-I",
+            str(resource_helper),
+            "installed",
+            "--expected-inventory",
+            str(owner_inventory_path),
+            "--purelib",
+            str(purelib),
+            "--forbidden-root",
+            str(source_product),
+            "--forbidden-root",
+            str(live_product),
+        ],
+        cwd=run_root,
+        env=clean_child_env(),
+        log_stem=log_dir / f"{profile}-importlib-resource-contract",
+    )
+    try:
+        resource_proof = json.loads(resource_result.stdout)
+    except json.JSONDecodeError as error:
+        raise WaveFailure("installed resource helper did not emit valid JSON") from error
+    if (
+        type(resource_proof) is not dict
+        or resource_proof.get("schema") != "polisyos.packaged-resource-contract.v1"
+        or set(resource_proof.get("runtime_owner_targets", [])) != set(expected)
+        or set(resource_proof.get("importlib_resources", {})) != set(expected)
+    ):
+        raise WaveFailure("installed resource helper did not prove the complete runtime owner set")
+    for target, expected_asset in expected.items():
+        observed = resource_proof["importlib_resources"].get(target)
+        if (
+            type(observed) is not dict
+            or not exact_nonbool_count_matches(observed.get("bytes"), expected_asset["bytes"])
+            or observed.get("sha256") != expected_asset["sha256"]
+        ):
+            raise WaveFailure(f"importlib.resources bytes differ from source for {target}")
     code = (
         origin_gate_source.decode("utf-8")
         + "\n"
@@ -1242,6 +1352,7 @@ def installed_runtime_proof(
             or not isinstance(actual_asset.get("installed_path"), str)
         ):
             raise WaveFailure(f"installed proof asset bytes or digest differ: {target}")
+    proof["runtime_owner_importlib_resources"] = resource_proof
     return proof
 
 
@@ -2168,7 +2279,25 @@ def run_wave(args: argparse.Namespace) -> Path:
         source_root = run_root / "frozen-source"
         archive_receipt = extract_git_archive(repo, args.source_sha, source_root, run_root / "logs")
         frozen_product = source_root / REQUIRED_PRODUCT
-        manifest, assets = read_asset_manifest(frozen_product, manifest)
+        owner_inventory = source_resource_inventory(
+            build_python,
+            frozen_product,
+            run_root,
+            run_root / "logs",
+        )
+        manifest, assets = read_asset_manifest(frozen_product, manifest, owner_inventory)
+        owner_inventory_path = run_root / "runtime-resource-owner-inventory.json"
+        json_write(owner_inventory_path, owner_inventory)
+        owner_targets = sorted(row["wheel"] for row in owner_inventory["assets"])
+        receipt["source_runtime_resource_contract"] = {
+            "helper_path": f"{REQUIRED_PRODUCT}/{RESOURCE_CONTRACT_RELATIVE}",
+            "helper_sha256": sha256_file(frozen_product / RESOURCE_CONTRACT_RELATIVE),
+            "inventory_sha256": sha256_bytes(
+                json.dumps(owner_inventory, sort_keys=True, separators=(",", ":")).encode()
+            ),
+            "resource_count": len(owner_targets),
+            "targets": owner_targets,
+        }
         project_metadata = tomllib.loads(
             (frozen_product / "pyproject.toml").read_text(encoding="utf-8")
         )["project"]
@@ -2357,6 +2486,7 @@ def run_wave(args: argparse.Namespace) -> Path:
                 name,
                 env,
                 output,
+                owner_inventory_path,
                 origin_gate_source,
             )
             worker_test_env = clean_child_env()

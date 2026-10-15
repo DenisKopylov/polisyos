@@ -4,13 +4,16 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.resources
 import importlib.util
+import io
 import json
 import os
 import shutil
 import socket
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import unittest
@@ -58,6 +61,8 @@ def _run_test_process(
 
 
 HERE = Path(__file__).resolve().parent
+PRODUCT_ROOT = HERE.parents[6]
+RESOURCE_CONTRACT_PATH = PRODUCT_ROOT / "tools/quality/validation/packaged_resource_contract.py"
 spec = importlib.util.spec_from_file_location(
     "q2_timeout_driver_under_test", HERE / "timeout_driver.py"
 )
@@ -77,12 +82,230 @@ def _load_sibling_module(module_name: str, path: Path) -> ModuleType:
 
 
 runner_api = _load_sibling_module("q2_primary_runner_under_test", HERE / "run.py")
+resource_contract_api = _load_sibling_module(
+    "q2_packaged_resource_contract_under_test", RESOURCE_CONTRACT_PATH
+)
 supplemental_api = _load_sibling_module(
     "q2_supplemental_runner_under_test", HERE / "supplemental_run.py"
 )
 audit_api = _load_sibling_module(
     "q2_source_audit_under_test", HERE / "q2-freeze-input-audit-v2-20261011.py"
 )
+
+
+def _current_audit_binding(repo: Path) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
+    ).stdout.strip()
+    helper_record = audit_api.bind_audit_helper(repo, source_sha)
+    git_profile = audit_api.git_oracle_profile(repo)
+    return source_sha, helper_record, git_profile
+
+
+@pytest.fixture(scope="module")
+def source_resource_inventory() -> dict[str, Any]:
+    result = _run_test_process(
+        [
+            sys.executable,
+            "-I",
+            str(RESOURCE_CONTRACT_PATH),
+            "source",
+            "--product-root",
+            str(PRODUCT_ROOT),
+        ],
+        check=False,
+        timeout=45,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    return json.loads(result.stdout)
+
+
+def test_source_resource_contract_derives_complete_set_from_runtime_owners(
+    source_resource_inventory: dict[str, Any],
+) -> None:
+    inventory = source_resource_inventory
+    owners = inventory["owners"]
+    assets = inventory["assets"]
+    assert len(assets) == len(owners["catalog_defaults"]) + 1 + len(owners["worker_profile_assets"])
+    owner_sources = (
+        {row["source"] for row in owners["catalog_defaults"]}
+        | {owners["digest_registry"]["source"]}
+        | {row["source"] for row in owners["worker_profile_assets"]}
+    )
+    assert {row["source"] for row in assets} == owner_sources
+    assert len({row["wheel"] for row in assets}) == len(assets)
+    assert all(row["bytes"] >= 0 and len(row["sha256"]) == 64 for row in assets)
+
+
+def test_owner_inventory_blocks_manifest_mapping_sdist_and_byte_omissions(
+    source_resource_inventory: dict[str, Any],
+) -> None:
+    assets = source_resource_inventory["assets"]
+    force_include = {row["source"]: row["wheel"] for row in assets}
+    sdist_include = set(force_include)
+    manifest_assets = [{**row, "archive": "policy-engine/" + row["source"]} for row in assets]
+    resource_contract_api.validate_manifest_resources(
+        source_resource_inventory, manifest_assets, force_include, sdist_include
+    )
+
+    with pytest.raises(resource_contract_api.ResourceContractError, match="runtime owners"):
+        resource_contract_api.validate_manifest_resources(
+            source_resource_inventory, manifest_assets[:-1], force_include, sdist_include
+        )
+    missing_target = dict(force_include)
+    missing_target.pop(assets[-1]["source"])
+    with pytest.raises(resource_contract_api.ResourceContractError, match="Hatch wheel mapping"):
+        resource_contract_api.validate_manifest_resources(
+            source_resource_inventory, manifest_assets, missing_target, sdist_include
+        )
+    with pytest.raises(resource_contract_api.ResourceContractError, match="Hatch sdist omits"):
+        resource_contract_api.validate_manifest_resources(
+            source_resource_inventory,
+            manifest_assets,
+            force_include,
+            sdist_include - {assets[-1]["source"]},
+        )
+    tampered = [dict(row) for row in manifest_assets]
+    tampered[-1]["sha256"] = "0" * 64
+    with pytest.raises(resource_contract_api.ResourceContractError, match="byte bindings"):
+        resource_contract_api.validate_manifest_resources(
+            source_resource_inventory, tampered, force_include, sdist_include
+        )
+    malformed_digest = [dict(row) for row in manifest_assets]
+    malformed_digest[-1]["sha256"] = "z" * 64
+    with pytest.raises(
+        resource_contract_api.ResourceContractError, match="byte binding is malformed"
+    ):
+        resource_contract_api.validate_manifest_resources(
+            source_resource_inventory, malformed_digest, force_include, sdist_include
+        )
+
+
+def test_primary_runner_admits_only_the_owner_derived_source_resource_manifest(
+    source_resource_inventory: dict[str, Any],
+) -> None:
+    assets = source_resource_inventory["assets"]
+    manifest = {
+        "schema_version": 1,
+        "candidate_baseline": {
+            "force_include_count": len(assets),
+            "force_include_assets": [
+                {**row, "archive": f"policy-engine/{row['source']}"} for row in assets
+            ],
+        },
+    }
+    parsed, observed = runner_api.read_asset_manifest(
+        PRODUCT_ROOT, manifest, source_resource_inventory
+    )
+    if parsed is not manifest or observed != manifest["candidate_baseline"]["force_include_assets"]:
+        raise AssertionError("primary runner did not preserve the complete owner-derived manifest")
+
+    counterfeit = json.loads(json.dumps(manifest))
+    counterfeit["candidate_baseline"]["force_include_assets"][-1]["sha256"] = "0" * 64
+    with pytest.raises(runner_api.WaveFailure, match="runtime-owned resource contract failed"):
+        runner_api.read_asset_manifest(PRODUCT_ROOT, counterfeit, source_resource_inventory)
+
+
+def test_importlib_resource_reader_rejects_missing_and_tampered_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    package = tmp_path / "e02_q2_resource_fixture"
+    resource = package / "assets" / "one.bin"
+    resource.parent.mkdir(parents=True)
+    (package / "__init__.py").write_text('"""Resource API fixture."""\n', encoding="utf-8")
+    payload = b"source-bound resource bytes\n"
+    resource.write_bytes(payload)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    importlib.invalidate_caches()
+    row = {
+        "source": "resources/one.bin",
+        "wheel": "e02_q2_resource_fixture/assets/one.bin",
+        "bytes": len(payload),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+    }
+    root = importlib.resources.files("e02_q2_resource_fixture")
+    assert (
+        resource_contract_api.verify_importlib_resource_bytes(
+            root, "e02_q2_resource_fixture", [row]
+        )[row["wheel"]]["sha256"]
+        == row["sha256"]
+    )
+    resource.write_bytes(b"tampered\n")
+    with pytest.raises(resource_contract_api.ResourceContractError, match="bytes differ"):
+        resource_contract_api.verify_importlib_resource_bytes(
+            root, "e02_q2_resource_fixture", [row]
+        )
+    resource.unlink()
+    with pytest.raises(resource_contract_api.ResourceContractError, match="resource is missing"):
+        resource_contract_api.verify_importlib_resource_bytes(
+            root, "e02_q2_resource_fixture", [row]
+        )
+
+
+def test_source_resource_reader_rejects_missing_and_changed_owner_bytes(
+    tmp_path: Path, source_resource_inventory: dict[str, Any]
+) -> None:
+    row = source_resource_inventory["assets"][0]
+    product = tmp_path / "source-product"
+    source = product / row["source"]
+    source.parent.mkdir(parents=True)
+    source.write_bytes((PRODUCT_ROOT / row["source"]).read_bytes())
+    resource_contract_api.verify_source_resource_bytes(product, [row])
+    source.write_bytes(b"changed source bytes\n")
+    with pytest.raises(resource_contract_api.ResourceContractError, match="bytes changed"):
+        resource_contract_api.verify_source_resource_bytes(product, [row])
+    source.unlink()
+    with pytest.raises(resource_contract_api.ResourceContractError, match="source is missing"):
+        resource_contract_api.verify_source_resource_bytes(product, [row])
+
+
+def test_installed_resource_inspector_rejects_present_but_empty_pythonpath(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source_resource_inventory: dict[str, Any],
+) -> None:
+    expected_path = tmp_path / "runtime-owner-inventory.json"
+    expected_path.write_text(
+        json.dumps(source_resource_inventory, sort_keys=True), encoding="utf-8"
+    )
+    monkeypatch.setenv("PYTHONPATH", "")
+    result = _run_test_process(
+        [
+            sys.executable,
+            "-I",
+            str(RESOURCE_CONTRACT_PATH),
+            "installed",
+            "--expected-inventory",
+            str(expected_path),
+        ],
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 2
+    assert result.stderr.strip() == (
+        "resource contract failed: installed resource inspection refuses PYTHONPATH"
+    )
+
+
+def test_archive_reader_refuses_one_omitted_runtime_owned_asset(
+    tmp_path: Path, source_resource_inventory: dict[str, Any]
+) -> None:
+    assets = source_resource_inventory["assets"]
+    archive_path = tmp_path / "incomplete-source.tar.gz"
+    with tarfile.open(archive_path, "w:gz") as archive:
+        for row in assets[:-1]:
+            source = PRODUCT_ROOT / row["source"]
+            data = source.read_bytes()
+            member = tarfile.TarInfo("policy-engine/" + row["source"])
+            member.size = len(data)
+            archive.addfile(member, io.BytesIO(data))
+    with pytest.raises(runner_api.WaveFailure, match="omitted force-include sources"):
+        runner_api.verify_tar_assets(
+            archive_path,
+            assets,
+            member_prefix="policy-engine/",
+            exact_force_directories=False,
+        )
 
 
 def test_audit_recomputes_frozen_resource_hashes_from_the_checkout() -> None:
@@ -100,19 +323,20 @@ def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = _run_test_process(
-        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
-    ).stdout.strip()
+    source_sha, helper_record, git_profile = _current_audit_binding(repo)
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest = (HERE / "supplemental-manifest.json").read_bytes()
     supplemental_manifest_rel = f"{audit_api.HANDOFF_REL}/raw/supplemental-manifest.json"
     capture_hook_rel = audit_api.SITE_CUSTOMIZE_REL
     capture_hook = (repo / capture_hook_rel).read_bytes()
+    resource_contract_rel = audit_api.PACKAGED_RESOURCE_CONTRACT_REL
+    resource_contract = (repo / resource_contract_rel).read_bytes()
     originals = audit_api.read_commit_blob
     source_objects = {
         audit_api.SUPPLEMENT_REL: supplemental_runner,
         supplemental_manifest_rel: supplemental_manifest,
         capture_hook_rel: capture_hook,
+        resource_contract_rel: resource_contract,
     }
 
     def read_source_object(repository: Path, commit: str, relative: str) -> bytes:
@@ -127,6 +351,8 @@ def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
         source_sha,
         str(manifest_path),
         hashlib.sha256(supplemental_manifest).hexdigest(),
+        helper_record=helper_record,
+        git_profile=git_profile,
     )
 
     for relative, payload in source_objects.items():
@@ -136,8 +362,8 @@ def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
         }
         assert capsule_bytes[relative] == payload
     assert records["tracked_git_objects"][capture_hook_rel] == {
-        "bytes": 2229,
-        "sha256": "4593febfff4242f5e2004897ed929c97566feab4266b8984a6e23c94a48e37e2",
+        "bytes": len(capture_hook),
+        "sha256": hashlib.sha256(capture_hook).hexdigest(),
     }
     assert capsule_bytes[capture_hook_rel] == capture_hook
 
@@ -146,9 +372,7 @@ def test_freeze_audit_refuses_missing_tracked_supplemental_manifest(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = _run_test_process(
-        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
-    ).stdout.strip()
+    source_sha, helper_record, git_profile = _current_audit_binding(repo)
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest_rel = f"{audit_api.HANDOFF_REL}/raw/supplemental-manifest.json"
     originals = audit_api.read_commit_blob
@@ -170,6 +394,8 @@ def test_freeze_audit_refuses_missing_tracked_supplemental_manifest(
             source_sha,
             str(manifest_path),
             hashlib.sha256((HERE / "supplemental-manifest.json").read_bytes()).hexdigest(),
+            helper_record=helper_record,
+            git_profile=git_profile,
         )
 
 
@@ -177,9 +403,7 @@ def test_freeze_audit_refuses_missing_tracked_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = _run_test_process(
-        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
-    ).stdout.strip()
+    source_sha, helper_record, git_profile = _current_audit_binding(repo)
     originals = audit_api.read_commit_blob
 
     def read_source_object(repository: Path, commit: str, relative: str) -> bytes:
@@ -200,6 +424,43 @@ def test_freeze_audit_refuses_missing_tracked_linux_capture_hook(
             source_sha,
             str(manifest_path),
             hashlib.sha256(manifest).hexdigest(),
+            helper_record=helper_record,
+            git_profile=git_profile,
+        )
+
+
+def test_freeze_audit_refuses_missing_runtime_resource_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = Path.cwd().resolve()
+    source_sha, helper_record, git_profile = _current_audit_binding(repo)
+    supplemental_manifest = (HERE / "supplemental-manifest.json").read_bytes()
+    source_objects = {
+        audit_api.SUPPLEMENT_REL: (HERE / "supplemental_run.py").read_bytes(),
+        audit_api.SUPPLEMENT_MANIFEST_REL: supplemental_manifest,
+        audit_api.SITE_CUSTOMIZE_REL: (repo / audit_api.SITE_CUSTOMIZE_REL).read_bytes(),
+    }
+    originals = audit_api.read_commit_blob
+
+    def read_source_object(repository: Path, commit: str, relative: str) -> bytes:
+        if relative == audit_api.PACKAGED_RESOURCE_CONTRACT_REL:
+            raise audit_api.AuditFailure("source object missing: runtime resource contract")
+        if relative in source_objects:
+            return source_objects[relative]
+        return originals(repository, commit, relative)
+
+    monkeypatch.setattr(audit_api, "read_commit_blob", read_source_object)
+    manifest_path = repo / audit_api.SUPPLEMENT_MANIFEST_REL
+    with pytest.raises(
+        audit_api.AuditFailure, match="source object missing: runtime resource contract"
+    ):
+        audit_api.input_file_records(
+            repo,
+            source_sha,
+            str(manifest_path),
+            hashlib.sha256(supplemental_manifest).hexdigest(),
+            helper_record=helper_record,
+            git_profile=git_profile,
         )
 
 
@@ -1790,24 +2051,36 @@ def test_source_audit_manifest_parser_rejects_schema_version_aliases() -> None:
 def test_source_audit_entrypoint_rejects_primary_schema_alias_before_collection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    repo = Path.cwd()
-    source_sha = "a" * 40
+    repo = Path.cwd().resolve()
+    source_sha, _, _ = _current_audit_binding(repo)
+    source_tree = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", f"{source_sha}^{{tree}}"]
+    ).stdout.strip()
     monkeypatch.setattr(audit_api, "require_frozen_checkout", lambda *args: None)
     monkeypatch.setattr(
         audit_api,
         "input_file_records",
-        lambda *args: (
+        lambda *args, **kwargs: (
             {"supplemental_manifest_path": str(repo / "supplied-supplement.json")},
             {},
         ),
     )
+    original_read_bytes = Path.read_bytes
+    manifest_path = (repo / audit_api.MANIFEST_REL).resolve(strict=True)
+
+    def read_manifest_bytes(path: Path) -> bytes:
+        if path.resolve(strict=False) == manifest_path:
+            return current_payload
+        return original_read_bytes(path)
+
     for index, counterfeit in enumerate((True, 1.0, "1", None, 2)):
-        payload = json.dumps({"schema_version": counterfeit}).encode("utf-8")
+        current_payload = json.dumps({"schema_version": counterfeit}).encode("utf-8")
         monkeypatch.setattr(
             audit_api,
             "read_commit_blob",
-            lambda *args, payload=payload: payload,
+            lambda *args, payload=current_payload: payload,
         )
+        monkeypatch.setattr(Path, "read_bytes", read_manifest_bytes)
         args = type(
             "Args",
             (),
@@ -1817,13 +2090,23 @@ def test_source_audit_entrypoint_rejects_primary_schema_alias_before_collection(
                 "collection_timeout_seconds": 1,
                 "output_root": str(tmp_path / f"audit-{index}"),
                 "source_sha": source_sha,
-                "source_tree": "b" * 40,
+                "source_tree": source_tree,
                 "supplemental_manifest": str(repo / "supplied-supplement.json"),
                 "supplemental_manifest_sha256": "c" * 64,
             },
         )()
         with pytest.raises(audit_api.AuditFailure, match="unsupported manifest schema version"):
             audit_api.run_audit(args)
+
+
+def test_audit_helper_refuses_a_noncanonical_invocation_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = Path.cwd().resolve()
+    source_sha, _, _ = _current_audit_binding(repo)
+    monkeypatch.setattr(audit_api, "__file__", str(tmp_path / "copied-audit-helper.py"))
+    with pytest.raises(audit_api.AuditFailure, match="canonical source path"):
+        audit_api.bind_audit_helper(repo, source_sha)
 
 
 def test_timeout_loader_rejects_primary_schema_version_aliases(

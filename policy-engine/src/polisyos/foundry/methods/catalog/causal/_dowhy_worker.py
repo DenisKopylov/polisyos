@@ -19,7 +19,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from polisyos.core import artifacts
 
@@ -27,6 +27,9 @@ _MAX_BYTES = 8 * 1024 * 1024
 _TIMEOUT_S = 60.0
 _REQUEST_SCHEMA = "polisyos.dowhy.request.v1"
 _RESPONSE_SCHEMA = "polisyos.dowhy.response.v1"
+_WORKER_PROFILE_REQUIRED_ASSETS: Final[frozenset[str]] = frozenset(
+    {"worker.py", "protocol.py", "pyproject.toml", "uv.lock", ".python-version", "README.md"}
+)
 
 
 class WorkerUnavailableError(RuntimeError):
@@ -69,6 +72,7 @@ def worker_execution_context(*, store: Any, source_ref: artifacts.ArtifactRef) -
         A content-resolved execution context; this function performs no writes.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = artifacts.ArtifactRef.model_validate(source_ref)
     raw = store.get_bytes(ref)
     manifest = store.get_manifest(ref)
@@ -91,7 +95,6 @@ def worker_execution_context(*, store: Any, source_ref: artifacts.ArtifactRef) -
 def _worker_directory() -> Path:
     """Resolve fixed canonical source assets or their unpacked-wheel projection."""
     module = Path(__file__).resolve()
-    required = {"worker.py", "protocol.py", "pyproject.toml", "uv.lock", ".python-version", "README.md"}
     packaged = module.parent / "_dowhy_profile"
     candidates = [packaged]
     candidates.extend(
@@ -100,7 +103,7 @@ def _worker_directory() -> Path:
         if (parent / "pyproject.toml").is_file()
     )
     for candidate in candidates:
-        if all((candidate / name).is_file() for name in required):
+        if all((candidate / name).is_file() for name in _WORKER_PROFILE_REQUIRED_ASSETS):
             return candidate
     raise WorkerUnavailableError("selected DoWhy profile assets unavailable in this installation")
 
@@ -212,15 +215,10 @@ def _validate_reply_fields(
         raise WorkerBindingError("worker adjustment binding mismatch")
     if (
         not _finite_json_number(result["point"])
-        or any(
-            not _finite_json_number(result[key]) for key in ("control_value", "treatment_value")
-        )
+        or any(not _finite_json_number(result[key]) for key in ("control_value", "treatment_value"))
         or (
             result["standard_error"] is not None
-            and (
-                not _finite_json_number(result["standard_error"])
-                or result["standard_error"] < 0
-            )
+            and (not _finite_json_number(result["standard_error"]) or result["standard_error"] < 0)
         )
     ):
         raise WorkerBindingError("nonfinite scalar estimate/error")

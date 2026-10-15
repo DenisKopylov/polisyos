@@ -892,6 +892,9 @@ HATCH_REL = "policy-engine/hatch.toml"
 APP_PROJECT_REL = "policy-engine/pyproject.toml"
 APP_LOCK_REL = "policy-engine/uv.lock"
 GITIGNORE_REL = "policy-engine/.gitignore"
+PACKAGED_RESOURCE_CONTRACT_REL = (
+    "policy-engine/tools/quality/validation/packaged_resource_contract.py"
+)
 DOWHY_PROJECT_REL = "policy-engine/workers/dowhy-014/pyproject.toml"
 DOWHY_LOCK_REL = "policy-engine/workers/dowhy-014/uv.lock"
 DOWHY_PYTHON_REL = "policy-engine/workers/dowhy-014/.python-version"
@@ -4129,6 +4132,7 @@ def input_file_records(
         HATCH_REL,
         APP_PROJECT_REL,
         APP_LOCK_REL,
+        PACKAGED_RESOURCE_CONTRACT_REL,
         DOWHY_PROJECT_REL,
         DOWHY_LOCK_REL,
         DOWHY_PYTHON_REL,

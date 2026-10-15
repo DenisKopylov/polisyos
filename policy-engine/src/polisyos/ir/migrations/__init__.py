@@ -60,11 +60,11 @@ def register_migration(
 
 
 def migrate_policy_ir(
-    data: dict,
+    data: dict[str, object],
     target_version: str | None = None,
     *,
     allow_major: bool = False,
-) -> dict:
+) -> dict[str, object]:
     """Migrate canonical Trinity payload versions."""
     if "schema_version" not in data:
         raise ValueError("Missing schema_version for policy IR")

@@ -20,7 +20,7 @@ register_schema_version(
 )
 
 
-def migrate_policy_ir_identity(data: dict) -> dict:
+def migrate_policy_ir_identity(data: dict[str, object]) -> dict[str, object]:
     """Validate canonical Trinity policy identity for existing helper callers."""
     bundle = TrinityBundle.model_validate(data)
     return bundle.model_dump(mode="python")

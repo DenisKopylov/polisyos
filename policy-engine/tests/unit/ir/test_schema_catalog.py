@@ -39,6 +39,14 @@ def test_schema_catalog_lists_section_filters_and_bridge_exports() -> None:
     assert any(entry.export_name == "ProvODocument" for entry in world_exports)
 
 
+def test_schema_catalog_tolerates_missing_optional_abi_registry(monkeypatch) -> None:
+    from polisyos.ir.schemas import catalog as schema_catalog
+
+    monkeypatch.setitem(sys.modules, "polisyos.schemas.abi_models", None)
+
+    assert schema_catalog._collect_abi_entries() == {}
+
+
 def test_generated_reference_catalog_is_current() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     result = subprocess.run(

@@ -11,25 +11,38 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from pathlib import PurePosixPath
-from typing import Annotated, Any, ForwardRef, get_args, get_origin
+from typing import Annotated, Any, ForwardRef, Protocol, get_args, get_origin
 
 from pydantic import BaseModel, RootModel
 
-try:  # pragma: no cover - available in repo/test env, optional for slim installs.
-    from polisyos.schemas.abi_models import ABIModelEntry, select_abi_entries
-except ImportError:  # pragma: no cover
-    ABIModelEntry = Any  # type: ignore[assignment]
-
-    def select_abi_entries(  # type: ignore[no-redef]
-        filters: object,
-        *,
-        include_deprecated: bool = False,
-    ) -> tuple[Any, ...]:
-        del filters, include_deprecated
-        return ()
-
-
 from polisyos.ir.migrations.base import CompatibilityMode, get_schema_rule
+
+
+class _ABIPriority(Protocol):
+    """Expose the ABI priority's serialized value."""
+
+    @property
+    def value(self) -> str: ...
+
+
+class _ABIModelEntry(Protocol):
+    """Expose the ABI registry field needed by the IR schema catalog."""
+
+    @property
+    def fqn(self) -> str: ...
+
+    @property
+    def abi_key(self) -> str: ...
+
+    @property
+    def schema_file(self) -> str: ...
+
+    @property
+    def priority(self) -> _ABIPriority: ...
+
+    @property
+    def version_field(self) -> str | None: ...
+
 
 _IR_PACKAGE = "polisyos.ir"
 _MEMORY_ADDRESS_RE = re.compile(r" at 0x[0-9A-Fa-f]+")
@@ -286,23 +299,23 @@ def _collect_export_map() -> dict[str, set[tuple[str, str]]]:
         package_key = package.removeprefix(f"{_IR_PACKAGE}.")
         manifest_exports = PACKAGE_FACADE_EXPORTS.get(package_key)
         if manifest_exports is not None:
-            for export_name, (target_module, target_name) in manifest_exports.items():
-                target_fqn = f"{target_module}.{target_name}"
+            for export_name, (export_module, export_name_in_module) in manifest_exports.items():
+                target_fqn = f"{export_module}.{export_name_in_module}"
                 result.setdefault(target_fqn, set()).add((package, export_name))
             continue
         lazy_imports = getattr(module, "_LAZY_IMPORTS", None)
         if isinstance(lazy_imports, dict):
-            for export_name, (target_module, target_name) in lazy_imports.items():
-                target_fqn = f"{target_module}.{target_name}"
+            for export_name, (export_module, export_name_in_module) in lazy_imports.items():
+                target_fqn = f"{export_module}.{export_name_in_module}"
                 result.setdefault(target_fqn, set()).add((package, export_name))
             continue
         for export_name in getattr(module, "__all__", ()):
             target = getattr(module, export_name)
-            target_module = getattr(target, "__module__", None)
+            target_module_value = getattr(target, "__module__", None)
             target_name = getattr(target, "__qualname__", export_name)
-            if target_module is None or not str(target_module).startswith(_IR_PACKAGE):
+            if target_module_value is None or not str(target_module_value).startswith(_IR_PACKAGE):
                 continue
-            target_fqn = f"{target_module}.{target_name}"
+            target_fqn = f"{target_module_value}.{target_name}"
             result.setdefault(target_fqn, set()).add((package, export_name))
     return result
 
@@ -315,7 +328,12 @@ def _public_packages() -> tuple[str, ...]:
     return tuple(sorted(packages))
 
 
-def _collect_abi_entries() -> dict[str, ABIModelEntry]:
+def _collect_abi_entries() -> dict[str, _ABIModelEntry]:
+    try:
+        from polisyos.schemas.abi_models import select_abi_entries
+    except ImportError:  # pragma: no cover - optional for slim installs.
+        return {}
+
     entries = select_abi_entries(None, include_deprecated=True)
     return {entry.fqn: entry for entry in entries}
 
@@ -325,7 +343,7 @@ def _build_type_info(
     *,
     fqn: str,
     export_map: dict[str, set[tuple[str, str]]],
-    abi_entry: ABIModelEntry | None,
+    abi_entry: _ABIModelEntry | None,
     type_index: dict[str, type[Any]],
 ) -> IRTypeInfo:
     kind = _kind_for(obj)
@@ -385,7 +403,7 @@ def _kind_for(obj: type[Any]) -> IRTypeKind:
 
 def _public_status_for(
     exported_from: tuple[str, ...],
-    abi_entry: ABIModelEntry | None,
+    abi_entry: _ABIModelEntry | None,
 ) -> IRPublicStatus:
     if any(entry.startswith(f"{_IR_PACKAGE}:") for entry in exported_from):
         return IRPublicStatus.ROOT_FACADE
@@ -396,7 +414,7 @@ def _public_status_for(
     return IRPublicStatus.INTERNAL
 
 
-def _schema_version_for(obj: type[Any], abi_entry: ABIModelEntry | None) -> str | None:
+def _schema_version_for(obj: type[Any], abi_entry: _ABIModelEntry | None) -> str | None:
     version_field = getattr(abi_entry, "version_field", "schema_version")
     if version_field is None:
         return None
@@ -474,8 +492,11 @@ def _default_repr(value: Any) -> str | None:
 def _dataclass_default_repr(field: dataclasses.Field[Any]) -> str | None:
     if field.default is not dataclasses.MISSING:
         return _stable_repr(field.default)
-    if field.default_factory is not dataclasses.MISSING:  # type: ignore[comparison-overlap]
-        return f"{field.default_factory.__name__}()"
+    if field.default_factory is not dataclasses.MISSING:
+        factory_name = getattr(field.default_factory, "__name__", None)
+        if not isinstance(factory_name, str):
+            factory_name = type(field.default_factory).__name__
+        return f"{factory_name}()"
     return None
 
 
@@ -494,13 +515,16 @@ def _format_annotation(annotation: Any) -> str:
     if origin is None:
         if annotation is Any:
             return "Any"
-        if getattr(annotation, "__module__", "") == "builtins":
-            return annotation.__name__
-        if hasattr(annotation, "__qualname__"):
-            module = getattr(annotation, "__module__", "")
-            if module.startswith(_IR_PACKAGE):
-                return f"{module}.{annotation.__qualname__}"
-            return annotation.__qualname__
+        module = getattr(annotation, "__module__", "")
+        if module == "builtins":
+            name = getattr(annotation, "__name__", None)
+            if isinstance(name, str):
+                return name
+        qualname = getattr(annotation, "__qualname__", None)
+        if isinstance(qualname, str):
+            if isinstance(module, str) and module.startswith(_IR_PACKAGE):
+                return f"{module}.{qualname}"
+            return qualname
         return _MEMORY_ADDRESS_RE.sub("", repr(annotation).replace("typing.", ""))
 
     args = tuple(arg for arg in get_args(annotation) if arg is not Ellipsis)

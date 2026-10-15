@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 import math
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 from statistics import NormalDist
@@ -30,7 +31,7 @@ from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable
 
     from polisyos.ir.kernel.trust import TrustPolicySpec
 
@@ -244,7 +245,9 @@ def _optional_estimand_text(value: object) -> str | None:
 def _optional_estimand_tuple(value: object) -> tuple[str, ...] | None:
     if value is None:
         return None
-    return tuple(str(item) for item in value)  # type: ignore[union-attr]
+    if not isinstance(value, Iterable):
+        raise TypeError("estimand adjustment_set must be iterable when provided")
+    return tuple(str(item) for item in value)
 
 
 def value_uncertainty_output_contract(
@@ -783,7 +786,12 @@ def _canonicalize_composition_provenance(
 ) -> dict[str, Any] | None:
     if payload is None:
         return None
-    return _canonicalize_nested_numbers(payload, policy)
+    mapping = (
+        payload.model_dump(mode="python", round_trip=True)
+        if isinstance(payload, BaseModel)
+        else payload
+    )
+    return {key: _canonicalize_nested_numbers(value, policy) for key, value in mapping.items()}
 
 
 def _origin_id_for_envelope(envelope: UncertaintyEnvelope, *, idx: int) -> str:
@@ -925,7 +933,7 @@ def _merge_certificate_radii(
     if not filtered:
         return None
     if all(isinstance(radius, (int, float)) for radius in filtered):
-        return max(float(radius) for radius in filtered)
+        return max(float(radius) for radius in filtered if isinstance(radius, (int, float)))
     merged: dict[str, float] = {}
     for radius in filtered:
         if isinstance(radius, (int, float)):
@@ -1217,14 +1225,16 @@ def _particles_from_distribution_payload(
     payload = envelope.distribution_payload
     if isinstance(payload, PosteriorSamplesCarrier):
         samples = np.asarray(payload.samples, dtype=float)
-        weights = None if payload.weights is None else np.asarray(payload.weights, dtype=float)
-        return samples, weights
+        posterior_weights = (
+            None if payload.weights is None else np.asarray(payload.weights, dtype=float)
+        )
+        return samples, posterior_weights
     if isinstance(payload, ParametricFitCarrier):
         return _particles_from_parametric_fit(payload, size), None
     if isinstance(payload, MixtureDistributionCarrier):
         component_sizes = _split_component_sizes(size, len(payload.components))
         parts: list[np.ndarray] = []
-        weights: list[np.ndarray] = []
+        component_weights: list[np.ndarray] = []
         for component, component_size in zip(payload.components, component_sizes, strict=True):
             component_payload = ParametricFitCarrier(
                 family=component.family,
@@ -1232,8 +1242,10 @@ def _particles_from_distribution_payload(
             )
             component_samples = _particles_from_parametric_fit(component_payload, component_size)
             parts.append(component_samples)
-            weights.append(np.full((component_size,), float(component.weight), dtype=float))
-        return np.concatenate(parts), np.concatenate(weights)
+            component_weights.append(
+                np.full((component_size,), float(component.weight), dtype=float)
+            )
+        return np.concatenate(parts), np.concatenate(component_weights)
     if payload is None and envelope.distribution_family is DistributionFamily.NORMAL:
         return _normal_quantile_grid(
             float(envelope.point_estimate), _std_from_envelope(envelope), size
@@ -1708,6 +1720,8 @@ def push_forward_envelope(
     base = _base_provenance(envelope)
     map_label = map_name or getattr(func, "__name__", "anonymous_map")
 
+    output_payload: DistributionCarrier | None
+    sample_size: int | None
     extracted = _samples_from_payload(envelope.distribution_payload)
     if extracted is not None:
         samples, weights = extracted
@@ -1931,6 +1945,10 @@ def pull_back_envelope(
         notes = {"mode": "local_inverse"}
         sample_size = None
     else:
+        if base_measure is None:
+            raise PullBackNotRepresentableError(
+                "pull_back_envelope requires base_measure, upstream_particles, or local_inverse"
+            )
         base_lower, base_upper = base_measure
         upstream_grid = np.linspace(float(base_lower), float(base_upper), max(int(grid_size), 3))
         mask = np.asarray(

@@ -12,7 +12,7 @@ import base64
 import math
 from collections.abc import Mapping
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -26,8 +26,10 @@ from polisyos.ir.artifacts import (
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import ArtifactRefModel
 
-POSTERIOR_SUMMARY_PROFILE_ID = "urn:policyos:ir:bayesian-posterior-summary-profile:1"
-POSTERIOR_SUMMARY_PROFILE_VERSION = "1.1"
+POSTERIOR_SUMMARY_PROFILE_ID: Final[
+    Literal["urn:policyos:ir:bayesian-posterior-summary-profile:1"]
+] = "urn:policyos:ir:bayesian-posterior-summary-profile:1"
+POSTERIOR_SUMMARY_PROFILE_VERSION: Final[Literal["1.1"]] = "1.1"
 POSTERIOR_DRAWS_SCHEMA = "foundry.bayesian.draws.v1"
 
 

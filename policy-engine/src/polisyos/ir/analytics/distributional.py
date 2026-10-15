@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from enum import Enum
-from typing import Any, ClassVar
+from typing import Any, ClassVar, overload
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -78,6 +79,18 @@ def _weakest_justification(
     return min(present, key=_justification_rank)
 
 
+@overload
+def _ensure_finite(value: None, *, field_name: str) -> None: ...
+
+
+@overload
+def _ensure_finite(value: float, *, field_name: str) -> float: ...
+
+
+@overload
+def _ensure_finite(value: float | None, *, field_name: str) -> float | None: ...
+
+
 def _ensure_finite(value: float | None, *, field_name: str) -> float | None:
     if value is None:
         return None
@@ -97,7 +110,7 @@ def _ensure_non_empty(value: str | None, *, field_name: str) -> str | None:
 
 
 def _validate_unique_artifact_refs(
-    refs: list[ArtifactRefModel],
+    refs: Sequence[ArtifactRefModel],
     *,
     field_name: str,
 ) -> None:
@@ -123,7 +136,7 @@ def _validate_ref_kind(
 
 
 def _validate_ref_list_kind(
-    refs: list[ArtifactRefModel],
+    refs: Sequence[ArtifactRefModel],
     *,
     field_name: str,
     allowed_kind: str,
@@ -154,9 +167,9 @@ def _persist_distributional_leaf(
     return ArtifactRefModel.model_validate(ref)
 
 
-def _load_distributional_leaf(
-    store: ArtifactStore, ref: ArtifactRefModel, model: type[BaseModel]
-) -> Any:
+def _load_distributional_leaf[DistributionalModelT: BaseModel](
+    store: ArtifactStore, ref: ArtifactRefModel, model: type[DistributionalModelT]
+) -> DistributionalModelT:
     payload = get_json_artifact(store, ref)
     return model.model_validate(payload)
 

@@ -235,6 +235,15 @@ def test_forecasting_uncertainty_bundle_v2_receipt_uses_reconciliation_certifica
     assert "reconciliation_certificate" in receipt.diagnostics
 
 
+def test_forecasting_uncertainty_bundle_v2_preserves_base_ordering_validation() -> None:
+    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
+    payload["schema_version"] = "2.0"
+    payload["prediction_interval"] = tuple(reversed(payload["prediction_interval"]))
+
+    with pytest.raises(ValidationError, match="prediction intervals must be sorted by horizon"):
+        ForecastingUncertaintyBundleV2.model_validate(payload)
+
+
 def test_forecasting_uncertainty_bundle_v2_cas_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     payload = _sample_bundle().model_dump(mode="python", round_trip=True)

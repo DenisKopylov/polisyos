@@ -123,7 +123,7 @@ class PartialIdentificationResult(BaseModel):
         object.__setattr__(self, "is_informative", informative)
         return self
 
-    def to_ui_dict(self) -> dict:
+    def to_ui_dict(self) -> dict[str, object]:
         """Return a JSON-serializable dict for frontend rendering."""
         return {
             "lower": self.lower_bound,
@@ -191,7 +191,7 @@ class BoundsReport(BaseModel):
         object.__setattr__(self, "is_informative", tightest.is_informative)
         return self
 
-    def to_ui_dict(self) -> dict:
+    def to_ui_dict(self) -> dict[str, object]:
         """Return a JSON-serializable dict for frontend rendering."""
         return {
             "estimand_type": self.estimand_type,

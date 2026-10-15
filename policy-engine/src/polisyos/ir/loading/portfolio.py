@@ -149,7 +149,10 @@ class InteractionMatrix(KernelModel):
         non_neutral_pairs = 0
         seen_pairs: set[tuple[str, str]] = set()
         for interaction in self.interactions:
-            pair = tuple(sorted((interaction.policy_a_id, interaction.policy_b_id)))
+            pair = (
+                min(interaction.policy_a_id, interaction.policy_b_id),
+                max(interaction.policy_a_id, interaction.policy_b_id),
+            )
             if pair in seen_pairs:
                 continue
             seen_pairs.add(pair)

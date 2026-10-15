@@ -22,7 +22,7 @@ def split_to_bundle(payload: TrinityBundle | Mapping[str, Any]) -> TrinityBundle
     return TrinityBundle.model_validate(payload)
 
 
-def is_trinity_migrated(data: dict) -> bool:
+def is_trinity_migrated(data: dict[str, object]) -> bool:
     """Return whether is trinity migrated."""
     try:
         TrinityBundle.model_validate(data)

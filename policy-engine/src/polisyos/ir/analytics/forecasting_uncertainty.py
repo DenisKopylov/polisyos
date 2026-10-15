@@ -58,6 +58,13 @@ def _coerce_python_numeric(value: Any) -> Any:
     return value
 
 
+def _canonicalize_required_float(value: float, policy: NumericPolicySpec) -> float:
+    canonical = policy.canonicalize(value)
+    if canonical is None:
+        raise ValueError("numeric policy returned None for a present value")
+    return canonical
+
+
 def _normalize_numeric_payload(value: Any, policy: NumericPolicySpec) -> Any:
     value = _coerce_python_numeric(value)
     if isinstance(value, (list, tuple)):
@@ -65,7 +72,7 @@ def _normalize_numeric_payload(value: Any, policy: NumericPolicySpec) -> Any:
             raise ValueError("numeric payload collections must be non-empty")
         return tuple(_normalize_numeric_payload(item, policy) for item in value)
     try:
-        numeric = policy.canonicalize(float(value))
+        numeric = _canonicalize_required_float(float(value), policy)
     except Exception as exc:  # pragma: no cover - defensive guard
         raise ValueError(f"numeric payload value {value!r} is not coercible to float") from exc
     if not math.isfinite(numeric):
@@ -104,7 +111,7 @@ def _canonicalize_optional_float_mapping(
         if value is None:
             normalized[horizon] = None
             continue
-        numeric = policy.canonicalize(float(value))
+        numeric = _canonicalize_required_float(float(value), policy)
         if not math.isfinite(numeric):
             raise ValueError("diagnostic mapping values must be finite when provided")
         normalized[horizon] = numeric
@@ -481,6 +488,12 @@ class ForecastingUncertaintyBundle(BaseModel):
 
     @model_validator(mode="after")
     def _validate_bundle(self) -> ForecastingUncertaintyBundle:
+        self._validate_bundle_contract()
+        return self
+
+    def _validate_bundle_contract(self) -> None:
+        """Enforce ordering invariants shared by forecasting bundle versions."""
+
         prediction_horizons = [interval.horizon for interval in self.prediction_interval]
         if prediction_horizons and prediction_horizons != sorted(prediction_horizons):
             raise ValueError("prediction intervals must be sorted by horizon")
@@ -489,7 +502,6 @@ class ForecastingUncertaintyBundle(BaseModel):
         fan_horizons = [entry.horizon for entry in self.fan_chart.horizons]
         if fan_horizons and fan_horizons != sorted(fan_horizons):
             raise ValueError("fan-chart horizons must be sorted by horizon")
-        return self
 
     def to_truthfulness_receipt(self) -> TruthfulnessReceipt:
         """Map forecasting uncertainty evidence into the shared runtime truthfulness surface."""
@@ -660,7 +672,7 @@ class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
 
     @model_validator(mode="after")
     def _validate_v2_bundle(self) -> ForecastingUncertaintyBundleV2:
-        super()._validate_bundle()
+        self._validate_bundle_contract()
         if self.calibration_method is ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION:
             if self.reconciliation_certificate is None:
                 raise ValueError(

@@ -12,6 +12,8 @@ writes remain production implementations.
 from __future__ import annotations
 
 import contextvars
+import dataclasses
+import hashlib
 import json
 import os
 import subprocess
@@ -24,6 +26,7 @@ from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 from decimal import Decimal
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -56,6 +59,8 @@ from polisyos.scientist.compute import runner as compute_runner
 from polisyos.scientist.nodes.builtins import state_keys
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
+_R4_RAW_ROOT = _REPO_ROOT / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw"
+_R4_SLOW_PAYLOAD_BUDGET_BYTES = 25 * 1024 * 1024
 _TENANT_IDS = (
     "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -86,10 +91,99 @@ _METHOD_PARAMS: dict[str, Any] = {
     "parallel_folds": False,
     "max_parallel_folds": 1,
 }
+_R4_PROFILE_CASES = (
+    {"case_id": "cap-1-configured", "capacity": 1, "bypass": False},
+    {"case_id": "cap-2-configured", "capacity": 2, "bypass": False},
+    {"case_id": "cap-1-bridge-removal", "capacity": 1, "bypass": True},
+)
+
+
+def _json_safe_metadata(value: Any) -> Any:
+    """Convert write options to JSON without copying canonical payload bytes."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Enum):
+        return _json_safe_metadata(value.value)
+    if isinstance(value, Path):
+        return str(value)
+    if hasattr(value, "model_dump"):
+        return _json_safe_metadata(value.model_dump(mode="json"))
+    if dataclasses.is_dataclass(value):
+        return {
+            field.name: _json_safe_metadata(getattr(value, field.name))
+            for field in dataclasses.fields(value)
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _json_safe_metadata(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [_json_safe_metadata(item) for item in value]
+    return str(value)
+
+
+def _attempt_all_r4_profiles(invoke_case: Any) -> list[dict[str, Any]]:
+    """Attempt every fresh-process profile before a caller decides pass/fail."""
+    attempts: list[dict[str, Any]] = []
+    for profile_case in _R4_PROFILE_CASES:
+        try:
+            outcome = invoke_case(dict(profile_case))
+        except Exception as exc:
+            outcome = {
+                "status": "parent_runner_exception",
+                "exception_type": type(exc).__name__,
+            }
+        if not isinstance(outcome, Mapping):
+            outcome = {
+                "status": "invalid_parent_runner_outcome",
+                "outcome_type": type(outcome).__name__,
+            }
+        attempts.append({**profile_case, **outcome})
+    return attempts
+
+
+def _require_all_r4_profiles_passed(attempts: list[dict[str, Any]]) -> None:
+    """Fail once after the complete configured/removal case set was attempted."""
+    expected_case_ids = [str(case["case_id"]) for case in _R4_PROFILE_CASES]
+    observed_case_ids = [str(attempt.get("case_id")) for attempt in attempts]
+    failures = [
+        attempt
+        for attempt in attempts
+        if attempt.get("status") != "passed"
+        or attempt.get("child_returncode") != 0
+        or not isinstance(attempt.get("profile_result"), dict)
+    ]
+    if observed_case_ids != expected_case_ids or failures:
+        summaries = [
+            {
+                "case_id": attempt.get("case_id"),
+                "status": attempt.get("status"),
+                "child_returncode": attempt.get("child_returncode"),
+                "output_receipts": attempt.get("output_receipts", {}),
+            }
+            for attempt in attempts
+        ]
+        raise AssertionError(
+            "R4 profile driver attempted all three fresh children before aggregate failure; "
+            f"expected={expected_case_ids}, observed={observed_case_ids}, outcomes={summaries}"
+        )
+
+
+def _r4_profile_receipt_root() -> Path:
+    """Choose a unique ignored-RAW destination for complete child receipts."""
+    configured_root = os.environ.get("POLISYOS_R4_RECEIPT_ROOT")
+    if configured_root is None:
+        configured_root = os.environ.get("POLISYOS_R4_RECEIPT_DIR")
+    root = (
+        Path(configured_root).expanduser()
+        if configured_root
+        else _R4_RAW_ROOT / f"r4-shared-admission-{uuid.uuid4().hex}"
+    )
+    if not root.resolve().is_relative_to(_R4_RAW_ROOT.resolve()):
+        raise ValueError("R4 profile receipts must be written under ignored LOCAL/raw")
+    return root
 
 
 class _ObservedWorkQueue:
-    """Measure actual queue residence for explicitly tagged executor jobs."""
+    """Measure queue residence for every shared-executor work item."""
 
     def __init__(
         self,
@@ -98,37 +192,47 @@ class _ObservedWorkQueue:
         executor: Any,
         submission_context: threading.local,
         observations: list[dict[str, Any]],
+        guard_observations: list[dict[str, Any]],
+        other_observations: list[dict[str, Any]],
         lock: Any,
     ) -> None:
         self._delegate = delegate
         self._executor = executor
         self._submission_context = submission_context
         self._observations = observations
+        self._guard_observations = guard_observations
+        self._other_observations = other_observations
         self._lock = lock
         self._queued_at_ns: dict[int, tuple[int, dict[str, Any]]] = {}
 
     def put(self, item: Any, block: bool = True, timeout: float | None = None) -> None:
         context = getattr(self._submission_context, "current", None)
         identity = id(item)
-        queued_at_ns: int | None = None
-        if item is None or context is None:
+        if item is None:
             if timeout is None:
                 self._delegate.put(item, block=block)
             else:
                 self._delegate.put(item, block=block, timeout=timeout)
             return
 
+        observed_context = dict(context or {})
+        observed_context.setdefault("observer_kind", "unclassified_executor_submission")
+        observed_context.setdefault("submission_context_missing", context is None)
+
         # Hold the existing admission lock across the real unbounded put, so
         # the active-worker snapshot cannot go stale before queue insertion.
         with self._executor._admission_lock:
             physical_workers = int(self._executor._physical_workers)
             queue_depth = int(self._delegate.qsize())
+            queued_at_ns = time.perf_counter_ns()
             observed_context = {
-                **context,
+                **observed_context,
                 "physical_workers_active_at_put": physical_workers,
                 "queue_depth_before_put": queue_depth,
+                "outstanding_jobs_at_put": int(self._executor._outstanding_jobs),
+                "queue_submitted_at_ns": queued_at_ns,
+                "queue_submit_thread_id": threading.get_ident(),
             }
-            queued_at_ns = time.perf_counter_ns()
             with self._lock:
                 self._queued_at_ns[identity] = (queued_at_ns, observed_context)
             try:
@@ -161,12 +265,39 @@ class _ObservedWorkQueue:
             if queued is None:
                 return
             queued_at_ns, context = queued
-            self._observations.append(
+            observer_kind = context.get("observer_kind")
+            if observer_kind == "method_dispatch":
+                target = self._observations
+            elif observer_kind in {
+                "runtime_cas_guard",
+                "runtime_control_store_guard",
+                "runtime_blocking_guard",
+            }:
+                target = self._guard_observations
+            else:
+                target = self._other_observations
+            target.append(
                 {
                     **context,
+                    "queue_dequeued_at_ns": dequeued_at_ns,
+                    "queue_worker_thread_id": threading.get_ident(),
                     "queue_wait_ns": dequeued_at_ns - queued_at_ns,
                 }
             )
+
+    def pending_observations(self) -> list[dict[str, Any]]:
+        """Return all submissions that have not reached a worker yet."""
+        observed_at_ns = time.perf_counter_ns()
+        with self._lock:
+            return [
+                {
+                    **context,
+                    "queue_submitted_at_ns": queued_at_ns,
+                    "queue_pending_observed_at_ns": observed_at_ns,
+                    "queue_pending_wait_ns": observed_at_ns - queued_at_ns,
+                }
+                for queued_at_ns, context in self._queued_at_ns.values()
+            ]
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._delegate, name)
@@ -225,6 +356,7 @@ def _run_child(
     """Run the two-study native witness in one isolated Runtime process."""
     import importlib
 
+    from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
     from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
     revision = f"r4-native-method-cap-{capacity}-v1"
@@ -232,6 +364,123 @@ def _run_child(
         capacity=capacity,
         revision=revision,
     )
+    # Runtime composition may use the shared executor while constructing its
+    # guarded promotion services. Configure and instrument that exact process
+    # owner first, before any Runtime/TestClient producer can start a worker.
+    async_tools.configure_shared_executor_profile(expected_profile)
+    physical_executor = async_tools.get_shared_executor()
+    assert physical_executor._max_workers == capacity
+    queue_wait_rows: list[dict[str, Any]] = []
+    guard_queue_wait_rows: list[dict[str, Any]] = []
+    other_queue_wait_rows: list[dict[str, Any]] = []
+    cas_guard_rows: list[dict[str, Any]] = []
+    slow_cas_payloads: list[dict[str, Any]] = []
+    cas_payload_inputs_by_operation: dict[str, list[dict[str, Any]]] = {}
+    cas_guard_call_sequence = 0
+    cas_diagnostic_printed = False
+    cas_guard_lock = threading.Lock()
+    cas_payload_lock = threading.Lock()
+    active_guard_operations = 0
+    cas_instrumentation_errors: list[str] = []
+    guard_operations_idle = threading.Event()
+    guard_operations_idle.set()
+    queue_observation_lock = threading.Lock()
+    queue_observation_context = threading.local()
+    active_guard_operation: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
+        "r4_active_guard_operation", default=None
+    )
+    launch_context_by_study: dict[int, dict[str, str]] = {}
+    original_put_blob_and_manifest_once = FileSystemCAS._put_blob_and_manifest_once
+
+    def observed_put_blob_and_manifest_once(
+        store: FileSystemCAS,
+        *,
+        data: bytes,
+        opts: PutOptions,
+        aid: Any,
+        sha: str,
+        return_selected_profile: bool,
+    ) -> Any:
+        active_operation = active_guard_operation.get()
+        captured: dict[str, Any] | None = None
+        if active_operation is not None and active_operation.get("is_put_json"):
+            try:
+                options = _json_safe_metadata(opts)
+                json.dumps(options, sort_keys=True, allow_nan=False)
+                schema = _json_safe_metadata(opts.schema)
+                json.dumps(schema, sort_keys=True, allow_nan=False)
+            except Exception as exc:  # instrumentation must not change CAS behavior
+                options = None
+                schema = None
+                options_error = type(exc).__name__
+            else:
+                options_error = None
+            try:
+                captured = {
+                    "operation_id": active_operation["operation_id"],
+                    "dependency_name": active_operation["dependency_name"],
+                    "study_index": active_operation["study_index"],
+                    "run_id": active_operation["run_id"],
+                    "job_id": active_operation["job_id"],
+                    "artifact_id": str(aid),
+                    "content_sha256": sha,
+                    "canonical_payload_bytes": len(data),
+                    "artifact_kind": opts.kind,
+                    "media_type": opts.media_type,
+                    "schema": schema,
+                    "return_selected_profile": return_selected_profile,
+                    "options": options,
+                    "options_capture_error": options_error,
+                    "canonical_bytes": data,
+                }
+            except Exception as exc:  # instrumentation must not change CAS behavior
+                with cas_payload_lock:
+                    cas_instrumentation_errors.append(
+                        f"payload input capture: {type(exc).__name__}"
+                    )
+        try:
+            result = original_put_blob_and_manifest_once(
+                store,
+                data=data,
+                opts=opts,
+                aid=aid,
+                sha=sha,
+                return_selected_profile=return_selected_profile,
+            )
+        except BaseException as exc:
+            if captured is not None:
+                captured["publication_outcome"] = type(exc).__name__
+                with cas_payload_lock:
+                    cas_payload_inputs_by_operation.setdefault(captured["operation_id"], []).append(
+                        captured
+                    )
+            raise
+        if captured is not None:
+            captured["publication_outcome"] = "ok"
+            try:
+                captured["selected_manifest_profile_sha256"] = result[2]
+            except Exception as exc:  # instrumentation must not change CAS behavior
+                captured["selected_profile_capture_error"] = type(exc).__name__
+            with cas_payload_lock:
+                cas_payload_inputs_by_operation.setdefault(captured["operation_id"], []).append(
+                    captured
+                )
+        return result
+
+    FileSystemCAS._put_blob_and_manifest_once = observed_put_blob_and_manifest_once
+    assert not physical_executor._threads, (
+        "actual queue residence must be instrumented before Runtime producers start"
+    )
+    observed_work_queue = _ObservedWorkQueue(
+        physical_executor._work_queue,
+        executor=physical_executor,
+        submission_context=queue_observation_context,
+        observations=queue_wait_rows,
+        guard_observations=guard_queue_wait_rows,
+        other_observations=other_queue_wait_rows,
+        lock=queue_observation_lock,
+    )
+    physical_executor._work_queue = observed_work_queue
     envs = [
         build_runtime_api_env(
             temp_root / f"runtime-{study_index}",
@@ -252,31 +501,44 @@ def _run_child(
                 runtime_context.enter_context(client)
             services = [app.state._control_service for app in apps]
             containers = [app.state.runtime_container for app in apps]
+            guard_owner_by_id: dict[int, dict[str, Any]] = {}
             assert all(
                 container.config.shared_executor_profile() == expected_profile
                 for container in containers
             )
             assert async_tools.get_shared_executor_profile() == expected_profile
+            for runtime_index, (service, container) in enumerate(
+                zip(services, containers, strict=True)
+            ):
+                guarded_stores = (
+                    ("content_addressed_storage", container.runtime_api_context.store),
+                    ("control_plane_store", service._control_store),
+                )
+                for dependency_name, guarded_store in guarded_stores:
+                    assert isinstance(guarded_store, GuardedDependencyProxy)
+                    guard = guarded_store._guard
+                    assert isinstance(guard, BlockingDependencyGuard)
+                    assert guard._dependency_name == dependency_name
+                    assert guard._executor is physical_executor
+                    guard_owner_by_id[id(guard)] = {
+                        "runtime_index": runtime_index,
+                        "dependency_name": dependency_name,
+                        "guard_object_id": id(guard),
+                        "executor_object_id": id(guard._executor),
+                        "proxy_object_id": id(guarded_store),
+                    }
+                assert service._artifact_store is container.runtime_api_context.store
             workers = [service._worker for service in services]
             assert all(worker is not None for worker in workers)
+            assert all(
+                worker._store is service._control_store
+                for worker, service in zip(workers, services, strict=True)
+            ), "ControlWorker does not consume the guarded control-store proxy"
             for worker in workers:
                 worker.stop()
 
-            physical_executor = async_tools.get_shared_executor()
-            assert physical_executor._max_workers == capacity
-            queue_wait_rows: list[dict[str, Any]] = []
-            queue_observation_lock = threading.Lock()
-            queue_observation_context = threading.local()
-            assert not physical_executor._threads, (
-                "actual queue residence must be instrumented before executor workers start"
-            )
-            physical_executor._work_queue = _ObservedWorkQueue(
-                physical_executor._work_queue,
-                executor=physical_executor,
-                submission_context=queue_observation_context,
-                observations=queue_wait_rows,
-                lock=queue_observation_lock,
-            )
+            assert async_tools.get_shared_executor() is physical_executor
+            assert physical_executor._work_queue is observed_work_queue
             worker_ids: set[int] = set()
             worker_ids_lock = threading.Lock()
             ready = threading.Barrier(capacity)
@@ -288,9 +550,17 @@ def _run_child(
                 ready.wait(timeout=10)
                 return thread_id
 
-            calibration = [
-                physical_executor.submit(identify_shared_worker) for _ in range(capacity)
-            ]
+            previous_queue_context = getattr(queue_observation_context, "current", None)
+            queue_observation_context.current = {
+                "observer_kind": "executor_calibration",
+                "purpose": "identify_actual_shared_executor_workers",
+            }
+            try:
+                calibration = [
+                    physical_executor.submit(identify_shared_worker) for _ in range(capacity)
+                ]
+            finally:
+                queue_observation_context.current = previous_queue_context
             [future.result(timeout=10) for future in calibration]
             assert len(worker_ids) == capacity
 
@@ -568,7 +838,12 @@ def _run_child(
 
             dispatcher.dispatch = observed_dispatch
 
-            original_submit = compute_runner.run_shared_executor_sync
+            # MethodBackend calls through the shared owner module imported by
+            # the production runner. Instrument that actual binding rather
+            # than assuming the helper is re-exported from compute.runner.
+            submit_owner = compute_runner.common_async_tools
+            assert submit_owner is async_tools
+            original_submit = submit_owner.run_shared_executor_sync
 
             def observed_submit(func: Any, /, *args: Any, **kwargs: Any) -> Any:
                 nonlocal submit_count, submit_active, submit_peak
@@ -592,6 +867,7 @@ def _run_child(
                 previous_queue_context = getattr(queue_observation_context, "current", None)
                 queue_observation_context.current = (
                     {
+                        "observer_kind": "method_dispatch",
                         "study_index": int(active_study.get()),
                         "method_fqn": TMLEEstimator.signature.fqn.split("@", 1)[0],
                     }
@@ -606,7 +882,7 @@ def _run_child(
                         with submission_lock:
                             submit_active -= 1
 
-            compute_runner.run_shared_executor_sync = observed_submit
+            submit_owner.run_shared_executor_sync = observed_submit
             original_fold = tmle_core._fit_crossfit_fold
 
             def observed_fold(**kwargs: Any) -> dict[str, Any]:
@@ -622,6 +898,394 @@ def _run_child(
                 return original_fold(**kwargs)
 
             tmle_core._fit_crossfit_fold = observed_fold
+
+            original_guard_run = BlockingDependencyGuard.run
+            guard_operation_contexts: dict[int, threading.local] = {}
+
+            def executor_state() -> dict[str, int]:
+                with physical_executor._admission_lock:
+                    return {
+                        "capacity": int(physical_executor._max_workers),
+                        "physical_workers_active": int(physical_executor._physical_workers),
+                        "outstanding_jobs": int(physical_executor._outstanding_jobs),
+                        "queue_depth": int(observed_work_queue.qsize()),
+                    }
+
+            def update_guard_row(row: dict[str, Any], **values: Any) -> None:
+                with cas_guard_lock:
+                    row.update(values)
+
+            def consider_slow_cas_payloads(
+                operation_id: str,
+                row: dict[str, Any],
+                *,
+                elapsed_ns: int,
+                outcome: str,
+                result: Any,
+            ) -> None:
+                with cas_payload_lock:
+                    captured = cas_payload_inputs_by_operation.pop(operation_id, [])
+                if not captured:
+                    return
+                result_ref = str(getattr(result, "artifact_id", "")) or None
+                for payload in captured:
+                    payload["guard_operation_elapsed_ns"] = elapsed_ns
+                    payload["guard_operation_outcome"] = outcome
+                    payload["result_artifact_id"] = result_ref
+                    payload["result_manifest_profile_sha256"] = getattr(
+                        result,
+                        "manifest_profile_sha256",
+                        None,
+                    )
+                    payload["operation_name"] = row["operation_name"]
+                    payload["call_outcome"] = row.get("call_outcome")
+                    with cas_payload_lock:
+                        slow_cas_payloads.append(payload)
+                        slow_cas_payloads.sort(
+                            key=lambda candidate: (
+                                int(candidate["guard_operation_elapsed_ns"]),
+                                str(candidate["operation_id"]),
+                            ),
+                            reverse=True,
+                        )
+                        del slow_cas_payloads[2:]
+
+            slow_payload_receipts: list[dict[str, Any]] = []
+
+            def persist_slowest_cas_payloads() -> list[dict[str, Any]]:
+                if slow_payload_receipts:
+                    return [dict(receipt) for receipt in slow_payload_receipts]
+                receipt_directory_raw = os.environ.get("POLISYOS_R4_RECEIPT_DIR")
+                if not receipt_directory_raw:
+                    return [
+                        {
+                            "payload_retention_status": "receipt_directory_not_configured",
+                            "operation_id": payload["operation_id"],
+                            "artifact_id": payload["artifact_id"],
+                            "content_sha256": payload["content_sha256"],
+                            "canonical_payload_bytes": payload["canonical_payload_bytes"],
+                            "guard_operation_elapsed_ns": payload["guard_operation_elapsed_ns"],
+                        }
+                        for payload in slow_cas_payloads
+                    ]
+                receipt_directory = Path(receipt_directory_raw).resolve()
+                raw_root = _R4_RAW_ROOT.resolve()
+                if not receipt_directory.is_relative_to(raw_root):
+                    return [
+                        {
+                            "payload_retention_status": "receipt_directory_outside_ignored_raw",
+                            "operation_id": payload["operation_id"],
+                            "artifact_id": payload["artifact_id"],
+                            "content_sha256": payload["content_sha256"],
+                            "canonical_payload_bytes": payload["canonical_payload_bytes"],
+                            "guard_operation_elapsed_ns": payload["guard_operation_elapsed_ns"],
+                        }
+                        for payload in slow_cas_payloads
+                    ]
+
+                receipt_directory.mkdir(parents=True, exist_ok=True)
+                retained_bytes = 0
+                with cas_payload_lock:
+                    candidates = [dict(payload) for payload in slow_cas_payloads]
+                for rank, payload in enumerate(candidates, start=1):
+                    payload_bytes = payload.pop("canonical_bytes")
+                    byte_count = len(payload_bytes)
+                    receipt: dict[str, Any] = {
+                        "operation_id": payload["operation_id"],
+                        "artifact_id": payload["artifact_id"],
+                        "content_sha256": payload["content_sha256"],
+                        "canonical_payload_bytes": byte_count,
+                        "guard_operation_elapsed_ns": payload["guard_operation_elapsed_ns"],
+                    }
+                    if retained_bytes + byte_count > _R4_SLOW_PAYLOAD_BUDGET_BYTES:
+                        receipt["payload_retention_status"] = "per_child_raw_budget_exceeded"
+                        slow_payload_receipts.append(receipt)
+                        continue
+                    payload_stem = (
+                        f"slow-put-json-{rank:02d}-{payload['operation_id']}-"
+                        f"{payload['content_sha256'][:12]}"
+                    )
+                    payload_path = receipt_directory / f"{payload_stem}.canonical.json"
+                    metadata_path = receipt_directory / f"{payload_stem}.metadata.json"
+                    try:
+                        payload_path.write_bytes(payload_bytes)
+                        metadata_path.write_text(
+                            json.dumps(payload, sort_keys=True, allow_nan=False, indent=2) + "\n",
+                            encoding="utf-8",
+                        )
+                    except Exception as exc:  # retain runtime behavior if disk is unavailable
+                        receipt["payload_retention_status"] = (
+                            f"receipt_write_failed:{type(exc).__name__}"
+                        )
+                    else:
+                        retained_bytes += byte_count
+                        receipt.update(
+                            {
+                                "payload_retention_status": "retained",
+                                "payload_path": str(payload_path),
+                                "metadata_path": str(metadata_path),
+                            }
+                        )
+                    slow_payload_receipts.append(receipt)
+                return [dict(receipt) for receipt in slow_payload_receipts]
+
+            def cas_diagnostic_snapshot() -> dict[str, Any]:
+                with cas_guard_lock:
+                    guard_calls = [dict(row) for row in cas_guard_rows]
+                with queue_observation_lock:
+                    guard_queue_submissions = [dict(row) for row in guard_queue_wait_rows]
+                    other_queue_submissions = [dict(row) for row in other_queue_wait_rows]
+                    method_queue_submissions = [dict(row) for row in queue_wait_rows]
+                with cas_guard_lock:
+                    pending_guard_operations = active_guard_operations
+                return {
+                    "capacity": capacity,
+                    "bypass": bypass,
+                    "shared_executor_object_id": id(physical_executor),
+                    "guard_bindings": sorted(
+                        [dict(binding) for binding in guard_owner_by_id.values()],
+                        key=lambda binding: (
+                            int(binding["runtime_index"]),
+                            str(binding["dependency_name"]),
+                        ),
+                    ),
+                    "active_guard_operations_at_snapshot": pending_guard_operations,
+                    "guard_count_by_dependency": dict(
+                        Counter(str(row["dependency_name"]) for row in guard_calls)
+                    ),
+                    "guard_calls": guard_calls,
+                    "executor_queue_submissions": sorted(
+                        [
+                            *guard_queue_submissions,
+                            *other_queue_submissions,
+                            *method_queue_submissions,
+                        ],
+                        key=lambda row: int(row["queue_submitted_at_ns"]),
+                    ),
+                    "guard_executor_queue_submissions": guard_queue_submissions,
+                    "other_executor_queue_submissions": other_queue_submissions,
+                    "method_executor_queue_submissions": method_queue_submissions,
+                    "pending_executor_queue_submissions": (
+                        observed_work_queue.pending_observations()
+                    ),
+                    "slow_canonical_put_json_payloads": persist_slowest_cas_payloads(),
+                    "instrumentation_errors": list(cas_instrumentation_errors),
+                }
+
+            def emit_cas_diagnostic() -> None:
+                nonlocal cas_diagnostic_printed
+                if cas_diagnostic_printed:
+                    return
+                drain_started_ns = time.perf_counter_ns()
+                drain_completed = guard_operations_idle.wait(timeout=5.0)
+                drain_elapsed_ns = time.perf_counter_ns() - drain_started_ns
+                if not drain_completed:
+                    with cas_guard_lock:
+                        outstanding = active_guard_operations
+                    print(
+                        "R4_GUARD_OPERATION_DRAIN="
+                        + json.dumps(
+                            {
+                                "completed": False,
+                                "timeout_seconds": 5.0,
+                                "elapsed_ns": drain_elapsed_ns,
+                                "active_operations": outstanding,
+                            },
+                            sort_keys=True,
+                        ),
+                        flush=True,
+                    )
+                print(
+                    "R4_CAS_GUARD_DIAGNOSTIC="
+                    + json.dumps(
+                        cas_diagnostic_snapshot(),
+                        sort_keys=True,
+                        allow_nan=False,
+                    ),
+                    flush=True,
+                )
+                cas_diagnostic_printed = True
+
+            def observed_guard_run(
+                guard: BlockingDependencyGuard,
+                func: Any,
+                *args: Any,
+                **kwargs: Any,
+            ) -> Any:
+                nonlocal cas_guard_call_sequence
+                owner_binding = guard_owner_by_id.get(id(guard))
+                if owner_binding is None:
+                    return original_guard_run(guard, func, *args, **kwargs)
+
+                with cas_guard_lock:
+                    cas_guard_call_sequence += 1
+                    operation_id = f"guard-{cas_guard_call_sequence:04d}"
+                    execution_context = guard_operation_contexts.setdefault(
+                        id(guard), threading.local()
+                    )
+                    parent_operation_id = getattr(execution_context, "current_operation_id", None)
+
+                active_study_index = active_study.get()
+                runtime_index = int(owner_binding["runtime_index"])
+                study_index = (
+                    active_study_index if active_study_index is not None else runtime_index
+                )
+                launch_context = launch_context_by_study.get(study_index, {})
+                nested_attempt = getattr(guard._execution, "attempt", None) is not None
+                operation_name = str(getattr(func, "__qualname__", type(func).__name__))
+                dependency_name = str(owner_binding["dependency_name"])
+                observer_kind = (
+                    "runtime_cas_guard"
+                    if dependency_name == "content_addressed_storage"
+                    else "runtime_control_store_guard"
+                )
+                observed_at_ns = time.perf_counter_ns()
+                state_at_call = executor_state()
+                row: dict[str, Any] = {
+                    "operation_id": operation_id,
+                    "parent_guard_operation_id": parent_operation_id,
+                    "guard_owner_index": runtime_index,
+                    "guard_object_id": id(guard),
+                    "executor_object_id": id(guard._executor),
+                    "dependency_name": guard._dependency_name,
+                    "guard_proxy_object_id": owner_binding["proxy_object_id"],
+                    "operation_name": operation_name,
+                    "study_index": study_index,
+                    "active_study_context": active_study_index,
+                    "identity_binding_basis": (
+                        "active_study_context"
+                        if active_study_index is not None
+                        else "runtime_guard_owner_mapping"
+                    ),
+                    "run_id": launch_context.get("run_id"),
+                    "job_id": launch_context.get("job_id"),
+                    "active_method_fqn": active_method_fqn.get(),
+                    "nested_guard_attempt": nested_attempt,
+                    "call_thread_id": threading.get_ident(),
+                    "call_is_shared_executor_worker": (
+                        async_tools.is_current_shared_executor_worker()
+                    ),
+                    "call_observed_at_ns": observed_at_ns,
+                    "executor_state_at_call": state_at_call,
+                }
+                with cas_guard_lock:
+                    cas_guard_rows.append(row)
+
+                def observed_operation(*call_args: Any, **call_kwargs: Any) -> Any:
+                    nonlocal active_guard_operations
+                    previous_operation_id = getattr(execution_context, "current_operation_id", None)
+                    execution_context.current_operation_id = operation_id
+                    state_at_operation_start = executor_state()
+                    operation_started_at_ns = time.perf_counter_ns()
+                    with cas_guard_lock:
+                        active_guard_operations += 1
+                        guard_operations_idle.clear()
+                    update_guard_row(
+                        row,
+                        operation_started_at_ns=operation_started_at_ns,
+                        operation_thread_id=threading.get_ident(),
+                        operation_is_shared_executor_worker=(
+                            async_tools.is_current_shared_executor_worker()
+                        ),
+                        executor_state_at_operation_start=state_at_operation_start,
+                    )
+                    active_context_token = active_guard_operation.set(
+                        {
+                            "operation_id": operation_id,
+                            "parent_guard_operation_id": parent_operation_id,
+                            "guard_object_id": id(guard),
+                            "executor_object_id": id(guard._executor),
+                            "dependency_name": dependency_name,
+                            "study_index": study_index,
+                            "run_id": launch_context.get("run_id"),
+                            "job_id": launch_context.get("job_id"),
+                            "is_put_json": operation_name.endswith(".put_json")
+                            or operation_name == "put_json",
+                        }
+                    )
+                    operation_result: Any = None
+                    operation_outcome = "unknown"
+                    try:
+                        operation_result = func(*call_args, **call_kwargs)
+                    except BaseException as exc:
+                        operation_outcome = type(exc).__name__
+                        update_guard_row(row, operation_outcome=operation_outcome)
+                        raise
+                    else:
+                        operation_outcome = "ok"
+                        update_guard_row(row, operation_outcome="ok")
+                        return operation_result
+                    finally:
+                        finished_at_ns = time.perf_counter_ns()
+                        elapsed_ns = finished_at_ns - operation_started_at_ns
+                        update_guard_row(
+                            row,
+                            operation_finished_at_ns=finished_at_ns,
+                            operation_elapsed_ns=elapsed_ns,
+                            executor_state_at_operation_end=executor_state(),
+                        )
+                        active_guard_operation.reset(active_context_token)
+                        execution_context.current_operation_id = previous_operation_id
+                        try:
+                            consider_slow_cas_payloads(
+                                operation_id,
+                                row,
+                                elapsed_ns=elapsed_ns,
+                                outcome=operation_outcome,
+                                result=operation_result,
+                            )
+                        except Exception as exc:  # instrumentation must not change CAS behavior
+                            with cas_payload_lock:
+                                cas_instrumentation_errors.append(
+                                    f"slow payload selection: {type(exc).__name__}"
+                                )
+                        finally:
+                            with cas_guard_lock:
+                                active_guard_operations -= 1
+                                if active_guard_operations == 0:
+                                    guard_operations_idle.set()
+
+                previous_queue_context = getattr(queue_observation_context, "current", None)
+                if nested_attempt:
+                    queue_observation_context.current = previous_queue_context
+                else:
+                    queue_observation_context.current = {
+                        "observer_kind": observer_kind,
+                        "operation_id": operation_id,
+                        "parent_guard_operation_id": parent_operation_id,
+                        "guard_owner_index": runtime_index,
+                        "dependency_name": dependency_name,
+                        "study_index": study_index,
+                        "run_id": launch_context.get("run_id"),
+                        "job_id": launch_context.get("job_id"),
+                        "operation_name": operation_name,
+                    }
+                call_started_at_ns = time.perf_counter_ns()
+                update_guard_row(row, call_started_at_ns=call_started_at_ns)
+                try:
+                    result = original_guard_run(
+                        guard,
+                        observed_operation,
+                        *args,
+                        **kwargs,
+                    )
+                except BaseException as exc:
+                    update_guard_row(row, call_outcome=type(exc).__name__)
+                    raise
+                else:
+                    update_guard_row(row, call_outcome="ok")
+                    return result
+                finally:
+                    finished_at_ns = time.perf_counter_ns()
+                    update_guard_row(
+                        row,
+                        call_finished_at_ns=finished_at_ns,
+                        call_elapsed_ns=finished_at_ns - call_started_at_ns,
+                        executor_state_at_call_end=executor_state(),
+                    )
+                    queue_observation_context.current = previous_queue_context
+
+            BlockingDependencyGuard.run = observed_guard_run
 
             try:
                 launches: dict[int, Any] = {}
@@ -643,6 +1307,10 @@ def _run_child(
                         study_profiles[study_index] = method_params
                         run_id = new_run_id()
                         job_id = uuid.uuid4().hex
+                        launch_context_by_study[study_index] = {
+                            "run_id": run_id,
+                            "job_id": job_id,
+                        }
                         policy = service._resolve_execution_policy(
                             requested_profile="dev",
                             policy_flags=PolicyFlags(),
@@ -735,7 +1403,12 @@ def _run_child(
                         terminal_jobs.append(
                             services[study_index]._control_store.get_job(launch.job_id)
                         )
-                assert all(job is not None and job.state == "completed" for job in terminal_jobs), (
+                jobs_completed = all(
+                    job is not None and job.state == "completed" for job in terminal_jobs
+                )
+                if not jobs_completed:
+                    emit_cas_diagnostic()
+                assert jobs_completed, (
                     "control jobs failed before complete result readback; "
                     f"jobs={[None if job is None else (job.job_id, job.state, job.error_message) for job in terminal_jobs]}, "
                     f"producer_entries={producer_entries}, "
@@ -926,6 +1599,12 @@ def _run_child(
                     "executor_queue_wait_basis": (
                         "perf_counter_ns from immediately before actual work-queue delegate.put() to immediately after get()/get_nowait(); rows also retain the admission-lock-stable active-worker count and pre-insertion queue depth; state qualifies but never replaces measured residence"
                     ),
+                    "cas_guard_diagnostic": {
+                        **cas_diagnostic_snapshot(),
+                        "basis": (
+                            "test-only observation of the actual Runtime CAS BlockingDependencyGuard, its configured SharedExecutor submission, queue residence, callable service interval, calling/worker thread IDs, and observed run/job context; callable arguments, payloads, and exception messages are intentionally omitted"
+                        ),
+                    },
                     "dispatches_on_shared_workers": owner_dispatch_count,
                     "dispatch_count": len(dispatch_rows),
                     "run_experiment_entries": producer_entries,
@@ -942,7 +1621,9 @@ def _run_child(
                     "bypass": bypass,
                 }
             finally:
-                compute_runner.run_shared_executor_sync = original_submit
+                emit_cas_diagnostic()
+                BlockingDependencyGuard.run = original_guard_run
+                submit_owner.run_shared_executor_sync = original_submit
                 compute_runner.MethodBackend.run = original_method_backend_run
                 dispatcher.dispatch = original_dispatch
                 tmle_core._fit_crossfit_fold = original_fold
@@ -952,6 +1633,7 @@ def _run_child(
 
         return results
     finally:
+        FileSystemCAS._put_blob_and_manifest_once = original_put_blob_and_manifest_once
         for env in reversed(envs):
             close_runtime_api_env(env)
 
@@ -975,7 +1657,41 @@ def test_r4_native_child(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     print("R4_NATIVE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
 
 
-def _invoke_child(*, capacity: int, bypass: bool = False) -> dict[str, Any]:
+def _decode_child_stream(output: str | bytes | None) -> str:
+    return output.decode("utf-8", errors="replace") if isinstance(output, bytes) else output or ""
+
+
+def _parse_json_markers(output: str, marker: str) -> tuple[list[dict[str, Any]], list[str]]:
+    payloads: list[dict[str, Any]] = []
+    errors: list[str] = []
+    for line in output.splitlines():
+        if not line.startswith(marker):
+            continue
+        try:
+            payload = json.loads(line[len(marker) :])
+        except json.JSONDecodeError as exc:
+            errors.append(type(exc).__name__)
+            continue
+        if isinstance(payload, dict):
+            payloads.append(payload)
+        else:
+            errors.append("marker_payload_not_object")
+    return payloads, errors
+
+
+def _invoke_child(
+    *,
+    capacity: int,
+    bypass: bool = False,
+    case_id: str | None = None,
+    receipt_directory: Path | None = None,
+) -> dict[str, Any]:
+    profile = "removal" if bypass else "configured"
+    case_id = case_id or f"cap-{capacity}-{profile}"
+    receipt_directory = receipt_directory or (_r4_profile_receipt_root() / case_id)
+    if not receipt_directory.resolve().is_relative_to(_R4_RAW_ROOT.resolve()):
+        raise ValueError("R4 profile child outputs must be retained under ignored LOCAL/raw")
+    receipt_directory.mkdir(parents=True, exist_ok=True)
     child_env = dict(os.environ)
     child_env.update(
         {
@@ -989,58 +1705,105 @@ def _invoke_child(*, capacity: int, bypass: bool = False) -> dict[str, Any]:
             "POLISYOS_EXECUTION_PROFILE": "dev",
             "POLISYOS_RUNNER_BACKEND": "local",
             "LOG_LEVEL": "WARNING",
+            "POLISYOS_R4_RECEIPT_DIR": str(receipt_directory),
         }
     )
+    command = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/integration/scientist/orchestration/workflows/"
+        "test_r4_shared_study_admission.py::test_r4_native_child",
+    ]
     child_started_ns = time.perf_counter_ns()
     try:
         completed = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pytest",
-                "-q",
-                "-s",
-                "tests/integration/scientist/orchestration/workflows/"
-                "test_r4_shared_study_admission.py::test_r4_native_child",
-            ],
+            command,
             cwd=_REPO_ROOT,
             env=child_env,
             capture_output=True,
-            text=True,
+            text=False,
             timeout=180,
             check=False,
         )
         child_process_elapsed_ns = time.perf_counter_ns() - child_started_ns
     except subprocess.TimeoutExpired as exc:
-        _retain_child_output(
+        output_receipts = _retain_child_output(
             capacity=capacity,
             bypass=bypass,
             stdout=exc.stdout,
             stderr=exc.stderr,
+            receipt_directory=receipt_directory,
         )
-        raise
-    _retain_child_output(
+        stdout = _decode_child_stream(exc.stdout)
+        stderr = _decode_child_stream(exc.stderr)
+        guard_payloads, guard_parse_errors = _parse_json_markers(
+            stdout,
+            "R4_CAS_GUARD_DIAGNOSTIC=",
+        )
+        return {
+            "case_id": case_id,
+            "capacity": capacity,
+            "bypass": bypass,
+            "status": "child_timeout",
+            "child_returncode": None,
+            "profile_result": None,
+            "guard_diagnostic": guard_payloads[-1] if guard_payloads else None,
+            "guard_diagnostic_parse_errors": guard_parse_errors,
+            "timeout_seconds": 180,
+            "output_receipts": output_receipts,
+            "stdout_tail": _diagnostic_tail(stdout),
+            "stderr_tail": _diagnostic_tail(stderr),
+            "child_elapsed_ns": time.perf_counter_ns() - child_started_ns,
+            "command": command,
+        }
+    output_receipts = _retain_child_output(
         capacity=capacity,
         bypass=bypass,
         stdout=completed.stdout,
         stderr=completed.stderr,
+        receipt_directory=receipt_directory,
     )
-    marker = "R4_NATIVE_RESULT="
-    payloads = [
-        line[len(marker) :] for line in completed.stdout.splitlines() if line.startswith(marker)
-    ]
-    assert completed.returncode == 0 and len(payloads) == 1, (
-        f"R4 child cap={capacity} bypass={bypass} failed ({completed.returncode})\n"
-        f"stdout tail:\n{_diagnostic_tail(completed.stdout)}\n"
-        f"stderr tail:\n{_diagnostic_tail(completed.stderr)}"
+    stdout = _decode_child_stream(completed.stdout)
+    stderr = _decode_child_stream(completed.stderr)
+    native_results, native_parse_errors = _parse_json_markers(stdout, "R4_NATIVE_RESULT=")
+    guard_payloads, guard_parse_errors = _parse_json_markers(
+        stdout,
+        "R4_CAS_GUARD_DIAGNOSTIC=",
     )
-    result = json.loads(payloads[0])
-    assert isinstance(result, dict)
-    result["child_process_elapsed_ns"] = child_process_elapsed_ns
-    result["child_process_elapsed_basis"] = (
-        "parent monotonic_ns around subprocess.run; includes isolated Python/pytest startup, the full controlled profile, CAS readback, shutdown, and child exit"
+    profile_result = native_results[0] if len(native_results) == 1 else None
+    if profile_result is not None:
+        profile_result["child_process_elapsed_ns"] = child_process_elapsed_ns
+        profile_result["child_process_elapsed_basis"] = (
+            "parent monotonic_ns around subprocess.run; includes isolated Python/pytest startup, the full controlled profile, CAS readback, shutdown, and child exit"
+        )
+    status = (
+        "passed"
+        if completed.returncode == 0 and profile_result is not None and not native_parse_errors
+        else "child_failed"
+        if completed.returncode != 0
+        else "native_result_missing_or_malformed"
     )
-    return result
+    return {
+        "case_id": case_id,
+        "capacity": capacity,
+        "bypass": bypass,
+        "status": status,
+        "child_returncode": completed.returncode,
+        "profile_result": profile_result,
+        "guard_diagnostic": guard_payloads[-1] if guard_payloads else None,
+        "native_result_count": len(native_results),
+        "native_result_parse_errors": native_parse_errors,
+        "guard_diagnostic_count": len(guard_payloads),
+        "guard_diagnostic_parse_errors": guard_parse_errors,
+        "output_receipts": output_receipts,
+        "stdout_tail": _diagnostic_tail(stdout),
+        "stderr_tail": _diagnostic_tail(stderr),
+        "child_elapsed_ns": child_process_elapsed_ns,
+        "command": command,
+    }
 
 
 def _retain_child_output(
@@ -1049,20 +1812,31 @@ def _retain_child_output(
     bypass: bool,
     stdout: str | bytes | None,
     stderr: str | bytes | None,
-) -> None:
+    receipt_directory: Path | None = None,
+) -> dict[str, Any]:
     """Persist complete native child output before any parent assertion."""
-    receipt_directory = os.environ.get("POLISYOS_R4_RECEIPT_DIR")
-    if not receipt_directory:
-        return
-    directory = Path(receipt_directory)
+    configured_directory = receipt_directory or (
+        Path(os.environ["POLISYOS_R4_RECEIPT_DIR"])
+        if os.environ.get("POLISYOS_R4_RECEIPT_DIR")
+        else None
+    )
+    if configured_directory is None:
+        return {}
+    directory = Path(configured_directory)
     directory.mkdir(parents=True, exist_ok=True)
     profile = "removal" if bypass else "configured"
     stem = f"cap-{capacity}-{profile}"
+    receipts: dict[str, Any] = {}
     for stream_name, output in (("stdout", stdout), ("stderr", stderr)):
-        content = (
-            output.decode("utf-8", errors="replace") if isinstance(output, bytes) else output or ""
-        )
-        (directory / f"{stem}.{stream_name}.txt").write_text(content, encoding="utf-8")
+        content = output if isinstance(output, bytes) else (output or "").encode("utf-8")
+        path = directory / f"{stem}.{stream_name}.txt"
+        path.write_bytes(content)
+        receipts[stream_name] = {
+            "path": str(path),
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "bytes": len(content),
+        }
+    return receipts
 
 
 def _diagnostic_tail(output: str, *, limit: int = 80) -> str:
@@ -1110,38 +1884,91 @@ def test_r4_child_output_retention_writes_full_timeout_streams(
     )
 
 
+def test_r4_profile_driver_attempts_all_cases_before_aggregate_failure() -> None:
+    """Exercise continuation with three tiny controlled child processes."""
+    controlled_child = (
+        "import json, sys; "
+        "case_id = sys.argv[1]; "
+        "status = 'controlled_failure' if case_id == 'cap-1-configured' else 'passed'; "
+        "print('R4_DRIVER_CONTROLLED=' + json.dumps({'case_id': case_id, 'status': status})); "
+        "sys.exit(7 if status == 'controlled_failure' else 0)"
+    )
+    attempted_case_ids: list[str] = []
+
+    def invoke_controlled_case(profile_case: dict[str, Any]) -> dict[str, Any]:
+        case_id = str(profile_case["case_id"])
+        attempted_case_ids.append(case_id)
+        completed = subprocess.run(
+            [sys.executable, "-c", controlled_child, case_id],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        markers, parse_errors = _parse_json_markers(
+            completed.stdout,
+            "R4_DRIVER_CONTROLLED=",
+        )
+        child_result = markers[0] if len(markers) == 1 else None
+        return {
+            "status": (
+                "passed"
+                if completed.returncode == 0
+                and child_result is not None
+                and child_result.get("status") == "passed"
+                else "child_failed"
+            ),
+            "child_returncode": completed.returncode,
+            "profile_result": child_result,
+            "controlled_stdout": completed.stdout,
+            "controlled_stderr": completed.stderr,
+            "controlled_parse_errors": parse_errors,
+        }
+
+    attempts = _attempt_all_r4_profiles(invoke_controlled_case)
+    assert attempted_case_ids == [str(case["case_id"]) for case in _R4_PROFILE_CASES]
+    assert [attempt["status"] for attempt in attempts] == ["child_failed", "passed", "passed"]
+    with pytest.raises(AssertionError, match="attempted all three fresh children"):
+        _require_all_r4_profiles_passed(attempts)
+
+
 def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> None:
     """Measure cap 1/2, preserve results, and prove bridge removal escapes the cap."""
-    cap_one = _invoke_child(capacity=1)
-    if os.environ.get("POLISYOS_R4_CAP1_DIAGNOSTIC_ONLY") == "1":
-        print("R4_NATIVE_CAP1_DIAGNOSTIC=" + json.dumps(cap_one, sort_keys=True), flush=True)
-        assert cap_one["capacity"] == 1
-        assert cap_one["source"] == "candidate_configured_runtime_profile"
-        assert cap_one["profile_revision"] == "r4-native-method-cap-1-v1"
-        assert cap_one["completed_jobs"] == 2
-        assert cap_one["control_worker_results"] == [True, True]
-        assert cap_one["run_experiment_entries"] == 2
-        assert cap_one["run_experiment_peak_active"] == 2
-        assert cap_one["method_backend_entries"] == cap_one["submit_count"] == 2
-        assert cap_one["submit_peak_active"] == 2
-        assert cap_one["dispatch_count"] == 2
-        assert cap_one["dispatch_peak"] == 1
-        assert cap_one["dispatches_on_shared_workers"] == 2
-        assert cap_one["expected_fold_count"] == cap_one["observed_fold_count"] == 12
-        assert set(cap_one["study_outputs"]) == {"0", "1"}
-        for study_index, output in cap_one["study_outputs"].items():
-            assert output["causal_node_status"] == "ok", (
-                f"study {study_index} causal node failed: {output['causal_node_error']}"
-            )
-            assert output["causal_node_error"] is None
-            assert output["input_owner_scope"]["scope_class"] == "admitted_scope"
-            assert output["result_owner_scope"]["scope_class"] == "admitted_scope"
-            assert output["evidence_owner_scope"]["scope_class"] == "admitted_scope"
-            assert output["state_linked"]
-            assert output["evidence_state_linked"]
-        return
-    cap_two = _invoke_child(capacity=2)
-    no_bridge = _invoke_child(capacity=1, bypass=True)
+    receipt_root = _r4_profile_receipt_root()
+
+    def invoke_profile(profile_case: dict[str, Any]) -> dict[str, Any]:
+        case_id = str(profile_case["case_id"])
+        return _invoke_child(
+            capacity=int(profile_case["capacity"]),
+            bypass=bool(profile_case["bypass"]),
+            case_id=case_id,
+            receipt_directory=receipt_root / case_id,
+        )
+
+    attempts = _attempt_all_r4_profiles(invoke_profile)
+    print(
+        "R4_NATIVE_PROFILE_ATTEMPTS="
+        + json.dumps(
+            [
+                {
+                    "case_id": attempt["case_id"],
+                    "status": attempt["status"],
+                    "child_returncode": attempt.get("child_returncode"),
+                    "output_receipts": attempt.get("output_receipts", {}),
+                    "guard_diagnostic_present": attempt.get("guard_diagnostic") is not None,
+                }
+                for attempt in attempts
+            ],
+            sort_keys=True,
+            allow_nan=False,
+        ),
+        flush=True,
+    )
+    _require_all_r4_profiles_passed(attempts)
+    profile_results = {str(attempt["case_id"]): attempt["profile_result"] for attempt in attempts}
+    cap_one = profile_results["cap-1-configured"]
+    cap_two = profile_results["cap-2-configured"]
+    no_bridge = profile_results["cap-1-bridge-removal"]
     for profile in (cap_one, cap_two, no_bridge):
         assert profile["profile_elapsed_ns"] >= 0
         assert profile["child_process_elapsed_ns"] > 0
@@ -1158,6 +1985,16 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         flush=True,
     )
 
+    assert cap_one["capacity"] == 1
+    assert cap_one["source"] == "candidate_configured_runtime_profile"
+    assert cap_one["profile_revision"] == "r4-native-method-cap-1-v1"
+    assert cap_one["control_worker_results"] == [True, True]
+    assert cap_one["run_experiment_peak_active"] == 2
+    assert cap_one["submit_peak_active"] == 2
+    assert cap_one["dispatch_count"] == 2
+    assert cap_one["dispatches_on_shared_workers"] == 2
+    assert set(cap_one["study_outputs"]) == {"0", "1"}
+
     assert cap_one["dispatch_peak"] == 1
     assert cap_two["dispatch_peak"] == 2
     for profile in (cap_one, cap_two, no_bridge):
@@ -1168,6 +2005,15 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
     for profile in (cap_one, cap_two):
         assert profile["physical_active_workers_peak"] == profile["capacity"]
         assert len(profile["executor_queue_wait_observations"]) == 2
+    for profile in (cap_one, cap_two, no_bridge):
+        diagnostic = profile["cas_guard_diagnostic"]
+        assert diagnostic["shared_executor_object_id"]
+        assert len(diagnostic["guard_bindings"]) == 4
+        assert set(diagnostic["guard_count_by_dependency"]) == {
+            "content_addressed_storage",
+            "control_plane_store",
+        }
+        assert diagnostic["executor_queue_submissions"]
     assert cap_one["completed_jobs"] == cap_two["completed_jobs"] == 2
     for profile in (cap_one, cap_two):
         for study_index, output in profile["study_outputs"].items():

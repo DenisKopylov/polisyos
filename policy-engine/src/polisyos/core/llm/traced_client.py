@@ -10,6 +10,7 @@ Intercepts LLM calls to record:
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import hashlib
 import inspect
 import json
@@ -17,6 +18,9 @@ import logging
 import threading
 import time
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any
@@ -36,6 +40,8 @@ from .settlement import (
     LLMProducerSettlement,
     LLMSettledResponse,
     LLMSettlementAck,
+    LLMSettlementIntegrityError,
+    LLMSettlementOwnershipError,
     _CacheReuseOwner,
 )
 
@@ -96,6 +102,35 @@ class LLMAccountingError(RuntimeError):
             "LLM provider result received but mandatory accounting failed; "
             f"reconciliation required: {cause}",
         )
+
+
+@dataclass
+class _ProducerSettlementRoute:
+    """One call-scoped owner selected from the actual nested client chain."""
+
+    clients: tuple[TracedLLMClient, ...]
+    owner: TracedLLMClient
+    store: Any | None
+    required_accounting: Any | None
+    metrics: Any | None
+    call_observer: Any | None
+    intent: Any | None = None
+    readback_record: Any | None = None
+    settlement: LLMProducerSettlement | None = None
+
+
+_ACTIVE_PRODUCER_ROUTE: contextvars.ContextVar[_ProducerSettlementRoute | None] = (
+    contextvars.ContextVar("polisyos_active_llm_producer_route", default=None)
+)
+
+
+@contextmanager
+def _producer_route_scope(route: _ProducerSettlementRoute) -> Iterator[None]:
+    token = _ACTIVE_PRODUCER_ROUTE.set(route)
+    try:
+        yield
+    finally:
+        _ACTIVE_PRODUCER_ROUTE.reset(token)
 
 
 def _settlement_ack(
@@ -186,7 +221,9 @@ class TracedLLMClient:
             raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
         self._client = client
         if cache_reuse_owner is None:
-            cache_reuse_owner = getattr(client, "_cache_reuse_owner", None)
+            inherited_owner = getattr(client, "_cache_reuse_owner", None)
+            if type(inherited_owner) is _CacheReuseOwner and inherited_owner.owns(client):
+                cache_reuse_owner = inherited_owner
         if cache_reuse_owner is not None and (
             type(cache_reuse_owner) is not _CacheReuseOwner or not cache_reuse_owner.owns(client)
         ):
@@ -198,9 +235,10 @@ class TracedLLMClient:
         self._pending_ledger_observation_ids: set[str] = set()
         self._producer_intents_lock = threading.Lock()
         self._cache_settlement_hooks = False
-        configure_hooks = getattr(client, "set_producer_settlement_hooks", None)
+        configure_hooks = getattr(type(client), "set_producer_settlement_hooks", None)
         if producer_settlement_store is not None and callable(configure_hooks):
             configure_hooks(
+                client,
                 begin=self._begin_provider_event,
                 settle=self._settle_provider_response,
                 unknown=self._settle_unknown_provider_event,
@@ -397,7 +435,12 @@ class TracedLLMClient:
         return hashlib.sha256(payload).hexdigest()
 
     def _begin_provider_event(
-        self, event_id: str, request_digest: str, provider: str | None = None
+        self,
+        event_id: str,
+        request_digest: str,
+        provider: str | None = None,
+        *,
+        route: _ProducerSettlementRoute | None = None,
     ) -> Any | None:
         store = self._producer_settlement_store
         if store is None:
@@ -405,6 +448,13 @@ class TracedLLMClient:
         begin = getattr(store, "begin_producer_event_safe", None)
         if not callable(begin):
             raise TypeError("producer settlement store lacks durable begin operation")
+        active_route = route or _ACTIVE_PRODUCER_ROUTE.get()
+        if (
+            active_route is not None
+            and active_route.owner is self
+            and active_route.store is not store
+        ):
+            raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
         intent = begin(
             event_id,
             request_digest,
@@ -412,6 +462,8 @@ class TracedLLMClient:
             model=self._model_name,
             provider=provider or self._detect_provider(),
         )
+        if active_route is not None and active_route.owner is self:
+            active_route.intent = intent
         with self._producer_intents_lock:
             self._producer_intents_by_event[event_id] = intent
         return intent
@@ -450,22 +502,158 @@ class TracedLLMClient:
             amount=amount,
             cost_origin=cost_origin,
         )
-        settlement = self._persist_producer_event(event)
-        self._observe_provider_settlement(parsed, settlement)
+        route = _ACTIVE_PRODUCER_ROUTE.get()
+        settlement = self._persist_producer_event(event, route=route)
+        self._observe_provider_settlement(parsed, settlement, route=route)
         return settlement
 
     def _start_direct_producer_event(
-        self, args: tuple[Any, ...], kwargs: dict[str, Any], provider: str
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        provider: str,
+        route: _ProducerSettlementRoute,
     ) -> tuple[str, str] | None:
-        if self._producer_settlement_store is None:
+        if self._producer_settlement_store is None or route.owner is not self:
             return None
         event_id = f"llm-provider:{uuid.uuid4().hex}"
         request_digest = self._request_digest(args, kwargs)
-        self._begin_provider_event(event_id, request_digest, provider)
+        self._begin_provider_event(event_id, request_digest, provider, route=route)
         return event_id, request_digest
 
+    def _traced_client_chain(self) -> tuple[TracedLLMClient, ...]:
+        """Return traced wrappers discoverable through the actual `_client` chain."""
+        clients = [self]
+        current = self._client
+        visited: set[int] = set()
+        while id(current) not in visited:
+            visited.add(id(current))
+            if isinstance(current, TracedLLMClient):
+                clients.append(current)
+            nested = getattr(current, "_client", None)
+            if nested is None or nested is current:
+                break
+            current = nested
+        return tuple(clients)
+
+    def _resolve_producer_route(self) -> _ProducerSettlementRoute:
+        """Select one real wrapper/store owner and reject ambiguous nested stores."""
+        clients = self._traced_client_chain()
+        inherited = _ACTIVE_PRODUCER_ROUTE.get()
+        if inherited is not None and any(client is self for client in inherited.clients):
+            if any(
+                client._producer_settlement_store is not None
+                and client._producer_settlement_store is not inherited.store
+                for client in clients
+            ):
+                raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
+            return inherited
+
+        stores = [
+            (client, client._producer_settlement_store)
+            for client in clients
+            if client._producer_settlement_store is not None
+        ]
+        if stores:
+            selected_store = stores[0][1]
+            if any(store is not selected_store for _, store in stores[1:]):
+                raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
+            owner = stores[-1][0]
+            store = selected_store
+        else:
+            owner = self
+            store = None
+
+        def selected(attribute: str) -> Any | None:
+            preferred = getattr(owner, attribute)
+            if preferred is not None:
+                return preferred
+            return next(
+                (
+                    getattr(client, attribute)
+                    for client in clients
+                    if getattr(client, attribute) is not None
+                ),
+                None,
+            )
+
+        return _ProducerSettlementRoute(
+            clients=clients,
+            owner=owner,
+            store=store,
+            required_accounting=selected("_required_accounting"),
+            metrics=selected("_metrics"),
+            call_observer=selected("_call_observer"),
+        )
+
+    def _validate_nested_owner_response(
+        self,
+        response: Any,
+        route: _ProducerSettlementRoute,
+    ) -> None:
+        """Admit a nested result only when bytes and live owner readback agree."""
+        if type(response) is not LLMSettledResponse:
+            raise LLMSettlementIntegrityError("producer_settlement_owner_ack_missing")
+        settlement = response.settlement
+        if route.settlement is None or settlement is not route.settlement:
+            raise LLMSettlementIntegrityError("producer_settlement_owner_ack_mismatch")
+        parsed = extract_llm_response_data(
+            response,
+            cache_reuse_owner=route.owner._cache_reuse_owner,
+        )
+        response_digest = hashlib.sha256(parsed.content.encode("utf-8")).hexdigest()
+        if settlement.event.response_digest != response_digest:
+            raise LLMSettlementIntegrityError("producer_response_digest_mismatch")
+
+        ack = settlement.ack
+        if route.store is None:
+            if ack.status == "committed" and ack.durability == "ledger":
+                raise LLMSettlementIntegrityError("producer_settlement_readback_missing")
+            return
+
+        resolve = getattr(route.store, "resolve_producer_event_safe", None)
+        if not callable(resolve):
+            if ack.status == "committed":
+                raise LLMSettlementIntegrityError("producer_settlement_readback_missing")
+            return
+        try:
+            current = resolve(settlement.event.event_id)
+        except Exception as exc:
+            raise LLMSettlementIntegrityError("producer_settlement_readback_unavailable") from exc
+        if current is None:
+            if ack.status == "committed" or ack.durability == "ledger":
+                raise LLMSettlementIntegrityError("producer_settlement_readback_missing")
+            return
+        owner = route.owner
+        if current != route.readback_record or not owner._readback_matches_producer_event(
+            current,
+            route.intent,
+            settlement.event,
+        ):
+            raise LLMSettlementIntegrityError("producer_settlement_readback_mismatch")
+        if current.status == "committed":
+            if (
+                ack.status != "committed"
+                or ack.durability != "ledger"
+                or ack.receipts != (settlement.event.event_id,)
+            ):
+                raise LLMSettlementIntegrityError("producer_settlement_ack_status_mismatch")
+        elif ack.status != "unknown" or ack.durability != "ledger" or ack.receipts:
+            raise LLMSettlementIntegrityError("producer_settlement_ack_status_mismatch")
+
+    def _nested_owner_is_below(
+        self,
+        route: _ProducerSettlementRoute,
+    ) -> bool:
+        return any(client is route.owner for client in self._traced_client_chain()[1:])
+
     def _settle_unknown_provider_event(
-        self, event_id: str, request_digest: str, error: BaseException
+        self,
+        event_id: str,
+        request_digest: str,
+        error: BaseException,
+        *,
+        route: _ProducerSettlementRoute | None = None,
     ) -> LLMProducerSettlement | None:
         intent = self._producer_intent_for_event(event_id)
         provider = intent.provider if intent is not None else self._detect_provider()
@@ -482,8 +670,14 @@ class TracedLLMClient:
             cost_origin="unknown",
         )
         try:
-            settlement = self._persist_producer_event(event)
-            self._observe_provider_settlement(None, settlement, status="error")
+            active_route = route or _ACTIVE_PRODUCER_ROUTE.get()
+            settlement = self._persist_producer_event(event, route=active_route)
+            self._observe_provider_settlement(
+                None,
+                settlement,
+                status="error",
+                route=active_route,
+            )
             self._clear_pending_ledger_observation(event_id)
             return settlement
         except Exception:
@@ -498,6 +692,7 @@ class TracedLLMClient:
         settlement: LLMProducerSettlement,
         *,
         status: str = "success",
+        route: _ProducerSettlementRoute | None = None,
     ) -> None:
         """Expose the durable provider outcome even if its waiter is cancelled."""
 
@@ -568,9 +763,14 @@ class TracedLLMClient:
             "settlement_durability": settlement.ack.durability,
             "settlement_receipts": list(settlement.ack.receipts),
         }
-        self._notify_call_observer(event)
+        self._notify_call_observer(event, observer=route.call_observer if route else None)
 
-    def _notify_call_observer(self, event: dict[str, Any]) -> None:
+    def _notify_call_observer(
+        self,
+        event: dict[str, Any],
+        *,
+        observer: Any | None = None,
+    ) -> None:
         """Deliver one observed call event per immutable producer event ID."""
         event_id = event.get("event_id")
         if isinstance(event_id, str):
@@ -578,14 +778,15 @@ class TracedLLMClient:
                 if event_id in self._pending_ledger_observation_ids:
                     self._pending_ledger_observation_ids.discard(event_id)
                     return
-        if self._call_observer is None:
+        selected_observer = observer if observer is not None else self._call_observer
+        if selected_observer is None:
             return
         if isinstance(event_id, str):
             if event_id in self._observed_call_event_ids:
                 return
             self._observed_call_event_ids.add(event_id)
         try:
-            self._call_observer(dict(event))
+            selected_observer(dict(event))
         except Exception:
             # Observability callback must never break agent execution.
             logging.getLogger(__name__).debug(
@@ -633,7 +834,12 @@ class TracedLLMClient:
             raise
         return response, self._settle_provider_response(*intent, response)
 
-    def _persist_producer_event(self, event: LLMProducerEvent) -> LLMProducerSettlement:
+    def _persist_producer_event(
+        self,
+        event: LLMProducerEvent,
+        *,
+        route: _ProducerSettlementRoute | None = None,
+    ) -> LLMProducerSettlement:
         store = self._producer_settlement_store
         if store is None:
             ack = LLMSettlementAck(
@@ -645,6 +851,11 @@ class TracedLLMClient:
             raise TypeError("producer settlement store lacks durable settlement operation")
         with self._producer_intents_lock:
             intent = self._producer_intents_by_event.get(event.event_id)
+        active_route = route or _ACTIVE_PRODUCER_ROUTE.get()
+        if active_route is not None and active_route.owner is self:
+            if active_route.store is not store:
+                raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
+            active_route.readback_record = None
         try:
             record = settle(
                 event.event_id,
@@ -658,6 +869,8 @@ class TracedLLMClient:
                 origin_event_id=event.origin_event_id,
             )
             if self._readback_matches_producer_event(record, intent, event):
+                if active_route is not None and active_route.owner is self:
+                    active_route.readback_record = record
                 status = "committed" if record.status == "committed" else "unknown"
                 durability = "ledger"
                 receipts = (event.event_id,) if status == "committed" else ()
@@ -675,6 +888,8 @@ class TracedLLMClient:
             except Exception:
                 record = None
             if self._readback_matches_producer_event(record, intent, event):
+                if active_route is not None and active_route.owner is self:
+                    active_route.readback_record = record
                 if record.status == "pending":
                     with self._producer_intents_lock:
                         self._pending_ledger_observation_ids.add(event.event_id)
@@ -740,6 +955,7 @@ class TracedLLMClient:
         producer_event_id: str | None = None,
         request_digest: str | None = None,
         prior_settlement: LLMProducerSettlement | None = None,
+        route: _ProducerSettlementRoute | None = None,
     ) -> LLMProducerSettlement:
         prompt_tokens = parsed.origin_prompt_tokens
         if prompt_tokens is None:
@@ -781,8 +997,15 @@ class TracedLLMClient:
             else None
         )
 
-        prior = prior_settlement or getattr(response, "producer_settlement", None)
-        if type(prior) is not LLMProducerSettlement or parsed.cache_hit:
+        passthrough_settlement = (
+            response.settlement if type(response) is LLMSettledResponse else None
+        )
+        prior = (
+            prior_settlement
+            or passthrough_settlement
+            or getattr(response, "producer_settlement", None)
+        )
+        if type(prior) is not LLMProducerSettlement:
             prior = None
         provider_event_id = producer_event_id or getattr(response, "producer_event_id", None)
         event_id = (
@@ -799,6 +1022,8 @@ class TracedLLMClient:
         if parsed.cache_hit and parsed.reuse_request_digest:
             resolved_request_digest = parsed.reuse_request_digest
         response_digest = hashlib.sha256(parsed.content.encode("utf-8")).hexdigest()
+        if prior is not None and prior.event.response_digest != response_digest:
+            raise LLMSettlementIntegrityError("producer_response_digest_mismatch")
         producer_event = (
             prior.event
             if prior is not None
@@ -855,6 +1080,7 @@ class TracedLLMClient:
                     producer_event.event_id,
                     producer_event.request_digest,
                     provider,
+                    route=route,
                 )
             except Exception:
                 logging.getLogger(__name__).warning(
@@ -867,11 +1093,14 @@ class TracedLLMClient:
                     durability="ledger",
                 )
             else:
-                prior = self._persist_producer_event(producer_event)
+                prior = self._persist_producer_event(producer_event, route=route)
                 callback_result = prior.ack
-        if self._required_accounting is not None:
+        required_accounting = (
+            route.required_accounting if route is not None else self._required_accounting
+        )
+        if required_accounting is not None:
             try:
-                callback_result = self._required_accounting(dict(event))
+                callback_result = required_accounting(dict(event))
             except Exception as exc:
                 raise LLMAccountingError(
                     response=response,
@@ -902,9 +1131,10 @@ class TracedLLMClient:
         span.set_attribute("polisyos.llm.usage_origin", parsed.usage_origin)
 
         metrics_status = "not_configured"
-        if metrics is not None:
+        selected_metrics = route.metrics if route is not None else metrics
+        if selected_metrics is not None and passthrough_settlement is None:
             try:
-                metrics.record_llm_call(
+                selected_metrics.record_llm_call(
                     model=producer_event.model,
                     status=event["status"],
                     prompt_tokens=billable_prompt_tokens,
@@ -928,7 +1158,7 @@ class TracedLLMClient:
             prior.ack
             if prior is not None
             else _settlement_ack(
-                producer_event, callback_result, required=self._required_accounting is not None
+                producer_event, callback_result, required=required_accounting is not None
             )
         )
         event["settlement_status"] = ack.status
@@ -936,12 +1166,20 @@ class TracedLLMClient:
         event["receipts"] = list(ack.receipts)
         event["settlement_durability"] = ack.durability
         event["settlement_receipts"] = list(ack.receipts)
-        self._notify_call_observer(event)
-        return LLMProducerSettlement(producer_event, ack)
+        if passthrough_settlement is None:
+            self._notify_call_observer(
+                event,
+                observer=route.call_observer if route is not None else None,
+            )
+        settlement = LLMProducerSettlement(producer_event, ack)
+        if route is not None and route.owner is self:
+            route.settlement = settlement
+        return settlement
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
+        route = self._resolve_producer_route()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
@@ -954,14 +1192,20 @@ class TracedLLMClient:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
                 producer_intent = self._start_direct_producer_event(
-                    call_args, call_kwargs, provider
+                    call_args, call_kwargs, provider, route
                 )
-                response = self._client.invoke(*call_args, **call_kwargs)
-                prior_settlement = (
-                    self._settle_provider_response(*producer_intent, response)
-                    if producer_intent is not None
-                    else None
-                )
+                with _producer_route_scope(route):
+                    response = self._client.invoke(*call_args, **call_kwargs)
+                    prior_settlement = (
+                        self._settle_provider_response(*producer_intent, response)
+                        if producer_intent is not None
+                        else None
+                    )
+                if route.owner is not self:
+                    if self._nested_owner_is_below(route):
+                        self._validate_nested_owner_response(response, route)
+                    span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                    return response
                 parsed = extract_llm_response_data(
                     response, cache_reuse_owner=self._cache_reuse_owner
                 )
@@ -978,16 +1222,22 @@ class TracedLLMClient:
                     producer_event_id=producer_intent[0] if producer_intent else None,
                     request_digest=producer_intent[1] if producer_intent else None,
                     prior_settlement=prior_settlement,
+                    route=route,
                 )
+                route.settlement = settlement
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return LLMSettledResponse(self._restore_response(response), settlement)
+            except (LLMSettlementIntegrityError, LLMSettlementOwnershipError) as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except LLMAccountingError as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 raise
             except Exception as exc:
                 if producer_intent is not None:
-                    self._settle_unknown_provider_event(*producer_intent, exc)
+                    self._settle_unknown_provider_event(*producer_intent, exc, route=route)
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 self._record_error_metric(
@@ -999,6 +1249,7 @@ class TracedLLMClient:
     async def ainvoke(self, prompt: str, **kwargs: Any) -> Any:
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
+        route = self._resolve_producer_route()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
@@ -1011,11 +1262,17 @@ class TracedLLMClient:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
                 producer_intent = self._start_direct_producer_event(
-                    call_args, call_kwargs, provider
+                    call_args, call_kwargs, provider, route
                 )
-                response, prior_settlement = await self._await_direct_provider(
-                    self._client.ainvoke(*call_args, **call_kwargs), producer_intent
-                )
+                with _producer_route_scope(route):
+                    response, prior_settlement = await self._await_direct_provider(
+                        self._client.ainvoke(*call_args, **call_kwargs), producer_intent
+                    )
+                if route.owner is not self:
+                    if self._nested_owner_is_below(route):
+                        self._validate_nested_owner_response(response, route)
+                    span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                    return response
                 parsed = extract_llm_response_data(
                     response, cache_reuse_owner=self._cache_reuse_owner
                 )
@@ -1032,16 +1289,22 @@ class TracedLLMClient:
                     producer_event_id=producer_intent[0] if producer_intent else None,
                     request_digest=producer_intent[1] if producer_intent else None,
                     prior_settlement=prior_settlement,
+                    route=route,
                 )
+                route.settlement = settlement
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return LLMSettledResponse(self._restore_response(response), settlement)
+            except (LLMSettlementIntegrityError, LLMSettlementOwnershipError) as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except LLMAccountingError as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 raise
             except Exception as exc:
                 if producer_intent is not None:
-                    self._settle_unknown_provider_event(*producer_intent, exc)
+                    self._settle_unknown_provider_event(*producer_intent, exc, route=route)
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 self._record_error_metric(
@@ -1057,6 +1320,7 @@ class TracedLLMClient:
         prompt_kwargs.pop("prompt", None)
         prompt_text = self._build_prompt_text(prompt, **prompt_kwargs)
         provider = self._detect_provider()
+        route = self._resolve_producer_route()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
@@ -1073,11 +1337,18 @@ class TracedLLMClient:
                 )
                 if not self._cache_settlement_hooks:
                     producer_intent = self._start_direct_producer_event(
-                        sanitized_args, sanitized_kwargs, provider
+                        sanitized_args, sanitized_kwargs, provider, route
                     )
-                response, prior_settlement = await self._await_direct_provider(
-                    self._client.generate(*sanitized_args, **sanitized_kwargs), producer_intent
-                )
+                with _producer_route_scope(route):
+                    response, prior_settlement = await self._await_direct_provider(
+                        self._client.generate(*sanitized_args, **sanitized_kwargs),
+                        producer_intent,
+                    )
+                if route.owner is not self:
+                    if self._nested_owner_is_below(route):
+                        self._validate_nested_owner_response(response, route)
+                    span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                    return response
                 parsed = extract_llm_response_data(
                     response, cache_reuse_owner=self._cache_reuse_owner
                 )
@@ -1094,16 +1365,22 @@ class TracedLLMClient:
                     producer_event_id=producer_intent[0] if producer_intent else None,
                     request_digest=producer_intent[1] if producer_intent else None,
                     prior_settlement=prior_settlement,
+                    route=route,
                 )
+                route.settlement = settlement
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return LLMSettledResponse(self._restore_response(response), settlement)
+            except (LLMSettlementIntegrityError, LLMSettlementOwnershipError) as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except LLMAccountingError as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 raise
             except Exception as exc:
                 if producer_intent is not None:
-                    self._settle_unknown_provider_event(*producer_intent, exc)
+                    self._settle_unknown_provider_event(*producer_intent, exc, route=route)
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
                 self._record_error_metric(

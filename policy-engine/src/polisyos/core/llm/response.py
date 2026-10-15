@@ -99,9 +99,13 @@ def extract_llm_response_data(response: Any, *, cache_reuse_owner: Any = None) -
             cache_hit = True
             prompt_tokens_billable = completion_tokens_billable = 0
             cost_usd_billable = 0.0
+            reuse_event_id = _as_str(getattr(event, "event_id", None))
+            origin_event_id = _as_str(getattr(event, "origin_event_id", None))
+            reuse_request_digest = _as_str(getattr(event, "request_digest", None))
         elif amount is None:
             cost_usd_billable = None
         else:
+            cache_hit = False
             cost_usd_billable = float(amount)
         settlement_status = getattr(ack, "status", None)
     else:

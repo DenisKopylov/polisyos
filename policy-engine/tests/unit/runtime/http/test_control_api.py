@@ -1786,6 +1786,7 @@ class TestLaunchNlRun:
             attempt_status = service.get_pre_admission_attempt_status(
                 attempt_ids[0], request_id="req-attempt-history", principal=principal
             )
+            attempt_record = service._control_store.get_pre_admission_attempt(attempt_ids[0])
             from polisyos.runtime.http.errors import RuntimeHTTPError
 
             other_principal = RuntimePrincipal(
@@ -1835,16 +1836,20 @@ class TestLaunchNlRun:
             assert attempt_status.failure_code == "provider_preflight_settlement_unavailable"
             if preflight_status == "complete_without_event":
                 # A producer self-label without the exact durable event is unresolved.
-                assert (
-                    preflight_calls[0][
-                        "producer_settlement_store"
-                    ].list_producer_events_for_run_safe(preflight_calls[0]["producer_run_binding"])
-                    == []
-                )
+                producer_rows = preflight_calls[0][
+                    "producer_settlement_store"
+                ].list_producer_events_for_run_safe(preflight_calls[0]["producer_run_binding"])
+                assert producer_rows == ()
         assert execute_called is False
         binding = preflight_inputs["producer_run_binding"]
-        assert binding.run_id == attempt_status.run_id
-        assert binding.control_job_id == attempt_status.candidate_job_id
+        # candidate_job_id belongs to the internal durable launch intent; the public
+        # response exposes only an admitted job_id. Compare the binding to the
+        # durable intent and the DTO's job_id to its persisted projection separately.
+        assert attempt_record is not None
+        assert binding.run_id == attempt_status.run_id == attempt_record.run_id
+        assert binding.control_job_id == attempt_record.candidate_job_id
+        assert attempt_record.producer_run_binding == binding.model_dump(mode="json")
+        assert attempt_status.job_id == attempt_record.job_id
         assert binding.tenant_id == "tenant-fixture"
         assert binding.cell_id == "cell-fixture"
         assert binding.profile_id == "research"

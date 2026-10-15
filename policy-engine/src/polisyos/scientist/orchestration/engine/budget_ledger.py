@@ -159,8 +159,70 @@ class BudgetLedgerProducerRecord(BaseModel):
             raise ValueError("committed producer outcome requires a known amount")
         if self.status in {"unknown", "committed"} and self.payload_digest is None:
             raise ValueError("settled producer outcome requires a response digest")
+        if self.cost_origin == "reuse":
+            if (
+                self.status != "committed"
+                or self.amount != Decimal(0)
+                or not self.origin_event_id
+                or not self.origin_event_id.strip()
+            ):
+                raise ValueError("producer_reuse_origin_invalid")
+        elif self.origin_event_id is not None:
+            raise ValueError("producer_reuse_origin_unexpected")
         if self.run_binding is not None and self.key != f"nl-run:{self.run_binding.run_id}":
             raise ValueError("producer_run_binding_budget_key_mismatch")
+
+    def _validate_new_settlement_origin(
+        self,
+        source: BudgetLedgerProducerRecord | None,
+    ) -> None:
+        """Require a new reuse write to bind an exact committed source in this ledger."""
+        if self.cost_origin != "reuse":
+            if self.origin_event_id is not None:
+                raise ValueError("producer_reuse_origin_unexpected")
+            return
+        if (
+            self.status != "committed"
+            or self.amount != Decimal(0)
+            or not self.origin_event_id
+            or not self.origin_event_id.strip()
+        ):
+            raise ValueError("producer_reuse_origin_invalid")
+        if source is None or source.event_id != self.origin_event_id:
+            raise ValueError("producer_reuse_origin_missing")
+        source_has_known_physical_cost = (
+            source.status == "committed"
+            and source.cost_origin in {"reported", "estimated"}
+            and source.amount is not None
+            and source.amount.is_finite()
+            and source.amount >= Decimal(0)
+        )
+        source_has_terminal_unknown_cost = (
+            source.status == "unknown" and source.cost_origin == "unknown" and source.amount is None
+        )
+        if (
+            source.event_id == self.event_id
+            or not (source_has_known_physical_cost or source_has_terminal_unknown_cost)
+            or source.payload_digest is None
+            or source.origin_event_id is not None
+            or source.key != self.key
+            or source.request_digest != self.request_digest
+            or source.model != self.model
+            or source.provider != self.provider
+            or source.run_binding != self.run_binding
+        ):
+            raise ValueError("producer_reuse_origin_mismatch")
+
+
+def _validate_producer_settlement_origin_graph(
+    records: dict[str, BudgetLedgerProducerRecord],
+) -> None:
+    """Require every reuse edge to resolve to its same-request physical source."""
+    for event_id, record in records.items():
+        if record.event_id != event_id:
+            raise ValueError("producer settlement identity disagrees with snapshot")
+        source = records.get(record.origin_event_id) if record.origin_event_id is not None else None
+        record._validate_new_settlement_origin(source)
 
 
 class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
@@ -304,6 +366,7 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
                 raise ValueError("committed producer outcome requires its exact spend receipt")
             if receipt.payload_digest != record.payload_digest:
                 raise ValueError("producer settlement and spend receipt digest disagree")
+    _validate_producer_settlement_origin_graph(snapshot.producer_settlements)
     for key, amount in amounts.items():
         if snapshot.state.spent.get(key, Decimal("0")) < amount:
             raise ValueError("budget settlement receipts exceed the recorded spend")
@@ -718,6 +781,7 @@ class FileBudgetLedger:
                     raise FileNotFoundError(
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
+                _validate_producer_settlement_origin_graph(snapshot.producer_settlements)
                 existing_record = snapshot.producer_settlements.get(event_id)
                 if existing_record is not None:
                     intent_identity = (
@@ -751,6 +815,13 @@ class FileBudgetLedger:
                         ):
                             raise ValueError("producer event retry conflicts with prior outcome")
                         return existing_record
+
+                origin_source = (
+                    snapshot.producer_settlements.get(candidate.origin_event_id)
+                    if candidate.origin_event_id is not None
+                    else None
+                )
+                candidate._validate_new_settlement_origin(origin_source)
 
                 state = _branch_budget_state(snapshot.state)
                 receipts = dict(snapshot.spend_receipts)

@@ -1272,5 +1272,105 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             for record in owner_records
         )
         assert pending_view.model == "simulated-qwen"
+
+        # A terminal unknown physical amount may still have a separately recorded
+        # zero-increment cache reuse. Append that pair to the selected run's durable
+        # ledger, reopen its owner, and prove the fresh API projection keeps the
+        # physical total unknown.
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            _build_control_nl_producer_budget_reconciler,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleController,
+            GenerationCycleError,
+        )
+        from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+
+        unknown_store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        unknown_provider = _MonetarySimulatedProvider("simulated-qwen")
+        unknown_provider._costs = (-1.0,)
+        unknown_cache = CachingLLMClient(
+            unknown_provider,
+            cache=InMemoryPromptCache(maxsize=4, default_ttl_s=30),
+            model="simulated-qwen",
+            ttl_s=30,
+            inflight_timeout_s=10,
+        )
+        unknown_client = TracedLLMClient(
+            unknown_cache,
+            model_name="simulated-qwen",
+            run_id=str(job.run_id),
+            provider_name="simulated_gateway",
+            producer_settlement_store=unknown_store,
+            producer_budget_key=f"nl-run:{job.run_id}",
+        )
+
+        async def _run_unknown_origin_reuse() -> tuple[Any, Any]:
+            request = {"user": "R3 terminal-unknown origin cache reuse witness.", "temperature": 0}
+            with unknown_store.producer_run_binding_scope(binding):
+                physical = await unknown_client.generate(**request)
+                reuse = await unknown_client.generate(**request)
+            return physical, reuse
+
+        unknown_physical, unknown_reuse = asyncio.run(_run_unknown_origin_reuse())
+        unknown_physical_event = unknown_physical.settlement.event
+        unknown_reuse_event = unknown_reuse.settlement.event
+        unknown_reader = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        unknown_records = unknown_reader.list_producer_events_for_run_safe(binding)
+        unknown_records_by_id = {record.event_id: record for record in unknown_records}
+        assert {unknown_physical_event.event_id, unknown_reuse_event.event_id} <= set(
+            unknown_records_by_id
+        )
+        assert unknown_records_by_id[unknown_physical_event.event_id].status == "unknown"
+        assert unknown_records_by_id[unknown_physical_event.event_id].cost_origin == "unknown"
+        assert unknown_records_by_id[unknown_physical_event.event_id].amount is None
+        assert unknown_records_by_id[unknown_reuse_event.event_id].status == "committed"
+        assert unknown_records_by_id[unknown_reuse_event.event_id].cost_origin == "reuse"
+        assert unknown_records_by_id[unknown_reuse_event.event_id].amount == Decimal(0)
+        assert unknown_reuse_event.origin_event_id == unknown_physical_event.event_id
+
+        runtime_context.debug.bind_producer_settlement_store(unknown_reader)
+        unknown_get = client.get(f"/api/v1/runs/{core_run_id}/agents")
+        assert unknown_get.status_code == 200, unknown_get.text
+        unknown_pipeline = AgentPipelineResponse.model_validate(unknown_get.json()).pipeline
+        unknown_served_events = [
+            event
+            for attempt in unknown_pipeline.attempts
+            for step in attempt.steps
+            for event in step.cost_events
+        ]
+        unknown_served_by_id = {event.event_id: event for event in unknown_served_events}
+        assert set(unknown_served_by_id) == set(unknown_records_by_id)
+        assert unknown_served_by_id[unknown_physical_event.event_id].amount is None
+        assert unknown_served_by_id[unknown_physical_event.event_id].cost_origin == "unknown"
+        assert unknown_served_by_id[unknown_reuse_event.event_id].amount == Decimal(0)
+        assert unknown_served_by_id[unknown_reuse_event.event_id].cost_origin == "reuse"
+        assert unknown_served_by_id[unknown_reuse_event.event_id].origin_event_id == (
+            unknown_physical_event.event_id
+        )
+        assert unknown_pipeline.cost_usd is None
+
+        n6_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+        n6_controller = GenerationCycleController(
+            model_id="n6-unknown-origin-cache-reuse",
+            authority_scope="contract_testing",
+            voi_scheduler=SimpleVOIScheduler(stage_costs={3: 0.01}, min_roi_threshold=0.0),
+            _producer_budget_reconciler=_build_control_nl_producer_budget_reconciler(
+                settlement_store=unknown_reader,
+                producer_run_binding=binding,
+                budget_state=n6_state,
+            ),
+        )
+        with pytest.raises(
+            GenerationCycleError, match="control_nl_budget_producer_event_not_settled"
+        ):
+            n6_controller._schedule_candidate_for_execution(
+                candidate_id="unknown-origin-cache-reuse",
+                proxy_score=1.0,
+                voi_estimate=1.0,
+                budget_state=n6_state,
+            )
+        assert n6_state.spent == {}
     finally:
         close_runtime_api_env(env)

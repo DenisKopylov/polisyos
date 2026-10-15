@@ -15,6 +15,14 @@ CostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
 SettlementStatus = Literal["committed", "unknown", "unmanaged"]
 
 
+class LLMSettlementOwnershipError(RuntimeError):
+    """Nested traced clients cannot agree on one exact settlement-store owner."""
+
+
+class LLMSettlementIntegrityError(RuntimeError):
+    """A nested producer result does not match its owner-bound event and receipt."""
+
+
 @dataclass(frozen=True, slots=True)
 class LLMProducerEvent:
     """One physical provider outcome or one authenticated reuse event."""
@@ -39,8 +47,13 @@ class LLMProducerEvent:
                 raise ValueError("only an unknown provider amount may be absent")
         elif not self.amount.is_finite() or self.amount < 0 or self.cost_origin == "unknown":
             raise ValueError("known producer amounts must be finite and nonnegative")
-        if self.kind == "reuse" and (self.cost_origin != "reuse" or self.amount != Decimal(0)):
-            raise ValueError("reuse events carry an exact zero and reuse origin")
+        if self.kind == "reuse":
+            if self.cost_origin != "reuse" or self.amount != Decimal(0):
+                raise ValueError("reuse events carry an exact zero and reuse origin")
+            if not self.origin_event_id or not self.origin_event_id.strip():
+                raise ValueError("reuse events require an origin event ID")
+        elif self.origin_event_id is not None:
+            raise ValueError("provider events cannot carry a reuse origin event ID")
 
     @property
     def payload_digest(self) -> str:
@@ -332,5 +345,7 @@ __all__ = [
     "LLMProducerSettlement",
     "LLMSettledResponse",
     "LLMSettlementAck",
+    "LLMSettlementIntegrityError",
+    "LLMSettlementOwnershipError",
     "SettlementStatus",
 ]

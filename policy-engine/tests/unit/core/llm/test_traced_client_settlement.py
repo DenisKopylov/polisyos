@@ -6,10 +6,16 @@ import asyncio
 from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from polisyos.core.llm.settlement import LLMProducerEvent
+from polisyos.core.llm.settlement import (
+    LLMProducerEvent,
+    LLMSettledResponse,
+    LLMSettlementIntegrityError,
+    LLMSettlementOwnershipError,
+)
 from polisyos.core.llm.traced_client import TracedLLMClient, _settlement_ack
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -70,6 +76,24 @@ def test_malformed_settlement_discriminators_fail_closed() -> None:
         assert ack.status == "unknown"
         assert ack.durability == "none"
         assert ack.receipts == ()
+
+
+@pytest.mark.parametrize("origin_event_id", [None, ""])
+def test_reuse_producer_event_requires_a_nonempty_origin_id(
+    origin_event_id: str | None,
+) -> None:
+    with pytest.raises(ValueError, match="reuse events require an origin event ID"):
+        LLMProducerEvent(
+            event_id="reuse-event",
+            request_digest="request-digest",
+            response_digest="response-digest",
+            model="configured-model",
+            provider="configured-route",
+            amount=Decimal(0),
+            cost_origin="reuse",
+            kind="reuse",
+            origin_event_id=origin_event_id,
+        )
 
 
 class _Provider:
@@ -515,3 +539,222 @@ async def test_admitted_cache_reuse_is_a_separate_durable_zero_event(tmp_path: P
     assert events[0]["settlement_status"] == "committed"
     assert events[1]["cost_origin"] == "reuse"
     assert events[1]["settlement_status"] == "committed"
+
+
+@pytest.mark.asyncio
+async def test_nested_traced_client_preserves_the_inner_settlement_without_double_counting(
+    tmp_path: Path,
+) -> None:
+    ledger_path = tmp_path / "ledger.json"
+    middleware = _middleware(ledger_path)
+    provider = _Provider(cost=0.02)
+    cached = CachingLLMClient(
+        provider,
+        cache=InMemoryPromptCache(maxsize=4, default_ttl_s=30),
+        model="fixture-model",
+        ttl_s=30,
+        inflight_timeout_s=2,
+    )
+    events: list[dict[str, object]] = []
+    accounting_events: list[str] = []
+
+    def account(event: dict[str, object]) -> None:
+        accounting_events.append(str(event["event_id"]))
+
+    inner = TracedLLMClient(
+        cached,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        required_accounting=account,
+        call_observer=events.append,
+        producer_settlement_store=middleware,
+    )
+    outer = TracedLLMClient(
+        inner,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        required_accounting=account,
+        call_observer=events.append,
+        producer_settlement_store=middleware,
+    )
+
+    first = await outer.generate(user="same policy question", temperature=0)
+    second = await outer.generate(user="same policy question", temperature=0)
+
+    snapshot = FileBudgetLedger(ledger_path).snapshot()
+    first_event = first.settlement.event
+    second_event = second.settlement.event
+    assert provider.calls == 1
+    assert first_event.cost_origin == "reported"
+    assert first_event.amount == Decimal("0.02")
+    assert second_event.cost_origin == "reuse"
+    assert second_event.amount == Decimal(0)
+    assert second_event.origin_event_id == first_event.event_id
+    assert set(snapshot.producer_settlements) == {first_event.event_id, second_event.event_id}
+    assert snapshot.state.spent["run"] == Decimal("0.02")
+    assert outer._observed_call_event_ids == set()
+    assert inner._observed_call_event_ids == {first_event.event_id, second_event.event_id}
+    assert events[0]["producer_event"] is first_event
+    assert events[1]["producer_event"] is second_event
+    assert [(item["event_id"], item["cost_origin"]) for item in events] == [
+        (first_event.event_id, "reported"),
+        (second_event.event_id, "reuse"),
+    ]
+    assert accounting_events == [first_event.event_id, second_event.event_id]
+    assert {str(item["event_id"]) for item in events} == {
+        first_event.event_id,
+        second_event.event_id,
+    }
+
+
+@pytest.mark.asyncio
+async def test_outer_durable_owner_covers_unmanaged_inner_and_accounts_once(
+    tmp_path: Path,
+) -> None:
+    ledger_path = tmp_path / "outer-owner.json"
+    middleware = _middleware(ledger_path)
+    provider = _Provider(cost=0.02)
+    accounting_calls: list[str] = []
+
+    def account(event: dict[str, object]) -> None:
+        accounting_calls.append(str(event["event_id"]))
+
+    inner = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        required_accounting=account,
+    )
+    outer = TracedLLMClient(
+        inner,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        required_accounting=account,
+        producer_settlement_store=middleware,
+    )
+
+    response = await outer.generate(user="one physical call")
+
+    event = response.settlement.event
+    reopened = FileBudgetLedger(ledger_path).snapshot()
+    assert provider.calls == 1
+    assert response.settlement.ack.status == "committed"
+    assert set(reopened.producer_settlements) == {event.event_id}
+    assert reopened.producer_settlements[event.event_id].payload_digest == event.payload_digest
+    assert accounting_calls == [event.event_id]
+
+
+@pytest.mark.asyncio
+async def test_independent_nested_client_uses_its_own_durable_owner(
+    tmp_path: Path,
+) -> None:
+    inner_path = tmp_path / "nested-client-owner.json"
+    outer_path = tmp_path / "outer-client-owner.json"
+    inner_store = _middleware(inner_path)
+    outer_store = _middleware(outer_path)
+    inner_provider = _Provider(cost=0.01)
+    inner_client = TracedLLMClient(
+        inner_provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        producer_settlement_store=inner_store,
+    )
+
+    class _ProviderCallingIndependentClient:
+        provider = "fixture"
+        model = "fixture-model"
+
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def generate(self, **_kwargs: object) -> GatewayLLMResponse:
+            self.calls += 1
+            await inner_client.generate(user="nested independent provider call")
+            return GatewayLLMResponse(
+                content="outer answer",
+                usage=GatewayUsage(prompt_tokens=2, completion_tokens=1, cost_usd=0.02),
+                model=self.model,
+                provider=self.provider,
+            )
+
+    outer_provider = _ProviderCallingIndependentClient()
+    outer_client = TracedLLMClient(
+        outer_provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        producer_settlement_store=outer_store,
+    )
+
+    outer_response = await outer_client.generate(user="outer provider call")
+
+    assert outer_provider.calls == 1
+    assert inner_provider.calls == 1
+    assert outer_response.settlement.ack.status == "committed"
+    assert len(FileBudgetLedger(inner_path).snapshot().producer_settlements) == 1
+    assert len(FileBudgetLedger(outer_path).snapshot().producer_settlements) == 1
+
+
+@pytest.mark.asyncio
+async def test_nested_distinct_durable_stores_refuse_before_provider_dispatch(
+    tmp_path: Path,
+) -> None:
+    provider = _Provider(cost=0.02)
+    inner_path = tmp_path / "inner-owner.json"
+    outer_path = tmp_path / "outer-owner.json"
+    inner_store = _middleware(inner_path)
+    outer_store = _middleware(outer_path)
+    inner = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        producer_settlement_store=inner_store,
+    )
+    outer = TracedLLMClient(
+        inner,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        producer_settlement_store=outer_store,
+    )
+
+    with pytest.raises(LLMSettlementOwnershipError, match="producer_settlement_owner_conflict"):
+        await outer.generate(user="must not dispatch")
+
+    assert provider.calls == 0
+    assert FileBudgetLedger(inner_path).snapshot().producer_settlements == {}
+    assert FileBudgetLedger(outer_path).snapshot().producer_settlements == {}
+
+
+@pytest.mark.asyncio
+async def test_nested_settlement_refuses_response_bytes_outside_event_digest(
+    tmp_path: Path,
+) -> None:
+    class _MutatingTracedClient(TracedLLMClient):
+        async def generate(self, **kwargs: object) -> object:
+            envelope = await super().generate(**kwargs)
+            original = envelope.response
+            changed = SimpleNamespace(
+                content="changed after the event was settled",
+                usage=original.usage,
+                model=original.model,
+                provider=original.provider,
+                request_id=original.request_id,
+            )
+            return LLMSettledResponse(changed, envelope.settlement)
+
+    middleware = _middleware(tmp_path / "response-binding.json")
+    inner = _MutatingTracedClient(
+        _Provider(cost=0.02),
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        producer_settlement_store=middleware,
+    )
+    outer = TracedLLMClient(
+        inner,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+    )
+
+    with pytest.raises(LLMSettlementIntegrityError, match="producer_response_digest_mismatch"):
+        await outer.generate(user="content binding")

@@ -4,7 +4,7 @@ Owner: `@platform-owners`
 Backup owner: `@tools-owners`  
 Source of truth: `architecture/control_plane_supply_chain.toml`,
 repository-root
-`.github/{CODEOWNERS,repository-rulesets/main.yml,workflows/{abi.yml,ci.yml,core-runtime-long-soak.yml,core-runtime-release-gate.yml,docs-pages.yml,fabric-remediation.yml,frontend-nightly.yml,frontend-quality.yml,release.yml}}`,
+`.github/{CODEOWNERS,repository-rulesets/main.yml,workflows/*.yml}`,
 reusable product workflow templates under
 `ops/ci/templates/workflows/{abi.yml,arch.yml,arch-freeze.yml,build-and-push.yml,causal-phases.yml,design-wave1-evidence.yml,docs.yml,foundry-release-gate.yml,mutation.yml,perf.yml,replay.yml,repository-hygiene.yml,signatures.yml}`,
 `.github/PULL_REQUEST_TEMPLATE.md`, `.github/labels.yml`,
@@ -14,8 +14,9 @@ reusable product workflow templates under
 `tools/ops_runners/runtime/check_runtime_api_contract.py`, and
 `tools/devx/architecture/guardrails.py`
 
-This page is the single repo-tracked map for local validation commands, current
-CI workflows, and the PR taxonomy recorded in the repository itself.
+This page maps repo-tracked local validation commands, root workflow files, and
+the PR taxonomy recorded in the repository. Workflow triggers describe checked-in
+configuration; they do not establish GitHub enablement or run outcomes.
 
 Live GitHub branch-protection settings, reviewer assignment rules, and any
 required-check configuration that exists only in the GitHub UI are
@@ -116,26 +117,32 @@ surface.
 | compatibility release metadata checks | `.github/workflows/release.yml` | The release workflow invokes `check-compatibility-release-gates --fail-on-contract-errors` and uploads evidence. |
 | final acceptance owner map | `polisyos-tools workspace repository-sota-closeout` | The closeout command records ownership for final-only gates such as repository structure, dead overrides, acceptance audit, schema purity, and release gates. |
 
-## Repo-Tracked CI Workflow Inventory
+## Repo-Tracked Root Workflow Inventory
 
 <!-- markdownlint-disable MD060 -->
 
-| Workflow                                          | Trigger shape                                                    | Current role                                                                                                                                                                                      |
-| ------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/abi.yml`                       | PRs and pushes to `main`                                         | Repository-root Fast PR workflow. Runs the path-aware D6 docs drift gate, docs accuracy, strict MkDocs, ADR index freshness, global public-surface docstring quality, ABI snapshot checks, schema purity, last-mile inventory, extension examples, module-size evidence, and fast non-browser tests. |
-| `.github/workflows/ci.yml`                        | PRs and pushes to `main`                                         | Standard PR workflow covering runtime HTTP, frontend contracts/smoke, performance, integration, directory-health, helper topology, test ratchets, and test-economics surfaces.                    |
-| `.github/workflows/core-runtime-release-gate.yml` | Core/runtime/security/docs path changes, pushes, manual dispatch | Release-grade runtime/docs contract, link check, mutation subset, and evidence-summary path.                                                                                                      |
-| `.github/workflows/docs-pages.yml`                | manual dispatch and successful `PR Fast` workflow runs on `main` | Published docs build/deploy path with strict MkDocs before Pages upload.                                                                                                                          |
-| `.github/workflows/fabric-remediation.yml`        | Fabric remediation paths, pushes, manual dispatch                | Fabric connector/data-plane/schema-governance remediation gates.                                                                                                                                  |
-| `.github/workflows/frontend-nightly.yml`          | schedule/manual/frontend path changes                            | Broader frontend quality and nightly coverage beyond the standard smoke path.                                                                                                                     |
-| `.github/workflows/frontend-quality.yml`          | frontend path changes and manual dispatch                        | Frontend lint, unit, contracts, build, and targeted quality checks.                                                                                                                               |
-| `.github/workflows/release.yml`                   | release tags/manual dispatch                                     | Release orchestration, package/build artifacts, operability bundle gates, compatibility release metadata, and publication evidence.                                                               |
-| `ops/ci/templates/workflows/*.yml`                | reusable product workflow templates                              | Product-local workflow specs retained for template/reference use only; repository-root workflows above are the GitHub-executed source for current PR enforcement.                                  |
+| Workflow | Source-declared triggers | Configured role in the checked-in file |
+| --- | --- | --- |
+| `.github/workflows/abi.yml` | Pull requests; pushes to `main` | `PR Fast`: workflow policy, schema, quality, docs, and fast non-browser checks. |
+| `.github/workflows/ci.yml` | Pull requests; pushes to `main` | `PR Standard`: runtime HTTP, frontend, performance, integration, and repository-policy checks. |
+| `.github/workflows/core-runtime-long-soak.yml` | Weekly schedule; manual dispatch | Runs the core-runtime long-soak command and uploads its evidence. |
+| `.github/workflows/core-runtime-release-gate.yml` | Path-filtered pull requests and pushes to `main`/`master`; manual dispatch | Core/runtime/docs release-grade contract, link, mutation, and evidence-summary path. |
+| `.github/workflows/docs-pages.yml` | Manual dispatch; successful `PR Fast` push run on `main` | Strict docs build followed by a GitHub Pages deployment job. |
+| `.github/workflows/external-link-liveness.yml` | Weekly schedule; manual dispatch | Non-blocking external-citation observations with a retained report. |
+| `.github/workflows/fabric-remediation.yml` | Path-filtered pull requests and pushes to `main`; manual dispatch | Fabric connector, data-plane, and schema-governance remediation checks. |
+| `.github/workflows/frontend-nightly.yml` | Daily schedule; manual dispatch | Nightly workflow/action audit, benchmark, frontend, supply-chain, and Scorecard jobs. |
+| `.github/workflows/frontend-quality.yml` | Manual dispatch | Archived notice only; the file points to `abi.yml`, `ci.yml`, and `frontend-nightly.yml` as canonical paths. |
+| `.github/workflows/honest-diagnostics-substrate.yml` | Path-filtered pull requests; manual dispatch | Runtime-quality, registry, proof-harness, drift, and coverage checks. |
+| `.github/workflows/policyos-canary-matrix.yml` | Path-filtered pull requests and pushes to `main`/`codex/**`; daily schedule; manual dispatch | Deterministic canary matrix with a separately gated optional live-provider lane. |
+| `.github/workflows/release.yml` | `v*` tags; manual dispatch | Release preparation, gates, build, canary, signing, attestations, and publication jobs. |
+| `ops/ci/templates/workflows/*.yml` | Not root workflow triggers | Product-local workflow templates; not part of the root GitHub workflow inventory unless promoted. |
 
 <!-- markdownlint-enable MD060 -->
 
-Historical or removed workflow names are not part of the factual CI gate
-inventory. The table above is the source of truth.
+The root rows enumerate the `.github/workflows/*.yml` files in this repository
+snapshot, including the archived notice workflow. Trigger and role descriptions
+come from the checked-in YAML; GitHub-side enablement and successful runs need
+separate operational evidence.
 
 ## Pull Request Taxonomy
 

@@ -1,41 +1,46 @@
-# Написание первого connector
+# Write Your First Connector
+
+English edition: 2026-10-14 (translation only; not a source-freshness or execution claim).
 
 Related how-to: [Add Data Source](../how-to/add-data-source.md). Related reference: [Fabric Connectors](../reference/fabric/connectors.md).
 
-> Этот tutorial рассчитан на инженера, который впервые добавляет источник данных в Fabric и хочет пройти весь путь от нового файла до локальной валидации.
+> This tutorial is for an engineer adding a data source to Fabric for the first
+> time and who wants to follow the path from a new file through local validation.
 
-!!! info "Verified with"
-Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-Python 3.14 и `uv`.
-Реально проверены
-`uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run`
-и импорты `WorldBankConnector` / `HTTPConnectorBase`.
+!!! info "Historical review (2026-04-17)"
+    The previous revision recorded a dry-run connector scaffold and imports of
+    `WorldBankConnector` / `HTTPConnectorBase` in the environment used at that
+    time. This is not a receipt that the full tutorial or its tests were run.
+    Source paths were read at pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
+    the production implementation under `src/polisyos/` has not changed since
+    that pin. The examples and tests were not run for this documentation refresh.
 
-В walkthrough ниже мы не покрываем все edge cases connector platform. Цель другая: собрать минимальный production-shaped connector, зарегистрировать его в публичной поверхности Fabric и убедиться, что он проходит локальные проверки.
+This walkthrough does not cover every edge case in the connector platform. Its
+goal is to assemble a minimal production-shaped connector, register it in the
+public Fabric surface, and verify that it passes local checks.
 
-Если вам нужен skeleton до ручного редактирования, используйте canonical
-connector CLI:
+If you need a skeleton before editing by hand, use the canonical connector CLI:
 
 ```bash
 uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run
 ```
 
-## Шаг 1. Выберите правильную базу
+## Step 1. Choose the right starting point
 
-Для большинства REST/JSON источников стартовая точка сегодня такая:
+For most REST/JSON sources, start with:
 
 - `polisyos.fabric.connectors.sources.http_base.HTTPConnectorBase`
 - `polisyos.fabric.connectors.sources.http_base.HTTPResilienceProfile`
 
-Если источник уже похож на существующую семью, берите ближайший production пример:
+If the source resembles an existing family, use the closest production example:
 
-- `WorldBankConnector` для indicator-style API
-- `WHOConnector` для табличных HTTP ответов
-- `SDMXSourceConnector` для SDMX surface
+- `WorldBankConnector` for an indicator-style API;
+- `WHOConnector` for tabular HTTP responses;
+- `SDMXSourceConnector` for an SDMX surface.
 
-Для новых non-HTTP families сначала откройте capability contract в
+For new non-HTTP families, first open the capability contract in
 `src/polisyos/fabric/connectors/family_contracts.py`.
-Там уже есть scaffold для:
+It already provides scaffolds for:
 
 - `files`
 - `object_storage`
@@ -44,14 +49,16 @@ uv run polisyos-tools connectors scaffold create --name MySource --type REST --d
 - `geojson`
 - `stream`
 
-Это полезно по двум причинам:
+This is useful for two reasons:
 
-- вы сразу видите обязательные capabilities и lineage requirements для семьи;
-- profile scaffold уже подсказывает минимальный `connector_family` / `base_url`.
+- you can see the family's required capabilities and lineage requirements at
+  once;
+- the profile scaffold suggests the minimum `connector_family` / `base_url`.
 
-## Шаг 2. Создайте минимальный connector class
+## Step 2. Create a minimal connector class
 
-Добавьте новый файл под `src/polisyos/fabric/connectors/sources/`, например `my_source.py`:
+Add a new file under `src/polisyos/fabric/connectors/sources/`, for example
+`my_source.py`:
 
 ```python
 from __future__ import annotations
@@ -147,15 +154,17 @@ class MySourceConnector(HTTPConnectorBase[pd.DataFrame]):
         return {"schema_id": "my_source.generic", "dataset_id": dataset_id}
 ```
 
-Что здесь важно:
+Important points:
 
-- `connector_id` и metadata должны быть стабильными, потому что дальше на них опираются profiles и control-plane discovery;
-- `fetch()` должен возвращать канонический `FetchResult`, а не произвольный payload;
-- `schema_id` и `schema_version` лучше задавать сразу, если upstream shape достаточно стабилен.
+- `connector_id` and metadata should be stable because profiles and control-plane
+  discovery rely on them;
+- `fetch()` should return the canonical `FetchResult`, not an arbitrary payload;
+- set `schema_id` and `schema_version` early if the upstream shape is stable
+  enough.
 
-## Шаг 3. Экспортируйте connector в публичную surface
+## Step 3. Export the connector in the public surface
 
-Добавьте импорт и имя в `src/polisyos/fabric/connectors/sources/__init__.py`:
+Add the import and name in `src/polisyos/fabric/connectors/sources/__init__.py`:
 
 ```python
 from polisyos.fabric.connectors.sources.my_source import MySourceConnector
@@ -166,16 +175,18 @@ __all__ = [
 ]
 ```
 
-Это важно по двум причинам:
+This matters for two reasons:
 
-- connector станет частью стабильной публичной surface Fabric;
-- reference docs и downstream tooling увидят его через package facade.
+- the connector becomes part of Fabric's stable public surface;
+- reference documentation and downstream tooling can discover it through the
+  package facade.
 
-## Шаг 4. Добавьте built-in profile
+## Step 4. Add a built-in profile
 
-Следующий шаг нужен, чтобы control plane и profile resolver могли запускать connector без ручного описания transport policy на каждый вызов.
+This step lets the control plane and profile resolver run the connector without
+manually specifying a transport policy on every call.
 
-Добавьте профиль в `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`:
+Add the profile to `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`:
 
 ```python
 SourceProfile(
@@ -203,32 +214,38 @@ SourceProfile(
 )
 ```
 
-`SourceExecutionPolicy` вручную собирать обычно не нужно: он выводится из profile resolver на runtime path.
+You usually do not need to construct `SourceExecutionPolicy` manually: it is
+derived by the profile resolver on the runtime path.
 
-### Family-first scaffold для новых connector families
+### Family-first scaffold for new connector families
 
-Если вы добавляете коннектор не в существующую HTTP family, а в одну из новых WS-5B families, ориентируйтесь на такой порядок:
+If you are adding a connector to a supported non-HTTP family rather than an
+existing HTTP family, follow this order:
 
-1. Определите family contract в `family_contracts.py` или переиспользуйте существующий.
-2. Проверьте, что connector metadata и hard capabilities реально покрывают `required_capabilities`.
-3. Добавьте хотя бы один built-in profile scaffold в `builtin_profiles.py`, даже если он demo-oriented.
-4. Для schema introspection сразу решите, какой режим используете:
+1. Define the family contract in `family_contracts.py` or reuse an existing one.
+2. Check that connector metadata and hard capabilities actually cover
+   `required_capabilities`.
+3. Add at least one built-in profile scaffold in `builtin_profiles.py`, even if
+   it is demo-oriented.
+4. For schema introspection, decide up front which mode to use:
 
-   - files/object storage: sample inference + format/provider metadata
-   - sql: query probe или information schema
-   - graphql: protocol query + sample inference
-   - geojson: feature properties + spatial metadata
-   - stream: message sample + stream metadata
-5. Сразу положите lineage metadata в connector boundary, а не как post-processing:
+   - files/object storage: sample inference + format/provider metadata;
+   - sql: query probe or information schema;
+   - graphql: protocol query + sample inference;
+   - geojson: feature properties + spatial metadata;
+   - stream: message sample + stream metadata.
+5. Put lineage metadata at the connector boundary from the start, rather than
+   adding it as post-processing:
 
    - source location / bucket / object key
    - query or query document
    - CRS / geometry types
    - stream topic / message ids
 
-## Шаг 5. Добавьте хотя бы один локальный тест
+## Step 5. Add at least one local test
 
-Самый полезный первый тест для нового connector-а не live integration, а deterministic mock-path.
+The most useful first test for a new connector is a deterministic mock path, not
+a live integration test.
 
 ```python
 import asyncio
@@ -259,19 +276,21 @@ def test_my_source_fetch_with_mock_http(monkeypatch) -> None:
     assert result.row_count == 1
 ```
 
-После этого можно добавить live test под `@pytest.mark.integration`, если upstream достаточно стабилен.
+After that, you can add a live test under `@pytest.mark.integration` if the
+upstream is stable enough.
 
-Для WS-5B connector families минимальный contract test должен доказывать не только `fetch()`, но и family-specific acceptance:
+For WS-5B connector families, the minimum contract test should establish
+family-specific acceptance as well as `fetch()`:
 
-- files/object storage: формат и source lineage сохраняются;
-- sql: query/table provenance и schema introspection доступны;
-- graphql: query document и extracted data path объяснимы;
-- geojson: CRS и spatial metadata не теряются;
-- stream: chunk/message IDs детерминированы и пригодны для quarantine/replay.
+- files/object storage: format and source lineage are preserved;
+- sql: query/table provenance and schema introspection are available;
+- graphql: the query document and extracted data path are explainable;
+- geojson: CRS and spatial metadata are preserved;
+- stream: chunk/message IDs are deterministic and suitable for quarantine/replay.
 
-## Шаг 6. Прогоните локальные проверки
+## Step 6. Run local checks
 
-Минимальный локальный набор перед PR:
+Minimum local checks before a PR:
 
 ```bash
 pytest tests/unit/fabric/connectors/sources -x --tb=short
@@ -279,10 +298,11 @@ uv run --extra docs python -m mkdocs build --strict
 uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
-Если менялся публичный connector contract, дополнительно проверьте reference docs и schema-related pages.
+If the public connector contract changed, also check the reference documentation
+and schema-related pages.
 
-## Что дальше
+## Next steps
 
-- Для более полного checklist перейдите в [Add Data Source](../how-to/add-data-source.md)
-- Для runtime/discovery сценариев посмотрите [Use Control Plane](../how-to/use-control-plane.md)
-- Для контрактов и surface Fabric откройте [Fabric Connectors reference](../reference/fabric/connectors.md)
+- For a more complete checklist, see [Add Data Source](../how-to/add-data-source.md).
+- For runtime/discovery scenarios, see [Use Control Plane](../how-to/use-control-plane.md).
+- For Fabric contracts and surface, see the [Fabric Connectors reference](../reference/fabric/connectors.md).

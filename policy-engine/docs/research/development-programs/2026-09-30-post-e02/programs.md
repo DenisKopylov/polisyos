@@ -1,325 +1,327 @@
-# Карточки предметных программ
+# Subject-Matter Program Cards
 
-[Обзор](README.md) · [Начальный портфель](first_portfolio.md) · [Условные ветви](branches.md)
+[Overview](README.md) · [Initial portfolio](first_portfolio.md) · [Conditional branches](branches.md)
 
-Каждая карточка описывает длительную траекторию способности. «Первое приращение» — первый законченный полезный результат; «Проверка переноса» — содержательно иной случай, проверяющий переносимость решения; зрелая цель — поддержанный класс задач. Эти уровни не имеют общего срока и не являются последовательными общеобязательными релизами. Если нужный вход или метод уже существует, не требуется сначала завершать отдельную программу его создания.
+Each card describes a sustained capability trajectory. “First increment” is the first complete useful result; “Transfer check” is a substantively different case that tests whether the decision transfers; the mature goal is a supported class of tasks. These levels have no common timeline and are not mandatory sequential releases. If the required input or method already exists, there is no need to complete a separate program to create it first.
 
-Все предложения ниже имеют аналитический статус. Указанные владельцы — существующие архитектурные области, а не новые назначения. Прочитанный код подтверждает форму и отдельные связи, но не новый успешный запуск. E02-выходы потребляются только в той области, в которой их владельцы действительно установят результат.
+All proposals below are analytical. Named owners are existing architectural areas, not new appointments. Read code confirms form and some relationships, but not a new successful run. E02 outputs are consumed only within the scope where their owners actually establish a result.
 
-## E1 Измерение и смысл источника
+## E1 Measurement and Source Semantics
 
-### Полезная способность
+### Useful capability
 
-Система превращает источники в пригодные для конкретного вопроса наблюдения и отношения. Она отвечает не только «есть ли поле», но и «что оно измеряет, для какой популяции, в какой момент, при каком отборе и с какой неопределённостью». Полезный итог может быть описательным показателем, проверяемой картой свидетельств, оценкой распределения или явно ограниченным измерительным входом модели.
+The system turns sources into observations and relationships fit for a specific question. It answers not only “is there a field?” but “what does it measure, for which population, at what time, under what selection process, and with what uncertainty?” A useful result may be a descriptive measure, a verifiable evidence map, a distributional estimate, or an explicitly bounded measurement input to a model.
 
-Здесь соединяются смысловое извлечение, единицы и временные координаты, идентичность субъектов, рамка наблюдения, ошибка измерения, пропуски, цензурирование и совместная структура популяции. Они объединены общим изменяемым объектом: отношением между наблюдавшимся материалом и величиной вопроса. Это не основание строить одну универсальную онтологию.
+This connects semantic extraction, units and time coordinates, subject identity, observation frame, measurement error, missingness, censoring, and joint population structure. They are grouped around one mutable object: the relationship between observed material and the quantity in the question. This does not justify building one universal ontology.
 
-Примеры новых вопросов: является ли сумма договорной или фактически оплаченной; означает ли регистрация безработицы отсутствие занятости; можно ли объединить две записи одной организации после реорганизации; что можно сказать об уровне риска к горизонту, если имеются только цензурированные исходы; какие распределительные последствия одинаково совместимы с опубликованными маргинальными таблицами?
+Examples of new questions: Is an amount contractual or actually paid? Does unemployment registration imply absence of employment? Can two records be joined to one organization after a reorganization? What can be said about risk at a horizon when only censored outcomes are available? Which distributional consequences are equally compatible with published marginal tables?
 
-### Существующая опора и точная добавка
+### Existing foothold and exact increment
 
-Data Forge уже имеет `kernel/domains/read_api`, нормализаторы, снимки и схемы. Fabric хранит происхождение, временные ветви и сведения о качестве. `ObservationRecord` несёт единицу, период, охват, источник, режим, цензурирование и объявленный режим идентификации. Foundry действительно материализует PER_CELL и household cells и использует measurement-aware adapter при наличии соответствующего bundle.
+Data Forge already has kernel/domains/read_api, normalizers, snapshots, and schemas. Fabric stores provenance, temporal branches, and quality information. ObservationRecord carries unit, period, coverage, source, mode, censoring, and a declared identification mode. Foundry actually materializes PER_CELL and household cells and uses a measurement-aware adapter when the relevant bundle is present.
 
-Эти механизмы сокращают объём нового кода. Они не устанавливают, что `coverage_estimate` измерен, коэффициент доверия калиброван, выбранная рамка представляет нужную популяцию или качество можно превратить в стандартную ошибку. Текущий default adapter перемножает скидки качества; это объявленное правило взвешивания, а не общий способ исправить MNAR, цензурирование или ошибку измерения.
+These mechanisms reduce new-code scope. They do not establish that coverage_estimate was measured, that a confidence coefficient is calibrated, that the selected frame represents the required population, or that quality can be turned into a standard error. The current default adapter multiplies quality discounts; this is a declared weighting rule, not a general correction for MNAR, censoring, or measurement error.
 
-В научных текстах существуют source/snippet carriers и реальные лексические связи Scholar. Для смыслового соответствия нужны независимые основания, сохраняющие отрицание, исключение, субъект, сравнение и контекст. Лексический `supported` не повышается до доказанного entailment. У академического корпуса имеются проверка подписанного adjudication и исключение отозванных работ в отдельных вычислениях; пригодность научного суждения и полнота последующего отзыва остаются самостоятельными свойствами.
+Scientific texts have source/snippet carriers and real lexical links in Scholar. Semantic correspondence needs independent grounds that preserve negation, exceptions, subject, comparison, and context. Lexical supported is not elevated to proven entailment. The academic corpus has signed-adjudication checks and excludes retracted work in some computations; scientific suitability and completeness of later retraction handling remain separate properties.
 
-### Приращения
+### Increments
 
-- **Первое приращение.** Один вопрос и один заранее фиксированный источник либо небольшая группа независимых источников. Исходное значение, определение, идентификаторы, единицы, период, доступность и преобразование сохраняются до действительного читателя. Для документной задачи допустима карта «поддерживает, возражает, не установлено» без вероятностного значка. Для численного источника достаточно верного описательного результата, если причинный вывод не заявлен
-- **Проверка переноса.** Меняется не только ID: другая source family, определение показателя, режим цензурирования, реорганизация субъекта или временная ревизия. Корректный вывод может измениться, а безвредное изменение оформления не должно приводить к отказу
-- **Зрелая цель.** Ограниченные измерительные профили с независимой оценкой ложных слияний, пропусков и смысловых ошибок; новые случаи преимущественно добавляются через профиль и данные, с известной предельной стоимостью проверки
-- **Условное расширение.** Совместная синтетическая популяция, small-area estimation, несколько измерительных каналов, competing risks и мультимодальные данные. Каждый вариант получает собственный вопрос, модель наблюдения и эталон; совпадение маргинальных таблиц не принимается за наблюдавшееся домохозяйство
+- **First increment.** One question and one preselected source or small group of independent sources. Preserve the original value, definition, identifiers, units, period, availability, and transformation through to the actual reader. For a document task, a “supports / contradicts / not established” map without a probabilistic badge is acceptable. For a numeric source, a correct descriptive result is sufficient when no causal claim is made.
+- **Transfer check.** Change more than the ID: use another source family, measure definition, censoring regime, subject reorganization, or temporal revision. A correct conclusion may change, while harmless formatting changes should not force refusal.
+- **Mature goal.** Bounded measurement profiles with independent evaluation of false joins, missingness, and semantic errors; new cases are mostly added through profile and data, with known marginal verification cost.
+- **Conditional extension.** Joint synthetic population, small-area estimation, multiple measurement channels, competing risks, and multimodal data. Each option gets its own question, observation model, and reference; matching marginal tables are not treated as an observed household.
 
-Для C7 полезный малый научный шаг — абсолютная вероятность определённого события к горизонту при обоснованных endpoint, risk set и censoring assumptions. Нынешний partial hazard уже полезен в своей области, но его переименование не создаёт вероятность. Для украинского D2 следует различать исходную observation panel и отдельные синтетические method contracts: наличие выбранного workflow ещё не доказывает, что он использует наблюдавшиеся outcome и treatment.
+For C7, a useful small scientific step is the absolute probability of a defined event by a horizon under justified endpoint, risk-set, and censoring assumptions. The current partial hazard is already useful within its scope, but renaming it does not create a probability. For Ukrainian D2, distinguish the source observation panel from separate synthetic method contracts: the presence of a selected workflow does not prove it uses observed outcomes and treatment.
 
-### Архитектурное решение и труд
+### Architectural decision and effort
 
-Предпочтителен узкий профиль существующего владельца: сначала определение величины и независимый ручной эталон, затем минимальные native поля и читатель. Полная переработка корпуса, новый общий compiler или глобальный alias registry оправданы только повторяемым спросом и доказанной общей семантикой.
+Prefer a narrow profile under an existing owner: first define the quantity and independent manual reference, then add the minimum native fields and reader. A full corpus rewrite, new shared compiler, or global alias registry is justified only by repeated demand and demonstrated shared semantics.
 
-Для источниковой карты при готовых producers и consumer условное первое приращение составляет 4–13 нормированных дней. Калиброванный semantic profile при уже доступных независимых labels — иной полный пакет, 15–30 дней; эти числа не складываются. Новый эмпирический измерительный профиль, абсолютный риск, качественная совместная популяция и новые labels отдельно не оценены. Основной риск часто лежит в определениях и независимой проверке, а не в длине адаптера.
+For a source map with producers and a consumer ready, the conditional first increment is 4–13 normalized days. A calibrated semantic profile with independent labels already available is a different complete package, 15–30 days; these estimates are not added. A new empirical measurement profile, absolute risk, suitable joint population, and new labels are not separately estimated. The main risk often lies in definitions and independent verification, not adapter length.
 
-**Ожидаемые E02-выходы:** исправленные source/byte/time bindings, уже интегрированные B61 prepared-read consumers при отдельно held issuer/K_ref authority, выбранный D3 optional-input inventory, LA-032 только для затронутых readers, необходимые B31/B201/B202 uncertainty contracts. Их ремонт не входит в эту программу. Выбор publisher vintage, population frame и смысла ошибки остаётся содержательной работой.
+**Expected E02 outputs:** repaired source/byte/time bindings; B61 prepared-read consumers already integrated, with issuer/K_ref authority separately held; selected D3 optional-input inventory; LA-032 only for affected readers; required B31/B201/B202 uncertainty contracts. Their repair is not part of this program. Selecting publisher vintage, population frame, and error meaning remains substantive work.
 
-### Проверка и граница остановки
+### Verification and stop boundary
 
-Сильный comparator — ручная таблица источников, прямой подсчёт или existing native method с теми же сведениями. Положительный пример должен изменить полезный downstream ответ. Существенные negatives: тот же текст с иным отрицанием; одинаковое имя при другой единице; два источника одной study family, выданные за независимые; договорная сумма, выданная за платёж; скрытая группа наблюдений. Безвредные controls: эквивалентная верстка, допустимая смена порядка, тот же смысл из другого совместимого представления.
+Strong comparators are a manual source table, direct count, or existing native method using the same information. A positive example must change a useful downstream answer. Material negatives: the same text with different negation; the same name with a different unit; two sources from one study family presented as independent; a contractual amount represented as a payment; a hidden observation group. Harmless controls: equivalent layout, permissible reordering, and the same meaning in another compatible representation.
 
-Измеряются полезное покрытие заявленной совокупности вопросов, ложная поддержка и ложный отказ, ошибки по значимым strata и полная цена проверки. Если новый путь не лучше хорошего ручного результата либо второй профиль требует центрального fork без новой способности, расширение останавливается. При отсутствии идентификации сохраняется поддержанный описательный результат.
+Measure useful coverage of the declared question set, false support and false refusal, errors across material strata, and full verification cost. If the new route is no better than a good manual result, or a second profile requires a central fork without a new capability, stop expansion. If identification is unavailable, preserve the supported descriptive result.
 
-**Связи:** E2 получает пригодные ограничения и понимает, чего не хватает; M1 получает корректный observation model; M2 различает сдвиг мира и сдвиг регистрации; P3 получает событийную рамку. Ошибка общей идентичности или единицы, напротив, распространяется во все четыре направления. Повторное использование bytes не делает общими их научные критерии.
+**Relationships:** E2 receives fit-for-purpose constraints and learns what is missing; M1 receives a correct observation model; M2 distinguishes a change in the world from a change in registration; P3 receives an event frame. An error in shared identity or units, in contrast, propagates in all four directions. Reusing bytes does not make scientific criteria common.
 
-**Основные источники:** `docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`, L58–78; `docs/reference/data-capability-requirements.md`, восемь отдельных требований; `src/polisyos/ir/observation/contracts.py`, L131–208; `src/polisyos/foundry/calibration/measurement.py`, L570–705; `src/polisyos/data_forge/domains/ukraine/builders/sources.py`, L1458–1620; Fabric Wave R1/R2/R5/R7/R8; GV-09/14/20/27/35/38/54.
+**Primary sources:** docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md, L58–78; docs/reference/data-capability-requirements.md, eight separate requirements; src/polisyos/ir/observation/contracts.py, L131–208; src/polisyos/foundry/calibration/measurement.py, L570–705; src/polisyos/data_forge/domains/ukraine/builders/sources.py, L1458–1620; Fabric Wave R1/R2/R5/R7/R8; GV-09/14/20/27/35/38/54.
 
-## E2 Идентификация, синтез и приобретение основания
+## E2 Identification, Synthesis, and Basis Acquisition
 
-### Полезная способность
+### Useful capability
 
-Система устанавливает, какой именно причинный или переносимый вывод поддержан имеющимися сведениями, какие допущения его ограничивают и какое доступное действие действительно способно изменить ответ. Она умеет сохранить несколько несовместимых оснований и полезные границы, вместо обязательного выбора одной точки или одного графа.
+The system establishes which causal or transportable conclusion is supported by available evidence, which assumptions limit it, and which available action can actually change the answer. It can preserve multiple incompatible bases and useful bounds instead of forcing a single point or graph.
 
-Программа объединяет identification, evidence synthesis, transport и acquisition, потому что они замыкают один цикл вопроса: «что известно → чего не хватает → что принесёт различающее основание → что изменилось в том же ответе». При большом самостоятельном потоке systematic reviews или независимых задачах experimental design эти ветви могут выделиться; одно дополнительное имя метода этого не требует.
+The program combines identification, evidence synthesis, transport, and acquisition because they close one question cycle: “what is known → what is missing → what would provide discriminating evidence → what changed in the same answer.” With a large independent stream of systematic reviews or independent experimental-design tasks, these branches could split; an additional method name alone does not warrant it.
 
-### Существующая опора
+### Existing foothold
 
-Используются действующие causal/IR методы, Scholar и академические owners, CG1/CG2, `RequiredDataSpec`, N7/N13a/N13b, passport/overlay, AQ1 и VC1. Исторические причинные планы содержат принятые ограниченные результаты; старый список «нужна новая теорема» не доказывает отсутствия метода. Нужный estimator, его допустимость и actual consumer проверяются отдельно.
+Use existing causal/IR methods, Scholar and academic owners, CG1/CG2, RequiredDataSpec, N7/N13a/N13b, passport/overlay, AQ1, and VC1. Historical causal plans include accepted bounded results; an old “new theorem needed” list does not prove that a method is absent. Check the required estimator, its admissibility, and actual consumer separately.
 
-У Scientist уже есть predictive VOI scheduler, его состояние, отчёт и потребление в decision packet. В SBI `expected_information_gain` поступает как вход; это не подтверждённый nested EVSI estimator. Не нужно строить новый scheduler, чтобы сравнить существующее простое правило выбора источника с более содержательным. Отдельный S12 `ValueOfInformationEstimate` описан как qualitative site/budget skeleton без численной величины VOI: координация пяти бюджетов не является оценкой EVSI и не подменяет существующий predictive VOI path.
+Scientist already has a predictive VOI scheduler, its state, report, and consumption in the decision packet. In SBI, expected_information_gain is supplied as input; it is not a confirmed nested EVSI estimator. A new scheduler is not needed to compare the existing simple source-selection rule with a richer one. A separate S12 ValueOfInformationEstimate is described as a qualitative site/budget skeleton without a numeric VOI: coordinating five budgets is not an EVSI estimate and does not replace the existing predictive VOI path.
 
-### Приращения
+### Increments
 
-- **Первое приращение.** Один точно сформулированный contrast или функционал и небольшое множество допустимых предпосылок. Показать поддержанный ответ либо его границы. Затем, если имеется реально исполнимый различающий маршрут, получить нужный объект через существующего владельца и изменить ответ того же case
-- **Проверка переноса.** Внешне похожий пробел требует иного основания: не ещё rows, а assignment rule, измерительная связь, joint observation, transport covariate или компетентный акт. Система должна выбрать иной маршрут либо обоснованно сохранить ограничение
-- **Зрелая цель.** Каталог применимых causal/synthesis/acquisition профилей с явными условиями, полными расходами, независимыми контрольными задачами и измеренной ценой нового source family
-- **Условное расширение.** Network interference, proxy/negative-control identification, publication selection, network meta-analysis, экспериментальный дизайн и nested VOI. Их финансируют по новому вопросу и сравнению с сильным простым методом
+- **First increment.** One precisely stated contrast or functional and a small set of admissible assumptions. Show a supported answer or its bounds. Then, if a genuinely executable discriminating route exists, obtain the required object through an existing owner and change the answer for the same case.
+- **Transfer check.** An apparently similar gap requires a different basis: not more rows, but an assignment rule, measurement relation, joint observation, transport covariate, or competent act. The system should choose a different route or preserve the limitation with a reason.
+- **Mature goal.** A catalogue of applicable causal/synthesis/acquisition profiles with explicit conditions, full costs, independent control tasks, and measured cost for a new source family.
+- **Conditional extension.** Network interference, proxy/negative-control identification, publication selection, network meta-analysis, experimental design, and nested VOI. Fund these only for a new question and comparison with a strong simple method.
 
-Полная восстанавливаемость распределения не обязательна, если непосредственно восстанавливается нужный функционал. Аналогично численное доказательство оптимума границы условно на своём допустимом множестве: оно не допускает сами научные предпосылки. Нельзя выбирать предпосылку только потому, что она дала самый узкий интервал, или механически пересекать интервалы несовместимых моделей.
+Full distribution recovery is not required if the target functional itself can be recovered. Likewise, a numeric proof of an optimal bound is conditional on its admissible set; it does not admit the scientific premises themselves. Do not choose an assumption merely because it yields the narrowest interval or mechanically intersect intervals from incompatible models.
 
-### Условный профиль поиска метода и пригодного доказательства
+### Conditional method-discovery and admissible-evidence profile
 
-Если реальный ответ ограничен нахождением уже существующего метода или certificate, полезен небольшой E2/M1-профиль: запрос требований → поиск native method/IR catalog → выбранные и отклонённые кандидаты → проверка предпосылок → разрешение ссылки на существующий payload → фактическое downstream употребление. Сильный comparator — ручной выбор из известного каталога и прямой запуск подходящего native метода. Проверяются известный пригодный кандидат, похожий непригодный, stale index, no-hit и добавленный корректный элемент каталога, который находится без нового case-specific кода. Recall имеет только объявленный конечный denominator; запись «не найдено» не доказывает, что основания нигде нет.
+When the real answer depends on finding an existing method or certificate, a small E2/M1 profile is useful: requirements query → native method/IR catalogue search → selected and rejected candidates → premise check → resolution of a reference to an existing payload → actual downstream use. A strong comparator is manual selection from a known catalogue and direct execution of a suitable native method. Check a known admissible candidate, a similar but inadmissible one, stale index, no-hit, and a valid new catalogue entry that is found without new case-specific code. Recall has only its declared finite denominator; a “not found” record does not prove the basis exists nowhere.
 
-Исторические G2 и G3 имеют разные условия завершения. G2 допускает честный causal/forecast domain ceiling после здорового поиска, сохранённых traces, проверки метода и freshness. У G3 такой исход допустим для отдельного запроса, но его заявленная slice closure требует хотя бы одной успешно разрешённой ссылки на реальный typed certificate/proof payload и полной downstream consumer chain. Нельзя считать всеобщий отказ положительным результатом этого профиля. Эти требования сохраняют полезный класс вопросов; они не дают бюджет новому универсальному proof engine и не утверждают свежий положительный запуск.
+Historical G2 and G3 have different completion conditions. G2 permits an honest causal/forecast domain ceiling after healthy search, preserved traces, method check, and freshness. G3 permits such an outcome for an individual query, but its stated slice closure requires at least one successfully resolved reference to a real typed certificate/proof payload and a complete downstream consumer chain. A universal refusal does not count as a positive result for this profile. These requirements preserve a useful class of questions; they do not fund a new universal proof engine or assert a fresh positive run.
 
-Обычные traces и контрольные задачи входят в выбранный пакет. Отдельная R-ветвь появляется лишь после измеренного ограничения простого выбора методов; V-исследование — при действительно новом критерии проверки. Самостоятельная цена этого условного профиля пока не задана: найденная готовая цепочка может означать reuse, а недостающее научное основание требует иной работы.
+Ordinary traces and control tasks are included in the selected package. A separate R branch appears only after a measured limitation of simple method selection; V research appears only for a genuinely new verification criterion. The standalone cost of this conditional profile is not yet set: a ready chain found may mean reuse, while a missing scientific basis requires different work.
 
-### Решения до кода
+### Decisions before code
 
-Сначала выбрать target, набор разрешённых предпосылок и доступные wrong-making observations. Предпочтителен известный ограниченный метод и native result. Общее probabilistic VOI оправдано только при обоснованных вероятностях исходов приобретения, функции потерь, цене и горизонте; до этого полезнее сравнение нескольких сценариев, dominance или прямое измерение.
+First choose the target, admissible premises, and available wrong-making observations. Prefer a known bounded method and native result. General probabilistic VOI is justified only with supported probabilities of acquisition outcomes, a loss function, price, and horizon; until then, scenario comparison, dominance, or direct measurement is more useful.
 
-Data gap, measurement gap, identification gap, semantic correspondence и отсутствие права требуют разных действий. Объект данных не назначает полномочие. При этом смысловое соответствие может быть содержательно исследуемым вопросом, а не обязательно внешним непроверяемым постулатом.
+A data gap, measurement gap, identification gap, semantic correspondence problem, and absence of permission call for different actions. A data object does not confer authority. Semantic correspondence, however, can itself be a substantive research question, not necessarily an external uncheckable postulate.
 
-**Ожидаемые E02-выходы:** точный B09/R13 admission→overlay→WMR→повторное потребление; актуальные context/basis и job scope; B61 для source reuse; numeric materializer при численном вмешательстве. Источник 2024 `percent_gdp` нельзя записать в USD stock профиля до 2023-07 по совпадению имени. Успешный carrier не разрешает этот смысловой конфликт.
+### Expected E02 outputs
 
-### Труд и приёмка
+Expected outputs: exact B09/R13 admission → overlay → WMR → repeated consumption; current context/basis and job scope; B61 for source reuse; numeric materializer for a numerical intervention. The 2024 percent_gdp source cannot be written into a USD stock profile before 2023-07 just because the names match. A successful carrier does not resolve this semantic conflict.
 
-Узкий data-shaped route при готовой допустимости и repaired chain условно занимает 10–25 нормированных дней: discovery 1–3, решение 2–4, код 3–6, интеграция 2–5, проверка 2–7. Это не цена полевого эксперимента, общего VOI или новой теоремы. Приготовление нового causal-suitability решения может потребовать исследования без гарантированного положительного результата; отсутствие нового кода не означает отсутствия работы.
+### Effort and acceptance
 
-Эталон — получить один известный источник вручную, прямо измерить нужное, применить существующий exact/native method или оставить полезный частичный ответ. Проверяются отдельно fetched, admitted, consumed и действительно improved answers. Повтор источника не считается новым знанием; wrong country/unit/vintage не проходит; удаление реального consumer уничтожает прежний положительный результат. Новая строка без изменения допустимого ответа не доказывает acquisition payoff.
+A narrow data-shaped route with admissibility ready and the chain repaired is conditionally estimated at 10–25 normalized days: discovery 1–3, decision 2–4, code 3–6, integration 2–5, verification 2–7. This is not the cost of field experimentation, general VOI, or a new theorem. Preparing a new causal-suitability decision may require research without a guaranteed positive result; absence of new code does not mean absence of work.
 
-**Остановка:** новый planner не выбирает лучше простого правила; предполагаемый общий nuisance не подтверждён; поиск не различает нужное неизвестное; цена анализа следующего действия превышает само действие. Сохранить небольшой работающий каталог маршрутов. Не превращать остановку в выдуманный вывод «данных нигде нет».
+The reference is to obtain one known source manually, directly measure the needed quantity, apply an existing exact/native method, or retain a useful partial answer. Check fetched, admitted, consumed, and genuinely improved separately. Repeating a source is not new knowledge; a wrong country/unit/vintage fails; removing the actual consumer must eliminate the prior positive result. A new row with no change to the admissible answer does not prove acquisition payoff.
 
-**Связи:** E1 предоставляет смысл источника; E2 открывает новые M1/P1/P2 вопросы; M2 возвращает конкурирующие объяснения для следующего исследования. Отбор источников меняет calibration population, поэтому прежние labels не переносятся автоматически. Несколько измерительных каналов могут быть полезны только совместно: такой пакет сравнивается целиком, без предположения универсальной greedy-очерёдности.
+**Stop:** the new planner does not outperform a simple rule; the presumed shared nuisance is not confirmed; discovery does not distinguish the needed unknown; or the analysis costs more than the next action itself. Keep a small working catalogue of routes. Do not turn stopping into an invented conclusion that “data do not exist anywhere.”
 
-**Основные источники:** Layer3 `G2-causal-forecast-search-engine.md`, L242–260/L1233–1385; `G3-analytics-search-engine.md`, L272–291; Layer2 `S12-cold-start-resource-economics.md`, L307–332; GY N7/N13a/N13b/AQ1/VC1; `docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md`, R1–R4; причинный research/result lineage; GV-02/23/24/25/30/36/39/41; E02 OP-R13 и OP-R1-SYMBOLIC-MATERIALIZATION.
+**Relationships:** E1 supplies source semantics; E2 opens new M1/P1/P2 questions; M2 returns competing explanations for the next study. Source selection changes the calibration population, so prior labels do not transfer automatically. Multiple measurement channels may be useful only jointly: compare the complete package without assuming a universal greedy order.
 
-## M1 Совместная модель состояние и прогноз
+**Primary sources:** Layer3 G2-causal-forecast-search-engine.md, L242–260/L1233–1385; G3-analytics-search-engine.md, L272–291; Layer2 S12-cold-start-resource-economics.md, L307–332; GY N7/N13a/N13b/AQ1/VC1; docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md, R1–R4; causal research/result lineage; GV-02/23/24/25/30/36/39/41; E02 OP-R13 and OP-R1-SYMBOLIC-MATERIALIZATION.
 
-### Полезная способность
+## M1 Joint Model, State, and Forecast
 
-Система отвечает на вопросы о совместных результатах, состоянии и будущем, сохраняя то, что существенно для конкретного функционала: зависимость, информационный срез, наблюдение, структуру модели и альтернативные режимы. Среднее каждой величины отдельно может быть недостаточно для риска разности, совместного ограничения, хвоста или выбора политики.
+### Useful capability
 
-Внутри программы различаются четыре предмета: оценка параметров, оценимость нужной величины, состояние при фиксированной модели и прогноз. Хороший fit не устанавливает causal identification; узкая численная ошибка не означает узкую неопределённость модели; smoothing с будущими данными не является прогнозом, доступным в исторический момент.
+The system answers questions about joint outcomes, state, and the future while preserving what matters for a specific functional: dependence, information slice, observation, model structure, and alternative regimes. The mean of each quantity separately may be insufficient for a difference risk, joint constraint, tail, or policy choice.
 
-### Опора и приращения
+The program distinguishes four subjects: parameter estimation, estimability of the required quantity, state under a fixed model, and forecasting. Good fit does not establish causal identification; a narrow numerical error does not imply narrow model uncertainty; smoothing with future data is not a forecast available at the historical time.
 
-Используются Foundry calibration/uncertainty, существующие state и model owners, IR/ValueOuterSet, WMR, native forecasting/backtesting и current packet. Развитие состоит в пригодном совместном объекте, научной проверке и сохранении его до конкретного потребителя, а не в новом общем world store.
+### Foothold and increments
 
-Утренний reported-local срез 1 октября уточняет B197: внутренняя Calibrator → persisted CalibrationReport v2 → welfare Delta/MC цепочка уже интегрирована. Report-owned scalar-group→field projection и общий covariance owner сохраняют tied/singular Normal dependence без jitter. При mixed non-Normal withholding остаются candidate point и отдельный robust outer bound. Receipt сообщает 58/58; underlying witness независимо не перепроверялся и в этом исследовании не запускался. Этот внутренний механизм не заказывается повторно.
+Reuse Foundry calibration/uncertainty, existing state and model owners, IR/ValueOuterSet, WMR, native forecasting/backtesting, and the current packet. Development means obtaining a suitable joint object, scientific verification, and preservation through to a specific consumer, not creating a new general world store.
 
-Неподтверждённый production ввод имеет точную границу. Frozen census на `28ea3bb` не нашёл production construction Calibrator/CalibratorInputs или executable put_calibration_report caller; это не полный текущий census на `8b40f8f5`. Кроме того, общий `inputs.calibration_report_ref` достигает Blueprint caller, ожидающего FunnelCalibrationReport@1.0, тогда как B197 сохраняет Foundry CalibrationReport@2.0. Это reachable internal typed-intake seam, без доказанного served B197 production или authority emission. Нужна квалификация конкретного producer и schema/kind dispatch существующего consumer, а не новый covariance engine. Источники по локальному чтению: `B197_COVARIANCE_RECEIPT.md`, L3–24; `OPEN_PREMISES.md`, L1158–1168; `run_policy_blueprint_runtime.py`, L502/L577/L1075–1079; точные пути и reported hashes — в sources.json.
+The morning reported-local slice from October 1 clarifies B197: the internal Calibrator → persisted CalibrationReport v2 → welfare Delta/MC chain is already integrated. The report-owned scalar-group-to-field projection and shared covariance owner preserve tied/singular Normal dependence without jitter. For mixed non-Normal withholding, a candidate point and a separate robust outer bound remain. The receipt reports 58/58; the underlying witness was not independently checked or run in this research. This internal mechanism is not ordered again.
 
-- **Первое приращение.** Один нужный функционал из уже пригодной joint law или ограниченного модельного семейства: например разность последствий двух мер с общей неопределённостью. Независимый конечный расчёт отличает две joint laws с одинаковыми marginals
-- **Проверка переноса.** Иной observation regime, поздняя ревизия, новый horizon или target, для которого прежней covariance недостаточно. Проверяется, какая часть повторного использования действительно сохраняет смысл
-- **Зрелая цель.** Поддержанные модели и прогнозные профили с диагностикой глобальных альтернатив, multimodality, prior sensitivity, regime support, calibrated predictive error и явной передачей состояния между модулями
-- **Условное расширение.** Hierarchical forecast reconciliation, nowcasting, mixed frequency, model averaging, SBI, динамическая микросимуляция и joint tails. Сначала применимость и сильный direct/structural baseline, затем более сложный estimator
+The unconfirmed production input has an exact boundary. The frozen census at 28ea3bb found no production construction of Calibrator/CalibratorInputs or executable put_calibration_report caller; this is not a full current census at 8b40f8f5. In addition, the shared inputs.calibration_report_ref reaches a Blueprint caller expecting FunnelCalibrationReport@1.0, while B197 retains Foundry CalibrationReport@2.0. This is a reachable internal typed-intake seam, without proof of served B197 production or authority emission. Qualify the specific producer and schema/kind dispatch of the existing consumer; do not build a new covariance engine. Local-read sources: B197_COVARIANCE_RECEIPT.md, L3–24; OPEN_PREMISES.md, L1158–1168; run_policy_blueprint_runtime.py, L502/L577/L1075–1079; exact paths and reported hashes are in sources.json.
 
-Прогноз выделяется в самостоятельную программу, когда есть повторяющийся потребитель с собственными горизонтами, vintages, распределительными прогнозами и rolling out-of-time оценкой. Одна новая модель в общем каталоге остаётся ветвью M1. Отдельная программа в этом случае разделяет подготовку данных и custody, но получает самостоятельную оценку прогнозной пользы и эксплуатационный цикл.
+- **First increment.** One required functional from an already suitable joint law or bounded model family, such as the difference in consequences of two measures under shared uncertainty. An independent finite calculation distinguishes two joint laws with identical marginals.
+- **Transfer check.** Another observation regime, later revision, new horizon, or target where the prior covariance is insufficient. Check which part of reuse actually preserves meaning.
+- **Mature goal.** Supported models and forecast profiles with diagnostics for global alternatives, multimodality, prior sensitivity, regime support, calibrated predictive error, and explicit state transfer between modules.
+- **Conditional extension.** Hierarchical forecast reconciliation, nowcasting, mixed frequency, model averaging, SBI, dynamic microsimulation, and joint tails. First establish applicability and a strong direct/structural baseline, then consider a more complex estimator.
 
-### Архитектурные альтернативы
+Forecasting becomes a separate program when there is a recurring consumer with its own horizons, vintages, distributional forecasts, and rolling out-of-time evaluation. One new model in the general catalogue remains an M1 branch. A separate program would share data preparation and custody but have its own estimate of forecast utility and operational cycle.
 
-Предпочтительны native modules с точным target и сохраняемыми связями. Полный joint model и cut model отвечают на разные inferential вопросы: запрет обратной связи между модулями меняет распределение, а не только вычислительный план. Выбор делается по задаче и риску misspecification, с отдельной проверкой.
+### Architectural alternatives
 
-Репрезентация выбирается по функционалу. Для некоторых вопросов достаточно совместных моментов; для нелинейного хвоста или event probability могут требоваться ordered joint draws либо другой native объект. Не нужно заранее заставлять все методы выдавать одинаковый набор samples. Сжатие допустимо после доказательства, что нужный вопрос сохраняется.
+Prefer native modules with an exact target and preserved relationships. A full joint model and a cut model answer different inferential questions: preventing feedback between modules changes the distribution, not only the computational plan. Choose according to the task and misspecification risk, with separate verification.
 
-**Условно потребляемые E02-выходы:** после отдельно принятого решения semantic owner по B31/B201/B202 — различённые point/interval/joint channels; B197 уже интегрированный internal covariance/report/welfare path, отдельно configured producer и typed intake в нужном scope; B194 draw provenance и допустимое обращение с failures; B169–B171 временной профиль, повторения и веса метрики; exact graph/ExecPlan/horizon по выбранному N5 пути. Исправление каждого из них не считается новым научным результатом M1.
+Choose representation by functional. Joint moments may suffice for some questions; a nonlinear tail or event probability may require ordered joint draws or another native object. Do not require every method to emit the same set of samples in advance. Compression is acceptable only after proving that it preserves the required question.
 
-### Труд проверка и остановка
+**Conditionally consumed E02 outputs:** once a semantic owner separately adopts B31/B201/B202, keep point/interval/joint channels distinct; B197's internal covariance/report/welfare path is already integrated, with configured producer and typed intake still separate in the required scope; B194 draw provenance and permitted treatment of failures; B169–B171 temporal profile, repetitions, and metric weights; exact graph/ExecPlan/horizon on the selected N5 path. Repairing any of these is not itself a new scientific result for M1.
 
-Для одного нового pairwise функционала при уже пригодных joint draws условный пакет составляет 10–25 нормированных дней. Он не покрывает новую empirical joint law, все survival/tail/SAE варианты или научную валидность переходов. Существенная доля решения лежит в target, dependence и независимом эталоне, даже если формула коротка.
+### Effort, verification, and stopping
 
-Сравниваются exact/direct native calculation, прозрачная малая модель и существующий forecaster на одинаковом information set. Проверки: одинаковые marginals при иной зависимости; смена единиц; mean вне equal-tail interval; отсутствие доступности позднего наблюдения в раннем forecast origin; actual requested/started/completed replicates. Нельзя объявлять convergence по ширине распределения исхода или по неотвержению нулевого улучшения.
+One new pairwise functional over already suitable joint draws is conditionally estimated at 10–25 normalized days. This does not cover a new empirical joint law, every survival/tail/SAE option, or scientific validity of transitions. A substantial part of the work concerns target, dependence, and an independent reference even when the formula is short.
 
-Остановка оправдана, если новый функционал не меняет полезный ответ, более сложная модель не переносится на holdout regime, или полученная точность целиком создана неподдержанным prior/measurement weight. Тогда сохраняется bounded model-conditional ответ либо множество альтернатив.
+Compare exact/direct native calculation, a transparent small model, and an existing forecaster on the same information set. Check identical marginals with different dependence; unit changes; a mean outside an equal-tail interval; unavailability of later observations at an earlier forecast origin; and actual requested/started/completed replicates. Do not declare convergence from an outcome-distribution width or failure to reject a null improvement.
 
-**Связи:** P1 получает корректную совместную оценку; P2 — переходы и доступные сигналы; M2 — заранее определённый прогноз и диагностируемый residual. Общий model input может сильно ускорить несколько consumers, но ошибочная joint law заражает одновременно их решение и последующее «подтверждение».
+Stop if a new functional does not change a useful answer, a more complex model fails to transfer to a holdout regime, or the resulting precision is entirely created by an unsupported prior/measurement weight. Preserve a bounded model-conditional answer or a set of alternatives instead.
 
-**Основные источники:** GV-10/28/44/45/48; Foundry Methods T1/T3/T18/T19/T20/T28; `docs/plans/active/layer2-slices/S10-outcome-prediction-welfare-comparison.md`; E02 B31/B169–B171/B194/B197/B201/B202 и OP-R13-N5.
+**Relationships:** P1 receives a correct joint evaluation; P2 gets transitions and available signals; M2 gets a pre-defined forecast and diagnosable residual. A shared model input may speed several consumers substantially, but a wrong joint law contaminates their decisions and any later “confirmation.”
 
-## M2 Диагноз и обучение о мире
+**Primary sources:** GV-10/28/44/45/48; Foundry Methods T1/T3/T18/T19/T20/T28; docs/plans/active/layer2-slices/S10-outcome-prediction-welfare-comparison.md; E02 B31/B169–B171/B194/B197/B201/B202 and OP-R13-N5.
 
-### Полезная способность
+## M2 Diagnosis and Learning About the World
 
-Система различает, какие объяснения расхождения между прогнозом и наблюдением поддержаны: delivery, измерение, модель, поведение, контекст или их сочетание. Она выбирает полезную следующую проверку. После отдельно принятого правила обновления новое допустимое знание может изменить версию мира и реально повлиять на следующий исследовательский цикл.
+### Useful capability
 
-Это отдельная программа: хороший выбор исследовательского инструмента не меняет знание об эффекте политики. Сохранённая запись обновления тоже не доказывает правильность причинного диагноза.
+The system distinguishes which explanations of a prediction/observation discrepancy are supported: delivery, measurement, model, behavior, context, or a combination. It selects a useful next check. After a separately adopted update rule, new admissible knowledge may change the world version and genuinely affect the next research cycle.
 
-### Три явных результата
+This is a separate program: choosing a good research tool does not change knowledge about a policy effect. A preserved update record also does not prove that the causal diagnosis was correct.
 
-- **O1 Диагноз.** Заранее определённый прогноз, версия реально доставленного вмешательства и зрелое наблюдение сравниваются с учётом exposure, assignment, пропусков, цензурирования и процесса регистрации. Итогом может быть compound или unresolved с различающим следующим действием
-- **O2 Гипотеза.** Обнаруженный сдвиг формирует `candidate_unverified` и вопрос для подтверждающего исследования. Statistical detection и FDR не устанавливают причинную связь
-- **O3 Допущенное изменение мира.** После live producer, нужной scientific evidence и принятого update policy новый coupling/mechanism/required-data объект проходит существующий passport/overlay и создаёт ветвь, которую потребляет следующий цикл
+### Three explicit outcomes
 
-O2 необязателен для O1/O3. DS21 требует **O1 AND O3**. Ранний O1 использует существующий reviewer diagnostic artifact, не ждёт нового dashboard или PR1 promotion. WP01/WP02 по-прежнему ограничивают posterior mutation и routine assimilation; готовность кода не является их принятием.
+- **O1 Diagnosis.** A pre-defined prediction, version of the intervention actually delivered, and mature observation are compared accounting for exposure, assignment, missingness, censoring, and registration process. The result may be compound or unresolved, with a discriminating next action.
+- **O2 Hypothesis.** A detected shift produces candidate_unverified and a question for confirmatory research. Statistical detection and FDR do not establish a causal relationship.
+- **O3 Admitted world change.** After a live producer, required scientific evidence, and an adopted update policy, a new coupling/mechanism/required-data object passes the existing passport/overlay and creates a branch consumed by the next cycle.
 
-### Опора и приращения
+O2 is optional for O1/O3. DS21 requires **O1 AND O3**. Early O1 uses an existing reviewer diagnostic artifact; it does not wait for a new dashboard or PR1 promotion. WP01/WP02 still constrain posterior mutation and routine assimilation; code readiness does not mean they have been adopted.
 
-Повторно используются O0, S13, Observation/VC1, DDM там, где он применим, CalibrationReport, CAS, N12/N13b, ClaimLedger, continuous-governance и partial reissue. Механизмы событий и исторических переходов уже существуют; новая работа — content-bound comparison/diagnosis и допустимое научное основание обновления.
+### Foothold and increments
 
-**Первое приращение** начинается с одного зрелого retrospective case: корректно отличить хотя бы одну существенную альтернативу от model error и изменить следующую проверку. Сильный baseline — краткий monitoring report и explicit cause table. Если реального зрелого наблюдения нет, можно закончить механизм на явно модельных примерах; это не эмпирическое обучение.
+Reuse O0, S13, Observation/VC1, DDM where applicable, CalibrationReport, CAS, N12/N13b, ClaimLedger, continuous-governance, and partial reissue. Event and historical-transition mechanisms already exist; new work is content-bound comparison/diagnosis and admissible scientific basis for update.
 
-**Проверка переноса** даёт тот же по величине residual, но другую доказанную причину: policy-induced reporting change, задержку результата, иной состав наблюдаемых субъектов или delivery failure. Для O3 отдельный второй случай — correction/retraction с адресным отзывом нынешнего использования и сохранением истории.
+The **first increment** starts with one mature retrospective case: correctly distinguish at least one material alternative from model error and change the next check. A strong baseline is a short monitoring report and explicit cause table. If no genuinely mature observation exists, mechanism work may end with explicitly model-based examples; this is not empirical learning.
 
-**Зрелая цель** — известная область диагностируемых сравнений, полезная неопределённость за её пределами и подтверждённое расширение класса последующих вопросов. Новые версии мира и число alerts сами по себе не являются эффектом программы.
+A **transfer check** presents a residual of similar magnitude with a different supported cause: policy-induced reporting change, delayed outcome, different composition of observed subjects, or delivery failure. For O3, a separate second case is a correction/retraction with targeted withdrawal of current use while preserving history.
 
-Сохраняется accountability-ветвь S13: наблюдаемый следующий шаг и его закрытие, реакция на неэффективный review, адресное expand/shrink/hold/split допустимой области и время реакции на опровержение. Используются существующие lifecycle/revision owners. Обновление процедурной памяти, публичной записи и знания об эффекте маршрутизируется отдельно; наблюдение follow-through не создаёт автоматическое разрешение O3 или право выполнить действие учреждения. Источник: `docs/plans/active/layer2-slices/S13-post-deploy-accountability-learning.md`, L302–434/L626–660/L1168–1183.
+The **mature goal** is a known domain of diagnosable comparisons, useful uncertainty outside that domain, and confirmed expansion of the class of subsequent questions. New world versions and alert counts are not by themselves program impact.
 
-### Решения труд и проверка
+Preserve the S13 accountability branch: an observed next step and its closure, response to ineffective review, targeted expansion/shrink/hold/split of admissible scope, and time to respond to disconfirmation. Use existing lifecycle/revision owners. Procedural memory updates, public record, and knowledge about effects are routed separately; observing follow-through does not grant automatic O3 permission or authority to execute an institution's action. Source: docs/plans/active/layer2-slices/S13-post-deploy-accountability-learning.md, L302–434/L626–660/L1168–1183.
 
-Предпочтителен прозрачный evidence/cause table, затем set-valued contributor model, если он действительно помогает выбрать опыт. Общий learned cause classifier отложен до независимого корпуса: одинаковые residual могут иметь разные причины, а вынужденная единственная метка создаёт ложную атрибуцию.
+### Decisions, effort, and verification
 
-Для узкого подготовленного O1 встречаются оценки 15–30 и 20–40 нормированных дней с разной глубиной temporal/compound scope. В выбранном портфеле сохраняется один явно описанный пакет; числа не усредняются. O2 и O3 — отдельные приращения, а не неявные добавки к O1. Реальное ожидание исходов, доступа, adjudication и update-policy решения не оценено инженерными днями.
+Prefer a transparent evidence/cause table, then a set-valued contributor model only if it actually helps choose an experiment. Defer a general learned cause classifier until an independent corpus exists: identical residuals may have different causes, and a forced single label creates false attribution.
 
-**Ожидаемые E02-выходы:** version-bound source/context, корректные comparisons/replicates/uncertainty по выбранному path, exact diagnostics B26, lineage и currentness. O1 не получает право на update через repair receipt. LA-055 precedence, live-feed applicability и LA-054 validity capability сохраняют отдельные scopes.
+For narrow prepared O1, estimates of 15–30 and 20–40 normalized days reflect different temporal/compound scope. The selected portfolio retains one explicitly described package; the estimates are not averaged. O2 and O3 are separate increments, not implicit additions to O1. Real wait for outcomes, access, adjudication, and the update-policy decision is not estimated in engineering days.
 
-Проверка требует heldout prediction и refuting evidence, доступа проверяющего к альтернативным причинам, контролей measurement-versus-delivery и полезного следующего действия. Для O3 обязательны действительное потребление следующей ветви и независимые отрицательные mutations, включая self-confirmation quarantine. Полный повтор обработки не делает policy-induced observations независимым подтверждением.
+**Expected E02 outputs:** version-bound source/context, correct comparisons/replicates/uncertainty for the selected path, exact B26 diagnostics, lineage and currentness. O1 receives no update authority from a repair receipt. LA-055 precedence, live-feed applicability, and LA-054 validity capability retain separate scopes.
 
-**Остановка:** диагноз не меняет следующую проверку; accuracy достигается исчезновением трудных случаев; labels не различают причин; update-policy отсутствует. Сохранить comparison/limitation service и не заявлять автоматическое исправление модели.
+Verification requires held-out prediction and refuting evidence, reviewer access to alternative causes, measurement-versus-delivery controls, and a useful next action. O3 requires actual consumption by the next branch and independent negative mutations, including self-confirmation quarantine. Reprocessing everything does not make policy-induced observations independent confirmation.
 
-**Связи:** E1/P3 дают наблюдательную и исполнительную семантику; E2 получает новые различающие запросы; P2 получает будущую возможность реагировать на сигнал. Опасная обратная связь возникает, когда одна модель производит прогноз, объясняет свой промах и сама подтверждает обновление.
+**Stop:** diagnosis does not change the next check; accuracy is achieved by dropping difficult cases; labels do not distinguish causes; or no update policy exists. Preserve the comparison/limitation service and do not claim automatic model correction.
 
-**Основные источники:** GY O1/O2/O3/AS2/AS3/VC1; GY §8.5 и L5394–5497/L5731–5743; `docs/system-design-decisions/withheld-propositions-register.md`, WP01/WP02/WP09/WP10; Atlas DS21; Scientist BIC 2.6/R8; GV-06/22/44/45.
+**Relationships:** E1/P3 supply observation and execution semantics; E2 gets new discriminating requests; P2 gets a future ability to react to a signal. The dangerous feedback occurs when one model produces a forecast, explains its own miss, and confirms its own update.
 
-## P1 Совместный дизайн и осмысленный выбор
+**Primary sources:** GY O1/O2/O3/AS2/AS3/VC1; GY §8.5 and L5394–5497/L5731–5743; docs/system-design-decisions/withheld-propositions-register.md, WP01/WP02/WP09/WP10; Atlas DS21; Scientist BIC 2.6/R8; GV-06/22/44/45.
 
-### Полезная способность
+## P1 Joint Design and Meaningful Choice
 
-Система превращает запрос в правильно составленные obligations, порождает исполнимые альтернативы и сравнивает их целиком. Она сохраняет, какое именно действие оценено, как общие ресурсы и взаимодействия ограничивают набор и почему несколько альтернатив могут оставаться несравнимыми.
+### Useful capability
 
-Сюда входят intent/facet/obligation synthesis, разделение candidate/bundle/blocking frontier, композиция мер, недоминируемый набор и явно выбранные ценности. Это сохраняет амбицию универсального policy design, но не делает обязательным большой новый synthesizer до первого полезного случая.
+The system turns a request into correctly composed obligations, generates executable alternatives, and compares them as wholes. It preserves exactly which action was evaluated, how shared resources and interactions constrain the set, and why several alternatives may remain incomparable.
 
-G6 сохраняет ещё одну предметную способность: правильно разложить запрос и употребить существующий bounded tool loop, объясняя выбор источников и инструментов, отвергнутые ветви и неполноту. Произвольный текст не означает произвольную область: действие ограничено принятым G5 envelope. Готовность оркестрации, grounded result, обоснованный grounded abstention и прежний unchanged_blocker различаются. Работающий chat/SSE ещё не подтверждает потребление сохранённых решений оркестрации и потерь компрессии. При реальном ограничении здесь финансируется конкретный request/consumer профиль, а не новый chat или универсальный orchestrator. Источник: `docs/plans/active/layer3-slices/G6-bounded-agent-arbitrary-request-grounded-result-or-abstention.md`, L191–288/L710–987/L1198–1535/L2486–2543.
+This includes intent/facet/obligation synthesis, separation of candidate/bundle/blocking frontier, measure composition, nondominated sets, and explicitly selected values. This preserves the ambition of universal policy design without requiring a large new synthesizer before the first useful case.
 
-### Существующая опора
+G6 retains another subject-matter capability: correctly decompose a request and use an existing bounded tool loop, explaining source/tool choices, rejected branches, and incompleteness. Arbitrary text does not mean arbitrary scope: actions are limited by the adopted G5 envelope. Orchestration readiness, grounded result, justified grounded abstention, and the earlier unchanged_blocker are distinct. A working chat/SSE does not yet confirm consumption of preserved orchestration decisions or compression losses. If a real limitation exists here, fund a specific request/consumer profile, not a new chat or universal orchestrator. Source: docs/plans/active/layer3-slices/G6-bounded-agent-arbitrary-request-grounded-result-or-abstention.md, L191–288/L710–987/L1198–1535/L2486–2543.
 
-Используются текущий WorkspaceLoop, N1–N6, S2/S5, CouplingGraph/CompositionReceipt, native policy search, `PolicyEvaluationVector`, Scientist ParetoRegistry, S8/PA1 и CanonicalDesignRecord. Registry уже хранит candidate hash/ref, оценку и seed payload; controller обновляет и читает его. Нельзя объявлять весь frontier отсутствующим по более узкому output Foundry NSGA2.
+### Existing foothold
 
-Важный remaining scope — actual default/served consumer и нужные objective, eligibility и source-population основания. B109/B110/B111 сохраняют собственные E02 scopes. Поведение отдельного NSGA2 при пустом feasible set и статусе OPTIMAL пока требует owner reconciliation; оно не превращается автоматически в финансируемую научную программу.
+Reuse the current WorkspaceLoop, N1–N6, S2/S5, CouplingGraph/CompositionReceipt, native policy search, PolicyEvaluationVector, Scientist ParetoRegistry, S8/PA1, and CanonicalDesignRecord. The registry already stores candidate hash/ref, evaluation, and seed payload; the controller updates and reads it. Do not claim that the entire frontier is missing based on a narrower Foundry NSGA2 output.
 
-### Приращения
+Important residual scope includes the actual default/served consumer and the required objective, eligibility, and source-population basis. B109/B110/B111 preserve their own E02 scopes. Behavior of separate NSGA2 on an empty feasible set and OPTIMAL status still requires owner reconciliation; it does not automatically become a funded scientific program.
 
-- **Первое приращение.** Небольшое конечное семейство мер с полным exact enumeration. Сохранить допустимые действия и векторы результатов, повторно выбрать по объявленному constraint/value profile и воспроизвести результат из сохранённых объектов
-- **Проверка переноса.** Другая структура взаимодействия: shared resource, зависимость компонента от другого или конфликт нормативных расписаний. Простая сумма отдельно допустимых действий перестаёт быть достаточным решением
-- **Зрелая цель.** Поддержанное композиционное пространство политик, где новый вопрос выражается через существующие правила и профили, хорошие альтернативы не исчезают из-за screening, а цена второго случая измеренно меньше bespoke разработки
-- **Условное расширение.** Mechanism design, matching, auctions, multi-level optimization и richer robust choice, только если реальный вопрос требует именно их акторов, сообщений, стимулов и ограничений
+### Increments
 
-Неопределённость научной оценки, неполнота поиска и несогласие ценностей сохраняются отдельно. Frontier эвристического поиска не называется полным optimum. Смена меню не должна тайно менять шкалу полезности. Совпадение objective vectors не стирает разные действия и условия их исполнения.
+- **First increment.** A small finite family of measures with full exact enumeration. Preserve admissible actions and outcome vectors, select again under the declared constraint/value profile, and reproduce the result from preserved objects.
+- **Transfer check.** A different interaction structure: shared resource, a component depending on another, or conflicting normative schedules. A simple sum of separately admissible actions is no longer sufficient.
+- **Mature goal.** A supported compositional policy space where new questions are expressed through existing rules and profiles, good alternatives do not disappear due to screening, and the cost of the second case is measurably lower than bespoke development.
+- **Conditional extension.** Mechanism design, matching, auctions, multi-level optimization, and richer robust choice only if the real question requires their specific actors, messages, incentives, and constraints.
 
-### Participation и ценности
+Scientific evaluation uncertainty, search incompleteness, and disagreement about values remain separate. A heuristic-search frontier is not called a complete optimum. Changing the menu must not silently change the utility scale. Matching objective vectors do not erase different actions and execution conditions.
 
-Участие — источник определённого вида основания, а не просто хороший UX. Для survey, testimony, deliberation и complaint нужны population, sampling, consent, sponsor, dissent и разрешённое claim use. Консультация может подтвердить существование возражения, не оценив его распространённость. Оценённые из поведения предпочтения не назначают общественные веса. S7 decision workflow не создаёт S8 value authority.
+### Participation and values
 
-В модельной демонстрации можно честно исследовать несколько заданных расписаний ценностей без назначения института. Для действительной рекомендации основания выбора и компетентный акт остаются отдельными входами. Система должна сохранять альтернативы и несогласие до этого выбора.
+Participation is a source of a specific kind of basis, not just good UX. Surveys, testimony, deliberation, and complaints need population, sampling, consent, sponsor, dissent, and permitted claim use. A consultation may establish the existence of an objection without estimating its prevalence. Preferences inferred from behavior do not assign public weights. The S7 decision workflow does not create S8 value authority.
 
-### Архитектура труд и проверка
+A model demonstration can honestly explore several specified value schedules without appointing an institution. For an actual recommendation, the basis for choice and competent act remain separate inputs. The system should preserve alternatives and disagreement until that choice.
 
-Предпочтение: имеющийся native frontier и evaluator, маленькая конечная модель, затем ровно недостающее сохранение/чтение/представление. Мост Foundry→Scientist строится только при названной потребности; второй registry не нужен. Critic diversity проверяется по дополнительным обнаруженным ошибкам и полной цене против правил и одного сильного baseline, а не по числу персон.
+### Architecture, effort, and verification
 
-Условное узкое первое приращение оценивается в 10–30 нормированных дней при заданных допустимых coefficients и существующих carriers. Новый grammar, empirical coupling, participation campaign и защищённая нормативная рекомендация не входят. Если native путь уже полностью решает выбранную задачу, capability delta может свестись к демонстрации употребления либо оказаться нулевой.
+Preference: use the existing native frontier and evaluator, a small finite model, then exactly the missing preservation/read/use/presentation. Build a Foundry→Scientist bridge only for a named need; a second registry is unnecessary. Evaluate critic diversity by additional errors found and full cost against rules and one strong baseline, not by the number of personas.
 
-**Ожидаемые E02-выходы:** B109 строгий dominance и нужный run/tenant/cell frontier consumer; B110 basis metric/split/unit/direction; B111 независимая наблюдаемость source eligibility и all-invalid disposition; N2/N5/N8 repairs только если выбранная модель использует соответствующий маршрут. Численный legal do и grounded world graph не предполагаются от готовности registry.
+The conditional narrow first increment is estimated at 10–30 normalized days with given admissible coefficients and existing carriers. A new grammar, empirical coupling, participation campaign, and protected normative recommendation are excluded. If the native route already fully solves the chosen task, the capability delta may be only demonstration of use or zero.
 
-Контрольная батарея: pairwise-pass/global-fail; удаление actual action при сохранении score; неподдержанная альтернатива с привлекательным objective; добавление extreme невыбранного варианта; эквивалентная перегруппировка компонентов; перестановка labels без изменения модели. Эталон использует те же inputs и допустимые claims.
+**Expected E02 outputs:** B109 strict dominance and the required run/tenant/cell frontier consumer; B110 metric/split/unit/direction basis; B111 independent observability of source eligibility and all-invalid disposition; N2/N5/N8 repairs only if the selected model uses the corresponding route. A numerical legal do and grounded world graph are not implied by registry readiness.
 
-**Остановка:** 2–3 хорошие ручные альтернативы дают тот же результат дешевле; выигрыш создан скрытыми новыми weights; критики не находят дополнительных существенных ошибок; joint support отсутствует. В последнем случае полезна условная модельная оценка, но не утверждение эффекта системы.
+Control battery: pairwise pass/global fail; remove the actual action while preserving score; unsupported alternative with an attractive objective; add an unselected extreme option; equivalent regrouping of components; reorder labels without changing the model. The reference uses the same inputs and admissible claims.
 
-**Связи:** E1/E2/M1 поставляют основание; P2 наследует идентичность действия; P3 проверяет реальную совместимость. Число альтернатив может повышать нагрузку на человека, а общая scalarization способна скрыть редкий вред. Эти издержки входят в оценку пользы.
+**Stop:** 2–3 good manual alternatives yield the same result for less cost; gain comes from hidden new weights; critics find no additional material errors; or joint support is unavailable. In the last case, a conditional model-based evaluation may still be useful, but not a claim about system effect.
 
-**Основные источники:** PDC C18/C19/C34 и W6; Layer2 S2/S5/S7/S8/S9; GV-17/19/33/34/37; `src/polisyos/scientist/methods/search/pareto_registry.py`, L60–79/L242–306; controller L1100–1130; E02 OPT-01 B109–B111.
+**Relationships:** E1/E2/M1 provide the basis; P2 inherits action identity; P3 checks real compatibility. The number of alternatives can increase human workload, and shared scalarization may hide rare harm. These costs belong in the utility assessment.
 
-## P2 Адаптивные правила с сохранённым продолжением
+**Primary sources:** PDC C18/C19/C34 and W6; Layer2 S2/S5/S7/S8/S9; GV-17/19/33/34/37; src/polisyos/scientist/methods/search/pareto_registry.py, L60–79/L242–306; controller L1100–1130; E02 OPT-01 B109–B111.
 
-### Полезная способность
+## P2 Adaptive Rules with Preserved Continuation
 
-Система отвечает: что наблюдать, как выбрать действие после сигнала и какое допустимое продолжение остаётся к сроку? Выходом является правило для доступных будущих историй, а не одна удачная траектория.
+### Useful capability
 
-Это отдельная траектория, поскольку новая информация меняет класс допустимых политик и математическую задачу. Persistent unknown mechanism, stagewise switching и rectangular ambiguity не являются взаимозаменяемыми настройками одного backend. Ресурсная допустимость, достижимость конечной цели и безопасность продолжения также не следуют из хорошего среднего reward.
+The system answers: what should be observed, how should an action be selected after a signal, and what admissible continuation remains by the deadline? The output is a rule for available future histories, not one successful trajectory.
 
-### Опора и точный текущий предел
+This is a separate trajectory because new information changes the class of admissible policies and the mathematical problem. A persistent unknown mechanism, stagewise switching, and rectangular ambiguity are not interchangeable settings of one backend. Resource admissibility, reachability of an end state, and safe continuation also do not follow from a good average reward.
 
-Foundry содержит nominal DP и двухстадийный stochastic programming. Прочитанный DP вычисляет stage×state policy, но возвращает value function и действия/состояния одной sampled trajectory. Двухстадийный метод сохраняет первый `x` и scalar expected recourse cost, а не полную таблицу продолжений. Наличие generic metadata означает возможность небольшого расширения, но не установленный rule contract, reload и реального consumer.
+### Foothold and exact current limit
 
-P6.09 из `docs/research/deep-research-value-distillation.md` предлагает одну static AVaR/spectral family и её nested/rectangular time-consistent extension. Эти условия не являются законом для всех адаптивных политик: exact finite-history/root-commitment оценка может сохранять persistent/nonrectangular механизм. Rectangularization ради удобства solver меняет вопрос.
+Foundry contains nominal DP and two-stage stochastic programming. The inspected DP computes a stage × state policy but returns a value function and actions/states from one sampled trajectory. The two-stage method preserves first-stage x and a scalar expected recourse cost, not the full continuation table. Generic metadata means a small extension may be possible, but does not establish a rule contract, reload, or actual consumer.
 
-Существующие temporal/DTR/strategic owners и S5 используются прежде нового planner. Отдельный Ukraine selected-input маршрут не возникает от присутствия соответствующего DTO в другом C7 или DTR consumer.
+P6.09 in docs/research/deep-research-value-distillation.md proposes one static AVaR/spectral family and its nested/rectangular time-consistent extension. These conditions are not a rule for all adaptive policies: exact finite-history/root-commitment evaluation may preserve a persistent/nonrectangular mechanism. Rectangularization for solver convenience changes the question.
 
-### Приращения и границы цены
+Use existing temporal/DTR/strategic owners and S5 before a new planner. A separate Ukraine selected-input route does not follow from the presence of a corresponding DTO in another C7 or DTR consumer.
 
-**Первое приращение — конечное полное правило.** Две стадии, малое action space, 2–3 явно заданных persistent models, фиксированные signal/transition/history definitions. Полный независимый перебор оценивает правила и конечное продолжение. Один native consumer сохраняет, повторно загружает и применяет то же правило на разных допустимых историях. Эмпирические коэффициенты не выдумываются.
+### Increments and cost boundary
 
-**Расширение — переиспользуемый класс правил.** Если реальный второй consumer требует нового history/filtration/controller carrier, его проектируют отдельно. General nonrectangular solver, abstraction-to-concrete continuation certificate и произвольные horizons не входят в узкое первое приращение.
+**First increment — finite complete rule.** Two stages, a small action space, 2–3 explicitly defined persistent models, fixed signal/transition/history definitions. Full independent enumeration evaluates rules and finite continuation. One native consumer preserves, reloads, and applies the same rule on different admissible histories. Do not invent empirical coefficients.
 
-**Проверка переноса** меняет information pattern: задержка сигнала, частичная наблюдаемость или persistent-model ambiguity. Новый seed той же модели не является вторым существенным случаем. **Зрелая цель** — поддержанные классы адаптивных правил с проверяемой допустимостью продолжения и известными границами роста пространства состояний.
+**Extension — reusable class of rules.** If a real second consumer needs a new history/filtration/controller carrier, design it separately. A general nonrectangular solver, abstraction-to-concrete continuation certificate, and arbitrary horizons are outside the narrow first increment.
 
-Ранние 20–40 нормированных дней для узкого первого приращения зависели от достаточного готового carrier/consumer. Свежий code trace эту предпосылку не установил, поэтому диапазон **приостановлен как бюджет выбранного портфеля**. Он не усредняется с прежней широкой оценкой и не превращается автоматически в стоимость расширенного варианта. Следующая оценка начинается с конкретного rule-retention и consumer delta. Это короткое проверяемое проектное решение, а не повод неопределённо долго строить общий framework.
+The **transfer check** changes the information pattern: delayed signal, partial observability, or persistent-model ambiguity. A new seed from the same model is not a second substantive case. The **mature goal** is supported classes of adaptive rules with verifiable continuation admissibility and known state-space growth limits.
 
-### Архитектура и проверка
+The earlier 20–40 normalized days for the narrow first increment depended on a sufficient ready carrier/consumer. The fresh code trace did not establish that premise, so the range is **paused as the selected portfolio budget**. It is not averaged with the earlier broad estimate and is not automatically the cost of the expanded option. The next estimate starts with the exact rule-retention and consumer delta. This is a short verifiable design decision, not a reason to build a general framework indefinitely.
 
-Предпочтителен finite native extension с versioned information set и exact enumerator. Сохранённое правило должно содержать доступные наблюдения, timing, model family, действия, ограничения и out-of-support поведение. Общий носитель выделяется лишь при двух реальных consumers одинакового смысла.
+### Architecture and verification
 
-**Ожидаемые E02-выходы:** исправленные action identity, temporal/horizon, source/context, numerical result и selected-input boundaries на выбранном пути. E02 не выбирает persistent-versus-rectangular семантику, не доказывает transition law и не создаёт полномочие исполнять действия во внешнем учреждении.
+Prefer a finite native extension with versioned information set and exact enumerator. The preserved rule must include available observations, timing, model family, actions, constraints, and out-of-support behavior. Separate a shared carrier only after two real consumers with the same meaning exist.
 
-Сильные comparators — лучшая фиксированная программа, nominal finite DP/two-stage и полный перебор при том же information set. Нужен положительный вопрос, который фиксированное правило действительно не решает. Negatives: clairvoyance, благоприятная смена persistent model на каждом шаге, утерянный ресурс будущего, изменение действия после оценки. Harmless history recoding должно сохранять действие и допустимость.
+**Expected E02 outputs:** repaired action identity, temporal/horizon, source/context, numerical-result, and selected-input boundaries on the selected route. E02 does not choose persistent-versus-rectangular semantics, prove a transition law, or create authority to execute actions in an external institution.
 
-**Остановка:** преимущество возникает только от недоступной будущей информации, нового скрытого допущения или мнимой эмпирической точности; fixed policy достаточна; цена state-space growth не оправдывается полезным вопросом. Тогда сохраняется конечный ограниченный результат.
+Strong comparators are the best fixed program, nominal finite DP/two-stage, and full enumeration under the same information set. A positive question is required that a fixed rule genuinely cannot answer. Negatives: clairvoyance, favorable switching of a persistent model at each step, lost future resources, or action changes after evaluation. Harmless history recoding must preserve action and admissibility.
 
-**Связи:** P1 даёт action identity, M1 — переходы и сигналы, P3 — capacity/timing, M2 — будущую diagnosis. Слишком ранняя унификация истории и модели может одновременно нарушить evaluation independence и сделать все статические задачи дороже.
+**Stop:** an advantage arises only from unavailable future information, a new hidden assumption, or imaginary empirical precision; a fixed policy is sufficient; or state-space growth cost is not justified by a useful question. Preserve a bounded finite result instead.
 
-**Основные источники:** GV-18/52/53 и уточнения persistent-model/viability; `src/polisyos/foundry/methods/catalog/optimization/sequential.py`, L294–362/L371–486; S5; E02 OP-R13-N5 и LA-023 для отдельного различения rollout и обучения параметров.
+**Relationships:** P1 provides action identity, M1 transitions and signals, P3 capacity/timing, M2 future diagnosis. Unifying history and model too early may violate evaluation independence and make every static task more expensive.
 
-## P3 Исполнение масштаб и реакция участников
+**Primary sources:** GV-18/52/53 and persistent-model/viability updates; src/polisyos/foundry/methods/catalog/optimization/sequential.py, L294–362/L371–486; S5; E02 OP-R13-N5 and LA-023 for separate distinction between rollout and parameter training.
 
-### Полезная способность
+## P3 Execution, Scale, and Participant Response
 
-Система оценивает программу с учётом того, как она будет доставлена: очередей, staffing, общих ресурсов, календарей, недоведённых случаев и наблюдаемости результата. Далее она различает, как изменение охвата, сети и поведения участников меняет эффект. Ни формальная исполнимость, ни graph adjacency, ни качество fit журнала сами по себе этого не устанавливают.
+### Useful capability
 
-Примеры: уменьшается ли очередь или исчезают необслуженные люди; соответствует ли timestamp началу услуги либо регистрации; сохраняется ли результат при другом охвате, если неучастники также затронуты; улучшается ли независимый outcome или только отчётный KPI; какой ресурс делает две отдельно возможные меры несовместимыми?
+The system evaluates a program in terms of how it will be delivered: queues, staffing, shared resources, calendars, unfinished cases, and outcome observability. It then distinguishes how changes in coverage, network, and participant behavior alter effects. Formal executability, graph adjacency, or log fit alone does not establish this.
 
-### Существующая опора
+Examples: Does the queue shrink, or do unserved people simply disappear? Does a timestamp represent service start or registration? Does the result persist at another scale when nonparticipants are also affected? Does an independent outcome improve or only the reported KPI? Which resource makes two separately feasible measures incompatible?
 
-Используются QueueDES, ABM/coupling, существующие interference/strategic методы, event/object observations, calibration, S5/S11/S13 и policy evaluator. Нового общего workflow executor для внешнего учреждения не требуется. S11 исторически допускает predictive upgrades для четырёх осей, но исключает mandate legitimacy: легитимность нельзя получить дополнительным предиктором.
+### Existing foothold
 
-Зрелая P3 шире очереди: по конкретному вопросу учитываются administrative/fiscal/enforcement/delivery/coordination capacity и политическая осуществимость, а также compliance, gaming, capture, adaptation и изменение измерителя вследствие политики. Эти измерения не входят автоматически в узкий 20–40-дневный ready-profile пакет; для каждого нужны свои inputs и проверка. S11 L350–408/L602–643/L741–780 задаёт эту амбицию без predictive mandate authority.
+Reuse QueueDES, ABM/coupling, existing interference/strategic methods, event/object observations, calibration, S5/S11/S13, and policy evaluator. A new general workflow executor for an external institution is unnecessary. S11 historically allows predictive upgrades for four axes but excludes mandate legitimacy: legitimacy cannot be obtained through an additional predictor.
 
-DES работает в физическом времени, тогда как прочитанный joint caller задаёт число шагов по числу интервалов запрошенной сетки. Исправление этой временной связи относится к SIM-02/B22 и OP-R13. После него отдельным научным приростом может стать refinement при фиксированном физическом горизонте и контроль ошибки нужного функционала. Event cash transfer не надо умножать на dt только потому, что поле называется income.
+Mature P3 goes beyond queues: for a specific question, account for administrative/fiscal/enforcement/delivery/coordination capacity and political feasibility, as well as compliance, gaming, capture, adaptation, and a change in the measurement instrument caused by the policy. These dimensions are not automatically included in a narrow ready-profile package estimated at 20–40 days; each needs its own inputs and verification. S11 L350–408/L602–643/L741–780 defines this ambition without granting predictive mandate authority.
 
-### Приращения и согласование оценок
+DES runs in physical time, while the inspected joint caller specifies the number of steps by the number of intervals in the requested grid. Fixing this time relationship belongs to SIM-02/B22 and OP-R13. A separate scientific increment may then refine the grid at a fixed physical horizon and check error in the required functional. Do not multiply an event-based cash transfer by dt merely because a field is named income.
 
-**Первое приращение — узкий существующий процесс.** Один read-only event-log family с уже установленными lifecycle/object definitions, небольшой QueueDES или предметный conditional profile, один heldout period и реальный comparison consumer. Правильно различаются waiting/service/registration, shared events и unfinished cases.
+### Increments and estimate reconciliation
 
-Этот scope условно оценивается в **20–40 нормированных дней**: discovery 2–4, решение 3–6, код 5–10, интеграция 3–5, независимая проверка 7–15. Он предполагает готовое смысловое основание журнала и существующий profile.
+**First increment — a narrow existing process.** One read-only event-log family with established lifecycle/object definitions, a small QueueDES or subject-specific conditional profile, one held-out period, and an actual comparison consumer. Correctly distinguish waiting/service/registration, shared events, and unfinished cases.
 
-**Расширение — новый эмпирический наблюдательный профиль.** Требуются genuine event/object/lifecycle data, отдельная observation model, независимый outcome channel, новое shared-resource или censoring meaning и переносимый профиль. Ранняя широкая оценка 45–120 дней включала подобную более широкую работу и не является минимумом узкого варианта. Она снимается как базовая смета; расширенный вариант отдельно не оценён до выбора данных и consumer. Нельзя объяснять расхождение одним лишь «более сложным solver».
+This scope is conditionally estimated at **20–40 normalized days**: discovery 2–4, decision 3–6, code 5–10, integration 3–5, independent verification 7–15. It assumes a ready semantic basis for the log and an existing profile.
 
-**Проверка переноса** меняет режим нагрузки, правило регистрации, общую услугу или exposure network. Holdout должен проверять полезный predicted change, а не только тот же in-sample trace. **Зрелая цель** — повторно используемые capacity/scale/strategic модули с собственной областью эмпирической пригодности и targeted diagnosis.
+**Extension — a new empirical observation profile.** Requires genuine event/object/lifecycle data, a separate observation model, independent outcome channel, new shared-resource or censoring semantics, and a transferable profile. The earlier broad estimate of 45–120 days included this wider work and is not the minimum for the narrow option. It is withdrawn as the baseline estimate; the expanded option is not separately estimated until data and consumer are selected. Do not explain the discrepancy solely as a “more complex solver.”
 
-**Условные расширения:** network scale, equilibrium multiplicity, dynamic games, механизм стимулов к отчётности. Strategic market/mechanism design выделяется в самостоятельную программу лишь при повторяемых задачах с определёнными actors/messages/private information и собственными deviation/equilibrium witnesses. Требовать IC/IR у каждой descriptive или nonmechanism policy неверно.
+The **transfer check** changes load regime, registration rule, shared service, or exposure network. Holdout must check a useful predicted change, not only the same in-sample trace. The **mature goal** is reusable capacity/scale/strategic modules with their own empirical suitability scope and targeted diagnosis.
 
-### Архитектура и проверка
+**Conditional extensions:** network scale, equilibrium multiplicity, dynamic games, and incentives for reporting. Strategic market/mechanism design becomes a separate program only for recurring problems with defined actors/messages/private information and its own deviation/equilibrium witnesses. Requiring IC/IR for every descriptive or non-mechanism policy is incorrect.
 
-Начать с простого предметного process model и source adapter. Подключать только материально взаимодействующий блок. Общая национальная ABM, полный digital twin и универсальный process-mining layer преждевременны, пока простой queue/count/duration baseline не проиграл на полезном вопросе.
+### Architecture and verification
 
-**Ожидаемые E02-выходы:** B18 missing-versus-zero, B19 comparator в той же модели/горизонте, B21 actual replication/error, B22 физический horizon/step, B26 persisted diagnostics, нужный source/optional-input inventory. Эти repairs потребляются без повторного бюджета. Они не создают exposure support, корректный event meaning или эмпирическое знание о поведении.
+Start with a simple subject-matter process model and source adapter. Connect only a block that materially interacts with it. A national ABM, full digital twin, and general process-mining layer are premature until a simple queue/count/duration baseline fails on a useful question.
 
-Положительный результат меняет выбор допустимой программы или локализует конкретный решающий недостаток. Проверки: shared payment не умножается на число объектов; completion-only timestamps не объявляются service duration; rejected/unfinished cases остаются в знаменателе; новая регистрация не превращается в эффект реформы; recipient-only data не подтверждают отсутствие spillover harm. Сильные comparators — ручная карта процесса, counts/durations, simple queue и transparent saturation/exposure model.
+**Expected E02 outputs:** B18 missing-versus-zero, B19 comparator in the same model/horizon, B21 actual replication/error, B22 physical horizon/step, B26 persisted diagnostics, and the required source/optional-input inventory. Consume these repairs without duplicating their budget. They do not create exposure support, correct event semantics, or empirical knowledge of behavior.
 
-**Остановка:** улучшился лишь fit того же журнала; отношения объектов приходится выдумывать; богатая ABM не меняет выбор; реакция неидентифицируема. Сохраняется descriptive/conditional model либо граница возможных ответов, не причинный прогноз по удобному журналу.
+A positive result changes which program is admissible or locates a specific decisive limitation. Checks: a shared payment is not multiplied by number of objects; completion-only timestamps are not called service duration; rejected/unfinished cases stay in the denominator; new registration is not turned into a reform effect; recipient-only data do not confirm absence of spillover harm. Strong comparators are a manual process map, counts/durations, simple queue, and transparent saturation/exposure model.
 
-**Связи:** P2 получает действительные ограничения времени и ресурсов; M2 — альтернативы model-versus-delivery attribution; E1 — необходимый denominator; E2 — missing exposure/assignment evidence. Негативная связь принципиальна: сама политика меняет производство наблюдений, поэтому старый calibration и holdout могут перестать применяться.
+**Stop:** only the same log fit improved; object relationships must be invented; a richer ABM does not change the choice; or response is unidentified. Preserve a descriptive/conditional model or answer bounds, not a causal forecast based on a convenient log.
 
-**Основные источники:** GV-06/21/22/32; Layer2 S5/S6/S11/S13; `src/polisyos/foundry/coupling/executor.py`, L70–165; `des_kernel.py`, L143–150/L296–319; `coupler.py`, L129–162; `joint_simulation_horizon.py`, L1670–1722; E02 SIM-02 и OP-R13.
+**Relationships:** P2 receives real time/resource constraints; M2 gets alternatives for model-versus-delivery attribution; E1 gets the necessary denominator; E2 gets missing exposure/assignment evidence. A negative interaction is fundamental: the policy itself changes how observations are produced, so old calibration and holdout may cease to apply.
 
-## Что объединяет карточки и что остаётся отдельным
+**Primary sources:** GV-06/21/22/32; Layer2 S5/S6/S11/S13; src/polisyos/foundry/coupling/executor.py, L70–165; des_kernel.py, L143–150/L296–319; coupler.py, L129–162; joint_simulation_horizon.py, L1670–1722; E02 SIM-02 and OP-R13.
 
-Общими могут быть версия вопроса, source inventory, артефактные ссылки, один читатель, контрольная инфраструктура и полный cost trace. Научная пригодность, легитимность выбора, человеческое понимание и независимость runtime не передаются по этим ссылкам автоматически.
+## What the Cards Share and What Remains Separate
 
-Для каждого выбранного приращения нужны: поддержанный positive, материальный отрицательный случай, безвредное изменение, удаление реального consumer, содержательно иной второй случай и адресная реакция на revision. Это перечень проверяемых свойств, а не требование нового универсального evaluator. Проверка уже включена в пакет; [реестр общих затрат](dependencies.md) исключает её повторную оплату.
+Shared work may include question version, source inventory, artifact references, one reader, control infrastructure, and a full cost trace. Scientific suitability, legitimacy of choice, human comprehension, and runtime independence do not transfer automatically through these references.
+
+Each selected increment needs: a supported positive case, a material negative case, a harmless change, removal of the actual consumer, a substantively different second case, and a targeted response to revision. This is a list of testable properties, not a requirement for a new universal evaluator. Verification is already included in the package; the [shared-cost register](dependencies.md) prevents paying for it twice.

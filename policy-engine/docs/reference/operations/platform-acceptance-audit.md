@@ -4,9 +4,12 @@ Related reference: [Operations Reference](index.md), [Handoff and Platform Revie
 
 Owner: `@platform-owners`
 Source of truth: `tools/devx/workspace/acceptance_audit.py`, `docs/archive/reports/platform-acceptance.{md,json}`, `docs/reference/{quality-gates.md,ownership.md}`, and the repo-tracked workflows exercised by the audit
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. The audit, tests, and manual rehearsals were not run in this update.
 
-> This is the WS-7B closeout document: one end-to-end acceptance pass that turns
-> Phases 1-6 into one coherent platform.
+> This page describes the WS-7B repository audit and manual-rehearsal procedure.
+> Its source-defined checks and evidence templates do not establish that
+> Phases 1-6 are integrated, that the product works end to end, or that any
+> deployed environment is ready.
 
 ## Automated Audit
 
@@ -25,15 +28,15 @@ coverage separately.
 
 The automated pass checks these surfaces together:
 
-| Acceptance slice                       | Repo-tracked evidence                                                                                                       |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Toolchain consistency                  | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix                                |
-| Repo root coherence                    | `policy-engine/README.md`, ADR-RSR-0130 workspace-boundary collapse                                                         |
-| Ownership / merge governance           | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs                                    |
-| Required checks / release path         | current workflow inventory, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml`              |
-| Runtime contract gates                 | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger |
-| Runbooks / retention / observability   | runbook index, recovery docs, observability topology, platform review scorecard                                             |
-| Dependency / security / workflow trust | Renovate, action freshness tooling, workflow policy checks, Scorecard / provenance coverage                                 |
+| Acceptance slice                       | Repo-tracked evidence                                                                                                                        |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Toolchain consistency                  | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix                                                 |
+| Repo root coherence                    | `policy-engine/README.md`, ADR-RSR-0130 workspace-boundary collapse                                                                          |
+| Ownership / merge governance           | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs                                                     |
+| Required checks / release path         | repository workflow inventory at the reviewed source pin, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml` |
+| Runtime contract gates                 | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger                  |
+| Runbooks / retention / observability   | runbook index, recovery docs, observability topology, platform review scorecard                                                              |
+| Dependency / security / workflow trust | Renovate, action freshness tooling, workflow policy checks, Scorecard / provenance coverage                                                  |
 
 Runtime-specific acceptance evidence should include:
 
@@ -77,7 +80,8 @@ CPU for non-benchmark tests while benchmark-marked slices still run serially.
 
 ## Contributor Journey
 
-Phase 7 closes the loop between setup, role onboarding, and platform policy:
+The contributor path covered by this audit connects setup, role onboarding,
+and platform policy:
 
 1. Confirm the host surface in [Environment Matrix](../environment-matrix.md).
 2. Run the canonical install path from [Installation](../../how-to/install.md):

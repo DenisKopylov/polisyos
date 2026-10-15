@@ -18,7 +18,7 @@
 2. **Reduced motion is a first-class path.** Every animated component ships
    a `prefers-reduced-motion: reduce` branch, and the test suite exercises
    both.
-3. **Durations are discrete.** We publish four canonical durations; custom
+3. **Durations are discrete.** We publish five canonical durations; custom
    in-between values are banned.
 4. **Easing is discrete.** Three canonical easings; everything else is
    banned.

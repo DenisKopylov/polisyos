@@ -2,6 +2,10 @@
 
 > Use this guide when a change crosses schema, SQL, OpenAPI, generated-client, or infra boundaries.
 
+Owner: `@platform-owners`
+Source of truth: `.github/PULL_REQUEST_TEMPLATE.md`, `ops/migrations/migration-contracts.toml`, `ops/release/promotion-gates.toml`, and the repository validation commands listed below
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; template, migration/release contracts, and command source inspected only. The commands were not run and no live rollout was reviewed.
+
 ## Inputs
 
 - a PR or rollout plan that crosses package, schema, API, generated-client,

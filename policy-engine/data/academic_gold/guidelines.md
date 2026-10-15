@@ -1,126 +1,127 @@
 # Guidelines For Academic Causal Claim Annotation
 
-## Назначение разметки
+## Annotation Purpose
 
-Вы размечаете не "истинность экономических законов", а качество и статус причинных утверждений в академических работах для построения `policy-oriented causal knowledge graph`.
+You are annotating the quality and status of causal claims in academic papers for a `policy-oriented causal knowledge graph`, not the "truth of economic laws."
 
-Контекст задачи такой. Система `PolisyOS` собирает академические статьи по policy-relevant темам, извлекает из них кандидатные причинные утверждения и затем решает, какие из них можно публиковать в граф как достаточно надежные causal edges. На первом этапе модель `Qwen` уже умеет находить кандидатные claims, но пока склонна смешивать три разных вещи:
+The task context is as follows. `PolisyOS` collects academic papers on policy-relevant topics, extracts candidate causal claims from them, and then decides which claims are reliable enough to publish in the graph as causal edges. At this stage, the `Qwen` model can already find candidate claims, but it tends to conflate three different things:
 
-1. в статье есть язык причинности;
-2. статья действительно идентифицирует причинный эффект;
-3. это утверждение достаточно надежно, чтобы попасть в production-grade граф.
+1. the paper uses causal language;
+2. the paper actually identifies a causal effect;
+3. the claim is reliable enough to enter a production-grade graph.
 
-Именно это смешение и нужно исправить с помощью `gold set`.
+The `gold set` is intended to correct this conflation.
 
-Ваша разметка нужна не для того, чтобы "согласиться или не согласиться" с выводами статьи по существу, а чтобы задать строгий эталон того, как система должна интерпретировать научный текст. Главный вопрос: что именно утверждает paper, насколько это утверждение каузально по формулировке, насколько оно поддержано дизайном исследования и должно ли оно попадать в граф как `credible causal edge`.
+Your annotation is not meant to "agree or disagree" with the paper's substantive conclusions. It sets a strict standard for how the system should interpret scientific text. The main questions are: what exactly does the paper claim, how causal is the wording, how well does the research design support the claim, and should the claim enter the graph as a `credible causal edge`?
 
-Система работает в режиме `precision-first`. Это значит, что для нас лучше потерять часть слабых или неоднозначных claims, чем включить в граф много ложноположительных причинных связей. Поэтому при сомнении разметка должна быть консервативной. Если paper показывает `association`, `correlation`, `panel relationship` или `regression coefficient` без убедительного `identification design`, это не должно автоматически трактоваться как сильное причинное утверждение.
+The system follows a `precision-first` approach. We would rather miss some weak or ambiguous claims than add many false-positive causal relationships to the graph. Therefore, annotate conservatively when uncertain. If a paper reports `association`, `correlation`, a `panel relationship`, or a `regression coefficient` without a convincing `identification design`, do not automatically treat it as a strong causal claim.
 
-## Три уровня оценки
+## Three Evaluation Levels
 
-Очень важно разделять три уровня оценки.
+It is essential to keep three evaluation levels separate.
 
 1. `paper relevance`:
-   статья вообще релевантна для `policy-causal extraction` или нет.
+   whether the paper is relevant to `policy-causal extraction` at all.
 2. `claim presence`:
-   paper формулирует claim, который можно выделить как отдельное утверждение.
+   whether the paper states a claim that can be identified as a distinct assertion.
 3. `causal validity`:
-   этот claim является действительно `causal assertion` с достаточной доказательной базой, а не просто ассоциацией, механизмом, обзорным выводом или нормативной репликой.
+   whether the claim is genuinely a `causal assertion` with sufficient evidence, rather than merely an association, mechanism, review conclusion, or normative remark.
 
-Ошибки модели чаще всего происходят именно на переходе от второго уровня к третьему.
+Model errors most often occur in the transition from the second level to the third.
 
-Единица разметки на `claim-level` это не статья целиком, а конкретное утверждение. Одна статья может не дать ни одного годного claim, а может дать несколько claims с разным статусом. Например, paper может содержать один основной causal claim, один механизм и один слабый observational side-result. Это должны быть разные annotation outcomes, а не одна общая оценка статьи.
+The unit of annotation at the `claim-level` is a specific assertion, not the paper as a whole. A paper may contain no usable claims or several claims with different statuses. For example, a paper may contain one main causal claim, one mechanism, and one weak observational side result. These should receive separate annotation outcomes, not one overall paper rating.
 
-## Правило источника
+## Source Rule
 
-При разметке нельзя полагаться на внешние знания о paper, авторе, журнале или теме. Нужно судить только по тому тексту, который дан в пакете кандидата:
+Do not rely on outside knowledge about the paper, author, journal, or topic. Judge only the text supplied in the candidate packet:
 
 - `title`
 - `paper_abstract`
 - `claim_text`
 - `supporting_spans`
 - `supporting_text`
-- при наличии `method_spans`
+- `method_spans`, if present
 - `source_basis`
 - `design_family_hint`
 
-Если в пакете недостаточно evidence, это не повод "догадываться", что paper, вероятно, сильный. В этом случае нужно понижать уверенность, `causal_credibility` или ставить `insufficient_evidence` / `unclear`.
+Insufficient evidence in the packet is not a reason to guess that the paper is probably strong. In that case, lower confidence or `causal_credibility`, or use `insufficient_evidence` / `unclear`.
 
-## Causal language vs causal evidence
+## Causal Language vs. Causal Evidence
 
-Особенно критично различать:
+It is especially important to distinguish:
 
 - `paper uses causal language`
 - `paper has causally credible evidence`
 - `claim should be published to the graph`
 
-Это три разные вещи.
+These are three different things.
 
-В экономике и `policy-literature` это не одно и то же. Формулировки вроде `affects`, `impacts`, `drives`, `improves`, `reduces` часто встречаются и в observational papers. Сильный causal статус обычно требует явного `design signal`: `RCT`, `IV`, `DiD`, `RDD`, `synthetic control` или очень сильного `meta-analysis`. `Panel FE`, `OLS`, `cross-sectional regressions` и `ML prediction` сами по себе не должны маркироваться как `strong causal evidence`.
+In economics and `policy-literature`, these are not equivalent. Phrases such as `affects`, `impacts`, `drives`, `improves`, and `reduces` also occur frequently in observational papers. Strong causal status usually requires an explicit `design signal`: `RCT`, `IV`, `DiD`, `RDD`, `synthetic control`, or very strong `meta-analysis` evidence. `Panel FE`, `OLS`, `cross-sectional regressions`, and `ML prediction` alone should not be labeled `strong causal evidence`.
 
 ## Source Basis
 
-Поле `source_basis` критично и интерпретируется так:
+The `source_basis` field is critical and should be interpreted as follows:
 
 - `fulltext`:
-  claim заземлен в полном тексте статьи. Это предпочтительный режим для production-grade gold set.
+  the claim is grounded in the full paper text. This is the preferred mode for a production-grade gold set.
 - `abstract_only`:
-  claim заземлен только в abstract. Такие claims полезны для exploratory recall и early annotation rounds, но почти никогда не должны попадать в production causal graph как `strong publishable edges`.
+  the claim is grounded only in the abstract. Such claims are useful for exploratory recall and early annotation rounds, but should almost never enter the production causal graph as `strong publishable edges`.
 
-Если вы размечаете `abstract-only` пакет, будьте еще более консервативны. Даже если paper выглядит сильным по abstract, без full text не следует автоматически повышать claim до `publish_to_graph = yes`.
+Be even more conservative when annotating an `abstract-only` packet. Even if the paper looks strong based on its abstract, do not automatically raise the claim to `publish_to_graph = yes` without the full text.
 
 ## Supporting Spans
 
-`Supporting spans` имеют центральное значение. Мы строим систему, где claim должен быть заземлен в конкретном текстовом свидетельстве. Поэтому наличие хорошего supporting span важнее, чем красивое перефразирование claim-а.
+`Supporting spans` are central. We are building a system in which each claim must be grounded in specific textual evidence. A good supporting span matters more than a polished paraphrase of the claim.
 
-Если supporting span:
+If a supporting span:
 
-- не подтверждает именно тот `cause -> effect relation`, который выделен в claim;
-- описывает фон, мотивацию или общий контекст, но не результат;
-- говорит только о методе, но не о выводе;
+- does not support the specific `cause -> effect relation` identified in the claim;
+- describes background, motivation, or general context rather than a result; or
+- discusses only the method, not the finding;
 
-то такой claim должен считаться слабым, недостаточно поддержанным или вовсе `not_causal` / `insufficient_evidence` для графа.
+then the claim should be considered weak, insufficiently supported, or `not_causal` / `insufficient_evidence` for the graph.
 
-## Два режима экспертной разметки
+## Two Expert Annotation Modes
 
-Разметка теперь проводится в двух отдельных пакетах:
+Annotation now takes place in two separate bundles:
 
 1. `fulltext-only bundle`
-   - более сильный источник для gold set;
-   - здесь можно строже судить о `design_family`, `causal_credibility` и `publish_to_graph`;
-   - это основной кандидат на production-grade gold ядро.
+   - a stronger source for the gold set;
+   - supports stricter judgments about `design_family`, `causal_credibility`, and `publish_to_graph`;
+   - the primary candidate for a production-grade gold core.
 
 2. `abstract-only bundle`
-   - вспомогательный набор;
-   - нужен для калибровки поведения системы в режиме ограниченного текста;
-   - решения здесь должны быть особенно консервативными.
+   - a supplementary set;
+   - used to calibrate system behavior when text is limited;
+   - decisions should be especially conservative.
 
-При сравнении двух пакетов ориентир такой:
-- если один и тот же тип claim в `fulltext` и `abstract_only` размечается по-разному, приоритет имеет `fulltext`.
+When comparing the two bundles:
+
+- if the same type of claim is annotated differently in `fulltext` and `abstract_only`, give priority to `fulltext`.
 
 ## Screen Gold
 
-Поле `paper_relevant_for_policy_causal_extraction` относится к screen-level решению: должна ли статья вообще идти дальше в causal extraction pipeline.
+The `paper_relevant_for_policy_causal_extraction` field records a screen-level decision: should the paper proceed to the causal extraction pipeline at all?
 
-Ставьте `yes`, если текст:
+Set it to `yes` if the text:
 
-- изучает эффект, impact или consequence policy, institutional change, regulation, program, tax, subsidy, spending intervention или governance reform;
-- сообщает empirical estimates, quasi-experimental evidence, experiments, `meta-analysis` или явные causal findings;
-- полезен для построения policy causal graph, даже если результат `null` или `mixed`.
+- studies the effect, impact, or consequence of a policy, institutional change, regulation, program, tax, subsidy, spending intervention, or governance reform;
+- reports empirical estimates, quasi-experimental evidence, experiments, `meta-analysis`, or explicit causal findings; or
+- is useful for building a policy causal graph, even when the result is `null` or `mixed`.
 
-Ставьте `no`, если текст:
+Set it to `no` if the text:
 
-- чисто descriptive и не содержит policy-evaluation угла;
-- purely theoretical без empirical evidence и без review/meta synthesis;
-- является editorial / commentary / normative text;
-- является bibliographic stub / redirect / технической заглушкой;
-- находится вне policy-relevant social science scope.
+- is purely descriptive and has no policy-evaluation angle;
+- is purely theoretical, with no empirical evidence or review/meta synthesis;
+- is editorial, commentary, or normative text;
+- is a bibliographic stub, redirect, or technical placeholder; or
+- falls outside the scope of policy-relevant social science.
 
-Ставьте `unclear`, если по предоставленному тексту недостаточно evidence, чтобы уверенно принять `yes` или `no`.
+Set it to `unclear` if the supplied text does not provide enough evidence to confidently choose `yes` or `no`.
 
 ## Claim Gold Fields
 
-Обязательные поля для claim-level:
+Required fields at the claim level:
 
 - `paper_relevant_for_policy_causal_extraction`
 - `claim_present`
@@ -140,22 +141,22 @@
 
 ### Claim Type
 
-- `causal_claim`: paper утверждает или явно имплицирует, что `X causes Y`
-- `associative`: paper сообщает association/correlation without enough design support
-- `mechanism`: текст о том, как работает связь, а не о главном causal edge
+- `causal_claim`: the paper asserts or explicitly implies that `X causes Y`
+- `associative`: the paper reports an association/correlation without enough design support
+- `mechanism`: text about how a relationship works, rather than the main causal edge
 - `review_summary`: synthesis/review/meta claim
-- `unclear`: нельзя надежно определить тип
-- `not_applicable`: claim-level аннотация неприменима
+- `unclear`: the type cannot be determined reliably
+- `not_applicable`: claim-level annotation does not apply
 
 ### Explicitness
 
-- `explicit`: текст прямо использует effect/impact/causes/leads to
+- `explicit`: the text directly uses effect/impact/causes/leads to
 - `implicit`: causal meaning strongly implied
-- `unclear`: textual evidence недостаточна
+- `unclear`: textual evidence is insufficient
 
 ### Design Family
 
-Допустимые значения:
+Allowed values:
 
 - `rct`
 - `iv`
@@ -176,17 +177,17 @@
 - `unclear`
 - `not_applicable`
 
-Если дизайн не виден из текста пакета, ставьте `unclear`, а не предполагайте его по репутации paper.
+If the design is not evident from the packet text, use `unclear` rather than inferring it from the paper's reputation.
 
 ### Causal Credibility
 
 - `strong`: explicit causal claim backed by strong identification or meta evidence
 - `moderate`: plausible causal claim with decent design support but material caveats
 - `weak`: likely association or weak design support
-- `insufficient`: недостаточно текстовой опоры, чтобы признать claim causally credible
-- `not_causal`: не должен представляться как causal edge
-- `unclear`: evidence не позволяет решить
-- `not_applicable`: поле неприменимо
+- `insufficient`: there is not enough textual support to consider the claim causally credible
+- `not_causal`: the claim should not be represented as a causal edge
+- `unclear`: the evidence does not allow a decision
+- `not_applicable`: the field does not apply
 
 ### Risk Of Bias
 
@@ -199,45 +200,45 @@
 
 ### Support Status
 
-- `supported`: текст поддерживает extracted claim
-- `mixed`: текст поддерживает claim, но с явными caveats или mixed findings
-- `counterevidence`: paper содержит явное contra-evidence
-- `insufficient_evidence`: недостаточно текста для подтверждения claim
-- `not_applicable`: статус неприменим
+- `supported`: the text supports the extracted claim
+- `mixed`: the text supports the claim but includes explicit caveats or mixed findings
+- `counterevidence`: the paper contains explicit counterevidence
+- `insufficient_evidence`: there is not enough text to support the claim
+- `not_applicable`: the status does not apply
 
 ### Publish To Graph
 
-Ставьте `yes` только когда одновременно выполняются все условия:
+Set `yes` only when all of the following conditions hold:
 
-- `claim_type = causal_claim` или оправданный `review_summary`
+- `claim_type = causal_claim` or a justified `review_summary`
 - `causal_credibility in {strong, moderate}`
 - `support_status in {supported, mixed}`
-- `supporting_spans` действительно подтверждают claim
-- `source_basis = fulltext`, кроме очень редких исключений уровня `meta-analysis`
+- `supporting_spans` genuinely support the claim
+- `source_basis = fulltext`, except for very rare exceptions such as a `meta-analysis`
 
-По умолчанию ставьте `no` для:
+By default, set `no` for:
 
 - `abstract_only` claims
-- claims без убедительного supporting span
-- `panel_fe` / `ols_cross_sectional` claims без stronger identification evidence
-- descriptive, normative или unclear statements
+- claims without a convincing supporting span
+- `panel_fe` / `ols_cross_sectional` claims without stronger identification evidence
+- descriptive, normative, or unclear statements
 
-## Практический приоритет
+## Practical Priority
 
-Поля `design_family`, `causal_credibility`, `risk_of_bias` и `support_status` нужны не для академической красоты, а для downstream-фильтрации. На их основе строятся:
+The `design_family`, `causal_credibility`, `risk_of_bias`, and `support_status` fields are not academic decoration; they support downstream filtering. They are used to build:
 
 - QC gates
 - prompt calibration
 - regression tests
 - publish rules
 
-Поэтому ваша задача не просто "рассортировать примеры", а дать системе правильную эпистемическую дисциплину: что считать причинным утверждением, что считать только ассоциацией, а что вообще нельзя публиковать как causal edge.
+Your task is therefore not just to "sort examples," but to give the system sound epistemic discipline: what to treat as a causal claim, what to treat as an association only, and what must not be published as a causal edge at all.
 
-Итоговая цель gold set: научить систему быть строгой, grounded и воспроизводимой. После разметки этот набор будет использоваться для оценки `precision`, `calibration`, `overcall-rate` по `quasi-natural` claims, а также для настройки adjudication prompts и acceptance criteria.
+The gold set's ultimate goal is to teach the system to be strict, grounded, and reproducible. After annotation, this set will be used to evaluate `precision`, `calibration`, and `overcall-rate` on `quasi-natural` claims, and to tune adjudication prompts and acceptance criteria.
 
-Приоритет такой:
+Use these priorities:
 
-- меньше догадок
-- больше текстовой опоры
-- меньше generosity к causality
-- больше консервативной точности
+- fewer guesses
+- more textual support
+- less generosity toward causal claims
+- more conservative precision

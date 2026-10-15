@@ -3,48 +3,49 @@
 - Owner: `team-security`
 - Artifact type: `policy-as-code`
 
-`ops/policy` хранит policy-as-code для двух контуров: runtime authorization и deploy security gate.
+`ops/policy` contains policy-as-code for two areas: runtime authorization and the deployment security gate.
 
-## Роль в системе
+## Role in the System
 
-- runtime authz: решение `allow/deny` для API-запросов;
-- deploy gate: блокировка deployment при критичных SBOM/CVE рисках;
-- единый audit contract (`audit_entry`, `deny_reasons`) для security telemetry.
+- runtime authorization: `allow/deny` decisions for API requests;
+- deployment gate: blocks deployments when SBOM/CVE risks are critical;
+- shared audit contract (`audit_entry`, `deny_reasons`) for security telemetry.
 
-## Состав
+## Contents
 
-- `policies/*.rego` — 7 policy modules;
-- `policies/*_test.rego` — 7 unit tests.
+- `ops/policy/policies/` is the canonical inventory of tracked Rego policy
+  and rule-test source files. Files ending in `_test.rego` are test modules;
+  their file count does not represent the number of Rego test cases.
 
 ## Entry points
 
-| Контур        | Data path                       | HTTP path                           |
+| Area          | Data path                       | HTTP path                           |
 | ------------- | ------------------------------- | ----------------------------------- |
 | Runtime authz | `data.polisyos.authz.decision`  | `/v1/data/polisyos/authz/decision`  |
 | Deploy gate   | `data.polisyos.deploy.decision` | `/v1/data/polisyos/deploy/decision` |
 
-## Модули
+## Modules
 
-- `tenant_boundary.rego` — изоляция tenant контекста.
-- `role_access.rego` — RBAC по method/path + MFA guard для sensitive path.
+- `tenant_boundary.rego` — tenant-context isolation.
+- `role_access.rego` — RBAC by method/path plus an MFA guard for sensitive paths.
 - `data_classification.rego` — PII ceiling, anonymization, `allowed_columns`.
-- `delegation_guard.rego` — проверка делегации через peer SPIFFE identity.
-- `decision.rego` — композитный runtime entrypoint.
+- `delegation_guard.rego` — validates delegation through peer SPIFFE identity.
+- `decision.rego` — composite runtime entry point.
 - `vulnerability.rego` — SBOM/CVE threshold + allowed CVE exceptions.
-- `deploy.rego` — композитный deploy entrypoint.
+- `deploy.rego` — composite deployment entry point.
 
-## Интеграции
+## Integrations
 
-- `src/polisyos/core/security/authz.py` формирует input contract (`AuthzInput.to_opa_input`) и вызывает OPA.
-- `src/polisyos/runtime/http/authz_middleware.py` применяет authz decision на runtime-пути.
-- `src/polisyos/core/security/sbom.py` поставляет данные для deploy gate.
+- `src/polisyos/core/security/authz.py` builds the input contract (`AuthzInput.to_opa_input`) and calls OPA.
+- `src/polisyos/runtime/http/authz_middleware.py` applies the authorization decision on runtime paths.
+- `src/polisyos/core/security/sbom.py` supplies data to the deployment gate.
 
-## Операционные заметки
+## Operational Notes
 
-- `OPAClient` в runtime работает fail-closed при ошибках OPA.
-- Копия политик для Kubernetes packaging находится в `ops/cloud/helm/polisyos-cell/policies` и должна быть синхронна с `ops/policy/policies`.
+- `OPAClient` fails closed at runtime when OPA returns an error.
+- The policy copy packaged for Kubernetes is in `ops/cloud/helm/polisyos-cell/policies` and must stay synchronized with `ops/policy/policies`.
 
-## Проверка
+## Checks
 
 ```bash
 opa test policy-engine/ops/policy/policies -v

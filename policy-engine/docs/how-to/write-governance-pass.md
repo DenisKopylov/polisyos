@@ -1,23 +1,40 @@
-# Написание governance pass
+# Write a Governance Pass
 
-> Реализуйте, зарегистрируйте, протестируйте и подключите новый Scientist governance pass, используя текущий pass API.
+> Implement, register, test, and connect a new Scientist governance pass using
+> the current pass API.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14.
 
-## Вход
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspection of
+`src/polisyos/core/governance/passes/base.py`,
+`src/polisyos/scientist/governance/pass_entrypoints.py`,
+`src/polisyos/scientist/governance/pass_registry.py`,
+`src/polisyos/scientist/governance/passes/strategic_response_pass.py`,
+`tools/devx/architecture/templates/governance_pass.py.tmpl`, and the referenced
+tests. Tests and scaffold were not run. This supersedes the previous 2026-04-17
+freshness marker and is not a runtime receipt.
 
-- инвариант, который должен проверять pass
-- понимание, должен ли pass быть builtin-only или canonical для observation family
-- минимальный artifact/state key, по которому pass может выдать детерминированный verdict
+This page covers pass registration and integration. The tutorial [Creating a
+Governance Pass](../tutorials/creating-governance-pass.md) is a separate
+blocker-only worked example: it describes warning/info guidance, but the shown
+test does not cover those cases.
 
-## Выход
+## Inputs
 
-- pass class и factory registration
-- unit tests для blocker/warning semantics
-- alias/policy wiring, если pass входит в canonical governance surface
-- обновлённая reference page, если pass создаёт новый auditable claim
+- an invariant that the pass must check;
+- a decision about whether the pass is built-in only or canonical for an
+  observation family;
+- the minimum artifact/state key from which the pass can produce a deterministic
+  verdict.
 
-## Команды
+## Outputs
+
+- a pass class and factory registration;
+- unit tests for blocker/warning semantics;
+- alias/policy wiring if the pass is part of the canonical governance surface;
+- an updated reference page if the pass creates a new auditable claim.
+
+## Commands
 
 ```bash
 uv run polisyos-tools architecture scaffold governance-pass \
@@ -29,7 +46,7 @@ uv run pytest tests/unit/scientist/governance -x --tb=short
 uv run --extra docs python -m mkdocs build --strict
 ```
 
-Быстрый старт для skeleton:
+Quick start for the skeleton:
 
 ```bash
 uv run polisyos-tools architecture scaffold governance-pass \
@@ -39,16 +56,16 @@ uv run polisyos-tools architecture scaffold governance-pass \
   --dry-run
 ```
 
-## 1. Реализуйте интерфейс pass
+## 1. Implement the pass interface
 
-Базовые типы сейчас такие:
+The current base types are:
 
 - `PassContext`
 - `ValidatorPass`
 - `ComplianceIssue`
 - `IssueSeverity`
 
-Используйте реальный интерфейс из `polisyos.core.governance.passes.base`:
+Use the actual interface from `polisyos.core.governance.passes.base`:
 
 ```python
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -79,25 +96,31 @@ class MyPass(ValidatorPass):
         return []
 ```
 
-Если нужен простой реальный пример для копирования, начните с:
+Scaffold is a placeholder, not a severity contract: the pinned template returns
+`IssueSeverity.WARNING` for its TODO artifact lookup. The hand-written blocker
+example above intentionally demonstrates a stronger gate. Replace the TODO,
+choose severity from the actual workflow consequence, and test both the refused
+and accepted paths before treating a new pass as a governance gate.
+
+For a small real example to study, start with:
 
 - `src/polisyos/scientist/governance/passes/strategic_response_pass.py`
 
-Этот pass хорошо показывает:
+This pass shows:
 
-- как читать state
-- как различать blocker и warning
-- как запрашивать human review в strict mode
+- how to read state;
+- how to distinguish a blocker from a warning;
+- how to request human review in strict mode.
 
-## 2. Разберитесь с `ComplianceIssue`
+## 2. Understand `ComplianceIssue`
 
-Текущая модель issue поддерживает:
+The current issue model supports:
 
 - `IssueSeverity.INFO`
 - `IssueSeverity.WARNING`
 - `IssueSeverity.BLOCKER`
 
-Полезные поля:
+Useful fields:
 
 - `pass_id`
 - `path`
@@ -107,23 +130,23 @@ class MyPass(ValidatorPass):
 - `suggestion`
 - `input_value`
 
-Практическая интерпретация severity:
+Practical interpretation of severity:
 
-- `BLOCKER`: запуск нельзя продвигать дальше
-- `WARNING`: можно продолжать, но риск нужно показать оператору
-- `INFO`: неблокирующий audit signal или human-review request
+- `BLOCKER`: the run cannot proceed.
+- `WARNING`: the run can proceed, but the risk must be shown to the operator.
+- `INFO`: a non-blocking audit signal or human-review request.
 
-## 3. Чтение state и artifacts
+## 3. Read state and artifacts
 
-`PassContext` сейчас даёт доступ к:
+`PassContext` currently provides access to:
 
-- `ir`: опциональный `TrinityBundle`
+- `ir`: an optional `TrinityBundle`;
 - `state`: mutable workflow state dictionary
-- `registry_bundle`: опциональный registry object
+- `registry_bundle`: an optional registry object;
 - `profile`: `ValidationProfile`
-- `run_id`: текущий run id
+- `run_id`: the current run ID.
 
-Типичный паттерн чтения:
+Typical read pattern:
 
 ```python
 def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
@@ -137,45 +160,48 @@ def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         ...
 ```
 
-Два самых частых паттерна в существующих passes:
+The two most common patterns in existing passes are:
 
-- читать уже materialized summary напрямую из `ctx.state`
-- вытаскивать CAS artifact ref из `ctx.state["artifacts_index"]` и уже по нему загружать bundle целиком
+- read an already materialized summary directly from `ctx.state`;
+- retrieve a CAS artifact reference from `ctx.state["artifacts_index"]` and use
+  it to load the full bundle.
 
-## 4. Зарегистрируйте pass
+## 4. Register the pass
 
-Сейчас есть две поверхности регистрации.
+There are currently two registration surfaces.
 
-### Built-in pass внутри репозитория
+### Built-in pass in this repository
 
-Если pass живёт прямо в этом репозитории:
+If the pass lives directly in this repository:
 
-1. добавьте класс в `src/polisyos/scientist/governance/passes/`
-2. добавьте factory в `src/polisyos/scientist/governance/pass_entrypoints.py`
-3. экспортируйте класс из `src/polisyos/scientist/governance/passes/__init__.py`
+1. Add the class under `src/polisyos/scientist/governance/passes/`.
+2. Add a factory in `src/polisyos/scientist/governance/pass_entrypoints.py`.
+3. Export the class from `src/polisyos/scientist/governance/passes/__init__.py`.
 
-Именно эти built-in fallback factories использует runtime, когда внешние entry points не найдены.
+The runtime uses these built-in fallback factories when external entry points
+are not found.
 
-### Внешний или plugin pass
+### External or plugin pass
 
-Группа entry points:
+Entry-point group:
 
 ```text
 polisyos.scientist_governance_passes
 ```
 
-Target entry point должен разрешаться в:
+The target entry point must resolve to one of:
 
-- `ValidatorPass` subclass с zero-arg constructor
-- либо zero-arg factory, который возвращает `ValidatorPass`
+- a `ValidatorPass` subclass with a zero-argument constructor; or
+- a zero-argument factory that returns a `ValidatorPass`.
 
-Дублирующиеся `pass_id` отклоняются при загрузке.
+Duplicate `pass_id` values are rejected during loading.
 
-## 5. Протестируйте pass
+## 5. Test the pass
 
-В текущем дереве тесты чаще всего создают `PassContext` напрямую, а не через специальную fixture helper-функцию.
+In the example below, the test creates `PassContext` directly; use the project's
+current helper functions if they fit the new pass.
 
-Паттерн из `tests/unit/scientist/governance/test_strategic_response_pass.py`:
+Pattern from `tests/unit/scientist/governance/test_strategic_response_pass.py`:
 
 ```python
 from polisyos.core.governance.passes.base import PassContext
@@ -197,53 +223,59 @@ def test_my_pass_blocks_missing_artifact() -> None:
     assert issues[0].code == "MY_ARTIFACT_MISSING"
 ```
 
-Хорошие места для изучения:
+Useful examples to study:
 
 - `tests/unit/scientist/governance/test_strategic_response_pass.py`
 - `tests/unit/scientist/governance/test_pass_registry.py`
 
-## 5a. Зафиксируйте evidence contract
+## 5a. Record the evidence contract
 
-Любой новый governance pass, который поддерживает causal, fairness,
-calibration, accountability или SOTA-facing claim, должен иметь явную
-привязку к артефакту или тесту:
+Any new governance pass that supports a causal, fairness, calibration,
+accountability, or SOTA-facing claim must have an explicit connection to an
+artifact or test:
 
-- blocker/warning semantics покрыты unit test;
-- новый `pass_id` описан в [Scientist Governance Passes](../reference/scientist/governance-passes.md), если pass становится builtin или canonical;
-- claim-level output пишет `ComplianceIssue`, `GovernanceReport`,
+- blocker/warning semantics are covered by a unit test;
+- the new `pass_id` is documented in [Scientist Governance
+  Passes](../reference/scientist/governance-passes.md) if the pass becomes
+  built-in or canonical;
+- claim-level output writes a `ComplianceIssue`, `GovernanceReport`,
   `CalibrationValidationBundle`, `scientist.governance_accountability_artifact`
-  или другой persisted artifact;
+  or another persisted artifact;
 
-- benchmark or eval evidence существует до того, как pass используется как
-  аргумент для SOTA/default-readiness claim.
+- benchmark or evaluation evidence exists before the pass is used to support a
+  SOTA/default-readiness claim.
 
-Минимальные проверки:
+Minimum checks:
 
 ```bash
 uv run pytest tests/unit/scientist/governance/test_my_pass.py -q
 uv run pytest tests/unit/scientist/governance/test_pass_registry.py -q
 ```
 
-## 6. Интеграция в workflow
+## 6. Integrate the pass into the workflow
 
-В `polisyos.ir.observation.governance` сейчас есть два связанных registry:
+`polisyos.ir.observation.governance` currently has two related registries:
 
 - `GovernancePassAliasRegistry`
 - `ObservationFamilyPolicyRegistry`
 
-Как это работает:
+How they work:
 
-- `GovernancePassAliasRegistry` связывает стабильные canonical pass names с runtime pass ids
-- `ObservationFamilyPolicyRegistry` определяет, какие canonical pass ids обязательны для конкретной observation family
+- `GovernancePassAliasRegistry` maps stable canonical pass names to runtime
+  pass IDs.
+- `ObservationFamilyPolicyRegistry` determines which canonical pass IDs are
+  required for a specific observation family.
 
-То есть включение pass в workflow сейчас family-driven, а не через прямое поле в `PolicySpec`.
+This means that pass inclusion in the workflow is currently family-driven, not
+controlled through a direct field in `PolicySpec`.
 
-Если новый pass должен стать частью canonical governance surface:
+If the new pass should become part of the canonical governance surface:
 
-1. добавьте alias в `GovernancePassAliasRegistry.default()`
-2. добавьте canonical alias name в нужный `mandatory_governance_passes` внутри `ObservationFamilyPolicyRegistry.default()`
+1. Add an alias to `GovernancePassAliasRegistry.default()`.
+2. Add the canonical alias name to the appropriate `mandatory_governance_passes`
+   in `ObservationFamilyPolicyRegistry.default()`.
 
-Пример:
+Example:
 
 ```python
 GovernancePassAlias(
@@ -253,46 +285,55 @@ GovernancePassAlias(
 )
 ```
 
-## 7. Реальный пример: `StrategicResponsePass`
+## 7. Real example: `StrategicResponsePass`
 
-`StrategicResponsePass` — хороший шаблон, потому что он:
+`StrategicResponsePass` is a useful pattern because it is:
 
-- достаточно маленький, чтобы быстро прочитать
-- достаточно новый, чтобы отражать текущие runner/artifact patterns
-- явно показывает blocker, warning и human-review escalation
+- small enough to read quickly;
+- current enough to reflect the runner/artifact patterns in use;
+- explicit about blocker, warning, and human-review escalation.
 
-Что именно он демонстрирует:
+It demonstrates:
 
-- state-first lookup с fallback на artifact
-- escalation в strict profile через `ctx.state["human_review_request"]`
-- понятные `ComplianceIssue.code`
+- state-first lookup with an artifact fallback;
+- escalation in strict profile through `ctx.state["human_review_request"]`;
+- clear `ComplianceIssue.code` values.
 
-## Откат
+## Rollback
 
-Если pass не должен попадать в дерево или canonical policy пока не готовы:
+If the pass should not enter the tree or its canonical policy is not ready:
 
-1. удалите factory registration и export из package facade;
-2. откатите alias/policy wiring в `polisyos.ir.observation.governance`;
-3. удалите reference updates, если pass не создаёт auditable surface в этом PR.
+1. Remove the factory registration and package-facade export.
+2. Revert the alias/policy wiring in `polisyos.ir.observation.governance`.
+3. Remove the reference updates if the pass does not create an auditable surface
+   in this PR.
 
 ## Troubleshooting
 
-- Если pass не запускается, сначала проверьте `pass_entrypoints.py` и `__all__`, а не workflow code.
-- Если pass есть в runtime registry, но не входит в canonical family policy, проверьте `GovernancePassAliasRegistry` и `ObservationFamilyPolicyRegistry`.
-- Если severity ведёт себя неожиданно, перепроверьте `ValidationProfile` и точный state key, который читает pass.
+- If the pass does not run, first check `pass_entrypoints.py` and `__all__`, not
+  the workflow code.
+- If the pass appears in the runtime registry but is not part of the canonical
+  family policy, check `GovernancePassAliasRegistry` and
+  `ObservationFamilyPolicyRegistry`.
+- If severity behaves unexpectedly, check `ValidationProfile` and the exact
+  state key read by the pass.
 
-## Чеклист
+## Checklist
 
-- класс pass создан
-- `pass_id` уникален
-- factory или entry point зарегистрирован
-- тесты добавлены
-- alias registry обновлён, если pass должен быть частью canonical observation policy
-- observation-family policy обновлена, если pass должен запускаться по умолчанию для family
-- reference docs обновлены, если pass добавляет новый auditable governance claim
-- benchmark/eval requirement зафиксирован до SOTA/default-readiness claim
+- the pass class is created;
+- `pass_id` is unique;
+- the factory or entry point is registered;
+- tests are added;
+- the alias registry is updated if the pass is part of canonical observation
+  policy;
+- the observation-family policy is updated if the pass should run by default
+  for that family;
+- reference documentation is updated if the pass adds a new auditable
+  governance claim;
+- benchmark/evaluation requirements are recorded before making a
+  SOTA/default-readiness claim.
 
-## Связанные файлы
+## Related files
 
 - `src/polisyos/core/governance/passes/base.py`
 - `src/polisyos/scientist/governance/pass_registry.py`

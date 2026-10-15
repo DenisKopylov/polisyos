@@ -2,103 +2,89 @@
 
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 
-`polisyos.foundry` is the PolicyOS computation layer. It compiles Trinity
-bundles into CAS-backed execution plans, binds data snapshots into runtime
-state, executes patch-first simulation graphs, calibrates parameters, exposes a
-method catalog, and runs agent-simulation surfaces.
+Freshness: 2026-10-14
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/**`, `src/polisyos/ir/analytics/causal_graph.py`,
+  `src/polisyos/core/contracts/fabric.py`, `src/polisyos/pdc/_impl/world_model_record.py`,
+  `src/polisyos/runtime/quality/world_model_record.py`,
+  `src/polisyos/runtime/quality/joint_simulation_horizon.py`,
+  `src/polisyos/runtime/quality/promotion_sequence.py`,
+  `src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py`,
+  `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`, and their linked tests.
+Evidence level: implementation and linked test sources were inspected at the pinned revision above;
+tests were not rerun for this docs-only refresh.
 
-This page is the D1-L3 documentation map for the Foundry remediation plan in
-`docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`.
+Foundry compiles Trinity bundles into plans, binds snapshots as inputs, and
+runs simulations; it also exposes reusable methods and a standalone
+agent-simulation runtime. The linked implementation and test sources below
+were inspected; tests were not rerun for this docs pass. Simulation outputs are
+model-conditioned predictions, not observed policy effects. The reviewed
+Scientist bridge test covers `SCENARIO`; `IDENTIFIED` requires an admitted
+producer/verifier, so compilation and simulation alone do not establish that
+bridge or end-to-end publishability. Start with [Compile and Execute](compile-execute.md)
+for the plan and data path, then read [Causal Engine](../../explanation/causal-engine.md)
+for the boundary between model predictions and grounded effects.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: stable `polisyos.foundry` facade, `src/polisyos/foundry/**`, linked tests/ADRs, and generated method-snapshot inputs from `polisyos.foundry.methods.catalog.snapshot`
+## Where to Start
 
-## Phase Map
+| Surface | What it owns | Implementation and behavioral evidence |
+| --- | --- | --- |
+| Compile and execute API | `compile()` accepts `ir.trinity_bundle`; it links and lowers to `ProgramGraph`/`ExecPlan` and persists compile artifacts. `execute()` consumes the plan, input bindings, and registry, then persists simulation outputs. | [Compile API](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/compile/api.py#L18-L64), [Trinity compiler persistence](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/compile/trinity_compiler.py#L208-L335), [compile artifact and Scientist-consumer test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py#L118-L166). |
+| Data binding | `build_input_bindings()` checks the snapshot against registry slots and persists input bindings plus a bound state snapshot for `execute()`. | [Binding producer](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/data_plane/bindings.py#L582-L714), [execution input-binding test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/runtime/test_execute_input_bindings.py#L76-L115). |
+| Scientist bridge | Compile and simulation nodes move Foundry refs through `ExperimentState`; `RunSimulationNode` stores the `SimulationResult` and proof-bridge artifacts. The basic tested bridge case is `SCENARIO`; composition can also be `BOUNDED` or `BLOCKED`, and `IDENTIFIED` requires an admitted producer/verifier. None is observed effect authority. | [Compile node](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py#L102-L180), [simulation-node bridge test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py#L218-L267), [status composition](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py#L865-L889), [non-`IDENTIFIED` validator](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py#L170-L183). |
+| Agent simulation | `polisyos.foundry.agent_sim` owns a standalone ABM/RL state, executors, wiring adapters, and training helpers. | [Agent-sim package guide](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/agent_sim/README.md), [executor tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/agent_sim/test_executor.py). |
+| Synthetic worlds | `polisyos.foundry.agent_sim.world` generates synthetic DGP samples, truth manifests, and evaluation results for method testing. Its oracle truth is specific to the generated DGP. | [World implementation](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/agent_sim/world/world.py#L248-L310), [seed-world behavior tests](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/agent_sim/world/test_seed_worlds.py#L59-L80). |
 
-| Source phase                                          | Documentation owner                                                                                                                                                                                                                | Validation anchor                                                                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 0: program freeze and backlog normalization     | This index and the source plan keep the backlog, page ownership, and release-gate evidence together.                                                                                                                               | `tests/unit/foundry/validation/test_release_gate.py`                                                                                                                                                                                                                                                                    |
-| Phase 1: correctness emergency train                  | [Compile Execute](compile-execute.md), [State](state.md), and [Observability Reproducibility](observability-reproducibility.md) describe fail-closed compile/execute, input bindings, FailureCard behavior, and NaN guard posture. | `tests/unit/foundry/facade/test_quickstart.py`, `tests/unit/foundry/runtime/test_executor_fail_semantics.py`, `tests/unit/foundry/runtime/test_nan_guard_public.py`                                                                                                                                                                                  |
-| Phase 2: execution kernel hardening                   | [Compile Execute](compile-execute.md) and [State](state.md) cover program graphs, exec plans, state snapshots, merge/delta application, and private executor evidence.                                                             | `tests/unit/foundry/runtime/test_executor_private_modules.py`, `tests/unit/foundry/runtime/test_executor_snapshots.py`, `tests/unit/foundry/analysis/test_merge_determinism.py`                                                                                                                                                                 |
-| Phase 3: numerical stability and JAX semantics        | [Calibration](calibration.md), [State](state.md), and [Observability Reproducibility](observability-reproducibility.md) point numeric/JAX claims to tests and ADRs.                                                                | `tests/unit/foundry/calibration/test_measurement.py`, `tests/unit/foundry/methods/backends/test_numerical_stability.py`, `docs/reference/foundry/numeric-guardrails.md`                                                                                                                                                     |
-| Phase 4: performance, concurrency and reproducibility | [Observability Reproducibility](observability-reproducibility.md) and [Run Benchmarks](../../how-to/run-benchmarks.md) define capability, replay, tolerance, and benchmark command boundaries.                                     | `tests/unit/foundry/methods/backends/test_backend_determinism.py`, `tests/unit/foundry/benchmarks/test_ws5_jax_perf.py`, `benchmarks/suite_registry.py`                                                                                                                                                           |
-| Phase 5: Bayesian, UQ and calibration frontier        | [Calibration](calibration.md), [Methods Catalog](methods-catalog.md), and [Frontier Methods](frontier-methods.md) separate available UQ/calibration surfaces from research-gated Bayesian claims.                                  | [`docs/adr/0012-uncertainty-envelope-ir-contract.md`](../../adr/0012-uncertainty-envelope-ir-contract.md), [`docs/adr/0013-uncertainty-propagation-pipeline.md`](../../adr/0013-uncertainty-propagation-pipeline.md), [`docs/adr/0074-numpyro-bayesian-scm.md`](../../adr/0074-numpyro-bayesian-scm.md) |
-| Phase 6: causal, ML, agent-sim and policy frontier    | [Methods Catalog](methods-catalog.md), [Frontier Methods](frontier-methods.md), [Agent Sim](agent-sim.md), and [Causal Engine](../../explanation/causal-engine.md) document runnable frontier families and governance boundaries.  | `tests/unit/foundry/methods/catalog/causal/test_frontier_methods.py`, `tests/unit/foundry/methods/catalog/ml/test_frontier.py`, `tests/unit/foundry/methods/catalog/policy/test_frontier.py`                                                                                                                           |
+## Keep observations, models, and effect status distinct
 
-## Page Map
+An observed data artifact is not itself the causal model. `DataSnapshot` names
+the data payload and may carry evidence, quality, and uncertainty refs; Foundry
+input binding maps payload paths into registry slots and persists a bound state
+snapshot. That binding makes values executable inputs, but does not validate
+the graph or mechanisms those values will be used with. [DataSnapshot contract](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/core/contracts/fabric.py#L161-L181), [binding producer](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/data_plane/bindings.py#L582-L714), [binding behavior test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/foundry/runtime/test_execute_input_bindings.py#L76-L115).
 
-| Page                                                              | Scope                                                                            | Primary modules                                                                                                                          |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| [Compile Execute](compile-execute.md)                             | Root API, compile requests, execute requests, input bindings, quickstart         | `polisyos.foundry`, `foundry.compile.api`, `foundry.execute.api`, `foundry.data_plane.bindings`, `foundry.quickstart`                    |
-| [Calibration](calibration.md)                                     | Fit loop, measurement-aware loss, auxiliary penalties, Hessian/UQ boundary       | `foundry.calibration.*`, `foundry.uncertainty.*`                                                                                         |
-| [Demography](demography.md)                                       | Static aging with demographic consistency, donor entrants, integerized draws     | `foundry.methods.catalog.survey.demographic_consistency`, `foundry.methods.catalog.simulation.demography`, `data_forge.read_api.ukraine` |
-| [Methods Catalog](methods-catalog.md)                             | ABI, registry, dispatch, capability matrix, advisor, truthfulness tiers          | `foundry.methods.*`, `foundry.methods.catalog.*`                                                                                         |
-| [Frontier Methods](frontier-methods.md)                           | Bayesian/UQ and Phase 6 causal, ML, agent-sim, policy frontier surfaces          | `foundry.methods.catalog.causal.frontier`, `foundry.methods.catalog.ml.frontier`, `foundry.methods.catalog.policy.frontier`              |
-| [Causal Statistical Validity](causal-statistical-validity.md)      | Offline known-answer, placebo, negative-control, sensitivity, power, missingness, and uncertainty calibration benchmark gate | `foundry.validation.causal_validity`, `scientist.validation.policy_grounding` |
-| [Observability Reproducibility](observability-reproducibility.md) | Runtime fingerprints, determinism tiers, tolerance budgets, release acceptance   | `foundry.runtime.*`, `foundry.methods.backends.*`, `foundry.release_acceptance`                                                          |
-| [Agent Sim](agent-sim.md)                                         | ABM/RL runtime layers, wiring contracts, graph/population/distribution executors | `foundry.agent_sim.*`                                                                                                                    |
-| [State](state.md)                                                 | `GlobalState`, slot layout, snapshots, patch/delta boundary, JAX state contracts | `foundry.contracts.state`, `foundry.methods.layout`, `foundry.execute.executor`                                                          |
+`CausalGraphModel` holds graph type, nodes, and edges. A `SimulationModelRef`
+separately names a model specification, data snapshot, registry bundle,
+mechanism/GCM/NCM/program refs, assumptions, fidelity, and calibration state.
+These are distinct contracts even when evidence from the same study informs
+more than one of them. [Graph IR](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L572-L585), [simulation-model reference](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/pdc/_impl/world_model_record.py#L87-L103).
 
-Pages in `docs/reference/foundry/` are manually maintained. The methods-catalog
-and observability pages reuse generated `MethodCatalogSnapshot`,
-capability-matrix, and operator-evidence inputs, and they document their
-regeneration commands directly on the page.
+| Stage | Canonical owner and inspected evidence | Boundary |
+| --- | --- | --- |
+| Candidate world | The candidate-scenario producer derives a versioned world-model record. [Producer](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/world_model_record.py#L211-L225); [test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_world_model_record.py#L624-L647). | The synthetic-model assumption is marked `candidate_only_not_empirically_grounded` with `calibrated=False`; the tested record remains `limited`. A declared or content-bound candidate does not become empirically grounded through schema validity alone. |
+| Registered method | `MethodRegistry` resolves methods by FQN/name/version and queries signatures by namespace, tags, slots, or name pattern. [Resolution](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/methods/selection/registry.py#L680-L718); [metadata query](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/methods/selection/registry.py#L805-L855); [Methods Catalog](methods-catalog.md). | Registration and dispatch availability do not establish that study assumptions hold or that a result is an observed policy effect. |
+| Executed simulation | Foundry `execute()` consumes a plan, bound state, and registry; the separate N5 controller requests individual, pairwise, and joint horizons. [Execute contract](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/foundry/execute/api.py#L303-L329); [N5 controller](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1425-L1455); [N5 semantic test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py#L613-L665). | Simulation trajectories remain model-conditioned predictions; the N5 test retains blockers `simulation_only_k_sim_not_world_evidence` and `simulation_effect_basis_not_established`. |
+| Effect-grounding admission | The promotion sequence checks the selected grounding relation, required axis witnesses, binding, and bound atom. [Grounding predicate](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py#L1621-L1672); [negative test](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py#L4519-L4523). | An ungrounded effect claim fails. Passing this conjunct establishes only that grounding obligation, not whole-policy publishability. |
 
-## Documentation Impact
+Design-level runs over individual interventions, every pair, and their joint
+composition are owned by `polisyos.runtime.quality.joint_simulation_horizon`.
+That controller reuses Foundry engines but is not a `polisyos.foundry`
+compile/execute API. Its artifacts remain model-based predictions; see
+[Causal Engine](../../explanation/causal-engine.md) for the result and grounding
+boundary.
 
-| Output cluster                              | Exact files                                                                                                                                                                                                                                                                                                                                                                                     | Source of truth                                                                                                                                                | Validation                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Reference set                               | `docs/reference/foundry/index.md`, `docs/reference/foundry/compile-execute.md`, `docs/reference/foundry/calibration.md`, `docs/reference/foundry/demography.md`, `docs/reference/foundry/methods-catalog.md`, `docs/reference/foundry/frontier-methods.md`, `docs/reference/foundry/observability-reproducibility.md`, `docs/reference/foundry/agent-sim.md`, `docs/reference/foundry/state.md` | `polisyos.foundry` facade, compile/execute APIs, calibration and methods subsystems, runtime fingerprints, agent-sim modules, demography static-aging surfaces | `uv run pytest tests/unit/foundry/facade/test_quickstart.py tests/unit/foundry/compile/test_compile_determinism.py tests/unit/foundry/runtime/test_execute_input_bindings.py tests/unit/foundry/runtime/test_nan_guard_public.py tests/unit/foundry/calibration/test_measurement.py tests/unit/foundry/methods/backends/test_numerical_stability.py tests/unit/foundry/methods/catalog/survey/test_demographic_consistency.py tests/unit/foundry/methods/catalog/simulation/test_demography.py -q` |
-| Explanation, how-to, and benchmark surfaces | `docs/explanation/causal-engine.md`, `docs/how-to/run-causal-analysis.md`, `docs/how-to/run-benchmarks.md`, `docs/benchmarks/confidential-computing-overhead.md`                                                                                                                                                                                                                                | causal-engine architecture notes, benchmark suite registry, current benchmark commands, measurement methodology                                                | `uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -q`                                                                                                                                                                                                                                                                                                                                                     |
-| Package boundary READMEs                    | `src/polisyos/foundry/README.md`, `src/polisyos/foundry/methods/README.md`, `src/polisyos/foundry/calibration/README.md`, `src/polisyos/foundry/agent_sim/README.md`                                                                                                                                                                                                                            | package facades, catalog/method boundaries, calibration loops, agent-sim runtime boundary                                                                      | quickstart snippet above plus the relevant package-local pytest slices referenced from each README                                                                                                                                                                                                                                                                                                                   |
+## Reference Pages
 
-## Public Surface
+| Page | Scope |
+| --- | --- |
+| [Compile Execute](compile-execute.md) | Public APIs, compile artifacts, input binding, execution, and replay contract. |
+| [State](state.md) | `GlobalState`, slot layout, snapshots, and state-delta application. |
+| [Methods Catalog](methods-catalog.md) | Registry, dispatch, method metadata, and method capability evidence. |
+| [Calibration](calibration.md) | Fit loops, measurement-aware loss, penalties, and uncertainty boundaries. |
+| [Causal Statistical Validity](causal-statistical-validity.md) | Known-answer, placebo, negative-control, sensitivity, power, missingness, and uncertainty-calibration checks. |
+| [Demography](demography.md) | Demographic consistency, donor entrants, and integerized draws. |
+| [Agent Sim](agent-sim.md) | ABM/RL runtime layers, contract-aware wiring, and specialized executors. |
+| [Frontier Methods](frontier-methods.md) | Research-gated causal, ML, Bayesian/UQ, and policy method families. |
+| [Observability Reproducibility](observability-reproducibility.md) | Runtime fingerprints, determinism tiers, and tolerance budgets. |
 
-| Export              | Role                                                                                                      |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
-| `compile()`         | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and compile report artifacts. |
-| `compile_program()` | Compatibility alias for `compile()` on the package facade.                                                |
-| `execute()`         | Execute a compiled plan from a `FoundryInputBindingsRef` and persist simulation evidence.                 |
+These reference pages are manually maintained. Generated method snapshots and
+operator evidence are inputs to the methods and observability pages; they do not
+replace the source owners or certify causal validity. For the distinction
+between a model prediction, synthetic benchmark truth, and a grounded effect,
+start with [Causal Engine](../../explanation/causal-engine.md).
 
-The stable package facade is intentionally narrow. Internal helpers are
-documented only where they are part of a tested operational or authoring
-workflow.
-
-## Quick Validation
-
-The compile/execute quickstart is runnable, not conceptual:
-
-```bash
-uv run python - <<'PY'
-from tempfile import TemporaryDirectory
-from polisyos.foundry._quickstart import run_trivial_compile_execute
-
-with TemporaryDirectory(prefix="foundry-docs-") as tmp:
-    result = run_trivial_compile_execute(cas_root=tmp)
-    print(result)
-    assert result.compile_ok and result.execute_ok
-PY
-```
-
-The same path is covered by
-`tests/unit/foundry/facade/test_quickstart.py`.
-
-For a compact D1-L3 smoke pass:
-
-```bash
-uv run pytest tests/unit/foundry/facade/test_quickstart.py \
-  tests/unit/foundry/compile/test_compile_determinism.py \
-  tests/unit/foundry/runtime/test_execute_input_bindings.py \
-  tests/unit/foundry/runtime/test_nan_guard_public.py \
-  tests/unit/foundry/calibration/test_measurement.py \
-  tests/unit/foundry/methods/backends/test_numerical_stability.py -q
-```
-
-## Backlog
-
-| Gap                                         | Priority | Tracking note                                                                                                                                                   |
-| ------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| No missing required D1-L3 output pages      | -        | All required D1-L3 files are present and mapped above.                                                                                                          |
-| Standalone generated capability-matrix page | P2       | D2 now uses generated method-snapshot inputs inside the methods/observability reference pages. A dedicated standalone capability-matrix page is still optional. |
+Re-review this map when a cited owner changes its artifact contract, status
+composition, workflow bridge, or grounding predicate. Re-inspect the affected
+source and linked test, then update the pin and evidence scope; a prior test
+link is not a receipt for a new run. Current-code changes belong in this map
+and its linked explanation, not in the retained v26 account.

@@ -7,6 +7,13 @@ Related reference: [Contributor Start Here](../reference/contributor-start-here.
 > pre-refactor layout and you need to translate it onto the current canonical
 > surfaces quickly.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+by reading `architecture/public_surface/contract.toml`,
+`docs/migration/phase4_trinity_only.md`,
+`schemas/runtime_api_v1.openapi.json`, and
+`architecture/generated_artifacts.toml`. This is a static map for choosing
+focused procedures; it does not verify any particular migration or gate.
+
 ## Inputs
 
 - a branch, diff, or local notes that still refer to legacy routes, deep imports,

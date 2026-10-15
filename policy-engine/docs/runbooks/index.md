@@ -1,72 +1,67 @@
 # Runbooks
 
-> Операционная память для Phase 6: от symptoms и triage до rollback и
-> blameless postmortem.
+Owner: `@platform-owners` (logical owner group; see [Ownership](../reference/ownership.md))
+Source of truth: incident procedure in each linked runbook and the source contracts it cites
+Coverage map: `architecture/runbook_coverage.toml` is marked `report_only`; it is not an operational readiness gate
+Repository review: source inspection at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; index links and selected references checked. No operational command, service, deployment, or cleanup action was executed.
 
-Owner: `@platform-owners`
-Last tested: `2026-05-06` against the current runbook set, docs inventory, and platform acceptance audit ledger.
-Evidence path: `docs/reference/documentation-inventory.md`; `docs/archive/reports/platform-acceptance.md`
-Rollback path: use the specific linked runbook for the failing surface; this index is a routing page, not the execution procedure itself.
-Component bundle index: `ops/components/README.md`.
+> This page routes to procedures; its contents do not establish that a local or
+> cloud environment is provisioned, reachable, credentialed, healthy, or ready.
+> E02 source, manifest, or evidence presence in the repository proves source
+> presence only. Confirm current environment state from its own authorized
+> inventory and evidence before treating a procedure as executable.
 
-Каждый runbook в этом разделе обязан отвечать на одни и те же вопросы:
+Use the linked runbook for the affected surface. Check its prerequisites and
+environment-specific values before running commands. Runbooks are maintained
+separately; an index review does not validate their commands or refresh their
+environment evidence.
 
-- какой симптом видит дежурный;
-- какие причины вероятнее всего;
-- какой timeline нужно зафиксировать сразу;
-- что делать в первые 15 минут;
-- как откатиться или снизить blast radius;
-- кто владеет эскалацией;
-- какой follow-up обязателен после стабилизации.
+## Published Runbook Entry Points
 
-## Runbook Set
+| Runbook | When to use it | Logical owner |
+| --- | --- | --- |
+| [Dependency Upgrade Regression](dependency-upgrade-regression.md) | A dependency, lockfile, or toolchain change causes a regression. | `@platform-owners` |
+| [Runtime API Outage](runtime-api-outage.md) | Runtime HTTP routes fail or degrade. | `@runtime-owners` |
+| [CAS or OPA Outage](cas-opa-outage.md) | Runtime artifact access, integrity, or authorization dependencies fail. | `@runtime-owners` |
+| [Broken Contract Generation](broken-contract-generation.md) | Schema, OpenAPI, or frontend contract generation or freshness fails. | `@platform-owners` |
+| [Artifact Signing or SBOM Failure](artifact-signing-sbom-failure.md) | Signing, SBOM, or attestation evidence fails. | `@platform-owners` and security |
+| [Key Rotation](key-rotation.md) | Signing-key or trust-store rotation is needed. | `@platform-owners` and security |
+| [Canary Rollback or Failed Promotion](canary-rollback-or-promotion-failure.md) | A staged rollout or promotion is blocked or rolled back. | `@platform-owners` |
+| [Migration Release Promotion](migration-release-promotion.md) | A breaking database, runtime-state, API, IR, or persisted-artifact migration blocks promotion. | `@platform-owners` |
+| [Idempotency Incident](idempotency-incident.md) | Retry or replay produces duplicates, mismatches, or stuck pending state. | `@runtime-owners` |
+| [Mutation Audit Investigation](mutation-audit-investigation.md) | An operator needs to trace a runtime mutation. | `@runtime-owners` |
+| [Cache Rebuild Storm](cache-rebuild-storm.md) | Run, timeline, or lineage cache rebuilds cause latency or resource pressure. | `@runtime-owners` |
+| [Fabric Quarantine/DLQ And Data-Plane Recovery](fabric-quarantine-dlq-and-data-plane-recovery.md) | Fabric quarantine, dead-letter, streaming checkpoint, or connector recovery is involved. | `@fabric-owners` |
+| [Runtime Graceful Shutdown or Stuck Background Worker](runtime-graceful-shutdown-and-stuck-worker.md) | Shutdown, connection draining, or a background worker stalls. | `@runtime-owners` |
+| [Replay or Restore Workflow](replay-or-restore.md) | A replay session, checkpoint, snapshot manifest, or retained archive needs recovery. | `@platform-owners` and affected owner |
+| [Retained Artifact Recovery](retained-artifact-recovery.md) | A retained CI, benchmark, audit, snapshot, replay, or archive artifact needs recovery. | `@platform-owners` and affected owner |
+| [Artifact Corruption Recovery](artifact-corruption-recovery.md) | Read-time integrity checks find a corrupt blob or manifest mismatch. | `@platform-owners` and affected owner |
+| [Docs Publication Failure](docs-publication-failure.md) | A docs build, repository-tracked documentation gate, or Pages publication fails. | `@docs-owners` |
+| [Benchmark Regression Triage](benchmark-regression-triage.md) | A benchmark comparison shows a quality, latency, or stability regression. | `@foundry-owners` |
+| [Production Quality Canary](production-quality-canary.md) | A production-quality canary, scenario matrix, approval, override, replay, or provider review is involved. | `@platform-owners` and runtime |
+| [Local Production Debugging](local-production-debugging.md) | Historical `2026-05-19` local setup and validation record; current containers, database, data, and credentials are unverified, and reuse depends on the page's source-backed prerequisites. | `@platform-owners` and runtime |
+| [Cloud Production Debugging](cloud-production-debugging.md) | Historical `2026-05-20` cloud setup and validation record; current resources are unverified and the commands require the page's revalidation prerequisites. | `@platform-owners` and runtime |
+| [Production Quality Triage](production-quality-triage.md) | A PQL-001 through PQL-024 result needs triage by layer and next action. | `@platform-owners` |
+| [Honest Diagnostics Operator Triage](honest-diagnostics.md) | Serious closeout fails on runtime references, diagnostics, source truth, phase barriers, semantic evidence, tenant scope, attestation, staleness, or partial state. | `@platform-owners` and runtime |
+| [Policy Design Case Operator Triage](policy-design-case-operator-triage.md) | Policy Design Case closeout is missing case, intent, producer, evidence, governance, audit, or benchmarking support. | `@platform-owners` and runtime |
+| [Policy Design Case Rollout And Rollback](policy-design-case-rollout-rollback.md) | Policy Design Case promotion, hold, rollback, kill-switch, or closeout evidence is involved. | `@platform-owners` and runtime |
 
-| Runbook                                                                                               | Когда использовать                                                                        | Primary owner                       |
-| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------- |
-| [Dependency Upgrade Regression](dependency-upgrade-regression.md)                                     | После dependency bump, lock refresh или toolchain upgrade пошли регрессии                 | `@platform-owners`                  |
-| [Runtime API Outage](runtime-api-outage.md)                                                           | Runtime HTTP surface недоступен, деградировал или отдаёт массовые `5xx`                   | `@runtime-owners`                   |
-| [CAS or OPA Outage](cas-opa-outage.md)                                                                | Runtime read/authz paths деградировали из-за CAS, integrity или OPA dependency failure    | `@runtime-owners`                   |
-| [Broken Contract Generation](broken-contract-generation.md)                                           | Падает schema/OpenAPI/frontend contract freshness                                         | `@platform-owners`                  |
-| [Artifact Signing or SBOM Failure](artifact-signing-sbom-failure.md)                                  | Подпись артефактов, SBOM gate или SLSA payload сломались                                  | `@platform-owners` + security       |
-| [Key Rotation](key-rotation.md)                                                                       | Плановая или аварийная ротация signing keys и trust store                                 | `@platform-owners` + security       |
-| [Canary Rollback or Failed Promotion](canary-rollback-or-promotion-failure.md)                        | Staged rollout или production promotion остановлены либо откатились                       | `@platform-owners`                  |
-| [Migration Release Promotion](migration-release-promotion.md)                                         | Breaking DB/runtime-state/API/IR/persisted-artifact migration blocks promotion            | `@platform-owners`                  |
-| [Idempotency Incident](idempotency-incident.md)                                                       | Retry/replay path создал дубликаты, mismatch или stuck pending state                      | `@runtime-owners`                   |
-| [Mutation Audit Investigation](mutation-audit-investigation.md)                                       | Нужно установить кто, когда и что изменил в runtime mutation path                         | `@runtime-owners`                   |
-| [Cache Rebuild Storm](cache-rebuild-storm.md)                                                         | Run/timeline/lineage cache services ушли в rebuild storm и бьют по latency/CPU            | `@runtime-owners`                   |
-| [Fabric Quarantine/DLQ And Data-Plane Recovery](fabric-quarantine-dlq-and-data-plane-recovery.md)     | Fabric quarantine/DLQ, streaming checkpoint, or connector recovery path needs safe replay | `@fabric-owners`                    |
-| [Runtime Graceful Shutdown or Stuck Background Worker](runtime-graceful-shutdown-and-stuck-worker.md) | Shutdown hangs, live connections не дренируются, worker/executor застрял                  | `@runtime-owners`                   |
-| [Replay or Restore Workflow](replay-or-restore.md)                                                    | Нужно восстановить replay session, checkpoint path или retained archive                   | `@platform-owners` + affected owner |
-| [Retained Artifact Recovery](retained-artifact-recovery.md)                                           | Нужно восстановить retained CI/benchmark/audit/snapshot/archive artifact family           | `@platform-owners` + affected owner |
-| [Artifact Corruption Recovery](artifact-corruption-recovery.md)                                       | Read-time integrity verification выявила corrupted blob или manifest mismatch             | `@platform-owners` + affected owner |
-| [Docs Publication Failure](docs-publication-failure.md)                                               | `mkdocs build --strict` или repo-tracked documentation gate не проходит                   | `@docs-owners`                      |
-| [Benchmark Regression Triage](benchmark-regression-triage.md)                                         | Benchmark suite ушёл вниз по quality, latency или stability                               | `@foundry-owners`                   |
-| [Production Quality Canary](production-quality-canary.md)                                             | Production-quality canary, scenario matrix, approval, override, replay, or live-provider review | `@platform-owners` + runtime        |
-| [Cloud Production Debugging](cloud-production-debugging.md)                                           | Google Cloud production-debug host, data staging, secure env, and live lane validation          | `@platform-owners` + runtime        |
-| [Production Quality Triage](production-quality-triage.md)                                             | PQL-001 through PQL-024 failure triage by layer, phase, report, and next action           | `@platform-owners`                  |
-| [Honest Diagnostics Operator Triage](honest-diagnostics.md)                                           | Serious closeout fails on runtime ref, diagnostic event, source-truth, mode, fallback, phase-barrier, semantic, tenant, attestation, stale, or partial-state evidence | `@platform-owners` + runtime        |
-| [Policy Design Case Operator Triage](policy-design-case-operator-triage.md)                           | Serious policy-design closeout fails on missing case, intent, spine, producer refs, portfolio/synthesis/claim support, BERL, DDM, audit, maturity, invariant, consultation, proportionality, or benchmarking evidence | `@platform-owners` + runtime        |
-| [Policy Design Case Rollout And Rollback](policy-design-case-rollout-rollback.md)                     | Universal PDC promotion, hold, rollback, kill-switch, tuned-config downgrade, evidence preservation, and closeout-note recording | `@platform-owners` + runtime        |
+For Policy Design Case reference paths and operator concepts, start at the
+[Policy Design Case Operator Guide](../reference/policy-design-case-operator-guide.md).
+For runtime and storage concepts, use the [Operations Reference](../reference/operations/index.md).
 
-W5.E operator index:
-[Policy Design Case Operator Guide](../reference/policy-design-case-operator-guide.md)
-is the reference entrypoint for ADR lookup, public evidence paths, tuned owners,
-validation ladders, capability evidence, and rollout/rollback routing.
+## Ownership And Support
 
-## Postmortem Minimum
+Owner labels in runbooks name logical groups. They are not proof that an
+organization team or on-call rotation is provisioned. The repository's current
+reviewer mapping and escalation ownership are recorded in
+[Ownership](../reference/ownership.md); supported branches,
+support channels, and external-support limits are in `policy-engine/SUPPORT.md`.
 
-Каждый инцидент после стабилизации должен оставить один и тот же минимум:
+## Postmortem Record
 
-- UTC timeline с точкой обнаружения, точкой mitigation и точкой восстановления;
-- blast-radius statement;
-- owner на remediation;
-- action items с датами;
-- ссылку на изменённый runbook, если в процессе выяснилось, что он был неполным.
-
-Связанные политики:
-
-- [SLO and Error Budget Policy](../reference/operations/slo-error-budget.md)
-- [Platform Architecture Diagrams](../reference/operations/platform-architecture-diagrams.md)
-- [Observability Topology](../reference/operations/observability-topology.md)
-- [Retention and Recovery Policy](../reference/operations/retention-and-recovery.md)
-- [Handoff and Platform Review](../reference/operations/handoff-and-platform-review.md)
+After an incident, retain a UTC timeline with detection, mitigation, and
+recovery points; the affected scope; a remediation owner and due date; and a
+link to the procedure that changed. Follow the specific surface policy for
+handling raw runtime data and evidence; this index does not authorize promotion
+or cleanup.

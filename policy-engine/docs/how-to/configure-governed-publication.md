@@ -5,14 +5,23 @@ It cannot appoint an institution, establish policy performance, establish first 
 or establish complete history. The production signing slot is empty by default. A report key
 configured through `POLISYOS_PUBLIC_VERIFICATION_CONFIG` does not fill it.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked by
+reading `src/polisyos/runtime/http/routes/public_decisions.py`,
+`src/polisyos/scientist/governance/continuous/governed_public_record.py`, and
+`src/polisyos/scientist/governance/continuous/governed_public_record_contracts.py`.
+No runtime request, deployed configuration, key, or institutional signature was exercised;
+the cited unit test uses synthetic keys and an institution.
+
 ## Prepare, authorize, issue
 
-1. For an indexed, tenant-owned run with an admitted current Claim owner, invoke the existing
-   authenticated `POST /api/v1/runs/{run_id}/public-verification-record` with query
+1. For an indexed, tenant-owned run with an admitted current Claim owner, use a principal with
+   the endpoint's `PLATFORM_ADMIN` action permission and invoke the existing
+   `POST /api/v1/runs/{run_id}/public-verification-record` with query
    `publication_class=governed_public_record_candidate` and no body. The private response gives
    a candidate artifact reference, exact public document and digest; it creates no public URL.
-   Unsupported metadata, material private references, transition heads after the initial root,
-   or ineligible claims refuse preparation.
+   The route binds the action to an owned existing run and checks tenant access. Unsupported
+   metadata, material private references, transition heads after the initial root, or ineligible
+   claims refuse preparation.
 2. An external institution supplies a signed `PublicationMandateStatement` persisted in the
    runtime artifact store with its manifest and Ed25519 sidecar. Its schema is defined in
    `src/polisyos/scientist/governance/continuous/governed_public_record_contracts.py`.

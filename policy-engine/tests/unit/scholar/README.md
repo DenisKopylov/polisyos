@@ -2,7 +2,9 @@
 
 `tests/unit/scholar` covers the knowledge-bundle orchestration layer built around
 `polisyos.scholar`: freshness handling, search planning/providers, and service
-bootstrap. The slice currently contains `6` `test_*.py` files.
+bootstrap. The README snapshot dated `2026-04-17` records
+`6` `test_*.py` files. This dated count is not a current denominator;
+re-enumerate `tests/unit/scholar/` before relying on it as a current inventory.
 
 ## Purpose
 

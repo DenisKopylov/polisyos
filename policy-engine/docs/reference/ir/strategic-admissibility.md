@@ -4,13 +4,14 @@ Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-cata
 
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/analytics/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `tests/unit/ir/analytics/test_phase_d_contracts.py`, `tests/unit/foundry/methods/catalog/causal/test_strategic.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 
 > Stage 6.1 contract lift for strategic causality. PolicyOS no longer treats
 > generic equilibrium names as sufficient strategic metadata; strategic
 > requests are classified by game class, solution concept, tractability, and
 > default fallback semantics.
 
-Freshness: 2026-04-19
+Freshness: 2026-10-14
 
 ## Why This Exists
 
@@ -32,7 +33,9 @@ a solver" but also:
 
 ## Registry
 
-The admissibility registry currently ships these policy-facing classes.
+The strategic fallback registry currently ships these policy-facing classes.
+It classifies solver fallbacks; it does not decide universal policy
+admissibility.
 
 | Game class                    | Solution concept                                     | Existence anchor                                          | Tractability   | Default fallback    | Current runtime posture |
 | ----------------------------- | ---------------------------------------------------- | --------------------------------------------------------- | -------------- | ------------------- | ----------------------- |
@@ -49,6 +52,11 @@ The admissibility registry currently ships these policy-facing classes.
 | `small_finite_best_response`  | `best_response_fixed_point`                          | explicit finite-profile enumeration                       | `P`            | `exact_equilibrium` | `supported`             |
 
 ## Existence Rules
+
+The registry and descriptor validate declared game classes, solution concepts,
+and fallback combinations. Assumptions such as uniqueness or equilibrium
+existence remain declarations in this DTO surface; parsing them does not verify
+the corresponding theorem premises or certify a recommendation.
 
 - `zero_sum` + `minimax`: use the minimax existence/value theorem as the
   policy anchor; this is the clean allowlist case for exact reporting once a
@@ -117,9 +125,12 @@ preservation types to:
 Non-exact macro abstractions must carry `error_bound`.
 For `approximate`, the linked `AbstractionCertificate` must also carry a
 bounded query family in `preserved_queries`, per-query bounds in
-`metadata.estimand_error_bounds`, explicit `non_preserved_queries`, and an
-machine-verified intervention family (`metadata.intervention_family_verified =
-true`). If only a single scalar welfare query is
+`metadata.estimand_error_bounds`, explicit `non_preserved_queries`, and the
+`metadata.intervention_family_verified = true` declaration. The abstraction
+verification helper sets that field on its produced certificate; validating a
+caller-constructed DTO checks the declaration and its shape, not the proof
+content. Do not treat the flag or successful parse alone as verification. If
+only a single scalar welfare query is
 certified, use `policy_value_only` instead.
 
 ## Result Artifacts

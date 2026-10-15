@@ -8,19 +8,19 @@ Related reference: [Runtime API Migration Guide](../reference/api/migration-guid
 > confusing.
 
 Owner: `@runtime-owners`
-Last tested: `2026-04-17` against runtime write-path hardening and mutation-policy checks.
+Historical validation receipt (as recorded by this page): `2026-04-17` — runtime write-path hardening and mutation-policy evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`; `src/polisyos/runtime/http/mutation_policy.py`
 Rollback path: stop retries, identify the authoritative mutation result, and clean up duplicates only as an audited corrective action.
 
 ## Operational Metadata
 
-| Field              | Value                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- |
-| Primary owner      | `@runtime-owners`                                                                                             |
-| Coordination owner | `@platform-owners`                                                                                            |
-| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                               |
+| Field              | Value                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Primary owner      | `@runtime-owners`                                                                                                  |
+| Coordination owner | `@platform-owners`                                                                                                 |
+| Historical receipt | 2026-04-17, D1-L1 documentation validation pass; no current runtime verdict                                        |
 | Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`, `src/polisyos/runtime/http/mutation_policy.py` |
-| Rollback posture   | stop retries, identify the authoritative result, then handle duplicate cleanup as an audited operator action  |
+| Rollback posture   | stop retries, identify the authoritative result, then handle duplicate cleanup as an audited operator action       |
 
 ## Symptom
 
@@ -56,11 +56,11 @@ Rollback path: stop retries, identify the authoritative mutation result, and cle
 2. Verify tenant, method, route, and payload are actually the same logical
    operation.
 3. Check whether the incident is:
-
    - correct replay of a prior success;
    - key mismatch;
    - pending/in-flight state;
    - true duplicate side effect.
+
 4. Confirm whether the underlying resource already exists before clearing or
    replaying anything manually.
 

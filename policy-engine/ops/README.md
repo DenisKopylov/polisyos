@@ -2,9 +2,7 @@
 
 ## Purpose
 
-`ops/` описывает эксплуатационный периметр PolicyOS: identity и policy
-enforcement, observability, tenant/RLS migrations и infrastructure artifacts
-для runtime deployment и recovery.
+`ops/` describes the PolicyOS operational perimeter: identity and policy enforcement, observability, tenant/RLS migrations, and infrastructure artifacts for runtime deployment and recovery.
 
 ## Where to Start
 
@@ -14,37 +12,37 @@ enforcement, observability, tenant/RLS migrations и infrastructure artifacts
 - Component operability bundles: `ops/components/README.md`.
 - SQL tenant isolation chain: `ops/migrations/README.md`.
 - Confidential node-pool module: `ops/cloud/terraform/README.md`.
-- Локальная observability sandbox: `ops/docker/observability.compose.yml`.
+- Local observability sandbox: `ops/docker/observability.compose.yml`.
 
 ## Public Entrypoints
 
-| Surface                                   | Purpose                                                             |
-| ----------------------------------------- | ------------------------------------------------------------------- |
-| `cloud/helm/`                             | Chart-ы `polisyos-cell`, `spire`, `keycloak` для platform baseline. |
-| `policy/policies/*.rego`                  | Runtime authz и deploy gate decisions.                              |
-| `observability/prometheus` + `observability/grafana` | Scrape config, alerts, SLO rules и dashboards.            |
-| `migrations/*.sql`                        | Forward/rollback SQL chain для tenant/RLS hardening.                |
-| `cloud/terraform/modules/confidential_nodepool` | AKS confidential workload scheduling baseline.                |
-| `cloud/helm/install-linkerd.sh`           | Вспомогательный install helper для strict mTLS path.                |
+| Surface                                              | Purpose                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------ |
+| `cloud/helm/`                                        | Baseline Helm charts for `polisyos-cell`, `spire`, and `keycloak`. |
+| `policy/policies/*.rego`                             | Runtime authorization and deployment-gate decisions.               |
+| `observability/prometheus` + `observability/grafana` | Scrape configuration, alerts, SLO rules, and dashboards.           |
+| `migrations/*.sql`                                   | Forward/rollback SQL chain for tenant/RLS hardening.               |
+| `cloud/terraform/modules/confidential_nodepool`      | AKS confidential workload scheduling baseline.                     |
+| `cloud/helm/install-linkerd.sh`                      | Helper for installing the strict mTLS path.                        |
 
 ## Top-Level Taxonomy
 
 `ops/**` is the declarative/control-plane side of operations. Executable
 operational runners live in `tools/ops_runners/**`.
 
-| Folder | Owner | Artifact type | Contract |
-| --- | --- | --- | --- |
-| `ci/` | `team-devx` | `ci-template-control-plane` | Inactive CI and GitHub template sources. |
-| `cloud/` | `team-ops` | `cloud-infrastructure-contracts` | Helm, Terraform, GCP launch, and cloud deployment assets. |
-| `components/` | `team-ops` | `component-operability-bundles` | Component-first SLO, alert, dashboard, runbook, runtime-contract, and retention bundles. |
-| `deploy/` | `team-ops` | `deployment-contracts` | Cross-environment deployment topology and support contracts. |
-| `docker/` | `team-ops` | `local-runtime-infrastructure` | Compose and Docker assets for local/operational infrastructure. |
-| `migrations/` | `team-ops` | `migration-contracts` | SQL and future classed migration source-of-truth contracts. |
-| `observability/` | `team-ops` | `observability-contracts` | SLOs, alerts, dashboards, and telemetry baselines. |
-| `policy/` | `team-security` | `policy-as-code` | Runtime authorization and deploy gate Rego policies. |
-| `release/` | `team-ops` | `release-policy-contracts` | Release fragment, commit, topology, and promotion gate baselines. |
-| `runtime/` | `team-runtime` | `runtime-operations-contracts` | Runtime deployment-facing compatibility and recovery contracts. |
-| `security/` | `team-security` | `security-baseline-contracts` | Secret, vulnerability, and SBOM baseline policy. |
+| Folder           | Owner           | Artifact type                    | Contract                                                                                 |
+| ---------------- | --------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `ci/`            | `team-devx`     | `ci-template-control-plane`      | Inactive CI and GitHub template sources.                                                 |
+| `cloud/`         | `team-ops`      | `cloud-infrastructure-contracts` | Helm, Terraform, GCP launch, and cloud deployment assets.                                |
+| `components/`    | `team-ops`      | `component-operability-bundles`  | Component-first SLO, alert, dashboard, runbook, runtime-contract, and retention bundles. |
+| `deploy/`        | `team-ops`      | `deployment-contracts`           | Cross-environment deployment topology and support contracts.                             |
+| `docker/`        | `team-ops`      | `local-runtime-infrastructure`   | Compose and Docker assets for local/operational infrastructure.                          |
+| `migrations/`    | `team-ops`      | `migration-contracts`            | SQL and future classed migration source-of-truth contracts.                              |
+| `observability/` | `team-ops`      | `observability-contracts`        | SLOs, alerts, dashboards, and telemetry baselines.                                       |
+| `policy/`        | `team-security` | `policy-as-code`                 | Runtime authorization and deploy gate Rego policies.                                     |
+| `release/`       | `team-ops`      | `release-policy-contracts`       | Release fragment, commit, topology, and promotion gate baselines.                        |
+| `runtime/`       | `team-runtime`  | `runtime-operations-contracts`   | Runtime deployment-facing compatibility and recovery contracts.                          |
+| `security/`      | `team-security` | `security-baseline-contracts`    | Secret, vulnerability, and SBOM baseline policy.                                         |
 
 ## Operability Organization
 
@@ -70,33 +68,30 @@ coverage mirrors remain in `architecture/component_observability.toml` and
 
 - **Depends on:** runtime metrics under `src/polisyos/core/observability/*`,
   security/authz code under `src/polisyos/core/security/*`,
-  `src/polisyos/runtime/http/authz_middleware.py`, deployment tooling и target
-  cluster/database environment.
+  `src/polisyos/runtime/http/authz_middleware.py`, deployment tooling, and the target cluster/database environment.
 
 - **Depended on by:** platform/ops engineers, release and compliance workflows,
-  runtime deployment/recovery runbooks, observability rehearsals и tenant
-  isolation reviews.
+  runtime deployment/recovery runbooks, observability rehearsals, and tenant isolation reviews.
 
 ## Common Commands
 
-Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
-`conceptual`.
+The commands below were smoke-tested on `2026-04-17` unless explicitly marked as `conceptual`.
 
-| Command                                                                 | Purpose                                                                 | Status                                      |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------- |
-| `docker compose -f ops/docker/observability.compose.yml config`             | Проверить, что локальный observability compose file парсится корректно. | `smoke-tested`                              |
-| `docker compose -f ops/docker/observability.compose.yml up -d`              | Поднять локальный Prometheus/Grafana sandbox.                           | `conceptual` (поднимает сервисы)            |
-| `opa test ops/policy/policies -v`                                       | Прогнать policy unit tests для authz/deploy gate.                       | `conceptual` (требует установленный `opa`)  |
-| `helm template cell-a ops/cloud/helm/polisyos-cell --set cell.id=cell-00112233` | Проверить render tenant/cell baseline chart.                    | `conceptual` (требует установленный `helm`) |
+| Command                                                                         | Purpose                                                               | Status                                         |
+| ------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------- |
+| `docker compose -f ops/docker/observability.compose.yml config`                 | Verify that the local observability Compose file parses successfully. | `smoke-tested`                                 |
+| `docker compose -f ops/docker/observability.compose.yml up -d`                  | Start the local Prometheus/Grafana sandbox.                           | `conceptual` (starts services)                 |
+| `opa test ops/policy/policies -v`                                               | Run policy unit tests for the authorization/deployment gate.          | `conceptual` (requires `opa` to be installed)  |
+| `helm template cell-a ops/cloud/helm/polisyos-cell --set cell.id=cell-00112233` | Render the tenant/cell baseline chart.                                | `conceptual` (requires `helm` to be installed) |
 
 ## Test And Verification
 
-| Command                                                     | What it verifies                                     | Status         |
-| ----------------------------------------------------------- | ---------------------------------------------------- | -------------- |
-| `docker compose -f ops/docker/observability.compose.yml config` | Compose syntax для локального observability sandbox. | `smoke-tested` |
-| `opa test ops/policy/policies -v`                            | Runtime authz и deploy gate Rego behavior.           | `conceptual`   |
-| `helm template spire ops/cloud/helm/spire`                   | Chart render для identity plane baseline.            | `conceptual`   |
-| `helm template keycloak ops/cloud/helm/keycloak`             | Chart render для OIDC baseline.                      | `conceptual`   |
+| Command                                                         | What it verifies                                         | Status         |
+| --------------------------------------------------------------- | -------------------------------------------------------- | -------------- |
+| `docker compose -f ops/docker/observability.compose.yml config` | Compose syntax for the local observability sandbox.      | `smoke-tested` |
+| `opa test ops/policy/policies -v`                               | Runtime authorization and deployment-gate Rego behavior. | `conceptual`   |
+| `helm template spire ops/cloud/helm/spire`                      | Chart rendering for the identity-plane baseline.         | `conceptual`   |
+| `helm template keycloak ops/cloud/helm/keycloak`                | Chart rendering for the OIDC baseline.                   | `conceptual`   |
 
 ## Reference Docs
 
@@ -118,13 +113,10 @@ coverage mirrors remain in `architecture/component_observability.toml` and
 
 ## Current State
 
-- `ops/policy/policies/*.rego` и `ops/cloud/helm/polisyos-cell/policies/*.rego` должны
-  оставаться синхронными: chart пакует копию runtime/deploy policies.
+- `ops/policy/policies/*.rego` and `ops/cloud/helm/polisyos-cell/policies/*.rego` must remain synchronized because the chart packages a copy of the runtime/deployment policies.
 
-- `migrations/db/003_rls_disable_rollback.sql` — только emergency rollback
-  после `003_rls_enable.sql`, не часть forward chain.
+- `migrations/db/003_rls_disable_rollback.sql` is for emergency rollback only after `003_rls_enable.sql`; it is not part of the forward chain.
 
-- `ops/docker/observability.compose.yml` полезен для локального smoke-check, но не
-  покрывает весь production-like deployment path.
+- `ops/docker/observability.compose.yml` is useful for a local smoke check, but it does not cover the full production-like deployment path.
 
 - Last updated: 2026-04-17

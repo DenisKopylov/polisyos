@@ -1,5 +1,10 @@
 # Static ADMG inference profile
 
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/admg_ops.py` and `src/polisyos/ir/analytics/causal_graph.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test sources inspected at this pin; tests were not run for this docs-only review.
+
 Static graph separation, graph surgery and symbolic causal rewrites accept
 resolved, contemporaneous directed and bidirected relations. A directed arrow
 may be stored as either `TAIL, ARROW` or the reverse `ARROW, TAIL`; both represent
@@ -7,11 +12,19 @@ the same parent-to-child relation. `ARROW, ARROW` represents a bidirected relati
 
 An edge with two tails, any circle endpoint, or a positive compact lag is outside
 this profile. The shared adjacency admission raises `ValueError` with the stable
-prefix `Unsupported static ADMG profile: ` and identifies the offending edge and
-its endpoints or lag. It checks the original graph before surgery, projection,
+literal prefix `Unsupported static ADMG profile:` followed by a space, and
+identifies the offending edge and its endpoints or lag. It checks the original
+graph before surgery, projection,
 counterfactual or selection graph construction, PAG identification policy, AST
 rewriting and no-op requests. Removing the offending relation during a later
 transformation cannot make the original input admitted.
+
+Admission also rebuilds the canonical graph from its current stored fields
+before deriving or consulting content caches. Scalar ID admits a DAG or an
+acyclic ADMG; PAG and CPDAG completion semantics are not selected by orientation
+or a policy label. M-graph and cyclic queries retain their separate owners.
+Malformed graph fields, noncanonical runtime graph types, and unsupported
+selection-diagram targets refuse as typed `ValueError` subtypes.
 
 The endpoint-inspection and orientation utilities retain their structural use.
 Reading undirected edges, testing adjacency, inspecting resolved directed paths,
@@ -37,7 +50,7 @@ own contract; this change does not introduce an IR schema or public facade.
 
 ## Evidence and limits
 
-`test_admg_profile_consumers.py` exercises the actual graph, Rule 1–3, sigma,
+`tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py` exercises the actual graph, Rule 1–3, sigma,
 ID/IDC, ID*/IDC*, transport, CTF and AMN entry points, including no-op requests.
 The known fork, collider and conditioned-descendant examples distinguish open
 and blocked paths at the Rule consumers. Ordinary IDC invokes two ID calls and
@@ -45,9 +58,12 @@ forms their ratio; it is not described as a direct separator caller. IDC* uses
 the actual separator, whose finite returned queries are compared with an
 independent latent-DAG ancestral moralization oracle.
 
-The independent complete three-node ADMG oracle remains a separate finite
+`tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py` supplies an independent finite
+latent-DAG comparison. The independent complete three-node ADMG oracle remains a separate finite
 synthetic property check. Real two-node bow controls retain non-identification
 through SID and conditional-ID. Disjoint AMN queries compare the actual derived
 graph against independent moralization. These checks do not establish universal
 ID, PAG-completion, counterfactual or transport completeness, a real-data effect,
 or scientific authority for production admission.
+
+The graph-level tests do not establish an end-to-end grounded policy design.

@@ -1,5 +1,8 @@
 # Confidence issues survive degraded simulation loading
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/governance/passes/confidence_pass.py`, `tests/unit/scientist/governance/test_confidence_issue_accumulation.py`, and `tests/unit/scientist/governance/test_confidence_pass.py`
+
 `ConfidencePass` retains every issue established before loading a simulation
 artifact. When a shaped `simulation_result_ref` points to missing CAS bytes,
 malformed JSON, or a payload rejected by `SimulationResult`, the pass appends

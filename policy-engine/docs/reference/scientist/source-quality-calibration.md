@@ -3,7 +3,9 @@
 Related references: [Deep research evidence](deep-research-evidence.md), [Continuous governance](continuous-governance.md), [Claim Ledger](claim-ledger.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/evidence/source_quality.py` and `tests/unit/scientist/evidence/test_source_quality.py`
+Source of truth: `src/polisyos/scientist/evidence/source_quality.py`, `src/polisyos/runtime/http/services/control/nl_pipeline.py`, and `tests/unit/scientist/evidence/test_source_quality.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The runtime use below is the HTTP NL path, not proof of integration in every Scientist workflow.
 
 Source quality calibration turns raw `SourceMetadata` into a decision-facing
 `SourceQualityAssessment`. The assessment is deterministic and auditable, but
@@ -72,8 +74,9 @@ the causal TTL calibration.
 ## Runtime Report
 
 `build_source_quality_report(...)` produces the deterministic
-`policyos.scientist.source_quality_report.v1` artifact used by serious
-runtime NL runs. The report records:
+`policyos.scientist.source_quality_report.v1` artifact consumed by the serious
+HTTP runtime NL path in `src/polisyos/runtime/http/services/control/nl_pipeline.py`.
+The report records:
 
 - `score_calibration = advisory`
 - one `SourceQualityAssessment` per normalized source

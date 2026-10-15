@@ -38,7 +38,7 @@
     "docs/research/policy-operations/ops-r5-monitoring-diagnosis-and-adaptation.md": "9d675431ac3f556f5511be2990a5a7d2fdef2ae3a6df88c2033be33acb7c8918",
     "src/polisyos/fabric/evidence/ceiling_relations.py": "2ae399ddc29f4145852590c047ec305a612e9ac02d21830d19dadabcd20b11dd",
     "src/polisyos/fabric/evidence/ceiling_vocabulary.json": "1cee5fd826dbc917fbf604b67cd55f3e7ad4579da216ebe81b31d52538a0324b",
-    "src/polisyos/fabric/evidence/non_data_acquisition.py": "b094a50c2290f821828182b2224ec0edcf818f08d7bc2a6a386618a7800ae7b8"
+    "src/polisyos/fabric/evidence/non_data_acquisition.py": "92c64d1f4e29b2f8ccf58de2362f0fdd1c943e39258d80cd699bc75411fd1910"
   },
   "vocabularies": [
     {

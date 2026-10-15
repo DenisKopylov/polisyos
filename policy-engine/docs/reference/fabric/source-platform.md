@@ -6,6 +6,9 @@ Source of truth: `schemas/fabric/source_contract.schema.json`, `schemas/fabric/s
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md).
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 Phase 5 makes production source admission contract-first. A connector is
 production-visible only when SourceContract v2, profile compatibility,

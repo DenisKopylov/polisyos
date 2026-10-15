@@ -1,7 +1,13 @@
 # Foundry Phase 0 Acceptance
 
-Owner: `@foundry-owners`
-Source of truth: `tools/quality/validation/foundry_phase0_manifest.json`, `tools/quality/validation/validate_foundry_phase0_closure.py`, and `tools/quality/validation/run_foundry_phase0_validation.sh`
+Owner: @foundry-owners
+Source of truth: `tools/quality/validation/foundry_phase0_manifest.json`, `tools/quality/validation/validate_foundry_phase0_closure.py`, and `tools/quality/validation/run_foundry_phase0_validation.sh`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: acceptance contract and validator sources inspected; the wrapper and tests were not run for this docs-only review.
+
+This page defines closure criteria; it is not a current closure receipt. A
+complete status is established only by the validator consuming the required
+benchmark report and manifest at a specific run.
 
 Foundry Phase 0 is considered complete only when the typed uncertainty surfaces,
 runtime substrate, and benchmark evidence are all machine-checkable in the

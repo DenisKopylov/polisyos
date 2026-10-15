@@ -6,32 +6,38 @@ Related explanation: [Trinity](../../explanation/trinity.md),
 
 ## Goal
 
-Понять, как читать policy question, evidence, governance signals и decision
-artifacts без глубокого погружения в implementation details.
+Understand how to read a policy question, evidence, governance signals, and
+decision artifacts without diving deeply into implementation details.
 
 ## Inputs
 
-- минимальный backend-only bootstrap path;
-- policy question или completed run, который вы хотите разобрать;
-- готовность идти от docs/API/artifacts, а не сразу от исходников.
+- the minimal backend-only bootstrap path;
+- a policy question or completed run to examine;
+- readiness to start with documentation, APIs, and artifacts rather than source
+  code.
 
 ## Output
 
-После этого onboarding вы должны уметь:
+After this onboarding, you should be able to:
 
-- читать `ProblemFrame`, `PolicySpec` и execution context как разные слои;
-- пройти первый policy-analysis walkthrough;
-- объяснить, какие Lex/Scientist surfaces отвечают за evidence и governance.
+- read `ProblemFrame`, `PolicySpec`, and execution context as distinct layers;
+- follow an initial policy-analysis walkthrough;
+- explain which Lex/Scientist surfaces handle evidence and governance.
 
 ## Canonical Commands
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace bootstrap --profile runtime --skip-frontend --skip-playwright
+uv run polisyos-tools workspace bootstrap --profile runtime --skip-frontend --skip-doctor
 uv run polisyos --version
 ```
 
-Если нужен живой runtime/control-plane read path:
+This path does not install the Node workspace and skips the workstation `doctor`,
+but bootstrap still installs the pre-commit hook unless you add `--skip-hooks`;
+the profile selects Python extras only. See [Installation](../install.md) for
+the full baseline.
+
+If you need a live runtime/control-plane read path:
 
 ```bash
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
@@ -41,37 +47,39 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 | Need                                        | Start here                                                                                                                        |
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Самый первый walkthrough                    | [Getting Started](../../tutorials/getting-started.md)                                                                             |
-| Первый аналитический пример                 | [First Policy Analysis](../../tutorials/first-policy-analysis.md)                                                                 |
-| Обзор Lex/legal surface                     | [Lex Reference](../../reference/lex/index.md)                                                                                     |
-| Обзор workflow/governance surface           | [Scientist Reference](../../reference/scientist/index.md)                                                                         |
+| First walkthrough                           | [Getting Started](../../tutorials/getting-started.md)                                                                             |
+| First analytical example                    | [First Policy Analysis](../../tutorials/first-policy-analysis.md)                                                                 |
+| Lex/legal surface overview                  | [Lex Reference](../../reference/lex/index.md)                                                                                     |
+| Workflow/governance surface overview        | [Scientist Reference](../../reference/scientist/index.md)                                                                         |
 | Read-only inspection of runs/jobs/artifacts | [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md), [Runs API](../../reference/api/runs.md) |
 
 ## First Productive Slice
 
-Возьмите один completed run и ответьте:
+If a completed run is available, examine it and answer the following questions.
+Tutorial examples are not completed runs; if no real run is available, record
+the missing artifacts and stop at reference-level reading:
 
-- какой policy question моделировался;
-- какое evidence/data snapshot вошло в run;
-- где отработали governance or decision-validity gates;
-- actionable ли итоговый artifact или нужен human follow-up.
+- which policy question was modeled;
+- which evidence/data snapshot entered the run;
+- where governance or decision-validity gates ran;
+- whether the resulting artifact is actionable or needs human follow-up.
 
 ## Rollback / Handoff
 
-- если для ответа уже нужен кодовый patch, передайте change техническому owner;
-- если вопрос упирается в data-source quality или lineage, подключайте Fabric
-  or backend lane;
+- if answering requires a code patch, hand the change to the technical owner;
+- if the question depends on data-source quality or lineage, involve the Fabric
+  or backend owner;
 
-- не углубляйтесь в packaging/frontend internals, если они не меняют policy
+- do not dig into packaging or frontend internals unless they change the policy
   interpretation.
 
 ## Troubleshooting
 
-- `ProblemFrame` не хранит всю domain semantics целиком: часть смысла живет в
-  `PolicySpec`, Fabric data query и downstream causal contracts;
+- `ProblemFrame` does not contain all domain semantics: some meaning lives in
+  `PolicySpec`, the Fabric data query, and downstream causal contracts;
 
-- если artifact surface недостаточен, сначала проверьте `timeline`, `lineage`
-  и `decision-validity`, а не открывайте source tree вслепую;
+- if the artifact surface is insufficient, first inspect `timeline`, `lineage`,
+  and `decision-validity` instead of opening the source tree blindly;
 
-- для первого walkthrough используйте tutorial pages, а не длинные historical
-  plans.
+- for an initial walkthrough, use the tutorial pages rather than lengthy
+  historical plans.

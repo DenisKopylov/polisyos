@@ -1,14 +1,20 @@
 # Production Data Quality Reports
 
-Freshness: 2026-05-13.
+Freshness: 2026-10-14
 Owner: `team-data-forge`, `team-runtime`
-Source of truth: `src/polisyos/runtime/quality/production_data_quality.py`, `tools/ops_runners/runtime/canary_evidence.py`, and Phase 5.1 of `docs/plans/active/POLICYOS_BEST_IN_CLASS_PRODUCTION_QUALITY_REMEDIATION_PLAN.md`
+Source of truth: `src/polisyos/runtime/quality/data_quality.py`, `src/polisyos/runtime/http/services/control/production_data.py`, `src/polisyos/runtime/http/services/control/nl_pipeline.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/test_data_quality.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and canary/runtime paths were not run.
 
 Serious data-backed runs emit a runtime-owned
 `production_data_quality_report_ref`. The report is built from the materialized
 production data evidence used by the run, not from a fixture-only test payload.
 It does not change Foundry method behavior in Phase 5.1; it adds diagnostics and
 approval gates around the data backing the recommendation.
+
+The report checks manifest-backed materialization inputs and diagnostics. A
+report, checksum, or passing scorecard is not by itself independent proof of
+source provenance, causal identification, or publication authority.
 
 ## Runtime Surfaces
 

@@ -2,136 +2,216 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-> Data acquisition, connector governance, lineage, and world-materialization
-> layer for PolicyOS.
-
-Freshness: 2026-04-27.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/**`, `tests/unit/fabric/**`, `schemas/snapshots/{fabric,connectors}/**`, `tools/quality/validation/fabric_schema_governance.py`, `tools/quality/validation/fabric_best_in_class_manifest.json`
+Source pin: `78a7b7b9cdab2b16e9d4ecd56c15bece38728f3b`
+Source of truth: `src/polisyos/fabric/**`, `src/polisyos/data_forge/read_api/**`,
+  `src/polisyos/data_forge/README.md`, `src/polisyos/data_forge/kernel/artifacts.py`,
+  `src/polisyos/runtime/http/services/control/run_lifecycle.py`,
+  `src/polisyos/runtime/quality/data_forge_binding.py`,
+  `architecture/imports/policy.toml`, `architecture/packages/boundaries.toml`,
+  `architecture/public_surface/contract.toml`,
+  `architecture/public_surface/inventory.json`, `docs/reference/public-surface.md`,
+  `tests/unit/fabric/connectors/test_integration.py`,
+  `tests/unit/fabric/connectors/test_protocol_compliance.py`,
+  `tests/unit/fabric/connectors/test_source_contract_v2.py`,
+  `tests/unit/fabric/data_plane/test_orchestrator.py`,
+  `tests/unit/fabric/test_claims_pipeline.py`, `tests/unit/fabric/test_docs_pipeline.py`,
+  `tests/unit/fabric/test_lineage.py`, `tests/unit/fabric/test_retrieval_fetch_custody.py`,
+  `tests/unit/runtime/http/test_e2e_ingestion.py`,
+  `tests/unit/runtime/quality/test_promotion_sequence.py`,
+  `tests/repo_quality/tools/test_fabric_source_contracts.py`
+Evidence level: implementation and test behavior inspected at the source pin.
+Test status: tests were inspected but not run in this documentation pass.
+Test fixtures establish the named paths only; this page makes no claim of live
+provider readiness, universal source completeness, or source truth.
 
-`polisyos.fabric` normalizes external data access behind connector contracts,
-source profiles, document/claim normalization stages, retrieval, data-plane
-orchestration, and world materialization. It powers reproducible ingestion flows
-that persist evidence, provenance, quarantine records, CDC events, and
-conflict-resolution artifacts into CAS before downstream Scientist, Scholar, or
-Lex code consumes them.
+## Fabric and Data Forge
 
-<!-- markdownlint-disable MD060 -->
+Fabric owns runtime connector access and retrieval, evidence/lineage artifacts,
+document and claim processing, data-plane modes, and world-store helpers; Data
+Forge owns offline asset builds and publication, with selected runtime reads
+through `polisyos.data_forge.read_api`. This map follows the implementation and
+selected tests listed above; tests were inspected, not run, and fixture evidence
+is bounded to the named paths. Fixtures do not establish live provider
+readiness, universal source completeness, or source truth. Start with the
+artifact map below for observed producers, persisted outputs, consumers, and
+test evidence; use [Current data paths](../data-forge/current-data-paths.md) for
+the Data Forge asset lifecycle and the [Data Fabric explanation](../../explanation/data-fabric.md#fabric-and-data-forge)
+for the conceptual boundary.
 
-## Current Surface
+## Artifact and workflow map
 
-| Area                      | Current code status                                                                                                        | Reference                                          |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| Connector classes         | 20 concrete connector classes exported from `polisyos.fabric.connectors.sources`                                           | [connectors.md](connectors.md)                     |
-| Entry-point registrations | 11 connector entry points declared in `pyproject.toml` for the production HTTP/open-data families                          | [connectors.md](connectors.md#registration-status) |
-| Built-in profiles         | 38 built-in `SourceProfile` instances across 19 connector families                                                         | [profiles.md](profiles.md)                         |
-| Data plane                | Orchestrator, batch/record/replay/streaming modes, cursor state, quarantine, CDC events, semantic diff, and benchmarks     | [data-plane.md](data-plane.md)                     |
-| Schema governance         | `DataSchema`, `SchemaEvolution`, contract governance metadata, and committed connector-contract snapshots with CI evidence | [schema-compatibility.md](schema-compatibility.md) |
-| Lineage                   | `FabricLineageTracker`, trace APIs, impact analysis, OpenLineage export, and visualization graph export                    | [lineage.md](lineage.md)                           |
-| Quality                   | Metric-level quality indicators, dataset-level validation, drift/anomaly profiling, and `DataFitnessReport` summaries      | [quality.md](quality.md)                           |
-| Observability/governance  | Fabric SLI/SLO contract, error-budget gate, connector governance metadata, access audit, and runbook coverage              | [observability-governance.md](observability-governance.md) |
-| Source platform           | SourceContract v2, conformance harness v2, source scorecards, profile matrix, processing guarantees, and source sunset policy | [source-platform.md](source-platform.md)           |
-| Time travel               | Bitemporal world queries, retained DuckDB snapshots, logical branches, merge policies, and retention/GC                    | [time-travel.md](time-travel.md)                   |
-| Processing guarantees     | Batch/stream/CDC/replay guarantee labels, dedupe windows, backpressure, distributed trust gates, and scale benchmarks      | [processing-guarantees.md](processing-guarantees.md) |
-| Discovery intelligence    | SourceContract-backed semantic discovery, stale invalidation, entity overrides, and graph reasoning helpers               | [discovery-intelligence.md](discovery-intelligence.md) |
-| Product/API integration   | Runtime Fabric endpoints, frontend fixtures, downstream trust consumers, and compatibility bridge governance              | [product-api-integration.md](product-api-integration.md) |
-| Best-in-class inventory   | Phase 0 report-only manifest covering source, evidence, semantics, world, and trust planes                                | [best-in-class-inventory.md](best-in-class-inventory.md) |
+| Path | Inputs and producer | Persisted output and consumer | Evidence and boundary |
+| --- | --- | --- | --- |
+| Connector ingestion | `ConnectorManifestSpec` and `DatasetFetchSpec` drive a registered connector. It receives a `FetchRequest` and returns a `FetchResult`. | With CAS configured, `run_connectors_ingestion` stores fetched payload refs, a `ProvenanceCoreGraph`, and an `EvidenceBundleRef`. `run_orchestrated_ingestion` may wrap the bundle in a CAS `DataSnapshotRef`. | `tests/unit/fabric/connectors/test_integration.py` exercises connector ingestion with test connectors and CAS. `tests/unit/fabric/data_plane/test_orchestrator.py` stubs the ingestion producer and checks snapshot construction from a persisted evidence bundle. The snapshot builder selects the first bundle source as `data_ref`; it does not merge all sources into a dataset or emit a world fact. |
+| Document and claim processing | `ingest_doc_bytes` accepts raw bytes plus `DocSourceSpec`; later stages normalize, structure, and chunk through explicit artifact refs. Claim extraction consumes an explicit normalized/chunked `DocMeta` artifact. | Document and claim stages persist artifacts, emit world facts/events, append fact-log segments, and can be materialized into world tables. | `tests/unit/fabric/test_docs_pipeline.py` covers bytes through document stages and DuckDB materialization. `tests/unit/fabric/test_claims_pipeline.py` covers claim persistence and materialization. These are specific pipelines, not a generic sink for every connector result. |
+| Catalog-bound fetch custody | Fabric retrieval takes a `FetchPlan` bound against the Data Forge catalog read API and executes its selected connector request. | CAS stores the complete payload, catalog binding, and `FabricFetchReceipt`. `src/polisyos/runtime/quality/data_forge_binding.py` resolves the receipt and current fetch before emitting a measurement-root payload. | `tests/unit/fabric/test_retrieval_fetch_custody.py` covers receipt and payload custody. `tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9` covers the bounded fixture-backed measurement-root consumer; `tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission` covers the admission recheck. The receipt authority is catalog selection and returned-result custody. |
+| Prepared Data Forge assets | Offline domain builders publish typed assets through Data Forge's build and publication surfaces. | `ArtifactRef` carries the content hash, producer/version, config hash, owner, license, regeneration command, PII and retention classifications, freshness SLA, and schema identity. Runtime readers enter through `polisyos.data_forge.read_api`. | See `src/polisyos/data_forge/README.md`, `src/polisyos/data_forge/kernel/artifacts.py`, and `src/polisyos/data_forge/read_api/`. This is a separate asset lifecycle from a Fabric connector fetch. |
 
-## Page Map
+## Boundary and custody details
 
-| Page                                               | Scope                                                                                     | Primary modules                                                                           | Validation anchor                                                                                   |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [connectors.md](connectors.md)                     | Connector protocol, runtime classes, discovery/registration, connector families           | `fabric.connectors.base`, `fabric.connectors.capabilities`, `fabric.connectors.sources.*` | `tests/unit/fabric/connectors/test_protocol_compliance.py`, `tests/unit/fabric/connectors/test_registry.py`   |
-| [profiles.md](profiles.md)                         | `SourceProfile`, `SourceExecutionPolicy`, registry, planner/runtime normalization         | `fabric.connectors.profiles.*`                                                            | `tests/unit/fabric/connectors/profiles/test_source_profiles.py`                                          |
-| [data-plane.md](data-plane.md)                     | Ingestion orchestration, modes, cursor store, quarantine, streaming, semantic diff        | `fabric.data_plane.*`, `fabric.world.query`                                               | `tests/unit/fabric/data_plane/test_orchestrator.py`, `tests/unit/fabric/data_plane/test_streaming_runtime.py` |
-| [schema-compatibility.md](schema-compatibility.md) | Connector contracts, schema diffing, migration plans, governance evidence, snapshot gates | `fabric.connectors.contracts.*`, `tools/quality/validation/fabric_schema_governance.py`   | `tests/unit/fabric/connectors/test_schema_system.py`, `tests/repo_quality/tools/test_fabric_schema_governance.py`     |
-| [lineage.md](lineage.md)                           | Source-to-query lineage graph, trace helpers, impact analysis, export formats             | `fabric.provenance.lineage`, `fabric._adapters.observability`                            | `tests/unit/fabric/test_lineage.py`, `tests/unit/fabric/test_fabric_observability.py`                         |
-| [quality.md](quality.md)                           | Quality indicators, validator stack, drift/anomaly stats, evidence/fitness reports        | `fabric.quality.quality`, `fabric.quality.fitness_report`, `fabric.connectors.quality.*`  | `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`         |
-| [observability-governance.md](observability-governance.md) | SLI/SLO policy, error-budget gate, connector governance metadata, quality evidence propagation, access/audit/retention | `fabric._adapters.observability`, `fabric.connectors.governance_metadata`, `fabric.security.*` | `tests/unit/fabric/test_observability_governance_quality_phase4.py`                                      |
-| [source-platform.md](source-platform.md)           | SourceContract v2, SDK scaffold, conformance harness v2, scorecards, profile matrix       | `fabric.connectors.contracts.source_contract`, `fabric.connectors.sdk`, `fabric.connectors.scorecard`, `tools/quality/validation/fabric_source_contracts.py` | `tests/unit/fabric/connectors/test_source_contract_v2.py`, `tests/repo_quality/tools/test_fabric_source_contracts.py` |
-| [time-travel.md](time-travel.md)                   | Snapshot retention, branch merge, adapter limits, bitemporal query semantics              | `fabric.world.store.snapshots`, `fabric.world.query`                                      | `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`              |
-| [processing-guarantees.md](processing-guarantees.md) | Processing guarantee labels, idempotency/dedupe policy, CDC, backpressure, distributed scale, query benchmarks | `fabric.processing_guarantees`, `fabric.data_plane.streaming`, `fabric.data_plane.orchestrator`, `fabric.data_plane.benchmarks` | `tests/unit/fabric/data_plane/test_processing_guarantees.py`, `tests/unit/fabric/data_plane/test_benchmarks.py`, `tests/repo_quality/tools/test_fabric_processing_guarantees.py` |
-| [discovery-intelligence.md](discovery-intelligence.md) | Semantic dataset catalog, stale vectors, NL-to-dataset plans, entity overrides, graph reasoning | `fabric.catalog.discovery`, `fabric.entity_resolution.*`, `fabric.world.materialize.kuzu` | `tests/unit/fabric/test_discovery_intelligence.py`, `tests/unit/fabric/test_entity_resolution.py`, `tests/repo_quality/tools/test_fabric_discovery_intelligence.py` |
-| [product-api-integration.md](product-api-integration.md) | Runtime Fabric endpoints, frontend fixtures, downstream trust consumers, compatibility bridges | `runtime.http.routes.fabric`, `runtime.http.services.fabric`, `fabric.product_integration`, `fabric._internal.compatibility` | `tests/unit/runtime/http/test_fabric_integration_routes.py`, `tests/repo_quality/tools/test_fabric_product_integration.py` |
-| [best-in-class-inventory.md](best-in-class-inventory.md) | Phase 0 baseline inventory, coverage report, gap table, and ratchet mode                  | `tools/quality/validation/fabric_best_in_class_inventory.py`, `tools/quality/validation/fabric_best_in_class_manifest.json` | `tests/repo_quality/tools/test_fabric_best_in_class_inventory.py`                                                |
+The stable Fabric package facade is `src/polisyos/fabric/__init__.py`; subsystem
+responsibilities are documented in the package READMEs and pages below. The
+intended Fabric dependency on Data Forge is the narrow `read_api`, not
+`data_forge.kernel` or `data_forge.domains`. `architecture/packages/boundaries.toml`
+declares that rule, while `architecture/imports/policy.toml` allows the broader
+`data_forge` root. One observed exception is
+`src/polisyos/fabric/retrieval/service.py`, which imports
+`polisyos.data_forge.domains.catalog.batch.config._profile_input_coverage_currentness`
+inside `_catalog_profile_plan_admission`; the declared rule is not the complete
+observed import picture.
 
-## D1-L2 Source-Of-Truth Map
+The `read_api` name does not guarantee that every export is read-only:
+`src/polisyos/data_forge/read_api/legal.py` exports `run_batch_pipeline`, and
+`src/polisyos/data_forge/read_api/academic.py` exports `run_edge_synthesize`
+from domain batch modules. Treat the package boundary as the intended rule and
+the imports above as exceptions requiring consolidation; this page does not
+claim a fully enforced narrow matrix. See the
+[Data Fabric explanation](../../explanation/data-fabric.md#fabric-and-data-forge)
+for the conceptual build/runtime distinction.
 
-The canonical source plan is `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`. This
-reference page maps that plan to the documentation surface that should stay in
-sync with code, tests, and generated artifacts.
+The world-store's retained `WorldSnapshot`/branch context is created from
+materialized world state for world-query time travel. It is distinct from the
+connector pipeline's CAS `DataSnapshot`, which points at an evidence bundle and
+one primary source artifact. Neither snapshot type creates the missing generic
+connector-result-to-world-fact bridge.
 
-| Source phase                                                                                               | Current source-of-truth surface                                                                                                                                                                                                                                                                                  | Docs surface                                                                                                                                                                                                                                           |
-| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Phase 0: query/filter injection, bounded input, serialization/provenance, UTC temporal policy              | `polisyos.fabric.quality.safety`, HTTP/source connectors, `quality.py`, `fitness_report.py`, `provenance/export_provo.py`, `temporal.py`; tests under `tests/unit/fabric/connectors/sources/`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/test_provenance.py`                                                   | [connectors.md](connectors.md), [add-data-source](../../how-to/add-data-source.md), package READMEs                                                                                                                                                    |
-| Phase 1: deterministic lifecycle, atomic persistence, contention resilience, mutable state, bounded memory | connector registry/pool/cache/resilience, `data_plane/cursor_store.py`, `world/store/segments.py`, retrieval bounded queues; tests under `tests/unit/fabric/connectors/test_{cache_system,resilience,registry}.py`, `tests/unit/fabric/data_plane/`                                                                        | [connectors.md](connectors.md), [profiles.md](profiles.md), [cache runbook](../../runbooks/cache-rebuild-storm.md)                                                                                                                                     |
-| Phase 2: schema merge, numeric quality bounds, units, canonical IDs, transform correctness                 | connector contracts, schema evolution, type/unit registries, transform pipeline, quality finite checks; tests under `tests/unit/fabric/connectors/test_{contract_system,schema_system,type_system,transform_pipeline}.py`                                                                                             | [connectors.md](connectors.md#schema-contracts-and-compatibility), [profiles.md](profiles.md), [manage-generated-artifacts](../../how-to/manage-generated-artifacts.md)                                                                                |
-| Phase 3: observability/SLO, lineage, schema compatibility, access control, retention                       | `_adapters/observability.py`, `provenance/lineage.py`, `security/*`, `tools/quality/validation/fabric_schema_governance.py`, `schemas/snapshots/fabric/connector_contract_registry.json`; tests under `tests/unit/fabric/test_{fabric_observability,lineage,access_control}.py`, `tests/repo_quality/tools/test_fabric_schema_governance.py` | [lineage.md](lineage.md), [schema-compatibility.md](schema-compatibility.md), [manage-generated-artifacts](../../how-to/manage-generated-artifacts.md), recovery runbooks                                                                              |
-| Phase 4: quality profiling, materialization, time travel                                                   | connector quality statistics, `data_plane/semantic_diff.py`, `world/materialize/*`, `world/query.py`; tests under `tests/unit/fabric/test_{quality_indicators,world_materialization,world_time_travel,semantic_diff}.py`                                                                                              | [quality.md](quality.md), [time-travel.md](time-travel.md), [data-plane.md](data-plane.md), `src/polisyos/fabric/world/README.md`                                                                                                                      |
-| Phase 5: DLQ/quarantine, connector ecosystem, streaming/CDC, scale-out                                     | `data_plane/quarantine.py`, `data_plane/streaming.py`, file/object/SQL/GraphQL/GeoJSON/stream connector families, benchmarks; tests under `tests/unit/fabric/data_plane/test_{quarantine,streaming_runtime,scale_out,benchmarks}.py`, `tests/unit/fabric/connectors/sources/test_connector_family_expansion.py`            | [connectors.md](connectors.md#connector-catalog), [data-plane.md](data-plane.md#execution-modes), [add-data-source](../../how-to/add-data-source.md), [Fabric quarantine/DLQ runbook](../../runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md) |
-| Phase 6: semantic catalog, natural-language discovery, entity resolution                                   | `catalog/{semantic,search,source_bindings}.py`, `retrieval/*`, `entity_resolution/*`; tests under `tests/unit/fabric/test_{data_catalog,retrieval_service_catalog,entity_resolution}.py`                                                                                                                              | `src/polisyos/fabric/retrieval/README.md`, `src/polisyos/fabric/world/README.md`, future catalog reference                                                                                                                                             |
-| Best-in-class Phase 10: product/API integration closeout                                                   | `runtime/http/routes/fabric.py`, `runtime/http/services/fabric.py`, `fabric/product_integration.py`, `fabric/compatibility.py`, dashboard contract fixtures, and downstream Scientist/Scholar/Lex/Foundry adapters                                                                                              | [product-api-integration.md](product-api-integration.md), [generated-artifacts](../generated-artifacts.md)                                                                                                                                             |
+The runtime control service routes `run_data_ingestion` requests to full,
+incremental, record/replay, or streaming modes and returns artifact references
+when produced (`src/polisyos/runtime/http/services/control/run_lifecycle.py`).
+The control API tests in `tests/unit/runtime/http/test_e2e_ingestion.py` patch
+the ingestion producer; they establish request dispatch, not a live provider to
+persisted result demonstration.
 
-## Documentation Impact
+The SourceContract v2 fixture label also has a bounded meaning. The current
+fixture builder in `tools/quality/validation/fabric_source_contracts.py`
+generates schema-shaped sample rows and a `fabric://` request; these fixtures
+are not captured responses from the named providers. A source-platform
+`production_visible` label and fixture count therefore describe declared
+contract artifacts, not live provider availability or source truth.
 
-| Output cluster                            | Exact files                                                                                                                                                                                                                                                                                                          | Source of truth                                                                                                                                          | Validation                                                                                                                                                                                                                                                                                                                |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Reference set                             | `docs/reference/fabric/index.md`, `docs/reference/fabric/connectors.md`, `docs/reference/fabric/profiles.md`, `docs/reference/fabric/data-plane.md`, `docs/reference/fabric/schema-compatibility.md`, `docs/reference/fabric/lineage.md`, `docs/reference/fabric/quality.md`, `docs/reference/fabric/observability-governance.md`, `docs/reference/fabric/source-platform.md`, `docs/reference/fabric/time-travel.md`, `docs/reference/fabric/processing-guarantees.md`, `docs/reference/fabric/discovery-intelligence.md`, `docs/reference/fabric/product-api-integration.md`, `docs/reference/fabric/best-in-class-inventory.md` | connector registry, built-in profiles, connector contracts, SourceContract v2 snapshots, lineage/quality modules, SLI/SLO and governance metadata modules, data-plane/runtime schema snapshots, world snapshot/query modules, processing guarantee contracts, semantic discovery catalog, product/API integration contracts, best-in-class inventory manifest | `uv run pytest tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_protocol_compliance.py tests/unit/fabric/connectors/test_contract_system.py tests/unit/fabric/connectors/test_schema_system.py tests/unit/fabric/connectors/test_source_contract_v2.py tests/unit/fabric/test_lineage.py tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/test_observability_governance_quality_phase4.py tests/unit/fabric/test_world_time_travel.py tests/unit/fabric/test_discovery_intelligence.py tests/unit/fabric/test_product_integration.py tests/repo_quality/tools/test_fabric_best_in_class_inventory.py tests/repo_quality/tools/test_fabric_source_contracts.py tests/repo_quality/tools/test_fabric_processing_guarantees.py tests/repo_quality/tools/test_fabric_discovery_intelligence.py tests/repo_quality/tools/test_fabric_product_integration.py -q` |
-| Authoring and generated-artifact guidance | `docs/connectors/CONTRIBUTING.md`, `docs/how-to/add-data-source.md`, `docs/how-to/manage-generated-artifacts.md`                                                                                                                                                                                                     | connector scaffolding rules, profile/contracts registry, snapshot governance tooling                                                                     | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json`                                                                                                                                                                                                        |
-| Recovery runbooks                         | `docs/runbooks/cache-rebuild-storm.md`, `docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md`, `docs/runbooks/retained-artifact-recovery.md`, `docs/runbooks/artifact-corruption-recovery.md`                                                                                                             | cache/index lifecycle, quarantine/DLQ replay, streaming checkpoint recovery, CAS-backed artifact retention and restore paths, corruption detection flows | `uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/test_lineage.py -q`                                                                                                                                                                              |
-| Package boundary READMEs                  | `src/polisyos/fabric/README.md`, `src/polisyos/fabric/connectors/README.md`, `src/polisyos/fabric/data_plane/README.md`, `src/polisyos/fabric/retrieval/README.md`, `src/polisyos/fabric/world/README.md`                                                                                                            | package facades, connector families, data-plane modes, retrieval/catalog entry points, world materialization boundary                                    | `uv run pytest tests/unit/fabric -q`                                                                                                                                                                                                                                                                                           |
+Read connector identity at each boundary. A connector class and its
+`connector_id` identify an adapter declaration; a SourceContract has its own
+`contract_id` and names a `connector_id`. The separate
+`validate_source_conformance_v2` path compares a SourceContract's declared
+connector ID with the connector metadata's qualified ID and, when set, checks
+that the connector class ID is represented. `tests/repo_quality/tools/test_fabric_source_contracts.py`
+asserts zero conformance errors for the generated set. The checker and test
+source were inspected, not run, for this page. This is bounded declaration-level
+identity evidence; it does not establish native or stable facade resolution,
+provider readiness, or the family-level mapping measured by the inventory. The
+[best-in-class inventory](best-in-class-inventory.md) therefore remains
+`partial` for `source.entrypoint_coverage.direct_import_families`.
 
-<!-- markdownlint-enable MD060 -->
+## How to read evidence and capability state
 
-## Root API
+These artifacts answer different questions; none is a substitute for the next
+producer or consumer in a workflow.
 
-| Export                                                | Role                                                                 |
-| ----------------------------------------------------- | -------------------------------------------------------------------- |
-| `fabric_get_data`                                     | Compatibility bridge for connector-backed fetches                    |
-| `run_connectors_ingestion`                            | Execute ingestion over a connector manifest                          |
-| `execute_world_query`                                 | Run a governed read-only world query against Fabric materializations |
-| `query_claims` / `query_events` / `query_world_table` | Query convenience helpers for world storage                          |
-| `WorldQueryRequest` / `WorldQueryError`               | Request and error surface for world querying                         |
-| `FabricFetchReceipt`                                  | Typed custody receipt for a catalog-bound fetch and persisted payload |
-| `world`                                               | Lazy-loaded `polisyos.fabric.world` module                           |
+| Evidence layer | What the inspected path establishes | What remains unestablished | Follow the source change in |
+| --- | --- | --- | --- |
+| Connector declaration and contract | Source declares the adapter, `connector_id`, profile and schema/quality metadata; a separate conformance checker compares generated SourceContracts with connector metadata. | Live provider reachability, provider-backed fixture provenance, the inventory's family-level mapping, or source truth. Conformance-test execution for this page is not established. | [Connectors](connectors.md), [source platform](source-platform.md), and [schema compatibility](schema-compatibility.md); inspect `tests/unit/fabric/connectors/test_protocol_compliance.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, and `tests/repo_quality/tools/test_fabric_source_contracts.py`. |
+| Persisted connector result | With CAS configured, connector ingestion stores payload artifacts and a provenance graph, then returns an `EvidenceBundleRef`; the optional `DataSnapshot` points at the bundle's first source artifact. | A merge of every connector result into a world dataset, or a generic downstream consumer of that snapshot. | [Data plane](data-plane.md) and `tests/unit/fabric/connectors/test_integration.py` / `tests/unit/fabric/data_plane/test_orchestrator.py`. |
+| Catalog-bound retrieval | `FabricFetchReceipt` binds a selected catalog target to the returned persisted payload; the bounded measurement-root path resolves it and rechecks against a current fetch. | Historical transport occurrence at the recorded time or scientific truth of the result. | `src/polisyos/fabric/retrieval/custody.py`, `src/polisyos/runtime/quality/data_forge_binding.py`, and `tests/unit/fabric/test_retrieval_fetch_custody.py`. |
+| Document and claim producers | Explicit document stages and claim extraction persist their own artifacts and emit their own world facts/events. | A generic bridge from connector results or snapshots into those producers. That end-to-end bridge is `bridge_missing`. | [Data plane](data-plane.md), [product/API integration](product-api-integration.md), and `tests/unit/fabric/test_docs_pipeline.py` / `tests/unit/fabric/test_claims_pipeline.py`. |
+| Lineage and world query | Connector ingestion records fetch provenance and, when a transform applies, can merge its transform graph. `FabricLineageTracker` can represent later graph nodes. | Production call sites connecting materialized columns, claims, facts, and query results into one automatic source-to-query graph: `bridge_missing`; the end-to-end semantic test is also `semantic_test_missing`. | [Lineage](lineage.md), [time travel](time-travel.md), and `tests/unit/fabric/test_lineage.py`. |
+| Runtime operation | Named unit tests exercise fixture-backed code paths; the ingestion HTTP test patches the producer. | Live provider readiness, deployed behavior, or a complete input-to-policy workflow. These are `not_established` by the inspected tests. | [Product/API integration](product-api-integration.md) and the specific producer/consumer tests linked on each reference page. |
 
-Fabric also lazy-loads catalog types such as `DataContract`,
-`DataContractCollection`, `DataContractRegistry`, `MetricSearcher`,
-`SearchResult`, and `load_contract_collection` through `__getattr__`.
+Connector quality has the same evidence boundary. Source-supplied quality,
+freshness, version, and update fields are typed inputs; local validators can
+compute bounded indicators over returned data; and the orchestrator's
+`fabric.quality_report` is metadata-only. None independently establishes
+provider truth. See [quality](quality.md) for the distinction between computed
+checks and the report attached during snapshot assembly.
 
-## Validation Anchors
+## Time, provenance, and trust
 
-<!-- markdownlint-disable MD060 -->
+| Field or artifact | What it establishes | What it does not establish |
+| --- | --- | --- |
+| `FetchResult.fetched_at`, `source_updated_at`, and `version` | The typed connector result's fetch time, optional source-update time, and declared version. | An independent observation of when the provider changed its data or proof that its content is true. |
+| `DocMeta.retrieved_at` | The document retrieval time carried by document metadata. | The document's legal or policy-effective time. |
+| World fact `valid_time`; `WorldQueryRequest.as_of_valid_time` and `as_of_tx_time` | The fact's valid-time value and separate valid/transaction-time query selectors. | A single interchangeable timestamp for fetch, observation, validity, and storage. |
+| `ProvenanceCoreGraph`, `EvidenceBundle`, and CAS `InputRef` links | The source, transform, and artifact relationships actually written by the producing path. | A complete lineage graph across producers that do not emit or bind those relationships. |
+| `FabricFetchReceipt` and `resolve_persisted_fetch` | A catalog-bound plan, the persisted returned payload, and agreement with a current connector replay. | Historical proof that the original transport happened at its recorded time or scientific truth; the receipt docstring states these limits. |
 
-| Validation                                 | Command or test                                                                                                    |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| Connector registry behavior                | `uv run pytest tests/unit/fabric/connectors/test_registry.py -q`                                                        |
-| Connector contract/runtime schema behavior | `uv run pytest tests/unit/fabric/connectors/test_contract_system.py tests/unit/fabric/connectors/test_schema_system.py -q`   |
-| Schema compatibility governance gate       | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
-| Best-in-class inventory report-only gate   | `uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check`                                  |
-| Processing guarantee gate                  | `uv run python tools/quality/validation/fabric_processing_guarantees.py --check`                                   |
-| Discovery intelligence gate                | `uv run python tools/quality/validation/fabric_discovery_intelligence.py --check`                                  |
-| Product/API integration gate               | `uv run python tools/quality/validation/fabric_product_integration.py --check`                                     |
-| Legacy connector contract snapshot gate    | `uv run polisyos-tools connectors check-contracts --check`                                                        |
-| Fabric ABI snapshot gate                   | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
-| Quality and lineage examples               | `uv run pytest tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/test_lineage.py -q`                            |
-| Quarantine and streaming/CDC examples      | `uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/data_plane/test_streaming_runtime.py -q`    |
+`run_orchestrated_ingestion` writes a `fabric.quality_report` containing the
+ingestion source, dataset count, and evidence notes. That report ref is useful
+snapshot metadata; the wrapper does not run a full content-quality assessment.
+Content checks are owned by the corresponding quality and connector-contract
+paths.
 
-<!-- markdownlint-enable MD060 -->
+## Demonstrated limits
 
-## Notes
+- **`bridge_missing` for the generic connector-to-world-fact chain.** Connector
+  ingestion produces an evidence bundle and, optionally, a data snapshot. The
+  document and claim pipelines emit their own world facts and events. The
+  presence of both APIs does not establish a general connector-result-to-world
+  materialization bridge.
+- **`bridge_missing` for automatic cross-producer lineage, with
+  `semantic_test_missing` as a secondary gap.**
+  `tests/unit/fabric/test_lineage.py` builds the source, transform,
+  materialization, claim, fact, and query nodes directly through
+  `FabricLineageTracker`; it verifies graph trace and impact behavior, not that
+  operational connector and world-store producers automatically emit one
+  complete graph. The downstream producer call sites are absent, so the bridge
+  itself is missing; `semantic_test_missing` records that no end-to-end test
+  proves the intended bridge.
+- **Source truth remains unestablished by custody.**
+  `resolve_persisted_fetch` explicitly says that a current-source comparison
+  does not establish the historical transport occurrence or scientific truth.
+  Caller-provided source and license labels, schema validity, checksums, and
+  quality fields do not change that authority boundary.
+- **Inventory status is not an end-to-end proof.** The generated
+  `best-in-class-inventory.md` is report-only and records declared surfaces and
+  presence checks. Its `implemented` label does not establish automatic
+  source-to-query lineage, live provider readiness, or a generic source-to-world
+  consumer chain.
 
-| Item                               | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Concrete vs entry-point connectors | `polisyos.fabric.connectors.sources.__all__` currently exports 22 names: 20 concrete connector classes plus `HTTPConnectorBase` and `HTTPResilienceProfile`. The `polisyos.fabric_connectors` entry-point section exposes 11 production HTTP/open-data components; the file, object-storage, SQL, GraphQL, GeoJSON, stream, WHO, UNPD, and UNESCO UIS families are available by direct import or registry wiring but are not all entry-point registered. |
-| Profile counts                     | `src/polisyos/fabric/connectors/profiles/builtin_profiles.py` currently defines 38 profiles. Earlier planning notes that mention 63 profiles are future-state, not this workspace state.                                                                                                                                                                                                                                                                 |
-| Bindings location                  | Deprecated connector bindings live under `connectors/bindings/`; active multiscale binding logic referenced by other lanes belongs to Foundry, not `polisyos.fabric.data_plane.bindings`.                                                                                                                                                                                                                                                                |
-| Current artifacts                  | Current connector compatibility snapshots are `schemas/snapshots/fabric/connector_contract_registry.json` and `schemas/snapshots/connectors/contracts.json`, each with 5 committed contracts: `eurostat.data.generic`, `sdmx.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`, and `wvs.wave7.generic`. Fabric ABI snapshots remain `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json`.                                             |
+## Reference pages
 
-## Backlog
+| Page | Responsibility |
+| --- | --- |
+| [Connectors](connectors.md) | Connector protocol, registration, source families, and schema contracts. |
+| [Profiles](profiles.md) | Source profiles, execution policies, and runtime configuration. |
+| [Data plane](data-plane.md) | Ingestion modes, cursors, replay, quarantine, streaming, and orchestration. |
+| [Schema compatibility](schema-compatibility.md) | Connector schema evolution and governance snapshots. |
+| [Lineage](lineage.md) | Provenance graph node and trace APIs. |
+| [Quality](quality.md) | Quality indicators, validation, and fitness reports. |
+| [Observability and governance](observability-governance.md) | SLI/SLO, access, audit, and retention surfaces. |
+| [Source platform](source-platform.md) | Source contracts, scorecards, and conformance surfaces. |
+| [Time travel](time-travel.md) | Snapshot reads, valid and transaction time, and branch behavior. |
+| [Processing guarantees](processing-guarantees.md) | Batch, streaming, replay, and CDC guarantee contracts. |
+| [Discovery intelligence](discovery-intelligence.md) | Catalog search, source bindings, and entity-resolution helpers. |
+| [Product/API integration](product-api-integration.md) | Runtime routes, downstream payloads, and compatibility bridges. |
+| [Best-in-class inventory](best-in-class-inventory.md) | Report-only inventory and its validation boundary. |
 
-| Gap                                        | Priority | Tracking note                                                                                                                                                                                    |
-| ------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| No missing required D2-L2 reference pages  | -        | Connector protocol, source profiles, data-plane, schema compatibility, lineage, quality, and time-travel pages are present and mapped above.                                                     |
-| Standalone semantic-catalog reference page | P2       | The current L2 D2 scope still documents catalog behavior through `retrieval/README.md`, `world/README.md`, and the Fabric reference set. A dedicated catalog page remains a follow-on expansion. |
+## Declared Fabric facade exports
+
+`src/polisyos/fabric/__init__.py` declares a facade export list (`__all__`)
+that includes `run_connectors_ingestion`, `fabric_get_data`,
+`execute_world_query`, `query_world_table`, `query_claims`, and `query_events`.
+These are declared names, not proof that the names resolve to native or stable
+public exports. The [public-surface inventory](../public-surface.md) classifies
+the package as `public_stable` but reports export resolution as
+`unresolved_exports`; the resolved export set and its count remain unknown.
+The orchestrated fetch-to-snapshot entrypoint is
+`polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion`.
+Catalog-bound retrieval and persisted fetch resolution live under
+`polisyos.fabric.retrieval`; they are separate from the root compatibility
+fetch helper.
+
+## Evidence anchors
+
+- `tests/unit/fabric/connectors/test_integration.py` — connector fetch and CAS
+  evidence-bundle behavior using test connectors.
+- `tests/unit/fabric/data_plane/test_orchestrator.py` — optional snapshot
+  construction from an evidence bundle.
+- `tests/unit/fabric/test_docs_pipeline.py` and
+  `tests/unit/fabric/test_claims_pipeline.py` — document/claim artifacts and
+  world materialization.
+- `tests/unit/fabric/test_retrieval_fetch_custody.py` and
+  `tests/unit/runtime/quality/test_promotion_sequence.py` — catalog-bound fetch
+  custody, fixture-backed measurement-root consumption, and admission recheck.
+- `tests/unit/fabric/test_lineage.py` — explicit lineage graph trace and impact
+  semantics.

@@ -2,7 +2,7 @@
 title: Human Review Calibration
 status: active
 owner: team-governance
-last_verified: 2026-05-13
+last_verified: 2026-10-14
 stability: active
 related:
   - ../../plans/active/POLICYOS_BEST_IN_CLASS_PRODUCTION_QUALITY_REMEDIATION_PLAN.md
@@ -14,7 +14,9 @@ related:
 # Human Review Calibration
 
 Owner: `team-governance`
-Source of truth: `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py`, `tests/unit/runtime/quality/**`, and `docs/adr/0171-review-effectiveness-telemetry-advisory-first.md`
+Source of truth: `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py`, `tests/unit/runtime/quality/test_human_review.py`, `tests/unit/runtime/quality/test_approval.py`, `tests/unit/runtime/quality/test_scorecard.py`, and `docs/adr/0171-review-effectiveness-telemetry-advisory-first.md`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the listed tests were not run.
 
 Human-review calibration is the runtime-owned evidence layer for production
 approval, override, escalation, reissue, and withdrawal review flows. It emits
@@ -96,6 +98,10 @@ This does not demote missing review provenance, missing runtime refs, missing
 authority envelopes, or missing effective-oversight records. Those remain
 ordinary production-quality failures.
 
+The report computes measures from supplied reviewer-attributed event records;
+it does not independently verify reviewer identity or prove that live review
+occurred. Deterministic fixtures exercise the schema and calculations only.
+
 ## Approval Packet Integration
 
 `build_production_approval_packet(...)` accepts
@@ -118,7 +124,7 @@ or unscoped packet.
 
 ## CI Fixtures
 
-`deterministic_review_fixtures(...)` returns six stable events covering:
+`deterministic_review_fixtures(...)` returns stable events covering:
 
 - approve;
 - reject;

@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`, `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`, and `architecture/policy_design_case/layer3_g5_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 G5 is the first proving-ground conversion surface for a pinned Policy Design Case.
 It answers whether a governed G4 promotion handoff can become a useful grounded
 conversion signal, an unchanged blocker, or a grounded abstention signal without
@@ -29,6 +34,11 @@ publication authority, approval authority, scorecard authority, closeout
 authority, runtime closeout authority, public recommendation, policy
 recommendation, legal advice, unsupported claim authority, G6 arbitrary request
 orchestration, or G7 region widening.
+
+Readiness is not the conversion outcome: a validator `pass` means the declared
+G5 artifact, replay, conformance, consumer, and projection checks pass. It does
+not itself mean useful grounded conversion, useful-design credit, or
+recommendation/design authority.
 
 ## Audience Surface
 
@@ -89,3 +99,9 @@ persisted readiness manifest has no runtime drift, generated artifacts and
 inventory are registered, the conversion-route registry is present, and the
 W12.D consumer gate reads the conversion record without treating an unchanged
 blocker as useful design credit.
+
+The pinned manifest reports readiness `pass` with conversion outcome
+`unchanged_blocker`, zero grounded conversions, and zero useful-design credit.
+G2 and G3 dependencies and the upstream scope join are separately recorded as
+failed. The passing readiness result preserves those blockers; it does not
+convert them into a policy-design result.

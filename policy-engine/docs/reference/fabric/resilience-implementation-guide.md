@@ -1,7 +1,10 @@
 # Resilience Patterns - Implementation Guide
 
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source of truth: `src/polisyos/fabric/connectors/resilience.py`, `src/polisyos/ir/connectors.py`, and `tests/unit/fabric/connectors/**`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
+Source of truth: `src/polisyos/fabric/connectors/resilience/`, `src/polisyos/ir/connectors/`, and `tests/unit/fabric/connectors/**`
+Evidence level: implementation surface inspected at the source pin; tests were not run in this documentation pass.
 
 ## Quick Start
 

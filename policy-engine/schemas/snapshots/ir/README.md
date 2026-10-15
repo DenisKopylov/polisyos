@@ -1,51 +1,54 @@
-# snapshots/ir — ABI baseline для IR моделей
+# snapshots/ir — IR Model ABI Baseline
 
-Папка содержит JSON Schema snapshot IR-контрактов и используется как baseline в semantic diff (`tools/quality/diagnostics/abi_diff.py`).
+This directory contains JSON Schema snapshots of IR contracts and serves as the baseline for semantic diffs (`tools/quality/diagnostics/abi_diff.py`).
 
-## Роль в системе
+## Role in the System
 
-- Фиксирует публичный ABI между `src/polisyos/ir/**` и потребителями (runtime, пайплайны, аналитика, governance).
-- Проверяется в `.github/workflows/abi.yml` и `.github/workflows/arch.yml`.
+- Records the public ABI between `src/polisyos/ir/**` and its consumers (runtime, pipelines, analytics, and governance).
+- Checked by the tracked [`abi.yml`](../../../../.github/workflows/abi.yml).
+- A similar [`arch.yml`](../../../ops/ci/templates/workflows/arch.yml) is in the `ops` workflow-template directory. `.github/workflows/arch.yml` is absent from the snapshot, so this link must not be treated as a root CI trigger.
 
-## Источники
+## Sources
 
-- Реестр: `src/polisyos/schemas/abi_models.py` (entries с `module="ir"`).
-- Генератор: `tools/quality/diagnostics/gen_schema.py`.
-- Проверка совместимости: `tools/quality/diagnostics/abi_diff.py`.
+- Registry: [`abi_models.py`](../../../src/polisyos/schemas/abi_models.py) (entries with `module="ir"`).
+- Generator: [`gen_schema.py`](../../../tools/quality/diagnostics/gen_schema.py).
+- Compatibility check: [`abi_diff.py`](../../../tools/quality/diagnostics/abi_diff.py).
 
-## Что хранится
+## Contents
 
-- `*.schema.json` — схема конкретной ABI-модели.
-- `_manifest.json` — индекс моделей и метаданные генерации:
+- `*.schema.json` — schema for one ABI model.
+- `_manifest.json` — model index and generation metadata:
   - `schema_file`, `schema_version`, `priority`, `compat_mode`, `version_field`;
-  - `sha256_full` и `sha256_semantic` для drift/compatibility проверки.
+  - `sha256_full` and `sha256_semantic` for drift/compatibility checks.
 
-## Актуальное состояние (2026-03-03)
+## Historical README Summary (2026-03-03)
 
-- Моделей: `48`.
+The counts and values below are preserved from the README summary for that date and do not describe the current manifest. For the contents and metadata of the inspected snapshot, use the canonical [`_manifest.json`](_manifest.json).
+
+- Models: `48`.
 - `generated_at`: `2026-03-03T16:49:25+00:00`.
-- Приоритеты: `p0=16`, `p1=23`, `p2=9`.
-- Все модели активные, `compat_mode=strict`.
-- `version_field=None` у `certification_result`, `data_view_request`, `outer_search_result`.
-- Особенность именования: key `causal_sensitivity_result` соответствует файлу `sensitivity_result.schema.json`.
+- Priorities: `p0=16`, `p1=23`, `p2=9`.
+- All models were active, with `compat_mode=strict`.
+- `version_field=None` for `certification_result`, `data_view_request`, and `outer_search_result`.
+- Naming note: the key `causal_sensitivity_result` maps to the file `sensitivity_result.schema.json`.
 
-## Связи и домены
+## Related Domains
 
 - Trinity/Policy: `trinity_bundle`, `problem_frame`, `policy_spec`, `policy_portfolio`.
-- Norm-system: `norm_pack`, `norm_rule`, `norm_ref`.
+- Norm system: `norm_pack`, `norm_rule`, `norm_ref`.
 - World/fact log: `claim`, `conflict_*`, `world_event`, `prov_activity`, `fact*`, `doc_*`.
-- Analytics/gate: causal, transportability, calibration, certification, `gate_*`.
+- Analytics/gates: causal, transportability, calibration, certification, `gate_*`.
 
-## Команды (из `policy-engine/`)
+## Commands (from `policy-engine/`)
 
 ```bash
-# Проверка и обновление только IR snapshot
+# Check and update only the IR snapshot
 python3 tools/quality/diagnostics/gen_schema.py --models ir --check
 python3 tools/quality/diagnostics/gen_schema.py --models ir
 ```
 
 ```bash
-# Локальный semantic diff перед PR
+# Local semantic diff before a PR
 python3 tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
 python3 tools/quality/diagnostics/abi_diff.py \
   --baseline schemas/snapshots \
@@ -53,7 +56,7 @@ python3 tools/quality/diagnostics/abi_diff.py \
   --format markdown
 ```
 
-## Инварианты
+## Invariants
 
-- Не редактировать файлы в этой директории вручную.
-- Любые изменения проходят через изменение исходных моделей и последующий `gen_schema.py`.
+- Do not edit files in this directory manually.
+- Make changes to the source models, then regenerate through `gen_schema.py`.

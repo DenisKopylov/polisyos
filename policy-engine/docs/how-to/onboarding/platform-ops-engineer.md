@@ -6,38 +6,44 @@ Related reference: [Operations](../../reference/operations/index.md),
 
 ## Goal
 
-Быстро войти в operator surface: runtime deployment, control plane,
-observability, release gates и replay/restore workflows.
+Quickly become productive with the operator surface: runtime deployment, the
+control plane, observability, release gates, and replay/restore workflows.
 
 ## Inputs
 
-- установлен runtime profile;
-- доступ к Docker/devcontainer или эквивалентной локальной машине;
-- понимание, какие optional surfaces реально нужны: signing, OIDC, Postgres,
-  browser checks.
+- an installed runtime profile;
+- access to Docker/devcontainer or an equivalent local machine;
+- an understanding of which optional surfaces are actually needed: signing,
+  OIDC, Postgres, or browser checks.
 
 ## Output
 
-После этого onboarding вы должны уметь:
+After this onboarding, you should be able to:
 
-- проверить host и optional env surfaces через `doctor`;
-- понимать, где искать deploy/release/recovery instructions;
-- провести маленький operational drill end to end.
+- check the host and optional environment surfaces with `doctor`;
+- find deployment, release, and recovery instructions;
+- run a small operational drill from start to finish.
 
 ## Canonical Commands
 
 ```bash
 cd policy-engine
-python3 -m tools.cli workspace doctor --list-surfaces
-python3 -m tools.cli workspace doctor --surface runtime-research-postgres --surface runtime-signing
-python3 -m tools.cli workspace verify
-python3 -m tools.cli workspace ci-parity --skip-browser
+uv run polisyos-tools workspace doctor --list-surfaces
+uv run polisyos-tools workspace doctor --surface runtime-research-postgres --surface runtime-signing
+uv run polisyos-tools workspace verify
+uv run polisyos-tools workspace ci-parity --skip-browser
 ```
 
-Локальный observability stack:
+`doctor --surface runtime-research-postgres` and `runtime-signing` only check that
+their required environment values are non-empty. They do not connect to Postgres,
+check a signing-key file or parse a key, or perform signing and verification; a
+pass confirms presence only. Verify connectivity and signing behavior with the
+task-specific check before relying on either surface.
+
+Local observability stack:
 
 ```bash
-cd ops
+cd policy-engine
 docker compose -f ops/docker/observability.compose.yml up
 ```
 
@@ -53,31 +59,35 @@ docker compose -f ops/docker/observability.compose.yml up
 
 ## First Productive Slice
 
-Сделайте один реальный drill:
+Run a small operator rehearsal using the documented steps and record the
+boundaries between them. The drill alone does not establish an integrated
+end-to-end policy flow:
 
-1. поднимите observability stack;
-2. проверьте одну optional surface через `doctor --surface ...`;
-3. пройдите один recovery path из `Replay or Restore Workflow`;
-4. зафиксируйте missing owner, missing signal или missing doc step.
+1. Start the observability stack.
+2. Check that environment values exist for one optional surface with
+   `doctor --surface ...`.
+3. Follow one recovery path from `Replay or Restore Workflow`.
+4. Record a missing owner, signal, or documentation step.
 
 ## Rollback / Handoff
 
-- если проблема ушла в code-level route/DTO drift, верните change владельцу
+- if the problem is a code-level route/DTO drift, hand the change back to the
   backend/frontend lane;
 
-- не выполняйте destructive cleanup поверх retained artifacts без опоры на
+- do not perform destructive cleanup of retained artifacts without following a
   runbook;
 
-- если release/control issue стал security/compliance issue, переведите review в
+- if a release/control issue becomes a security/compliance issue, move the review
+  to the
   [Security / Compliance Reviewer](security-compliance-reviewer.md).
 
 ## Troubleshooting
 
-- `doctor` падает только на optional surface: фиксируйте это как environment gap,
-  а не как общий bootstrap failure;
+- `doctor` fails only on an optional surface: record an environment gap rather
+  than a general bootstrap failure;
 
-- `ci-parity` слишком тяжелый для локального цикла: используйте `verify`, а
-  parity оставьте на pre-PR closeout;
+- `ci-parity` is too heavy for the local cycle: use `verify` and reserve parity
+  for pre-PR closeout;
 
-- recovery instructions кажутся неполными: обновляйте runbook сразу, пока
-  реальный контекст еще свежий.
+- recovery instructions seem incomplete: update the runbook while the actual
+  context is still fresh.

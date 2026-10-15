@@ -30,6 +30,14 @@ and future direction before DS1 audits the application or DS2 adjudicates the
 v15 archive. It does not admit a token, component, pattern, locale claim, or
 surface into production.
 
+This record remains authoritative for its declared design-source dispositions
+and decisions, not for current runtime readiness. For the later, bounded
+source inspection of dashboard routes, generated clients, and selected
+candidate/authority projections, see the
+[current frontend surface map](../reference/frontend/current-surface-map.md).
+That source map is not a new DS0 decision or a rerating of the dated DS1/DS2
+evidence.
+
 MACHINE contracts:
 
 - [adoption-ledger schema](../../architecture/atlas_surfaces/adoption-ledger.schema.json)

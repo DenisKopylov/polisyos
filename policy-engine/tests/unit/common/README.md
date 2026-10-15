@@ -2,8 +2,9 @@
 
 `tests/unit/common` covers the low-level `polisyos.common` helpers shared across the
 repository: async bridging, config bootstrap, logging, serialization,
-timestamps, and migration purity. The slice currently contains `7`
-`test_*.py` files.
+timestamps, and migration purity. The tracked `test_*.py` files under this
+directory are the source inventory; a file count is not a count of tests
+collected or executed.
 
 ## Purpose
 
@@ -13,26 +14,28 @@ timestamps, and migration purity. The slice currently contains `7`
 
 ## Where To Start
 
-- [`../../src/polisyos/common/README.md`](../../src/polisyos/common/README.md)
-- `test_serialization_properties.py` for canonical serialization behavior.
+- `src/polisyos/common/README.md`
+- `test_fast_json_serialization.py` for canonical serialization behavior.
 - `test_config_bootstrap.py` and `test_async_tools.py` for bootstrap/runtime
   helper issues.
 
-## Public Entrypoints
+## Test Module Inventory
 
-- `tests/unit/common/test_async_tools.py`
-- `tests/unit/common/test_config_bootstrap.py`
-- `tests/unit/common/test_fast_json_serialization.py`
-- `tests/unit/common/test_logger.py`
-- `tests/unit/common/test_migrations_purity.py`
-- `tests/unit/common/test_serialization_properties.py`
-- `tests/unit/common/test_timestamps.py`
+The canonical inventory is the tracked `test_*.py` files under this directory,
+including nested test folders. From `policy-engine/`, list those source files
+with:
+
+```bash
+git ls-files tests/unit/common | rg '(^|/)test_[^/]+\.py$'
+```
+
+This lists test modules; it does not collect or execute test cases.
 
 ## Depends On / Depended On By
 
 ### Depends On
 
-- [`../../src/polisyos/common/README.md`](../../src/polisyos/common/README.md)
+- `src/polisyos/common/README.md`
 - `src/polisyos/common/migrations`
 - `tests/conftest.py`
 
@@ -57,7 +60,8 @@ uv run pytest tests/unit/common/test_config_bootstrap.py -q
 
 ## Test And Verification Commands
 
-The collect-only command below was smoke-checked on `2026-04-17`.
+The collect-only command below is a historical receipt dated `2026-04-17`; it
+was not rerun for this documentation correction.
 
 ```bash
 cd policy-engine
@@ -66,10 +70,10 @@ uv run pytest --collect-only tests/unit/common -q
 
 ## Reference Docs
 
-- [`../../src/polisyos/common/README.md`](../../src/polisyos/common/README.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
-- [`../README.md`](../README.md)
+- `src/polisyos/common/README.md`
+- `tests/TESTING_POLICY.md`
+- `tests/unit/README.md`
 
 ## Last Updated
 
-2026-04-17
+2026-10-14

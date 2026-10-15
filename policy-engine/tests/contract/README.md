@@ -3,8 +3,8 @@
 `tests/contract` is the compatibility slice for cross-layer contracts: Trinity
 and IR bundles, typed artifact refs, ABI snapshots, migration rules, and
 governance-facing protocol models. Golden records live in `tests/_golden`.
-The directory currently
-contains `19` `test_*.py` files plus a local `conftest.py`.
+The live `test_*.py` set is the source of truth. From `policy-engine/`, list it
+with `rg --files tests/contract -g 'test_*.py'`.
 
 ## Purpose
 
@@ -19,7 +19,10 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 - `../_golden/contract/golden_records.json` and `conftest.py` if the failing
   test mentions golden fixtures.
 
-## Public Entrypoints
+## Selected Entrypoints
+
+These are useful starting points, not an exhaustive file inventory; use the
+source-tree command above for the complete set.
 
 - Trinity and IR contracts:
   `test_trinity_contracts.py`, `test_trinity_migration.py`,
@@ -53,9 +56,9 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 ### Depended On By
 
 - Release and compatibility gates that need ABI drift to fail loudly
-- [`../foundry/README.md`](../foundry/README.md),
-  [`../scientist/README.md`](../scientist/README.md), and
-  [`../runtime/README.md`](../runtime/README.md) when a schema or typed-ref
+- [`../unit/foundry/README.md`](../unit/foundry/README.md),
+  [`../unit/scientist/README.md`](../unit/scientist/README.md), and
+  [`../unit/runtime/README.md`](../unit/runtime/README.md) when a schema or typed-ref
   contract changes
 
 ## Common Commands

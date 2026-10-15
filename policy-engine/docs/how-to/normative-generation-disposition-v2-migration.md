@@ -6,6 +6,12 @@ S8 disposition CAS writes now use the internal
 observation used for that admission. The public HTTP projection remains v1; no
 OpenAPI or generated-client update is required.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+by reading `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`,
+`src/polisyos/runtime/quality/generation_cycle.py`, and the committed OpenAPI
+projection. No migration, runtime replay, or test was executed; this describes
+the checked-in reader/writer behavior, not a deployed rollout.
+
 ## Reader and writer order
 
 Deploy a reader that understands both disposition artifact epochs before enabling

@@ -11,6 +11,14 @@
 - Authoritative ADR: [ADR-045](../adr/ADR-045-glyph-alphabet-limit-10.md)
 - Related: [COMPOSITION_RULES](COMPOSITION_RULES.md), [UNCERTAINTY_LANGUAGE](UNCERTAINTY_LANGUAGE.md)
 
+This is a visual grammar, not a verifier. A glyph's shape, stroke, color, or
+`intent` cannot establish evidence, governance, policy authority, or
+publishability. Use only the status supplied by its typed owner, keep the
+meaning in accessible text, and consult the
+[source-backed frontend map](../reference/frontend/current-surface-map.md)
+for the current consumers and their limits. Tests cited below are design
+anchors, not test-run receipts.
+
 ## 1. Principles
 
 1. **Ten radicals, no more.** The alphabet is closed. Additions require an ADR
@@ -90,11 +98,11 @@ uncertainty overlays (Phase 1.2). They must never appear in default UI.
 
 The `strokeStyle` prop of `<Glyph />` encodes epistemic status:
 
-| Style    | SVG `stroke-dasharray`                    | Semantic                                  |
-| -------- | ----------------------------------------- | ----------------------------------------- |
-| `solid`  | (none)                                    | Observed in the data                      |
-| `dashed` | `2 1.5` (units)                           | Hypothetical / counterfactual / estimated |
-| `double` | Two concentric strokes, inner offset `1u` | Proved / formally verified                |
+| Style    | SVG `stroke-dasharray`                    | Semantic                                           |
+| -------- | ----------------------------------------- | -------------------------------------------------- |
+| `solid`  | (none)                                    | A typed owner classifies the value as observed     |
+| `dashed` | `2 1.5` (units)                           | Hypothetical / counterfactual / estimated          |
+| `double` | Two concentric strokes, inner offset `1u` | A typed owner supplies a formal-verification state |
 
 Stroke style is orthogonal to intent (color). A `dashed` glyph can still be
 `intent="verified"` — the combination reads as "hypothetical scenario that was
@@ -109,8 +117,10 @@ itself evidence-verified."
 | `blocked`  | `var(--ember)` | Blocker, rejection, guardrail trip |
 | `pending`  | `var(--gold)`  | Review or pending-freshness        |
 
-These four map 1:1 onto the signal triad + neutral. No additional intents are
-permitted; PolicyOS does not have an "info blue" and will not acquire one.
+These four map 1:1 onto the signal triad + neutral. `verified` is a display
+intent only; it is not proof that the encoded claim is correct, admissible, or
+publishable. No additional intents are permitted; PolicyOS does not have an
+"info blue" and will not acquire one.
 
 ## 8. Grammar
 

@@ -2,16 +2,19 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-27.
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
 Source plan: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`, Phase 4.
-Source of truth: `src/polisyos/fabric/_adapters/observability.py`, `src/polisyos/ir/connectors.py`, `src/polisyos/fabric/connectors/governance_metadata.py`, `src/polisyos/fabric/security/**`, `src/polisyos/fabric/connectors/quality/evidence.py`, `src/polisyos/scientist/governance/passes/quality_gate_pass.py`
+Source of truth: `src/polisyos/fabric/_adapters/observability.py`, `src/polisyos/ir/connectors/`, `src/polisyos/fabric/connectors/governance_metadata.py`, `src/polisyos/fabric/security/**`, `src/polisyos/fabric/connectors/quality/evidence.py`, `src/polisyos/scientist/governance/passes/quality_gate_pass.py`
+Evidence level: implementation and named unit-test behavior inspected at the source pin. Tests were not run in this documentation pass; live telemetry and operational SLO attainment are not established.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
-Fabric Phase 4 treats observability, governance metadata, quality evidence, and
-lineage coverage as one operational baseline. Runtime behavior remains
-backend-neutral: Fabric defines the telemetry contract and release gates, while
-Prometheus/OpenTelemetry or other backends can consume the same names.
+Fabric defines observability names, governance metadata, quality-evidence
+builders, and an SLI/SLO evaluation surface. Runtime behavior is
+backend-neutral: telemetry backends can consume the declared names. This
+reference describes contracts and consumers, not measurements from a live
+deployment.
 
 ## SLI And SLO Contract
 
@@ -31,6 +34,11 @@ Prometheus/OpenTelemetry or other backends can consume the same names.
 `FabricReliabilityBudgetError` when P0/P1 budget is burned. Feature expansion
 for P0/P1 Fabric work should pause until the report is healthy or an explicit
 accepted-risk decision is recorded.
+
+The table lists default objectives, not observed values. The evaluator compares
+caller-supplied observations with those targets; a configured SLI, metric name,
+or gate function does not establish that a backend is emitting or measuring it
+in a deployed system.
 
 `build_fabric_health_snapshot()` can include SLO observations as an optional
 `slo` component. A failing SLO component emits a backend-neutral critical
@@ -77,9 +85,13 @@ report into a `fabric.quality.evidence.v1` payload with:
 
 ## Lineage And Impact
 
-`FabricLineageTracker` remains the source-to-query lineage surface. Phase 4
-acceptance is covered by tracing a decision-bearing claim/query field back to a
-source field and asking downstream impact from that same source field.
+`FabricLineageTracker` is a graph builder with source-to-query trace and impact
+operations over a supplied graph. Connector ingestion records a bounded
+source/transform graph when a transform pipeline applies; the inspected
+materializer, claim producer, and query helper do not automatically extend
+that graph. The all-node source-to-query test assembles those nodes directly
+through the tracker, so it demonstrates graph operations rather than automatic
+cross-producer lineage coverage. See the [lineage reference](lineage.md).
 
 | Question | API |
 | --- | --- |

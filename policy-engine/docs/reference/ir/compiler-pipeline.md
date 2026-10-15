@@ -12,9 +12,10 @@ Related explanation: [IR — Intermediate Representation](index.md).
 - `PassPipeline` runs passes in declared order and reuses cached analysis results when the dependency fingerprint set is unchanged.
 - `InvalidationSet` exists for explicit cache flushes, but the default invalidation story is content-addressed and therefore deterministic.
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/passes/**`, `src/polisyos/ir/analytics/estimand.py`, `src/polisyos/ir/artifacts/lineage.py`, `src/polisyos/ir/analytics/uncertainty.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 Source plan phase: D1-L4 Phase 2 compiler-grade IR infrastructure.
 
 ## Core Passes
@@ -62,8 +63,8 @@ That policy is part of the IR payload and therefore part of schema evolution and
 
 ## Validation Hooks
 
-| Claim                                                                       | Source of truth                            | Evidence                                                                            |
-| --------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Claim                                                                       | Source of truth                            | Evidence                                                                                 |
+| --------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Pass ordering and analysis cache are deterministic                          | `src/polisyos/ir/passes/**`                | `tests/unit/ir/test_phase2_passes.py`                                                    |
 | Estimand hashes ignore presentation-only ordering                           | `src/polisyos/ir/analytics/estimand.py`    | `tests/unit/ir/analytics/test_estimand_normalization.py`                                 |
 | Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py`     | `tests/unit/ir/test_phase2_passes.py`                                                    |

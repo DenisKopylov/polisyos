@@ -5,12 +5,15 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
 Source of truth: `src/polisyos/scientist/governance/continuous/**`, `src/polisyos/scientist/methods/research_dag/invalidation.py`, `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`, `tests/unit/scientist/governance/continuous/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests and gates not executed. Default rollout is shadow/off and no automatic withdrawal/reissue is claimed.
 
 `decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
 producer; `build_decision_packet.py` remains a compatibility facade.
 
-Continuous governance is the Phase 2.6 control plane for living decision
-artifacts. A decision packet can remain valid, enter monitoring, become stale,
+Continuous governance is the Phase 2.6 typed sidecar/control contract for living
+decision artifacts; it is not an always-on system control plane. A decision
+packet can remain valid, enter monitoring, become stale,
 require review, be reissued, or be withdrawn. The layer is additive: old
 decision packets still load, and new validity state is carried in CAS-persisted
 sidecars and governance links.

@@ -1,5 +1,10 @@
 # Structural causal models and query intervals
 
+Owner: @foundry-owners
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/gcm_fit.py`, `src/polisyos/foundry/methods/catalog/causal/gcm_query.py`, and `src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and linked test sources inspected at this pin; tests were not run for this docs-only review.
+
 `causal.structural.gcm_fit@1.0.0` selects the pinned DoWhy GCM worker by default.
 The Python 3.14 application invokes the Python 3.12 / DoWhy 0.14 worker inside its
 existing Foundry method job. The parent owns CAS and validates the source bytes,
@@ -97,3 +102,11 @@ under the selected profile. Consumers verify the source and result hashes and
 recompute the projector before using the fitted graph. Historical 1.0/1.1
 artifacts remain readable under their recorded profile; they do not acquire a
 new source witness by label alone.
+
+## Verification anchors
+
+- GCM fit and worker binding:
+  `tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py` and
+  `tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py`
+- Persisted query/result semantics:
+  `tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py`

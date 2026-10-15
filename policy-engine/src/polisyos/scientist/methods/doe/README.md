@@ -1,23 +1,24 @@
 # DoE (`polisyos.scientist.methods.doe`)
 
-`doe` покрывает design-of-experiments и stress-analysis часть Scientist: sensitivity,
-ablation и adversarial планы, генерацию sample sets и пост-анализ уязвимостей.
+`doe` covers Scientist's design-of-experiments and stress-analysis work:
+sensitivity, ablation, and adversarial plans, sample-set generation, and
+post-analysis of vulnerabilities.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** numerical sampling/analysis utilities and Scientist evaluation contracts
-- **Используется в:** `scientist.search.adversarial`, CLI stress/sensitivity commands
-- Пакет формирует controlled experiment plans для проверки robustness и parameter sensitivity.
+- **Depends on:** numerical sampling/analysis utilities and Scientist evaluation contracts
+- **Used by:** `scientist.search.adversarial` and CLI stress/sensitivity commands
+- The package creates controlled experiment plans for testing robustness and parameter sensitivity.
 
-## Ключевые концепции
+## Key concepts
 
-- **SensitivityPlan** — параметризованный sensitivity design с failure policy.
-- **AdversarialPlan** — сценарный stress-test для policy candidates.
-- **Sampling** — генерация sensitivity/adversarial samples.
-- **Analysis** — агрегация результатов и уязвимостей после execution.
+- **SensitivityPlan** — parameterized sensitivity design with a failure policy.
+- **AdversarialPlan** — scenario-based stress test for policy candidates.
+- **Sampling** — generation of sensitivity/adversarial samples.
+- **Analysis** — aggregation of results and vulnerabilities after execution.
 - **Sensitivity uncertainty** — calibrated CI payloads, rank uncertainty, and retained row blocks.
 - **Coverage benchmarks** — analytic truth suites, empirical coverage metrics, and approval profiles.
-- **StressTestReport** — итоговая форма публикации robustness issues. The `run_stress_test`
+- **StressTestReport** — the final publication format for robustness issues. The `run_stress_test`
   result also exposes its exact selected CAS report reference through the transient
   `cas_artifact_ref` property; that caller handle is excluded from the persisted payload. A
   finite score also requires the current candidate to be a selected `PolicyCandidateSchema`
@@ -83,11 +84,11 @@ statistical sufficiency or absence of failure-selection bias.
 - `resolve_sensitivity_uncertainty_method(...)`, `apply_calibrated_multiplier(...)`
 - `StressTestReport`, `Vulnerability`, `VulnerabilityType`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-05
+- Last updated: 2026-10-14
 - Python modules: 11
 - Exports: 82
-- README синхронизирован с тем, что `doe` остается upstream для search/stress flows
+- README reflects that `doe` remains upstream for search/stress flows.

@@ -8,10 +8,16 @@ provenance, retrieval, and world materialization.
 
 ## Purpose
 
-Use `polisyos.fabric` when you need to move from external data or documents to
-deterministic CAS artifacts, lineage, claims, and queryable world state. The
-root package exposes the stable facade used by higher layers, while the
-subpackage READMEs below explain the implementation boundaries in more detail.
+Use `polisyos.fabric` for several related but separately bridged surfaces:
+connector-backed acquisition, document and claim production, and world
+materialization/query. Connector ingestion persists payload and provenance
+artifacts and can emit evidence bundles or snapshots. Those artifacts do not
+automatically become document claims or world facts/tables; the document/claim
+producers and world materializers have their own inputs and write paths. No
+generic connector-to-world materialization bridge is established by the
+connector receipt or snapshot alone. Follow the relevant subpackage README for
+the path in use; the [data-fabric explanation](../../../docs/explanation/data-fabric.md)
+maps the current bridges and their gaps.
 
 ## Where to Start
 
@@ -34,17 +40,17 @@ subpackage READMEs below explain the implementation boundaries in more detail.
 
 ## Public API
 
-| Entrypoint                              | Description                                                                                       |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `run_connectors_ingestion()`            | Main ingestion entrypoint for connector-backed runs.                                              |
-| `fabric_get_data()`                     | Compatibility bridge used by upper layers that need synchronous fetch access.                     |
-| `execute_world_query()`                 | Read-only world-query entrypoint over Fabric materializations.                                    |
-| `query_world_table()`                   | Convenience helper for direct world-table reads.                                                  |
-| `query_claims()` / `query_events()`     | Helpers for claim and world-event query paths.                                                    |
-| `WorldQueryRequest` / `WorldQueryError` | Request and error surface for governed world queries.                                             |
-| `FabricFetchReceipt`                    | Typed custody receipt for a catalog-bound fetch and its persisted payload.                         |
-| `file_lock()` / `atomic_write_json()` | Existing filesystem lock and atomic metadata writer, reused by durable runtime admission accounting. |
-| `world`                                 | Lazy-loaded `polisyos.fabric.world` subpackage for lower-level write and materialization helpers. |
+| Entrypoint                              | Description                                                                                          |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `run_connectors_ingestion()`            | Main ingestion entrypoint for connector-backed runs.                                                 |
+| `fabric_get_data()`                     | Compatibility bridge used by upper layers that need synchronous fetch access.                        |
+| `execute_world_query()`                 | Read-only world-query entrypoint over Fabric materializations.                                       |
+| `query_world_table()`                   | Convenience helper for direct world-table reads.                                                     |
+| `query_claims()` / `query_events()`     | Helpers for claim and world-event query paths.                                                       |
+| `WorldQueryRequest` / `WorldQueryError` | Request and error surface for governed world queries.                                                |
+| `FabricFetchReceipt`                    | Typed custody receipt for a catalog-bound fetch and its persisted payload.                           |
+| `file_lock()` / `atomic_write_json()`   | Existing filesystem lock and atomic metadata writer, reused by durable runtime admission accounting. |
+| `world`                                 | Lazy-loaded `polisyos.fabric.world` subpackage for lower-level write and materialization helpers.    |
 
 `polisyos.fabric.__all__` is the stable public facade. Catalog and semantic
 discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
@@ -101,9 +107,14 @@ retrieval README rather than being part of the root facade contract.
 
 ## Depends On / Depended On By
 
-- Depends on: `polisyos.common`, `polisyos.core`, `polisyos.ir`,
-  `polisyos.data_forge.read_api.catalog`, and the Fabric subpackages
-  documented here.
+- Declared dependencies include `polisyos.common`, `polisyos.core`,
+  `polisyos.ir`, and `polisyos.data_forge.read_api`. The intended Data Forge
+  boundary is the read API, but it is not fully enforced: the import policy
+  allows the broad `polisyos.data_forge` root, while Fabric retrieval currently
+  imports the private `polisyos.data_forge.domains.catalog.batch.config` module
+  in `src/polisyos/fabric/retrieval/service.py` (the package boundary declares
+  domain imports forbidden). Treat this as a declared/observed boundary
+  mismatch, not proof of a narrow enforced matrix.
 
 - Depended on by: `polisyos.runtime.http.services.control`,
   `polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`, and any code that

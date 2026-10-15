@@ -2,45 +2,58 @@
 
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
-Owner: `@lex-owners`
-Source of truth: `src/polisyos/lex/**`, `src/polisyos/lex/__init__.py`, `src/polisyos/lex/README.md`, and `tests/unit/lex/**`
+Freshness: 2026-10-14
+Owner: `@data-forge-owners` for offline legal corpus preparation; `@lex-owners` for runtime Lex, NormPack, legal assessments, and knowledge reads.
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source of truth: `src/polisyos/lex/**`, `src/polisyos/data_forge/domains/legal/corpus/**`, `src/polisyos/data_forge/domains/legal/batch/**`, `src/polisyos/legal_requirement/_impl/compiler.py`, `src/polisyos/core/contracts/epoch.py`, `src/polisyos/runtime/quality/semantic_epoch.py`, `src/polisyos/runtime/quality/producer_pipeline.py`, `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py`, and the named tests below. `architecture/public_surface/inventory.json` is the source for the generated facade-resolution note.
+Evidence level: implementation and named tests were inspected at the source pin; tests were inspected, not run for this documentation refresh. No live functional corpus-to-consumer end-to-end run was performed. Test fixtures establish only the paths named by each test; they do not establish source completeness, official legal truth, or live issuer authentication.
 
-`polisyos.lex` is the runtime legal layer for NormPack assembly, legal
-evaluation, read-only legal knowledge graph access, and intervention
-compilation. Offline corpus preprocessing, SPO extraction, QC, benchmark, and
-publish flows are owned by Data Forge legal modules.
+`polisyos.lex` is the runtime legal layer for version-aware NormPack assembly, legal evaluation, claim-scoped legal authority checks, read-only legal knowledge graph access, and intervention compilation. Data Forge owns offline legal corpus ingestion, extraction, quality control, and graph publication. Runtime Lex reads those published artifacts; it does not own or authenticate an external institution's legal act.
 
-## Page Map
+## Pipeline surfaces
 
-| Page                                | Scope                                                                                 | Primary modules                                   |
-| ----------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| [Legal Batch Pipeline](batch-pipeline.md) | Offline SPO extraction, amendment handling, QC, publish flow | `data_forge.domains.legal.batch.*`               |
-| [Knowledge](knowledge.md)           | DuckDB/HNSW search surface and legal graph result types                               | `lex.knowledge.*`                                 |
-| [NormPack](normpack.md)             | Version-aware reads, legality, diff, mutation, impact analysis                        | `lex.api`, `lex.types`, `lex.simulator.*`         |
-| [Interventions](interventions.md)   | Provision mappings, knobs, temporal sequencing, policy bundle inputs                  | `lex.interventions`, `lex.intervention_artifacts` |
+| Surface | Producer and output | Main consumer | Reference |
+| --- | --- | --- | --- |
+| Corpus ingest and versioning | Data Forge stores source bytes and supplied source/temporal metadata; its separate version-index producer records known revisions. Active-version selection uses inclusive legal-date bounds; corpus-backed NormPack may fall back to a local metadata scan when indexed selection is unavailable. At the source pin, a malformed nonempty `effective_to` is treated as open-ended, an unresolved validation gap. | NormPack and legal evaluation readers | [Data Forge legal batch](batch-pipeline.md); `data_forge.domains.legal.corpus.ingest`, `data_forge.domains.legal.corpus.versioning` |
+| Extraction and graph publication | Data Forge legal batch emits provision structure, candidate facts, separate quote-grounding and quality outcomes, amendment/temporal records, and published search assets. | Read-only Lex knowledge and corpus APIs | [Batch pipeline](batch-pipeline.md), [Knowledge](knowledge.md) |
+| NormPack assembly | `assemble_norm_pack()` selects active versions and provisions, extracts or reads canonical claims, resolves conflicts/trust, then persists a CAS `NormPack` and assemble event. | Lex legal evaluation, intervention mapping, Scientist and runtime policy workflows | [NormPack](normpack.md) |
+| Claim-level authority requirement | `build_legal_authority_requirement_artifact()` compiles claim-specific required authority facets and windows. | Lex legal authority evaluation | `legal_requirement` compiler; `lex.normpack.legal_authority` |
+| Claim-level legal assessment | `build_legal_authority_report()` evaluates supplied candidate norms against requirements, returning records, claim anchors, window splits, grades, and issues under `lex-legal-authority:v1`. | Runtime claim registry and semantic binding; GL legal search and downstream gates | [Lex Pipeline](../../explanation/lex-pipeline.md#admission-and-custody-boundary) |
+| Amendment-window receipt | `LegalKnowledgeStore.resolve_amendment_window_denominator()` emits a content-addressed receipt over the complete local `lex_amendments` table snapshot. `LexEpochBoundaryOwnerAdapter` reloads and reconciles the snapshot and receipt before returning a semantic-epoch batch. | Semantic epoch boundary resolution and reconciliation | [Lex Pipeline](../../explanation/lex-pipeline.md#time-and-replay) |
+| GL mandate handoff | `build_gl_mandate_authority_records()` carries selected Lex records and source refs into a `compatibility_only` record with `s6_evaluation_ref=None`. | S6-compatible source handoff | [Policy Design Case Layer 3](../policy-design-case-layer3-legal-mandate-search.md) |
+| Interventions | Lex maps provision directives into neutral IR intervention contracts and temporal sequence inputs. | Scientist planning and Foundry causal execution | [Interventions](interventions.md) |
 
-## Root Export Surface
+## Public facade
 
-The current root facade exports 51 public symbols from `polisyos.lex`.
+The supported runtime package facade is `polisyos.lex`; its explicit `__all__` in `src/polisyos/lex/__init__.py` names lazy exports such as `assemble_norm_pack`, `resolve_active_version`, `build_legal_authority_requirement_artifact`, and `build_legal_authority_report`. At the source pin, the generated public-surface inventory records `polisyos.lex` as `unresolved_exports` because it cannot resolve this lazy dynamic facade. This page is therefore a manual subsystem reference, not a generated export census, and does not claim an export count.
 
-| Group                                    | Count | Representative exports                                                                                                                             |
-| ---------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Errors                                   | 7     | `LexError`, `LexValidationError`, `LexVersioningError`                                                                                             |
-| Versioning and active resolution         | 3     | `ActiveVersionStrategy`, `ActiveVersionResult`, `resolve_active_version`                                                                           |
-| NormPack assembly                        | 4     | `NormPackBuildRequest`, `NormPackBudgets`, `assemble_norm_pack`                                                                                    |
-| Mutation and impact analysis             | 11    | `MutationIntent`, `NormDiff`, `NormImpactAnalyzer`, `AffectedKPI`                                                                                  |
-| Legal evaluation                         | 9     | `LegalEvaluationRequest`, `LegalReportRef`, `evaluate_legality`, `propose_changes`, `run_legal_benchmark`                                          |
-| Knowledge                                | 1     | `LegalKnowledgeGraph`                                                                                                                              |
-| Interventions and temporal policy search | 13    | `LexInterventionCompiler`, `LexProvisionDirective`, `TemporalInterventionSequencer`, `HierarchicalPolicySearchPlan`, `LexProvisionMappingRegistry` |
-| Support and provenance                   | 3     | `ChangeProposalRef`, `LexFabricEvidencePath`, `lex_evidence_from_fabric_decision_data`                                                             |
+Offline corpus producers are not Lex runtime exports. Their canonical owner is `polisyos.data_forge.domains.legal`; runtime code reaches published assets through Data Forge's read API. Keep this separation when adding readers or producer stages.
 
-## Notes
+## Evidence and authority interpretation
 
-- The historical plan counted offline build symbols in Lex. Those build symbols
-  now live under `polisyos.data_forge.domains.legal`.
+- Quote grounding and a `normative_fact` trust tier establish properties of the extracted text and its processing path. They do not establish issuer signature or legal competence.
+- A Lex legal authority record is PolicyOS's claim-scoped result over candidate norms, supplied provenance/version references, jurisdiction policy, legal-time window, actor, instrument, hierarchy, and conflict/supersession facets. The adapter checks for nonempty `source_provenance_ref` and `norm_version_ref` values; it does not resolve them to issuer-verified source bytes. Its LLM-candidate check recognizes caller-supplied provenance/source-class labels and `llm-`/`llm:` norm-ID prefixes; it does not independently detect unmarked model origin.
+- The amendment-window receipt is content-bound and recomputed against its local table snapshot. The semantic-epoch consumer independently reconciles receipt contents against that frozen local snapshot; that independence is from the receipt DTO's self-asserted fields, not from the Lex data owner or the institution. It proves a complete denominator relative to that owner table and query, not completeness of the official legal corpus.
+- A GL mandate record marked `compatibility_only` is only a source handoff until S6 evaluates it. It cannot be cited as an S6 pass or mandate legitimacy result.
+- The institution owns its legal or administrative act. PolicyOS integrates the resulting external evidence; its custody boundary assigns PolicyOS's own scoped recommendation, authority record, validity window, and stale/reissue consequences to PolicyOS. The source paths described here do not demonstrate a complete external-source invalidation-to-reissue cascade.
 
-- The intervention modules are now first-class public API and are documented on
-  their own page instead of being hidden under general NormPack notes.
+For the full custody boundary, replay semantics, and unresolved issuer-verification integration, see [Lex Pipeline](../../explanation/lex-pipeline.md).
 
-- Policy-search adaptation and temporal DTR execution are Scientist-owned node
-  implementations; `CompiledLexIntervention` is a shared IR contract.
+## Page map
+
+| Page | Scope | Primary surface |
+| --- | --- | --- |
+| [Legal Batch Pipeline](batch-pipeline.md) | Offline extraction, amendment handling, QC, temporal resolution, and publication | `data_forge.domains.legal.batch.*` |
+| [Knowledge](knowledge.md) | Read-only legal graph search, amendment denominator receipt, and vector admission | `lex.knowledge.*` |
+| [NormPack](normpack.md) | Version-aware reads, NormPack assembly, legality, diff, mutation, and impact analysis | `lex.api`, `lex.types`, `lex.normpack.*` |
+| [Interventions](interventions.md) | Provision mappings, knobs, temporal sequencing, and policy bundle inputs | `lex.interventions`, `lex.intervention_artifacts` |
+
+## Code-inspected evidence
+
+All code and test links are pinned to `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+
+- Package and pipeline owners: [`src/polisyos/lex/README.md`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/lex/README.md), [`src/polisyos/data_forge/domains/legal/corpus/README.md`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/data_forge/domains/legal/corpus/README.md), [`src/polisyos/data_forge/domains/legal/batch/README.md`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/data_forge/domains/legal/batch/README.md), and [`src/polisyos/lex/__init__.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/lex/__init__.py).
+- NormPack and version selection: [`normpack/assemble_pack.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/lex/normpack/assemble_pack.py), [`corpus/versioning.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/data_forge/domains/legal/corpus/versioning.py), [`tests/unit/fabric/test_normpack.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/fabric/test_normpack.py), and [`tests/unit/fabric/test_lex_corpus.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/fabric/test_lex_corpus.py).
+- Claim-level legal authority and consumers: [`normpack/legal_authority.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/lex/normpack/legal_authority.py), [`tests/unit/lex/test_legal_authority_adapter.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/lex/test_legal_authority_adapter.py), [`tests/unit/runtime/quality/test_lex_legal_authority_surface.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_lex_legal_authority_surface.py), and [`runtime/quality/semantic_binding.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/semantic_binding.py).
+- Amendment-window receipt producer and admission: [`lex/knowledge/store.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/lex/knowledge/store.py), [`runtime/quality/semantic_epoch.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/semantic_epoch.py), [`core/contracts/epoch.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/core/contracts/epoch.py), and [`tests/unit/lex/test_knowledge_store_filters.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/lex/test_knowledge_store_filters.py).
+- Requirement compiler, runtime producer bridge, and GL mandate record: [`legal_requirement/_impl/compiler.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/legal_requirement/_impl/compiler.py), [`tests/unit/lex/test_legal_authority_requirement_adapter.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/lex/test_legal_authority_requirement_adapter.py), [`runtime/quality/producer_pipeline.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/producer_pipeline.py), [`tests/unit/runtime/quality/test_producer_pipeline.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_producer_pipeline.py), [`proving_ground/legal_mandate_search.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py), and [`tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py`](https://github.com/DenisKopylov/polisyos/blob/bafca83bff9ff49eef1466bc491a8420b5cd1dbb/policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py).

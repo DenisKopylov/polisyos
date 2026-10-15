@@ -1,32 +1,46 @@
-# PolicyOS Scientist — Архитектура пайплайна
+# PolicyOS Scientist — Pipeline Architecture
 
 Owner: `@scientist-owners`
 Source of truth: `src/polisyos/scientist/**`, `src/polisyos/foundry/**`, `src/polisyos/fabric/connectors/**`, `src/polisyos/ir/analytics/**`, and `tests/unit/scientist/**`
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; diagram content remains the dated 2026-03-21 snapshot.
+Evidence level: historical diagram was not revalidated; current path/status handoff to `current-workflows.md` was inspected at this source pin; no tests were executed for this docs update.
 
-> Дата: 2026-03-21
-> Статус: живой документ, описывает текущее состояние кодовой базы
+> Date: 2026-03-21
+> Status: dated architecture snapshot as of 2026-03-21; do not use it as the current path map or as evidence of end-to-end readiness
 
----
-
-## Содержание
-
-1. [Обзор системы](#system-overview)
-2. [Три workflow и автоматический выбор](#2-три-workflow-и-автоматическии-выбор)
-3. [Knowledge Layer — три графа знаний](#3-knowledge-layer-три-графа-знании)
-4. [scientist_default — стандартный workflow](#4-scientist_default-стандартныи-workflow)
-5. [scientist_causal_full — полный каузальный анализ](#5-scientist_causal_full-полныи-каузальныи-анализ)
-6. [scientist_policy_verified — верифицированная политика](#6-scientist_policy_verified-верифицированная-политика)
-7. [Foundry и Data Plane](#foundry-data-plane)
-8. [IR Analytics — промежуточные представления](#8-ir-analytics-промежуточные-представления)
-9. [Checkpoint и восстановление](#checkpoint-recovery)
-10. [Детальное описание каждого node](#node-details)
+See the [Scientist index](index.md) for the current map of repository paths.
+Observed workflows, evidence handshakes, and missing capability
+links are documented in [Current Scientist Workflows and Evidence Handoffs](current-workflows.md).
+The full-cycle diagram below describes an architectural model; it is not
+evidence that the system works end to end. Node counts and paths in
+this snapshot refer to the date shown above and have not been remeasured at the current
+source pin.
 
 ---
 
-## 1. Обзор системы { #system-overview }
+## Contents
 
-PolicyOS Scientist — это DAG-based workflow engine для анализа политических решений.
-Система принимает policy question или TrinityBundle и проводит полный цикл:
+<!-- markdownlint-disable MD051 -->
+<!-- The attr_list heading IDs below are verified by rendered MkDocs link QA. -->
+
+1. [System overview](#system-overview)
+2. [Three workflows and automatic selection](#2-три-workflow-и-автоматическии-выбор)
+3. [Knowledge Layer — three knowledge graphs](#3-knowledge-layer-три-графа-знании)
+4. [scientist_default — standard workflow](#4-scientist_default-стандартныи-workflow)
+5. [scientist_causal_full — full causal analysis](#5-scientist_causal_full-полныи-каузальныи-анализ)
+6. [scientist_policy_verified — verified policy](#6-scientist_policy_verified-верифицированная-политика)
+7. [Foundry and Data Plane](#foundry-data-plane)
+8. [IR Analytics — intermediate representations](#8-ir-analytics-промежуточные-представления)
+9. [Checkpoint and recovery](#checkpoint-recovery)
+10. [Node-by-node reference](#node-details)
+<!-- markdownlint-enable MD051 -->
+
+---
+
+## 1. System overview { #system-overview }
+
+PolicyOS Scientist is a DAG-based workflow engine for policy decision analysis.
+The system accepts a policy question or a TrinityBundle and runs the full cycle:
 
 ```text
 Policy Question / TrinityBundle
@@ -37,20 +51,20 @@ Policy Question / TrinityBundle
     → Decision Packet
 ```
 
-### Ключевые компоненты
+### Key components
 
-| Компонент                | Путь                                                           | Назначение                                                       |
-| ------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Scientist Workflows**  | `scientist/workflows/`                                         | Определение и запуск workflow DAG                                |
-| **Node Builtins**        | `scientist/nodes/builtins/`                                    | 35 встроенных узлов пайплайна                                    |
-| **Engine**               | `scientist/engine/`                                            | Executor, checkpoint, registry, state                            |
-| **Knowledge Layers**     | `academic/knowledge/`, `datasets/knowledge/`, `lex/knowledge/` | Три графа знаний                                                 |
-| **Cross-Graph Compiler** | `scientist/cross_graph/`                                       | Объединение evidence из трёх графов                              |
-| **Foundry**              | `foundry/`                                                     | Каузальный движок, data plane, методы                            |
-| **IR Analytics**         | `ir/analytics/`                                                | Промежуточные представления (estimand, evidence bundle, reports) |
-| **Fabric**               | `fabric/connectors/`                                           | Мост к внешним данным (UNPD, WVS и др.)                          |
+| Component                | Path                                                           | Purpose                                                             |
+| ------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Scientist Workflows**  | `scientist/workflows/`                                         | Define and run workflow DAGs                                        |
+| **Node Builtins**        | `scientist/nodes/builtins/`                                    | 35 built-in pipeline nodes                                          |
+| **Engine**               | `scientist/engine/`                                            | Executor, checkpoint, registry, state                               |
+| **Knowledge Layers**     | `academic/knowledge/`, `datasets/knowledge/`, `lex/knowledge/` | Three knowledge graphs                                              |
+| **Cross-Graph Compiler** | `scientist/cross_graph/`                                       | Combines evidence from the three graphs                             |
+| **Foundry**              | `foundry/`                                                     | Causal engine, data plane, and methods                              |
+| **IR Analytics**         | `ir/analytics/`                                                | Intermediate representations (estimands, evidence bundles, reports) |
+| **Fabric**               | `fabric/connectors/`                                           | Bridge to external data (UNPD, WVS, and others)                     |
 
-### Центральная модель состояния: ExperimentState
+### Central state model: ExperimentState
 
 ```python
 class ExperimentState(BaseModel):
@@ -58,124 +72,124 @@ class ExperimentState(BaseModel):
     inputs: dict[str, ArtifactRef]          # trinity_bundle_ref, data_snapshot_ref, ...
     artifacts_index: dict[str, ArtifactRef]  # simulation_result_ref, causal_report_ref, ...
     reports_index: dict[str, ArtifactRef]    # governance_report_ref, legal_report_ref, ...
-    params: dict[str, JsonValue]             # все runtime-параметры
+    params: dict[str, JsonValue]             # all runtime parameters
     budgets: dict[str, Decimal]
     execution_profile: str                   # "fast" | "research" | "governed" | "production" | "policy_verified_async"
-    # + поля для policy_verified: policy_request_ref, legal_candidate_pack_ref, ...
+    # + policy_verified fields: policy_request_ref, legal_candidate_pack_ref, ...
 ```
 
-Каждый node читает и пишет в `ExperimentState`. Все артефакты — immutable, content-addressed (CAS).
+Each node reads from and writes to `ExperimentState`. All artifacts are immutable and content-addressed (CAS).
 
 ---
 
 <a id="2-три-workflow-и-автоматическии-выбор"></a>
 
-## 2. Три workflow и автоматический выбор
+## 2. Three workflows and automatic selection
 
 ### Workflow IDs
 
-| ID                          | Файл                           | Узлов | Назначение                                          |
-| --------------------------- | ------------------------------ | ----- | --------------------------------------------------- |
-| `scientist_default`         | `workflows/default.py`         | 21    | Стандартный анализ: compile → simulate → governance |
-| `scientist_causal_full`     | `workflows/causal_full.py`     | 25    | + literature priors, transport, causal ensemble     |
-| `scientist_policy_verified` | `workflows/policy_verified.py` | 25    | + legal source verification, policy drafting        |
+| ID                          | File                           | Nodes | Purpose                                            |
+| --------------------------- | ------------------------------ | ----- | -------------------------------------------------- |
+| `scientist_default`         | `workflows/default.py`         | 21    | Standard analysis: compile → simulate → governance |
+| `scientist_causal_full`     | `workflows/causal_full.py`     | 25    | + literature priors, transport, causal ensemble    |
+| `scientist_policy_verified` | `workflows/policy_verified.py` | 25    | + legal source verification, policy drafting       |
 
-### Логика автоматического выбора (`selection.py`)
+### Automatic selection logic (`selection.py`)
 
 ```text
-1. Явный workflow_id == "scientist_policy_verified" → POLICY_VERIFIED
+1. Explicit `workflow_id == "scientist_policy_verified"` → `POLICY_VERIFIED`
 2. _should_use_policy_verified(state):
 
-   - policy_answer_mode == "verified_async" → да
-   - execution_profile == "policy_verified_async" → да
-   - Нет trinity_bundle, но есть policy_question/research_intent → да
+   - `policy_answer_mode == "verified_async"` → yes
+   - `execution_profile == "policy_verified_async"` → yes
+   - No `trinity_bundle`, but `policy_question` or `research_intent` is present → yes
 3. execution_profile in {"research", "governed", "production"} → CAUSAL_FULL
-4. Явный workflow_id == "scientist_causal_full" → CAUSAL_FULL
+4. Explicit `workflow_id == "scientist_causal_full"` → `CAUSAL_FULL`
 5. _should_auto_escalate_to_causal_full(state):
 
-   - transport_required → да
-   - source_context ≠ target_context → да
-   - external_evidence/cross_graph_evidence → да
-   - knowledge_bundle_ref присутствует → да
-6. Иначе → DEFAULT
+   - `transport_required` → yes
+   - `source_context ≠ target_context` → yes
+   - `external_evidence` or `cross_graph_evidence` → yes
+   - `knowledge_bundle_ref` is present → yes
+6. Otherwise → `DEFAULT`
 ```
 
 ---
 
 <a id="3-knowledge-layer-три-графа-знании"></a>
 
-## 3. Knowledge Layer — три графа знаний
+## 3. Knowledge Layer — three knowledge graphs
 
 ### 3.1 Academic SKG (Scholar Knowledge Graph)
 
-**Хранилище:** DuckDB (`ac_skg_*` таблицы)
+**Storage:** DuckDB (`ac_skg_*` tables)
 
-| Таблица                        | Содержание                                 |
-| ------------------------------ | ------------------------------------------ |
-| `ac_skg_articles`              | Статьи из OpenAlex с метаданными           |
-| `ac_skg_variables`             | Каноничные переменные с одобрением         |
-| `ac_skg_edges`                 | Каузальные рёбра (src → dst) с confidence  |
-| `ac_skg_edge_evidence`         | Evidence per edge per article              |
-| `ac_skg_parameters`            | Оценки параметров из литературы            |
-| `ac_skg_simulation_parameters` | Refined-оценки для калибрации              |
-| `ac_skg_transport_scores`      | Пре-вычисленные transportability penalties |
+| Table                          | Contents                                     |
+| ------------------------------ | -------------------------------------------- |
+| `ac_skg_articles`              | OpenAlex articles and their metadata         |
+| `ac_skg_variables`             | Canonical variables with approval status     |
+| `ac_skg_edges`                 | Causal edges (`src` → `dst`) with confidence |
+| `ac_skg_edge_evidence`         | Evidence per edge per article                |
+| `ac_skg_parameters`            | Parameter estimates from the literature      |
+| `ac_skg_simulation_parameters` | Refined estimates for calibration            |
+| `ac_skg_transport_scores`      | Precomputed transportability penalties       |
 
-**Интерфейс запросов (SKGQuery):**
+**Query interface (`SKGQuery`):**
 
-- `query_prior(variable)` → агрегированное распределение (weighted mean/std)
-- `query_claims(cause, effect)` → каузальные связи с trust scoring
-- `query_parameters(param, target_context)` → кандидаты с context distance
+- `query_prior(variable)` → aggregated distribution (weighted mean/std)
+- `query_claims(cause, effect)` → causal links with trust scoring
+- `query_parameters(param, target_context)` → candidates with context distance
 
-**Агрегация confidence:** evidence-weighted noisy-OR с 20-летним half-life decay.
+**Confidence aggregation:** evidence-weighted noisy-OR with a 20-year half-life decay.
 
 ### 3.2 Datasets Catalog
 
-**Хранилище:** DuckDB (`ds_*` таблицы) + HNSW vector index
+**Storage:** DuckDB (`ds_*` tables) plus an HNSW vector index
 
-| Таблица                  | Содержание                                     |
-| ------------------------ | ---------------------------------------------- |
-| `ds_dataset_catalog`     | DCAT-aligned метаданные датасетов              |
-| `ds_distributions`       | Загружаемые ресурсы с коннекторами             |
-| `ds_variable_alignments` | raw_var → canonical_var маппинги               |
-| `ds_metric_bindings`     | Детерминистичные metric → dataset привязки     |
-| `ds_observations`        | Time-series значения (country, year, variable) |
+| Table                    | Contents                                     |
+| ------------------------ | -------------------------------------------- |
+| `ds_dataset_catalog`     | DCAT-aligned dataset metadata                |
+| `ds_distributions`       | Loadable resources with connectors           |
+| `ds_variable_alignments` | `raw_var` → `canonical_var` mappings         |
+| `ds_metric_bindings`     | Deterministic `metric` → `dataset` bindings  |
+| `ds_observations`        | Time-series values (country, year, variable) |
 
-**Поиск:** гибридный (vector HNSW + full-text), с бустами по свежести, метрикам, country hints.
+**Search:** hybrid (vector HNSW plus full text), boosted by freshness, metrics, and country hints.
 
-**Registry:** вычисляет P\*(Z) для transport — темпоральные штрафы, интерполяция, proxy penalties.
+**Registry:** computes P\*(Z) for transport using temporal penalties, interpolation, and proxy penalties.
 
 ### 3.3 Lex (Legal) Knowledge Graph
 
-**Хранилище:** DuckDB (`lex_*` таблицы) + HNSW vector index
+**Storage:** DuckDB (`lex_*` tables) plus an HNSW vector index
 
-| Таблица               | Содержание                                                    |
-| --------------------- | ------------------------------------------------------------- |
-| `lex_facts`           | Юридические факты с confidence tiers                          |
-| `lex_fact_grounded`   | Факты с цитатами из источников                                |
-| `lex_normative_facts` | Каноничные обязательства/запреты                              |
-| `lex_provisions`      | Иерархическая структура документов (Стаття → Частина → Пункт) |
+| Table                 | Contents                                                |
+| --------------------- | ------------------------------------------------------- |
+| `lex_facts`           | Legal facts with confidence tiers                       |
+| `lex_fact_grounded`   | Facts with source citations                             |
+| `lex_normative_facts` | Canonical obligations and prohibitions                  |
+| `lex_provisions`      | Hierarchical document structure (Article → Part → Item) |
 
-**Фильтры:** trust_tier (search_candidate → grounded_fact → normative_fact), jurisdiction, domain, as_of.
+**Filters:** `trust_tier` (`search_candidate` → `grounded_fact` → `normative_fact`), jurisdiction, domain, and `as_of`.
 
-**Constraints bridge:** маппинг legal facts → модификации DAG (HARD блокирует transport, SOFT штрафует).
+**Constraints bridge:** maps legal facts to DAG changes (HARD blocks transport; SOFT adds a penalty).
 
-### Как три графа объединяются
+### How the three graphs are combined
 
 ```text
 CrossGraphEvidenceCompiler.compile(TrinityBundle)
-  → extract_evidence_needs()          # метрики, параметры, constraints, механизмы, рёбра
-  → _assess_legal_need()              # статус: ALLOWED | CONSTRAINED | PROHIBITED
-  → _assess_dataset_need()            # статус: DIRECT | PROXY_ONLY | MISSING
-  → _assess_academic_need()           # статус: SUPPORTED | MIXED | INSUFFICIENT
-  → _compose_transportability_view()  # статус: IDENTIFIED | PARTIALLY | BOUNDED | UNSUPPORTED
-  → CrossGraphEvidenceProfile         # 4-мерная confidence по каждой evidence need
+  → extract_evidence_needs()          # metrics, parameters, constraints, mechanisms, and edges
+  → _assess_legal_need()              # status: ALLOWED | CONSTRAINED | PROHIBITED
+  → _assess_dataset_need()            # status: DIRECT | PROXY_ONLY | MISSING
+  → _assess_academic_need()           # status: SUPPORTED | MIXED | INSUFFICIENT
+  → _compose_transportability_view()  # status: IDENTIFIED | PARTIALLY | BOUNDED | UNSUPPORTED
+  → CrossGraphEvidenceProfile         # four-dimensional confidence for each evidence need
 ```
 
 ---
 
 <a id="4-scientist_default-стандартныи-workflow"></a>
 
-## 4. scientist_default — стандартный workflow
+## 4. scientist_default — standard workflow
 
 ### DAG (21 node)
 
@@ -213,49 +227,45 @@ start
                       build_decision_packet
 ```
 
-### Этапы
+### Stages
 
-1. **Подготовка данных** (параллельно):
-
+1. **Data preparation** (in parallel):
    - `build_data_snapshot` — Fabric DataSnapshot
    - `build_execution_plan` → `build_method_catalog_snapshot` → `run_preflight` → `ready_to_run`
-   - `link_trinity` — валидация TrinityBundle
+   - `link_trinity` — validates the TrinityBundle
    - `bind_foundry_inputs` → `run_data_plane_gate` — PII/quality gates
 
-2. **Компиляция**:
-
+2. **Compilation:**
    - `compile_foundry` — TrinityBundle → Foundry exec plan
-   - `compile_cross_graph_evidence` — сбор evidence из 3 графов
-   - `resolve_parameters` — каузальные параметры из SKG
+   - `compile_cross_graph_evidence` — gathers evidence from the three graphs
+   - `resolve_parameters` — obtains causal parameters from the SKG
 
-3. **Симуляция и анализ** (параллельно после `run_simulation`):
+3. **Simulation and analysis** (in parallel after `run_simulation`):
+   - `legal_check` — checks legality
+   - `run_causal_evaluation` — causal analysis (ATE, HTE)
+   - `run_distributional_analysis` — distribution across groups
+   - `propagate_uncertainty` — propagates uncertainty
 
-   - `legal_check` — проверка легальности
-   - `run_causal_evaluation` — каузальный анализ (ATE, HTE)
-   - `run_distributional_analysis` — распределение по группам
-   - `propagate_uncertainty` — propagation неопределённости
-
-4. **Governance и решение**:
-
-   - `run_normative_arbitration` — нормативные trade-offs
+4. **Governance and decision:**
+   - `run_normative_arbitration` — normative trade-offs
    - `run_governance` — governance gates (verdict: APPROVED | NEEDS_REVISION | BLOCKED)
-   - `run_evaluator` — оценка качества run
-   - `build_decision_packet` — финальный пакет решения
+   - `run_evaluator` — evaluates run quality
+   - `build_decision_packet` — builds the final decision packet
 
 ---
 
 <a id="5-scientist_causal_full-полныи-каузальныи-анализ"></a>
 
-## 5. scientist_causal_full — полный каузальный анализ
+## 5. scientist_causal_full — full causal analysis
 
-### Отличия от default (+4 node)
+### Differences from `default` (+4 nodes)
 
 ```text
-Дополнительные узлы:
-  build_literature_prior → reconcile_causal_graph  (до compile_cross_graph_evidence)
-  run_causal_queries → run_causal_ensemble         (после run_causal_evaluation)
-  run_abm_consistency                               (после run_causal_ensemble)
-  run_transportability                              (после run_abm_consistency)
+Additional nodes:
+  build_literature_prior → reconcile_causal_graph  (before compile_cross_graph_evidence)
+  run_causal_queries → run_causal_ensemble         (after run_causal_evaluation)
+  run_abm_consistency                               (after run_causal_ensemble)
+  run_transportability                              (after run_abm_consistency)
 ```
 
 ### DAG (25 nodes)
@@ -299,33 +309,33 @@ start
                       build_decision_packet
 ```
 
-### Новые этапы
+### Additional stages
 
-| Node                     | Что делает                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| `build_literature_prior` | Строит LiteratureCausalPrior из SKG: каузальный граф с literature evidence   |
-| `reconcile_causal_graph` | Мёрж data graph + literature prior + LLM hints → reconciled graph            |
-| `run_causal_queries`     | Структурный каузальный запрос (interventional/counterfactual) через GCM      |
-| `run_causal_ensemble`    | Ensemble из ≤10 SCM → shared query → consensus с uncertainty envelope        |
-| `run_abm_consistency`    | Сверка SCM macro effects ↔ ABM micro aggregates (phase transition detection) |
-| `run_transportability`   | Three-graph closure: causal + datasets + legal → transport result            |
+| Node                     | What it does                                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `build_literature_prior` | Builds `LiteratureCausalPrior` from the SKG: a causal graph with literature evidence                  |
+| `reconcile_causal_graph` | Merges the data graph, literature prior, and LLM hints into a reconciled graph                        |
+| `run_causal_queries`     | Runs a structural causal query (interventional/counterfactual) through GCM                            |
+| `run_causal_ensemble`    | Runs a shared query across an ensemble of ≤10 SCMs and forms a consensus with an uncertainty envelope |
+| `run_abm_consistency`    | Compares SCM macro effects with ABM micro aggregates (phase-transition detection)                     |
+| `run_transportability`   | Three-graph closure: causal + datasets + legal → transport result                                     |
 
 ---
 
 <a id="6-scientist_policy_verified-верифицированная-политика"></a>
 
-## 6. scientist_policy_verified — верифицированная политика
+## 6. scientist_policy_verified — verified policy
 
-### Назначение
+### Purpose
 
-Workflow для случаев, когда нет готового TrinityBundle, а есть policy question.
-Система самостоятельно:
+This workflow is intended for cases where no TrinityBundle is ready and only a policy question is available.
+The documented workflow has the following stages:
 
-1. Ищет юридические основания в Lex graph
-2. Верифицирует найденные источники
-3. Составляет policy options
-4. Формализует в TrinityBundle для Foundry
-5. Проводит полный анализ (simulation + causal + governance)
+1. Finds legal grounds in the Lex graph.
+2. Verifies the sources it finds.
+3. Drafts policy options.
+4. Formalizes them as a TrinityBundle for Foundry.
+5. Runs the full analysis (simulation + causal analysis + governance).
 
 ### DAG (25 nodes)
 
@@ -364,107 +374,106 @@ start
       └────────────────────────── build_decision_packet
 ```
 
-### Этап 1: Планирование запроса
+### Stage 1: Request planning
 
-**`plan_policy_request`** — создаёт PolicyRequestFrame:
+**`plan_policy_request`** — creates a PolicyRequestFrame:
 
-- Извлекает policy_question, jurisdiction (default: UA), domain, as_of
-- Генерирует request_id через SHA256 hash
-- Устанавливает `policy_answer_mode = "verified_async"`
+- Extracts `policy_question`, jurisdiction (default: `UA`), domain, and `as_of`.
+- Generates `request_id` from a SHA-256 hash.
+- Sets `policy_answer_mode = "verified_async"`.
 
-### Этап 2: Сбор юридических кандидатов
+### Stage 2: Legal candidate collection
 
-**`compile_cross_graph_evidence`** — собирает evidence profile из трёх графов.
+**`compile_cross_graph_evidence`** — gathers an evidence profile from the three graphs.
 
-**`assemble_legal_candidate_pack`** — поиск в Lex graph:
+**`assemble_legal_candidate_pack`** — searches the Lex graph:
 
-- Генерирует до `max_candidate_queries` (default 40) поисковых запросов
-- Включает украиноязычные варианты запросов
-- Собирает fact_hits и provision_hits
-- Отслеживает hit_reasons и anchor_coverage
+- Generates up to `max_candidate_queries` (default: 40) search queries.
+- Includes Ukrainian-language query variants.
+- Collects `fact_hits` and `provision_hits`.
+- Tracks `hit_reasons` and `anchor_coverage`.
 
-### Этап 3: Развёртывание источников
+### Stage 3: Source expansion
 
-**`expand_legal_source_pack`** — разрешает кандидатов в полные source bundles:
+**`expand_legal_source_pack`** — resolves candidates into full source bundles:
 
-- Загружает версионные цепочки документов
-- Разрешает reference neighbourhood (max_reference_hops=2)
-- Собирает appendix context (заголовки, таблицы)
-- Лимит: max_source_docs=120
+- Loads document version chains.
+- Resolves the reference neighborhood (`max_reference_hops=2`).
+- Collects appendix context (headings and tables).
+- Limit: `max_source_docs=120`.
 
-### Этап 4: Верификация источников
+### Stage 4: Source verification
 
-**`run_source_verification`** — верификация цитат и claims:
+**`run_source_verification`** — verifies citations and claims:
 
-1. **Baseline claims** — детерминистично из source bundles + candidate facts:
-
-   - Проверяет: цитата существует в тексте, anchor совпадает
+1. **Baseline claims** — derived deterministically from source bundles and candidate facts:
+   - Checks that the citation exists in the text and the anchor matches.
    - Confidence = max(0.5, min(fact.confidence, 0.99))
-2. **LLM verification** (опционально, если доступен LLM):
 
-   - Каждый source bundle → verifier agent → JSON с claims
-   - Считает disagreement_rate (baseline vs LLM)
-3. **Merge** — дедупликация по (claim_type, anchor, claim_text), сохраняет с наивысшим confidence
-4. **Gap detection** — source bundles без verified claims → SourceCoverageGap
+2. **LLM verification** (optional, if an LLM is available):
+   - Each source bundle → verifier agent → JSON claims.
+   - Computes `disagreement_rate` (baseline vs. LLM).
 
-   - Severity "critical" для approval_bundle/amendment_bundle
+3. **Merge** — deduplicates by `(claim_type, anchor, claim_text)` and keeps the highest-confidence result.
+4. **Gap detection** — source bundles with no verified claims become `SourceCoverageGap` records.
+   - Severity is `critical` for `approval_bundle` and `amendment_bundle`.
 
-### Этап 5: Обзор пробелов (Bounded Recovery)
+### Stage 5: Gap review (bounded recovery)
 
-**`run_source_gap_review`** — итеративное восстановление coverage:
+**`run_source_gap_review`** — iteratively attempts to recover coverage:
 
 ```text
-Цикл 1: gaps → recovery queries → re-assemble → re-expand → re-verify → merge
-Цикл 2: если gaps остались → повторить
-После цикла 2: СТОП — выпустить report с unresolved_critical_gaps
+Cycle 1: gaps → recovery queries → re-assemble → re-expand → re-verify → merge
+Cycle 2: if gaps remain → repeat
+After cycle 2: STOP → emit a report with `unresolved_critical_gaps`
 ```
 
-**Ограничения:**
+**Limits:**
 
-- `verification_cycles_completed >= 2` → прекратить recovery
-- `max_gap_review_calls = 80` — бюджет на gap review
-- Если critical gaps остаются → `needs_expert_review = True`
+- `verification_cycles_completed >= 2` → stop recovery.
+- `max_gap_review_calls = 80` — gap-review budget.
+- If critical gaps remain → `needs_expert_review = True`.
 
-### Этап 6: Составление policy options
+### Stage 6: Drafting policy options
 
-**`draft_policy_options`** — из verified claims:
+**`draft_policy_options`** — uses verified claims:
 
-- `verified_options` — подкреплённые цитатами и юридическими основаниями
-- `hypothesis_options` — гипотетические (если `allow_hypotheses=True`)
-- Каждый option включает: title, summary, legal_basis_refs, constraints
+- `verified_options` — supported by citations and legal grounds.
+- `hypothesis_options` — hypothetical options (when `allow_hypotheses=True`).
+- Each option includes: `title`, `summary`, `legal_basis_refs`, and `constraints`.
 
-### Этап 7: Формализация
+### Stage 7: Formalization
 
 **`formalize_verified_policy`** — PolicyOptionSet → TrinityBundle:
 
-- Выбирает primary option (первый verified, fallback на hypothesis)
-- Создаёт DraftResult с interventions
-- Формализует через MockFormalizerAgent → TrinityBundle
-- Устанавливает `policy_trinity_generated = True`
+- Selects the primary option (the first verified option, falling back to a hypothesis).
+- Creates a `DraftResult` with interventions.
+- Uses `MockFormalizerAgent` to create a TrinityBundle.
+- Sets `policy_trinity_generated = True`.
 
-### Этап 8: Стандартный pipeline (как в default)
+### Stage 8: Standard pipeline (as in `default`)
 
 `compile_foundry` → `resolve_parameters` → `run_simulation` → analysis → governance
 
-### Этап 9: Финальный отчёт
+### Stage 9: Final report
 
-**`build_verified_policy_report`** — собирает VerifiedPolicyReport:
+**`build_verified_policy_report`** — assembles a `VerifiedPolicyReport`:
 
 - executive_summary
-- verified_legal_basis (все verified claims)
+- `verified_legal_basis` (all verified claims)
 - policy_options (verified + hypothesis)
 - constraints_and_timing
 - simulation_and_causal_implications
-- verified_findings (форматированные claims с citation)
+- `verified_findings` (formatted claims with citations)
 - hypotheses
-- missing_evidence (из unresolved_critical_gaps)
+- `missing_evidence` (from `unresolved_critical_gaps`)
 - citation_appendix
 - intervention_legal_basis_map
 - needs_expert_review flag
 
-**`build_decision_packet`** — финальный DecisionPacket с monitoring contract.
+**`build_decision_packet`** — final `DecisionPacket` with a monitoring contract.
 
-### Дефолтные параметры policy_verified
+### Default `policy_verified` parameters
 
 ```python
 execution_profile = "policy_verified_async"
@@ -482,7 +491,7 @@ verification_cycles_completed = 0  # max 2
 
 ---
 
-## 7. Foundry и Data Plane { #foundry-data-plane }
+## 7. Foundry and Data Plane { #foundry-data-plane }
 
 ### Data Plane Bindings
 
@@ -494,18 +503,18 @@ External Data
   → GlobalState (typed slots: agent-scoped, firm-scoped)
 ```
 
-**Binding Rules:** source_path → target_slot_id, с трансформациями (identity, to_bool, to_int, scale, clip, round).
+**Binding rules:** `source_path` → `target_slot_id`, with transformations (`identity`, `to_bool`, `to_int`, `scale`, `clip`, `round`).
 
 **Quality Gates (DataPlaneGateNode):**
 
-- PII scan → блокировка если обнаружены PII
-- Quality gate → свежесть (≤14 дней = fresh), grade (A–F)
+- PII scan → block if PII is detected.
+- Quality gate → freshness (≤14 days = fresh), grade (A–F).
 
 ### Causal Engine (Pearl-Bareinboim Orchestrator)
 
-Три фазы:
+Three phases:
 
-**1. Identify** — выбор алгоритма идентификации:
+**1. Identify** — select an identification algorithm:
 
 ```text
 Counterfactual → ctf_transportability | id_star
@@ -516,18 +525,18 @@ Selection/transport → tr_algorithm + SelectionDiagram
 Standard → id_with_oracle_fallback (backdoor/frontdoor)
 ```
 
-Результат: `IdentificationResult` (estimand_ast + proof_steps) или `NegativeCertificate`.
+Result: `IdentificationResult` (`estimand_ast` + `proof_steps`) or `NegativeCertificate`.
 
-**2. Compile** — EstimandAST → ExecutorGraph (DAG typed nodes с method_fqn, params, dependencies).
+**2. Compile** — `EstimandAST` → `ExecutorGraph` (DAG of typed nodes with `method_fqn`, `params`, and `dependencies`).
 
-**3. Estimate** — топологическое выполнение:
+**3. Estimate** — execute nodes in topological order:
 
 - Nuisance nodes (propensity, outcome models)
 - Primary estimators (AIPW, DML, IPW, CATE)
 - Diagnostics (positivity, overlap, covariate balance)
 - → CausalEffectReport + EvidenceBundle
 
-### Методы (protocols.py)
+### Methods (`protocols.py`)
 
 | Contract                     | Use Case                                 |
 | ---------------------------- | ---------------------------------------- |
@@ -545,17 +554,17 @@ Standard → id_with_oracle_fallback (backdoor/frontdoor)
 
 <a id="8-ir-analytics-промежуточные-представления"></a>
 
-## 8. IR Analytics — промежуточные представления
+## 8. IR Analytics — intermediate representations
 
 ### CausalEffectReport
 
 - point_estimate, confidence_interval, inference_method
 - placebo_results, refutation_results, diagnostic_tests
-- → конвертируется в UncertaintyEnvelope
+- → converted to an `UncertaintyEnvelope`
 
 ### EstimandAST
 
-Типизированное дерево каузального запроса:
+A typed tree for a causal query:
 
 - Leaf: `DistributionRef` — P(Y|X), P\*(Y|do(X))
 - Operators: Sum, Product, Ratio, Integral, Nuisance
@@ -563,7 +572,7 @@ Standard → id_with_oracle_fallback (backdoor/frontdoor)
 
 ### EvidenceBundle
 
-Машинно-читаемый audit trail:
+Machine-readable audit trail:
 
 - proof_steps (identification)
 - data_provenance
@@ -574,7 +583,7 @@ Standard → id_with_oracle_fallback (backdoor/frontdoor)
 
 ### NegativeCertificate
 
-Когда identification не удался:
+When identification fails:
 
 - blocking_type: HEDGE | S_NODE | POSITIVITY | SUPPORT_MISMATCH | MISSING_DISTRIBUTION
 - fallback_results: partial identification bounds
@@ -583,7 +592,7 @@ Standard → id_with_oracle_fallback (backdoor/frontdoor)
 
 ---
 
-## 9. Checkpoint и восстановление { #checkpoint-recovery }
+## 9. Checkpoint and recovery { #checkpoint-recovery }
 
 ### Checkpoint Policy
 
@@ -591,107 +600,107 @@ Standard → id_with_oracle_fallback (backdoor/frontdoor)
 CheckpointPolicy = "off" | "strict" | "best_effort"
 ```
 
-### Как работает
+### How it works
 
-1. После каждого node → `CASCheckpointHook.on_node_complete()`
-2. Сохраняет: run_id, sequence_number, completed_nodes, workflow_fingerprint, cache_entry_refs
-3. При восстановлении: загружает NodeResultCache из checkpoint refs
-4. Если `workflow_fingerprint` не совпадает → `WorkflowMismatchError`
-5. Run lock через `fcntl.flock` предотвращает параллельный запуск одного run_id
+1. After each node → `CASCheckpointHook.on_node_complete()`.
+2. Saves: `run_id`, `sequence_number`, `completed_nodes`, `workflow_fingerprint`, and `cache_entry_refs`.
+3. On recovery: loads `NodeResultCache` from checkpoint references.
+4. If `workflow_fingerprint` does not match → `WorkflowMismatchError`.
+5. A run lock via `fcntl.flock` prevents concurrent execution of the same `run_id`.
 
 ### Node Cache
 
 - Idempotency key = SHA256(workflow_spec + state + bind_params)
-- Disabled для: noop, set_state, emit_artifact, enrich_knowledge
-- При cache hit → skip execution, используется cached outcome
+- Disabled for: `noop`, `set_state`, `emit_artifact`, and `enrich_knowledge`.
+- On a cache hit → skip execution and use the cached outcome.
 
 ### Error Policy
 
-Все три workflow используют `error_policy = "continue"`:
+All three workflows use `error_policy = "continue"`:
 
-- При fail node → upstream nodes блокируются
-- Остальные ветки DAG продолжают выполнение
-- Финальный WorkflowReport содержит статус каждого node
+- When a node fails → its upstream nodes are blocked.
+- Other DAG branches continue executing.
+- The final `WorkflowReport` contains the status of every node.
 
 ---
 
-## 10. Детальное описание каждого node { #node-details }
+## 10. Node-by-node reference { #node-details }
 
 ### Data Nodes
 
-| Node                    | Node ID                                    | Описание                                                                                                  |
-| ----------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| **build_data_snapshot** | `scientist.node_build_data_snapshot@1.0.0` | Вызывает Fabric snapshot() для создания DataSnapshot. Если уже есть — skip. Извлекает PII scan summary.   |
-| **bind_foundry_inputs** | `scientist.node_bind_foundry_inputs@1.0.0` | Строит deterministic foundry input bindings. Валидирует model spec. Возвращает binding report.            |
-| **enrich_knowledge**    | `scientist.node_enrich_knowledge@1.1.0`    | Строит knowledge_bundle через Scholar. Управляет freshness, cooldown, drift. Distributed refresh locking. |
+| Node                    | Node ID                                    | Description                                                                                                            |
+| ----------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **build_data_snapshot** | `scientist.node_build_data_snapshot@1.0.0` | Calls Fabric `snapshot()` to create a `DataSnapshot`. Skips if one already exists. Extracts the PII scan summary.      |
+| **bind_foundry_inputs** | `scientist.node_bind_foundry_inputs@1.0.0` | Builds deterministic Foundry input bindings. Validates the model spec. Returns a binding report.                       |
+| **enrich_knowledge**    | `scientist.node_enrich_knowledge@1.1.0`    | Builds a `knowledge_bundle` through Scholar. Manages freshness, cooldown, and drift. Uses distributed refresh locking. |
 
 ### Planning Nodes
 
-| Node                              | Node ID                                              | Описание                                                                                             |
-| --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **plan_policy_request**           | `scientist.node_plan_policy_request@1.0.0`           | Создаёт PolicyRequestFrame из policy_question + jurisdiction + domain. _(policy_verified only)_      |
-| **build_execution_plan**          | `scientist.node_build_execution_plan@1.0.0`          | Создаёт/сохраняет ExecutionPlan (data_needs, constraints, expected_outputs).                         |
-| **build_method_catalog_snapshot** | `scientist.node_build_method_catalog_snapshot@1.0.0` | Snapshot каталога FoundryMethod + capability contract.                                               |
-| **run_preflight**                 | `scientist.node_run_preflight@1.0.0`                 | Валидация ExecutionPlan vs live method catalog. Устанавливает preflight_ready.                       |
-| **ready_to_run**                  | `scientist.node_ready_to_run@1.0.0`                  | Hard gate: блокирует если preflight_ready=False.                                                     |
-| **compile_cross_graph_evidence**  | `scientist.node_compile_cross_graph_evidence@1.0.0`  | CrossGraphEvidenceCompiler: объединяет evidence из 3 графов. Оценивает benchmarks.                   |
-| **assemble_legal_candidate_pack** | `scientist.node_assemble_legal_candidate_pack@1.0.0` | Поиск юридических кандидатов в Lex graph (до 40 запросов, вкл. украинские). _(policy_verified only)_ |
-| **expand_legal_source_pack**      | `scientist.node_expand_legal_source_pack@1.0.0`      | Разрешение кандидатов в source bundles с version chains и references. _(policy_verified only)_       |
-| **run_source_verification**       | `scientist.node_run_source_verification@1.0.0`       | Baseline + LLM верификация claims. Gap detection. _(policy_verified only)_                           |
-| **run_source_gap_review**         | `scientist.node_run_source_gap_review@1.0.0`         | Итеративное восстановление coverage (max 2 цикла). _(policy_verified only)_                          |
-| **draft_policy_options**          | `scientist.node_draft_policy_options@1.0.0`          | Составление verified + hypothesis policy options. _(policy_verified only)_                           |
-| **run_evaluator**                 | `scientist.node_run_evaluator@1.0.0`                 | Оценка качества run, решение о следующей итерации.                                                   |
+| Node                              | Node ID                                              | Description                                                                                                            |
+| --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **plan_policy_request**           | `scientist.node_plan_policy_request@1.0.0`           | Creates a PolicyRequestFrame from `policy_question`, jurisdiction, and domain. _(policy_verified only)_                |
+| **build_execution_plan**          | `scientist.node_build_execution_plan@1.0.0`          | Creates and persists an ExecutionPlan (`data_needs`, `constraints`, `expected_outputs`).                               |
+| **build_method_catalog_snapshot** | `scientist.node_build_method_catalog_snapshot@1.0.0` | Snapshots the FoundryMethod catalog and capability contract.                                                           |
+| **run_preflight**                 | `scientist.node_run_preflight@1.0.0`                 | Validates the ExecutionPlan against the live method catalog. Sets `preflight_ready`.                                   |
+| **ready_to_run**                  | `scientist.node_ready_to_run@1.0.0`                  | Hard gate: blocks execution if `preflight_ready=False`.                                                                |
+| **compile_cross_graph_evidence**  | `scientist.node_compile_cross_graph_evidence@1.0.0`  | `CrossGraphEvidenceCompiler`: combines evidence from three graphs and evaluates benchmarks.                            |
+| **assemble_legal_candidate_pack** | `scientist.node_assemble_legal_candidate_pack@1.0.0` | Searches the Lex graph for legal candidates (up to 40 queries, including Ukrainian variants). _(policy_verified only)_ |
+| **expand_legal_source_pack**      | `scientist.node_expand_legal_source_pack@1.0.0`      | Expands candidates into source bundles with version chains and references. _(policy_verified only)_                    |
+| **run_source_verification**       | `scientist.node_run_source_verification@1.0.0`       | Baseline + LLM claim verification; gap detection. _(policy_verified only)_                                             |
+| **run_source_gap_review**         | `scientist.node_run_source_gap_review@1.0.0`         | Iteratively attempts to recover coverage (max 2 cycles). _(policy_verified only)_                                      |
+| **draft_policy_options**          | `scientist.node_draft_policy_options@1.0.0`          | Drafts verified and hypothesis policy options. _(policy_verified only)_                                                |
+| **run_evaluator**                 | `scientist.node_run_evaluator@1.0.0`                 | Evaluates run quality and decides whether another iteration is needed.                                                 |
 
 ### Compile Nodes
 
-| Node                          | Node ID                                          | Описание                                                                                                                 |
-| ----------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| **link_trinity**              | `scientist.node_link_trinity@1.0.0`              | Валидация TrinityBundle: mechanisms, slots, merge rules, constraints, selectors, units.                                  |
-| **compile_foundry**           | `scientist.node_compile_foundry@1.0.0`           | Trinity → Foundry exec plan. Производит 7 артефактов (exec_plan, lowered_ir, program_graph, slot_layout, treasury_plan). |
-| **formalize_verified_policy** | `scientist.node_formalize_verified_policy@1.0.0` | PolicyOptionSet → TrinityBundle для Foundry. _(policy_verified only)_                                                    |
+| Node                          | Node ID                                          | Description                                                                                                                              |
+| ----------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **link_trinity**              | `scientist.node_link_trinity@1.0.0`              | Validates the TrinityBundle: mechanisms, slots, merge rules, constraints, selectors, and units.                                          |
+| **compile_foundry**           | `scientist.node_compile_foundry@1.0.0`           | Compiles Trinity into a Foundry execution plan. Produces 7 artifacts (exec_plan, lowered_ir, program_graph, slot_layout, treasury_plan). |
+| **formalize_verified_policy** | `scientist.node_formalize_verified_policy@1.0.0` | Converts a PolicyOptionSet to a TrinityBundle for Foundry. _(policy_verified only)_                                                      |
 
 ### Simulate Nodes
 
-| Node                            | Node ID                                            | Описание                                                                                                                                     |
-| ------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **run_simulation**              | `scientist.node_run_simulation@1.0.0`              | Выполнение Foundry exec plan. Производит 8 артефактов (result, metrics, state_delta, snapshot, constraints, environment, attestation, sbom). |
-| **run_distributional_analysis** | `scientist.node_run_distributional_analysis@1.0.0` | DistributionalReport: breakdown по geography/income quintiles.                                                                               |
-| **propagate_uncertainty**       | `scientist.node_propagate_uncertainty@1.0.0`       | Propagation input uncertainty → output metrics.                                                                                              |
-| **run_causal_evaluation**       | `scientist.node_run_causal_evaluation@2.0.0`       | Каузальный анализ (ATE/HTE). Опционально refutation + sensitivity. Сохраняет полный объявленный контракт выходов; условные выходы несут проверяемый типизированный отказ.                                                  |
+| Node                            | Node ID                                            | Description                                                                                                                                                            |
+| ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **run_simulation**              | `scientist.node_run_simulation@1.0.0`              | Executes the Foundry plan. Produces 8 artifacts (result, metrics, state_delta, snapshot, constraints, environment, attestation, sbom).                                 |
+| **run_distributional_analysis** | `scientist.node_run_distributional_analysis@1.0.0` | `DistributionalReport`: breakdown by geography and income quintile.                                                                                                    |
+| **propagate_uncertainty**       | `scientist.node_propagate_uncertainty@1.0.0`       | Propagation input uncertainty → output metrics.                                                                                                                        |
+| **run_causal_evaluation**       | `scientist.node_run_causal_evaluation@2.0.0`       | Causal analysis (ATE/HTE). Refutation and sensitivity are optional. Preserves the full declared output contract; conditional outputs carry a verifiable typed refusal. |
 
 ### Causal Nodes (causal_full only)
 
-| Node                       | Node ID                                       | Описание                                                                   |
-| -------------------------- | --------------------------------------------- | -------------------------------------------------------------------------- |
-| **build_literature_prior** | `scientist.node_build_literature_prior@1.0.0` | LiteratureCausalPrior из SKG: каузальный граф с evidence weights.          |
-| **reconcile_causal_graph** | `scientist.node_reconcile_causal_graph@1.0.0` | Merge: data graph + literature prior + LLM hints → reconciled graph.       |
-| **run_causal_queries**     | `scientist.node_run_causal_queries@1.0.0`     | Структурный каузальный запрос через GCM. Persists query result + envelope. |
-| **run_causal_ensemble**    | `scientist.node_run_causal_ensemble@1.0.0`    | ≤10 SCM members → shared query → consensus weights → uncertainty envelope. |
-| **run_abm_consistency**    | `scientist.node_run_abm_consistency@1.0.0`    | SCM macro effects ↔ ABM aggregates. Phase transition detection.            |
-| **run_transportability**   | `scientist.node_resolve_transport@1.0.0`      | Three-graph closure (causal + datasets + legal) → TransportabilityResult.  |
+| Node                       | Node ID                                       | Description                                                                          |
+| -------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **build_literature_prior** | `scientist.node_build_literature_prior@1.0.0` | Builds a `LiteratureCausalPrior` from the SKG: a causal graph with evidence weights. |
+| **reconcile_causal_graph** | `scientist.node_reconcile_causal_graph@1.0.0` | Merge: data graph + literature prior + LLM hints → reconciled graph.                 |
+| **run_causal_queries**     | `scientist.node_run_causal_queries@1.0.0`     | Runs a structural causal query through GCM. Persists the query result and envelope.  |
+| **run_causal_ensemble**    | `scientist.node_run_causal_ensemble@1.0.0`    | ≤10 SCM members → shared query → consensus weights → uncertainty envelope.           |
+| **run_abm_consistency**    | `scientist.node_run_abm_consistency@1.0.0`    | SCM macro effects ↔ ABM aggregates. Phase transition detection.                      |
+| **run_transportability**   | `scientist.node_resolve_transport@1.0.0`      | Three-graph closure (causal + datasets + legal) → TransportabilityResult.            |
 
 ### Governance Nodes
 
-| Node                          | Node ID                                          | Описание                                                                                                              |
+| Node                          | Node ID                                          | Description                                                                                                           |
 | ----------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| **run_data_plane_gate**       | `scientist.node_data_plane_gate@1.0.0`           | PII + Quality gates до expensive Foundry execution.                                                                   |
+| **run_data_plane_gate**       | `scientist.node_data_plane_gate@1.0.0`           | PII and quality gates before expensive Foundry execution.                                                             |
 | **legal_check**               | `scientist.node_legal_check@1.0.0`               | Evaluate legality: NormPack → LegalReport + ChangeProposal (compliance grade).                                        |
-| **run_normative_arbitration** | `scientist.node_run_normative_arbitration@1.0.0` | Нормативные trade-offs: stakeholder utilities, outcomes, rights audit.                                                |
+| **run_normative_arbitration** | `scientist.node_run_normative_arbitration@1.0.0` | Normative trade-offs: stakeholder utilities, outcomes, and rights audit.                                              |
 | **run_governance**            | `scientist.node_run_governance@1.0.0`            | Governance pipeline: quality → safety → alignment → consistency → tradeoff. Verdict: APPROVED/NEEDS_REVISION/BLOCKED. |
 
 ### Decide Nodes
 
-| Node                             | Node ID                                             | Описание                                                                                  |
-| -------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| **build_verified_policy_report** | `scientist.node_build_verified_policy_report@1.0.0` | VerifiedPolicyReport с verified findings, citations, gaps. _(policy_verified only)_       |
-| **build_decision_packet**        | `scientist.node_build_decision_packet@1.0.0`        | Финальный DecisionPacket: validity envelope, triggers, dependencies, monitoring contract. |
+| Node                             | Node ID                                             | Description                                                                                  |
+| -------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **build_verified_policy_report** | `scientist.node_build_verified_policy_report@1.0.0` | `VerifiedPolicyReport` with verified findings, citations, and gaps. _(policy_verified only)_ |
+| **build_decision_packet**        | `scientist.node_build_decision_packet@1.0.0`        | Final `DecisionPacket`: validity envelope, triggers, dependencies, and monitoring contract.  |
 
 ---
 
-## Приложение: Полный путь данных в policy_verified
+## Appendix: Data path through `policy_verified`
 
 ```text
-1. Policy Question ("Яка податкова ставка оптимальна для ФОП?")
+1. Policy question ("Яка податкова ставка оптимальна для ФОП?" — Ukrainian input literal; English gloss: "Which tax rate is optimal for a sole proprietor?")
    │
 2. plan_policy_request
    │  → PolicyRequestFrame {question, jurisdiction="UA", domain, goals, constraints}
@@ -701,34 +710,34 @@ CheckpointPolicy = "off" | "strict" | "best_effort"
    │
 4. assemble_legal_candidate_pack
    │  → LegalCandidatePack {fact_hits, provision_hits, queries}
-   │  Запросы: "податкова ставка ФОП", "єдиний податок група", "tax rate sole proprietor UA"
+   │  Query literals: "податкова ставка ФОП" (tax rate for a sole proprietor), "єдиний податок група" (single-tax group), "tax rate sole proprietor UA"
    │
 5. expand_legal_source_pack
-   │  → LegalSourcePack {source_bundles с version chains, reference context}
-   │  До 120 документів, до 2 hops reference resolution
+   │  → LegalSourcePack {source_bundles with version chains, reference context}
+   │  Up to 120 documents, up to 2 hops for reference resolution
    │
 6. run_source_verification
    │  → SourceVerificationReport {verified_claims, unresolved_gaps}
-   │  Baseline: цитати + факти → claims
+   │  Baseline: citations + facts → claims
    │  LLM: verifier agent → validated claims
    │  Merge → deduplicated claims
    │
 7. run_source_gap_review  (max 2 cycles)
-   │  Цикл 1: gaps → recovery queries → re-assemble → re-verify → merge
-   │  Цикл 2: якщо gaps залишились → повторити
-   │  Після 2 циклів: СТОП → unresolved_critical_gaps
+   │  Cycle 1: gaps → recovery queries → re-assemble → re-verify → merge
+   │  Cycle 2: if gaps remain → repeat
+   │  After 2 cycles: STOP → unresolved_critical_gaps
    │
 8. draft_policy_options
    │  → PolicyOptionSet {verified_options, hypothesis_options}
    │
 9. formalize_verified_policy
-   │  → TrinityBundle (з interventions та constraints)
+   │  → TrinityBundle (with interventions and constraints)
    │
 10. compile_foundry → resolve_parameters → run_simulation
     │  → SimulationResult, Metrics, StateSnapshot
     │
 11. legal_check + run_causal_eval + run_distrib + propagate_uncertainty
-    │  (параллельно)
+     │  (in parallel)
     │
 12. run_normative_arbitration → run_governance
     │  → GovernanceReport {verdict, issues}

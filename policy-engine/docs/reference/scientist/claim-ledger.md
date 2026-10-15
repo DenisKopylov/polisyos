@@ -4,14 +4,18 @@ Related references: [Claims](claims.md), [Wave 2 runtime contracts](wave2-runtim
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/evidence/claims/audit.py`, `src/polisyos/scientist/evidence/claims/diff.py`, `src/polisyos/scientist/evidence/claims/export.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/unit/scientist/evidence/claims/test_lifecycle.py`, `tests/unit/scientist/evidence/claims/test_audit.py`, `tests/unit/scientist/evidence/claims/test_diff.py`, `tests/unit/scientist/evidence/claims/test_export.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
+Source of truth: `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/evidence/claims/audit.py`, `src/polisyos/scientist/evidence/claims/diff.py`, `src/polisyos/scientist/evidence/claims/export.py`, `src/polisyos/scientist/evidence/claims/head_index.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/evidence/README.md`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/unit/scientist/evidence/claims/test_lifecycle.py`, `tests/unit/scientist/evidence/claims/test_audit.py`, `tests/unit/scientist/evidence/claims/test_diff.py`, `tests/unit/scientist/evidence/claims/test_export.py`, `tests/unit/scientist/evidence/claims/test_head_index.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed for this docs-only update.
 
 `decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
 producer; `build_decision_packet.py` remains a compatibility facade.
 
-The Claim Ledger is the Wave 2 object that links research, governance,
-provenance, human review, UI export and audit at claim level. It extends the
-Phase 1.1 `ClaimLedger` sidecar; it does not replace `ClaimRecord`,
+The Claim Ledger v2 contract defines claim-level lifecycle and projection
+surfaces for research, governance, provenance, human review, export and audit.
+These integrations are additive and selected; they do not establish a universal
+end-to-end chain or an appointed current-head authority. It extends the Phase
+1.1 `ClaimLedger` sidecar; it does not replace `ClaimRecord`,
 `ClaimLedger`, `claims_ref` or the public `DecisionReadinessContract` ladder.
 
 ## Runtime Contracts
@@ -95,6 +99,23 @@ scientist.best_in_class.wave2.phase2_1.require_lifecycle_events
 
 Production default remains off until later Wave 2 gates require lifecycle
 events for selected high-risk publication paths.
+
+## Claim-Owner Currentness Boundary
+
+The lifecycle sidecar and the authority to advance a current Claim head are
+separate. The production workflow builder calls
+`build_default_claim_ledger_owner()`, whose current implementation returns
+`UnappointedClaimLedgerOwner`. It can persist and project candidate data, but
+its root-issuance and head-resolution methods return typed
+`not_established` non-receipts (`claim_root_issuance_not_established` and
+`claim_head_absent`). The production Claim-owner appointment slot remains
+empty (`absent/unallocated`), so Claim currentness is `not_established` in the
+default composition. Enabling the v2 sidecar flag does not appoint an owner:
+an event log, v2 ref, packet summary, or export projection is not by itself an
+owner-approved current head. The boundary is described in
+`src/polisyos/scientist/evidence/claims/head_index.py`,
+`src/polisyos/scientist/orchestration/workflows/builder.py`, and
+`src/polisyos/scientist/evidence/README.md`.
 
 ## Validation
 

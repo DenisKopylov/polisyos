@@ -1,28 +1,28 @@
 # Terraform (`ops/cloud/terraform`)
 
-Terraform модуль для dedicated confidential node pool в AKS.
+Terraform module for a dedicated confidential node pool in AKS.
 
-## Что есть в директории
+## Directory Contents
 
-| Путь                                    | Назначение                                                                             |
-| --------------------------------------- | -------------------------------------------------------------------------------------- |
-| `modules/confidential_nodepool/main.tf` | `azurerm_kubernetes_cluster_node_pool` с `KataCcIsolation`, labels/taints для PolicyOS |
+| Path                                    | Purpose                                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `modules/confidential_nodepool/main.tf` | `azurerm_kubernetes_cluster_node_pool` with `KataCcIsolation` and PolicyOS labels/taints |
 
-## Роль в системе
+## Role in the System
 
-Модуль подготавливает ноды под confidential workload path, который использует `ops/cloud/helm/polisyos-cell/templates/runtimeclass-confidential.yaml`.
+The module prepares nodes for the confidential workload path used by `ops/cloud/helm/polisyos-cell/templates/runtimeclass-confidential.yaml`.
 
-## Параметры модуля
+## Module Parameters
 
-| Переменная       | Тип      | По умолчанию         | Назначение                  |
-| ---------------- | -------- | -------------------- | --------------------------- |
-| `cluster_id`     | `string` | -                    | resource ID AKS кластера    |
-| `cell_id`        | `string` | -                    | идентификатор PolicyOS cell |
-| `vm_size`        | `string` | `Standard_DC16as_v5` | размер Confidential VM      |
-| `node_count`     | `number` | `2`                  | initial/min nodes           |
-| `max_node_count` | `number` | `8`                  | autoscaler maximum          |
+| Variable         | Type     | Default              | Purpose                  |
+| ---------------- | -------- | -------------------- | ------------------------ |
+| `cluster_id`     | `string` | -                    | AKS cluster resource ID  |
+| `cell_id`        | `string` | -                    | PolicyOS cell identifier |
+| `vm_size`        | `string` | `Standard_DC16as_v5` | Confidential VM size     |
+| `node_count`     | `number` | `2`                  | initial/min nodes        |
+| `max_node_count` | `number` | `8`                  | autoscaler maximum       |
 
-## Что настраивается
+## What the Module Configures
 
 - `workload_runtime = "KataCcIsolation"`;
 - labels: `polisyos.io/cell-id`, `polisyos.io/tier=dedicated`, `polisyos.io/tee=sev-snp`, `polisyos.io/confidential=true`;
@@ -34,12 +34,12 @@ Terraform модуль для dedicated confidential node pool в AKS.
 - `node_pool_id`
 - `node_pool_name`
 
-## Ограничения
+## Limitations
 
-- модуль не включает provider/backend/root wiring;
-- node pool name: `cvm${substr(var.cell_id, 0, 8)}` (следить за коллизиями при близких `cell_id`).
+- the module does not include provider/backend/root wiring;
+- node pool name: `cvm${substr(var.cell_id, 0, 8)}` (watch for collisions between similar `cell_id` values).
 
-## Пример
+## Example
 
 ```hcl
 module "cell_confidential_pool" {

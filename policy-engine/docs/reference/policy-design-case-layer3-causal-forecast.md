@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py`, and `architecture/policy_design_case/layer3_g2_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 Layer 3 G2 is the causal/forecast search readiness surface for Policy Design Case. It turns canonical L2 SKG search, Foundry method validity, semantic-spine binding, existing S10 `ForecastSupport`, and W12D consumer routing into persisted audit artifacts.
 
 G2 is not recommendation authority. It can expose a bounded forecast tier, uncertainty refs, limitations, denied uses, and handoff refs. It cannot close policy design, grant useful-design credit, publish claims, or turn a raw SKG hit into forecast support without adapter validation and S10 binding.
@@ -35,6 +40,10 @@ The G2 surface carries these denied uses through runtime artifacts and docs:
 - `search_hit_as_authority`
 
 The S10 `ForecastSupport` binding is the only route from G2 search into a visible forecast posture. Search ledgers, Foundry method reports, and transport declarations are supporting evidence until consumed by the S10/W12D bridge.
+
+A readiness result is scoped to G2's declared runtime, persisted-artifact,
+S10/W12D consumer, and projection checks. It is not by itself a functional
+end-to-end policy design or recommendation/design authority.
 
 ## Persisted Artifacts
 
@@ -110,3 +119,9 @@ Replay fields carried across artifacts include:
 - `limitation_refs`
 
 The W12D route injects the G2 forecast gate after G1 and before the outcome-corpus summary. A `not_routed` gate cannot pass G2 readiness unless the run is explicitly in a domain-ceiling repair path.
+
+The pinned G2 readiness manifest records `status=fail`, with method-validity,
+S10-prerequisite, W12D-consumer, and conformance statuses also `fail`. The
+readiness-test source contains passing expectations for a validator execution,
+but this docs update did not execute it; the artifact/test-source divergence is
+unresolved and no recomputed pass is claimed.

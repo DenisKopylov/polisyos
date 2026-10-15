@@ -2,8 +2,7 @@
 
 ## Purpose
 
-`tools/devx/workspace` — repo-local tooling surface для bootstrap, workstation
-preflight, fast local gates, CI parity и remote acceptance closeout.
+`tools/devx/workspace` is the repository-local tooling surface for bootstrap, workstation preflight, fast local gates, CI parity, and remote acceptance closeout.
 
 ## Where to Start
 
@@ -17,34 +16,34 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 
 ## Public Entrypoints
 
-| Entrypoint                                                                         | Purpose                                                                                                                                       |
-| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `uv run polisyos-tools workspace bootstrap`                                        | Подготовить contributor machine и проверить минимальный baseline.                                                                             |
-| `uv run polisyos-tools workspace doctor`                                           | Проверить Python/Node/uv, Playwright, lockfiles, generated contracts и optional env surfaces.                                                 |
-| `uv run polisyos-tools workspace verify`                                           | Запустить стандартный быстрый локальный gate.                                                                                                 |
-| `uv run polisyos-tools workspace docs-style`                                       | Прогнать `markdownlint-cli2` по authored docs и package README/CONTRIBUTING surface.                                                          |
-| `uv run polisyos-tools workspace format-check`                                     | Проверить formatter contract для Python, frontend, shell, TOML и Rego.                                                                        |
-| `uv run polisyos-tools workspace lint-fast`                                        | Прогнать быстрый authored-file lint sweep по Python/docs/YAML/shell/workflows и optional frontend ESLint.                                     |
-| `uv run polisyos-tools workspace python-base-mypy`                                 | Прогнать Phase 3 `mypy` contract по serial base layers: `common -> ir -> core`.                                                               |
-| `uv run polisyos-tools workspace python-base-basedpyright`                         | Прогнать Phase 3 `basedpyright` contract по serial base layers: `common -> ir -> core`, с IR baseline ratchet.                                |
-| `uv run polisyos-tools workspace runtime-surface`                                  | Прогнать Phase 5B runtime gate: Ruff, source type checks, OpenAPI/client drift и `tests/unit/runtime`.                                             |
-| `uv run polisyos-tools workspace lint-full`                                        | Прогнать полный authored lint contract с Phase 3 base-layer type gates, `helm lint` и Rego strict/test pass.                                  |
-| `uv run polisyos-tools workspace benchmark-surfaces`                               | Прогнать Phase 8 gate для `benchmarks/**` и `tools/research/**`: Ruff по authored Python и shell/YAML hooks без markdown/result-bundle churn. |
-| `uv run polisyos-tools workspace clean-local-reports`                              | Показать или удалить stale local reports, benchmark reports и optional source-adjacent residue по Phase 2.9 hygiene contract.                 |
-| `uv run polisyos-tools workspace ci-parity`                                        | Запустить более тяжёлый pass, близкий к основным CI jobs.                                                                                     |
-| `uv run polisyos-tools workspace acceptance-audit`                                 | Сформировать Phase 7 acceptance evidence.                                                                                                     |
-| `uv run polisyos-tools workspace repository-sota-closeout`                         | Проверить fail-closed Repository SOTA policy layer, exception registries и closeout evidence.                                                  |
-| `uv run polisyos-tools workspace tool-configs --check`                             | Проверить split-конфиги `mypy`, Ruff и MkDocs, включая dead override report.                                                                    |
-| `uv run polisyos-tools workspace remote-acceptance`                                | Вести remote Linux runner для тяжёлого closeout.                                                                                              |
+| Entrypoint                                                 | Purpose                                                                                                                                                |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `uv run polisyos-tools workspace bootstrap`                | Prepare a contributor machine and check the minimum baseline.                                                                                          |
+| `uv run polisyos-tools workspace doctor`                   | Check Python/Node/uv, Playwright, lockfiles, generated contracts, and optional environment surfaces.                                                   |
+| `uv run polisyos-tools workspace verify`                   | Run the standard fast local gate.                                                                                                                      |
+| `uv run polisyos-tools workspace docs-style`               | Run `markdownlint-cli2` on authored docs and package README/CONTRIBUTING surfaces.                                                                     |
+| `uv run polisyos-tools workspace format-check`             | Check the formatter contract for Python, frontend, shell, TOML, and Rego.                                                                              |
+| `uv run polisyos-tools workspace lint-fast`                | Run a fast authored-file lint sweep across Python/docs/YAML/shell/workflows and optional frontend ESLint.                                              |
+| `uv run polisyos-tools workspace python-base-mypy`         | Run the Phase 3 `mypy` contract across serial base layers: `common -> ir -> core`.                                                                     |
+| `uv run polisyos-tools workspace python-base-basedpyright` | Run the Phase 3 `basedpyright` contract across serial base layers: `common -> ir -> core`, with the IR baseline ratchet.                               |
+| `uv run polisyos-tools workspace runtime-surface`          | Run the Phase 5B runtime gate: Ruff, source type checks, OpenAPI/client drift, and `tests/unit/runtime`.                                               |
+| `uv run polisyos-tools workspace lint-full`                | Run the full authored lint contract with Phase 3 base-layer type gates, `helm lint`, and the Rego strict/test pass.                                    |
+| `uv run polisyos-tools workspace benchmark-surfaces`       | Run the Phase 8 gate for `benchmarks/**` and `tools/research/**`: Ruff on authored Python plus shell/YAML hooks, without Markdown/result-bundle churn. |
+| `uv run polisyos-tools workspace clean-local-reports`      | List or remove stale local reports, benchmark reports, and optional source-adjacent residue under the Phase 2.9 hygiene contract.                      |
+| `uv run polisyos-tools workspace ci-parity`                | Run a heavier pass comparable to the main CI jobs.                                                                                                     |
+| `uv run polisyos-tools workspace acceptance-audit`         | Produce Phase 7 acceptance evidence.                                                                                                                   |
+| `uv run polisyos-tools workspace repository-sota-closeout` | Check the fail-closed Repository SOTA policy layer, exception registries, and closeout evidence.                                                       |
+| `uv run polisyos-tools workspace tool-configs --check`     | Check the split `mypy`, Ruff, and MkDocs configurations, including the dead-override report.                                                           |
+| `uv run polisyos-tools workspace remote-acceptance`        | Orchestrate the remote Linux runner for a heavier closeout.                                                                                            |
 
 ## Depends On / Depended On By
 
 - **Depends on:** `pyproject.toml`, `uv.lock`, `apps/runtime-dashboard`,
-  `package-lock.json`, generated contracts, optional env surfaces и `tools`
+  `package-lock.json`, generated contracts, optional environment surfaces, and the `tools`
   validation/lint/runtime categories.
 
-- **Depended on by:** новые contributor-ы, локальный closeout перед PR,
-  onboarding docs, acceptance rehearsals и remote platform verification.
+- **Depended on by:** new contributors, local closeout before a PR,
+  onboarding docs, acceptance rehearsals, and remote platform verification.
 
 ## Common Commands
 
@@ -62,27 +61,26 @@ phase-5 registry contract suite runs as a native supporting child, so its row
 removal and substitution controls participate in the closeout. The runner
 rejects duplicate IDs, malformed routes, and unresolved handlers.
 
-Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
-`conceptual`.
+The commands below were smoke-tested on `2026-04-17` unless explicitly marked as `conceptual`.
 
-| Command                                                                                                                 | Purpose                                                                               | Status                                      |
-| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `uv run polisyos-tools workspace doctor --list-surfaces`                                                                | Показать optional env surfaces, которые может проверять `doctor`.                     | `smoke-tested`                              |
-| `uv run polisyos-tools workspace docs-style`                                                                            | Проверить authored docs, README и plan markdown без archive churn.                    | `conceptual`                                |
-| `uv run polisyos-tools workspace format-check --skip-rego`                                                              | Прогнать formatter-only contract на машине без локального `opa`.                      | `conceptual`                                |
-| `uv run polisyos-tools workspace lint-fast --skip-frontend`                                                             | Прогнать быстрый repo-hygiene lint для Python/docs/config/shell без dashboard ESLint. | `conceptual`                                |
-| `uv run polisyos-tools workspace python-base-mypy --layer ir --layer core`                                              | Прогнать только типовой Phase 3 хвост после завершённого `common`.                    | `conceptual`                                |
-| `uv run polisyos-tools workspace python-base-basedpyright --layer ir`                                                   | Проверить IR через репозиторный basedpyright baseline.                                | `conceptual`                                |
-| `uv run polisyos-tools workspace runtime-surface --skip-tests`                                                          | Проверить Phase 5B lint/type/OpenAPI contract без полного runtime pytest.             | `conceptual`                                |
-| `uv run polisyos-tools workspace lint-full --skip-policy --skip-helm`                                                   | Прогнать полный authored lint contract на машине без локальных `opa` и `helm`.        | `conceptual`                                |
-| `uv run polisyos-tools workspace benchmark-surfaces`                                                                    | Прогнать точечный benchmark/research hygiene gate без Markdown/JSON/log/result churn. | `conceptual`                                |
-| `uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run`                                         | Показать cleanup candidates для `.polisyos/reports`, `benchmarks/_reports` и `_build` audit output. | `conceptual`                                |
-| `uv run polisyos-tools workspace tool-configs --check`                                                                  | Проверить generated `mypy`, Ruff и MkDocs configs без переписывания файлов.       | `smoke-tested`                              |
-| `uv run polisyos-tools workspace repository-sota-closeout --contract-only`                                              | Проверить Phase 5 contract layer без тяжёлых drift subprocesses.                 | `conceptual`                                |
-| `uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks`                | Быстрый workstation preflight без тяжёлых browser/lock/contract checks.               | `smoke-tested`                              |
-| `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright --skip-hooks --skip-doctor` | Установить docs-oriented baseline на новой машине.                                    | `conceptual` (изменяет локальное окружение) |
-| `uv run polisyos-tools workspace verify --backend-only --skip-doctor`                                                   | Прогнать быстрый backend-only gate после локальных правок.                            | `conceptual` (может занять заметное время)  |
-| `uv run polisyos-tools workspace ci-parity --skip-browser`                                                              | Прогнать umbrella parity pass с docs checks по умолчанию.                             | `conceptual` (тяжёлый агрегирующий gate)    |
+| Command                                                                                                                 | Purpose                                                                                              | Status                                              |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `uv run polisyos-tools workspace doctor --list-surfaces`                                                                | List the optional environment surfaces that `doctor` can check.                                      | `smoke-tested`                                      |
+| `uv run polisyos-tools workspace docs-style`                                                                            | Check authored docs, READMEs, and plan Markdown without archive churn.                               | `conceptual`                                        |
+| `uv run polisyos-tools workspace format-check --skip-rego`                                                              | Run the formatter-only contract on a machine without a local `opa`.                                  | `conceptual`                                        |
+| `uv run polisyos-tools workspace lint-fast --skip-frontend`                                                             | Run the fast repository-hygiene lint for Python/docs/config/shell without dashboard ESLint.          | `conceptual`                                        |
+| `uv run polisyos-tools workspace python-base-mypy --layer ir --layer core`                                              | Run only the remaining Phase 3 type check after `common` has completed.                              | `conceptual`                                        |
+| `uv run polisyos-tools workspace python-base-basedpyright --layer ir`                                                   | Check IR against the repository's basedpyright baseline.                                             | `conceptual`                                        |
+| `uv run polisyos-tools workspace runtime-surface --skip-tests`                                                          | Check the Phase 5B lint/type/OpenAPI contract without the full runtime pytest suite.                 | `conceptual`                                        |
+| `uv run polisyos-tools workspace lint-full --skip-policy --skip-helm`                                                   | Run the full authored lint contract on a machine without local `opa` or `helm`.                      | `conceptual`                                        |
+| `uv run polisyos-tools workspace benchmark-surfaces`                                                                    | Run the focused benchmark/research hygiene gate without Markdown/JSON/log/result churn.              | `conceptual`                                        |
+| `uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run`                                         | List cleanup candidates under `.polisyos/reports`, `benchmarks/_reports`, and `_build` audit output. | `conceptual`                                        |
+| `uv run polisyos-tools workspace tool-configs --check`                                                                  | Check the generated `mypy`, Ruff, and MkDocs configs without rewriting files.                        | `smoke-tested`                                      |
+| `uv run polisyos-tools workspace repository-sota-closeout --contract-only`                                              | Check the Phase 5 contract layer without the heavier drift subprocesses.                             | `conceptual`                                        |
+| `uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks`                | Run a fast workstation preflight without the heavier browser/lock/contract checks.                   | `smoke-tested`                                      |
+| `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright --skip-hooks --skip-doctor` | Install the docs-oriented baseline on a new machine.                                                 | `conceptual` (modifies the local environment)       |
+| `uv run polisyos-tools workspace verify --backend-only --skip-doctor`                                                   | Run the fast backend-only gate after local changes.                                                  | `conceptual` (may take a noticeable amount of time) |
+| `uv run polisyos-tools workspace ci-parity --skip-browser`                                                              | Run the umbrella parity pass with documentation checks enabled by default.                           | `conceptual` (heavy aggregate gate)                 |
 
 `lint-fast` uses the generated root Ruff policy for authored product, test,
 tooling, architecture, application, and nested worker/oracle Python. The active
@@ -100,10 +98,10 @@ separate `benchmark-surfaces` gate owns top-level `benchmarks/**` and
 
 ## Test And Verification
 
-| Command                                                                                                                                    | What it verifies                                                                      | Status         |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/repo_quality/tools/test_workspace_phase3.py tests/unit/core/phase0/test_workspace_commands.py tests/repo_quality/tools/test_remote_acceptance.py` | Workspace command contract, compatibility wrappers и remote acceptance orchestration. | `conceptual`   |
-| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                                       | README/doc references вокруг workspace tooling остаются publishable.                  | `smoke-tested` |
+| Command                                                                                                                                                                   | What it verifies                                                                         | Status         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------- |
+| `uv run pytest -q tests/repo_quality/tools/test_workspace_phase3.py tests/unit/core/phase0/test_workspace_commands.py tests/repo_quality/tools/test_remote_acceptance.py` | Workspace command contract, compatibility wrappers, and remote-acceptance orchestration. | `conceptual`   |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                                                                      | README and documentation references for workspace tooling remain publishable.            | `smoke-tested` |
 
 ## Reference Docs
 
@@ -146,11 +144,11 @@ separate `benchmark-surfaces` gate owns top-level `benchmarks/**` and
   `generated-drift` row may declare and use `skip_command`; an invalid registry
   fails before the closeout starts any child gates.
 
-- `ci-parity` по умолчанию включает docs accuracy, strict MkDocs build и
-  semantic docstring checks, если не указан `--skip-docs`.
+- By default, `ci-parity` includes documentation-accuracy checks, a strict MkDocs build, and
+  semantic docstring checks unless `--skip-docs` is specified.
 
-- Remote acceptance path разделяет rsynced worktree, clean checkout и artifact
-  root, чтобы closeout на Linux был воспроизводимым.
+- The remote-acceptance path separates the rsynced worktree, clean checkout, and artifact
+  root so that Linux closeout is reproducible.
 
 - Last updated: 2026-10-12
 

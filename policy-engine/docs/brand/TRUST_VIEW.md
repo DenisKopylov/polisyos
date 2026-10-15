@@ -2,6 +2,15 @@
 
 Trust View is an audit rendering mode, not a separate truth surface.
 
+This page states a presentation rule, not a verification or publication
+capability. At source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`, the
+dashboard has a local Trust View toggle and metadata consumers, but the
+projection cannot promote a status into policy authority. Missing or
+projection-only verification metadata remains `Unknown`; see the
+[current frontend surface map](../reference/frontend/current-surface-map.md)
+for the code and inspected tests. Those tests were not run, and no browser or
+deployment was inspected for this documentation pass.
+
 ## Product Law
 
 Trust View must render over the same response payloads, cache keys and temporal
@@ -33,8 +42,10 @@ Verification metadata uses consistent runtime names:
 - `dispute_status`
 - `temporal_scope`
 
-`verification_status` means the lineage/hash was checked. It must never be
-worded as policy correctness or official endorsement.
+`verification_status`, when supported by the corresponding owner evidence,
+describes lineage/hash verification. It must never be worded as policy
+correctness or official endorsement. A Trust View control, chip, hash, or
+metadata projection cannot substitute for that evidence or change authority.
 
 ## Temporal Rule
 

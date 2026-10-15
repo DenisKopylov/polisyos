@@ -1,20 +1,20 @@
 # Orchestrator (`polisyos.scientist.orchestration.orchestrator`)
 
-`orchestrator` публикует presentation-friendly readout поверх итогового
-`DecisionPacket`: компактные decision cards, issue summaries и key metrics
-для CLI, UI и reporting consumers.
+`orchestrator` publishes a presentation-friendly readout over the final
+`DecisionPacket`: compact decision cards, issue summaries, and key metrics
+for CLI, UI, and reporting consumers.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** decision-packet payloads from Scientist runtime
-- **Используется в:** human-facing summaries, reporting and presentation layers
-- Пакет не исполняет workflow logic и не модифицирует run-state.
+- **Depends on:** decision-packet payloads from the Scientist runtime
+- **Used by:** human-facing summaries, reporting, and presentation layers
+- The package does not execute workflow logic or modify run state.
 
-## Ключевые концепции
+## Key concepts
 
-- **DecisionCard** — короткая карточка policy decision.
-- **IssuesSummary** — свернутое представление governance/problem issues.
-- **KeyMetric** — нормализованный metric snippet для summary surfaces.
+- **DecisionCard** — a concise policy-decision card.
+- **IssuesSummary** — a compact representation of governance/problem issues.
+- **KeyMetric** — a normalized metric snippet for summary surfaces.
 
 ## Public API
 
@@ -22,11 +22,11 @@
 - `IssuesSummary`
 - `KeyMetric`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-04-03
+- Last updated: 2026-10-14
 - Python modules: 2
 - Exports: 3
-- README переписан по общему шаблону; пакет остается intentionally small
+- The README was rewritten to follow the shared template; the package remains intentionally small.

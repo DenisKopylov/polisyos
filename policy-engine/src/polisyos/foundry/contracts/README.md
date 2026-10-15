@@ -4,7 +4,7 @@
 fidelity contracts used by Foundry execution, calibration, and contract-aware
 agent simulation.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-14
 
 ## Purpose
 
@@ -22,10 +22,10 @@ aware simulation adapters.
   `ComplexMechanism`, `PatchRecord`, and `PatchMap`.
 
 - [fidelity.py](fidelity.py) for runtime fidelity levels.
-- [../layout.py](../layout.py) for slot-to-state-path materialization that
+- [../methods/layout.py](../methods/layout.py) for slot-to-state-path materialization that
   targets these contracts.
 
-- [../executor.py](../executor.py) for snapshot and state-delta helpers that
+- [../execute/executor.py](../execute/executor.py) for snapshot and state-delta helpers that
   apply these contracts at runtime.
 
 ## Public Entrypoints

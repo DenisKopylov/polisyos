@@ -2,36 +2,36 @@
 
 ## Purpose
 
-`polisyos.ir.observation` связывает сырые measurement/panel данные с causal и
-policy execution surface. Пакет задает observation families, measurement
-governance, bundle manifests, compiler suites, readiness checks и executable
-causal tasks, через которые downstream Foundry и Scientist получают
-проверяемые inputs вместо ad-hoc in-memory structures.
+`polisyos.ir.observation` connects raw measurement/panel data to the causal and
+policy execution surface. The package defines observation families,
+measurement governance, bundle manifests, compiler suites, readiness checks,
+and executable causal tasks through which downstream Foundry and Scientist
+receive verifiable inputs instead of ad hoc in-memory structures.
 
 ## Where to Start
 
-- [`contracts.py`](./contracts.py) — базовые `ObservationRecord`, `ObservationPanel`, family и entity-scope contracts.
-- [`measurement.py`](./measurement.py) — measurement trust tiers, proxy rules, schema regimes и identification routing.
-- [`governance.py`](./governance.py) — alias registries и mapping наблюдений в governance/runtime pass surface.
-- [`bundles.py`](./bundles.py) — bundle manifests и compatibility targets для downstream contracts.
-- [`contract_compilers.py`](./contract_compilers.py) — compiler inputs, artifacts и serialization helpers.
-- [`causal_readiness.py`](./causal_readiness.py) — readiness bundles и persistence helpers.
-- [`causal_execution.py`](./causal_execution.py) — executable bounds / temporal DTR tasks и persistence helpers.
-- [`bridges.py`](./bridges.py) — standards bridges для SDMX, DDI, FHIR и CDISC.
+- [`contracts.py`](./contracts.py) — base `ObservationRecord`, `ObservationPanel`, family, and entity-scope contracts.
+- [`measurement.py`](./measurement.py) — measurement trust tiers, proxy rules, schema regimes, and identification routing.
+- [`governance.py`](./governance.py) — alias registries and mapping observations to the governance/runtime pass surface.
+- [`bundles.py`](./bundles.py) — bundle manifests and compatibility targets for downstream contracts.
+- [`contract_compilers.py`](./contract_compilers.py) — compiler inputs, artifacts, and serialization helpers.
+- [`causal_readiness.py`](./causal_readiness.py) — readiness bundles and persistence helpers.
+- [`causal_execution.py`](./causal_execution.py) — executable bounds/temporal DTR tasks and persistence helpers.
+- [`bridges.py`](./bridges.py) — standards bridges for SDMX, DDI, FHIR, and CDISC.
 
 ## Public entrypoints
 
-| Entrypoint                                                                                    | Use when                                                                               | Defined in                                     |
-| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `polisyos.ir.observation.ObservationRecord`, `ObservationPanel`                               | Нужны базовые record/panel contracts                                                   | [`contracts.py`](./contracts.py)               |
-| `polisyos.ir.observation.MeasurementRegistry`                                                 | Нужен routing по trust tiers, proxy rules и freshness logic                            | [`measurement.py`](./measurement.py)           |
-| `polisyos.ir.observation.SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar`             | Нужно моделировать schema regime shifts и structural breaks                            | [`measurement.py`](./measurement.py)           |
-| `polisyos.ir.observation.ObservationFamilyPolicyRegistry`                                     | Нужно сопоставить observation families с governance/runtime passes                     | [`governance.py`](./governance.py)             |
-| `polisyos.ir.observation.ObservationContractCompilerSuite`                                    | Нужно компилировать observation payloads в foundry/scientist-compatible bundles        | [`compiler.py`](./compiler.py)                 |
-| `polisyos.ir.observation.CausalReadinessBundle`                                               | Нужен readiness surface для proxy, transportability, counterfactual и strategic checks | [`causal_readiness.py`](./causal_readiness.py) |
-| `polisyos.ir.observation.CausalExecutionBundle`                                               | Нужен executable surface для bounds estimation и temporal DTR tasks                    | [`causal_execution.py`](./causal_execution.py) |
-| `polisyos.ir.observation.persist_causal_readiness_bundle()`, `load_causal_readiness_bundle()` | Нужно persist/load readiness bundle в CAS-backed flows                                 | [`causal_readiness.py`](./causal_readiness.py) |
-| `polisyos.ir.observation.persist_causal_execution_bundle()`, `load_causal_execution_bundle()` | Нужно persist/load execution bundle                                                    | [`causal_execution.py`](./causal_execution.py) |
+| Entrypoint                                                                                    | Use when                                                                                    | Defined in                                     |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `polisyos.ir.observation.ObservationRecord`, `ObservationPanel`                               | Use the base record/panel contracts                                                         | [`contracts.py`](./contracts.py)               |
+| `polisyos.ir.observation.MeasurementRegistry`                                                 | Route by trust tier, proxy rules, and freshness logic                                       | [`measurement.py`](./measurement.py)           |
+| `polisyos.ir.observation.SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar`             | Model schema regime shifts and structural breaks                                            | [`measurement.py`](./measurement.py)           |
+| `polisyos.ir.observation.ObservationFamilyPolicyRegistry`                                     | Map observation families to governance/runtime passes                                       | [`governance.py`](./governance.py)             |
+| `polisyos.ir.observation.ObservationContractCompilerSuite`                                    | Compile observation payloads into Foundry/Scientist-compatible bundles                      | [`compiler.py`](./compiler.py)                 |
+| `polisyos.ir.observation.CausalReadinessBundle`                                               | Use the readiness surface for proxy, transportability, counterfactual, and strategic checks | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.CausalExecutionBundle`                                               | Use the executable surface for bounds estimation and temporal DTR tasks                     | [`causal_execution.py`](./causal_execution.py) |
+| `polisyos.ir.observation.persist_causal_readiness_bundle()`, `load_causal_readiness_bundle()` | Persist/load readiness bundles in CAS-backed flows                                          | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.persist_causal_execution_bundle()`, `load_causal_execution_bundle()` | Persist/load an execution bundle                                                            | [`causal_execution.py`](./causal_execution.py) |
 
 ## Depends on / depended on by
 

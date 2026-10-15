@@ -3,11 +3,14 @@
 This isolated development profile pins rdrobust 2.1.0 and all resolved transitive
 artifacts in its own uv.lock. The selected universal wheel SHA-256 is
 8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263.
-Development/oracle use is authorized by the E02 F continuation task. The package
-is never a PolicyOS runtime dependency; its GPL product distribution decision
-remains with the product/license owner. No upstream implementation source is
-read or copied. Native code independently implements the published CCT 2014
-sharp-RD formulas (Appendix A.1/A.2, Theorem A.1(V)).
+The E02 F continuation task records task-specific authorization for this
+isolated development/oracle use; that statement grants no blanket or continuing
+authorization for other tasks, users, environments, production use, or product
+distribution. The package is never a PolicyOS runtime dependency; its GPL
+product distribution decision remains with the product/license owner. No
+upstream implementation source is read or copied. Native code independently
+implements the published CCT 2014 sharp-RD formulas (Appendix A.1/A.2, Theorem
+A.1(V)).
 
 Create a separate environment and run the selected non-skipping numerical gate
 with the actual product interpreter and a distinct output path:

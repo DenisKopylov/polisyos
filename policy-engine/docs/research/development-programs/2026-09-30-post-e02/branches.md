@@ -1,204 +1,204 @@
-# Условные ветви и общие условия
+# Conditional Branches and Shared Conditions
 
-[Обзор](README.md) · [Предметные программы](programs.md) · [Учёт общих затрат](dependencies.md)
+[Overview](README.md) · [Subject Programs](programs.md) · [Shared Costs](dependencies.md)
 
-Эта часть сохраняет возможности, которые нельзя потерять при укрупнении портфеля. Название ветви не означает, что её нужно финансировать отдельно. Отдельная инвестиция оправдана самостоятельным полезным результатом, повторяемым потребителем, отличающейся проверкой и своим продолжающимся расходом. Работа, уже включённая в выбранное приращение E1–P3, здесь повторно не оплачивается.
+This section preserves options that must not be lost when the portfolio is consolidated. Naming a branch does not mean it should be funded separately. Separate investment is justified only by an independent useful result, a repeatable consumer, a distinct verification, and its own recurring cost. Work already included in a selected E1–P3 increment is not funded here a second time.
 
-## N Численный эксперимент и вычисление нужной величины
+## N — Numerical experiments and computing the required quantity
 
-### Когда это научная программа
+### When this is a research program
 
-Новый joint functional, хвостовой риск, интегральный эффект, sensitivity index или контролируемая coupled simulation могут открыть ранее недоступный вопрос. Такой результат входит в предметную программу M1, P2 или P3 вместе со своим численным способом. Если несколько действительных потребителей нуждаются в одном новом классе численного эксперимента и он имеет самостоятельную область проверки, N получает отдельный многокейсный бюджет.
+A new joint functional, tail risk, integrated effect, sensitivity index, or controlled coupled simulation may make a previously inaccessible question answerable. That result belongs to a subject program such as M1, P2, or P3 together with its numerical method. If several real consumers need the same new class of numerical experiment and it has an independent verification scope, N may receive a separate multi-case budget.
 
-Если задача — получить тот же ответ дешевле, речь о вычислительном улучшении. Оно сравнивается по полной цене при неизменных target, admissible set и качестве. Более быстрый kernel сам по себе не доказывает новый класс ответов. Однако сохранение срока, прежде делавшего задачу практически недоступной, может дать реальную новую полезность.
+If the goal is to obtain the same answer at lower cost, the work is a computational improvement. Compare it at full cost while holding the target, admissible set, and answer quality constant. A faster kernel alone does not establish a new class of answer. It can, however, create genuine new utility if it meets a deadline that previously made the task impractical.
 
-### Первая и зрелая поставка
+### First and mature deliveries
 
-Первый срез выбирает **один** рычаг: прямой exact contrast, общие подвычисления, пригодную low-dimensional representation, фиксированный QMC-план, CRN, targeted importance sampling или допустимую fidelity. Сравнение проводится с сильным прямым/native baseline. Нужны настоящий caller, сохранённые параметры/случайность, независимый эталон и конечный quantity consumer.
+The first slice selects **one** lever: a direct exact contrast, shared subcomputations, a suitable low-dimensional representation, a fixed QMC plan, CRN, targeted importance sampling, or an admissible fidelity level. Compare it with a strong direct or native baseline. It needs a real caller, preserved parameters and randomness, an independent reference answer, and a final quantity consumer.
 
-Второй случай меняет важную ось: размер, зависимость, хвост, target или timestep при том же физическом горизонте. Это проверяет, не куплена ли скорость потерей редкого вреда или сменой вопроса. Зрелая цель — выбранный численный план с воспроизводимым error/cost contract и известной областью пригодности, а не один sampler для всех задач.
+The second case changes an important axis—size, dependence, tail, target, or timestep—while keeping the same physical horizon. This checks that speed was not gained by losing rare harms or changing the question. The mature goal is a selected numerical plan with a reproducible error/cost contract and a known applicability region, not one sampler for every task.
 
-Foundry MC/QMC и отчёты уже существуют. Прочитанный `PropagateWelfare` использует отдельный локальный псевдослучайный цикл; presence QMC не устанавливает его served применение. Ошибка оценки quantile, неопределённость исхода и неопределённость модели имеют разные смыслы. Для randomized QMC используются подходящие независимые репликации, а не обещание сжать само распределение исходов. Failed/attempted draws сохраняются в применимом знаменателе.
+Foundry MC/QMC methods and reports already exist. The inspected `PropagateWelfare` uses a separate local pseudorandom loop; the presence of QMC does not establish that this path uses it. Quantile-estimation error, outcome uncertainty, and model uncertainty have different meanings. Randomized QMC needs suitable independent replications; it does not promise to shrink the outcome distribution itself. Preserve failed and attempted draws in the applicable denominator.
 
-Условный owner-local пакет одного measured bottleneck оценивается в 10–25 нормированных дней. Новый elastic backend, distributed scheduler, cloud signing и широкая migration туда не входят. Внешние расходы и доступ требуют своего разрешения. Новая вычислительная платформа откладывается, если startup, data preparation, review и maintenance съедают выигрыш.
+A conditional owner-local package for one measured bottleneck is estimated at 10–25 normalized days. A new elastic backend, distributed scheduler, cloud signing, and broad migration are excluded. External costs and access require separate authorization. Defer a new compute platform if startup, data preparation, review, and maintenance consume the gain.
 
-**Самостоятельный запуск:** повторяемый дорогой workload, два фактических потребителя одной семантики либо действительно новый numerical question class. **Внутри другой программы:** одно выражение, его необходимый numerical oracle и native adapter. **Стоп:** нет положительной полной экономии либо target preservation не выдерживает второй случай.
+**Start separately:** a recurring expensive workload, two actual consumers of the same semantics, or a genuinely new numerical question class. **Keep within another program:** one quantity, its necessary numerical oracle, and a native adapter. **Stop:** there is no positive net saving, or target preservation fails on the second case.
 
-**Источники:** GV-08/12/16/40/42/46/47/50/51; Foundry SOTA и Methods; текущие MC/QMC owners; E02 B194/B197 и SIM-02. Архивные error/CI/CVaR рецепты применяются только после конкретной смысловой проверки.
+**Sources:** GV-08/12/16/40/42/46/47/50/51; Foundry SOTA and Methods; current MC/QMC owners; E02 B194/B197 and SIM-02. Archived error/CI/CVaR recipes apply only after a specific semantic review.
 
-## R Улучшение исследовательской процедуры
+## R — Improving the research procedure
 
-### Самостоятельный результат
+### Independent result
 
-Система учится выбирать метод, источник, порядок проверки или способ разбиения исследования так, чтобы следующие задачи решались лучше при той же допустимости и полной цене. Это **процедурное** обучение. Оно не даёт O3-права менять причинную модель мира и не превращает прошлый успех в сегодняшнее evidence.
+The system learns to choose a method, source, verification order, or research decomposition so that later tasks are solved better at the same admissibility and full cost. This is **procedural** learning. It does not grant O3 authority to change the causal world model, and past success does not become current evidence.
 
-У Scientist уже есть Research DAG, simple/predictive VOI, отчёты, lessons, applicability/expiry/revocation, challenge factory и audience compiler. Новая работа — валидность utility/cost, selection-aware traces, сохранение отвергнутых кандидатов, перенос на невидимые families и польза для следующего выбора. Не требуется заново строить память или общий orchestrator.
+Scientist already has Research DAG, simple/predictive VOI, reports, lessons, applicability/expiry/revocation, a challenge factory, and an audience compiler. New work concerns utility/cost validity, selection-aware traces, preservation of rejected candidates, transfer to unseen families, and benefit to the next choice. Rebuilding memory or a general orchestrator is unnecessary.
 
-### Инкременты и сравнение
+### Increments and comparison
 
-Первое приращение — одна повторяющаяся операция, например выбор bounded extractor или маршрута проверки claim. Сопоставляются фиксированное native правило, простой cascade/cache и один сильный агент при одинаковых inputs, бюджете и permissible claim. Learned routing добавляется только после их измеренного ограничения.
+The first increment covers one recurring operation, such as choosing a bounded extractor or a claim-verification route. Compare a fixed native rule, a simple cascade/cache, and one strong agent with identical inputs, budget, and permissible claims. Add learned routing only after measuring where these approaches fail.
 
-Проверка переноса — новая source family, время или структура задачи, а не случайное разбиение соседних строк одного исследования. Сохраняются все started, rejected, failed, timed-out и fallback paths. Частота отказа не заменяет качество funnel: часть отвергнутых кандидатов проверяется независимо, иначе хорошие потерянные варианты остаются невидимыми.
+The transfer case changes the source family, time, or task structure; it is not a random split of neighboring rows from one study. Preserve every started, rejected, failed, timed-out, and fallback path. Refusal frequency does not replace funnel quality: independently check some rejected candidates, or useful options that were discarded will remain invisible.
 
-Зрелая способность — несколько ограниченных исследовательских операций с измеренной переносимостью и управляемым откатом. Generic autonomous learner, универсальный reward и обучение собственной foundation model не являются исходной ставкой.
+The mature capability is several bounded research operations with measured transfer and a controlled rollback. A generic autonomous learner, universal reward, and training a proprietary foundation model are not the starting assumption.
 
-При уже доступных пригодных traces условный bounded пакет оценивается в 20–40 нормированных дней. Сбор независимого корпуса, длительная обратная связь, обучение больших моделей и новая платформа в диапазон не входят. Общий cost trace не оплачивается повторно в N и R.
+With suitable traces already available, a conditional bounded package is estimated at 20–40 normalized days. Independent-corpus collection, long-term feedback, large-model training, and a new platform are excluded. Do not charge a shared cost trace again under both N and R.
 
-### Информационный режим
+### Information regime
 
-Снижение override rate также требует сопоставимого состава задач. Один override на 10 required decisions и тот же override после добавления 90 лёгких решений дают 0,1 и 0,01 без улучшения исходного трудного случая. Неубывающий denominator полезен как anti-gaming условие S12, но не заменяет fixed/matched task population, strata и ошибки результата. Этот аналитический контрпример не утверждает, что текущий producer позволяет подделывать вопросы или манипулирует метрикой.
+A lower override rate also requires a comparable task mix. One override in 10 required decisions and the same override after adding 90 easy decisions yields 0.1 and 0.01 without improving the original hard case. A non-decreasing denominator is useful as an S12 anti-gaming condition, but it does not replace a fixed or matched task population, strata, and outcome errors. This analytical counterexample does not claim that the current producer can fabricate questions or manipulate the metric.
 
-Независимость определяется тем, какие сведения доступны chooser и evaluator, а не количеством агентов или файлов. Memory, соседние scores, latency, повтор после failure и challenge generation могут раскрыть скрытую выборку. Возможны parallel compute с заранее фиксированным порядком раскрытия, fixed-time анализ после полного batch или отдельно обоснованная asynchronous процедура. Полный запрет параллельности не требуется.
+Independence depends on what information is available to the chooser and evaluator, not on the number of agents or files. Memory, neighboring scores, latency, retries after failure, and challenge generation can reveal the hidden sample. Options include parallel compute with a pre-fixed disclosure order, fixed-time analysis after a complete batch, or a separately justified asynchronous procedure. A total ban on parallelism is unnecessary.
 
-**Самостоятельный запуск:** recurring workflow, пригодные traces и измеренное поражение простых правил. **Внутри программы:** обычный выбор метода и запись failure reasons. **Стоп:** training/review/fallback дороже сохранённой работы; улучшение исчезает на holdout; router массово теряет редкие полезные случаи.
+**Start separately:** a recurring workflow, suitable traces, and measured failure of simple rules. **Keep within another program:** ordinary method choice and recording failure reasons. **Stop:** training/review/fallback costs exceed the saved work; the improvement disappears on a holdout; or the router routinely loses rare useful cases.
 
-**Источники:** GV-03/07/13/26/31/43; Scientist BIC R4/R6/R7/R9; S12 пять разных бюджетов; N11 и CG2 имеют разные risk scopes. Теория работы с фильтрациями мотивирует проверку фактического информационного пути, но не даёт готовой гарантии всему PolicyOS.
+**Sources:** GV-03/07/13/26/31/43; Scientist BIC R4/R6/R7/R9; the five distinct S12 budgets; N11 and CG2 have different risk scopes. Work on filtrations motivates checking the actual information path; it does not provide a ready-made guarantee for all of PolicyOS.
 
-## H Человеческое употребление и обучение
+## H — Human use and learning
 
-### Два разных уровня
+### Two distinct levels
 
-Для каждой основной программы нужен понятный действительный потребитель: вопрос, ограниченный ответ, supporting/refuting evidence, слабое место и следующий допустимый шаг. Это тонкая часть её поставки. Отдельная H-программа появляется, когда заявляется изменение человеческой способности: меньше опасных ошибок, лучшее самостоятельное различение оснований либо перенос обучения на новые задачи.
+Each main program needs a clear, real consumer: a question, a bounded answer, supporting and refuting evidence, a weak point, and the next admissible step. That is a thin part of its delivery. A separate H program is warranted when the claim is a change in human capability: fewer dangerous errors, better independent assessment of grounds, or transfer of learning to new tasks.
 
-CB1, четырёх-аудиторный compiler и review carriers уже существуют. Первый технический срез — CB2 production caller, persisted trial и exact reload для одной роли, задачи и modality. При готовых инструментах он условно оценивается в 5–15 нормированных дней. Прежний широкий технический минимум снят как недостаточно обоснованный. Эта цифра не включает набор участников, исследование, adjudication и новые participation protocols.
+CB1, the four-audience compiler, and review carriers already exist. The first technical slice is a CB2 production caller, persisted trial, and exact reload for one role, task, and modality. With tools ready, this is conditionally estimated at 5–15 normalized days. The earlier broad technical minimum was withdrawn as insufficiently supported. This estimate excludes participant recruitment, research, adjudication, and new participation protocols.
 
-Второй случай должен проверять иную необходимую компетенцию: распознать limitation, отказаться от неподдержанного применения или найти недостающее основание, а не ещё раз выбрать приятный положительный ответ. Для learning нужны повторные задачи, отложенный перенос и самостоятельное выполнение после feedback.
+The second case should test a different necessary competence: recognizing a limitation, declining an unsupported use, or finding missing grounds—not choosing another favorable positive answer. Learning requires repeated tasks, delayed transfer, and independent performance after feedback.
 
-### Сравнение и границы
+### Comparison and boundaries
 
-Сильный baseline — короткий ясный отчёт. Для behavioral результата сравниваются human-only, AI-only и combined; улучшение относительно одного человека ещё не означает синергию. Сохраняются harmful error, task success, время, нагрузка, независимый поиск источника и ошибочное усиление authority. Satisfaction, красивый интерфейс и корректный JSON не заменяют эти outcomes.
+A short, clear report is a strong baseline. For behavioral outcomes, compare human-only, AI-only, and combined use; improvement over one human alone does not establish synergy. Preserve harmful errors, task success, time, workload, independent source-finding, and mistaken authority uplift. Satisfaction, an attractive interface, and valid JSON do not replace these outcomes.
 
-Progressive disclosure предпочтителен, когда действительно снижает нагрузку без потери смысла. Free-form interpreter требует собственного source-bound recomputation и проверки полноты. ML2 выполняется для нужного языкового профиля; locale parity не доказывает legal equivalence. Conformance и accessibility принимаются отдельно от понимания.
+Prefer progressive disclosure when it reduces workload without losing meaning. A free-form interpreter needs its own source-bound recomputation and completeness check. Run ML2 for the required language profile; locale parity does not establish legal equivalence. Assess conformance and accessibility separately from comprehension.
 
-Participation/value evidence относится к P1 и E1: consent, sampling, dissent, sponsor и claim use. Исследование comprehension не доказывает представительность общественных предпочтений; один reviewer не назначает социальные веса.
+Participation/value evidence belongs to P1 and E1: consent, sampling, dissent, sponsorship, and claim use. A comprehension study does not establish that public preferences are representative; one reviewer does not assign social weights.
 
-**Самостоятельный запуск:** заявленная task/population-bound behavioral capability с собственной оценкой и повторным применением. **Внутри программы:** faithful projection, необходимый trial caller и его инженерная проверка. **Стоп:** combined workflow усиливает опасную уверенность, увеличивает review burden без результата либо отсутствует реальная задача пользователя.
+**Start separately:** a claimed task- and population-bound behavioral capability with its own evaluation and repeated use. **Keep within a program:** a faithful projection, the required trial caller, and its engineering verification. **Stop:** the combined workflow increases dangerous confidence, adds review burden without a result, or has no real user task.
 
-**Источники:** GV-05; GY CB1/CB2/ML1/ML2; Scientist R5/R10; Atlas; PDC participation obligations. Исследования human–AI комбинаций определяют сильный comparator, но их effect sizes не являются прогнозом PolicyOS.
+**Sources:** GV-05; GY CB1/CB2/ML1/ML2; Scientist R5/R10; Atlas; PDC participation obligations. Human–AI combination studies define a strong comparator; their effect sizes are not forecasts for PolicyOS.
 
-## A Ограниченный ответ у владельца данных
+## A — Bounded answers from data holders
 
-Ветвь нужна, когда существенный вопрос невозможно решить из доступных открытых данных, но holder допускает конкретный aggregate, statistic или local computation. Она не является обязательной «федерацией» для любого удалённого источника или международного сравнения.
+This branch is useful when an important question cannot be answered from available public data, but a holder permits a specific aggregate, statistic, or local computation. It is not a mandatory “federation” for every remote source or international comparison.
 
-Первое приращение — один вопрос, один существующий holder-side execution environment, явно допустимая единица/граница вклада и один exact либо noisy release mechanism. Результат потребляется с действительной uncertainty и permitted use. Сравнение — открытый aggregate, более грубый точный ответ или один простой remote query.
+The first increment has one question, one existing holder-side execution environment, an explicit permissible unit/bound on contribution, and one exact or noisy release mechanism. A real consumer uses the result with its actual uncertainty and permitted use. Compare it with a public aggregate, a coarser exact answer, or one simple remote query.
 
-Проверка переноса меняет holder или release channel. Повторное чтение того же release не становится независимым измерением; новый run ID не обнуляет privacy composition. Скрытые source identity, query intent, timing и graph shape могут быть отдельными каналами раскрытия. Нельзя требовать или обещать privacy произвольного текста одной DP-меткой.
+The transfer case changes the holder or release channel. Reading the same release again does not create an independent measurement; a new run ID does not reset privacy composition. Hidden source identity, query intent, timing, and graph shape may be separate disclosure channels. Do not claim that a single DP label provides privacy for arbitrary text.
 
-Условные 25–50 нормированных дней относятся лишь к названному narrow profile в уже имеющейся среде. Новый federation protocol, enclave, инфраструктура credentials, юридическое соглашение и эксплуатация holder туда не входят. Существующие DP robustness/transport/recovery contracts и acquisition/custody owners используются повторно.
+The conditional estimate of 25–50 normalized days covers only the named narrow profile in an existing environment. A new federation protocol, enclave, credentials infrastructure, legal agreement, and holder operations are excluded. Reuse existing DP robustness/transport/recovery contracts and acquisition/custody owners.
 
-**Самостоятельный запуск:** конкретный unavailable-elsewhere input и действительный holder route с полезным разрешённым выходом. **Внутри E1/E2:** обычный доступный источник или уже выпущенный агрегат. **Стоп:** более простой public output достаточен либо разрешённый release принципиально не различает нужный target. Заявленный mathematical demo не доказывает live доступ.
+**Start separately:** a specific input unavailable elsewhere and a real holder route with a useful permitted output. **Keep within E1/E2:** an ordinarily available source or an already released aggregate. **Stop:** a simpler public output is sufficient, or the permitted release cannot distinguish the needed target. A proposed mathematical demonstration does not establish live access.
 
-**Источники:** GV-15/49; Fabric R9; причинные stages 15.1–15.3; точные права, grants и budget composition остаются самостоятельными условиями.
+**Sources:** GV-15/49; Fabric R9; causal stages 15.1–15.3; exact rights, grants, and budget composition remain separate conditions.
 
-## S Идентичность вопроса и сохранение смысла
+## S — Question identity and preservation of meaning
 
-Это общее условие программ, связанное с GV-01. Один и тот же вопрос должен сохранять target, population, intervention/comparator, единицу, временной горизонт, information set и допустимое употребление при переходе от источника к модели, вычислению и ответу. Смена представления не может молча заменить estimand, сузить uncertainty или расширить authority.
+This is a shared program condition related to GV-01. The same question must preserve its target, population, intervention/comparator, unit, time horizon, information set, and permitted use as it moves from source to model, computation, and answer. A change of representation must not silently replace the estimand, narrow uncertainty, or expand authority.
 
-Используются существующие contracts, native producers и validators. Первое предметное приращение оплачивает только свой необходимый semantic delta; отдельного S-бюджета или универсального нового contract engine здесь нет. Общий носитель имеет смысл лишь после двух действительных потребителей с одинаковыми требованиями. Вопросы do-materialization, temporal selection, point/interval/joint channels и world graph versus policy graph сохраняют отдельные решения в [реестре решений](decisions.md). Положительный пример и безвредное перекодирование должны сохранять ответ; материальное изменение вопроса должно быть видно читателю.
+Reuse existing contracts, native producers, and validators. Each subject increment funds only its own necessary semantic delta; there is no separate S budget or new universal contract engine here. A shared carrier is justified only after two real consumers have the same requirement. Questions about do-materialization, temporal selection, point/interval/joint channels, and world graph versus policy graph retain their separate decisions in the [decision register](decisions.md). A supported positive example and harmless recoding must preserve the answer; a material change to the question must be visible to the reader.
 
-## C Происхождение актуальность и историческое воспроизведение
+## C — Provenance, currentness, and historical replay
 
-Это общее условие всей полезной способности и отдельно выбираемый tranche для дорогого повторного вопроса. Оно отвечает: какие bytes, данные, правила и версии обосновывали прежний ответ; что изменилось; что пригодно теперь; что надо пересчитать?
+This is a shared condition for every useful capability and a separately selectable tranche for an expensive repeated question. It asks: which bytes, data, rules, and versions supported the earlier answer; what changed; what remains usable now; and what must be recomputed?
 
-Существующие CAS, ClaimLedger, N12/CR4, Data Forge snapshots, Fabric lineage/branches, currentness и replay owners сохраняются. Исследовательский operations root прямо перенаправил прежнюю идею отдельного H2-plan в GY Phase8 CR1–CR3; второй custody runtime не нужен. Не создаётся второй журнал или общий world store. Raw bytes, selected typed view и историческое правило — три разных слоя. Историческая воспроизводимость не равна нынешнему праву употребления.
+Reuse existing CAS, ClaimLedger, N12/CR4, Data Forge snapshots, Fabric lineage/branches, currentness, and replay owners. The research operations root explicitly redirected the earlier idea of a separate H2 plan to GY Phase 8 CR1–CR3; a second custody runtime is unnecessary. Do not create a second ledger or general world store. Raw bytes, the selected typed view, and the historical rule are three distinct layers. Historical replayability does not equal current permission to use the result.
 
-По локальному чтению 1 октября B61 source-bound preparation уже достигает workflow consumers до cache lookup; matching path проверяется, borrowed query не закрывается. Issuer/K_ref authority по-прежнему held. Отдельный N6 остаток требует typed ArtifactRef вместе с exact manifest-profile selector: существующий GenerationSourceRepository.persist получает typed ref, но возвращает bare artifact ID. Предлагаемая versioned source-ref projection должна сохранить этот выбранный view через run/preservation/readers и оставить historical v1–v4 bytes. Это ещё proposed repair существующей R1/R2/R9 границы, не новая программа происхождения. Source observations и proposal status разведены в sources.json.
+The October 1 local read says B61 source-bound preparation already reaches workflow consumers before cache lookup; the matching path is checked and the borrowed query remains open. Issuer/K_ref authority is still held. A separate N6 remainder needs a typed ArtifactRef together with an exact manifest-profile selector: the existing `GenerationSourceRepository.persist` receives a typed reference but returns a bare artifact ID. A proposed versioned source-reference projection should preserve the selected view across runs, preservation, and readers while retaining historical v1–v4 bytes. This is a proposed repair to the existing R1/R2/R9 boundary, not a new provenance program. `sources.json` separates source observations from proposal status.
 
-Первый новый tranche берёт один material dependency route и сравнивает targeted refresh с полным пересчётом. Нужны три разные проверки: изменённое значение; отозванное основание при прежнем числе; нерелевантное изменение, не затрагивающее результат. При неполном denominator применяется ограниченный `review_required`, а не universal stale и не молчаливое повторное использование.
+The first new tranche takes one material dependency route and compares targeted refresh with a full recomputation. It needs three distinct checks: a changed value; a withdrawn basis with the same number; and an irrelevant change that does not affect the result. With an incomplete denominator, use bounded `review_required`, not universal staleness or silent reuse.
 
-Условный narrow пакет одной source family/revision path — 10–20 нормированных дней. Он не покупает полную dependency completeness, all-backend signing или институциональный reissue. E02 B61/R9/R14/CR4 и выбранные index/lineage repairs являются внешними потребляемыми выходами. Shared cache key не выбирает scientific target, risk lifetime или authority scope.
+A conditional narrow package for one source family/revision path is estimated at 10–20 normalized days. It does not buy complete dependency coverage, all-backend signing, or institutional reissue. E02 B61/R9/R14/CR4 and selected index/lineage repairs are external outputs to consume. A shared cache key does not select the scientific target, risk lifetime, or authority scope.
 
-Положительная синергия возникает, если второй consumer действительно использует тот же material dependency. Отрицательная — если один ошибочный shared key сохраняет stale результат везде или unrelated write обнуляет весь портфель. Полный пересчёт остаётся сильным baseline и может быть оптимальным решением.
+Positive synergy occurs if a second consumer truly uses the same material dependency. A negative interaction occurs if one mistaken shared key preserves a stale result everywhere, or an unrelated write invalidates the whole portfolio. Full recomputation remains a strong baseline and may be the best choice.
 
-## V Независимая проверка и исследование самой проверки
+## V — Independent verification and research into verification
 
-Проверка входит в каждый выбранный пакет: exact/simple reference, supported positive, harmful mutation, harmless change, consumer-removal, второй случай и полная стоимость. Существующие BenchmarkAuthority, Research DAG, challenge factory, корпус и replay mechanics не финансируются второй раз как новая платформа.
+Verification is part of every selected package: an exact/simple reference, supported positive, harmful mutation, harmless change, consumer removal, a second case, and full cost. Do not fund existing BenchmarkAuthority, Research DAG, challenge factory, corpus, or replay mechanics again as a new platform.
 
-Scientific oracle, human-study outcome, legal applicability и runtime enforcement имеют разные предметы. Они могут разделять custody и технический runner, но не один универсальный gold label. Неотвержение статистической гипотезы не подтверждает модель; подпись adjudication не доказывает его содержательную истинность; перечень test paths не является результатом теста.
+A scientific oracle, human-study outcome, legal applicability, and runtime enforcement concern different subjects. They may share custody and a technical runner, but not one universal gold label. Failure to reject a statistical hypothesis does not validate the model; an adjudication signature does not prove its substantive truth; a list of test paths is not a test result.
 
-Самостоятельное исследование V допустимо, если появляется новая проверяемая способность: например валидная оценка accepted-claim risk при адаптивном выборе, доказанная предсказательная ценность generated challenges либо переносимая проверка explanatory fidelity. Для него нужны минимум два реальных потребителя общего результата или самостоятельный полезный methodological outcome, сильный существующий comparator и bounded stopping rule. Цена такого нового исследования пока не установлена.
+Independent V research is justified if a new testable capability appears—for example, valid evaluation of accepted-claim risk under adaptive selection, demonstrated predictive value of generated challenges, or a transferable check of explanatory fidelity. It needs at least two real consumers of a shared result or an independent useful methodological outcome, a strong existing comparator, and a bounded stopping rule. The cost of such research has not been established.
 
-Успех не должен достигаться отказом всем. На заявленном множестве вопросов измеряются полезное поддержанное покрытие, false-clear и false-refusal отдельно. Если истинное множество ответимых задач неизвестно, метрика так и остаётся неустановленной. Для open-web поиска нельзя выдавать measured recall на конечном inventory за полноту всего мира.
+Success must not be achieved by refusing everything. For the declared set of questions, measure useful supported coverage, false-clear, and false-refusal separately. If the true set of answerable tasks is unknown, leave the metric unestablished. For open-web search, measured recall over a finite inventory cannot be presented as completeness of the world.
 
-## O Эксплуатация и независимая runtime authority
+## O — Operations and independent runtime authority
 
-Полезная candidate capability может существовать до production rollout. Но обещание реального сервиса требует собственных свидетельств: разрешённый source/provider, внешний worker, durable job, точный artifact/readback, действительный dashboard или машинный consumer, tenant denial, failure canary, restore/restart, telemetry и принятый operating envelope.
+A useful candidate capability can exist before production rollout. A claim that a real service works needs its own evidence: an authorized source/provider, external worker, durable job, exact artifact/readback, a working dashboard or machine consumer, tenant denial, failure canary, restore/restart, telemetry, and an accepted operating envelope.
 
-Существующая topology, CLI, Data Forge foundation, observability и принятые infrastructure closeouts используются повторно. Новая программа оплачивает лишь затронутые interfaces, deployment/runtime modes, retention, compatibility и операции. Local lock, receipt или test fixture не подтверждают multi-host exactly-once. При неопределённом исходе внешнего эффекта нужен reconcile/unknown, а не слепой повтор.
+Reuse existing topology, CLI, Data Forge foundation, observability, and accepted infrastructure closeouts. A new program funds only affected interfaces, deployment/runtime modes, retention, compatibility, and operations. A local lock, receipt, or test fixture does not establish multi-host exactly-once behavior. When an external effect has an uncertain outcome, reconcile it as unknown rather than retrying blindly.
 
-FA1 — отдельная уже зарегистрированная obligation для конкретного stronger claim. Writer-independent enforcement, admitted set, toolchain/store/data-trust boundaries нельзя получить второй локальной подписью. Пока не выбрана настоящая независимая граница, полная реализационная оценка неизвестна. Условные 8–15 нормированных дней относятся только к подготовке одного решения о boundary, если именно оно требуется выбранному потребителю.
+FA1 is a separate, already registered obligation for a specific stronger claim. A second local signature cannot provide writer-independent enforcement, an admitted set, or toolchain/store/data-trust boundaries. Until a real independent boundary is selected, the full implementation estimate is unknown. A conditional 8–15 normalized days covers only preparing one boundary decision, if the selected consumer requires it.
 
-R9 временно отказывает именно в V2 production-approval issuance/currentness; это правило уже принято. Она не отменяет bytes/history/candidate usefulness. Scoped V3, live inventory и deployment transition остаются отдельными вопросами. Это предложение не принимает rollout и не меняет существующий gate. Финальный срез `8b40f8f5` сообщает интеграцию canonical-ID правки. Неизменённый FINAL_REPORT всё ещё описывает её как неинтегрированную на прежнем frozen cut. Новый R9 receipt сохраняет четыре CAS-03 failures; corrected fixture достигает HTTP issuance 201 и verification 200, но `report_authentication=invalid`. Поэтому integration и успешные HTTP коды не устанавливают closure. Pre-repair cohort и более поздние попытки не складываются в общий verdict. Уточнённый owner scope B152/B154/B155 не устанавливает individual appointments; B154 сохраняет production all-confirmations `consumer_missing`. R14 actor/lease/attempt custody и completion reconciliation интегрированы, но setup-blocked properties и SearchExit→promotion admission остаются отдельно неподтверждёнными.
+R9 currently refuses only V2 production-approval issuance/currentness; that rule is already accepted. It does not negate bytes/history/candidate usefulness. Scoped V3, live inventory, and deployment transition remain separate questions. This proposal does not authorize rollout or change the existing gate. The final cut at `8b40f8f5` reports integration of the canonical-ID correction. The unchanged FINAL_REPORT still describes it as unintegrated at the earlier frozen cut. The new R9 receipt retains four CAS-03 failures; the corrected fixture reaches HTTP issuance 201 and verification 200, but `report_authentication=invalid`. Therefore, integration and successful HTTP codes do not establish closure. Do not combine the pre-repair cohort with later attempts into one verdict. The clarified B152/B154/B155 owner scope does not establish individual appointments; B154 retains production `consumer_missing` for all confirmations. R14 actor/lease/attempt custody and completion reconciliation are integrated, but setup-blocked properties and SearchExit → promotion admission remain separately unverified.
 
-## L Правовая применимость и содержательная детализация
+## L — Legal applicability and substantive fidelity
 
-### Смысл ветви
+### Branch purpose
 
-Правовой источник должен отвечать на конкретный вопрос о субъекте, действии, юрисдикции, времени, условии и компетенции. Это самостоятельный sibling маршрута исследования, а не глобальный prerequisite любой численной демонстрации. Точная цитата не гарантирует применимость, а действующая норма не устанавливает фактически доставленное treatment.
+A legal source must answer a specific question about the subject, action, jurisdiction, time, condition, and competence. This is a separate sibling of the research path, not a global prerequisite for every numerical demonstration. An exact quotation does not guarantee applicability, and an active rule does not establish that a treatment was actually delivered.
 
-Уже существуют amendment extraction, reference graph, temporal parser/resolver, Lex mapping и InterventionSpec. Прочитанный compiler принимает предоставленные caller target/schedule/params; корректность этого mapping не является доказательством смыслового тождества юридического намерения численному действию. Универсальная обработка условного «после наступления события», всех exceptions и branch alternatives в адресных owners не установлена.
+Amendment extraction, a reference graph, temporal parser/resolver, Lex mapping, and InterventionSpec already exist. The inspected compiler accepts the caller-supplied target/schedule/parameters; correctness of that mapping does not prove semantic identity between legal intent and a numerical action. Universal handling of conditional “after an event,” all exceptions, and branch alternatives in the addressed owners is not established.
 
-Первое приращение — одна норма с опубликованным условием вступления в силу или одной существенной поправкой, исходный текст и событие, scoped disposition и действительный legal consumer. Проверка переноса меняет exception, субъект, jurisdiction или delayed trigger при той же дате документа. Missing event evidence сохраняет неизвестность. Baseline — ручная проверка исходной нормы и её истории.
+The first increment covers one rule with a published effective condition or one material amendment, its original text and event, a scoped disposition, and a real legal consumer. The transfer case changes the exception, subject, jurisdiction, or delayed trigger while keeping the document date constant. Missing event evidence preserves uncertainty. The baseline is manual review of the source rule and its history.
 
-Если результат превращается в проект процедуры, бюджета или правового текста с новыми утверждениями, это substantive lowering: новая проверка и версия. Faithful audience rendering не создаёт такую дополнительную authority. ML2 legal rendition требует собственного основания; перевод интерфейса недостаточен.
+If the result becomes a draft procedure, budget, or legal text with new claims, that is substantive lowering and needs new verification and a new version. Faithful rendering for an audience does not create additional authority. An ML2 legal rendition needs its own basis; translating the interface is insufficient.
 
-Повторное строительство юридического движка не нужно. Остаток — точный source/profile, semantic correspondence и consumer; обычные repairs остаются у GL/E02. Стоимость второго правового профиля может почти полностью состоять из независимой предметной проверки даже при полном reuse кода.
+Do not rebuild a legal engine. The remainder is the exact source/profile, semantic correspondence, and consumer; ordinary repairs remain with GL/E02. Even with complete code reuse, independent subject-matter review may account for nearly all of the second legal profile's cost.
 
-**Самостоятельный запуск:** повторяющиеся legal questions либо конкретное requested lowering с собственной областью проверки. **Стоп:** доступная цитатная карта уже решает задачу; компетентное основание отсутствует; новый текст скрывает условие или добавляет неподдержанный вывод.
+**Start separately:** recurring legal questions or a specific requested lowering with its own verification scope. **Stop:** an available citation map already answers the task; competent grounds are missing; or new text hides a condition or adds an unsupported conclusion.
 
-## F Украинская информация о путях финансирования
+## F — Ukrainian funding-path information
 
-### Смысл ветви
+### Branch purpose
 
-Ветка помогает исследовать возможный путь от бюджетного основания или донорского обязательства через конкретный проект к фактическому исполнению и документам. Она сохраняет amount/currency/date/entity/provenance и пропуски между этапами. Это decision support, а не обещание финансирования, платёжная система, grant administration или новая институциональная власть PolicyOS.
+This branch helps investigate a possible path from a budget basis or donor commitment through a specific project to actual execution and documents. It preserves amount/currency/date/entity/provenance and the gaps between stages. This is decision support, not a funding promise, payment system, grant administration, or new institutional authority for PolicyOS.
 
-Исторический план имеет Ukraine-only и no-LLM/OCR/embedding scope. Его deterministic identifier-first подход сохраняется до отдельного решения об изменении области. Risk/integrity graph не подменяет financing eligibility и не является обвинением по совпадению имени.
+The historical plan has a Ukraine-only and no-LLM/OCR/embedding scope. Preserve its deterministic, identifier-first approach unless a separate decision changes the scope. A risk/integrity graph does not replace financing eligibility and is not an accusation based on a name match.
 
-### Что реально известно сейчас
+### What is actually known now
 
-Data Forge D0–D5, Spending/procurement normalizers, verified artifact reads и `blueprint_release` consumer присутствуют. Но metadata-check обнаружил несогласованный исторический комплект: retained D0 failed от 9 апреля позже retained completed D5; это не свежий успешный release. Локальный observation panel существует по footer, однако строки, их units и реальная совместимость читателя не прочитаны в этом исследовании.
+Data Forge D0–D5, Spending/procurement normalizers, verified artifact reads, and the `blueprint_release` consumer are present. The metadata check found an inconsistent historical package: retained D0 failed on April 9, later than retained D5 completed; this is not a fresh successful release. A local observation panel exists according to its footer, but this research did not read its rows or confirm their units or actual reader compatibility.
 
-Нормализатор договоров предпочитает `currencyAmountUAH`, иначе `amount`; выбранный fallback не сохраняет сам по себе доказанную валюту. Сумма делится между contractor candidates и агрегируется по buyer×supplier×month, теряя document identity в конечной группе. Отдельный поток платежей агрегируется по payer×recipient×month. Полная связь contract→appropriation→paid→executed не установлена.
+The contract normalizer prefers `currencyAmountUAH`, otherwise `amount`; the chosen fallback does not itself preserve proven currency. It divides the amount among contractor candidates and aggregates by buyer × supplier × month, losing document identity in the final group. A separate payment flow aggregates by payer × recipient × month. The complete contract → appropriation → paid → executed relation is not established.
 
-Поэтому **первый готовый исследовательский профиль сейчас — metadata/source-semantics**, а не обещанный эмпирический положительный запуск. Он точно определяет необходимый следующий uplift: зафиксированный bounded source slice с document IDs, source definition валюты/даты, правилами множественности, distinct contract/payment objects и одним пригодным читателем. Если эти inputs получены разрешённым путём, первое приращение считает договорные величины своего набора и явно не выдаёт их за paid/executed amounts.
+Therefore, the **first research profile ready now is metadata/source semantics**, not a promised positive empirical run. It specifies the next required increment: a fixed bounded source slice with document IDs, source definitions for currency and date, multiplicity rules, distinct contract/payment objects, and one suitable reader. If these inputs are obtained through an authorized route, the first increment computes contract amounts for its own set and clearly does not present them as paid or executed amounts.
 
-Проверка переноса — один действительно подтверждённый lifecycle link, например договор и связанная транзакция при совпавших идентификаторах и временной семантике, с отрицательным случаем похожей, но несвязанной записи. Дальнейшее расширение на donor eligibility и co-financing требует новых официальных источников и правил, а не дополнительного string join.
+The transfer check is one genuinely confirmed lifecycle link—for example, a contract and related transaction with matching identifiers and temporal semantics—plus a negative case involving a similar but unrelated record. Further expansion to donor eligibility and co-financing needs new official sources and rules, not another string join.
 
-Baseline — качественная ручная source table и точная сверка ограниченного списка документов. Stop: identity/currency/date не устанавливаются, общий объём корпуса маскирует отсутствие нужного отношения или простая таблица остаётся дешевле. Полная смета ветви не установлена; E1/E2/C-труд, уже выполненный для того же источника, не считается повторно.
+The baseline is a high-quality manual source table and exact reconciliation of a bounded document list. Stop if identity/currency/date cannot be established, the total corpus size masks the missing relation, or a simple table is cheaper. The full branch estimate is unknown; do not charge E1/E2/C work already done for the same source again.
 
-## B Знания компании для бизнес агентов
+## B — Company knowledge for business agents
 
-Это отдельно выбираемая founder/internal/commercial ветвь. Она хранит одобренные сведения о компании и продукте, FAQ, objections и `disallowed_claim`, собирает task packs и помогает давать customer-safe ответы. Её результат и проверка отличаются от causal research, поэтому она не исчезает под общим словом «evidence».
+This is a separately selectable founder/internal/commercial branch. It stores approved company and product facts, FAQs, objections, and `disallowed_claim`, assembles task packs, and helps produce customer-safe answers. Its result and verification differ from causal research, so it should not disappear under the general label “evidence.”
 
-Исторический список из 24 агентов не является минимальным продуктом. Первый срез — одна реальная роль и задача, небольшой approved fact set, source/version/freshness и policy-filter **до** ranking. Internal workspace и customer-safe material отделены. Memory не превращается в позицию компании, а неподдержанные pricing/security/roadmap обещания не достраиваются генерацией.
+The historical list of 24 agents is not a minimum product. The first slice is one real role and task, a small approved fact set, source/version/freshness, and a policy filter **before** ranking. Separate the internal workspace from customer-safe material. Memory must not become a company position, and generation must not invent unsupported pricing, security, or roadmap promises.
 
-Проверка переноса меняет задачу или аудиторию с другим permitted-use набором; противоречащая устаревшая информация должна корректно проиграть актуальной одобренной. Проверяются false claims, отказ на реально разрешённый ответ, доступ к source и полная review cost. Сильный baseline — короткий поддерживаемый FAQ и ручное составление ответа.
+The transfer case changes the task or audience and its permitted-use set; stale contradictory information should correctly lose to current approved information. Check false claims, refusal of a genuinely permitted answer, source access, and full review cost. A short maintained FAQ with a manually drafted answer is a strong baseline.
 
-В bounded source search полный named producer→artifact→consumer этой ветви не установлен. Это неизвестность реализации, а не доказательство отсутствия любых внешних deployments. Сначала нужно проверить выбранную фактическую роль и существующие owners; не строить новый CRM/support/admin subsystem внутри policy-custody core. Полная оценка пока не задана.
+The bounded source search did not establish a complete named producer → artifact → consumer chain for this branch. That is uncertainty about implementation, not proof that no external deployments exist. First check the selected real role and existing owners; do not build a new CRM/support/admin subsystem inside the policy-custody core. A full estimate has not been set.
 
-## Сохраняемые научные опции причинного архива
+## Preserved research options in the causal archive
 
-Причинный архив и checked-in declarations содержат 48 уникальных stage scopes: 37 `execution_grade`, 11 `narrow_accepted`. Это полезная карта повторного использования. Прочитанный validator проверяет соответствие declarations и наличие evidence paths; он не исполняет тесты и не доказывает математику. Даже execution-grade scope может быть sound-but-incomplete. Узкая принятия область не автоматически долг.
+The causal archive and checked-in declarations contain 48 unique stage scopes: 37 `execution_grade` and 11 `narrow_accepted`. This is a useful reuse map. The inspected validator checks declarations and the presence of evidence paths; it does not execute tests or prove the mathematics. An execution-grade scope may still be sound but incomplete. A narrow accepted scope is not automatically debt.
 
-| Опция внутри выбранной траектории | Полезный новый вопрос | Что уже следует переиспользовать | Когда расширять |
-|---|---|---|---|
-| E1/E2 Административная неполнота | Восстановим ли нужный mean/contrast при регистрации и missingness | RecoverabilityCertificate, selector и lowering | Есть population frame и observation indicators; неполный full law не мешает directly recoverable target |
-| E2/M1/P1 Распределительный эффект | Что известно о tails/quantiles и пределах индивидуальных gains | Marginal-law proofs, Lee/Makarov scope, coupling sidecar | Нужен иной функционал, selection population или coupling premise; OT не выдаётся за observed individual gains |
-| M1/P2/P3 Время | Когда меняется cumulative effect и transient harm | TemporalExecutionPlan, rough-path scope, event/DTR artifacts | Новый функционал действительно требует иного observation/continuation contract |
-| P1/P3 Реакция и масштаб | Устойчив ли выбор при допустимых equilibria и агрегации | StrategicResponseBundle, decomposition, mean-field scope, AbstractionCertificate | Реальный вопрос требует новой response/aggregation family; solver не валидирует поведение |
-| E1/E2/M2 Латентное измерение | Устраняет ли indicator/anchor конкретную неоднозначность | LatentBridgeHypothesis/DiscoveryBundle и scoped promotion | Есть независимый anchor и rival models; красивый fit и non-rejection недостаточны |
-| E2/P3 Групповое воздействие | Как allocation действует на соседей и группы | Pairwise/cluster interference и reduction bounds | Есть реальная higher-order hypothesis, assignment/support и иной полезный contrast |
-| A/E2 Private release | Что различимо из разрешённого выпуска данных | DP robustness/transport/recovery | Public release mechanism и holder scope поддерживают нужную формулу |
-| P1 Исполнимый recourse | Какое доступное действие достигает заявленной цели в модели | Finite exact и supported convex recourse | Требуются реальные action channels, costs и uncertainty; нелинейный heuristic не повышается до guarantee |
-| M1/N Структурированный outcome | Что меняется в выбранных trajectory/distribution probes | Kernel lowering и finite audit basis | Whole-space claim требует собственного uniform proof; новый kernel не меняет identification |
-| E2 Композиция методов | Совместимы ли recovery, proxy и policy assumptions в одном вопросе | Canonical proof/estimator compilers | Появилась реальная совместная задача; отдельные сертификаты не доказывают совместимость |
+| Option within a selected trajectory | Useful new question                                                           | What to reuse                                                                    | When to extend                                                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| E1/E2 Administrative incompleteness | Can the needed mean/contrast be recovered under registration and missingness? | RecoverabilityCertificate, selector, and lowering                                | A population frame and observation indicators exist; an incomplete full law does not prevent a directly recoverable target.  |
+| E2/M1/P1 Distributional effect      | What is known about tails/quantiles and bounds on individual gains?           | Marginal-law proofs, Lee/Makarov scope, coupling sidecar                         | A different functional, selection population, or coupling premise is needed; do not present OT as observed individual gains. |
+| M1/P2/P3 Time                       | When do cumulative effects and transient harms change?                        | TemporalExecutionPlan, rough-path scope, event/DTR artifacts                     | The new functional truly needs a different observation/continuation contract.                                                |
+| P1/P3 Response and scale            | Is the choice stable across admissible equilibria and aggregation?            | StrategicResponseBundle, decomposition, mean-field scope, AbstractionCertificate | The real question needs a new response/aggregation family; a solver does not validate behavior.                              |
+| E1/E2/M2 Latent measurement         | Does an indicator/anchor resolve a specific ambiguity?                        | LatentBridgeHypothesis/DiscoveryBundle and scoped promotion                      | An independent anchor and rival models exist; a good fit and non-rejection are insufficient.                                 |
+| E2/P3 Group effects                 | How does allocation affect neighbors and groups?                              | Pairwise/cluster interference and reduction bounds                               | There is a real higher-order hypothesis, assignment/support, and a different useful contrast.                                |
+| A/E2 Private release                | What can be distinguished from an authorized data release?                    | DP robustness/transport/recovery                                                 | A public release mechanism and holder scope support the needed formula.                                                      |
+| P1 Executable recourse              | Which available action reaches the stated goal in the model?                  | Finite exact and supported convex recourse                                       | Real action channels, costs, and uncertainty are required; do not promote a nonlinear heuristic to a guarantee.              |
+| M1/N Structured outcome             | What changes in selected trajectory/distribution probes?                      | Kernel lowering and finite audit basis                                           | A whole-space claim needs its own uniform proof; a new kernel does not change identification.                                |
+| E2 Method composition               | Are recovery, proxy, and policy assumptions compatible within one question?   | Canonical proof/estimator compilers                                              | A real joint task exists; separate certificates do not establish compatibility.                                              |
 
-Это десять направлений применения существующих возможностей, а не десять новых обязательных программ. В каждом сначала выбираются известный ограниченный результат, named consumer и independent reference. Новая теория финансируется лишь там, где действительно отсутствует нужный переносимый результат и полезность вопроса оправдывает исследование.
+These are ten ways to apply existing capabilities, not ten mandatory new programs. For each, first choose a known bounded result, named consumer, and independent reference. Fund new theory only when the needed transferable result is actually missing and the question's utility justifies the research.
 
-## Поздняя исследовательская диспетчеризация
+## Later research dispatch
 
-Шесть root-документов уточняют предшествующие программы, не добавляя новый слой реализации. Сорок moves имеют свои adoption gates; пустые исторические plan_adopted поля не отменяют поздние PA1/PA2/PA3. PA1 сохраняет narrow ranking permission и ограничения actual authority; PA2 — guarded-adapter scope, отдельно от универсального охвата authenticated effect sites; PA3 — существующий G6 ledger и readback/export, отдельно от release transcript и каждой Atlas surface.
+Six root documents refine earlier programs without adding an implementation layer. Forty moves have their own adoption gates; empty historical `plan_adopted` fields do not invalidate later PA1/PA2/PA3. PA1 preserves narrow ranking permission and actual-authority limits; PA2 preserves guarded-adapter scope separately from universal coverage of authenticated effect sites; PA3 preserves the existing G6 ledger and readback/export separately from the release transcript and each Atlas surface.
 
-Семь OPS-тем без terminal root entry сохраняют bounded опции suspension/reauthorization, selective invalidation, dormant-case migration, coordinated release, derived refresh, living law и jurisdiction packs. Отсутствие root receipt не доказывает отсутствия более глубокого результата. Четыре dormant INT/NXR темы активируются только при named numeric/proof claim. Тридцать шесть административных triggers не дают мандата строить CRM, ERP, суд, платежи или procurement administration.
+Seven OPS topics without a terminal root entry preserve bounded options for suspension/reauthorization, selective invalidation, dormant-case migration, coordinated release, derived refresh, living law, and jurisdiction packs. The absence of a root receipt does not prove the absence of deeper results. Four dormant INT/NXR topics activate only for a named numeric/proof claim. Thirty-six administrative triggers do not authorize building a CRM, ERP, court, payment, or procurement-administration system.
 
-Исторические import repairs имеют поздние scoped closures; новый cleanup-проект не нужен. Дата `target_fail_closed_not_before=2026-10-01` у compatibility release — самая ранняя цель, а не автоматический deadline switch из существующего report_only.
+Historical import repairs have later scoped closures; no new cleanup project is needed. `target_fail_closed_not_before=2026-10-01` on the compatibility release is the earliest target, not an automatic deadline switch from the existing `report_only`.

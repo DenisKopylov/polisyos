@@ -2952,6 +2952,20 @@ def _export_count_display(count: int | None, known_count: int) -> str:
     return f"unknown ({known_count} known prefix)" if known_count else "unknown (no names proven)"
 
 
+def _markdown_code_span(value: str) -> str:
+    backtick_runs = re.findall(r"`+", value)
+    delimiter = "`" * (max((len(run) for run in backtick_runs), default=0) + 1)
+    padding = " " if value.startswith("`") or value.endswith("`") else ""
+    return f"{delimiter}{padding}{value}{padding}{delimiter}"
+
+
+def _markdown_fenced_literal(value: str) -> str:
+    backtick_runs = re.findall(r"`+", value)
+    delimiter = "`" * max(3, max((len(run) for run in backtick_runs), default=0) + 1)
+    trailing_newline = "" if value.endswith("\n") else "\n"
+    return f"{delimiter}text\n{value}{trailing_newline}{delimiter}"
+
+
 def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
     lines = [
         "# Public Surface",
@@ -3093,10 +3107,35 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
             if entrypoint.summary:
                 lines.append(f"- Summary: {entrypoint.summary}")
             if entrypoint.export_count is None:
-                lines.append(
-                    f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}."
-                )
-                candidates = entrypoint.export_resolution["declared_export_candidates"]
+                resolution = entrypoint.export_resolution
+                reason = resolution["reason"]
+                if "\n" in reason:
+                    lines.extend(
+                        [
+                            "- Export resolution incomplete; source reason follows:",
+                            "",
+                            _markdown_fenced_literal(reason),
+                        ]
+                    )
+                else:
+                    lines.append(f"- Export resolution incomplete: {_markdown_code_span(reason)}.")
+                exports_scope = resolution.get("exports_scope")
+                if exports_scope:
+                    lines.append(f"- Export scope: {_markdown_code_span(exports_scope)}")
+                candidates = resolution["declared_export_candidates"]
+                candidate_scope = resolution.get("candidate_scope")
+                if entrypoint.known_export_count == 0 and candidate_scope:
+                    lines.append(f"- Candidate scope: {_markdown_code_span(candidate_scope)}")
+                evidence_inputs = [
+                    row for row in resolution.get("inputs", []) if row["operation"] == "read_bytes"
+                ]
+                if evidence_inputs:
+                    lines.append(
+                        f"- Source evidence: {len(evidence_inputs)} measured source reads; "
+                        "full path, byte-length, and SHA-256 receipts are in the companion inventory JSON."
+                    )
+                else:
+                    lines.append("- Source evidence reads: none recorded by the resolver.")
                 if candidates:
                     lines.extend(
                         [

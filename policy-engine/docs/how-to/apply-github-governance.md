@@ -6,6 +6,12 @@ repository.
 Use it whenever you need to reconcile the live GitHub repository with the
 repo-tracked docs and workflow inventory.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+the repository-tracked `.github/workflows/`, `.github/repository-rulesets/main.yml`,
+`.github/CODEOWNERS`, `.github/labels.yml`, and
+`policy-engine/architecture/control_plane_supply_chain.toml`. This records local
+intent only; no live GitHub settings or workflow runs were inspected.
+
 ## Inputs
 
 - repository admin or equivalent settings access in GitHub;
@@ -95,9 +101,12 @@ As of this docs refresh, the active inventory includes:
 - `core-runtime-long-soak.yml`
 - `core-runtime-release-gate.yml`
 - `docs-pages.yml`
+- `external-link-liveness.yml`
 - `fabric-remediation.yml`
 - `frontend-nightly.yml`
 - `frontend-quality.yml`
+- `honest-diagnostics-substrate.yml`
+- `policyos-canary-matrix.yml`
 - `release.yml`
 
 Product-local templates under `policy-engine/ops/ci/templates/workflows/` are
@@ -139,9 +148,13 @@ Recommended process:
 3. Add only those live check names to branch protection.
 4. Recheck them whenever workflow job names change.
 
-The tracked ruleset currently names `Fast PR / Gate` and `Standard PR / Gate`
-as the fast PR tier. If job names change, update the ruleset file and this
-guide before changing the GitHub UI.
+The repo-tracked `required_status_checks.always` list requires `Fast PR / Gate`
+and `Standard PR / Gate`; those job names are declared in the repository-root
+`.github/workflows/abi.yml` and `.github/workflows/ci.yml`, respectively. This
+is intended local state only: no live GitHub check list or settings were
+inspected. If names change, update the ruleset and this guide, then verify the
+corresponding contexts from recent successful GitHub runs before applying the
+UI change.
 
 ## 5. Reviewer Routing
 
@@ -155,8 +168,14 @@ Reviewer routing should follow:
 5. the shared-surface guidance in `docs/reference/quality-gates.md`
 
 For shared control-plane changes such as `.github/workflows/**`, `mkdocs.yml`,
-release ledgers, or shared reference pages, request `@platform-owners`
-attention explicitly.
+release ledgers, or shared reference pages, request review from
+`@DenisKopylov`, the current enforceable reviewer recorded by
+`.github/CODEOWNERS` and the personal-repository exception in
+`architecture/control_plane_supply_chain.toml`. These files describe local
+intent; this guide has not verified whether GitHub has applied it. The contract
+maps `@platform-owners` as a logical target group, but GitHub team slugs are not
+provisioned in this personal repository; use that group only after provisioning
+and updating the tracked routing.
 
 ## 6. Merge Queue and Signatures
 
@@ -164,8 +183,10 @@ attention explicitly.
   enable it in GitHub, update the tracked contract first and add
   merge_group-compatible required checks.
 
-- `signatures.yml` and `build-and-push.yml` are the repo-tracked signing and
-  SBOM surfaces.
+- `policy-engine/ops/ci/templates/workflows/signatures.yml` and
+  `policy-engine/ops/ci/templates/workflows/build-and-push.yml` are tracked
+  signing and SBOM workflow templates. They are not active repository-root
+  workflows unless promoted into `.github/workflows/`.
 
 - Signed release tags are required by the tracked ruleset. Commit-signature
   enforcement on `main` remains recommended but is not enforced until key

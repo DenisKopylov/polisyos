@@ -2,8 +2,9 @@
 
 `tests/unit/core/phase0` is the deepest platform-safety slice inside `tests/unit/core`.
 It covers artifact storage, canonical serialization, signing, run context,
-audit export, and observability. The directory currently contains `23`
-`test_*.py` files plus a local `conftest.py`.
+audit export, and observability. The directory contained `25` `test_*.py` files
+in the 2026-10-14 repository-tree inventory. This is
+a file count, not a test-run result.
 
 ## Purpose
 
@@ -13,13 +14,17 @@ audit export, and observability. The directory currently contains `23`
 
 ## Where To Start
 
-- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
+- [`../../../../src/polisyos/core/README.md`](../../../../src/polisyos/core/README.md)
 - `test_artifact_store.py`, `test_canon_json.py`, and `test_observability.py`
   for representative artifact, canon, and telemetry coverage.
 
-- `conftest.py` if the change depends on local fixtures or setup.
+- [`../../../conftest.py`](../../../conftest.py) for shared test setup; there
+  is no `conftest.py` in this directory at the inspected snapshot.
 
 ## Public Entrypoints
+
+The groups below name 21 representative files from the 25-file inventory; they
+are not an exhaustive list.
 
 - Artifact and provenance tests:
   `test_artifact_store.py`, `test_artifact_export_import.py`,
@@ -79,10 +84,10 @@ uv run pytest --collect-only tests/unit/core/phase0 -q
 ## Reference Docs
 
 - [`../README.md`](../README.md)
-- [`../../../src/polisyos/core/README.md`](../../../src/polisyos/core/README.md)
-- [`../../../docs/reference/generated-artifacts.md`](../../../docs/reference/generated-artifacts.md)
-- [`../../../docs/reference/public-surface.md`](../../../docs/reference/public-surface.md)
+- [`../../../../src/polisyos/core/README.md`](../../../../src/polisyos/core/README.md)
+- [`../../../../docs/reference/generated-artifacts.md`](../../../../docs/reference/generated-artifacts.md)
+- [`../../../../docs/reference/public-surface.md`](../../../../docs/reference/public-surface.md)
 
 ## Last Updated
 
-2026-04-17
+2026-10-14

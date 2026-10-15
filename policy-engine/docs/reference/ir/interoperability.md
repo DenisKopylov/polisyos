@@ -4,9 +4,10 @@ Related reference: [IR Schema Catalog](schema-catalog.md), [Schemas](../schemas.
 
 > Reflection, transport, and bridge surfaces that let external tooling understand and exchange IR artifacts without manual grep.
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/schemas/`, `src/polisyos/ir/artifacts/transport.py`, `src/polisyos/ir/world/prov_o.py`, `src/polisyos/ir/observation/bridges.py`, `src/polisyos/ir/analytics/ecosystem_bridges.py`
+Snapshot and evidence level: source pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was reviewed at source level for its stated contract/status boundaries and source references. Test and validation links are coverage pointers; they were not executed for this update.
 Source plan phase: D1-L4 Phase 4 reflection, schema catalog, transport, streaming, and ecosystem bridges.
 
 ## Reflection And Catalog
@@ -77,7 +78,7 @@ Source plan phase: D1-L4 Phase 4 reflection, schema catalog, transport, streamin
 
 | Surface                                     | Source of truth                                                                            | Evidence                                                                                                            |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| Reflection catalog and generated references | `src/polisyos/ir/schemas/`, `tools/quality/diagnostics/generate_ir_reference_catalog.py`           | `tests/unit/ir/test_schema_catalog.py`, [IR Schema Catalog](schema-catalog.md)                                           |
+| Reflection catalog and generated references | `src/polisyos/ir/schemas/`, `tools/quality/diagnostics/generate_ir_reference_catalog.py`   | `tests/unit/ir/test_schema_catalog.py`, [IR Schema Catalog](schema-catalog.md)                                      |
 | JSON-first transport and streaming pilot    | `src/polisyos/ir/artifacts/transport.py`                                                   | `docs/contracts/E2_11_IR_TRANSPORT_STREAMING_V1_0.md`, `docs/adr/0109-ir-transport-and-interoperability-bridges.md` |
 | PROV-O mapping                              | `src/polisyos/ir/world/prov_o.py`                                                          | generated anchors in [IR Schema Catalog](schema-catalog.md#polisyos-ir-world-prov-o-provodocument)                  |
-| Observation and causal bridges              | `src/polisyos/ir/observation/bridges.py`, `src/polisyos/ir/analytics/ecosystem_bridges.py` | `tests/unit/ir/test_interoperability_bridges.py`                                                                         |
+| Observation and causal bridges              | `src/polisyos/ir/observation/bridges.py`, `src/polisyos/ir/analytics/ecosystem_bridges.py` | `tests/unit/ir/test_interoperability_bridges.py`                                                                    |

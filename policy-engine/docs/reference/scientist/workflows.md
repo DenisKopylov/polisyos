@@ -1,14 +1,16 @@
 # Scientist Workflows
 
-Related explanation: [Governance Model](../../explanation/governance-model.md).
+Related references: [Current workflows and evidence handoffs](current-workflows.md), [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and workflow selection tests.
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and `tests/unit/scientist/orchestration/workflows/test_workflow_selection.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and workflow-selection test sources inspected at this pin; tests not executed for this docs-only update.
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and workflow selection tests.
+> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and `tests/unit/scientist/orchestration/workflows/test_workflow_selection.py`.
 
 Workflow execution has two layers:
 
@@ -33,27 +35,46 @@ Workflow execution has two layers:
 
 Current builtin specs are:
 
-| `workflow_id`               | Required binds                                                      | Node count | Current use                                                                                                                                                 |
-| --------------------------- | ------------------------------------------------------------------- | ---------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scientist_default`         | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | 21         | Baseline governed simulation/governance path.                                                                                                               |
-| `scientist_discovery`       | `run_id`, `inputs.registry_bundle_ref`                              | 2          | Discovery-only blueprint runtime.                                                                                                                           |
-| `scientist_causal_full`     | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | 27         | Escalated causal path with literature prior, graph reconciliation, readiness, queries, ensemble, ABM consistency, and transportability.                     |
-| `scientist_policy_verified` | `run_id`, `inputs.registry_bundle_ref`                              | 26         | Verified-policy path without hierarchical search or translation bundle stages.                                                                              |
-| `scientist_policy_design`   | `run_id`, `inputs.registry_bundle_ref`                              | 35         | Policy-design path with verified sourcing, hierarchical search, readiness, counterfactual gate, blueprint runtime, translation, and output bundle assembly. |
+| `workflow_id`               | Required binds                                                      | Current use                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scientist_default`         | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | Baseline governed simulation/governance path.                                                                                                               |
+| `scientist_discovery`       | `run_id`, `inputs.registry_bundle_ref`                              | Discovery-only blueprint runtime.                                                                                                                           |
+| `scientist_causal_full`     | `run_id`, `inputs.trinity_bundle_ref`, `inputs.registry_bundle_ref` | Escalated causal path with literature prior, graph reconciliation, readiness, queries, ensemble, ABM consistency, and transportability.                     |
+| `scientist_policy_verified` | `run_id`, `inputs.registry_bundle_ref`                              | Verified-policy path without hierarchical search or translation bundle stages.                                                                              |
+| `scientist_policy_design`   | `run_id`, `inputs.registry_bundle_ref`                              | Policy-design path with verified sourcing, hierarchical search, readiness, counterfactual gate, blueprint runtime, translation, and output bundle assembly. |
+
+This catalog describes workflow-spec wiring, not end-to-end readiness. In
+particular, the policy workflows do not require a Trinity ref at bind
+validation; the formalizer later checks only for the caller-supplied ref key,
+and no request/options-to-Trinity producer is present in the inspected path.
+The downstream consequences and other current integration gaps are recorded
+in [Current Scientist Workflows and Evidence Handoffs](current-workflows.md).
 
 ## Routing Rules
 
-`resolve_workflow_id()` currently applies these rules, in order:
+`resolve_workflow_id()` currently applies these rules, in order. When none of
+the earlier explicit, discovery, causal-escalation, or serious-profile rules
+match, generic policy questions and research-intent signals route to policy
+design; the verified-policy route is selected by its explicit async answer
+mode or execution profile, not by generic policy intent.
 
-| Trigger                                                                                                                                                                                            | Result                                |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Explicit `params.workflow_id` equal to `scientist_discovery`, `scientist_policy_design`, or `scientist_policy_verified`                                                                            | Honor the explicit id.                |
-| Discovery profile or payload: `execution_profile=discovery`, `discovery_mode`, or both `discovery_data` and `discovery_variable_names` present                                                     | Route to `scientist_discovery`.       |
-| Policy-design profile: `execution_profile=policy_design` or truthy `params.policy_mode`                                                                                                            | Route to `scientist_policy_design`.   |
-| Verified-policy signals: `policy_answer_mode=verified_async`, `execution_profile=policy_verified_async`, or policy question/research intent without Trinity input                                  | Route to `scientist_policy_verified`. |
-| Serious execution profiles: `research`, `governed`, `production`                                                                                                                                   | Route to `scientist_causal_full`.     |
-| Auto-escalation signals: `transport_required`, mismatched source/target contexts, external evidence markers, knowledge bundle input, cross-graph evidence enabled, or nested evidence-source paths | Route to `scientist_causal_full`.     |
-| Otherwise                                                                                                                                                                                          | Fall back to `scientist_default`.     |
+| Priority | Trigger                                                                                                                                                                                                                                                                                | Result                       |
+| -------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+|        1 | `params.workflow_id` is exactly one of `scientist_discovery`, `scientist_policy_design`, or `scientist_policy_verified`.                                                                                                                                                               | Honor that explicit id.      |
+|        2 | Discovery profile/mode, or both discovery data and variable names are present.                                                                                                                                                                                                         | `scientist_discovery`.       |
+|        3 | `params.workflow_id` is `scientist_causal_full`.                                                                                                                                                                                                                                       | `scientist_causal_full`.     |
+|        4 | Automatic causal escalation: transport required; distinct source and target context fingerprints; an external evidence marker; cross-context reuse; enabled cross-graph evidence config; configured evidence-source paths; expected cross-graph evidence; or a knowledge-bundle input. | `scientist_causal_full`.     |
+|        5 | Execution profile is `research`, `governed`, or `production`.                                                                                                                                                                                                                          | `scientist_causal_full`.     |
+|        6 | `policy_answer_mode=verified_async` or execution profile `policy_verified_async`.                                                                                                                                                                                                      | `scientist_policy_verified`. |
+|        7 | Execution profile `policy_design`; otherwise boolean `policy_mode=true` or a string token in `1`, `true`, `yes`, `on`; otherwise a design-problem ref/payload, research-intent ref, or non-empty policy question/request/problem statement/research question.                          | `scientist_policy_design`.   |
+|        8 | No earlier rule matches.                                                                                                                                                                                                                                                               | `scientist_default`.         |
+
+For priority 7, a boolean or string `policy_mode` is resolved directly: only
+boolean `true` or the listed truth tokens enable policy-design routing; any
+other boolean/string value suppresses that helper's later request-signal
+inference. The `policy_design` execution profile is checked first. An
+unrecognized explicit workflow id, including `scientist_default`, does not
+force a route; other matching rules can still select a different workflow.
 
 ## DAG Shape By Workflow
 

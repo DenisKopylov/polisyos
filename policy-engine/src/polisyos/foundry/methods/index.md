@@ -1,7 +1,7 @@
 # Generated Index: Foundry Methods
 
 Owner: `team-foundry`
-Last updated: 2026-05-05
+Last updated: 2026-10-14
 
 ## Subtrees
 
@@ -23,7 +23,9 @@ Last updated: 2026-05-05
 
 ## Key Entrypoints
 
-`__init__.py` and `api.py` own the package facade. Root compatibility modules
-such as `registry.py`, `composer.py`, `linker.py`, `discovery.py`,
-`catalog_snapshot.py`, and `deprecation.py` forward to the documented
-subpackages and carry shim metadata where the import is public.
+`__init__.py` and `api.py` own the package facade. The root compatibility
+facades `registry.py`, `composer.py`, and `deprecation.py` forward to their
+documented subpackages. `discovery.py` is a package-level discovery module.
+The linker implementation is at `components/linker.py`, and the catalog
+snapshot implementation is at `catalog/snapshot.py`; neither has a root-level
+`linker.py` or `catalog_snapshot.py` at this source snapshot.

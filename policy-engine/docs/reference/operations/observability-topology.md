@@ -6,14 +6,15 @@ Related reference: [Ownership](../ownership.md). Related ops assets:
 
 Owner: `@platform-owners`
 Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/engine/{metrics.py,metrics_otel.py,operational_monitoring.py}`, `ops/observability/prometheus/**`, `ops/observability/grafana/**`, and the linked runbooks
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. No runtime telemetry, deployed dashboard, scrape, alert, or paging state was checked.
 
-> Observability в Phase 6 считается завершённой не тогда, когда “данные где-то
-> есть”, а тогда, когда понятно, какой сигнал trusted, где его смотреть и кто
-> обязан отреагировать.
+> Observability in Phase 6 is complete not when “data exists somewhere,” but
+> when readers know which signals are trusted, where to find them, and who must
+> respond.
 
 ## Signal Taxonomy
 
-| Signal type           | Purpose                                                                  | Current anchors                                                                       | Owner                              |
+| Signal type           | Purpose                                                                  | Repository anchors                                                                    | Owner                              |
 | --------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ---------------------------------- |
 | Traces                | Request and workflow causality, latency decomposition, dependency hops   | `polisyos.core.observability.tracer`, runtime traces, distributed context propagation | `@platform-owners` + service owner |
 | Metrics               | Fast SLO evaluation, alerting, capacity, burn-rate decisions             | Prometheus metrics, recording rules, SLO alerts, domain alerts                        | service owner                      |
@@ -31,8 +32,9 @@ Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/e
 | Control-plane write surface | job admission latency, DAG duration | run/job submit rate         | failed jobs, outbox failure, worker errors | queue age, worker lease starvation, state-store contention |
 | Frontend operator UX        | route load and page-ready timing    | active dashboard page loads | browser errors, failed data fetches        | bundle size, slow rendering, client-side retry storms      |
 
-Current runtime metric and audit coverage is exercised by
-`tests/unit/runtime/http/test_runtime_api_observability.py`. The runtime must keep
+At the reviewed source snapshot, runtime metric and audit code is covered by
+`tests/unit/runtime/http/test_runtime_api_observability.py`; this is test-source
+coverage, not a live telemetry receipt. The runtime must keep
 route labels templated, keep high-cardinality identifiers in logs/traces, and
 emit mutation/read audit entries through the same request ID path used by
 incident triage.
@@ -44,17 +46,17 @@ operational streams, not OpenAPI-generated client surfaces.
 
 ### Critical Dependencies
 
-| Dependency class                | Trusted signals                                                                                     | Owning responder          |
-| ------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------- |
-| Connectors / external data APIs | connector error rate, replay parity, last health check                                              | `@fabric-owners`          |
-| LLM gateway / agent path        | workflow error spike, cost alerts, trace failures                                                   | `@scientist-owners`       |
-| Security sidecars / controls    | authz failures, TEE failure rate, SBOM deny rate                                                    | security/compliance owner |
+| Dependency class                | Trusted signals                                                                                             | Owning responder          |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------- |
+| Connectors / external data APIs | connector error rate, replay parity, last health check                                                      | `@fabric-owners`          |
+| LLM gateway / agent path        | workflow error spike, cost alerts, trace failures                                                           | `@scientist-owners`       |
+| Security sidecars / controls    | authz failures, TEE failure rate, SBOM deny rate                                                            | security/compliance owner |
 | Docs publication                | `.github/workflows/docs-pages.yml`, `.github/workflows/abi.yml`, local `mkdocs build --strict` reproduction | `@docs-owners`            |
 
 ## Dashboard Inventory
 
-| Dashboard           | File                                              | Purpose                                                                        | Owner                                  |
-| ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
+| Dashboard           | File                                                            | Purpose                                                                        | Owner                                  |
+| ------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
 | Executive Overview  | `ops/observability/grafana/dashboards/executive-overview.json`  | platform-wide posture and leadership signal                                    | `@platform-owners`                     |
 | SLO Overview        | `ops/observability/grafana/dashboards/slo-overview.json`        | shared SLO view across runtime API, control-plane, DAG, simulation, connectors | `@platform-owners` with service owners |
 | Runtime Operability | `ops/observability/grafana/dashboards/runtime-operability.json` | runtime API, control-plane, queue, cache, and routing health                   | `@runtime-owners`                      |
@@ -66,8 +68,8 @@ operational streams, not OpenAPI-generated client surfaces.
 
 ## Alert Family Inventory
 
-| Alert family              | Source                          | Examples                                                                                                      | Primary owner                     |
-| ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| Alert family              | Source                                        | Examples                                                                                                      | Primary owner                     |
+| ------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------- |
 | SLO alerts                | `ops/observability/prometheus/slo_alerts.yml` | runtime API availability/latency, control-plane admission, DAG success breach, NaN rate, connector error rate | service owner named by label/team |
 | Cost alerts               | `ops/observability/prometheus/alerts.yml`     | `HighLLMCost*`                                                                                                | `@platform-owners`                |
 | Agent / governance alerts | `ops/observability/prometheus/alerts.yml`     | `AgentErrorSpike*`, `GovernancePassSlowdown`                                                                  | `@scientist-owners`               |
@@ -130,15 +132,15 @@ identifier set.
 
 Critical alerts must be periodically proven alive.
 
-| Signal                           | Validation strategy                                                                                                                             |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| runtime availability alerts      | synthetic `/health` and `/ready` checks against known-good deployment path                                                                      |
-| contract/codegen drift           | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace                                                             |
-| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                         |
+| Signal                           | Validation strategy                                                                                                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| runtime availability alerts      | synthetic `/health` and `/ready` checks against known-good deployment path                                                                                     |
+| contract/codegen drift           | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace                                                                            |
+| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                            |
 | auth/tenant fail-closed behavior | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/runtime/http/test_runtime_api_authz.py` |
-| replay failures                  | known-good record/replay fixture path from `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
-| docs publication                 | local `mkdocs build --strict` and green `Documentation` workflow from `main`                                                                    |
-| security alerts                  | focused test fixtures for signing/SBOM plus staged verification against trusted keys                                                            |
+| replay failures                  | known-good record/replay fixture path from `tests/unit/fabric/data_plane/test_record_replay.py`                                                                |
+| docs publication                 | local `mkdocs build --strict` and green `Documentation` workflow from `main`                                                                                   |
+| security alerts                  | focused test fixtures for signing/SBOM plus staged verification against trusted keys                                                                           |
 
 Until an external synthetic platform is added, CI-backed known-good emitters are
 the minimum validation layer.

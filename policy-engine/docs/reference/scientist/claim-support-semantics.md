@@ -4,7 +4,9 @@ Related references: [Claim Ledger](claim-ledger.md), [Benchmark authority](bench
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/validation/claim_support.py` and `tests/unit/scientist/validation/test_claim_support.py`.
+Source of truth: `src/polisyos/scientist/validation/claim_support.py`, `src/polisyos/runtime/http/services/control/nl_pipeline.py`, and `tests/unit/scientist/validation/test_claim_support.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed. The runtime integration below is scoped to the HTTP NL pipeline, not the builtin Scientist DAG.
 
 Phase 3.2 defines the semantic support layer used between structural grounding
 and publication governance. Structural grounding answers whether a claim points
@@ -51,7 +53,7 @@ should include `counterevidence_id`, `action`, and `reason`.
 | Action | Effect |
 | --- | --- |
 | `block` | Sets `publishability = blocked` and lifecycle transition `block_publication`. |
-| `warn` | Keeps publication possible but emits a warning issue for operator/reviewer display. |
+| `warn` | Does not itself change the publishability computed from support/readiness; it emits a warning issue. Other actions can still block, require review, or lower readiness. |
 | `lower_readiness` | Caps readiness at `readiness_floor` or lowers it one step when no floor is supplied. |
 | `require_review` | Sets `publishability = review_required` and lifecycle transition `require_review`. |
 
@@ -74,8 +76,13 @@ grounding must still enforce:
 This keeps Phase 3.2 deterministic: semantic support can fail or require review
 without weakening the fail-closed structural grounding checks.
 
-In serious runtime NL profiles (`research`, `governed`, and `production`), the
-policy grounding matrix enables claim-support semantics for final policy claims.
+In the serious HTTP runtime NL path in
+`src/polisyos/runtime/http/services/control/nl_pipeline.py`, the policy
+grounding matrix enables claim-support semantics for final policy claims in
+`research`, `governed`, and `production` profiles. This call site is not a
+builtin Scientist workflow/node consumer; the bounded builtin-DAG status is
+`implemented_but_not_orchestrated` with `surface_missing` in
+[Current Scientist Workflows and Evidence Handoffs](current-workflows.md).
 Major claims with missing semantic predicates are escalated to fail-closed
 grounding issues, while the raw claim-support assessment is retained on the
 normalized claim for reviewer/debugging use.

@@ -1,14 +1,24 @@
 # Cloud Production Debugging Runbook
 
-Owner: `@platform-owners` with `@runtime-owners`
+Owner: `@platform-owners` with `@runtime-owners` (historical routing labels; current on-call/contact not established)
 Created: `2026-05-20`
-Scope: Google Cloud production-debug setup for real PolicyOS production-quality validation.
-Evidence path: `_build/.tmp/production-quality/`, `.polisyos/canary_evidence/`, `.polisyos/canary_matrix_runs/`, `gs://lex-1-494208-data/real_runs/policyos-prod-debug-20260520/`.
-Rollback path: stop the VM, stop or remove the PostgreSQL container, and remove the staging bucket prefix only after evidence has been copied.
+Source of truth: current project/IAM/Compute/Secret Manager/GCS state for cloud resources; `policy-engine/tools/quality/testing/local_prod_debug_probe.py` and the runtime CLI sources for repository-defined checks.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on `2026-10-14`.
+Scope recorded on `2026-05-20`: Google Cloud production-debug setup for real PolicyOS production-quality validation.
+Evidence paths recorded in the 2026-05-20 note (existence not rechecked): `_build/.tmp/production-quality/`, `.polisyos/canary_evidence/`, `.polisyos/canary_matrix_runs/`, `gs://lex-1-494208-data/real_runs/policyos-prod-debug-20260520/`.
+Historical rollback actions: stop the VM or PostgreSQL container and remove the staging prefix only after evidence is copied; current resource identity, evidence retention, and rollback authorization have not been checked.
 
-Use this runbook when local MacBook validation is not enough and we need a production-like cloud host with durable PostgreSQL control-plane state, real provider credentials, production data, and IAP-only operator access. This is still a debug deployment, not a promoted production service.
+> **Historical record, not a current operations instruction.** The host, account, bucket, container, data size, credentials setup, and validation results below describe the dated `2026-05-20` notes. No present cloud identity, project, VM, database, data copy, secret version, or readiness state was established for this refresh. Every GCP, data-transfer, provider, restart, and deletion command is retained as a historical command example and was not executed or verified for reuse.
 
-## Active Debug Host
+The record was written for a debug deployment, not a promoted production service. Source presence in the reviewed checkout does not establish cloud resource availability or runtime readiness.
+
+## Revalidation Prerequisites
+
+Before reusing any procedure, identify the currently authorized operator and verify the live GCP account and project, IAM and IAP access, instance and PostgreSQL volume identity, secret version, bucket/object generations, and corpus manifest/checksums. Confirm the evidence-retention and rollback owner before any state-changing action. None of those external-state checks was performed here.
+
+For repository checks, pin the checkout and re-read the CLI before use. At the reviewed source pin, `policy-engine/tools/quality/testing/local_prod_debug_probe.py` defines the `quick` checks and requires `POLISYOS_CONTROL_POSTGRES_DSN` for its `postgres-lifecycle`, `stale-recovery`, `production-dry-run`, and `postgres-resource` checks. Its `production-data-static` check requires `production_data/manifest.json` and resolves the manifest's bundle paths. Provider preflight and live checks require both `--allow-live-provider` and `POLISYOS_LLM_GATEWAY_API_KEY`; that is a spend-bearing check, not a readiness guarantee. Use the toolchain baseline in `policy-engine/CONTRIBUTING.md`. These source-defined prerequisites do not verify a GCP host or make the dated results current.
+
+## Historical Debug Host Snapshot (2026-05-20)
 
 ```text
 account: repairkyiv4@gmail.com
@@ -52,7 +62,7 @@ gcloud compute ssh policyos-prod-debug-20260520 \
   --command='uname -a && df -h /workspace && sudo docker ps'
 ```
 
-## Cloud Backing Services
+## Historical Cloud Backing-Service Snapshot (2026-05-20)
 
 The debug PostgreSQL container is:
 
@@ -86,7 +96,7 @@ gcloud compute ssh policyos-prod-debug-20260520 \
   --command='sudo docker restart policyos-control-pg'
 ```
 
-## Code And Data Layout
+## Historical Code And Data Layout Snapshot (2026-05-20)
 
 Workspace on the VM:
 
@@ -98,17 +108,16 @@ Workspace on the VM:
 
 Code is uploaded as a tarball without `.git`, `.venv`, `_build`, `production_data`, cache directories, or local env files. Production data is staged separately so large data transfer can be retried and reused.
 
-Current staging prefix:
+Recorded staging prefix (existence, contents, and generations not rechecked):
 
 ```text
 gs://lex-1-494208-data/bootstrap/policyos-prod-debug-20260520/production_data/
 ```
 
-The staged data was first bootstrapped with the manifest-required runtime subset
-and then expanded to the full local `production_data` tree after the first live
-pass showed that a minimal subset leaves too much uncertainty for a production
-debug run. The current VM copy is expected to match local `production_data` at
-`6562` files and about `34G`.
+The dated setup notes record an initial manifest-required runtime subset followed
+by an expansion to the full local `production_data` tree. They expected the VM
+copy to match a local snapshot of `6562` files and about `34G`; no current VM or
+local data tree was compared for this refresh.
 
 The manifest-required subset includes:
 
@@ -144,7 +153,7 @@ gcloud compute ssh policyos-prod-debug-20260520 \
   --command='cd /workspace/polisyos/policy-engine && test -f production_data/manifest.json && du -sh production_data'
 ```
 
-## Cloud Env
+## Historical Cloud Environment Snapshot (2026-05-20)
 
 The VM-local env file is:
 
@@ -174,7 +183,7 @@ source .env.prod-cloud
 set +a
 ```
 
-## Validation Order
+## Historical Validation Order (2026-05-20)
 
 Run the lightweight cloud quick probe first:
 
@@ -206,7 +215,7 @@ gcloud compute ssh policyos-prod-debug-20260520 \
   --command='cd /workspace/polisyos/policy-engine && set -a && source .env.prod-cloud && set +a && uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks live-research-lane,evidence-inspection --allow-live-provider --live-timeout-s 900 --output _build/.tmp/production-quality/cloud_prod_debug_live.json'
 ```
 
-Expected cloud blockers are valid findings, not reasons to delete evidence:
+The 2026-05-20 notes treated the following as findings rather than reasons to delete evidence; this is a historical interpretation, not a current expected-results contract:
 
 - provider gateway health, model availability, or response format degradation;
 - missing production-data paths if the staged subset is incomplete for a workflow;
@@ -292,7 +301,7 @@ Primary full-data scorecard blockers:
   skip-causality ledger, freshness/policy-time semantics, Pass 1B hardening, and
   legacy migration redaction closure.
 
-## Preserve Evidence
+## Historical Evidence-Copy Commands (2026-05-20)
 
 After each run, copy evidence to the project bucket:
 
@@ -315,7 +324,7 @@ gcloud compute scp --recurse \
   --tunnel-through-iap
 ```
 
-## Pause Or Cleanup
+## Historical Stop, Restart, and Delete Commands (2026-05-20)
 
 Stop the VM when not actively debugging:
 

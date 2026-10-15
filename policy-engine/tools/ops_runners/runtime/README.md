@@ -1,31 +1,31 @@
 # tools/ops_runners/runtime
 
-Утилиты для контрактов Runtime API и операционных задач по legacy runs.
+Utilities for Runtime API contracts and operational tasks involving legacy runs.
 
-## Роль в системе
+## Role in the System
 
-- поддерживать синхронность `Runtime API <-> OpenAPI <-> frontend client`;
-- обслуживать инвентаризацию и архив legacy-данных в `runs/`.
+- keep `Runtime API <-> OpenAPI <-> frontend client` synchronized;
+- support inventory and archiving of legacy data in `runs/`.
 
-## Скрипты
+## Scripts
 
-| Скрипт                          | Что делает                                                                          | Где используется      |
-| ------------------------------- | ----------------------------------------------------------------------------------- | --------------------- |
-| `export_runtime_openapi.py`     | Экспортирует детерминированный OpenAPI JSON (`schemas/runtime_api_v1.openapi.json`) | ручной запуск / релиз |
-| `generate_runtime_client.py`    | Низкоуровневая стадия генерации raw TS/JS для package-owned scratch handoff        | package generator |
-| `check_runtime_api_contract.py` | Проверяет drift OpenAPI и полного canonical generated family, валидирует инварианты | `ci.yml`          |
-| `inventory_legacy_runs.py`      | Инвентаризация `runs/<id>/manifest.json` перед cutover                              | manual/Ops            |
-| `archive_legacy_runs.py`        | Детерминированный tar.gz-архив `runs/` + JSON report (опционально удаляет исходник) | manual/Ops            |
-| `runtime_state_cleanup.py`      | Dry-run/apply cleanup по зарегистрированным `.polisyos` слотам                      | manual/Ops            |
+| Script                          | What It Does                                                                                         | Used By              |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------- |
+| `export_runtime_openapi.py`     | Exports deterministic OpenAPI JSON (`schemas/runtime_api_v1.openapi.json`)                           | Manual run / release |
+| `generate_runtime_client.py`    | Low-level raw TS/JS generation stage for a package-owned scratch handoff                             | Package generator    |
+| `check_runtime_api_contract.py` | Checks OpenAPI and full canonical generated-family drift; validates invariants                       | `ci.yml`             |
+| `inventory_legacy_runs.py`      | Inventories `runs/<id>/manifest.json` before cutover                                                 | Manual/Ops           |
+| `archive_legacy_runs.py`        | Creates a deterministic tar.gz archive of `runs/` plus a JSON report (optionally deletes the source) | Manual/Ops           |
+| `runtime_state_cleanup.py`      | Dry-run/apply cleanup for registered `.polisyos` slots                                               | Manual/Ops           |
 
-## Связь с другими директориями
+## Related Directories
 
-- `src/polisyos/runtime/http/*` (источник OpenAPI)
+- `src/polisyos/runtime/http/*` (OpenAPI source)
 - `schemas/runtime_api_v1.openapi.json`
-- `packages/runtime-api-client/types.ts` и canonicalRuntimeApiClient.{ts,js}
-- `runs/*` (legacy manifests и архивирование)
+- `packages/runtime-api-client/types.ts` and canonicalRuntimeApiClient.{ts,js}
+- `runs/*` (legacy manifests and archiving)
 
-## Типовой запуск
+## Typical Usage
 
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
@@ -35,8 +35,8 @@ PYTHONPATH=src:. uv run python tools/ops_runners/runtime/inventory_legacy_runs.p
 uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot runs --dry-run
 ```
 
-## Примечания
+## Notes
 
-- `check_runtime_api_contract.py` по умолчанию проверяет OpenAPI и полный canonical generated family; `--skip-client-drift` оставлен только как совместимый флаг для OpenAPI-only invocations.
-- `archive_legacy_runs.py` создает детерминированный архив (нормализованные uid/gid/mtime) для воспроизводимости.
-- `runtime_state_cleanup.py` не удаляет `production_data` без `--approve-production-snapshots`.
+- By default, `check_runtime_api_contract.py` checks OpenAPI and the full canonical generated family; `--skip-client-drift` remains only as a compatibility flag for OpenAPI-only invocations.
+- `archive_legacy_runs.py` creates a deterministic archive (with normalized uid/gid/mtime) for reproducibility.
+- `runtime_state_cleanup.py` does not delete `production_data` without `--approve-production-snapshots`.

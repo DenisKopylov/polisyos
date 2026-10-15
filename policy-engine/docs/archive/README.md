@@ -14,6 +14,16 @@ documentation.
 Historical plans live in `docs/plans/archive/`. Code retained for historical
 compatibility lives in `tools/archive/`.
 
+## Read retained evidence
+
+- [Report retention and promotion rules](reports/README.md).
+- [Report entrypoints](reports/index.md), a curated route rather than a complete inventory.
+- [Historical specifications](specs/README.md).
+- [Completed and superseded execution plans](../plans/archive/README.md).
+
+A retained record describes its own source and period. Its presence here does
+not revalidate the result or establish current runtime readiness.
+
 ## Promotion Rules
 
 Move material into `docs/archive/**` only after it has a stable evidence role.

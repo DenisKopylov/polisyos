@@ -28,7 +28,7 @@ window.
 
 1. To restore the removed shim directories from version control for the affected
    package set.
-2. Restore the matching `architecture/migration_shims.toml`,
+2. Restore the matching `architecture/shims.toml`,
    package-boundary, and public-surface entries from the previous revision.
 3. Restore the affected import in the failing consumer only if a temporary
    compatibility release is required.

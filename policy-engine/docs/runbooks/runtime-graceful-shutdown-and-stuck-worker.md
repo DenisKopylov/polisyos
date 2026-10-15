@@ -8,19 +8,19 @@ Related reference: [Platform Architecture Diagrams](../reference/operations/plat
 > stopping.
 
 Owner: `@runtime-owners`
-Last tested: `2026-04-17` against current lifecycle and resilience checks.
+Historical validation receipt (as recorded by this page): `2026-04-17` — lifecycle and resilience evidence available at that time; this is not a fresh validation.
 Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`; `tests/unit/runtime/http/test_resilience_guards.py`
 Rollback path: capture lifecycle evidence, prefer one controlled restart, and avoid repeated hard-kill loops that destroy the signal needed for a fix.
 
 ## Operational Metadata
 
-| Field              | Value                                                                                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Primary owner      | `@runtime-owners`                                                                                                                                 |
-| Coordination owner | `@platform-owners`                                                                                                                                |
-| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                   |
+| Field              | Value                                                                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner      | `@runtime-owners`                                                                                                                                           |
+| Coordination owner | `@platform-owners`                                                                                                                                          |
+| Historical receipt | 2026-04-17, D1-L1 documentation validation pass; no current runtime verdict                                                                                 |
 | Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/unit/runtime/http/test_resilience_guards.py`, `src/polisyos/runtime/http/app.py` |
-| Rollback posture   | capture lifecycle evidence first, then prefer one controlled restart over repeated hard-kill loops                                                |
+| Rollback posture   | capture lifecycle evidence first, then prefer one controlled restart over repeated hard-kill loops                                                          |
 
 ## Symptom
 
@@ -49,11 +49,11 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 1. Capture `/ready` and `/api/v1/health` during shutdown.
 2. Check active worker and live-stream state before forcing termination.
 3. Record whether the process is blocked in:
-
    - worker close;
    - review/live connection drain;
    - store shutdown;
    - executor/task cleanup.
+
 4. If possible, preserve logs and thread/task evidence before sending a hard
    kill.
 

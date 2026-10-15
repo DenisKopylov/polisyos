@@ -1,5 +1,11 @@
 # Cross-sectional TMLE result and causal report
 
+Owner: `polisyos.foundry.methods.catalog.causal.treatment_effects.TMLEEstimator` and its report consumers.
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/treatment_effects.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, and `src/polisyos/scientist/governance/passes/confidence_pass.py`.
+Tests inspected (not run): `tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py`, `tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py`, and `tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test sources inspected at this pin; tests were not run for this docs-only review.
+
 `causal.treatment_effects.tmle@1.0.0` accepts the existing typed `HTEObservationalData` or the legacy `X`/`treatment`/`outcome` mapping. Typed covariates and optional confounders form one adjustment matrix, in that order. The method declares the current `ATENuisanceContract.from_params({})` defaults as public parameters. Its native numerical core, nuisance cache identity, fold execution, targeting and EIF calculation are unchanged.
 
 The original `result` scalar JSON slot and its descriptive payload remain available. Two additional scalar JSON slots contain the canonical `CausalEffectReport` (`report`) and its `UncertaintyEnvelope` projection (`envelope`). `TMLEEstimator.report_from_result(data=..., params=..., result=...)` is the same plain projection used by the producer; it does not refit or verify the supplied result.

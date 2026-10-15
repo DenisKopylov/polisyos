@@ -1598,7 +1598,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Настройки штрафов по ограничениям.
+- Summary: Settings for constraint penalties.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1618,7 +1618,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Настройки режима исполнения для калибрации.
+- Summary: Execution-mode settings for calibration.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1635,7 +1635,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Настройки GradNorm (выравнивание норм градиентов по таргетам).
+- Summary: GradNorm settings (aligning gradient norms across targets).
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1656,7 +1656,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Настройки оценки неопределённости через Hessian.
+- Summary: Settings for Hessian-based uncertainty estimation.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1713,7 +1713,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Настройки Gaussian priors по trainable параметрам.
+- Summary: Settings for Gaussian priors on trainable parameters.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1824,7 +1824,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.model_layer.types.TimeFrequency`
-- Summary: Настройки выравнивания исторического ряда под шаг симуляции.
+- Summary: Settings for aligning a historical series to the simulation time step.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1843,7 +1843,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Параметры расчёта ошибки по таргету.
+- Summary: Target loss-calculation settings.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -1862,7 +1862,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Ссылка на параметр механизма, который нужно калибровать.
+- Summary: Reference to a mechanism parameter to calibrate.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -29881,7 +29881,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Типы агентов и объектов в системе.
+- Summary: Types of agents and objects in the system.
 
 | Enum values |
 | ----------- |
@@ -29899,7 +29899,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Куда двигать метрику.
+- Summary: Direction in which to move a metric.
 
 | Enum values |
 | ----------- |
@@ -29916,7 +29916,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Разрешенные операторы для TargetSelector (AST).
+- Summary: Allowed operators for TargetSelector (AST).
 
 | Enum values |
 | ----------- |
@@ -29940,7 +29940,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Единицы времени для симуляции.
+- Summary: Time frequencies for simulation.
 
 | Enum values |
 | ----------- |
@@ -29957,7 +29957,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Единицы времени в IR (человеческий формат).
+- Summary: IR time unit in human-readable form.
 
 | Enum values |
 | ----------- |
@@ -29974,7 +29974,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Мультиязычная строка.
+- Summary: Multilingual string.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |

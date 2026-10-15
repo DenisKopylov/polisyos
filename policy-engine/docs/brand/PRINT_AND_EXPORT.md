@@ -1,8 +1,17 @@
 # Print And Export
 
-Print/export is a governance surface, not a screenshot. Printed artifacts must
-preserve enough metadata for a reviewer to understand what was rendered, when,
-from which packet and with which trust/provenance state.
+Print/export is a governance-sensitive projection, not a screenshot or a
+publication act. The rules below are a design contract: their presence does not
+prove that every format, surface, or packet has a producer, consumer, persisted
+artifact, verifier, or publication route. D6 admits shared export machinery to
+DS3, while public projection remains a separate later decision. For the
+source-backed Runtime API and dashboard boundaries, see the
+[frontend surface map](../reference/frontend/current-surface-map.md).
+
+Where an export is implemented, it must preserve enough metadata for a
+reviewer to understand what was rendered, when, from which packet, and with
+which trust/provenance state. A projected status must remain bounded by its
+source and must not imply current policy authority.
 
 ## Rules
 

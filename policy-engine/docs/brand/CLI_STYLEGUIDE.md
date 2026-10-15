@@ -4,6 +4,13 @@ PolicyOS CLI output must use the same trust and provenance vocabulary as the
 runtime UI while remaining ASCII-safe, scriptable and readable in low-color
 terminals.
 
+This is a presentation target, not the canonical runtime status contract. DS0
+D6 records that the CLI has a local trust/status vocabulary that must be
+rebound to generated runtime authority types; until that consumer bridge is
+closed, these tokens must not be treated as policy authority or as evidence
+that the CLI is publishable. Use the capability label and owner in
+`ATLAS_SOURCE_OF_TRUTH.md` D6 rather than inferring completion from this table.
+
 ## Status Tokens
 
 | Runtime status | CLI token    | Meaning                                                    |

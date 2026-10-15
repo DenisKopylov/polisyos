@@ -1,5 +1,8 @@
 # Selected causal method consumers
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py`, `src/polisyos/foundry/methods/catalog/causal/did.py`, `src/polisyos/foundry/methods/catalog/causal/treatment_effects.py`, `tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py`, `tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py`, `tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py`, and `tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py`
+
 `RunCausalEvaluationNode` checks evaluation admission before starting its primary
 causal job. A resolved numerical source and a successful backend call do not grant
 evaluation permission or establish that real-world identification assumptions

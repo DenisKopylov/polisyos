@@ -1,31 +1,32 @@
 # Adapters (`polisyos.scientist.adapters`)
 
-`adapters` реализует bridge-слой между Scientist workflow runtime и внешними
-execution/data системами, не протаскивая прямые вызовы Foundry/Fabric в ноды.
+`adapters` implements the bridge between the Scientist workflow runtime and
+external execution/data systems without routing direct Foundry/Fabric calls
+through nodes.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `core.contracts`, `core.security`, `foundry`, `fabric`
-- **Используется в:** `scientist.workflows`, builtin data/compile/simulate nodes
-- Пакет изолирует compile/execute и snapshot/materialization протоколы за typed портами.
+- **Depends on:** `core.contracts`, `core.security`, `foundry`, `fabric`
+- **Used by:** `scientist.workflows`, built-in data/compile/simulate nodes
+- The package isolates compile/execute and snapshot/materialization protocols behind typed ports.
 
-## Ключевые концепции
+## Key concepts
 
-- **DefaultFoundryPort** — compile/execute bridge к Foundry API.
-- **DefaultFabricPort** — превращает `DataViewRequest` в snapshot/artifact surface.
-- **Derived security artifacts** — TEE attestation и SBOM могут публиковаться через adapter path.
-- **Workflow injection** — адаптеры подставляются в `ExecutionContext`, а не хардкодятся в нодах.
+- **DefaultFoundryPort** — compile/execute bridge to the Foundry API.
+- **DefaultFabricPort** — converts `DataViewRequest` into the snapshot/artifact surface.
+- **Derived security artifacts** — TEE attestations and SBOMs can be published through the adapter path.
+- **Workflow injection** — adapters are injected into `ExecutionContext` rather than hard-coded in nodes.
 
 ## Public API
 
 - `DefaultFoundryPort`
 - `DefaultFabricPort`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-04-03
+- Last updated: 2026-04-03
 - Python modules: 3
 - Exports: 2
-- README приведён к общему шаблону; API surface остается компактным и стабильным
+- The README follows the shared template; the API surface remains compact and stable.

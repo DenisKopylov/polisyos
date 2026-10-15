@@ -1,150 +1,150 @@
-# Начальный портфель и конкретные демонстрации
+# Initial Portfolio and Concrete Demonstrations
 
-[Обзор](README.md) · [Карточки программ](programs.md) · [Труд и сценарии](roadmap.md)
+[Overview](README.md) · [Program cards](programs.md) · [Work and scenarios](roadmap.md)
 
-## Рекомендация
+## Recommendation
 
-Начать с **одного конечного policy-choice профиля на существующем Scientist frontier** и сохранить **один подготовленный источниковый Spending-профиль** как следующую эмпирическую возможность. Первый сначала проверяет повторное использование готовой способности; новый код допускается в смету лишь после обнаружения конкретной недостающей функции. Второй сейчас имеет достаточно оснований для ясного source-semantics задания, но недостаточно для обещания положительного сквозного результата по данным.
+Start with **one finite policy-choice profile on the existing Scientist frontier** and preserve **one prepared source-level Spending profile** as the next empirical opportunity. The first tests reuse of an existing capability; new code enters the estimate only after a specific missing function is found. The second currently has enough basis for a clear source-semantics assignment, but not enough to promise a positive end-to-end data result.
 
-Большая часть поиска источников и владельцев уже выполнена в этом исследовании. Повторный общий аудит на несколько дней не является обязательным этапом. Осталось проверить ровно выбранный producer→artifact→consumer относительно последних E02-выходов, зафиксировать смысл входов и выбрать минимальное различающее изменение.
+Most source and owner discovery has already been completed in this research. Repeating a general audit lasting several days is not a required step. What remains is to check exactly the selected producer → artifact → consumer against the latest E02 outputs, fix the meaning of inputs, and choose the smallest discriminating change.
 
-Это условно предпочтительный порядок, а не математически найденный максимум отдачи: нет заданной денежной ценности всех возможных результатов и вероятностей получения будущих данных. Он использует известную опору, рано выявляет цену нового научного класса и не связывает весь портфель отсутствующей институциональной предпосылкой.
+This is a conditionally preferred order, not a mathematically optimized maximum return: the monetary value of every possible result and the probabilities of obtaining future data are unspecified. It uses a known foothold, reveals the cost of a new scientific class early, and does not bind the entire portfolio to a missing institutional premise.
 
-## Профиль D1 Совместный бюджет и сохранённые альтернативы
+## Profile D1: Shared Budget and Preserved Alternatives
 
-### Точный вопрос
+### Exact question
 
-Какие сочетания трёх абстрактных мер допустимы при общем бюджете и общем ресурсе? Какие из них недоминируемы по двум явно заданным целям? Можно ли изменить ценностный профиль, не потеряв само действие и не порождая альтернативы заново?
+Which combinations of three abstract measures are admissible under a shared budget and shared resource? Which are nondominated on two explicitly stated objectives? Can the value profile be changed without losing the action itself or generating the alternatives again?
 
-Для определённости предлагается следующий **полностью условный математический пример**. Числа не описывают реальную реформу, население, стоимость услуг или ожидаемый эффект. Они задают независимый эталон постановки, а не являются результатом запуска PolicyOS.
+For specificity, the following is a **fully stipulated mathematical example**. The numbers do not describe a real reform, population, service cost, or expected effect. They define an independent reference problem; they are not the result of a PolicyOS run.
 
-| Мера | Расход бюджета | Расход общего ресурса | Цель Q | Цель E |
-|---|---:|---:|---:|---:|
-| A | 4 | 2 | 8 | 2 |
-| B | 5 | 4 | 9 | 9 |
-| C | 6 | 3 | 10 | 4 |
+| Measure | Budget use | Shared-resource use | Objective Q | Objective E |
+| ------- | ---------: | ------------------: | ----------: | ----------: |
+| A       |          4 |                   2 |           8 |           2 |
+| B       |          5 |                   4 |           9 |           9 |
+| C       |          6 |                   3 |          10 |           4 |
 
-Каждая мера либо выбрана, либо нет. В первом профиле расходы и результаты суммируются; бюджет не больше 10, общий ресурс не больше 5. Условия и единицы — часть версии модели.
+Each measure is either selected or not. In the first profile, costs and outcomes add; the budget is at most 10 and the shared resource at most 5. These conditions and units are part of the model version.
 
-### Предварительно известный эталон
+### Known reference result
 
-Полный перебор даёт восемь наборов. Допустимы пустой набор, A, B, C и A+C. Недопустимы A+B, B+C и A+B+C. Среди допустимых недоминируемы **B с (Q,E)=(9,9)** и **A+C с (18,6)**.
+Exhaustive enumeration yields eight sets. The empty set, A, B, C, and A+C are admissible. A+B, B+C, and A+B+C are not. Among the admissible sets, **B with (Q,E)=(9,9)** and **A+C with (18,6)** are nondominated.
 
-При отдельно заданной функции выбора `αQ + (1−α)E`, `0≤α≤1`, A+C предпочтительнее при `α>1/4`; B — при `α<1/4`; при равенстве сохраняются оба. Это алгебраическое следствие объявленных чисел, не выбор общественных ценностей. Если разрешены только unranked facts, система показывает frontier и не выбирает α за пользователя.
+For a separately specified choice function `αQ + (1−α)E`, `0≤α≤1`, A+C is preferred when `α>1/4`; B is preferred when `α<1/4`; both remain when they tie. This is an algebraic consequence of the stated numbers, not a choice of public values. If only unranked facts are permitted, the system presents the frontier and does not choose α for the user.
 
-Изменение resource cap с 5 до 4 делает A+C недопустимым и оставляет B и C недоминируемыми. Такой контроль проверяет actual совместное ограничение, а не только сортировку objective vectors. Добавление невыбранной extreme альтернативы не должно менять заранее объявленную шкалу функции выбора.
+Changing the resource cap from 5 to 4 makes A+C inadmissible and leaves B and C nondominated. This control checks the actual joint constraint, not just sorting of objective vectors. Adding an unselected extreme alternative must not change the previously declared scale of the choice function.
 
-### Существующая цепочка
+### Existing chain
 
-Producer: finite candidate/evaluation через существующий policy-design/search owner. Artifact: candidate hash/ref, `PolicyEvaluationVector`, seed payload и metadata в Scientist ParetoRegistry. Consumer: существующий controller/policy-search и выбранное повторное comparison/readback. Прочитанный код подтверждает запись и чтение native registry. Для нового первого профиля всё ещё требуется конкретное подтверждение, что фактический конечный читатель сохраняет нужные действия, ограничения и scope.
+Producer: finite candidate/evaluation through the existing policy-design/search owner. Artifact: candidate hash/ref, `PolicyEvaluationVector`, seed payload, and metadata in the Scientist ParetoRegistry. Consumer: the existing controller/policy-search and a selected repeat comparison/readback. The inspected code confirms writes to and reads from the native registry. For a new first profile, it is still necessary to confirm specifically that the actual terminal reader preserves the required actions, constraints, and scope.
 
-Не требуется новый Pareto registry, новый simulator, общая grammar всех политик или обязательный Foundry NSGA2 bridge. Сначала используется имеющийся native маршрут. Если он уже выполняет всё задание, результат классифицируется как **reuse/demonstration**, а не как рост и не как основание для implementation budget.
+No new Pareto registry, simulator, general grammar for all policies, or mandatory Foundry NSGA2 bridge is required. Start with the existing native route. If it already satisfies the assignment, classify the result as **reuse/demonstration**, not growth and not a basis for an implementation budget.
 
-### Что считается полезным приращением
+### What counts as a useful increment
 
-Только установленный остаток: например сохранение отсутствующего action→evaluation relation в выбранном reader; передача joint constraint, которую этот reader теряет; faithful употребление frontier без menu-normalized скрытых weights; применение нового действительно совместного constraint profile.
+Only an established residual: for example, preserving a missing action → evaluation relation in the selected reader; passing a joint constraint that this reader loses; faithfully using the frontier without hidden menu-normalized weights; or applying a genuinely joint new constraint profile.
 
-Новая функция проходит producer→сохранение→повторное чтение→тот же выбор. Конечная форма допускает plain machine/reviewer report. Отдельный интерфейсный проект не нужен. Человеческое понимание этого отчёта можно впоследствии изучать CB2, но механический readback не выдаётся за comprehension.
+A new function must pass through producer → persistence → repeat read → the same choice. A plain machine/reviewer report is an acceptable terminal form. A separate interface project is unnecessary. Human comprehension of this report could later be studied as CB2, but mechanical readback must not be presented as comprehension.
 
-### Ожидаемые выходы E02
+### Expected E02 outputs
 
-| Выход | Для чего нужен | Что остаётся за программой |
-|---|---|---|
-| B109/OPT-01: строгий dominance и нужная run/tenant/cell-bound frontier связь | Корректное сохранение и consumption существующего набора | Новый constraint/value profile и полезность задачи |
-| B110: exact metric/split/unit/direction basis | Сопоставимые координаты оценки | Выбор самих целей и смысла результата |
-| B111: source eligibility, nonfinite/unknown и all-invalid handling в нужном scope | Не терять недопустимые/неизвестные случаи и не выдавать неверного champion | Полнота выбранного конечного множества; никакого заявления о полном мире политик |
-| R1/R13/N2/N5/N8 только если реально выбран соответствующий маршрут | Численное действие, model/context и сохранённый результат | Не обязательны для каждого native конечного evaluator; новые scientific meanings не выводятся из DTO |
+| Output                                                                                      | Why it is needed                                                          | What remains with the program                                                                   |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| B109/OPT-01: strict dominance and the required run/tenant/cell-bound frontier relation      | Correct preservation and consumption of the existing set                  | A new constraint/value profile and whether the task is useful                                   |
+| B110: exact metric/split/unit/direction basis                                               | Comparable evaluation coordinates                                         | Selection of objectives and the meaning of the result                                           |
+| B111: source eligibility, nonfinite/unknown, and all-invalid handling in the required scope | Avoid losing inadmissible/unknown cases or emitting an incorrect champion | Completeness of the selected finite set; no claim about the full policy world                   |
+| R1/R13/N2/N5/N8 only if the corresponding route is actually selected                        | A numerical action, model/context, and preserved result                   | Not required for every native finite evaluator; new scientific meanings do not follow from DTOs |
 
-NSGA2 empty-feasible fallback/OPTIMAL behavior не был точно сопоставлен с этими E02-карточками в ограниченном поиске. Это отдельная неизвестность correctness scope. До owner reconciliation её нельзя включать в «новую scientific capability» или считать отремонтированной B109 по общему слову frontier.
+NSGA2 empty-feasible fallback/OPTIMAL behavior was not precisely matched to these E02 cards in the bounded search. This remains a separate correctness-scope unknown. Until owner reconciliation, it must not be included as a “new scientific capability” or treated as a B109 repair merely because both use the word frontier.
 
-### Приёмка и экономика
+### Acceptance and economics
 
-Эталон — полный независимый перебор при тех же восьми наборах. Проверяются: все допустимые и недопустимые действия, correct nondominance, action identity после reload, invariant utility scale, отсутствующая/нечисловая оценка, harmless перестановка и removal actual consumer. Ошибка «всем отказать» не проходит positive control.
+The reference is exhaustive independent enumeration over the same eight sets. Check all admissible and inadmissible actions, correct nondominance, action identity after reload, invariant utility scale, missing/non-numeric evaluation, harmless reordering, and removal of the actual consumer. An “all rejected” result does not pass the positive control.
 
-Условные 10–30 нормированных дней относятся к первому **действительно недостающему** bounded пакету при готовых моделях и carriers, включая обычную независимую проверку. Это не автоматический бюджет D1. Уже сделанный source/owner поиск исключается из будущих уникальных work nodes; если нового остатка нет, диапазон не используется.
+The conditional estimate of 10–30 normalized days applies to the first **genuinely missing** bounded package with models and carriers ready, including ordinary independent review. It is not an automatic D1 budget. Source/owner discovery already completed is excluded from future unique work nodes; if no residual is found, this range is not used.
 
-### Следующий научный вопрос если D1 уже решён
+### Next scientific question if D1 is already solved
 
-Предпочтительно проверить опцию **сохранённого конечного адаптивного правила**, если развитие класса политик важнее очередной source campaign. Минимальный различающий пример: два периода; в первом можно заплатить 0,5 условной единицы за разрешённый сигнал; во втором выбрать действие под состоянием L или H. Совпадающее действие даёт 10, несовпадающее — 0. Два persistent models задают вероятность H как 1/4 или 3/4; они выбираются один раз на всю задачу. В специально объявленном варианте сигнал полностью раскрывает состояние до действия.
+Prefer checking the option of a **preserved finite adaptive rule** if developing the policy class matters more than another source campaign. A minimal discriminating example has two periods: in the first, one may pay 0.5 stipulated units for an allowed signal; in the second, choose an action under state L or H. A matching action yields 10, a mismatch 0. Two persistent models assign the probability of H as 1/4 or 3/4; each is selected once for the whole task. In the specifically stipulated version, the signal fully reveals the state before the action.
 
-При maximin-оценке худшее по двум моделям ожидаемое вознаграждение лучшей фиксированной чистой меры равно 2,5; у фиксированного смешанного выбора 50/50 оно равно 5. Реализованный выигрыш таких действий — 0 или 10. Правило «получить сигнал, затем выбрать совпадающее действие» даёт 9,5 на каждом пути только при оговорённом совершенном сигнале и цене 0,5. Поэтому comparator обязан включать сильное смешанное фиксированное правило, а не только слабую чистую альтернативу. Эти значения опять являются аналитическим свойством заданной модели, не эмпирическим эффектом информации.
+Under maximin evaluation, the best fixed pure action has worst-case expected reward 2.5 across the two models; a fixed 50/50 mixed choice has worst-case value 5. The realized reward of these actions is 0 or 10. The rule “obtain the signal, then choose the matching action” yields 9.5 on every path only under the stipulated perfect signal and price of 0.5. Therefore, the comparator must include a strong mixed fixed rule, not only a weak pure alternative. Again, these values are analytical properties of the defined model, not empirical effects of information.
 
-Этот маленький perfect-signal пример проверяет ценность адаптации и сохранение полного правила. Сам по себе он не различает persistent и stagewise-switching модели и не проверяет general nonrectangular dynamic-risk алгоритм. Для такого утверждения нужен отдельный пример с совместным ограничением истории и модельной неопределённости.
+This small perfect-signal example checks the value of adaptation and preservation of the complete rule. On its own it does not distinguish persistent from stagewise-switching models and does not test a general nonrectangular dynamic-risk algorithm. Such a claim requires a separate example with a joint constraint on history and model uncertainty.
 
-Отрицательный случай задерживает сигнал до действия: прежнее правило больше не разрешено. Другой меняет качество сигнала и требует новой оценки. Сохраняться должно правило для обеих историй, а не один sampled rollout. Named DP export сейчас такого consumer не устанавливает; цена узкого первого приращения приостановлена до точного carrier/consumer решения. Возможность использовать уже существующий temporal/DTR owner проверяется до нового controller.
+A negative case delays the signal until after the action: the earlier rule is no longer admissible. Another changes signal quality and requires a new evaluation. The preserved artifact must be the rule for both histories, not one sampled rollout. The named DP export does not currently establish such a consumer; the cost of a narrow first increment is paused until the exact carrier/consumer decision. Check whether the existing temporal/DTR owner can be used before creating a new controller.
 
-Это опция P2, а не обязательное продолжение D1. Если реального полезного вопроса с информационной адаптацией нет, следующим вложением становится E1/E2 по готовому различающему источнику.
+This is an option P2, not a required continuation of D1. If there is no genuinely useful question involving information adaptation, the next investment should be E1/E2 on a ready discriminating source.
 
-## Профиль D2 Что подтверждает украинский договорный источник
+## Profile D2: What a Ukrainian Contract Source Supports
 
-### Точный вопрос
+### Exact question
 
-Для одного заранее названного покупателя, месяца и фиксированного набора исходных документов: какую **сумму договорных значений этого набора** и какую идентифицируемость контрагентов подтверждают источники? Где сумма, дата, поставщик и вид финансового факта определены, а где остаётся преобразование или неизвестность?
+For one named buyer, month, and fixed set of source documents: what **sum of contractual values in this set** and what counterparty identifiability do the sources support? Where are amount, date, supplier, and financial-fact type defined, and where does a transformation or unknown remain?
 
-Это не вопрос «сколько реально профинансировано или выполнено». Портал Spending различает liabilities, transactions, contracts/acts и execution/payment reports. Само существование этих классов не устанавливает локального join между ними. [Официальное описание портала](https://spending.gov.ua/new/en/about-portal)
+This is not the question “how much was actually funded or delivered.” The Spending portal distinguishes liabilities, transactions, contracts/acts, and execution/payment reports. The existence of these classes does not establish a local join between them. [Official portal description](https://spending.gov.ua/new/en/about-portal)
 
-### Установленный исходный уровень
+### Established baseline
 
-- Retained `observation_panel_monthly.parquet` существует; footer показывает 59 168 711 строк. Это число записей, не людей, не уникальных договоров и не квалифицированных method inputs
-- Значения строк, их реальные units и пригодность выбранному вопросу здесь не читались. Manifest counts не были независимо пересчитаны
-- Нормализованные per-contract/per-payment outputs по ожидаемым локальным именам не найдены в ограниченной проверке; retained D0 содержит исторические серверные пути и hashes
-- Retained D0 failed 9 апреля в 19:57, с spending coverage 369 649/419 962 и procurement 88 802/99 830. Это точные runtime_cohort_resolved/total соответствующего retained manifest, не доли всех observation rows, экономической массы или населения. Retained completed D5 датирован тем же днём 13:56, раньше этого D0. Тот же исторический D0 сохраняет предупреждения о cell-population fallback к числу agents, employment zero fallback и ограниченной bindings sample. Они не являются новыми текущими ошибками и не автоматически относятся к каждому договорному вопросу. D0 и D5 не образуют подтверждённый успешный release
-- ReadAPI проверяет identity/content binding; actual `blueprint_release` caller существует, но compatibility/loading этого старого комплекта не проверены. Method validity явно не входит в transport purpose
+- The retained `observation_panel_monthly.parquet` exists; its footer shows 59,168,711 rows. This is a record count, not people, unique contracts, or qualified method inputs.
+- The values in the rows, their actual units, and their suitability for the selected question were not read here. Manifest counts were not independently recounted.
+- Normalized per-contract/per-payment outputs under the expected local names were not found in the bounded check; retained D0 contains historical server paths and hashes.
+- Retained D0 failed on April 9 at 19:57, with spending coverage 369,649/419,962 and procurement coverage 88,802/99,830. These are the exact `runtime_cohort_resolved/total` values from that retained manifest, not shares of all observation rows, economic mass, or population. The retained completed D5 is dated earlier that day, at 13:56. The same historical D0 preserves warnings about a cell-population fallback to the number of agents, an employment zero fallback, and a bounded bindings sample. They are not new current failures and do not automatically apply to every contract question. D0 and D5 do not form a confirmed successful release.
+- ReadAPI checks identity/content binding; an actual `blueprint_release` caller exists, but compatibility/loading of this old package has not been checked. Method validity is explicitly outside the transport purpose.
 
-Поэтому D2 сейчас — **подготовленный источниковый профиль и точное задание на следующую допустимую проверку**, а не второй обещанный positive. Увеличивать число ingest rows ради видимости прогресса не следует.
+D2 is therefore currently a **prepared source profile and exact assignment for the next admissible check**, not a second promised positive result. Do not increase ingest-row counts merely to make progress look visible.
 
-### Предпосылки будущего положительного среза
+### Preconditions for a future positive slice
 
-Нужны разрешённые frozen raw bytes ограниченного набора с source/version, document IDs, покупателем, подрядчиками и их visibility, исходной суммой и currency field, исходными date fields и semantics, а также actual output consumer. Требуется проверить доступ и происхождение именно этих данных; исторический server path не заменяет их наличия.
+The slice requires permitted frozen raw bytes for a bounded set, with source/version, document IDs, buyer, contractors and their visibility, the original amount and currency field, original date fields and semantics, and the actual output consumer. Access and provenance for these exact data must be checked; a historical server path does not substitute for their availability.
 
-Текущий contract normalizer:
+The current contract normalizer:
 
-1. Предпочитает `currencyAmountUAH`, иначе берёт `amount`
-2. Выбирает дату из `signDate`, `documentDate`, `fromDate`; общий fallback может подставить 2025-01
-3. Делит amount поровну между contractor candidates
-4. Агрегирует buyer×supplier×name×period, не сохраняя contract_id в конечной группе
+1. Prefers `currencyAmountUAH`; otherwise uses `amount`.
+2. Selects a date from `signDate`, `documentDate`, or `fromDate`; a general fallback may substitute 2025-01.
+3. Splits the amount evenly across contractor candidates.
+4. Aggregates by buyer × supplier × name × period, without preserving `contract_id` in the final group.
 
-Ни fallback currency, ни month, ни равные доли нельзя считать наблюдавшимся финансовым фактом без основания. Для первого положительного результата допустимы только установленные величины. Если нет currency meaning, нельзя суммировать несовместимые значения под общей денежной меткой. Если нет документной идентичности, нельзя утверждать число уникальных договоров из суммы emitted rows.
+Neither currency fallback, month fallback, nor equal shares may be treated as an observed financial fact without a basis. For the first positive result, only established quantities are admissible. If currency meaning is unavailable, incompatible values cannot be summed under one monetary label. If document identity is unavailable, the number of unique contracts cannot be claimed from the sum of emitted rows.
 
-### Переиспользование и добавка
+### Reuse and increment
 
-Переиспользуются Data Forge adapter/builder, ArtifactRecord/BuildRunManifest, existing read API и текущий case/reviewer artifact. Не создаётся новый украинский data lake. Нужная добавка — source-level meaning и, при выбранном вопросе, сохранение document/multiplicity/derivation relation до читателя. Авторство и repair ownership конкретной дельты сначала сверяются с существующими E02/data residuals.
+Reuse the Data Forge adapter/builder, ArtifactRecord/BuildRunManifest, existing read API, and current case/reviewer artifact. Do not create a new Ukrainian data lake. The required increment is source-level meaning and, if the selected question needs it, preservation of the document/multiplicity/derivation relation through to the reader. First reconcile authorship and repair ownership for the specific delta against existing E02/data residuals.
 
-E02 D3 optional lineage, LA-031 stage parity, LA-032 shared inventory и source-time/selected-view repairs потребляются только при фактическом затрагивании этим профилем. Они не подтверждают сегодня отсутствующие contract→payment relationships. Нельзя назначить весь D0–D5 mandatory setup для одного полезного источникового ответа.
+E02 D3 optional lineage, LA-031 stage parity, LA-032 shared inventory, and source-time/selected-view repairs are used only if this profile actually touches them. They do not establish contract → payment relationships that are currently absent. Do not make the entire D0–D5 mandatory setup for one useful source-level answer.
 
-### Сильный comparator и controls
+### Strong comparator and controls
 
-Ручная source table по исходным документам считает уникальные document IDs, суммы в подтверждённой валюте и долю действительно видимых контрагентов. Она сохраняет disputed/unknown rows. На том же наборе проверяются многопоставочный договор, скрытый ID, повтор документа, date fallback, amount без установленной валюты, договор без найденного платежа и похожий несвязанный платёж. Harmless формат не теряет подтверждённое значение.
+A manual source table over the original documents counts unique document IDs, amounts in a confirmed currency, and the share of counterparties that are actually visible. It preserves disputed/unknown rows. On the same set, check a multi-supplier contract, hidden ID, duplicate document, date fallback, amount with no established currency, contract with no found payment, and a similar but unrelated payment. Harmless formatting must not lose a confirmed value.
 
-Положительное приращение даёт правильный ограниченный ответ дешевле или надёжнее таблицы и показывает точный переход от наблюдения к derived value. Оно не называется causal effect, paid amount, procurement competition, project financing или executed service.
+A positive increment produces the correct bounded answer more cheaply or reliably than the table and shows the exact transition from observation to derived value. It must not be called a causal effect, amount paid, procurement competition, project financing, or service delivered.
 
-### Следующий полезный increment
+### Next useful increment
 
-После первого приращения — один подтверждённый lifecycle link по реальным identifiers и датам либо материализованное новое измерение, которое действительно меняет ответ. Например, к одному договору появляется пригодная связанная transaction с отдельно подтверждённым смыслом. Если такое отношение отсутствует, acquisition должен требовать его, а не получать ещё один похожий aggregate.
+After the first increment, add one confirmed lifecycle link through real identifiers and dates, or a materialized new measurement that actually changes the answer. For example, a suitable linked transaction becomes available for one contract with separately confirmed semantics. If the relationship is absent, acquisition must ask for it rather than ingest another similar aggregate.
 
-Альтернативный источниковый профиль — один официальный labor indicator с точной рамкой: воспроизвести published value и различить зарегистрированную занятость, работников предприятий и население. Он выбирается вместо Spending, если нужные frozen definition/vintage/denominator доступны раньше. Это не разрешение автоматически использовать синтетический `d2_panel_observational` как observed causal panel.
+An alternative source profile is one official labor indicator with an exact frame: reproduce the published value and distinguish registered employment, enterprise workers, and population. Select it instead of Spending if the necessary frozen definition/vintage/denominator is available sooner. This does not authorize automatically treating the synthetic `d2_panel_observational` as an observed causal panel.
 
-Полная техническая оценка D2 намеренно не задана: неизвестны нужные raw inputs и степень изменения selected consumer. Готовая карта источника может быть самостоятельным полезным результатом E1; добавление эмпирического scientific claim получает отдельные входы и приёмку.
+A full technical estimate for D2 is deliberately not given: the needed raw inputs and the extent of changes to the selected consumer are unknown. A completed source map may itself be a useful E1 result; adding an empirical scientific claim requires its own inputs and acceptance criteria.
 
-## Общие работы без двойного бюджета
+## Shared Work Without Double Budgeting
 
-Для D1 и D2 общими потенциально являются versioned question/ref discipline, existing artifact/readback, полный cost trace и mechanics контрольной батареи. На практике D1 exact enumeration и D2 source-semantic adjudication — разные oracles. Их нельзя объединить одним gold set ради экономии.
+Potentially shared work for D1 and D2 includes versioned question/reference discipline, existing artifact/readback, full cost trace, and the mechanics of a control battery. In practice, D1 exact enumeration and D2 source-semantic adjudication use different oracles. They must not be combined into one gold set to claim savings.
 
-У каждого нового work node записываются output и конкретные consumers. Если D2 ещё не начат или требует другого meaning, второй consumer не считается доказанной синергией. Уже выполненные source inventories и этот authored profile — результаты текущего исследования, а не будущая повторная статья discovery.
+Each new work node records an output and specific consumers. If D2 has not started or requires a different meaning, a second consumer is not established synergy. Source inventories already completed and this authored profile are outputs of the current research, not a future repeat discovery charge.
 
-## Условная последовательность
+## Conditional Sequence
 
-| Условие | Первый активный срез | Следующее решение |
-|---|---|---|
-| Наблюдаемое состояние до относящегося E02 closure | Проверить D1 на существующем supported owner/profile; при отсутствии доступного пути закончить отдельный аналитический эталон | Не обещать served outcome. D2 сохранять как точное источниковое задание |
-| Нужные B109–B111 outputs приняты и D1 уже работает | Классифицировать D1 как reuse, без нового build budget | P2 finite whole-rule при реальной потребности либо E1/E2 при готовом различающем источнике |
-| Repaired frontier готов, но concrete reader теряет действие/ограничение | Один точный consumer extension с independent enumeration | Содержательно иной constraint/profile, затем пересмотр остатка |
-| Подлинный bounded источник с нужной семантикой доступен раньше | D2 source-to-answer или альтернативный labor profile | Same-case acquisition для действительного missing relation |
-| Нужный native метод или proof существует, но выбранный consumer не находит или не разрешает его | E2/M1 bounded discovery profile со strong direct comparator | Для G3 требуется positive proof consumer; новый estimator только при доказанном содержательном остатке |
-| Есть mature prediction/outcome с независимой причиной | M2/O1 на existing reviewer route | O3 только после собственного основания и update-policy решения |
-| Source/semantic repair задержан, numerical owner стабилен | Модельная научная ветвь с явно заданными inputs | Ни parallel data owner, ни подстановка fake empirical coefficients |
-| Повторная полная цена измеренно высока | Один N/C-срез после strong baseline | R только при повторяемости и пригодных traces |
+| Condition                                                                                       | First active slice                                                                                                        | Next decision                                                                                                 |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Observed state before the relevant E02 closure                                                  | Check D1 on an existing supported owner/profile; if no usable path is available, complete a separate analytical reference | Do not promise a served outcome. Keep D2 as an exact source assignment                                        |
+| Required B109–B111 outputs are accepted and D1 already works                                    | Classify D1 as reuse, with no new build budget                                                                            | P2 finite whole-rule if genuinely needed, or E1/E2 when a ready discriminating source exists                  |
+| Repaired frontier is ready, but the concrete reader loses an action/constraint                  | One exact consumer extension with independent enumeration                                                                 | A substantively different constraint/profile, then reassess the residual                                      |
+| Authentic bounded source with needed semantics becomes available sooner                         | D2 source-to-answer or alternative labor profile                                                                          | Same-case acquisition for a genuinely missing relationship                                                    |
+| The required native method or proof exists, but the selected consumer cannot find or resolve it | Bounded discovery profile for E2/M1 with a strong direct comparator                                                       | For G3, a positive proof consumer is required; a new estimator only if a substantive residual is demonstrated |
+| Mature prediction/outcome with an independent cause exists                                      | M2/O1 on an existing reviewer route                                                                                       | O3 only after its own basis and update-policy decision                                                        |
+| Source/semantic repair is delayed while the numerical owner is stable                           | A model-based scientific branch with explicitly defined inputs                                                            | Neither a parallel data owner nor substitution of fake empirical coefficients                                 |
+| A repeated full cost is measured to be high                                                     | One N/C slice after a strong baseline                                                                                     | R only if traces are repeatable and fit for purpose                                                           |
 
-Локальная утренняя сверка сообщает неизменность всех 47 ранее адресно экспортированных code sources, включая основание выбранного finite menu/rule анализа; внутренние B197 и B61 изменения уточняют соседние reuse пути. Новый положительный D1 или empirical D2 запуск этой сверкой не установлен. Начальный порядок сохраняется.
+The local morning reconciliation reports no change in all 47 previously addressed code sources, including the basis for the finite menu/rule analysis; internal B197 and B61 changes clarify adjacent reuse paths. This reconciliation does not establish a new positive D1 or empirical D2 run. The initial order remains.
 
-Первый портфель не должен активировать все программы одновременно. Практическое ограничение — доступность компетентного решения и независимой проверки, устойчивость shared owner и возможность получить различающее evidence. Число кодирующих агентов эти условия не заменяет.
+The first portfolio should not activate every program at once. Practical constraints are access to competent decisions and independent validation, stability of the shared owner, and the ability to obtain discriminating evidence. The number of coding agents does not replace these conditions.

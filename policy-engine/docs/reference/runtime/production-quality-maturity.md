@@ -1,10 +1,9 @@
 # Production Quality Maturity
 
 Owner: `@runtime-owners`
-Source of truth: `tools/ci/check_policyos_production_quality_best_in_class.py`,
-`tools/ops_runners/runtime/run_canary_matrix.py`,
-`tools/ops_runners/runtime/canary_evidence.py`,
-`src/polisyos/runtime/quality/scorecard.py`, and archived acceptance reports.
+Source of truth: `tools/ci/check_policyos_production_quality_best_in_class.py`, `tools/ops_runners/runtime/run_canary_matrix.py`, `tools/ops_runners/runtime/canary_evidence.py`, `src/polisyos/runtime/quality/scorecard.py`, and `docs/archive/reports/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Historical report and source-reference inspection only for this documentation update; no maturity gate or canary run was performed.
 
 This page defines how PolicyOS evaluates production-quality maturity after the
 best-in-class remediation work. Maturity is evidence-based: a system advances
@@ -25,10 +24,14 @@ approval packet behavior can be reproduced.
 
 Snapshot date: 2026-05-13.
 
+This table is a historical snapshot tied to that date and its archived reports;
+it is not a current deployment measurement and was not recomputed during this
+documentation update. E02 remains unfinished at the source pin.
+
 | Area | Current level | Evidence |
 | --- | --- | --- |
-| Readiness aggregation | L2 | `_build/.tmp/production-quality/phase6_3/readiness_aggregator.json` reports `passes_all: false`, `passes_required: false`, 7 failed findings, and one attached live-provider bundle. The aggregate gate is now strict and blocks closeout on unresolved serious-profile refs. |
-| Deterministic canary matrix | L3 | Three Phase 6.3 deterministic matrix runs passed with scorecard `warn` and no blocking failures. |
+| Readiness aggregation | L2 | `_build/.tmp/production-quality/phase6_3/readiness_aggregator.json` reports failed findings and attached live-provider evidence. The aggregate gate is strict and blocks closeout on unresolved serious-profile refs. |
+| Deterministic canary matrix | L3 | Phase 6.3 deterministic matrix runs are recorded with scorecard `warn` and no blocking failures. |
 | Production data quality | L2 | Dev fixture data is warning-only for CI burn-in; serious profiles still fail closed until non-fixture production diagnostics pass. |
 | Causal/statistical validity | L3 | Causal validity report passes known-answer, placebo, negative-control, missingness-stress, and uncertainty-calibration coverage. |
 | Security assurance | L3 | Security assurance report is emitted in deterministic bundles and passes runtime abuse-surface checks. |

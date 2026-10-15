@@ -1,5 +1,8 @@
 # Current causal graph intake
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py`, `src/polisyos/ir/analytics/causal_graph.py`, `src/polisyos/ir/analytics/causal_discovery.py`, `src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py`, `src/polisyos/foundry/methods/catalog/causal/query_preservation.py`, `tests/unit/scientist/methods/causal/test_graph_intake_current_content.py`, `tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py`, `tests/unit/foundry/methods/catalog/causal/test_query_preservation.py`, `tests/unit/ir/test_causal_graph_contract.py`, and `tests/unit/ir/test_causal_discovery_contract.py`
+
 The Scientist reconciliation node resolves supplied graph references through the
 actual CAS manifest and bytes before using a cached graph or a query-preservation
 shortcut. A well-shaped reference, an `ok` status, confidence, and a DAG label do

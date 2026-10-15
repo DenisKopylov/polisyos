@@ -1,116 +1,108 @@
 # Update Runtime Dashboard API Client
 
-> Проведите runtime contract change через всю consumer chain:
-> FastAPI/OpenAPI -> generated JS/TS client -> dashboard API types.
+Use this procedure when an intentional Runtime HTTP route or DTO change alters
+the public OpenAPI contract. Keep the server source, checked-in OpenAPI
+projection, and each generated consumer output in the same change.
 
-## Inputs
+## Source and ownership
 
-- intentional runtime route/DTO/OpenAPI change;
-- понимание, должен ли endpoint быть публичным OpenAPI surface;
-- готовность обновить committed generated artifacts в том же change set.
+The runtime route and DTO implementation under
+`src/polisyos/runtime/http/**` is the behavior source. The exporter in
+`tools/ops_runners/runtime/export_runtime_openapi.py` produces the committed
+`schemas/runtime_api_v1.openapi.json` snapshot; generators consume that
+snapshot as their schema input. The snapshot is a versioned contract
+projection, not the runtime implementation.
 
-## Output
+There are two distinct generated consumer families:
 
-- синхронизированы `schemas/runtime_api_v1.openapi.json`,
-  `packages/runtime-api-client/types.ts` and
-  `canonicalRuntimeApiClient.{ts,js}`,
-  `apps/runtime-dashboard/src/api/types.ts`;
+- `packages/runtime-api-client/types.ts` and
+  `canonicalRuntimeApiClient.{ts,js}` form the shared package client surface.
+  The reference shell and other non-dashboard consumers use this package.
+- `apps/runtime-dashboard/src/api/types.ts` is a separate generated dashboard
+  compatibility output. The dashboard's normal transport is its local
+  `openapi-fetch` client in `apps/runtime-dashboard/src/api/client.ts`, which
+  binds those generated `paths` types to `authAwareRuntimeFetch`; it does not
+  use the shared package client as its normal transport. Some feature DTOs may
+  still import package types, and selected features use direct fetches.
 
-- runtime and frontend contract checks снова green.
+The workspace owner and generated-artifact owner are separate labels. The
+`runtime-api-client` workspace is owned by `team-runtime`, and the dashboard
+workspace by `team-frontend` in `architecture/frontend_workspaces.toml`. The
+generated client and dashboard API types are registered to `team-polisyos` as
+artifact owner and approval owner, with `team-frontend` owning compatibility
+and version lifecycle in `architecture/generated_artifacts.toml`. Check both
+registries before changing ownership or promotion policy.
 
-## Commands
+## Change the contract
+
+1. Update the runtime route, DTO, and OpenAPI declarations in
+   `src/polisyos/runtime/http/**`. Decide whether the endpoint belongs in the
+   public OpenAPI contract. If it is intentionally route-only, document it in
+   the API reference and leave both generated consumer families unchanged.
+2. Export the committed snapshot from the `policy-engine/` directory:
+
+   ```bash
+   PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+   ```
+
+3. Regenerate the shared package types and canonical client pair:
+
+   ```bash
+   corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
+   ```
+
+4. Regenerate the dashboard-local API types separately:
+
+   ```bash
+   corepack pnpm --dir apps/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json
+   ```
+
+5. Review the changed snapshot and generated outputs together. Do not edit
+   generated files by hand. A new OpenAPI operation or method in the generated
+   `paths` types does not by itself prove that a convenience request helper or
+   a dashboard feature is wired to it; inspect and update each intended
+   consumer explicitly.
+
+## Verify the changed surfaces
+
+Run the checks that correspond to the changed contract and consumers:
 
 ```bash
-cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
-cd apps/runtime-dashboard && corepack pnpm run generate:api
-```
-
-Verification:
-
-```bash
-cd policy-engine
+uv run polisyos-tools architecture guardrails check
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
-cd apps/runtime-dashboard && corepack pnpm run contracts:verify && corepack pnpm run typecheck
+corepack pnpm --filter @polisyos/runtime-api-client test
+corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts
+corepack pnpm --filter @polisyos/runtime-dashboard run typecheck
 ```
 
-## 1. Update the runtime source of truth
+The architecture guardrail runs the registered generated-artifact freshness
+checks, including the dashboard API types. The runtime contract checker
+recomputes OpenAPI from the runtime app, validates its declared invariants, and
+compares the shared package client's generated bytes; it does not exercise
+endpoint execution, authorization behavior, client behavior, or deployment.
+The package unit suite covers client and generator behavior. The dashboard
+contract suite parses recorded fixtures against frontend schemas; it is not a
+live-server check. Typecheck covers the dashboard TypeScript surface. The
+package `contracts:verify` command invokes the same runtime contract checker,
+and dashboard `contracts:verify` invokes the same fixture test as
+`test:contracts`. Tests named in source or documentation are not evidence that
+a check ran. A source-only documentation map records tests as inspected, not
+executed; see
+the [current frontend surface map](../reference/frontend/current-surface-map.md)
+for its pinned inspection boundary and UI authority limitations.
 
-The chain starts at:
+## Review checklist
 
-- `src/polisyos/runtime/http/**`;
-- `src/polisyos/runtime/http/openapi_contract.py`;
-- request/response DTOs and route wiring in the runtime app.
-
-If the endpoint is route-only, stop here and document it manually in API docs.
-Do not force route-only endpoints into generated clients.
-
-## 2. Export the committed OpenAPI snapshot
-
-Run:
-
-```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-```
-
-This file is the committed source of truth for runtime consumers.
-
-## 3. Regenerate the JS/TS runtime API client
-
-Run:
-
-```bash
-corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
-```
-
-This updates the lightweight frontend consumer surface used by the reference
-shell and other non-dashboard consumers.
-
-## 4. Regenerate dashboard API types
-
-Run from `apps/runtime-dashboard/`:
-
-```bash
-corepack pnpm run generate:api
-```
-
-This updates `src/api/types.ts` from the same committed OpenAPI snapshot.
-
-## 5. Verify the whole contract chain
-
-Backend-side drift and invariants:
-
-```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
-```
-
-Frontend-side drift:
-
-```bash
-cd apps/runtime-dashboard
-corepack pnpm run contracts:verify
-corepack pnpm run typecheck
-```
-
-## Rollback
-
-- if the runtime change was not intentional, revert the OpenAPI snapshot first,
-  then the generated client and dashboard types;
-
-- if the endpoint should be route-only, remove it from OpenAPI generation and
-  leave the client artifacts unchanged;
-
-- do not land only part of the chain unless you are explicitly parking a broken
-  intermediate branch.
-
-## Troubleshooting
-
-- `check_runtime_api_contract.py` fails: snapshot, generated client and runtime
-  code are out of sync;
-
-- `corepack pnpm run generate:api` changes only dashboard types, not the shared JS/TS
-  runtime client;
-
-- `contracts:verify` fails after a valid backend change: the dashboard fixtures
-  or expectations need an intentional follow-up update, not a blind revert.
+- The OpenAPI snapshot matches the intended runtime route and DTO contract.
+- Both generated output families are updated when their schema projections
+  change; unrelated generated files remain untouched.
+- Dashboard hooks and validators use the local typed transport, or an explicit
+  direct-fetch contract where intended.
+- Shared-client helpers and dashboard consumers are checked independently;
+  schema typing alone is not a producer-to-consumer bridge.
+- Permission, audience, status, provenance, and time semantics remain explicit
+  at the server boundary and in any displayed projection. A UI status or
+  generated client type does not grant policy authority or establish
+  publishability.
+- Generated artifact ownership, compatibility/version ownership, and any
+  required release compatibility fragment follow the registries.

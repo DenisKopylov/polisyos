@@ -1,26 +1,26 @@
 # CORR — Stage 6 consolidation report
 
-**Самое существенное открытие волны: четыре пакета пока не поддерживают публикацию `δ_ground` в предложенной численной форме.** CORR‑R2 корректно выводит `n=299` для фиксированной односторонней биномиальной ошибки внутри заранее объявленной страты, но действующая CGF‑спецификация по‑прежнему формулирует `δ_ground` как вероятность **хотя бы одного** `confident_wrong_bind` до stopping time `τ` и раскладывает её на несколько компонент риска. CORR‑R3 сам обнаружил эту разницу estimands. Поэтому `299` — валидный локальный calibration design при определённых предпосылках, но **не доказательство текущего системного обещания `δ_ground`**, пока архитектор не установит мост между per-unit rate и horizon-level guarantee.
+**The wave's most important finding: the four packages do not yet support publishing `δ_ground` in the proposed numerical form.** CORR‑R2 correctly derives `n=299` for a fixed one-sided binomial error within a predeclared stratum, but the current CGF specification still defines `δ_ground` as the probability of **at least one** `confident_wrong_bind` before stopping time `τ` and decomposes it into several risk components. CORR‑R3 itself identified this estimand mismatch. Therefore, `299` is a valid local calibration design under certain assumptions, but **not evidence for the current system-level `δ_ground` promise** until the architect establishes a bridge between the per-unit rate and the horizon-level guarantee.
 
-Второй результат меняет экономику исходного решения. CORR‑R1 показывает, что causal-atom correspondence и statute-to-lever correspondence имеют общий procedural envelope, но **два разных substantive truth predicates**. Один физический человек потенциально может исполнять обе функции, но только как отдельно квалифицированный и отдельно назначенный для двух purposes. Следовательно, **the rule's economic argument fails and the rule is still correct but no longer cheap.**
+The second result changes the economics of the original decision. CORR‑R1 shows that causal-atom correspondence and statute-to-lever correspondence share a procedural envelope but have **two distinct substantive truth predicates**. One physical person may potentially perform both functions, but only if separately qualified and separately appointed for the two purposes. Therefore, **the rule's economic argument fails and the rule is still correct but no longer cheap.**
 
 ## Evidence-weight limitation
 
-У CORR нет audit line. Все четыре inputs — Stage‑1 packages: отсутствуют независимый Stage‑2 hostile audit, amendment и amendment verification. Ни один вывод ниже не имеет того же evidence weight, что candidate из стандартной полностью прошедшей pipeline wave.
+CORR has no audit line. All four inputs are Stage‑1 packages: there is no independent Stage‑2 hostile audit, amendment, or amendment verification. None of the conclusions below has the same evidence weight as a candidate from a standard pipeline wave that passed in full.
 
-Hostile reading, выполненный здесь, — **consolidator hostile read, not a Stage‑2 audit**. Он используется для disposition и routing, а не как заменитель отсутствующего audit line.
+The hostile reading performed here is a **consolidator hostile read, not a Stage‑2 audit**. It is used for disposition and routing, not as a substitute for the missing audit line.
 
 ## 1. Disposition of the five-point standing rule
 
 **Disposition: `SURVIVES_AMENDED`.**
 
-| Point | Disposition | Reason |
-|---|---|---|
-| 1. Gold one-sided | **unchanged** | Gold относится к confident-wrong safety claim, не recall/completeness. |
-| 2. Stratum pre-declared and dated | **unchanged** | Post-hoc stratum недопустима. |
-| 3. Negatives from construction, positives from appointment | **amended** | Положительное correspondence иногда может быть доказано construction, если обе стороны уже находятся в одной authoritative typed vocabulary. Для двух blocking seams такого класса пока нет. |
-| 4. Until appointment: custody/no number/refusal | **amended for scope only** | Верно для positive correspondence, not discharged by valid constructibility proof. |
-| 5. One appointment discharges both iff acceptance rule is same | **refuted as written; replaced** | R1 устанавливает два predicates и два authority purposes. |
+| Point                                                          | Disposition                      | Reason                                                                                                                                                                                     |
+| -------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. Gold one-sided                                              | **unchanged**                    | Gold concerns the confident-wrong safety claim, not recall/completeness.                                                                                                                   |
+| 2. Stratum pre-declared and dated                              | **unchanged**                    | A post-hoc stratum is inadmissible.                                                                                                                                                        |
+| 3. Negatives from construction, positives from appointment     | **amended**                      | Positive correspondence may sometimes be established by construction if both sides are already in one authoritative typed vocabulary. No such class exists yet for the two blocking seams. |
+| 4. Until appointment: custody/no number/refusal                | **amended for scope only**       | This is true for positive correspondence; a valid constructibility proof does not discharge it.                                                                                            |
+| 5. One appointment discharges both iff acceptance rule is same | **refuted as written; replaced** | R1 establishes two predicates and two authority purposes.                                                                                                                                  |
 
 ### Exact replacement — point 3
 
@@ -36,45 +36,45 @@ Hostile reading, выполненный здесь, — **consolidator hostile r
 
 ## 2. One adjudicator or two
 
-| Object being counted | Result |
-|---|---|
-| Procedural envelopes | **1** |
-| Substantive acceptance predicates | **2** |
-| Competence profiles | **2** |
-| Named authority purposes | **2** |
-| Required appointments | **2 purpose-specific appointments** |
-| Minimum physical humans established | **not established as 2** |
-| Could one human hold both? | **Yes, if separately qualified and appointed twice** |
+| Object being counted                | Result                                               |
+| ----------------------------------- | ---------------------------------------------------- |
+| Procedural envelopes                | **1**                                                |
+| Substantive acceptance predicates   | **2**                                                |
+| Competence profiles                 | **2**                                                |
+| Named authority purposes            | **2**                                                |
+| Required appointments               | **2 purpose-specific appointments**                  |
+| Minimum physical humans established | **not established as 2**                             |
+| Could one human hold both?          | **Yes, if separately qualified and appointed twice** |
 
-Wave не имеет warrant для proposition «обязательно два физических adjudicators». Она имеет warrant для **двух competencies и двух authority purposes**.
+The wave has no warrant for the proposition that “at least two physical adjudicators are required.” It does have warrant for **two competencies and two authority purposes**.
 
 **The rule's economic argument fails and the rule is still correct but no longer cheap.**
 
-Экономия остаётся на schema, sealing/provenance, review state machine, disagreement records, fixture tooling и custody plumbing. Она не установлена на truth predicate, domain qualification, positive gold population или calibration count.
+The savings remain in schema, sealing/provenance, review state machine, disagreement records, fixture tooling, and custody plumbing. They are not established for the truth predicate, domain qualification, positive-gold population, or calibration count.
 
 ## 3. Estimator, sample size and pre-declaration
 
 ### 3.1 Local fixed-binomial design
 
-Для frozen Bernoulli loss:
+For frozen Bernoulli loss:
 
 \[
 L_i=1\{\text{confident bind and independent gold says wrong}\}
 \]
 
-при fixed-horizon iid/effectively-independent observations:
+under fixed-horizon iid/effectively-independent observations:
 
 \[
 U=\mathrm{BetaQuantile}(1-\alpha;k+1,n-k).
 \]
 
-При `k=0`:
+For `k=0`:
 
 \[
 U=1-\alpha^{1/n}.
 \]
 
-Для:
+For:
 
 ```yaml
 target_local_error_ceiling: 0.01
@@ -82,7 +82,7 @@ alpha_cal: 0.05
 k_confident_wrong: 0
 ```
 
-получаем:
+we obtain:
 
 ```yaml
 n: 299
@@ -94,16 +94,16 @@ U: 0.0099691468
 Current CGF defines:
 
 \[
-P(\exists t\le\tau: confident\_wrong\_bind_t)\le\delta_{ground}
+P(\exists t\le\tau: confident_wrong_bind*t)\le\delta*{ground}
 \]
 
-with multiple risk components. Это не то же самое, что local per-draw `P(confident bind ∧ wrong)`.
+with multiple risk components. This is not the same as local per-draw `P(confident bind ∧ wrong)`.
 
-Следовательно:
+Therefore:
 
 **packages do not converge on one estimator/sample size that may currently be published as the full PolicyOS `delta_ground`.**
 
-`299` остаётся valid **conditional local design**, not the current end-to-end theorem.
+`299` remains a valid **conditional local design**, not the current end-to-end theorem.
 
 ### 3.3 CP vs Learn-then-Test
 
@@ -252,26 +252,26 @@ Therefore current constructibility **does not move the GY Phase‑5 critical pat
 
 ## 6. Cheapest action that unblocks GY Phase 5
 
-| Rank | Candidate | Relative cost | What it closes | What remains |
-|---|---|---|---|---|
-| **0** | Resolve `delta_ground` estimand/component semantics | Very low | Prevents wrong calibration campaign | No gold/appointment yet |
-| **1** | One dual-qualified person, **two purpose-specific appointments** | Lowest direct institutional cost if available | Possible positive oracle for both | Two qualification showings; two appointments; separate populations/counts |
-| **2** | Separate causal and legal specialists | Higher recurring cost | Cleanly supplies both lanes | Separate calibration burdens |
-| **3** | Build non-circular legal subject spine + causal adjudicator | Significant engineering/legal-authority cost | Could shrink future legal residue | CG2 remains |
-| **4** | Build typed external causal-evidence producer / active acquisition | Highest R&D cost | Could shrink future causal volume | Legal blocker remains |
+| Rank  | Candidate                                                          | Relative cost                                 | What it closes                      | What remains                                                              |
+| ----- | ------------------------------------------------------------------ | --------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------- |
+| **0** | Resolve `delta_ground` estimand/component semantics                | Very low                                      | Prevents wrong calibration campaign | No gold/appointment yet                                                   |
+| **1** | One dual-qualified person, **two purpose-specific appointments**   | Lowest direct institutional cost if available | Possible positive oracle for both   | Two qualification showings; two appointments; separate populations/counts |
+| **2** | Separate causal and legal specialists                              | Higher recurring cost                         | Cleanly supplies both lanes         | Separate calibration burdens                                              |
+| **3** | Build non-circular legal subject spine + causal adjudicator        | Significant engineering/legal-authority cost  | Could shrink future legal residue   | CG2 remains                                                               |
+| **4** | Build typed external causal-evidence producer / active acquisition | Highest R&D cost                              | Could shrink future causal volume   | Legal blocker remains                                                     |
 
 One dual-qualified person can save **headcount**, not predicates or samples.
 
 ## 7. Contradictions
 
-| ID | Position A | Position B | Disposition |
-|---|---|---|---|
-| C-01 | One substantive rule could discharge both | R1: two substantive predicates | **R1 better supported; replace point 5** |
-| C-02 | R2: exact CP | R3: LTT core | **Layered reconciliation** |
-| C-03 | R2: `.01,n=299` as `delta_ground` | R3/repository: horizon/composite `delta_ground` | **R3/repository better supported for current semantics** |
-| C-04 | R1: positive correspondence needs adjudication | R4: some positive correspondence constructible | **Both true at different seams** |
+| ID   | Position A                                      | Position B                                                   | Disposition                                                    |
+| ---- | ----------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| C-01 | One substantive rule could discharge both       | R1: two substantive predicates                               | **R1 better supported; replace point 5**                       |
+| C-02 | R2: exact CP                                    | R3: LTT core                                                 | **Layered reconciliation**                                     |
+| C-03 | R2: `.01,n=299` as `delta_ground`               | R3/repository: horizon/composite `delta_ground`              | **R3/repository better supported for current semantics**       |
+| C-04 | R1: positive correspondence needs adjudication  | R4: some positive correspondence constructible               | **Both true at different seams**                               |
 | C-05 | Future legal subject spine enables construction | Legal-formalization literature retains substantive judgement | **Subject spine needs independently authoritative provenance** |
-| C-06 | R1 suggests two reviewers + arbiter | Standing rule speaks of an adjudicator | **Open; do not ratify reviewer-count minimum** |
+| C-06 | R1 suggests two reviewers + arbiter             | Standing rule speaks of an adjudicator                       | **Open; do not ratify reviewer-count minimum**                 |
 
 No disagreement found on `false bind > abstain`, publication grade ≠ gold, signature ≠ correctness, no post-outcome stratum, fail-closed missing gold, or subject ≠ units.
 
@@ -288,16 +288,16 @@ Results:
 
 ## 9. Cross-package analogue sweep
 
-| Defect | Sweep result |
-|---|---|
-| Legal transposition not freshly executed | **Analogue found in R1 and R4** |
-| Per-unit vs horizon estimand mismatch | **R3 catches what R2 leaves unresolved** |
-| Unit/dimension proxy replacing subject identity | **No unremarked sibling analogue** |
-| Outcome-selected stratum | **No further analogue found** |
-| Denominator mixing / sample-as-census | **No further analogue found** |
-| Shared infrastructure mistaken for shared truth predicate | **No sibling repeats the error** |
-| Upstream declaration treated as construction | **Future R4 risk; R3 supplies analogue** |
-| Universal negative inferred from consultation | **R3 only; no sibling analogue** |
+| Defect                                                    | Sweep result                             |
+| --------------------------------------------------------- | ---------------------------------------- |
+| Legal transposition not freshly executed                  | **Analogue found in R1 and R4**          |
+| Per-unit vs horizon estimand mismatch                     | **R3 catches what R2 leaves unresolved** |
+| Unit/dimension proxy replacing subject identity           | **No unremarked sibling analogue**       |
+| Outcome-selected stratum                                  | **No further analogue found**            |
+| Denominator mixing / sample-as-census                     | **No further analogue found**            |
+| Shared infrastructure mistaken for shared truth predicate | **No sibling repeats the error**         |
+| Upstream declaration treated as construction              | **Future R4 risk; R3 supplies analogue** |
+| Universal negative inferred from consultation             | **R3 only; no sibling analogue**         |
 
 ## 10. Consolidated result
 

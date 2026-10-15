@@ -1,23 +1,23 @@
 # Corpus (`polisyos.data_forge.domains.legal.corpus`)
 
-`polisyos.data_forge.domains.legal.corpus` подготавливает юридический корпус для downstream legal
-pipelines: ingest документов, extraction структуры и version-aware индексы,
-через которые `normpack` и `legal_evaluation` получают активную редакцию
-документа вместо ad-hoc выбора по дате или id.
+`polisyos.data_forge.domains.legal.corpus` prepares the legal corpus for downstream legal
+pipelines: document ingestion, structure extraction, and version-aware indexes
+through which `normpack` and `legal_evaluation` resolve the active document
+version instead of selecting one ad hoc by date or ID.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.fabric.docs`, `polisyos.fabric.world`, `polisyos.core.artifacts`, `polisyos.ir.world`
-- **Используется в:** `polisyos.lex.normpack`, `polisyos.lex.legal_evaluation`, intervention and provenance flows
-- Пакет формирует canonical corpus artifacts: provision index, version index и document source props.
+- **Depends on:** `polisyos.fabric.docs`, `polisyos.fabric.world`, `polisyos.core.artifacts`, `polisyos.ir.world`
+- **Used by:** `polisyos.lex.normpack`, `polisyos.lex.legal_evaluation`, intervention and provenance flows
+- The package produces canonical corpus artifacts: a provision index, version index, and document source properties.
 
-## Ключевые концепции
+## Key concepts
 
-- **Ingest wrapper** — `ingest_legal_doc_bytes()` обогащает `DocMeta.props.lex`, фиксирует pipeline metadata и пишет world events.
-- **Structure extraction** — `build_legal_structure()` строит hierarchy `article -> part -> point -> subpoint` и публикует `ProvisionIndexV1`.
-- **Temporal versioning** — `build_version_index()` и `resolve_active_version()` используют `effective window`, а не fallback на произвольную опубликованную версию.
-- **Index artifacts** — `ProvisionIndexV1`, `VersionIndexV1` и `DocSourcePropsV1` остаются CAS-friendly surface между ingest и normpack.
-- **Quality issues** — duplicate articles, non-monotonic numbering и missing structure остаются явными quality markers, а не скрытыми heuristic rewrites.
+- **Ingestion wrapper** — `ingest_legal_doc_bytes()` enriches `DocMeta.props.lex`, records pipeline metadata, and writes world events.
+- **Structure extraction** — `build_legal_structure()` builds the `article -> part -> point -> subpoint` hierarchy and publishes `ProvisionIndexV1`.
+- **Temporal versioning** — `build_version_index()` and `resolve_active_version()` use an effective window instead of falling back to an arbitrary published version.
+- **Index artifacts** — `ProvisionIndexV1`, `VersionIndexV1`, and `DocSourcePropsV1` remain the CAS-friendly surface between ingestion and normpack.
+- **Quality issues** — duplicate articles, non-monotonic numbering, and missing structure remain explicit quality markers rather than being hidden by heuristic rewrites.
 
 ## Public API
 
@@ -30,7 +30,7 @@ pipelines: ingest документов, extraction структуры и version
 | `ProvisionIndexV1`, `VersionIndexV1`, `DocSourcePropsV1` | Persistent corpus index artifacts                                    |
 | `load_*()` / `persist_*()` helpers                       | CAS persistence helpers for corpus indexes                           |
 
-Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
+Full reference: [docs/reference/lex/](../../../../../../docs/reference/lex/index.md)
 
 ## Current State
 

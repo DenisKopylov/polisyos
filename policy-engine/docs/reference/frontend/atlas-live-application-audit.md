@@ -10,6 +10,19 @@ authority: classification-only
 
 # Atlas Live Application Audit
 
+> **Historical source snapshot — 2026-07-16.** This document preserves the
+> audit evidence and findings recorded for `codex/atlas-ds0-source-of-truth`;
+> it is not a current-route inventory. For the later source snapshot at
+> `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`, use the
+> [Current Frontend Surface Map](current-surface-map.md). Two findings here
+> have specific later corrections: a server verification endpoint and record
+> issuer now exist for the retained public-verification scheme, and the
+> issuer's POST declares an action-permission dependency. The server endpoint
+> does not authenticate the legacy browser-generated `sig:` packet format, and
+> this does not recensus the audit's historical 29-POST table. Treat that
+> table's blanket permission conclusion and all other July counts/findings as
+> historical until separately recounted against a named current snapshot.
+
 This is the human twin of the
 [live readiness ledger](../../../architecture/atlas_surfaces/live-application-readiness-ledger.json)
 and the definitive DS1 map of the checked-out frontend and runtime HTTP zone.
@@ -596,7 +609,7 @@ Blast radius is exact:
 - all three mount in every run-detail layout
   ([mounts](../../../apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx#L336));
 - exactly one clickable URL producer exists
-  ([link](../../../apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx#L102));
+  ([PublicationPacketPanel source](../../../apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx#L102));
 - no HTTP public-record producer, verifier, or persistence route matched the
   URL in the 89-operation/server census, so no server-published artifact
   depends on it;

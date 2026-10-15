@@ -1,19 +1,27 @@
 # Add Runtime Route
 
-> Добавьте новый runtime endpoint так, чтобы он оставался thin HTTP layer, не
-> ломал contract chain и не обходил container/service boundaries.
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/routes/`, `src/polisyos/runtime/http/services/`, `schemas/runtime_api_v1.openapi.json`, and `tests/unit/runtime/http/`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Procedure and source-reference inspection only for this documentation update; the scaffold, tests, and contract check were not run.
+
+> Add a runtime endpoint while keeping the HTTP layer thin, preserving the
+> contract chain, and respecting container and service boundaries.
 
 ## Inputs
 
-- имя route в `snake_case`;
-- решение, будет ли route публичным OpenAPI surface или route-only endpoint;
-- понимание, какой service/container dependency должна использовать route.
+- a route name in `snake_case`;
+- a decision about whether the route is part of the public OpenAPI surface or
+  is route-only;
+- an understanding of which service or container dependency the route should
+  use.
 
 ## Output
 
-- новый route module под `src/polisyos/runtime/http/routes/`;
-- route wired into `create_runtime_api_app(...)`;
-- если route публичный, обновлены OpenAPI snapshot и downstream generated clients.
+- a new route module under `src/polisyos/runtime/http/routes/`;
+- the route wired into `create_runtime_api_app(...)`;
+- if the route is public, an updated OpenAPI snapshot and downstream generated
+  clients.
 
 ## Commands
 
@@ -141,3 +149,18 @@ If the route changes visible API behavior, also add or update focused tests unde
 
 - route should be stream-only or experimental: keep it route-only and document
   it manually instead of forcing it into generated clients.
+
+## Capability and authority boundary
+
+Router wiring, an OpenAPI operation, and generated client types establish an
+HTTP surface only. Before describing a route as a complete capability, account
+for its producer, typed artifact/event, orchestration bridge, consumer,
+verification, audit/API/dashboard surface (or explicit `out_of_scope`), and a
+negative or semantic integration test. Record missing links with the repository
+capability labels instead of implying that the route is complete.
+
+LLM-produced and simulated results remain candidates. Candidate-band work may
+carry unknown scope only when its owner preserves that unknown as a typed
+limitation; protected actions, custody facts, and published claims fail closed.
+A successful status or response DTO does not establish a causal policy chain,
+admissibility, or publication authority.

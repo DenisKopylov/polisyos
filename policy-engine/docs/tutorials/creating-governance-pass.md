@@ -1,20 +1,26 @@
-# Создание governance pass
+# Create a Governance Pass
+
+English edition: 2026-10-14 (translation only; not a source-freshness or execution claim).
 
 Related how-to: [Write Governance Pass](../how-to/write-governance-pass.md). Related reference: [Scientist Governance Passes](../reference/scientist/governance-passes.md).
 
-> Этот tutorial рассчитан на инженера, который добавляет новый governance check в Scientist и хочет дойти до состояния "pass существует, зарегистрирован, запускается и тестируется".
+> This tutorial is for an engineer adding a governance check to Scientist and
+> aiming to reach the point where the pass exists, is registered, runs, and is
+> tested.
 
-!!! info "Verified with"
-Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-Python 3.14 и `uv`.
-Реально проверены импорт базовых типов
-`PassContext` / `ValidatorPass`
-и dry-run scaffold:
-`uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`.
+!!! info "Historical review (2026-04-17)"
+    The previous revision recorded imports of `PassContext` / `ValidatorPass`
+    and a dry-run scaffold in the environment used at that time. This is not a
+    receipt that the full tutorial or its tests were run. Source paths were read
+    at pin `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; the production
+    implementation under `src/polisyos/` has not changed since that pin. The
+    examples and tests were not run for this documentation refresh.
 
-Мы пройдём минимальный, но реальный путь: создадим pass, зарегистрируем factory, подключим его к canonical governance surface и проверим blocker/warning semantics тестом.
+This tutorial walks through adding a pass and registering its factory, then
+shows a unit test for a blocker case. Warning and info are described separately
+as guidance for choosing severity; the shown test does not cover them.
 
-Перед ручным редактированием можно взять canonical dry-run scaffold:
+Before editing by hand, you can start with the canonical dry-run scaffold:
 
 ```bash
 uv run polisyos-tools architecture scaffold governance-pass \
@@ -24,9 +30,10 @@ uv run polisyos-tools architecture scaffold governance-pass \
   --dry-run
 ```
 
-## Шаг 1. Создайте класс pass
+## Step 1. Create the pass class
 
-Добавьте новый файл под `src/polisyos/scientist/governance/passes/`, например `my_pass.py`:
+Add a new file under `src/polisyos/scientist/governance/passes/`, for example
+`my_pass.py`:
 
 ```python
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -57,16 +64,17 @@ class MyPass(ValidatorPass):
         return []
 ```
 
-На что обратить внимание сразу:
+Keep the following points in mind:
 
-- `pass_id` должен быть стабильным и уникальным;
-- `BLOCKER` используйте только когда workflow действительно нельзя продвигать дальше;
-- `WARNING` подходит для recoverable quality/risk signals;
-- `INFO` лучше оставлять для audit trails и human-review hints.
+- `pass_id` must be stable and unique.
+- Use `BLOCKER` only when the workflow truly cannot proceed.
+- `WARNING` is suitable for recoverable quality/risk signals.
+- Reserve `INFO` for audit trails and human-review hints.
 
-## Шаг 2. Подключите pass к registry factories
+## Step 2. Connect the pass to registry factories
 
-Добавьте import и factory в `src/polisyos/scientist/governance/pass_entrypoints.py`:
+Add an import and factory in
+`src/polisyos/scientist/governance/pass_entrypoints.py`:
 
 ```python
 from .passes.my_pass import MyPass
@@ -76,22 +84,26 @@ def my_pass_factory() -> ValidatorPass:
     return MyPass()
 ```
 
-И не забудьте включить factory в `builtin_governance_pass_factories()` и `__all__`.
+Also include the factory in `builtin_governance_pass_factories()` and `__all__`.
 
-Это и есть fallback path, который runtime использует, когда внешние entry points не подхвачены.
+This is the fallback path the runtime uses when external entry points are not
+discovered.
 
-## Шаг 3. Экспортируйте pass из package facade
+## Step 3. Export the pass from the package facade
 
-Добавьте pass в `src/polisyos/scientist/governance/passes/__init__.py`, чтобы его можно было безопасно импортировать через публичную package surface.
+Add the pass to `src/polisyos/scientist/governance/passes/__init__.py` so it can
+be safely imported through the public package surface.
 
-## Шаг 4. Если pass canonical, привяжите его к family policy
+## Step 4. If the pass is canonical, bind it to the family policy
 
-Если новый pass должен входить в обязательный governance набор для observation family, обновите `src/polisyos/ir/observation/governance.py`:
+If the new pass must be part of the required governance set for an observation
+family, update `src/polisyos/ir/observation/governance.py`:
 
-1. добавьте alias в `GovernancePassAliasRegistry.default()`;
-2. включите canonical id в `mandatory_governance_passes` у нужной family policy.
+1. Add an alias to `GovernancePassAliasRegistry.default()`.
+2. Add the canonical ID to `mandatory_governance_passes` for the relevant family
+   policy.
 
-Минимальный alias выглядит так:
+The minimum alias looks like this:
 
 ```python
 GovernancePassAlias(
@@ -101,11 +113,12 @@ GovernancePassAlias(
 )
 ```
 
-Если pass пока экспериментальный и не должен быть обязательным по умолчанию, этот шаг можно отложить.
+If the pass is still experimental and should not be required by default, you can
+defer this step.
 
-## Шаг 5. Добавьте unit test
+## Step 5. Add a unit test
 
-Первый тест обычно создаёт `PassContext` напрямую:
+The first test usually creates `PassContext` directly:
 
 ```python
 from polisyos.core.governance.passes.base import PassContext
@@ -130,11 +143,11 @@ def test_my_pass_blocks_missing_artifact() -> None:
     assert issues[0].code == "MY_ARTIFACT_MISSING"
 ```
 
-Полезный второй тест после этого: happy path без issues.
+A useful second test is a happy path with no issues.
 
-## Шаг 6. Проверьте, что pass виден и запускается
+## Step 6. Check that the pass is discoverable and runs
 
-Минимальный локальный набор:
+Minimum local checks:
 
 ```bash
 pytest tests/unit/scientist/governance -x --tb=short
@@ -142,36 +155,45 @@ uv run --extra docs python -m mkdocs build --strict
 uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
-Если pass стал частью canonical governance surface, дополнительно проверьте reference page и observation-family mapping.
+If the pass becomes part of the canonical governance surface, also check the
+reference page and observation-family mapping.
 
-## Шаг 7. Добавьте evidence mapping
+## Step 7. Add evidence mapping
 
-Для D1-L6 новый pass считается документированным только после того, как его
-claim связан с артефактом или тестом:
+For D1-L6, the new pass is documented only after its claim is connected to an
+artifact or test:
 
-1. добавьте pass в [Governance Passes reference](../reference/scientist/governance-passes.md), если он builtin или canonical;
-2. укажите, какой artifact/report получает оператор: `ComplianceIssue`,
+1. Add the pass to the [Governance Passes reference](../reference/scientist/governance-passes.md)
+   if it is built-in or canonical.
+2. State which artifact/report the operator receives: `ComplianceIssue`,
    `GovernanceReport`, `CalibrationValidationBundle`,
-   `scientist.governance_accountability_artifact` или другой persisted output;
-3. если pass поддерживает SOTA/default-readiness claim, добавьте benchmark or
-   eval reference до такого claim.
+   `scientist.governance_accountability_artifact` or another persisted output;
+3. If the pass supports a SOTA/default-readiness claim, add a benchmark or
+   evaluation reference before making that claim.
 
-Минимальный traceability format:
+Minimum traceability format:
 
 ```text
 pass_id -> emitted issue/artifact -> regression test -> phase gate or benchmark
 ```
 
-## Как читать blocker и warning semantics
+## Choosing severity
 
-- `BLOCKER`: workflow нельзя продвигать без исправления или явного human override.
-- `WARNING`: результат usable, но риск должен быть показан оператору или downstream review surface.
-- `INFO`: неблокирующий след для аудита, telemetry или follow-up review.
+The following definitions are design guidance, not test results from this
+tutorial. The shown test checks only the blocker case; add separate cases for
+warning and info if the new pass should emit them.
 
-Хороший practical template в текущем дереве: `StrategicResponsePass`. Он показывает state-first lookup, escalation в strict profile и понятные issue codes.
+- `BLOCKER`: the workflow cannot proceed without a fix or explicit human
+  override.
+- `WARNING`: the result is usable, but the risk must be shown to the operator or
+  a downstream review surface.
+- `INFO`: a non-blocking trace for audit, telemetry, or follow-up review.
 
-## Что дальше
+`StrategicResponsePass` is a useful current example in the tree. It shows
+state-first lookup, escalation in strict profile, and clear issue codes.
 
-- Для полного checklist смотрите [Write Governance Pass](../how-to/write-governance-pass.md)
-- Для API/contract surface смотрите [Governance Passes reference](../reference/scientist/governance-passes.md)
-- Для architectural rationale откройте [Governance Model](../explanation/governance-model.md)
+## Next steps
+
+- For the full checklist, see [Write Governance Pass](../how-to/write-governance-pass.md).
+- For the API/contract surface, see the [Governance Passes reference](../reference/scientist/governance-passes.md).
+- For the architectural rationale, see the [Governance Model](../explanation/governance-model.md).

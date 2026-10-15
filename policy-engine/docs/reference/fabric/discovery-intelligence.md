@@ -1,10 +1,17 @@
 # Fabric Discovery And Entity Intelligence
 
+Freshness: 2026-10-14
 Owner: `@fabric-owners`
-Source of truth: `src/polisyos/fabric/discovery/**`, `src/polisyos/fabric/world/query.py`, `tests/unit/fabric/test_discovery_intelligence.py`, and `tests/unit/fabric/test_entity_resolution.py`
+Source pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`
+Source of truth: `src/polisyos/fabric/catalog/discovery.py`, `src/polisyos/fabric/entity_resolution/`, `src/polisyos/fabric/world/query.py`, `src/polisyos/fabric/world/materialize/kuzu.py`, `tools/quality/validation/fabric_discovery_intelligence.py`, `tests/_data/fabric/discovery_eval.json`, `tests/unit/fabric/test_discovery_intelligence.py`, and `tests/unit/fabric/test_entity_resolution.py`
+Evidence level: implementation and named test behavior inspected at the source pin. Tests were not run in this documentation pass; offline ranking and graph-helper behavior do not establish live-source readiness or a source-to-world workflow.
+Test status: cited tests were inspected but not run in this documentation pass.
 
 Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md).
+Inventory scope: code counts reflect statically resolved source declarations;
+they do not prove runtime or deployment readiness. Dynamic or unresolved
+declarations remain partial/unknown rather than being silently treated as absent.
 
 Phase 9 keeps discovery explainable, reversible, stale-aware, and contract-bound.
 The implementation is offline-first: no LLM calls are made by the validator or
@@ -29,6 +36,14 @@ contract after separate review.
 The default embedding model is `hashing-bow-dataset-v1`, a deterministic local
 vectorizer. Search combines offline vector rank, token coverage, and lexical
 fallback, and every plan records `llm_calls=0`.
+
+The candidate's trust, access, quality, and owner fields are copied from the
+declared source contract and profile; discovery does not independently verify
+the upstream content. A `DatasetResolutionPlan` also has no automatic fetch and
+world-materialization consumer at this source pin, so that handoff is
+`bridge_missing` and the full discovery-to-source-to-world semantic chain is
+`semantic_test_missing`. See the [data-plane reference](data-plane.md) for the
+separate connector and world-store paths.
 
 ## Stale Invalidation
 

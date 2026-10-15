@@ -1,41 +1,41 @@
 # Linker (`polisyos.ir.linker`)
 
-`polisyos.ir.linker` связывает `TrinityBundle` с registry surface и превращает
-декларативный policy payload в `LinkedTrinityBundle` с binding diagnostics,
-canonical digests и typed issue report. Это последняя контрактная стадия перед
-compile/execute в `foundry` и перед governance preflight в `scientist`.
+`polisyos.ir.linker` connects `TrinityBundle` to the registry surface and turns
+a declarative policy payload into a `LinkedTrinityBundle` with binding diagnostics,
+canonical digests, and a typed issue report. This is the final contract stage
+before compilation/execution in `foundry` and governance preflight in `scientist`.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `polisyos.ir.trinity`, `polisyos.ir.kernel`, `polisyos.ir.governance`
-- **Используется в:** `polisyos.core.compiler`, `polisyos.foundry`, `polisyos.scientist`
-- Linker превращает static IR contracts в runtime-ready bindings, не исполняя сами механизмы.
+- **Depends on:** `polisyos.ir.trinity`, `polisyos.ir.kernel`, `polisyos.ir.governance`
+- **Used by:** `polisyos.core.compiler`, `polisyos.foundry`, `polisyos.scientist`
+- The linker turns static IR contracts into runtime-ready bindings without executing the mechanisms themselves.
 
-## Ключевые концепции
+## Key concepts
 
-- **Linked bundle** — `LinkedTrinityBundle` сохраняет исходный bundle, bindings и digests.
-- **Typed diagnostics** — `LinkReport` и `LinkIssue` отделяют errors, warnings и info notes.
-- **Registry validation** — linker проверяет mechanism ids, params, slots, metrics, constraints и selector fields.
-- **Canonical digests** — report включает registry and bundle hashes, если канонизация возможна.
-- **Applicability refs** — helper из `types.py` проверяет actor/concept/jurisdiction references.
+- **Linked bundle** — `LinkedTrinityBundle` retains the source bundle, bindings, and digests.
+- **Typed diagnostics** — `LinkReport` and `LinkIssue` distinguish errors, warnings, and informational notes.
+- **Registry validation** — the linker checks mechanism IDs, parameters, slots, metrics, constraints, and selector fields.
+- **Canonical digests** — the report includes registry and bundle hashes when canonicalization is possible.
+- **Applicability refs** — the helper in `types.py` validates actor/concept/jurisdiction references.
 
 ## Public API
 
-| Type/Function                                | Description                                                          |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| `link_trinity()`                             | Основная функция линковки Trinity bundle against registries          |
-| `LinkedIntervention`                         | Нормализованный linked view одного intervention                      |
-| `TrinityBindings`                            | Aggregated bindings for slots, params and mechanisms                 |
-| `LinkedTrinityBundle`                        | Result object для downstream compile/runtime use                     |
-| `LinkIssue`, `LinkIssueCode`, `LinkSeverity` | Typed issue protocol                                                 |
-| `LinkReport`                                 | Сводка validation outcome и digests                                  |
-| `validate_norm_applicability_refs()`         | Проверка norm applicability references вне основного linker pipeline |
+| Type/Function                                | Description                                                             |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| `link_trinity()`                             | Main function for linking a Trinity bundle against registries           |
+| `LinkedIntervention`                         | Normalized linked view of one intervention                              |
+| `TrinityBindings`                            | Aggregated bindings for slots, parameters, and mechanisms               |
+| `LinkedTrinityBundle`                        | Result object for downstream compilation/runtime use                    |
+| `LinkIssue`, `LinkIssueCode`, `LinkSeverity` | Typed issue protocol                                                    |
+| `LinkReport`                                 | Summary of the validation outcome and digests                           |
+| `validate_norm_applicability_refs()`         | Validate norm applicability references outside the main linker pipeline |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-04-03
+- Last updated: 2026-04-03
 - Files: 9 Python files
 - Exports: 9 public names in `__init__.py`
-- Delta status: код линкера стабилен; README обновлен под текущий registry/observation-aware Trinity surface
+- Delta status: linker code is stable; this README reflects the current registry/observation-aware Trinity surface

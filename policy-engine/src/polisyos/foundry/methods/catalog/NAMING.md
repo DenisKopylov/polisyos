@@ -1,26 +1,26 @@
 # Foundry V2 Naming Spec
 
-## Канонический идентификатор
+## Canonical identifier
 
-Foundry V2 использует naming contract:
+Foundry V2 uses this naming contract:
 
 `domain.family.variant@semver`
 
-Где:
+Where:
 
-- `domain` — верхний предметный namespace: `causal`, `econometrics`, `optimization`, `simulation`, `survey`, `distributional`, `forecasting`, `validation`, `sensitivity`, `bayesian`, `spatial` и т.д.
-- `family` — устойчивое семейство методов внутри домена.
-- `variant` — конкретный estimator/runtime variant.
-- `semver` — версия ABI.
+- `domain` is the top-level subject namespace: `causal`, `econometrics`, `optimization`, `simulation`, `survey`, `distributional`, `forecasting`, `validation`, `sensitivity`, `bayesian`, `spatial`, and others.
+- `family` is a stable method family within a domain.
+- `variant` is a specific estimator/runtime variant.
+- `semver` is the ABI version.
 
-На уровне `MethodSignature` это означает:
+At the `MethodSignature` level, this means:
 
 - `namespace == "<domain>.<family>"`
 - `name == "<variant>"`
 - `family == "<domain>.<family>"`
 - `variant == "<variant>"`
 
-## Примеры
+## Examples
 
 - `optimization.linear.resource_lp@1.0.0`
 - `econometrics.panel.fixed_effects@1.0.0`
@@ -28,15 +28,15 @@ Foundry V2 использует naming contract:
 - `bayesian.sampling.nuts@1.0.0`
 - `spatial.accessibility.two_step_fca@1.0.0`
 
-## Правила
+## Rules
 
-- Не используй aggregate names вроде `panel_data`, `time_series`, `difference_in_differences`, если внутри скрываются разные ABI-семейства.
-- Не дублируй семейство в variant имени.
-- Не используй legacy aliases как канонический FQN.
-- Не кодируй backend в FQN, если это не меняет ABI family.
+- Do not use aggregate names such as `panel_data`, `time_series`, or `difference_in_differences` when they hide different ABI families.
+- Do not repeat the family name in the variant name.
+- Do not use legacy aliases as the canonical FQN.
+- Do not encode the backend in the FQN unless it changes the ABI family.
 
-## Когда повышать версию
+## When to increment the version
 
-- `major`: меняется ABI, slot surface, canonical semantics или contract fields.
-- `minor`: расширяется совместимый diagnostics/output metadata.
-- `patch`: внутренние багфиксы и стабильные улучшения без изменения ABI.
+- `major`: the ABI, slot surface, canonical semantics, or contract fields change.
+- `minor`: compatible diagnostics/output metadata is extended.
+- `patch`: internal bug fixes and stable improvements that do not change the ABI.

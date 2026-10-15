@@ -1,5 +1,22 @@
 # FedRAMP Gap Analysis (Phase 4)
 
+Owner: `@platform-owners`
+Source of truth: `policy-engine/docs/fedramp/poam.json`, `policy-engine/docs/fedramp/nist-800-53-mapping.json`, and current control-owner evidence.
+
+## Status note (2026-10-14)
+
+The target dates below have passed. This page does not record completion evidence
+or establish a current FedRAMP authorization or 3PAO assessment. The linked
+`docs/fedramp/poam.json` is prepared 2026-02-08 and still records its milestones
+as planned; `docs/fedramp/nist-800-53-mapping.json` is generated 2026-02-08 and
+retains open gaps. Reconcile those dated records with the control owner before
+using them as current status. In particular, the SC-28 mapping labels the
+control `implemented` while its `gaps` field says CMEK support is pending.
+
+Review method: repository-document inspection at source pin
+`8dd933600dd7a5a8a5b48432c6089d63b81ca641` on 2026-10-14; no current control-owner
+or external assessment evidence was obtained.
+
 ## Summary
 
 Phase 4 closes confidential-computing and software-supply-chain controls for PolicyOS.

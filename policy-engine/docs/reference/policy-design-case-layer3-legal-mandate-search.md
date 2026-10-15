@@ -3,6 +3,11 @@
 Owner: `team-runtime-quality`
 Source of truth: `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py`, `tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py`, and `architecture/policy_design_case/layer3_gl_readiness_manifest.json`
 
+Evidence basis: source and selected test files cited here were inspected at repository pin
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; this page was read at documentation HEAD
+`c35222b3dcf103338175cf300c5fe9487e6416f3`. Tests were inspected as source evidence and not run for
+this documentation update. Commands below are procedures, not verification receipts.
+
 Layer 3 GL is the legal mandate search and consumer-gate readiness surface for
 Policy Design Case. It turns canonical L3 Legal KG search, replayable query
 traces, false-abstention recall checks, claim-level Lex legal authority records,
@@ -25,6 +30,10 @@ The search vs authority boundary is load-bearing:
   are the legal authority handoff consumed by GL gates;
 - claim registry and semantic binding preserve the refs, but cannot prove legal
   authority alone.
+
+GL readiness and audit artifacts establish only the declared search, temporal,
+reference, and consumer checks. They do not create an institution's legal act,
+PolicyOS recommendation/design authority, or publication authority.
 
 Every GL artifact carries `may_not_use_for` denials including recommendation
 substance, closeout authority, publication authority, agent authority, legal
@@ -117,3 +126,9 @@ uv run python tools/quality/validation/check_policy_design_case_layer3_gl_readin
 Without `--write`, the validator checks runtime validation, persisted artifacts,
 manifest/runtime drift, generated-artifact registration, inventory and docs
 sync, public raw-payload redaction, and GL authority boundary enforcement.
+
+The pinned manifest keeps its dispositions separate: amendment lineage and
+reference resolution are `reissue_required`, L5 calibration is a `limitation`,
+S8 value-choice is `out_of_scope`, and the public-export hook is
+`out_of_scope_reference_only`. These scoped states are not one global approval
+or a basis to infer missing institutional authority.

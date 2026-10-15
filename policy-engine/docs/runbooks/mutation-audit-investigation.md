@@ -8,7 +8,7 @@ Related reference: [Logging and Trace Context](../reference/logging.md),
 > mutations.
 
 Owner: `@runtime-owners`
-Last tested: `2026-04-17` against audit-chain evidence and current compliance-review docs.
+Historical validation receipt (as recorded by this page): `2026-04-17` — audit-chain evidence and compliance-review material available at that time; this is not a fresh validation.
 Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/core/security/test_audit_chain.py`
 Rollback path: preserve original audit evidence, separate remediation from historical records, and record any corrective mutation as a new audited action.
 

@@ -1,10 +1,12 @@
 # Runtime Bureaucratic Rendering
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/**`, `packages/runtime-api-client/**`, and `apps/runtime-dashboard/**`
+Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/bureaucratic_rendering.py`, `packages/runtime-api-client/`, `apps/runtime-dashboard/src/features/artifacts/bureaucratic/`, and `tests/unit/runtime/http/test_bureaucratic_rendering_api.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and HTTP routes were not run.
 
-Phase 2.5 adds a renderer that maps a decision packet artifact to a canonical
-document AST, then renders HTML/PDF/DOCX from that same source.
+The current artifact routes map a selected decision-packet artifact to a
+canonical document AST, then render HTML/PDF/DOCX from that same source.
 
 ## Render
 
@@ -66,3 +68,8 @@ Each block includes:
 - All decision numbers must remain `QuantityValue`.
 - Legal/document specialist review is required before template approval changes
   from `pending_external_review` to `approved`.
+
+Rendered content and watermarks describe a draft representation; they do not
+create an official signature, legal approval, or publication authority. Route
+tests cover the implemented AST/export contract, not an external institution's
+review or signature.

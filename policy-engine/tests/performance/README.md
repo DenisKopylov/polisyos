@@ -1,8 +1,10 @@
 # Performance Tests
 
-`tests/performance` contains the benchmark and hot-path regression slice. It
-currently contains `8` `test_*.py` files covering CLI, runtime overhead,
-extended benchmark stacks, and scientist/runtime performance paths.
+`tests/performance` contains the benchmark and hot-path regression slice. The
+README snapshot dated `2026-04-17` records `8` `test_*.py` files
+covering CLI, runtime overhead, extended benchmark stacks, and scientist/runtime
+performance paths. This dated count is not a current denominator; re-enumerate
+`tests/performance/` before relying on it as a current inventory.
 
 ## Purpose
 
@@ -62,8 +64,10 @@ uv run pytest -m performance
 ## Test And Verification Commands
 
 The file-level collect-only commands below were smoke-checked on `2026-04-17`.
-The full `tests/performance` slice remains conceptual here because collection in
-the current tree is blocked by `test_benchmark_runtime_pipeline.py`.
+The `2026-04-17` README record says collection of the full `tests/performance`
+slice was blocked by `test_benchmark_runtime_pipeline.py`. That historical note
+does not establish current collection state; rerun collection before relying on
+it as a current blocker.
 
 ```bash
 cd policy-engine

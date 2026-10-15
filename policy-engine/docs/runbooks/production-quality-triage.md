@@ -9,6 +9,8 @@ Owner: `@platform-owners`
 Primary responders: `@runtime-owners`, `@scientist-owners`,
 `@foundry-owners`, `@fabric-owners`, `@lex-owners`, and
 security/compliance reviewers.
+Source of truth: `tools/ci/check_policyos_production_quality_best_in_class.py`, `architecture/production_quality/diagnostic_fitness_functions.toml`, `src/polisyos/runtime/quality/{approval.py,scorecard.py}`, and the canary/approval references linked above
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; PQL registry and selected approval/canary source inspected. The listed commands and tests were not executed and do not report live readiness.
 Evidence path: `.polisyos/canary_evidence/<bundle>/`,
 `_build/.tmp/production-quality/`, and CAS refs copied into scorecards.
 
@@ -112,7 +114,7 @@ print(packet["eligibility"]["reasons"])
 PY
 ```
 
-Expected clean output:
+Expected clean output shape (example, not observed in this review):
 
 ```text
 approved

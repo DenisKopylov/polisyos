@@ -2,47 +2,47 @@
 
 ## Purpose
 
-`polisyos.ir.analytics` задает контрактный слой аналитических результатов:
+`polisyos.ir.analytics` defines the contract layer for analytical results:
 causal effects, transportability, HTE, backtests, uncertainty, strategic
-response, ecosystem bridges и frontier causal contracts. Пакет служит общим
-interchange format между `foundry`, `scientist`, `fabric` и observation-driven
+response, ecosystem bridges, and frontier causal contracts. The package is the shared
+interchange format between `foundry`, `scientist`, `fabric`, and observation-driven
 workflows.
 
-Package facade `polisyos.ir.analytics` намеренно уже, чем полный набор модулей
-в каталоге `analytics/`: он реэкспортирует наиболее частые contracts, а
-специализированные surface-ы остаются в defining modules.
+The `polisyos.ir.analytics` package facade is intentionally narrower than the
+full set of modules in `analytics/`: it re-exports the most common contracts, while
+specialized surfaces remain in their defining modules.
 
 ## Where to Start
 
-- [`__init__.py`](./__init__.py) — curated lazy facade для наиболее частых analytics import-path'ов.
-- [`causal.py`](./causal.py) — core effect-report surface, diagnostics и refutations.
-- [`dynamic_regime.py`](./dynamic_regime.py) — continuous-time query contracts, trajectory bundles и runtime support gates.
-- [`hte.py`](./hte.py) — heterogeneous effects, feature importance и targeting outputs.
-- [`recourse_manifold.py`](./recourse_manifold.py) — typed causal recourse queries, intervention-cost manifolds, proof bundles и feasibility certificates for Stage 13.4.
+- [`__init__.py`](./__init__.py) — curated lazy facade for the most common analytics import paths.
+- [`causal.py`](./causal.py) — core effect-report surface, diagnostics, and refutations.
+- [`dynamic_regime.py`](./dynamic_regime.py) — continuous-time query contracts, trajectory bundles, and runtime support gates.
+- [`hte.py`](./hte.py) — heterogeneous effects, feature importance, and targeting outputs.
+- [`recourse_manifold.py`](./recourse_manifold.py) — typed causal recourse queries, intervention-cost manifolds, proof bundles, and feasibility certificates for Stage 13.4.
 - [`rough_path_semantics.py`](./rough_path_semantics.py) — proof-carrying semantics for rough/signature path claims under irregular sampling.
-- [`transportability.py`](./transportability.py) — перенос между environments и gap diagnostics.
-- [`privacy_transportability.py`](./privacy_transportability.py) — privacy-aware слой над transportability/recoverability для DP-distorted multi-domain releases.
-- [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics и propagation contracts.
+- [`transportability.py`](./transportability.py) — transport between environments and gap diagnostics.
+- [`privacy_transportability.py`](./privacy_transportability.py) — privacy-aware layer over transportability/recoverability for DP-distorted multi-domain releases.
+- [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics, and propagation contracts.
 - [`posterior_summary.py`](./posterior_summary.py) — versioned posterior mean/median, equal-tail
   bounds, exact source draw rows, and CAS persistence for candidate summaries.
 - [`welfare.py`](./welfare.py) — WelfareBundle schema 1.1 nominal PE/post-GE
   component operands and WelfareSampleBundle schema 1.1 draw vectors, bound to
   the selected applied-weight manifest edge for fresh weighted recomputation.
-- [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria и bundle outputs.
-- [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges в DoWhy, EconML, CausalNex, pgmpy и смежные ecosystems.
-- Для upstream/downstream контекста откройте [`../observation/README.md`](../observation/README.md) и [`../artifacts/README.md`](../artifacts/README.md).
+- [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria, and bundle outputs.
+- [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges to DoWhy, EconML, CausalNex, pgmpy, and related ecosystems.
+- For upstream/downstream context, see [`../observation/README.md`](../observation/README.md) and [`../artifacts/README.md`](../artifacts/README.md).
 
 ## Public entrypoints
 
-| Entrypoint                                                                                             | Use when                                                                               | Defined in                                                   |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `polisyos.ir.analytics.CausalEffectReport`                                                             | Нужен канонический causal effect report с diagnostics и refutations                    | [`causal.py`](./causal.py)                                   |
-| `polisyos.ir.analytics.TransportabilityResult`                                                         | Нужен результат transportability / domain-shift анализа                                | [`transportability.py`](./transportability.py)               |
-| `polisyos.ir.analytics.HTEResult`                                                                      | Нужны heterogeneous treatment effects и targeting outputs                              | [`hte.py`](./hte.py)                                         |
-| `polisyos.ir.analytics.StructuralCausalModelSpec`                                                      | Нужен IR-контракт структурной causal model                                             | [`structural_causal_model.py`](./structural_causal_model.py) |
-| `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold`, `OptimalRecourseInterventionQuery` | Нужен proof-carrying causal recourse surface, а не explainability-only recourse report | [`recourse_manifold.py`](./recourse_manifold.py)             |
-| `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Нужен strategic-response / performative-analysis surface, включая MFG certificates     | [`strategic.py`](./strategic.py)                             |
-| `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Нужны interoperability bridges в external causal toolchains                            | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
+| Entrypoint                                                                                             | Use when                                                                                 | Defined in                                                   |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `polisyos.ir.analytics.CausalEffectReport`                                                             | Use the canonical causal effect report with diagnostics and refutations                  | [`causal.py`](./causal.py)                                   |
+| `polisyos.ir.analytics.TransportabilityResult`                                                         | Use the result of a transportability/domain-shift analysis                               | [`transportability.py`](./transportability.py)               |
+| `polisyos.ir.analytics.HTEResult`                                                                      | Use heterogeneous treatment effects and targeting outputs                                | [`hte.py`](./hte.py)                                         |
+| `polisyos.ir.analytics.StructuralCausalModelSpec`                                                      | Use the IR contract for a structural causal model                                        | [`structural_causal_model.py`](./structural_causal_model.py) |
+| `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold`, `OptimalRecourseInterventionQuery` | Use the proof-carrying causal recourse surface rather than an explainability-only report | [`recourse_manifold.py`](./recourse_manifold.py)             |
+| `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Use the strategic-response/performative-analysis surface, including MFG certificates     | [`strategic.py`](./strategic.py)                             |
+| `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Use interoperability bridges for external causal toolchains                              | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
 `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily.TRSO` names the executable
 Y0 `identify_target_outcomes` operation. It is a capability label, not a result or authority
@@ -209,14 +209,11 @@ or production-currentness finding. Its JSON schema is unchanged because the
 contract declaration and projector are class-level/runtime behavior, not report
 fields.
 
-
-
 The runtime's B31 candidate path keeps invocation lineage outside the public
 CausalEffectReport ABI: an N8 run-basis v2 joins the selected request, a
 producer-captured execution receipt, and exact report bytes. The receipt does
 not grant causal identification, owner authority, calibration, or production
 currentness; the report schema and public exports remain unchanged.
-
 
 ## Transport proof purpose and review grade
 

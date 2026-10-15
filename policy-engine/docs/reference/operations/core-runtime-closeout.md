@@ -4,11 +4,12 @@ Related reference: [Platform Acceptance Audit](platform-acceptance-audit.md), [S
 
 Owner: `@runtime-owners`
 Source of truth: `release/core-runtime-closeout.ledger.toml`, `release/core-runtime-closeout.evidence.template.toml`, `docs/archive/reports/core-runtime-closeout.{md,json}`, and the `polisyos-tools workspace core-runtime-closeout` / `core-runtime-long-soak` commands
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; ledger, template, and command source inspected. The commands and manual closeout were not run, and this page does not establish a completed program or deployed service.
 
-> This page is the executable Wave 0 / Stream G artifact for
-> `CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`: one canonical closure ledger
-> for `WS-0A .. WS-3C`, with machine-readable evidence, reopen gaps, and final
-> signoff hooks.
+> This page documents the repository-tracked Wave 0 / Stream G closeout
+> procedure for `CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`. Its ledger,
+> evidence paths, reopen gaps, and signoff hooks are inputs to review; they are
+> not themselves proof that workstreams are closed or a service is deployed.
 
 ## Canonical Inputs
 
@@ -46,8 +47,8 @@ This performs the Wave 0 structural checks:
 - partial/missing/reopened workstreams declare explicit blocking gaps.
 
 The default mode is intentionally non-blocking for incomplete programs: it
-validates the ledger and emits the current reopen list, but it does not require
-all workstreams to be fully closed.
+validates the ledger and emits the reopen list for that invocation, but it does
+not require all workstreams to be fully closed.
 
 ## Long-Soak Evidence
 

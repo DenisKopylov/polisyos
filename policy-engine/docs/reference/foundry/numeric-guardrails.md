@@ -1,11 +1,13 @@
 # Foundry Numeric Guardrails
 
 Owner: `@foundry-owners`
-Source of truth: `src/polisyos/foundry/runtime/numeric.py` and `tests/unit/foundry/**`
+Source of truth: `src/polisyos/foundry/runtime/numeric.py` and its implementation owner `src/polisyos/foundry/execute/_internal/numeric/__init__.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation sources inspected at this pin; the selected tests below were not run for this docs-only review.
 
-This note documents the WS-4 numeric invariants that are now enforced across
-calibration, constraints, actor-critic math, distributional metrics, and fiscal
-mechanisms.
+This note documents shared numeric helpers and selected caller-specific
+invariants. It does not claim that every caller uses these helpers or that a
+finite numerical result validates a scientific model or policy effect.
 
 ## Domain epsilon policy
 
@@ -62,3 +64,11 @@ instead of introducing ad hoc epsilons in downstream modules.
 - Invalid fiscal rates: `ValueError`
 - Non-finite calibration loss components: `+inf`
 - Non-statistical Hessian envelopes: `heuristic_range`, `gate_eligible=False`
+
+## Verification anchors
+
+- Non-finite runtime guards: `tests/unit/foundry/runtime/test_nan_guard.py`
+- Hessian envelopes: `tests/unit/foundry/calibration/test_hessian.py`
+- Distributional metrics: `tests/unit/foundry/analysis/test_distributional.py`
+- Actor-critic numerics: `tests/unit/foundry/agent_sim/test_actor_critic_numerics.py`
+- Fiscal precision: `tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py`

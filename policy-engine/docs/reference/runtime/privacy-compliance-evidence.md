@@ -1,7 +1,9 @@
 # Privacy Compliance Evidence
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/quality/privacy_compliance.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/**`
+Source of truth: `src/polisyos/data_forge/read_api/compliance.py`, `src/polisyos/data_forge/_impl/compliance.py`, `src/polisyos/runtime/quality/compliance.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/test_compliance.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and evidence runner were not run.
 
 `privacy_compliance_report_ref` is the runtime evidence handle for privacy,
 licensing, and public-export compliance. It is intentionally separate from
@@ -112,3 +114,8 @@ Compliance override packets must be reviewer-attributed. Required fields:
 An incomplete override is itself a blocking compliance issue. A valid override
 is recorded in the report but does not remove the underlying finding; production
 approval still depends on the governance approval packet.
+
+The report classifies supplied source and artifact metadata. A declared legal
+basis, license, redaction state, or `public_export_allowed` value is not itself
+independent proof of that institution's authority or permission; the relevant
+evidence and custody owner must establish those facts.

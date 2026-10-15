@@ -4,7 +4,13 @@ Use the benchmark suite registry for benchmark circuits, and use targeted
 pytest benchmark tests for Foundry/JAX hot paths. Directory names under
 `benchmarks/` are not the source of truth; `benchmarks/suite_registry.py` is.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14.
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; read-only inspection of
+`benchmarks/suite_registry.py`, `tools/research/benchmarks/run_all.py`, and
+`benchmarks/honest_comparison/run_honest_benchmark.py`. No benchmark or CLI
+command was run. This supersedes the previous 2026-04-17 freshness marker and is
+not performance evidence.
 
 ## Input
 
@@ -101,12 +107,14 @@ PYTHONPATH=src:. uv run python tools/research/benchmarks/jax/bench_simulation.py
 
 ## Reports
 
-Canonical runner reports land in one of these locations depending on entry
-point and `BENCH_JSON_DIR`:
+Report location depends on the entry point and `BENCH_JSON_DIR`:
 
-- `benchmarks/_reports/`
-- `tools/research/benchmarks/_reports/`
-- `tools/research/benchmarks/_reports/`
+- `polisyos-tools benchmarks run-all` defaults to
+  `tools/research/benchmarks/_reports/` unless `BENCH_JSON_DIR` overrides it;
+- `benchmarks/honest_comparison/run_honest_benchmark.py` writes to
+  `benchmarks/_reports/`.
+
+Check the selected entry point before assuming where another wrapper writes.
 
 `polisyos-tools benchmarks build-release-summary` aggregates per-suite JSON into
 release-level summaries with contour, comparator, ablation, leaderboard, and

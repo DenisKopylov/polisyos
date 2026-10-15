@@ -1,9 +1,10 @@
 # Integration Tests
 
-`tests/integration` contains the smallest cross-subsystem scenarios that should
-still behave like real workflows. The directory currently contains `3`
-`test_*.py` files: human-gate audit flow, a synthetic full pipeline, and a
-phase0 quality validation path.
+`tests/integration` contains cross-subsystem scenarios that exercise workflow
+boundaries. The file names below come from this README's 2026-04-17 summary;
+they are examples, not a complete or current inventory. Inspect the
+[integration source tree](.) or use the collect-only command below for the
+current pytest collection.
 
 ## Purpose
 
@@ -13,15 +14,15 @@ phase0 quality validation path.
 
 ## Where To Start
 
-- `test_human_gate_audit.py` for governance and audit flow expectations.
-- `test_c7_synthetic_full_pipeline.py` for synthetic full-pipeline coverage.
-- `test_phase0_quality_validation.py` for the phase0 quality path.
+- [`test_human_gate_audit.py`](test_human_gate_audit.py) for governance and audit flow expectations.
+- [`test_c7_synthetic_full_pipeline.py`](test_c7_synthetic_full_pipeline.py) for synthetic full-pipeline coverage.
+- [`test_phase0_quality_validation.py`](test_phase0_quality_validation.py) for the phase0 quality path.
 
-## Public Entrypoints
+## Examples from the 2026-04-17 Summary
 
-- `tests/integration/test_human_gate_audit.py`
-- `tests/integration/test_c7_synthetic_full_pipeline.py`
-- `tests/integration/test_phase0_quality_validation.py`
+- [`test_human_gate_audit.py`](test_human_gate_audit.py)
+- [`test_c7_synthetic_full_pipeline.py`](test_c7_synthetic_full_pipeline.py)
+- [`test_phase0_quality_validation.py`](test_phase0_quality_validation.py)
 
 ## Depends On / Depended On By
 
@@ -72,4 +73,4 @@ uv run pytest --collect-only tests/integration -q
 
 ## Last Updated
 
-2026-04-17
+2026-10-14

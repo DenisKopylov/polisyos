@@ -2,15 +2,13 @@
 
 ## Purpose
 
-`tools/` — каноническая исполняемая поверхность `policy-engine`: единый CLI
-`polisyos-tools`, зональная раскладка implementation-кода и совместимые
-wrapper-пути для migration window.
+`tools/` is the canonical executable surface of `policy-engine`: it provides the unified `polisyos-tools` CLI, a zoned implementation layout, and historical records of retired compatibility paths.
 
 ## Where to Start
 
 - CLI boundary: `pyproject.toml` (`[project.scripts] polisyos-tools = "tools.cli:main"`).
 - Command router: `tools/cli.py`.
-- Tool metadata, aliases, dependency graph и docs generation: `tools/registry.py`.
+- Tool metadata, aliases, dependency graph, and documentation generation: `tools/registry.py`.
 - Canonical implementation roots:
   `tools/devx/`, `tools/quality/`, `tools/ops_runners/`,
   `tools/research/`.
@@ -23,29 +21,28 @@ wrapper-пути для migration window.
 
 | Entrypoint                                   | Contract                                                                              |
 | -------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `uv run polisyos-tools <category> <command>` | Основной human/CI entrypoint для всех инструментов.                                   |
-| `python -m tools.cli`                        | Низкоуровневый CLI boundary для debugging и embedding.                                |
-| `tools/<category>/...`                       | Compatibility packages; новые implementation-модули сюда не добавляются.              |
+| `uv run polisyos-tools <category> <command>` | Primary human/CI entry point for all tools.                                           |
+| `python -m tools.cli`                        | Low-level CLI boundary for debugging and embedding.                                   |
 | `tools/design/*`                             | Node/TypeScript design and accessibility helpers invoked from the frontend workspace. |
-| `docs/reference/tools.md`                    | Generated reference для публичного command catalog.                                   |
+| `docs/reference/tools.md`                    | Generated reference for the public command catalog.                                   |
 
 ## Depends On / Depended On By
 
 - **Depends on:** `tools.lib/*`, zoned category packages, `pyproject.toml`,
-  `uv`, и registry metadata в `tools/registry.py`.
+  `uv`, and registry metadata in `tools/registry.py`.
 
-- **Depended on by:** contributor workflows, локальные quality gates,
-  `.github/workflows/*`, generated tool reference, onboarding и release/ops
+- **Depended on by:** contributor workflows, local quality gates,
+  `.github/workflows/*`, the generated tool reference, onboarding, and release/ops
   automation.
 
 ## Zones
 
-| Zone       | Categories                                                                         | Purpose                                                             |
-| ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                               | contributor setup, scaffolding, repo structure, codegen             |
-| `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                               | quality gates, diagnostics, validation, mutation/integration checks |
+| Zone       | Categories                                                                                                      | Purpose                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                                                            | contributor setup, scaffolding, repo structure, codegen                                    |
+| `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                                                            | quality gates, diagnostics, validation, mutation/integration checks                        |
 | `ops`      | `calibration`, `cloud`, `data`, `deploy`, `ops-experiments`, `migrations`, `release`, `runtime`, `ukraine_data` | CLI zone backed by `tools/ops_runners/**` for runtime/release/data/cloud operational flows |
-| `research` | `benchmarks`, `demos`, `research-experiments`                                      | benchmark orchestration и manual research/demo surfaces             |
+| `research` | `benchmarks`, `demos`, `research-experiments`                                                                   | benchmark orchestration and manual research/demo surfaces                                  |
 
 Canonical implementation layout:
 
@@ -60,14 +57,14 @@ The physical `experiments/` directory appears under both `ops` and `research`.
 The public CLI categories are intentionally `ops-experiments` and
 `research-experiments` so the command catalog has no duplicate category names.
 
-Compatibility layout retained for one deprecation window:
+Historical compatibility-window note (not a current retirement receipt):
 
 ```text
 tools/{architecture,connectors,foundry,migrations,demos}/...
 ```
 
-Each compatibility script prints a deprecation warning and sunsets on
-2026-09-01.
+The prior migration note recorded a planned sunset of 2026-09-01; see Current
+State below for the inspected disposition and its owner-sign-off limit.
 
 Additional non-CLI helper surface:
 
@@ -77,23 +74,22 @@ tools/design/
 
 ## Common Commands
 
-Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
-`conceptual`.
+The commands below were smoke-tested on `2026-04-17` unless explicitly marked as `conceptual`.
 
-| Command                                                       | Purpose                                                            | Status                                   |
-| ------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------- |
-| `uv run polisyos-tools --help`                                | Показать root CLI и глобальные опции.                              | `smoke-tested`                           |
-| `uv run polisyos-tools list --by-zone`                        | Просмотреть публичный command catalog по zoned layout.             | `smoke-tested`                           |
-| `uv run polisyos-tools graph --format mermaid`                | Сгенерировать dependency graph инструментов в Mermaid.             | `smoke-tested`                           |
-| `uv run polisyos-tools docs --output docs/reference/tools.md` | Пересобрать generated tool reference.                              | `smoke-tested`                           |
-| `uv run polisyos-tools workspace ci-parity --skip-browser`    | Прогнать локальный CI-like pass, включая docs checks по умолчанию. | `conceptual` (тяжёлый агрегирующий gate) |
+| Command                                                       | Purpose                                                                | Status                              |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------- |
+| `uv run polisyos-tools --help`                                | Show the root CLI and global options.                                  | `smoke-tested`                      |
+| `uv run polisyos-tools list --by-zone`                        | Browse the public command catalog by zone.                             | `smoke-tested`                      |
+| `uv run polisyos-tools graph --format mermaid`                | Generate a Mermaid dependency graph for the tools.                     | `smoke-tested`                      |
+| `uv run polisyos-tools docs --output docs/reference/tools.md` | Regenerate the tool reference.                                         | `smoke-tested`                      |
+| `uv run polisyos-tools workspace ci-parity --skip-browser`    | Run the local CI-like pass, including documentation checks by default. | `conceptual` (heavy aggregate gate) |
 
 ## Test And Verification
 
-| Command                                                                                                                   | What it verifies                                                       | Status         |
-| ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------- |
-| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                      | Документация и generated references не расходятся с repo reality.      | `smoke-tested` |
-| `uv run pytest -q tests/repo_quality/tools/test_unified_cli.py tests/repo_quality/tools/test_phase5_tooling.py tests/repo_quality/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior. | `conceptual`   |
+| Command                                                                                                                                                          | What it verifies                                                        | Status         |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                                                             | Documentation and generated references agree with the repository state. | `smoke-tested` |
+| `uv run pytest -q tests/repo_quality/tools/test_unified_cli.py tests/repo_quality/tools/test_phase5_tooling.py tests/repo_quality/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior.  | `conceptual`   |
 
 ## Reference Docs
 
@@ -111,20 +107,25 @@ tools/design/
 
 ## Current State
 
-- `tools/{architecture,connectors,foundry,migrations,demos}` остаются
-  compatibility anchors до 2026-09-01; новый код должен жить только под zoned
-  paths.
+- `tools/registry.py` still emits generic generated wording that the legacy
+  wrappers sunset on 2026-09-01. At the inspected tree,
+  `tools/registry.py::LEGACY_ENTRYPOINTS` is empty, and
+  `tests/repo_quality/tools/test_phase4_consolidation.py::test_phase1d_legacy_tool_paths_are_retired`
+  asserts that the five paths listed above are absent; inspection found them
+  absent. This supports a code-inspected retired disposition for those paths,
+  not an owner sign-off or closeout receipt. That generic sentence needs owner
+  reconciliation. New implementation belongs under the zoned paths.
 
 - `tools/design/` intentionally stays a small manual/CI helper surface for
   Node-based brand and accessibility checks rather than part of the Python
   unified CLI registry.
 
-- `tools.registry` — source of truth для aliases, lifecycle status,
-  dependency edges и docs generation.
+- `tools.registry` is the source of truth for aliases, lifecycle status,
+  dependency edges, and documentation generation.
 
-- `workspace ci-parity` остаётся основным локальным umbrella-check для tools
-  и docs surfaces.
+- `workspace ci-parity` remains the primary local umbrella check for tool
+  and documentation surfaces.
 
-- Last updated: 2026-05-03
+- Last updated: 2026-10-14
 
 Measurement authors: follow the [input disclosure and register-reader contract](../docs/how-to/author-measurement-instruments.md) before adding an absence verdict.

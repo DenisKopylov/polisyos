@@ -2,15 +2,21 @@
 
 Related explanation: [Security Model](../../explanation/security-model.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/control.py`, the existing owners under `src/polisyos/runtime/http/services/control/` (public aggregation in `control/api.py` and lifecycle in `control/run_lifecycle.py`), `src/polisyos/runtime/http/services/control_plane_store.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the listed tests and contract check were not run.
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_control_import_boundary.py tests/unit/runtime/http/test_control_api.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
-The control plane is the write-capable orchestration surface for launching runs, driving data collection, and operating Lex and decision-validity workflows.
+The control plane is the write-capable HTTP orchestration surface for launching
+runs, driving data collection, and operating Lex and decision-validity
+workflows. An accepted job or successful request records route/job state; by
+itself it does not establish producer evidence admissibility, a complete causal
+policy-design chain, or publication authority.
 
 ## Execution Model
 
@@ -78,17 +84,22 @@ Validation anchors:
 
 ## Endpoint Summary
 
+These tables summarize the operations discussed here; they are not a complete
+route census. Use the committed OpenAPI snapshot for schema-described
+operations and `src/polisyos/runtime/http/routes/control.py` for runtime route
+behavior.
+
 ### Run Launch And Feedback
 
-| Method | Path                                              | Request body                | Response body            |
-| ------ | ------------------------------------------------- | --------------------------- | ------------------------ |
-| `POST` | `/api/v1/control/runs`                            | `WorkflowRunRequest`        | `RunLaunchResponse`      |
-| `POST` | `/api/v1/control/runs/nl`                         | `NaturalLanguageRunRequest` | `RunLaunchResponse`      |
-| `POST` | `/api/v1/control/runs/{run_id}/feedback/evaluate` | None                        | `FeedbackActionResponse` |
-| `POST` | `/api/v1/control/runs/{run_id}/reissue`           | None                        | `FeedbackActionResponse` |
-| `GET`  | `/api/v1/control/jobs/{job_id}`                   | None                        | `ControlJobResponse`     |
-| `GET`  | `/api/v1/control/admission-attempts/{attempt_id}` | None | `ControlPreAdmissionAttemptResponse` |
-| `GET`  | `/api/v1/control/admission-attempts/by-idempotency-key` | Idempotency-Key header | `ControlPreAdmissionAttemptResponse` |
+| Method | Path                                                    | Request body                | Response body                        |
+| ------ | ------------------------------------------------------- | --------------------------- | ------------------------------------ |
+| `POST` | `/api/v1/control/runs`                                  | `WorkflowRunRequest`        | `RunLaunchResponse`                  |
+| `POST` | `/api/v1/control/runs/nl`                               | `NaturalLanguageRunRequest` | `RunLaunchResponse`                  |
+| `POST` | `/api/v1/control/runs/{run_id}/feedback/evaluate`       | None                        | `FeedbackActionResponse`             |
+| `POST` | `/api/v1/control/runs/{run_id}/reissue`                 | None                        | `FeedbackActionResponse`             |
+| `GET`  | `/api/v1/control/jobs/{job_id}`                         | None                        | `ControlJobResponse`                 |
+| `GET`  | `/api/v1/control/admission-attempts/{attempt_id}`       | None                        | `ControlPreAdmissionAttemptResponse` |
+| `GET`  | `/api/v1/control/admission-attempts/by-idempotency-key` | Idempotency-Key header      | `ControlPreAdmissionAttemptResponse` |
 
 ### Data Discovery, Resolution, And Ingestion
 

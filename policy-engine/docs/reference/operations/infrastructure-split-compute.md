@@ -1,67 +1,83 @@
 # PolicyOS — Infrastructure Guide: Split LLM/Compute Architecture
 
-> Практическое руководство по развёртыванию PolicyOS с разделением LLM-фазы
-> и вычислительной фазы на разные серверы для оптимизации стоимости и throughput.
+> A practical guide to deploying PolicyOS with the LLM phase and compute phase
+> on separate servers to optimize cost and throughput.
 >
-> Дата: 2026-04-04 | Статус: живой документ
+> Note date: 2026-04-04 | Status: historical target-design snapshot; deployment not verified
+
+Owner: `@platform-owners`
+Source of truth: this 2026-04-04 target-design note describes proposed topology; live host, quota, capacity, object-store, and billing state must come from the currently authorized provider sources and was not checked here.
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; document/source inspection only. No host, container, data copy, quota, cost, provider, network, or deployment command was run.
+
+> **Historical planning snapshot.** Machine types, memory/disk sizes, GPU
+> availability, quotas, file/data sizes, throughput estimates, prices, free
+> credits, and monthly/run-cost calculations below are the assumptions recorded
+> in the 2026-04-04 note. They were not refreshed against provider pricing,
+> project quota, or a deployed environment. Treat the architecture and commands
+> as proposals requiring source and environment revalidation, not as a live
+> deployment runbook.
 
 ---
 
-## Содержание
+## Contents
 
-0. [Реалистичность текущей версии и must-fix](#0-реалистичность-текущей-версии-и-must-fix)
-1. [Мотивация и экономика](#1-мотивация-и-экономика)
-2. [Compute Profile по стадиям pipeline](#2-compute-profile-по-стадиям-pipeline)
-3. [Целевая архитектура](#3-целевая-архитектура)
-4. [Рекомендации по железу](#4-рекомендации-по-железу)
-5. [CAS как связующий слой](#5-cas-как-связующий-слой)
-6. [Knowledge Graphs: сборка и раздача](#6-knowledge-graphs-сборка-и-раздача)
-7. [Протокол оркестрации](#7-протокол-оркестрации)
-8. [Конфигурация окружений](#8-конфигурация-окружений)
-9. [Lifecycle GPU-инстанса](#9-lifecycle-gpu-инстанса)
-10. [Fault Tolerance и Checkpoint](#10-fault-tolerance-и-checkpoint)
-11. [Мониторинг и observability](#11-мониторинг-и-observability)
-12. [Масштабирование](#12-масштабирование)
-13. [Стоимостная модель](#13-стоимостная-модель)
-14. [Checklist развёртывания](#14-checklist-развёртывания)
+0. [Historical gap assessment (2026-04-04)](#0-historical-gap-assessment-2026-04-04)
+1. [Motivation and economics](#1-motivation-and-economics)
+2. [Compute profile by pipeline stage](#2-compute-profile-by-pipeline-stage)
+3. [Target architecture](#3-target-architecture)
+4. [Hardware recommendations](#4-hardware-recommendations)
+5. [CAS as the coordination layer](#5-cas-as-the-coordination-layer)
+6. [Knowledge graphs: build and distribution](#6-knowledge-graphs-build-and-distribution)
+7. [Orchestration protocol](#7-orchestration-protocol)
+8. [Environment configuration](#8-environment-configuration)
+9. [GPU instance lifecycle](#9-gpu-instance-lifecycle)
+10. [Fault tolerance and checkpointing](#10-fault-tolerance-and-checkpointing)
+11. [Monitoring and observability](#11-monitoring-and-observability)
+12. [Scaling](#12-scaling)
+13. [Cost model](#13-cost-model)
+14. [Deployment checklist](#14-deployment-checklist)
 
----
+<a id="0-историческая-оценка-разрывов-2026-04-04"></a>
 
-## 0. Реалистичность текущей версии и must-fix
+## 0. Historical gap assessment (2026-04-04)
 
-### Короткий вывод
+The tables below preserve findings from the original 2026-04-04 note. Their statements
+about the “current code” and P0/P1 gaps were not rechecked against the source snapshot
+identified above; treat them as historical hypotheses, not as a current implementation audit.
 
-**Архитектурно split LLM/Compute реалистичен**, но в текущем коде это пока не
-plug-and-play. Документ ниже описывает целевую схему, а перед production rollout
-нужно закрыть несколько P0/P1 разрывов между гайдом и реализацией.
+### Summary
 
-### P0 — без этого split будет нестабильным или не заработает
+**Architecturally, the split LLM/compute design is described as a target state**; the note said
+it was not plug-and-play when written. Before using it, first verify these findings against
+the selected source pin and deployment state.
 
-| Gap                                                                                             | Почему это блокер                                                          | Что сделать                                                                                                                                   |
-| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `runtime.http` и `scientist.workflows` местами создают `FileSystemCAS(...)` напрямую            | `POLISYOS_CAS_BACKEND=cached_gcs` из env не подхватывается end-to-end      | Перевести runtime/scientist wiring на `build_artifact_store(ArtifactStoreConfig.from_env())`, а `FileSystemCAS` оставить как default fallback |
-| Нет явного phase boundary "LLM-only → compute-only → LLM-only" внутри `scientist_policy_design` | Нельзя надёжно запустить только GPU-сегмент без повторного прогона LLM-нод | Добавить compute-only workflow/profile или executor-level node partitioning + явные split markers                                             |
-| Checkpoint head и run lock сейчас локальные файлы в `run_dir`                                   | Resume на другой машине из одного только GCS CAS не гарантирован           | Либо хранить checkpoint head/lease в shared durable store, либо добавить resume API с явным `checkpoint_ref` и внешним run lease              |
-| `POST /api/v1/control/runs` сейчас создаёт новый `run_id` и не принимает `resume_run_id`        | Recovery flow из секции 10 пока не соответствует текущему API              | Добавить отдельный resume endpoint/job kind или расширить `WorkflowRunRequest` контракт                                                       |
-| `skip_llm_nodes`, `candidates_ref`, `POLISYOS_*_DB_PATH` из примеров не читаются текущим кодом  | Примеры конфигурации выглядят рабочими, но реально будут no-op или ошибкой | Либо реализовать этот env/API контракт, либо пометить его как target-state и не выдавать как текущий runbook                                  |
+### P0 — blockers according to the note
 
-### P1 — желательно закрыть до реальной эксплуатации
+| Reported gap in the 2026-04-04 note                                                                         | Why the note treated it as a blocker                                                              | Proposed follow-up in that note                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `runtime.http` and `scientist.workflows` sometimes instantiate `FileSystemCAS(...)` directly                | The note said `POLISYOS_CAS_BACKEND=cached_gcs` was not picked up end to end from the environment | Route runtime/Scientist wiring through `build_artifact_store(ArtifactStoreConfig.from_env())`, retaining `FileSystemCAS` as the default fallback |
+| The note found no explicit "LLM-only → compute-only → LLM-only" phase boundary in `scientist_policy_design` | A GPU-only segment could not be run reliably without rerunning LLM nodes                          | Add a compute-only workflow/profile or executor-level node partitioning with explicit split markers                                              |
+| The note described the checkpoint head and run lock as local files in `run_dir`                             | According to the note, resuming on another machine using only GCS CAS was not guaranteed          | Store the checkpoint head/lease in a shared durable store, or add a resume API with an explicit `checkpoint_ref` and external run lease          |
+| The note said `POST /api/v1/control/runs` created a new `run_id` without `resume_run_id`                    | The recovery flow in section 10 did not match the API on the note date                            | Add a separate resume endpoint/job kind or extend the `WorkflowRunRequest` contract                                                              |
+| The note said code did not read `skip_llm_nodes`, `candidates_ref`, or `POLISYOS_*_DB_PATH`                 | On the note date, configuration examples appeared to be no-ops or errors                          | Either implement this environment/API contract or mark it as target state rather than presenting it as a current runbook                         |
 
-| Gap                                                                                            | Риск                                                                                         | Что сделать                                                                                                                       |
-| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `RunHierarchicalPolicySearchNode` уже включает inner compile/readiness/sim loop                | Граница "LLM phase" vs "GPU phase" по DAG сейчас проходит не там, где нарисовано в диаграмме | Пересобрать split-план вокруг фактического node call graph и вынести search eval на GPU сторону                                   |
-| Compute budget и список nodes в секции 2 частично не совпадают с `scientist_policy_design` DAG | Sizing/стоимость будут оптимистичны или неверно атрибутированы                               | Перегенерировать таблицы по `workflows/policy_design.py` + inner evaluator path                                                   |
-| Secrets через скачанный JSON key в checklist                                                   | Long-lived service account key на диске — плохая практика и лишний blast radius              | Для GCE использовать attached service account, для Hetzner — Workload Identity Federation; JSON key только как временный fallback |
-| Нет явного fallback при нехватке Spot GPU capacity                                             | MIG/Spot может не поднять нужный размер группы, run будет ждать                              | Добавить policy: retry с backoff, multi-zone fallback, и controlled fallback на on-demand                                         |
+### P1 — follow-up items according to the note
 
-### Рекомендованный rollout-порядок
+| Reported gap in the 2026-04-04 note                                                                  | Risk stated in the note                                                                          | Proposed follow-up                                                                                                                |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| The note said `RunHierarchicalPolicySearchNode` includes an inner compile/readiness/simulation loop  | The DAG in the note did not match the diagram’s boundary between the "LLM phase" and "GPU phase" | Rebuild the split plan around the actual node call graph and move search evaluation to the GPU side                               |
+| The compute budget and node list in section 2 partly differed from the `scientist_policy_design` DAG | Sizing and cost estimates could be optimistic or misattributed                                   | Regenerate the tables from `workflows/policy_design.py` and the inner evaluator path                                              |
+| The checklist used downloaded `JSON` service-account keys                                            | Keeping a long-lived service-account key on disk is poor practice and increases blast radius     | Use an attached service account on GCE and Workload Identity Federation on Hetzner; keep `JSON` keys only as a temporary fallback |
+| No explicit fallback was described for insufficient Spot GPU capacity                                | MIG/Spot may fail to start the requested group size, leaving the run waiting                     | Add retries with backoff, multi-zone fallback, and a controlled fallback to on-demand capacity                                    |
 
-1. **Phase A — storage/control-plane wiring**: shared CAS из env, корректный worker backend,
-   shared checkpoint/resume contract, фиксация реальных env vars.
-2. **Phase B — split execution semantics**: compute-only workflow или node partitioning,
-   перенос candidate search eval на GPU worker, recovery path через explicit resume API.
+### Recommended rollout sequence
+
+1. **Phase A — storage/control-plane wiring**: shared CAS from the environment, a correct worker backend,
+   a shared checkpoint/resume contract, and verified environment variables.
+2. **Phase B — split execution semantics**: a compute-only workflow or node partitioning,
+   moving candidate search evaluation to a GPU worker, and a recovery path through an explicit resume API.
 3. **Phase C — infra hardening**: WIF/attached service accounts, private connectivity,
-   Spot fallback policy, production observability и budget guardrails.
+   Spot fallback policy, production observability, and budget guardrails.
 
 ### External best-practice references
 
@@ -71,141 +87,141 @@ plug-and-play. Документ ниже описывает целевую сх�
 - [Avoid long-lived service account keys](https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys)
 - [Use attached service accounts or Workload Identity Federation](https://docs.cloud.google.com/iam/docs/best-practices-service-accounts)
 
----
+<a id="1-мотивация-и-экономика"></a>
 
-## 1. Мотивация и экономика
+## 1. Motivation and economics
 
-### Проблема
+### Problem
 
-PolicyOS pipeline `scientist_policy_design` включает два принципиально разных типа
-нагрузки:
+The PolicyOS scientist_policy_design pipeline includes two fundamentally different types of
+workload:
 
-| Тип              | Характеристика               | Длительность      | Стоимость ресурса    |
-| ---------------- | ---------------------------- | ----------------- | -------------------- |
-| **LLM-фаза**     | Network-bound, CPU idle 95%+ | 5-30 мин за цикл  | ~$0.001 (LLM tokens) |
-| **Compute-фаза** | GPU-bound, JAX scan+grad     | 10-50 мин за цикл | ~$0.15-0.25 (GPU/hr) |
+| Type              | Characteristic                  | Duration            | Resource cost        |
+| ----------------- | ------------------------------- | ------------------- | -------------------- |
+| **LLM phase**     | Network-bound, CPU idle 95%+    | 5–30 min per cycle  | ~$0.001 (LLM tokens) |
+| **Compute phase** | GPU-bound, JAX scan + gradients | 10–50 min per cycle | ~$0.15–0.25 (GPU/hr) |
 
-При монолитном развёртывании GPU-инстанс простаивает во время LLM-вызовов, а LLM-вызовы
-блокируют pipeline, ожидая compute. Разделение устраняет обе проблемы.
+With a monolithic deployment, the GPU instance sits idle during LLM calls, while LLM calls
+block the pipeline while waiting for compute. Splitting the phases addresses both problems.
 
-### Экономика одного цикла policy design
+### Economics of one policy-design cycle
 
 ```text
-Монолитный (GPU всё время):
-  Wall-time: ~60-90 мин
+Monolithic (GPU running the whole time):
+  Wall time: ~60–90 min
   GPU cost:  ~$0.28/hr × 1.5 hr = $0.42
   LLM cost:  ~$0.001
   Total:     ~$0.42
 
-Split (GPU только на compute):
-  LLM wall-time: 15-30 мин (дешёвый сервер)
-  GPU wall-time: 25-50 мин (spot)
+Split (GPU used only for compute):
+  LLM wall time: 15–30 min (low-cost server)
+  GPU wall time: 25–50 min (Spot)
   GPU cost:  ~$0.28/hr × 0.7 hr = $0.20
   LLM cost:  ~$0.001
-  Дешёвый сервер: ~$0.004/hr × 0.5 hr = $0.002
+  Low-cost server: ~$0.004/hr × 0.5 hr = $0.002
   Total:     ~$0.20
 
-Экономия: ~48% на GPU при одном цикле.
+Savings: ~48% on GPU cost for one cycle.
 ```
 
-При итеративном loop (3-5 циклов) экономия растёт: LLM-фазы между вычислениями
-не потребляют GPU вообще.
+With an iterative loop (3–5 cycles), savings increase: LLM phases between compute runs
+use no GPU capacity.
 
-### Сценарий с $300 free credits (GCP)
+### Scenario with $300 in free GCP credits
 
-| Режим                              | Стоимость/run | Runs на $300 |
-| ---------------------------------- | ------------- | ------------ |
-| Монолитный GPU (on-demand)         | $0.42         | ~714         |
-| Монолитный GPU (spot)              | $0.20         | ~1,500       |
-| **Split (spot GPU + дешёвый LLM)** | **$0.15**     | **~2,000**   |
+| Mode                                | Cost/run  | Runs for $300 |
+| ----------------------------------- | --------- | ------------- |
+| Monolithic GPU (on-demand)          | $0.42     | ~714          |
+| Monolithic GPU (Spot)               | $0.20     | ~1,500        |
+| **Split (Spot GPU + low-cost LLM)** | **$0.15** | **~2,000**    |
 
----
+<a id="2-compute-profile-по-стадиям-pipeline"></a>
 
-## 2. Compute Profile по стадиям pipeline
+## 2. Compute profile by pipeline stage
 
-### Классификация всех workflow nodes
+### Classification of all workflow nodes
 
-Данные получены из анализа исходного кода `src/polisyos/scientist/nodes/builtins/`.
-Каждый node классифицирован по реальным вызовам: какие ports он использует, вызывает ли
-LLM, обращается ли к Foundry compile/execute.
+The data came from an analysis of `src/polisyos/scientist/nodes/builtins/`.
+Each node was classified by its actual calls: which ports it uses, whether it calls an
+LLM, and whether it calls Foundry compile/execute.
 
-#### LLM-Heavy Nodes (вызывают LLM API)
+#### LLM-heavy nodes (call the LLM API)
 
-| Node                              | Что делает                              | Вызовы                         | Типичное время |
-| --------------------------------- | --------------------------------------- | ------------------------------ | -------------- |
-| `PlanPolicyRequestNode`           | Формулирует policy problem              | LexPlanningService (LLM)       | 10-30 сек      |
-| `BuildSourcePackNode`             | Собирает source evidence pack           | LLM extraction                 | 30-120 сек     |
-| `SourceVerifyNode`                | Верифицирует legal sources              | LLM verification loop          | 60-300 сек     |
-| `SourceGapReviewNode`             | Ищет пробелы в evidence                 | LLM gap analysis (до 2 циклов) | 60-180 сек     |
-| `DraftPolicyOptionsNode`          | Генерирует policy варианты              | LexDraftingService (LLM)       | 30-120 сек     |
-| `RunPolicyTranslationNode`        | Переводит policy в target формат        | PolicyTranslatorWorker (LLM)   | 15-60 сек      |
-| `RunHierarchicalPolicySearchNode` | Hierarchical search Level 3 (narrative) | LLM narrative generation       | 30-120 сек     |
+| Node                              | Purpose                                  | Calls                             | Typical time |
+| --------------------------------- | ---------------------------------------- | --------------------------------- | ------------ |
+| `PlanPolicyRequestNode`           | Frames the policy problem                | `LexPlanningService` (LLM)        | 10–30 sec    |
+| `BuildSourcePackNode`             | Builds a source evidence pack            | LLM extraction                    | 30–120 sec   |
+| `SourceVerifyNode`                | Verifies legal sources                   | LLM verification loop             | 60–300 sec   |
+| `SourceGapReviewNode`             | Finds evidence gaps                      | LLM gap analysis (up to 2 cycles) | 60–180 sec   |
+| `DraftPolicyOptionsNode`          | Generates policy options                 | `LexDraftingService` (LLM)        | 30–120 sec   |
+| `RunPolicyTranslationNode`        | Translates policy into the target format | `PolicyTranslatorWorker` (LLM)    | 15–60 sec    |
+| `RunHierarchicalPolicySearchNode` | Hierarchical search Level 3 (narrative)  | LLM narrative generation          | 30–120 sec   |
 
-**Суммарно**: 200-800 LLM вызовов за полный цикл, ~1-2M tokens, $0.0007-0.0014.
+**Total**: 200–800 LLM calls per full cycle, ~1–2M tokens, $0.0007–0.0014.
 
 #### Compute-Heavy Nodes (JAX/Foundry)
 
-| Node                              | Что делает                      | Вызовы                            | CPU time   | GPU time  |
-| --------------------------------- | ------------------------------- | --------------------------------- | ---------- | --------- |
-| `CompileFoundryNode`              | Trinity → ExecPlan              | `ctx.foundry.compile()`           | 0.5-10 сек | —         |
-| `RunSimulationNode`               | Execute plan → SimulationResult | `ctx.foundry.execute()`           | 2-60 сек   | 0.1-2 сек |
-| `RunCausalEvaluationNode`         | Causal query execution          | DoWhy/EconML (CPU)                | 5-30 сек   | —         |
-| `RunCausalEnsembleNode`           | ×10 SCM members                 | DoWhy/EconML (CPU)                | 30-300 сек | —         |
-| `RunTransportabilityNode`         | TR algorithm                    | Causal methods (CPU)              | 5-30 сек   | —         |
-| `PropagateUncertaintyNode`        | Uncertainty propagation         | JAX (GPU-accelerated)             | 5-30 сек   | 0.5-3 сек |
-| `RunDistributionalAnalysisNode`   | Distribution analysis           | NumPy/JAX                         | 2-10 сек   | 0.5-2 сек |
-| `RunHierarchicalPolicySearchNode` | Funnel Levels 0-5 (eval)        | Foundry compile+sim per candidate | 5-180 сек  | 1-30 сек  |
+| Node                              | Purpose                         | Calls                                      | CPU time   | GPU time  |
+| --------------------------------- | ------------------------------- | ------------------------------------------ | ---------- | --------- |
+| `CompileFoundryNode`              | Trinity → ExecPlan              | `ctx.foundry.compile()`                    | 0.5–10 sec | —         |
+| `RunSimulationNode`               | Execute plan → SimulationResult | `ctx.foundry.execute()`                    | 2–60 sec   | 0.1–2 sec |
+| `RunCausalEvaluationNode`         | Causal query execution          | DoWhy/EconML (CPU)                         | 5–30 sec   | —         |
+| `RunCausalEnsembleNode`           | ×10 SCM members                 | DoWhy/EconML (CPU)                         | 30–300 sec | —         |
+| `RunTransportabilityNode`         | TR algorithm                    | Causal methods (CPU)                       | 5–30 sec   | —         |
+| `PropagateUncertaintyNode`        | Uncertainty propagation         | JAX (GPU-accelerated)                      | 5–30 sec   | 0.5–3 sec |
+| `RunDistributionalAnalysisNode`   | Distribution analysis           | NumPy/JAX                                  | 2–10 sec   | 0.5–2 sec |
+| `RunHierarchicalPolicySearchNode` | Funnel Levels 0–5 (evaluation)  | Foundry compile + simulation per candidate | 5–180 sec  | 1–30 sec  |
 
-**Суммарно**: 60-640 сек CPU, 2-37 сек GPU. При policy search с funnel — ×50-200 evaluations.
+**Total**: 60–640 sec CPU, 2–37 sec GPU. With a funnel-based policy search: ×50–200 evaluations.
 
-#### Causal Discovery (CPU-only, не ускоряется GPU)
+#### Causal discovery (CPU-only; not GPU-accelerated)
 
-| Node                                   | Что делает                      | Время             |
+| Node                                   | Purpose                         | Time              |
 | -------------------------------------- | ------------------------------- | ----------------- |
-| `BuildLiteraturePriorNode`             | Query Academic SKG              | 5-15 сек (DuckDB) |
-| `ReconcileCausalGraphNode`             | Merge data + literature + hints | 10-60 сек (CPU)   |
-| `CounterfactualIdentificationGateNode` | ID algorithm check              | 1-5 сек (CPU)     |
+| `BuildLiteraturePriorNode`             | Query Academic SKG              | 5–15 sec (DuckDB) |
+| `ReconcileCausalGraphNode`             | Merge data + literature + hints | 10–60 sec (CPU)   |
+| `CounterfactualIdentificationGateNode` | ID algorithm check              | 1–5 sec (CPU)     |
 
-#### Data & Pure Logic (минимальная нагрузка)
+#### Data and pure logic (minimal load)
 
-| Node                            | Что делает                  | Время               |
-| ------------------------------- | --------------------------- | ------------------- |
-| `BuildDataSnapshotNode`         | Load pre-built snapshot ref | <1 сек (CAS lookup) |
-| `BindFoundryInputsNode`         | Parameter binding           | <1 сек              |
-| `DataPlaneGateNode`             | Validation                  | <0.1 сек            |
-| `CompileCrossGraphEvidenceNode` | DuckDB queries              | 2-10 сек            |
-| `RunGovernanceNode`             | 20 governance passes        | 1-5 сек             |
-| `LegalCheckNode`                | Lex evaluate                | 1-3 сек             |
-| `RunNormativeArbitrationNode`   | Tradeoff analysis           | <1 сек              |
-| `BuildDecisionPacketNode`       | Assembly                    | <1 сек              |
-| `FormalizVerifiedPolicyNode`    | PolicyOptionSet → Trinity   | <1 сек              |
+| Node                            | Purpose                    | Time                |
+| ------------------------------- | -------------------------- | ------------------- |
+| `BuildDataSnapshotNode`         | Load prebuilt snapshot ref | <1 sec (CAS lookup) |
+| `BindFoundryInputsNode`         | Parameter binding          | <1 sec              |
+| `DataPlaneGateNode`             | Validation                 | <0.1 sec            |
+| `CompileCrossGraphEvidenceNode` | DuckDB queries             | 2–10 sec            |
+| `RunGovernanceNode`             | 20 governance passes       | 1–5 sec             |
+| `LegalCheckNode`                | Lex evaluation             | 1–3 sec             |
+| `RunNormativeArbitrationNode`   | Trade-off analysis         | <1 sec              |
+| `BuildDecisionPacketNode`       | Assembly                   | <1 sec              |
+| `FormalizVerifiedPolicyNode`    | PolicyOptionSet → Trinity  | <1 sec              |
 
-### Итоговый compute budget (один цикл policy_design)
+### Estimated compute budget (one policy_design cycle)
 
 ```text
-LLM nodes:      4-15 мин wall-time, ~0% CPU, ~0% GPU
-Causal nodes:    1-6 мин wall-time, ~100% CPU (8 cores), 0% GPU
-Foundry nodes:   0.5-3 мин wall-time, ~50% CPU, ~100% GPU
-Search funnel:   5-20 мин wall-time, ~80% CPU, ~80% GPU (batched evals)
-DuckDB queries:  0.5-2 мин wall-time, ~30% CPU, 0% GPU
-Governance:      0.2-1 мин wall-time, ~10% CPU, 0% GPU
+LLM nodes:      4–15 min wall time, ~0% CPU, ~0% GPU
+Causal nodes:   1–6 min wall time, ~100% CPU (8 cores), 0% GPU
+Foundry nodes:  0.5–3 min wall time, ~50% CPU, ~100% GPU
+Search funnel:  5–20 min wall time, ~80% CPU, ~80% GPU (batched evaluations)
+DuckDB queries: 0.5–2 min wall time, ~30% CPU, 0% GPU
+Governance:     0.2–1 min wall time, ~10% CPU, 0% GPU
 ─────────────────────────────────────────────────────────
-Total:           ~12-47 мин wall-time
-GPU active:      ~6-23 мин (50-60% утилизация при монолите)
+Total:          ~12–47 min wall time
+GPU active:     ~6–23 min (50–60% utilization in the monolithic setup)
 ```
 
----
+<a id="3-целевая-архитектура"></a>
 
-## 3. Целевая архитектура
+## 3. Target architecture
 
-### Принцип разделения
+### Separation principle
 
-Два класса серверов с общим CAS (Content-Addressable Storage) через GCS bucket:
+Two classes of servers share a CAS (Content-Addressable Storage) through a GCS bucket:
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│                    GCS Bucket (shared CAS)               │
-│                                                          │
+│                 GCS Bucket (shared CAS)                 │
+│                                                         │
 │  polisyos-cas/                                          │
 │  ├── sha256/<ab>/<cd>/<hex>.blob                        │
 │  ├── sha256/<ab>/<cd>/<hex>.manifest.json               │
@@ -213,26 +229,26 @@ GPU active:      ~6-23 мин (50-60% утилизация при монолит
 │      ├── academic.duckdb    (~1.2 GB, read-only)        │
 │      ├── datasets.duckdb    (~1.2 GB, read-only)        │
 │      └── world.duckdb       (~100 MB-1 GB)              │
-└────────────┬───────────────────────────┬────────────────┘
-             │                           │
-     ┌───────▼───────┐          ┌───────▼────────┐
-     │  LLM Server   │          │  GPU Worker    │
-     │  (постоянный) │          │  (по запросу)  │
-     │               │          │                │
-     │  CPX21/e2-std │          │  g2-standard-8 │
-     │  4 vCPU       │          │  8 vCPU + L4   │
-     │  8 GB RAM     │          │  32 GB RAM     │
-     │               │          │                │
-     │  Роли:        │          │  Роли:         │
-     │  • Orchestrator│          │  • Foundry     │
-     │  • LLM nodes  │          │  • Calibration │
-     │  • Runtime API │          │  • Search eval │
-     │  • Dashboard  │          │  • Causal      │
-     │  • CAS L1 cache│          │  • CAS L1 cache│
-     └───────────────┘          └────────────────┘
+└────────────────┴─────────────────────────────┴──────────┘
+                 │                             │
+      ┌──────────▼──────────┐       ┌──────────▼──────────┐
+      │   LLM Server        │       │   GPU Worker        │
+      │   (always on)       │       │   (on demand)       │
+      │                     │       │                     │
+      │   CPX21/e2-std      │       │   g2-standard-8     │
+      │   4 vCPU            │       │   8 vCPU + L4       │
+      │   8 GB RAM          │       │   32 GB RAM         │
+      │                     │       │                     │
+      │   Roles:            │       │   Roles:            │
+      │ • Orchestrator      │       │ • Foundry           │
+      │ • LLM nodes         │       │ • Calibration       │
+      │ • Runtime API       │       │ • Search eval       │
+      │ • Dashboard         │       │ • Causal            │
+      │ • CAS L1 cache      │       │ • CAS L1 cache      │
+      └─────────────────────┘       └─────────────────────┘
 ```
 
-### Поток данных (один цикл)
+### Data flow (one cycle)
 
 ```text
 LLM Server                              GPU Worker
@@ -276,36 +292,36 @@ LLM Server                              GPU Worker
    NO  → goto step 3 (next cycle)
 ```
 
-### Что остаётся неизменным
+### What remains unchanged
 
-- **Foundry/LLM node business logic желательно не переписывать**, но orchestration,
-  CAS wiring и checkpoint/resume semantics сейчас всё-таки требуют кода. Тезис
-  "вообще без модификаций PolicyOS" для текущей ветки слишком оптимистичен.
+- **Ideally, Foundry/LLM node business logic needs no rewrite**, but orchestration,
+  CAS wiring, and checkpoint/resume semantics still require code changes. The claim
+  that PolicyOS can run "with no modifications" is too optimistic for the current branch.
 
-- CAS protocol идентичен для обоих серверов (один GCS bucket).
-- Knowledge graphs — read-only `.duckdb` файлы, скопированные на оба сервера.
+- The CAS protocol is identical on both servers (one GCS bucket).
+- Knowledge graphs are read-only `.duckdb` files copied to both servers.
 
----
+<a id="4-рекомендации-по-железу"></a>
 
-## 4. Рекомендации по железу
+## 4. Hardware recommendations
 
-### LLM Server (постоянный, ~$4-8/мес)
+### LLM server (always on, ~$4–8/month)
 
-**Задачи**: Runtime API, LLM orchestration, Dashboard, CAS caching.
+**Tasks**: Runtime API, LLM orchestration, dashboard, CAS caching.
 
-**Нагрузка**: Минимальная CPU, основные ожидания — network I/O (LLM API calls).
+**Load**: Minimal CPU; most waiting is for network I/O (LLM API calls).
 
-**Рекомендация**: Hetzner CPX21 или GCP e2-standard-2
+**Recommendation**: Hetzner CPX21 or GCP e2-standard-2
 
-| Параметр | CPX21 (Hetzner) | e2-standard-2 (GCP)                        |
-| -------- | --------------- | ------------------------------------------ |
-| vCPU     | 3               | 2                                          |
-| RAM      | 4 GB            | 8 GB                                       |
-| Disk     | 80 GB SSD       | 50 GB pd-balanced                          |
-| Цена     | €4.15/мес       | ~$48/мес (on-demand) или $0 с free credits |
-| Network  | 20 TB           | Standard Tier                              |
+| Parameter | CPX21 (Hetzner) | e2-standard-2 (GCP)                            |
+| --------- | --------------- | ---------------------------------------------- |
+| vCPU      | 3               | 2                                              |
+| RAM       | 4 GB            | 8 GB                                           |
+| Disk      | 80 GB SSD       | 50 GB pd-balanced                              |
+| Price     | €4.15/month     | ~$48/month (on-demand) or $0 with free credits |
+| Network   | 20 TB           | Standard Tier                                  |
 
-**Почему хватает 4-8 GB RAM:**
+**Why 4–8 GB RAM may be enough:**
 
 - Runtime API (FastAPI + Uvicorn): ~300 MB
 - DuckDB knowledge graphs (read-only, memory-mapped): ~500 MB working set
@@ -313,95 +329,95 @@ LLM Server                              GPU Worker
 - Python + imports: ~400 MB
 - **Total peak: ~1.5-2 GB**
 
-LLM nodes не загружают данные в RAM — они отправляют prompt через HTTP, ожидают response,
-парсят JSON. Memory footprint — минимальный.
+LLM nodes do not load datasets into RAM: they send a prompt over HTTP, wait for a response,
+and parse JSON. Their memory footprint is small.
 
 **Disk**: Knowledge graphs (~3 GB) + CAS L1 cache (~5-10 GB) + OS = 20-30 GB. 80 GB SSD
-с запасом.
+with headroom.
 
-### GPU Worker (по запросу, $0.20-0.28/hr spot)
+### GPU worker (on demand, $0.20–0.28/hr Spot)
 
-**Задачи**: Foundry compile/execute, calibration, policy search evaluation, causal methods.
+**Tasks**: Foundry compile/execute, calibration, policy-search evaluation, and causal methods.
 
-**Нагрузка**: JAX scan+grad (GPU), DoWhy/EconML (CPU), DuckDB queries (CPU).
+**Load**: JAX scan + gradients (GPU), DoWhy/EconML (CPU), and DuckDB queries (CPU).
 
-**Рекомендация**: GCP g2-standard-8 (Spot/Preemptible)
+**Recommendation**: GCP g2-standard-8 (Spot/Preemptible)
 
-| Параметр       | g2-standard-8                        |
-| -------------- | ------------------------------------ |
-| vCPU           | 8 (AMD EPYC)                         |
-| RAM            | 32 GB                                |
-| GPU            | NVIDIA L4 (24 GB VRAM, Ada Lovelace) |
-| Disk           | 200 GB pd-balanced                   |
-| Цена Spot      | ~$0.25-0.34/hr                       |
-| Цена On-demand | ~$0.84/hr                            |
-| Region         | us-central1-a (минимальная цена)     |
+| Parameter       | g2-standard-8                            |
+| --------------- | ---------------------------------------- |
+| vCPU            | 8 (AMD EPYC)                             |
+| RAM             | 32 GB                                    |
+| GPU             | NVIDIA L4 (24 GB VRAM, Ada Lovelace)     |
+| Disk            | 200 GB pd-balanced                       |
+| Spot price      | ~$0.25–0.34/hr                           |
+| On-demand price | ~$0.84/hr                                |
+| Region          | us-central1-a (lowest price in the note) |
 
-**Почему 32 GB RAM:**
+**Why 32 GB RAM:**
 
 - Python + JAX + XLA compilation cache: ~4-6 GB
 - DuckDB knowledge graphs (memory-mapped): ~1-3 GB
-- Foundry GlobalState (5K agents): ~0.2 MB (ничтожно)
+- Foundry GlobalState (5K agents): ~0.2 MB (negligible)
 - Calibration scan buffers (JAX): 2-4 GB peak
 - Causal ensemble (10 SCM, DoWhy objects): ~1-2 GB
 - CAS L1 cache: ~500 MB
-- **Total peak: ~12-16 GB** (32 GB с запасом для спайков)
+- **Total peak: ~12–16 GB** (32 GB leaves headroom for spikes)
 
-**Почему L4 а не T4:**
+**Why L4 instead of T4:**
 
-- L4 (Ada, 2023) vs T4 (Turing, 2018): ~60% быстрее в FP32 compute
-- VRAM: 24 GB vs 16 GB — запас для роста числа агентов
-- На Spot разница в цене минимальна (~$0.03/hr)
+- L4 (Ada, 2023) vs. T4 (Turing, 2018): ~60% faster for FP32 compute.
+- VRAM: 24 GB vs. 16 GB, leaving headroom for more agents.
+- On Spot, the price difference is small (~$0.03/hr).
 
-**Почему 8 vCPU:**
+**Why 8 vCPUs:**
 
-- Causal ensemble (10 SCM): параллелизуется хорошо на 8 ядрах
-- 16 vCPU даёт +30-40% скорости каузального pipeline, но +55% цены
-- Diminishing returns: DoWhy не масштабируется линейно
+- Causal ensembles (10 SCMs) parallelize well across 8 cores.
+- 16 vCPUs may improve causal-pipeline speed by 30–40%, at 55% higher cost.
+- Diminishing returns: DoWhy does not scale linearly.
 
-### Альтернативные конфигурации GPU Worker
+### Alternative GPU-worker configurations
 
-| Вариант            | Specs                | Spot $/hr | Для кого                         |
-| ------------------ | -------------------- | --------- | -------------------------------- |
-| **g2-standard-4**  | 4 vCPU, 16 GB, L4    | ~$0.20    | Минимальный бюджет, <5K agents   |
-| **g2-standard-8**  | 8 vCPU, 32 GB, L4    | ~$0.28    | **Рекомендация**                 |
-| **g2-standard-16** | 16 vCPU, 64 GB, L4   | ~$0.45    | Большие causal graphs (20+ vars) |
-| **a2-highgpu-1g**  | 12 vCPU, 85 GB, A100 | ~$1.10    | >20K agents, research-grade      |
+| Option             | Specs                | Spot $/hr | Intended workload               |
+| ------------------ | -------------------- | --------- | ------------------------------- |
+| **g2-standard-4**  | 4 vCPU, 16 GB, L4    | ~$0.20    | Tight budget, <5K agents        |
+| **g2-standard-8**  | 8 vCPU, 32 GB, L4    | ~$0.28    | **Recommendation**              |
+| **g2-standard-16** | 16 vCPU, 64 GB, L4   | ~$0.45    | Larger causal graphs (20+ vars) |
+| **a2-highgpu-1g**  | 12 vCPU, 85 GB, A100 | ~$1.10    | >20K agents, research-grade     |
 
-### Sizing для типовых задач
+### Sizing for typical workloads
 
-| Задача                         | Agents  | Vars  | GPU Worker     | Est. compute time |
-| ------------------------------ | ------- | ----- | -------------- | ----------------- |
-| Региональная МСБ-политика      | 1K-5K   | 5-10  | g2-standard-8  | 25-50 мин         |
-| Национальная налоговая реформа | 10K-20K | 10-15 | g2-standard-8  | 40-90 мин         |
-| Межрегиональный transport      | 5K-10K  | 15-20 | g2-standard-16 | 60-120 мин        |
-| Research (ABM bilevel)         | 20K+    | 10+   | a2-highgpu-1g  | 2-4 часа          |
+| Workload                       | Agents  | Vars  | GPU worker     | Estimated compute time |
+| ------------------------------ | ------- | ----- | -------------- | ---------------------- |
+| Regional SME policy            | 1K–5K   | 5–10  | g2-standard-8  | 25–50 min              |
+| National tax reform            | 10K–20K | 10–15 | g2-standard-8  | 40–90 min              |
+| Interregional transportability | 5K–10K  | 15–20 | g2-standard-16 | 60–120 min             |
+| Research (ABM bilevel)         | 20K+    | 10+   | a2-highgpu-1g  | 2–4 hours              |
 
----
+<a id="5-cas-как-связующий-слой"></a>
 
-## 5. CAS как связующий слой
+## 5. CAS as the coordination layer
 
-### Почему CAS
+### Why CAS
 
-CAS (Content-Addressable Storage) — единственный shared state между серверами. Все
-artifacts (Trinity bundles, exec plans, simulation results, checkpoints, knowledge bundles)
-хранятся по SHA256 hash. Это обеспечивает:
+CAS (Content-Addressable Storage) is the only shared state between servers. All artifacts
+(Trinity bundles, exec plans, simulation results, checkpoints, and knowledge bundles) are stored
+by SHA-256 hash. This provides:
 
-- **Immutability**: запись не может быть перезаписана (same hash = same content)
-- **Idempotency**: повторная запись безопасна
-- **Distribution**: любая машина, видящая bucket, видит все артефакты
-- **Lineage**: каждый артефакт знает свои inputs через `ArtifactManifest.inputs`
+- **Immutability**: a write cannot be overwritten (same hash = same content)
+- **Idempotency**: repeating a write is safe
+- **Distribution**: any machine that can access the bucket can see all artifacts
+- **Lineage**: each artifact records its inputs through ArtifactManifest.inputs
 
-### Конфигурация CAS для split-режима
+### CAS configuration for split mode
 
-Целевое состояние: обе машины используют `cached_gcs` backend — локальный L1 cache +
+Target state: both machines use the `cached_gcs` backend — a local L1 cache plus
 GCS source of truth.
 
-**Важно:** backend factory уже есть в `src/polisyos/core/artifacts/backends/config.py`,
-но runtime API и Scientist workflow builder в текущем коде частично обходят его и
-создают `FileSystemCAS` напрямую. До реального split rollout это надо исправить.
+**Important:** a backend factory already exists in `src/polisyos/core/artifacts/backends/config.py`,
+but the Runtime API and Scientist workflow builder partially bypass it in the current code and
+instantiate `FileSystemCAS` directly. This must be fixed before a real split rollout.
 
-**Env vars (общие для обоих серверов):**
+**Environment variables (shared by both servers):**
 
 ```bash
 # CAS backend
@@ -409,13 +425,13 @@ export POLISYOS_CAS_BACKEND=cached_gcs
 export POLISYOS_CAS_BUCKET=polisyos-cas-prod        # GCS bucket name
 export POLISYOS_CAS_PREFIX=polisyos-cas              # Prefix in bucket
 
-# L1 cache (локальный, разный path на каждом сервере)
+# L1 cache (a different local path on each server)
 export POLISYOS_CAS_LOCAL_CACHE_DIR=/data/cas_cache  # GPU worker
-# или
+# or
 export POLISYOS_CAS_LOCAL_CACHE_DIR=~/.polisyos/cas/_cache  # LLM server
 ```
 
-### Layout в GCS
+### GCS layout
 
 ```text
 gs://polisyos-cas-prod/
@@ -426,15 +442,15 @@ gs://polisyos-cas-prod/
       ab/cd/abcdef...789.sig               # Ed25519 signature (optional)
 ```
 
-### Поведение CachingArtifactStore
+### CachingArtifactStore behavior
 
-Реализован в `src/polisyos/core/artifacts/backends/caching_store.py`:
+Implemented in `src/polisyos/core/artifacts/backends/caching_store.py`:
 
 ```text
 Write path:
   1. put_bytes(blob) → compute sha256
   2. Write to local FileSystemCAS
-  3. Write to remote GCSArtifactStore (сейчас последовательно после local write)
+  3. Write to remote `GCSArtifactStore` (currently, this follows the local write sequentially)
   4. Return ArtifactRef
 
 Read path:
@@ -448,30 +464,30 @@ Verify path:
   3. If absent → verify remotely
 ```
 
-### Размеры типичных артефактов
+### Typical artifact sizes
 
-| Artifact Kind               | Размер       | Примечание                   |
-| --------------------------- | ------------ | ---------------------------- |
-| `ir.trinity_bundle`         | 5-50 KB      | JSON, compact                |
-| `foundry.exec_plan`         | 10-100 KB    | Compiled plan                |
-| `foundry.program_graph`     | 20-200 KB    | DAG nodes/edges              |
-| `foundry.simulation_result` | 50 KB-5 MB   | Зависит от n_agents, n_steps |
-| `foundry.state_delta`       | 100 KB-10 MB | Per-step patches             |
-| `scientist.checkpoint`      | 50-500 KB    | Serialized ExperimentState   |
-| `fabric.data_snapshot`      | 1-100 MB     | Data references + metadata   |
-| `governance.report`         | 10-50 KB     | Pass results                 |
-| `scholar.knowledge_bundle`  | 100 KB-5 MB  | Literature evidence          |
+| Artifact kind              | Size         | Notes                           |
+| -------------------------- | ------------ | ------------------------------- |
+| `ir.trinity_bundle`        | 5-50 KB      | JSON, compact                   |
+| `foundry.exec_plan`        | 10-100 KB    | Compiled plan                   |
+| `foundry.program_graph`    | 20-200 KB    | DAG nodes/edges                 |
+| foundry.simulation_result  | 50 KB–5 MB   | Depends on n_agents and n_steps |
+| `foundry.state_delta`      | 100 KB-10 MB | Per-step patches                |
+| `scientist.checkpoint`     | 50-500 KB    | Serialized ExperimentState      |
+| `fabric.data_snapshot`     | 1-100 MB     | Data references + metadata      |
+| `governance.report`        | 10-50 KB     | Pass results                    |
+| `scholar.knowledge_bundle` | 100 KB-5 MB  | Literature evidence             |
 
-**Total per run**: ~10-50 MB артефактов.
+**Total per run**: ~10–50 MB of artifacts.
 
-**Network cost caveat:** GCS/Compute трафик без доплаты — только когда compute и bucket
-находятся в одном регионе Google Cloud и доступ идёт как VM→Google service внутри
-GCP. Если LLM Server остаётся на Hetzner, то чтение артефактов из GCS в Hetzner —
-это уже Internet egress + дополнительная latency. Best practice для минимальной
-стоимости и задержки — держать data storage и compute в одном регионе/зоне, а если
-нужен Hetzner UI/API, минимизировать частоту CAS pulls на Hetzner стороне.
+**Network-cost caveat:** GCS/Compute traffic is free only when compute and the bucket
+are in the same Google Cloud region and access is VM-to-Google-service traffic inside
+GCP. If the LLM server stays on Hetzner, reading artifacts from GCS there incurs
+Internet egress and additional latency. To minimize cost and latency, keep storage and compute
+in the same region/zone; if Hetzner is needed for the UI/API, minimize the frequency of
+CAS pulls from the Hetzner side.
 
-### ArtifactRef — ключ обмена между серверами
+### `ArtifactRef` — the exchange key between servers
 
 ```python
 ArtifactRef(
@@ -481,16 +497,16 @@ ArtifactRef(
 )
 ```
 
-LLM Server генерирует артефакт → пишет в CAS → передаёт `artifact_id` строку →
-GPU Worker читает из CAS по `artifact_id`. Никакого другого shared state нет.
+The LLM server generates an artifact → writes it to CAS → passes the `artifact_id` string →
+the GPU worker reads it from CAS by `artifact_id`. There is no other shared state.
 
----
+<a id="6-knowledge-graphs-сборка-и-раздача"></a>
 
-## 6. Knowledge Graphs: сборка и раздача
+## 6. Knowledge graphs: build and distribution
 
-### Три knowledge graph
+### Three knowledge graphs
 
-| Graph                | DuckDB файл       | Примерный размер | Build pipeline                           |
+| Graph                | DuckDB file       | Approximate size | Build pipeline                           |
 | -------------------- | ----------------- | ---------------- | ---------------------------------------- |
 | **Academic SKG**     | `academic.duckdb` | ~1.2 GB          | `academic/batch/` (16 stages, LLM-heavy) |
 | **Datasets Catalog** | `datasets.duckdb` | ~1.2 GB          | `datasets/batch/` (14 stages)            |
@@ -498,7 +514,7 @@ GPU Worker читает из CAS по `artifact_id`. Никакого друго
 
 ### Read-only at runtime
 
-Все runtime DuckDB connections открываются с `read_only=True`:
+All runtime DuckDB connections are opened with `read_only=True`:
 
 ```python
 # src/polisyos/data_forge/domains/academic/knowledge/store.py
@@ -508,16 +524,16 @@ self._con = duckdb.connect(str(db_path), read_only=True)
 self._con = duckdb.connect(str(db_path), read_only=True)
 ```
 
-Это означает:
+This means:
 
-- Knowledge graphs **не модифицируются** во время run
-- Безопасный concurrent access (нет write locks)
-- Файлы можно скопировать на любое количество серверов
+- Knowledge graphs are **not modified** during a run.
+- Concurrent access is safe (no write locks).
+- The files can be copied to any number of servers.
 
-### Стратегия: build once, distribute
+### Strategy: build once, distribute
 
 ```text
-1. Build Phase (выполняется редко, на LLM Server или отдельной машине):
+1. Build phase (run infrequently, on the LLM server or a separate machine):
    ┌────────────────────────────────┐
    │  python -m polisyos.data_forge.domains.academic.batch.pipeline  │
    │  python -m polisyos.data_forge.domains.catalog.batch.pipeline  │
@@ -528,73 +544,73 @@ self._con = duckdb.connect(str(db_path), read_only=True)
    gsutil cp academic.duckdb gs://polisyos-cas-prod/knowledge/
    gsutil cp datasets.duckdb gs://polisyos-cas-prod/knowledge/
 
-3. Download on workers (при старте или по cron):
+3. Download on workers (at startup or via cron):
    gsutil cp gs://polisyos-cas-prod/knowledge/*.duckdb /data/knowledge/
 ```
 
-### Конфигурация paths
+### Path configuration
 
-**Target-state env contract:** имена ниже удобны для split deployment, но в текущем
-коде они не читаются централизованно. Сейчас `ScholarKnowledgeGraph`, `SKGQuery`,
-`DatasetCatalogStore` и связанные компоненты в основном получают `db_path/index_dir`
-через конструкторы. Если хотим именно env-driven deployment, этот контракт нужно
-дореализовать в ports/adapters.
+**Target-state environment contract:** the names below are convenient for split deployment, but
+they are not read centrally by the current code. `ScholarKnowledgeGraph`, `SKGQuery`,
+`DatasetCatalogStore`, and related components mostly receive `db_path/index_dir`
+through constructors. To support environment-driven deployment, this contract must be
+implemented in the ports/adapters.
 
 ```bash
-# Knowledge graph locations (обе машины)
+# Knowledge-graph locations (both machines)
 export POLISYOS_ACADEMIC_DB_PATH=/data/knowledge/academic.duckdb
 export POLISYOS_DATASETS_DB_PATH=/data/knowledge/datasets.duckdb
 export POLISYOS_WORLD_DB_PATH=/data/knowledge/world.duckdb
 
-# HNSW index directories (для semantic search)
+# HNSW index directories (for semantic search)
 export POLISYOS_ACADEMIC_INDEX_DIR=/data/knowledge/academic_indices/
 export POLISYOS_DATASETS_INDEX_DIR=/data/knowledge/datasets_indices/
 ```
 
-### RAM impact при runtime queries
+### RAM impact of runtime queries
 
-DuckDB использует memory-mapped I/O. Реальное потребление зависит от queries:
+DuckDB uses memory-mapped I/O. Actual consumption depends on the queries:
 
-| Query type                         | Estimated RAM    | Частота               |
+| Query type                         | Estimated RAM    | Frequency             |
 | ---------------------------------- | ---------------- | --------------------- |
 | Variable canonicalization          | 50-100 MB        | Per evidence need     |
 | Edge support lookup                | 100-300 MB       | Per causal edge       |
 | Parameter candidates               | 50-200 MB        | Per Trinity parameter |
 | Transport scoring                  | 100-300 MB       | Per context pair      |
-| Cross-graph compilation (суммарно) | 500 MB-2 GB peak | Once per run          |
+| Cross-graph compilation (combined) | 500 MB–2 GB peak | Once per run          |
 
-На LLM Server (8 GB) cross-graph compilation пройдёт без проблем.
-На GPU Worker (32 GB) — с большим запасом.
+On the LLM server (8 GB), cross-graph compilation should run without issues.
+On the GPU worker (32 GB), it should have substantial headroom.
 
-### Обновление knowledge graphs
+### Updating knowledge graphs
 
-Knowledge graphs обновляются **отдельно** от compute pipeline:
+Knowledge graphs are updated **separately** from the compute pipeline:
 
 ```text
 Frequency:
-  Academic SKG — еженедельно/ежемесячно (новые публикации)
-  Datasets Catalog — еженедельно (новые датасеты)
-  World Store — per-ingestion (факты из Fabric connectors)
+  Academic SKG — weekly/monthly (new publications)
+  Datasets Catalog — weekly (new datasets)
+  World Store — per ingestion (facts from Fabric connectors)
 
 Process:
-  1. Запустить batch pipeline на LLM Server (или отдельной build машине)
-  2. Загрузить в GCS
-  3. На следующем старте GPU Worker скачает новую версию
-  4. Версионирование через timestamp в filename:
+  1. Run the batch pipeline on the LLM server (or a separate build machine)
+  2. Upload to GCS
+  3. The GPU worker downloads the new version on its next startup
+  4. Version by timestamp in the filename:
      academic_2026w14.duckdb, academic_2026w15.duckdb
 ```
 
----
+<a id="7-протокол-оркестрации"></a>
 
-## 7. Протокол оркестрации
+## 7. Orchestration protocol
 
-### Вариант A: REST API оркестрация (рекомендуемый)
+### Option A: REST API orchestration (recommended in the note)
 
-LLM Server запускает полный Runtime API (`uvicorn`). GPU Worker запускается как
-headless compute backend, вызываемый через gcloud API.
+The LLM server starts the full Runtime API (uvicorn). The GPU worker runs as a
+headless compute backend invoked through the gcloud API.
 
 ```python
-# orchestrator.py на LLM Server (pseudo-code)
+# `orchestrator.py` on the LLM server (pseudo-code)
 
 async def run_policy_design_split(trinity_ref: str, data_source_ref: str):
     """Iterative LLM/Compute split loop."""
@@ -603,7 +619,7 @@ async def run_policy_design_split(trinity_ref: str, data_source_ref: str):
 
     for cycle in range(max_cycles):
         # ═══════ LLM PHASE (local) ═══════
-        # Выполняем LLM-heavy nodes напрямую через Scientist API
+        # Run LLM-heavy nodes directly through the `Scientist API`
         candidates = await run_llm_phase(
             cas=cas,
             trinity_ref=trinity_ref,
@@ -640,51 +656,51 @@ async def run_policy_design_split(trinity_ref: str, data_source_ref: str):
     return decision_packet
 ```
 
-### Вариант B: Checkpoint-based split
+### Option B: Checkpoint-based split
 
-Использует встроенный checkpoint/resume, но **не как текущий zero-code путь**, а как
-основу для доработки intentional pause/resume:
+Uses built-in checkpoint/resume, but **not as a current zero-code path**; it is a
+foundation for adding an intentional pause/resume flow:
 
 ```text
-1. LLM Server: Запустить scientist_policy_design workflow
+1. LLM server: start the `scientist_policy_design` workflow
    → Checkpoint policy: "strict"
-   → Workflow выполняет LLM nodes
-   → Доходит до split marker перед compute-сегментом → checkpoint → PAUSE
+   → Workflow executes LLM nodes
+   → Reaches a split marker before the compute segment → checkpoint → PAUSE
 
 2. GPU Worker: Resume from checkpoint
    → Load checkpoint from CAS
-   → Выполнить compute-heavy nodes
-   → Checkpoint на split marker после compute-сегмента → PAUSE
+   → Execute compute-heavy nodes
+   → Checkpoint at the split marker after the compute segment → PAUSE
 
 3. LLM Server: Resume from checkpoint
    → Load results
    → LLM analysis → refined candidates
-   → Если converged → finalize
-   → Если нет → checkpoint → goto 2
+   → If converged → finalize
+   → If not → checkpoint → go to step 2
 ```
 
-**Плюс:** можно переиспользовать checkpoint artifacts и node-cache.
+**Advantage:** checkpoint artifacts and the node cache can be reused.
 
-**Минусы текущей реализации:**
+**Current implementation limitations:**
 
-- executor не умеет намеренно останавливаться на границе split marker;
-- resume опирается на node-cache, а не на `completed_nodes` как hard-skip barrier;
-- `checkpoint_head.json` и run lock лежат локально в `run_dir`, а не в shared CAS;
-- workflow fingerprint проверяет форму DAG, но не environment hash, поэтому
-  одинаковые Python/deps версии всё равно надо обеспечить операционно.
+- The executor cannot intentionally stop at a split-marker boundary.
+- Resume relies on the node cache, not on `completed_nodes` as a hard-skip barrier.
+- `checkpoint_head.json` and the run lock are local to `run_dir`, not in shared CAS.
+- The workflow fingerprint checks the DAG shape, not the environment hash, so
+  matching Python and dependency versions still have to be ensured operationally.
 
-### Вариант C: Control Plane API (максимально нативный)
+### Option C: Control Plane API (most native)
 
-Runtime API уже поддерживает запуск **полного** workflow run с pre-built artifact refs.
-Как target-state это хороший путь для split-оркестрации, но пример ниже требует
-API/engine доработок, чтобы GPU worker исполнял только compute-сегмент.
+The Runtime API already supports starting a **full** workflow run with prebuilt artifact refs.
+As a target state, this is a good path for split orchestration, but the example below requires
+API/engine changes so the GPU worker can execute only the compute segment.
 
 ```bash
-# На GPU Worker — запустить headless Runtime API
+# On the GPU worker — start the headless `Runtime API`
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' \
   --factory --host 0.0.0.0 --port 8000
 
-# С LLM Server — POST запрос на GPU Worker
+# From the LLM server — `POST` a request to the GPU worker
 curl -X POST http://${GPU_WORKER_IP}:8000/api/v1/control/runs \
   -H "Content-Type: application/json" \
   -d '{
@@ -723,7 +739,7 @@ Polling:
 # SSE streaming (real-time)
 curl -N http://${GPU_WORKER_IP}:8000/api/v1/runs/${RUN_ID}/live
 
-# или polling
+# or poll
 curl http://${GPU_WORKER_IP}:8000/api/v1/control/jobs/${JOB_ID}
 # → {"state": "running"} ... {"state": "completed"}
 ```
@@ -735,35 +751,35 @@ curl http://${GPU_WORKER_IP}:8000/api/v1/runs/${RUN_ID}
 # → {"root_artifacts": ["sha256:result1...", "sha256:result2..."]}
 ```
 
-**WorkflowRunRequest** поддерживает следующие pre-built artifact refs:
+`WorkflowRunRequest` supports the following prebuilt artifact refs:
 
-| Field                           | Назначение                                                                          |
-| ------------------------------- | ----------------------------------------------------------------------------------- |
-| `data_source.data_snapshot_ref` | Pre-built data snapshot                                                             |
-| `trinity_bundle_ref`            | Pre-compiled Trinity bundle                                                         |
-| `knowledge_bundle_ref`          | Pre-built knowledge evidence                                                        |
-| `norm_pack_ref`                 | Pre-assembled legal norm pack                                                       |
-| `calibration_report_ref`        | Previous calibration results                                                        |
-| `params` (dict)                 | Arbitrary workflow parameters, но только те, которые реально читают Scientist nodes |
+| Field                           | Purpose                                                                          |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| `data_source.data_snapshot_ref` | Pre-built data snapshot                                                          |
+| `trinity_bundle_ref`            | Pre-compiled Trinity bundle                                                      |
+| `knowledge_bundle_ref`          | Pre-built knowledge evidence                                                     |
+| `norm_pack_ref`                 | Pre-assembled legal norm pack                                                    |
+| `calibration_report_ref`        | Previous calibration results                                                     |
+| `params` (dict)                 | Arbitrary workflow parameters, limited to those actually read by Scientist nodes |
 
-### Рекомендация
+### Recommendation
 
-**Практически сейчас:** начинать с **Варианта A** — явный orchestrator на LLM Server +
-отдельный compute-only entrypoint/workflow на GPU Worker после P0 fixes.
+**Practical starting point:** begin with **Option A** — an explicit orchestrator on the LLM server +
+a separate compute-only entrypoint/workflow on the GPU worker after the P0 fixes.
 
-**Target-state:** **Вариант C** — самый нативный, когда Control Plane получит
-официальный partial-workflow/resume контракт. Тогда GPU Worker поднимает стандартный
-Runtime API, LLM Server отправляет POST с artifact refs, а SSE streaming остаётся
-единым мониторингом.
+**Target state:** **Option C** is the most native option once the Control Plane has an
+official partial-workflow/resume contract. The GPU worker could then run the standard
+Runtime API, the LLM server could POST artifact refs, and SSE streaming could remain
+the unified monitoring surface.
 
-**Вариант B** не рекомендую как основной production путь, пока checkpoint head/run lock
-не вынесены в shared durable слой и нет explicit pause markers.
+**Option B** is not recommended as the primary production path while the checkpoint head/run lock
+remain outside a shared durable layer and explicit pause markers are unavailable.
 
----
+<a id="8-конфигурация-окружений"></a>
 
-## 8. Конфигурация окружений
+## 8. Environment configuration
 
-### LLM Server — env файл
+### LLM server — environment file
 
 ```bash
 # ═══════ Core ═══════
@@ -792,7 +808,7 @@ export POLISYOS_CONTROL_SQLITE_PATH=/data/control/state.db
 export POLISYOS_CONTROL_MAX_WORKERS=2
 export POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE=true
 
-# ═══════ Auth (dev/research — упрощённый) ═══════
+# ═══════ Auth (simplified for dev/research) ═══════
 export POLISYOS_AUTHN_ENABLED=false
 export POLISYOS_AUTHZ_MODE=off
 
@@ -801,14 +817,14 @@ export POLISYOS_OTEL_ENABLED=true
 export POLISYOS_OTEL_CONSOLE_EXPORT=true
 ```
 
-### GPU Worker — env файл
+### GPU worker — environment file
 
 ```bash
 # ═══════ Core ═══════
 export POLISYOS_ENV=production
 export POLISYOS_EXECUTION_PROFILE=research
 
-# ═══════ CAS (тот же bucket, другой local cache) ═══════
+# ═══════ CAS (same bucket, different local cache) ═══════
 export POLISYOS_CAS_BACKEND=cached_gcs
 export POLISYOS_CAS_BUCKET=polisyos-cas-prod
 export POLISYOS_CAS_PREFIX=polisyos-cas
@@ -843,7 +859,7 @@ export POLISYOS_OTEL_CONSOLE_EXPORT=true
 ### JAX GPU verification
 
 ```bash
-# Убедиться, что JAX видит GPU
+# Verify that JAX detects the GPU
 python -c "
 import jax
 print('Devices:', jax.devices())
@@ -857,16 +873,16 @@ print('Test computation:', float(jax.numpy.sum(x)))
 # Test computation: 1000.0
 ```
 
----
+<a id="9-lifecycle-gpu-инстанса"></a>
 
-## 9. Lifecycle GPU-инстанса
+## 9. GPU instance lifecycle
 
 ### Startup script (GPU Worker)
 
-**Best practice:** на GCE не копировать JSON service account key в образ.
-Прикрепить к VM/MIG отдельный least-privilege service account и дать ему доступ
-к нужному bucket. `gsutil`/Google SDK возьмут short-lived credentials через metadata
-server автоматически.
+**Best practice:** on GCE, do not copy a JSON service-account key into the image.
+Attach a dedicated least-privilege service account to the VM/MIG and grant it access
+to the required bucket. gsutil/the Google SDK will automatically obtain short-lived credentials
+through the metadata server.
 
 ```bash
 #!/bin/bash
@@ -914,8 +930,8 @@ wait $UVICORN_PID
 ```bash
 #!/bin/bash
 # /opt/polisyos/auto-shutdown.sh
-# Запускается через cron каждые 5 минут
-# Если нет активных runs — shutdown
+# Run by cron every 5 minutes
+# Shut down if there are no active runs
 
 ACTIVE_RUNS=$(curl -sf http://localhost:8000/api/v1/runs?status=running | \
   python3 -c "import sys,json; print(len(json.load(sys.stdin).get('runs',[])))" 2>/dev/null || echo "0")
@@ -941,61 +957,61 @@ else
 fi
 ```
 
-**Preemption best practice:** для Spot VM добавить shutdown script, который за 30-секундный
-best-effort grace period успевает зафиксировать финальный heartbeat/job status и не
-полагается только на cron idle shutdown. Если используется MIG, помнить, что при
-дефиците capacity группа может не пересоздать Spot GPU VM сразу.
+**Preemption best practice:** for Spot VMs, add a shutdown script that uses the 30-second
+best-effort grace period to record the final heartbeat/job status; do not rely solely on
+cron-based idle shutdown. With a MIG, also note that the group may not recreate a Spot GPU VM
+immediately when capacity is unavailable in the zone.
 
-### Управление с LLM Server
+### Manage from the LLM server
 
 ```bash
-# Запуск GPU Worker
+# Start the GPU worker
 gcloud compute instances start gpu-worker --zone=us-central1-a
 
-# Получить IP
+# Get the IP address
 GPU_IP=$(gcloud compute instances describe gpu-worker \
   --zone=us-central1-a \
   --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
 
-# Дождаться готовности
+# Wait until ready
 until curl -sf http://${GPU_IP}:8000/api/v1/health; do sleep 5; done
 
-# Запустить compute run
+# Start a compute run
 curl -X POST http://${GPU_IP}:8000/api/v1/control/runs \
   -H "Content-Type: application/json" \
   -d @compute_request.json
 
-# Мониторинг через SSE
+# Monitor through SSE
 curl -N http://${GPU_IP}:8000/api/v1/runs/${RUN_ID}/live
 
-# Остановка (или auto-shutdown через 10 мин idle)
+# Stop (or let auto-shutdown run after 10 minutes idle)
 gcloud compute instances stop gpu-worker --zone=us-central1-a
 ```
 
-### Время lifecycle GPU инстанса
+### GPU instance lifecycle timing
 
 ```text
-gcloud start         → ~30-60 сек (spot instance provisioning)
-OS boot + CUDA init  → ~30-60 сек
-KG sync from GCS     → ~30-60 сек (3 GB, первый раз; затем rsync <5 сек)
-Uvicorn startup      → ~10-15 сек (JAX XLA init + imports)
-Health check ready   → ~5 сек
+gcloud start         → ~30–60 sec (Spot instance provisioning)
+OS boot + CUDA init  → ~30–60 sec
+KG sync from GCS     → ~30–60 sec (3 GB on first run; then rsync <5 sec)
+Uvicorn startup      → ~10–15 sec (JAX XLA initialization + imports)
+Health check ready   → ~5 sec
 ────────────────────────────────────
-Total cold start:      ~2-3 мин
-Total warm start:      ~1-1.5 мин (KG cached, no download)
+Total cold start:      ~2–3 min
+Total warm start:      ~1–1.5 min (KG cached; no download)
 ```
 
----
+<a id="10-fault-tolerance-и-checkpoint"></a>
 
-## 10. Fault Tolerance и Checkpoint
+## 10. Fault tolerance and checkpointing
 
-### Checkpoint при spot preemption
+### Checkpointing during Spot preemption
 
-GCP Spot instances могут быть прерваны с 30-секундным уведомлением.
-PolicyOS Scientist записывает checkpoint после **каждого** успешного node:
+GCP Spot instances may be preempted with 30 seconds’ notice.
+PolicyOS Scientist records a checkpoint after **each** successful node:
 
 ```python
-# src/polisyos/scientist/engine/checkpoint.py
+# src/polisyos/scientist/orchestration/engine/checkpoint.py
 class CASCheckpointHook:
     def on_node_complete(self, alias, state, cache_refs):
         artifact = CheckpointArtifact(
@@ -1012,8 +1028,8 @@ class CASCheckpointHook:
         ref = self.store.put_json(artifact.model_dump(), ...)
 ```
 
-**Worst case при preemption**: потеря одного node execution (последний, до checkpoint).
-При re-start workflow resume с последнего checkpoint.
+**Worst case during preemption**: one node execution is lost (the last one, before its checkpoint).
+When the workflow restarts, it resumes from the latest checkpoint.
 
 ### Recovery flow
 
@@ -1026,7 +1042,7 @@ class CASCheckpointHook:
 4. GPU Worker boots, syncs KG, starts Runtime API
 
 5. LLM Server resumes run:
-   Target-state: отдельный resume endpoint или `workflow_run` job с явным resume contract
+   Target state: a separate resume endpoint or workflow_run job with an explicit resume contract
    {
      "run_id": "R_...",
      "checkpoint_ref": "sha256:...",
@@ -1064,19 +1080,19 @@ class CASCheckpointHook:
 }
 ```
 
-### Что checkpoint НЕ спасает
+### What checkpointing does not save
 
-- **JAX XLA compilation cache** — при restart JIT-перекомпилирует (30-60 сек)
-- **DuckDB connection state** — переоткрывается при resume
-- **In-flight HTTP requests** — LLM вызовы не resumable (retry from scratch)
+- **JAX XLA compilation cache** — JIT recompiles after restart (30–60 sec).
+- **DuckDB connection state** — reopened on resume.
+- **In-flight HTTP requests** — LLM calls are not resumable (retry from scratch).
 
----
+<a id="11-мониторинг-и-observability"></a>
 
-## 11. Мониторинг и observability
+## 11. Monitoring and observability
 
-### SSE streaming с LLM Server
+### SSE streaming from the LLM server
 
-LLM Server как orchestrator мониторит GPU Worker через SSE:
+The LLM server, acting as the orchestrator, monitors the GPU worker through SSE:
 
 ```python
 import httpx
@@ -1098,27 +1114,27 @@ async def monitor_run(gpu_host: str, run_id: str):
 
 ### OpenTelemetry spans
 
-Оба сервера экспортируют spans. Для unified view — настроить общий OTLP collector:
+Both servers export spans. For a unified view, configure a shared OTLP collector:
 
 ```bash
-# На обоих серверах
+# On both servers
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-export OTEL_SERVICE_NAME=polisyos-llm-server  # или polisyos-gpu-worker
+export OTEL_SERVICE_NAME=polisyos-llm-server  # or polisyos-gpu-worker
 export POLISYOS_OTEL_ENABLED=true
 ```
 
-### Ключевые метрики
+### Key metrics
 
-| Метрика                        | Источник   | Что показывает              |
-| ------------------------------ | ---------- | --------------------------- |
-| `node_duration_seconds`        | Both       | Время каждого workflow node |
-| `artifact_io_bytes`            | Both       | CAS read/write volume       |
-| `artifact_io_duration_seconds` | Both       | CAS latency (L1 vs GCS)     |
-| `gpu_utilization`              | GPU Worker | nvidia-smi GPU %            |
-| `jax_compilation_seconds`      | GPU Worker | XLA JIT overhead            |
-| `llm_request_duration`         | LLM Server | LLM API latency             |
-| `llm_tokens_total`             | LLM Server | Token consumption           |
-| `run_total_duration`           | Both       | Full run wall-time          |
+| Metric                         | Source     | What it shows                  |
+| ------------------------------ | ---------- | ------------------------------ |
+| node_duration_seconds          | Both       | Duration of each workflow node |
+| `artifact_io_bytes`            | Both       | CAS read/write volume          |
+| `artifact_io_duration_seconds` | Both       | CAS latency (L1 vs GCS)        |
+| `gpu_utilization`              | GPU Worker | nvidia-smi GPU %               |
+| `jax_compilation_seconds`      | GPU Worker | XLA JIT overhead               |
+| `llm_request_duration`         | LLM Server | LLM API latency                |
+| `llm_tokens_total`             | LLM Server | Token consumption              |
+| `run_total_duration`           | Both       | Full run wall-time             |
 
 ### Health checks
 
@@ -1127,7 +1143,7 @@ export POLISYOS_OTEL_ENABLED=true
 curl http://llm-server:8000/api/v1/health
 # → {"status": "healthy", "version": "...", "uptime_seconds": ...}
 
-# GPU Worker health (когда запущен)
+# GPU worker health (when running)
 curl http://gpu-worker:8000/api/v1/health
 # → {"status": "healthy", ...}
 
@@ -1135,20 +1151,20 @@ curl http://gpu-worker:8000/api/v1/health
 nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv
 ```
 
----
+<a id="12-масштабирование"></a>
 
-## 12. Масштабирование
+## 12. Scaling
 
-### Вертикальное (single user, bigger tasks)
+### Vertical scaling (single user, larger workloads)
 
-| Сценарий                      | Действие                                                |
-| ----------------------------- | ------------------------------------------------------- |
-| Больше agents (>10K)          | Upgrade GPU Worker: g2-standard-16 (больше RAM для JAX) |
-| Больше causal variables (>20) | Upgrade GPU Worker: больше vCPU (discovery quadratic)   |
-| Faster iteration              | Upgrade GPU Worker: a2-highgpu-1g (A100 GPU)            |
-| Больше knowledge              | Upgrade LLM Server: больше RAM для DuckDB               |
+| Scenario                    | Action                                                    |
+| --------------------------- | --------------------------------------------------------- |
+| More agents (>10K)          | Upgrade GPU worker to g2-standard-16 (more RAM for JAX)   |
+| More causal variables (>20) | Upgrade GPU worker to more vCPUs (discovery is quadratic) |
+| Faster iteration            | Upgrade GPU Worker: a2-highgpu-1g (A100 GPU)              |
+| More knowledge data         | Upgrade LLM server to more RAM for DuckDB                 |
 
-### Горизонтальное (multiple concurrent users/tasks)
+### Horizontal scaling (multiple concurrent users/tasks)
 
 ```text
 Topology A: Shared LLM Server + GPU Pool
@@ -1162,10 +1178,10 @@ Topology A: Shared LLM Server + GPU Pool
   KG: Each GPU Worker downloads on start (immutable)
 ```
 
-**Spot/MIG caveat:** MIG с Spot VMs пытается поддерживать target size, но если в зоне
-нет доступной GPU capacity, scale-up/autoscale может временно не сработать. Для
-production очереди стоит добавить retry с jitter, multi-zone fallback и явный
-fallback на on-demand pool для priority jobs.
+**Spot/MIG caveat:** a MIG with Spot VMs tries to maintain the target size, but scale-up/autoscaling
+may temporarily fail if GPU capacity is unavailable in the zone. For a production queue,
+add retries with jitter, multi-zone fallback, and an explicit
+fallback to an on-demand pool for priority jobs.
 
 ```text
 Topology B: Per-user LLM + Shared GPU Pool
@@ -1179,10 +1195,10 @@ Topology B: Per-user LLM + Shared GPU Pool
 
 ### Managed Instance Group (GCP)
 
-Для автоматического scaling GPU workers:
+To scale GPU workers automatically:
 
 ```bash
-# Создать instance template
+# Create an instance template
 gcloud compute instance-templates create gpu-worker-tpl \
   --machine-type=g2-standard-8 \
   --accelerator=type=nvidia-l4,count=1 \
@@ -1190,36 +1206,36 @@ gcloud compute instance-templates create gpu-worker-tpl \
   --metadata-from-file=startup-script=start-worker.sh \
   --preemptible
 
-# Создать managed instance group (min 0, max 4)
+# Create a managed instance group (min 0, max 4)
 gcloud compute instance-groups managed create gpu-pool \
   --template=gpu-worker-tpl \
   --size=0 \
   --zone=us-central1-a
 
-# Scale up перед compute phase
+# Scale up before the compute phase
 gcloud compute instance-groups managed resize gpu-pool --size=1
 
-# Scale down после completion
+# Scale down after completion
 gcloud compute instance-groups managed resize gpu-pool --size=0
 ```
 
----
+<a id="13-стоимостная-модель"></a>
 
-## 13. Стоимостная модель
+## 13. Cost model
 
-### Стоимость одного полного policy design цикла
+### Cost of one complete policy-design cycle
 
-**Предположения:**
+**Assumptions:**
 
-- Региональная МСБ-политика, 3K agents, 8 variables
-- 3 итерации LLM/compute loop
-- Knowledge graphs уже собраны
+- Regional SME policy, 3K agents, 8 variables
+- 3 iterations of the LLM/compute loop
+- Knowledge graphs have already been built
 
 ```text
 Per iteration:
   LLM phase:     ~400 calls × 2K tokens = 800K tokens × $0.0007/1M = $0.0006
-  GPU phase:     ~35 мин × $0.28/hr = $0.16
-  LLM Server:    ~20 мин × $0.006/hr = $0.002
+  GPU phase:     ~35 min × $0.28/hr = $0.16
+  LLM server:    ~20 min × $0.006/hr = $0.002
   GCS egress:    ~50 MB × $0 (same region) = $0
 
 3 iterations:
@@ -1232,133 +1248,133 @@ Per iteration:
 Rounded:         ~$0.50 per policy design
 ```
 
-**Cost caveat:** строка `GCS egress = $0` верна только для GPU Worker ↔ GCS в одном
-GCP регионе. Если LLM Server работает в Hetzner и регулярно читает артефакты из
-GCS, Internet egress уже не нулевой, а latency выше. Для чистой unit economics
-лучше держать LLM/orchestrator рядом с bucket в GCP или вынести на Hetzner только
-тонкий UI/API слой без частых CAS fetches.
+**Cost caveat:** the GCS egress = $0 line is valid only for GPU worker ↔ GCS traffic within one
+GCP region. If the LLM server runs on Hetzner and regularly reads artifacts from
+GCS, Internet egress is not zero and latency is higher. For clean unit economics,
+keep the LLM/orchestrator near the bucket in GCP, or use Hetzner only for a thin
+UI/API layer without frequent CAS fetches.
 
-### Месячная стоимость (active research)
+### Monthly cost (active research)
 
-| Компонент                     | Использование         | Стоимость/мес   |
-| ----------------------------- | --------------------- | --------------- |
-| LLM Server (CPX21, 24/7)      | Always on             | €4.15 (~$4.50)  |
-| GPU Worker (spot, ~40 hr/мес) | 80 runs × 30 мин      | ~$11.20         |
-| LLM API (~32M tokens/мес)     | 80 runs × 400K tokens | ~$0.02          |
-| GCS storage (~10 GB)          | CAS + KGs             | ~$0.20          |
-| GCS operations (~100K)        | CAS reads/writes      | ~$0.50          |
-| **Total**                     |                       | **~$16.50/мес** |
+| Component                       | Usage                 | Cost/month        |
+| ------------------------------- | --------------------- | ----------------- |
+| LLM Server (CPX21, 24/7)        | Always on             | €4.15 (~$4.50)    |
+| GPU worker (Spot, ~40 hr/month) | 80 runs × 30 min      | ~$11.20           |
+| LLM API (~32M tokens/month)     | 80 runs × 400K tokens | ~$0.02            |
+| GCS storage (~10 GB)            | CAS + KGs             | ~$0.20            |
+| GCS operations (~100K)          | CAS reads/writes      | ~$0.50            |
+| **Total**                       |                       | **~$16.50/month** |
 
-### Budget allocation для $300 GCP credits
+### Budget allocation for $300 in GCP credits
 
 ```text
-GCS storage + operations:     ~$5     (12 мес)
+GCS storage + operations:     ~$5     (12 months)
 GPU spot compute:             ~$280   (1000 GPU-hours = ~1700 runs)
 Reserved for on-demand:       ~$15    (emergency, ~18 GPU-hours)
 ────────────────────────────────────
 $300 total
 
-При 80 runs/мес = ~21 месяц GPU compute.
-LLM Server на Hetzner (вне GCP credits): €4.15/мес.
+At 80 runs/month, this covers ~21 months of GPU compute.
+LLM server on Hetzner (outside GCP credits): €4.15/month.
 ```
 
----
+<a id="14-checklist-развёртывания"></a>
 
-## 14. Checklist развёртывания
+## 14. Deployment checklist
 
 ### Phase 1: GCS Setup
 
 ```text
-[ ] Создать GCS bucket: polisyos-cas-prod (region: us-central1)
-[ ] Настроить lifecycle policy: delete incomplete uploads >7 days
-[ ] Создать отдельные single-purpose service accounts:
+[ ] Create GCS bucket: polisyos-cas-prod (region: us-central1)
+[ ] Set a lifecycle policy: delete incomplete uploads after >7 days
+[ ] Create separate single-purpose service accounts:
     [ ] polisyos-gpu-worker@project.iam.gserviceaccount.com
     [ ] polisyos-llm-orchestrator@project.iam.gserviceaccount.com
-[ ] Выдать минимально нужные bucket-level роли, без project-wide Editor
-[ ] Для GCE worker использовать attached service account без JSON key
-[ ] Для Hetzner LLM Server настроить Workload Identity Federation; JSON key — только временный fallback
+[ ] Grant only the required bucket-level roles; avoid project-wide Editor
+[ ] Use an attached service account without a JSON key for the GCE worker
+[ ] Configure Workload Identity Federation for the Hetzner LLM server; use a JSON key only as a temporary fallback
 ```
 
 ### Phase 2: LLM Server (Hetzner CPX21)
 
 ```text
-[ ] Создать сервер CPX21 (Falkenstein, €4.15/мес)
-[ ] Установить Python 3.14, pip, git
+[ ] Create a CPX21 server (Falkenstein, €4.15/month)
+[ ] Install Python 3.14, pip, and git
 [ ] git clone + pip install -e ".[all]"
-[ ] Настроить env vars (секция 8)
-[ ] Настроить доступ к GCS через Workload Identity Federation
-[ ] Если WIF пока нет — временно использовать JSON key с жёсткими file permissions и планом ротации/удаления
-[ ] Собрать knowledge graphs (или скачать готовые)
+[ ] Set environment variables (section 8)
+[ ] Configure GCS access through Workload Identity Federation
+[ ] If WIF is not yet available, temporarily use a JSON key with strict file permissions and a rotation/removal plan
+[ ] Build the knowledge graphs or download prebuilt copies
 [ ] gsutil cp KGs → GCS
-[ ] Запустить Runtime API: uvicorn ... --factory --host 0.0.0.0
-[ ] Проверить: curl http://localhost:8000/api/v1/health
-[ ] Настроить systemd service для auto-restart
+[ ] Start the Runtime API: uvicorn ... --factory --host 0.0.0.0
+[ ] Check: curl http://localhost:8000/api/v1/health
+[ ] Configure a systemd service for automatic restart
 ```
 
 ### Phase 3: GPU Worker Template (GCP)
 
 ```text
-[ ] Создать boot disk image:
+[ ] Create a boot-disk image:
     [ ] Base: Ubuntu 22.04 LTS
-    [ ] Установить NVIDIA driver + CUDA 12.x
-    [ ] Установить Python 3.14
+    [ ] Install the NVIDIA driver and CUDA 12.x
+    [ ] Install Python 3.14
     [ ] pip install jaxlib[cuda12] jax
     [ ] git clone + pip install -e ".[all]"
-    [ ] Скопировать env файл + startup script
-    [ ] Не класть GCS JSON key в образ; использовать attached service account
+    [ ] Copy the environment file and startup script
+    [ ] Do not include a GCS JSON key in the image; use an attached service account
     [ ] Snapshot → custom image
-[ ] Создать instance template:
+[ ] Create an instance template:
     [ ] Machine type: g2-standard-8
     [ ] Boot disk: custom image, 200 GB pd-balanced
     [ ] Provisioning: Spot
     [ ] Attached service account: polisyos-gpu-worker@...
     [ ] Startup script: /opt/polisyos/start-worker.sh
     [ ] Network: allow TCP 8000 (firewall rule)
-[ ] Тест: запустить instance, проверить JAX GPU, проверить Runtime API
-[ ] Настроить auto-shutdown script (cron)
-[ ] Добавить shutdown script для preemption notice и graceful status flush
+[ ] Test: start an instance, check JAX GPU, and check the Runtime API
+[ ] Configure an auto-shutdown script (cron)
+[ ] Add a shutdown script for preemption notice and graceful status flush
 ```
 
 ### Phase 4: Integration Test
 
 ```text
-[ ] С LLM Server:
+[ ] From the LLM server:
     [ ] gcloud compute instances start gpu-worker
-    [ ] Дождаться health check
-    [ ] POST /api/v1/control/runs (тестовый Trinity)
-    [ ] Мониторинг через SSE
-    [ ] Проверить results в CAS
+    [ ] Wait for the health check
+    [ ] POST /api/v1/control/runs (test Trinity)
+    [ ] Monitor through SSE
+    [ ] Check results in CAS
     [ ] gcloud compute instances stop gpu-worker
-[ ] Проверить checkpoint/resume:
-    [ ] Запустить run
-    [ ] Остановить GPU Worker mid-run
-    [ ] Перезапустить GPU Worker
-    [ ] Target-state resume contract: продолжить run с явного checkpoint_ref или shared checkpoint head
-[ ] Проверить CAS consistency:
-    [ ] LLM Server записывает artifact
-    [ ] GPU Worker читает тот же artifact (по sha256 ref)
-[ ] Проверить, что runtime/scientist действительно используют `cached_gcs`, а не локальный `FileSystemCAS`
+[ ] Check checkpoint/resume:
+    [ ] Start a run
+    [ ] Stop the GPU worker mid-run
+    [ ] Restart the GPU worker
+    [ ] Target-state resume contract: continue the run from an explicit checkpoint_ref or shared checkpoint head
+[ ] Check CAS consistency:
+    [ ] LLM server writes an artifact
+    [ ] GPU worker reads the same artifact (by sha256 ref)
+[ ] Check that runtime/Scientist actually use cached_gcs rather than local FileSystemCAS
 ```
 
 ### Phase 5: Production Hardening
 
 ```text
-[ ] TLS: nginx reverse proxy на GPU Worker (или GCP load balancer)
-[ ] Firewall: ограничить TCP 8000 на GPU Worker только LLM Server / internal VPC
-[ ] По возможности убрать public IP у GPU Worker и ходить по internal IP/VPN/IAP tunnel
-[ ] Secrets: перенести API keys в GCP Secret Manager
-[ ] Не хранить service account JSON keys в Secret Manager как основной путь; предпочтительнее attached SA / WIF
-[ ] Monitoring: настроить alerting на GPU idle >15 мин
+[ ] TLS: nginx reverse proxy on the GPU worker (or GCP load balancer)
+[ ] Firewall: limit TCP 8000 on the GPU worker to the LLM server/internal VPC
+[ ] If possible, remove the GPU worker's public IP; use internal IP/VPN/IAP tunnel
+[ ] Secrets: move API keys to GCP Secret Manager
+[ ] Do not use service-account JSON keys as the primary Secret Manager path; prefer attached service accounts/WIF
+[ ] Monitoring: alert on GPU idle time >15 min
 [ ] Alerting: Spot capacity failures, repeated preemptions, CAS remote-write failures, checkpoint resume failures
-[ ] Cost alerts: GCP budget alert на $50, $100, $200
-[ ] Backup: GCS bucket versioning для CAS
+[ ] Cost alerts: GCP budget alerts at $50, $100, and $200
+[ ] Backup: enable GCS bucket versioning for CAS
 ```
 
 ---
 
-## Связанные документы
+## Related documents
 
-| Документ              | Путь                                                  |
+| Document              | Path                                                  |
 | --------------------- | ----------------------------------------------------- |
 | Runtime Deployment    | `docs/how-to/deploy-runtime.md`                       |
 | Architecture Overview | `docs/explanation/architecture.md`                    |

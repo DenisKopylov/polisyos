@@ -14,7 +14,7 @@ commands used for contributor setup.
 | Script                         | Entry point                                                 | Purpose                              | Notes                                                           |
 | ------------------------------ | ----------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------------- |
 | `polisy`                       | `polisyos.foundry.plugins.cli:main`                         | Foundry plugin simulator CLI         | Simulation, training, and result analysis                       |
-| `polisyos`                     | `tools.ops_runners.runtime_cli:main`                         | Platform composition CLI             | Components, Lex, Scientist, replay, signing, audit              |
+| `polisyos`                     | `tools.ops_runners.runtime_cli:main`                        | Platform composition CLI             | Components, Lex, Scientist, replay, signing, audit              |
 | `polisyos-foundry`             | `polisyos.foundry.methods.cli:main`                         | Foundry methods developer CLI        | Scaffold, validate, catalog, compatibility checks               |
 | `polisyos-causal-capabilities` | `polisyos.foundry.methods.catalog.causal.capabilities:main` | Emit causal capability contract JSON | No subcommands or `--help` mode                                 |
 | `polisyos-tools`               | `tools.cli:main`                                            | Unified Policy Engine tooling CLI    | Category-based entry point for repo-local engineering workflows |
@@ -377,8 +377,3 @@ Example:
 ```bash
 polisyos-causal-capabilities > causal-capabilities.json
 ```
-
-Current local environment note:
-
-- symbolic backends `y0` and `r_causaleffect` currently resolve as unavailable in this workspace;
-- the emitted contract still advertises `bounds_manski` and `direct` support via fallback backends.

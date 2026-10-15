@@ -1,39 +1,43 @@
 # Backtesting (`polisyos.scientist.methods.backtesting`)
 
-`backtesting` отвечает за историческую проверку policy outputs, сбор trust/evaluation
-метрик и выпуск diagnostic evidence, которое теперь напрямую потребляется
-governance calibration и backtest matrix контуром.
+`backtesting` handles historical validation of policy outputs, collection of
+trust/evaluation metrics, and production of diagnostic evidence consumed
+directly by governance calibration and the backtest-matrix workflow.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** `ir.analytics`, `core.contracts`, `scientist.api`
-- **Используется в:** `scientist.governance`, CLI backtest commands, monitoring feedback flows
-- Пакет связывает historical plans, prediction evaluation, trust scoring и adversarial/
-  temporal suites в единый backtest runtime.
+- **Depends on:** `ir.analytics`, `core.contracts`, `scientist.api`
+- **Used by:** `scientist.governance`, CLI backtest commands, and monitoring feedback flows
+- The package connects historical plans, prediction evaluation, trust scoring, and adversarial/
+  temporal suites in one backtest runtime.
 
-## Ключевые концепции
+## Key concepts
 
-- **HistoricalValidationPlan** — сценарий проверки предсказаний на исторических данных.
-- **BacktestOrchestrator** — координирует одиночные и пакетные backtest runs.
-- **TrustScorer** — считает coverage-first trust score и grade.
-- **Adversarial suites** — challenge-наборы для strategic gaming и related failure modes.
-- **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
-- **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
+- **HistoricalValidationPlan** — a scenario for validating predictions against historical data.
+- **BacktestOrchestrator** — coordinates single and batch backtest runs.
+- **TrustScorer** — computes a coverage-first trust score and grade.
+- **Adversarial suites** — challenge sets for strategic gaming and related failure modes.
+- **Temporal evaluation** — trajectory and safe-rejection checks for time-aware scenarios.
+- **Trust eligibility** — degraded paths remain diagnostic and do not raise the trust profile.
 
-## Scientist replay и реплики
+## Scientist replay and replicas
 
-Для `prediction_source=scientist` backtest сохраняет cutoff-маску как `fabric.data_snapshot` и
-передаёт её тому же `run_experiment` в том же CAS. Стандартный workflow сохраняет строгую проверку:
-`ModelSpec.data_snapshot_ref` должен указывать на этот срез до связывания входов Foundry. На границе
-исполнения backtest повторно проверяет полный выбранный ref из `foundry.input_bindings`.
+For `prediction_source=scientist`, the backtest persists the cutoff mask as
+`fabric.data_snapshot` and passes it to the same `run_experiment` in the same CAS.
+The standard workflow enforces a strict check: `ModelSpec.data_snapshot_ref` must
+point to this slice before Foundry inputs are bound. At the execution boundary,
+the backtest rechecks the complete selected ref from `foundry.input_bindings`.
 
-`n_simulation_runs=K` запускает K отдельных workflow с уникальными `run_id` и seed в фактическом
-`ExecuteRequest.exec_config`. Артефакт `scientist.backtest.replica_cohort` сохраняет исходный запрос,
-runtime seed source, ссылки на `SimulationResult`/metrics и знаменатель `requested/started/completed/
-failed`; итоговый backtest report ссылается на этот артефакт. Одиночная успешная реплика может
-передать свою trajectory прежнему evaluator. Для K > 1 результаты сохраняются по репликам, а backtest
-явно помечает отсутствие поддержанного multi-run projection и использует naive diagnostic fallback;
-он не усредняет реплики в scalar и не размножает его по горизонту.
+`n_simulation_runs=K` launches K separate workflows with unique `run_id` values
+and seeds in the actual `ExecuteRequest.exec_config`. The
+`scientist.backtest.replica_cohort` artifact stores the source request, runtime
+seed source, references to `SimulationResult`/metrics, and the
+`requested/started/completed/failed` denominator; the final backtest report
+references this artifact. A single successful replica can pass its trajectory to
+the existing evaluator. For K > 1, results are stored per replica, and the
+backtest explicitly records that no supported multi-run projection exists and
+uses a naive diagnostic fallback; it does not average replicas into a scalar or
+replicate one scalar across the horizon.
 
 ## Selected artifact profiles
 
@@ -43,19 +47,19 @@ failed`; итоговый backtest report ссылается на этот ар�
 
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`
 - `BacktestOrchestrator`, `OutcomeMasker`, `PredictionEvaluator`, `TrustScorer`
-- `run_phase_d4_challenge_suites(...)` и adversarial challenge models
+- `run_phase_d4_challenge_suites(...)` and adversarial challenge models
 - `evaluate_temporal_trajectory(...)`, `evaluate_temporal_safe_rejection(...)`,
   `build_temporal_backtest_report(...)`
 
-Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-## Текущее состояние
+## Current state
 
-- Последнее обновление: 2026-10-09
+- Last updated: 2026-10-09
 - Python modules: 17
 - Exports: 25
-- Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`
-  в `scientist.governance`
+- Recent delta: the package now provides the upstream implementation for `BacktestMatrixRunner`
+  in `scientist.governance`.
 - `bootstrap_metric` and `bootstrap_scenario_metrics` validate a finite one-dimensional
   observation vector before constructing the RNG or evaluating a statistic. Named statistic
   identity is retained in the result; matrix flattening is refused because it would change the

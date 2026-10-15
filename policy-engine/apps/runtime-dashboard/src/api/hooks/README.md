@@ -1,8 +1,8 @@
 # `src/api/hooks` — endpoint hooks Runtime/Control API
 
-Папка содержит React Query hooks поверх `openapi-fetch` клиента.
+This directory contains React Query hooks built on the `openapi-fetch` client.
 
-## Группы hooks
+## Hook Groups
 
 - Runtime read:
   - `useHealth`
@@ -20,23 +20,23 @@
 - Lex:
   - `useLexTrigger`, `useLexPipelineStatus`, `useLexGraphStats`, `useLexSearch`
 
-## Соглашения в этой папке
+## Conventions
 
-- Каждый hook:
-  - делает один API-вызов;
-  - бросает `RuntimeApiRequestError` через `createRuntimeApiError` при ошибке;
-  - возвращает нормализованный payload (часть runtime hooks дополнительно валидируется `zod` схемами из `../validators`).
-- Query hooks используют `queryKeys` из `../queryKeys`.
-- Mutation hooks инвалидируют зависимые query-ключи после успешного вызова.
-- `useCreateRunPredictiveCalibration` отправляет отдельный `intent_id`; повтор после неопределённого ответа сохраняет исходный запрос и обновляет fresh read.
+- Each hook:
+  - makes one API call;
+  - throws `RuntimeApiRequestError` through `createRuntimeApiError` on failure;
+  - returns a normalized payload (some runtime hooks are additionally validated with `zod` schemas from `../validators`).
+- Query hooks use `queryKeys` from `../queryKeys`.
+- Mutation hooks invalidate dependent query keys after a successful call.
+- `useCreateRunPredictiveCalibration` sends a separate `intent_id`; a retry after an indeterminate response preserves the original request and refreshes the read.
 
-## Когда обновлять hooks
+## When to Update Hooks
 
-При изменении OpenAPI:
+When OpenAPI changes:
 
-1. перегенерировать `src/api/types.ts`;
-2. сверить сигнатуры hooks и endpoint paths;
-3. при необходимости обновить `queryKeys` и `validators`.
+1. Regenerate `src/api/types.ts`.
+2. Check hook signatures and endpoint paths.
+3. Update `queryKeys` and `validators` if needed.
 
 ## Run-bound predictive calibration
 

@@ -1,5 +1,10 @@
 # Cost And Degradation Telemetry
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/quality/cost_degradation.py`, `src/polisyos/runtime/quality/scorecard.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/test_cost_degradation.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and canary runner were not run.
+
 `cost_degradation_telemetry.json` is the W2.C local production-debug artifact
 for Policy Design Case runs. It uses schema version
 `policyos.runtime.policy_design_case.cost_degradation_telemetry.v1`.
@@ -17,3 +22,7 @@ cannot downgrade evidence quality.
 Local canary bundles write the artifact under
 `quality_evidence/cost_degradation_telemetry.json`; scorecards expose the
 reader gate `policy_design_w2c_cost_degradation_telemetry`.
+
+These records summarize locally observed or estimated runtime cost signals;
+they do not verify external provider invoices or independently establish the
+quality or admissibility of a policy claim.

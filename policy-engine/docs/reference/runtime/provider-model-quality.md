@@ -1,7 +1,9 @@
 # Provider And Model Quality Drift Ledger
 
 Owner: `@runtime-owners`
-Source of truth: `tools/ops_runners/runtime/provider_quality_ledger.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/**`
+Source of truth: `tools/ops_runners/runtime/provider_quality_ledger.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/repo_quality/tools/test_provider_quality_ledger.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the ledger runner and tests were not run.
 
 PolicyOS records provider/model quality drift in
 `policyos.provider_model_quality_ledger.v1` ledgers. The runtime quality bundle
@@ -62,3 +64,8 @@ uv run python -m tools.ops_runners.runtime.provider_quality_ledger \
 The controlled comparison uses one frozen data ref, norm ref, method ref, and
 claim ref. A default model is not promotable from this comparison until every
 candidate has at least three bounded samples over the same evidence refs.
+
+Simulated-lane results and quarantined live-provider results remain distinct.
+A deterministic ledger build does not establish live-provider performance or
+production deployment quality; model promotion still requires the governed
+evidence basis and review described by the owner.

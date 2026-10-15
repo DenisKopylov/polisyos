@@ -2,36 +2,36 @@
 
 ## Purpose
 
-`polisyos.ir.trinity` определяет канонический policy payload
-`ProblemFrame + PolicySpec + ModelSpec`. Это авторинговая и ingestion boundary,
-с которой стартуют loader, linker, migration и downstream compile flows.
+`polisyos.ir.trinity` defines the canonical policy payload
+`ProblemFrame + PolicySpec + ModelSpec`. It is the authoring and ingestion boundary
+from which loader, linker, migration, and downstream compilation flows begin.
 
 ## Where to Start
 
-- [`__init__.py`](./__init__.py) — `TrinityBundle` и текущая bundle schema version.
-- [`loaders.py`](./loaders.py) — strict loaders для `ProblemFrame`, `PolicySpec`, `ModelSpec` и полного bundle.
-- [`../governance/problem_frame.py`](../governance/problem_frame.py) — `Why`-контракт постановки задачи.
-- [`../governance/policy_spec.py`](../governance/policy_spec.py) — `What`-контракт интервенций и execution semantics.
-- [`../model_spec.py`](../model_spec.py) — `How`-контракт модели и assumptions.
-- После authoring откройте [`../linker/README.md`](../linker/README.md), для compatibility-path'ов — [`../migrations/README.md`](../migrations/README.md).
+- [`__init__.py`](./__init__.py) — `TrinityBundle` and the current bundle schema version.
+- [`loaders.py`](./loaders.py) — strict loaders for `ProblemFrame`, `PolicySpec`, `ModelSpec`, and the complete bundle.
+- [`../governance/problem_frame.py`](../governance/problem_frame.py) — the `Why` contract for problem framing.
+- [`../governance/policy_spec.py`](../governance/policy_spec.py) — the `What` contract for interventions and execution semantics.
+- [`../model_spec.py`](../model_layer/model_spec.py) — the `How` contract for the model and its assumptions.
+- After authoring, see [`../linker/README.md`](../linker/README.md); for compatibility paths, see [`../migrations/README.md`](../migrations/README.md).
 
 ## Public entrypoints
 
 | Entrypoint                                          | Use when                                              | Defined in                     |
 | --------------------------------------------------- | ----------------------------------------------------- | ------------------------------ |
-| `polisyos.ir.trinity.TrinityBundle`                 | Нужен канонический контейнер для policy payload       | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.ProblemFrame`                  | Нужен `Why`-слой Trinity                              | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.PolicySpec`                    | Нужен `What`-слой Trinity                             | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.ModelSpec`                     | Нужен `How`-слой Trinity                              | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Нужно зафиксировать supported bundle version          | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.loaders.load_problem_frame()`  | Нужен strict loader для `ProblemFrame`                | [`loaders.py`](./loaders.py)   |
-| `polisyos.ir.trinity.loaders.load_policy_spec()`    | Нужен strict loader для `PolicySpec`                  | [`loaders.py`](./loaders.py)   |
-| `polisyos.ir.trinity.loaders.load_model_spec()`     | Нужен strict loader для `ModelSpec`                   | [`loaders.py`](./loaders.py)   |
-| `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Нужно загрузить и валидировать полный Trinity payload | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.TrinityBundle`                 | Use the canonical container for the policy payload    | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ProblemFrame`                  | Use the `Why` layer of Trinity                        | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.PolicySpec`                    | Use the `What` layer of Trinity                       | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ModelSpec`                     | Use the `How` layer of Trinity                        | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Identify the supported bundle version                 | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.loaders.load_problem_frame()`  | Load a `ProblemFrame` strictly                        | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_policy_spec()`    | Load a `PolicySpec` strictly                          | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_model_spec()`     | Load a `ModelSpec` strictly                           | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Load and validate a complete Trinity payload          | [`loaders.py`](./loaders.py)   |
 
 ## Depends on / depended on by
 
-- Depends on: [`../governance/README.md`](../governance/README.md), [`../model_spec.py`](../model_spec.py), `polisyos.ir.kernel.base`.
+- Depends on: [`../governance/README.md`](../governance/README.md), [`../model_spec.py`](../model_layer/model_spec.py), `polisyos.ir.kernel.base`.
 - Depended on by: `polisyos.ir.loading.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry.compile`, `polisyos.scientist.agent`, `polisyos.lex`.
 
 ## Common commands

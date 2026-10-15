@@ -2,9 +2,10 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-10-12
+Freshness: 2026-10-14
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_timeline_api.py tests/unit/runtime/http/test_runtime_api_authz.py`
@@ -12,28 +13,40 @@ Validation:
 - `uv run pytest -q tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
-The runs surface is the read-only operational view over runtime executions. Every run-specific endpoint enforces tenant access before returning data.
+Validation status: Source and test-reference inspection only for this
+documentation update; the listed tests, generator, SQLite cross-process checks,
+and PostgreSQL behavior were not run.
+
+The runs surface is the read-only operational view over runtime executions.
+Every run-specific endpoint enforces tenant access before returning data.
+Read access, response status, or a persisted diagnostic does not establish a
+causal effect, producer authority, or publication permission; the endpoint
+sections identify candidate-only projections and their typed limits.
 
 ## Endpoint Summary
 
-| Method | Path                                     | Response body                | Notes                                                                  |
-| ------ | ---------------------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
-| `GET`  | `/api/v1/runs`                           | `RunsListResponse`           | Cursor pagination with `limit`, `cursor`, `status`, `from_ts`, `to_ts` |
-| `POST` | `/api/v1/runs/batch`                     | `RunsBatchResponse`          | Bulk read helper for dashboards and operator tools                     |
-| `GET`  | `/api/v1/runs/{run_id}`                  | `RunDetailsResponse`         | Full details for a single run                                          |
-| `GET`  | `/api/v1/runs/{run_id}/timeline`         | `RunTimelineResponse`        | Timeline events and summary                                            |
-| `GET`  | `/api/v1/runs/{run_id}/nodes`            | `RunNodesResponse`           | Node execution records                                                 |
-| `GET`  | `/api/v1/runs/{run_id}/lineage`          | `RunLineageResponse`         | Artifact lineage graph                                                 |
-| `GET`  | `/api/v1/runs/{run_id}/quantities`       | `RunQuantitiesResponse`      | QuantityValue coverage for decision and telemetry numbers              |
-| `GET`  | `/api/v1/runs/{run_id}/fabric-decision-data` | `FabricDecisionDataResponse` | Fabric trust envelope over decision-bearing quantities                 |
-| `GET`  | `/api/v1/runs/{run_id}/agents`           | `AgentPipelineResponse`      | Agent attempts, steps, scoring                                         |
-| `GET`  | `/api/v1/runs/{run_id}/evidence-context` | `RunEvidenceContextResponse` | Evidence bundle and context resolution                                 |
-| `GET`  | `/api/v1/runs/{run_id}/paper`            | `RunPaperPacket`             | Replay-pinned run paper and selected artifact refs                      |
-| `GET`  | `/api/v1/runs/{run_id}/workflow`         | `RunWorkflowResponse`        | Workflow/DAG view                                                      |
-| `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event |
-| `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10 |
-| `GET`  | `/api/v1/runs/live`                      | `text/event-stream`          | Route-only, schema-hidden global live stream                           |
-| `GET`  | `/api/v1/runs/{run_id}/live`             | `text/event-stream`          | Route-only, schema-hidden per-run live stream                          |
+This is a selected summary of the operations detailed on this page, not an
+exhaustive route inventory. See the committed OpenAPI snapshot and the router
+for the complete schema-described and route-only surfaces.
+
+| Method | Path                                           | Response body                   | Notes                                                                  |
+| ------ | ---------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
+| `GET`  | `/api/v1/runs`                                 | `RunsListResponse`              | Cursor pagination with `limit`, `cursor`, `status`, `from_ts`, `to_ts` |
+| `POST` | `/api/v1/runs/batch`                           | `RunsBatchResponse`             | Bulk read helper for dashboards and operator tools                     |
+| `GET`  | `/api/v1/runs/{run_id}`                        | `RunDetailsResponse`            | Full details for a single run                                          |
+| `GET`  | `/api/v1/runs/{run_id}/timeline`               | `RunTimelineResponse`           | Timeline events and summary                                            |
+| `GET`  | `/api/v1/runs/{run_id}/nodes`                  | `RunNodesResponse`              | Node execution records                                                 |
+| `GET`  | `/api/v1/runs/{run_id}/lineage`                | `RunLineageResponse`            | Artifact lineage graph                                                 |
+| `GET`  | `/api/v1/runs/{run_id}/quantities`             | `RunQuantitiesResponse`         | QuantityValue coverage for decision and telemetry numbers              |
+| `GET`  | `/api/v1/runs/{run_id}/fabric-decision-data`   | `FabricDecisionDataResponse`    | Fabric trust envelope over decision-bearing quantities                 |
+| `GET`  | `/api/v1/runs/{run_id}/agents`                 | `AgentPipelineResponse`         | Agent attempts, steps, scoring                                         |
+| `GET`  | `/api/v1/runs/{run_id}/evidence-context`       | `RunEvidenceContextResponse`    | Evidence bundle and context resolution                                 |
+| `GET`  | `/api/v1/runs/{run_id}/paper`                  | `RunPaperPacket`                | Replay-pinned run paper and selected artifact refs                     |
+| `GET`  | `/api/v1/runs/{run_id}/workflow`               | `RunWorkflowResponse`           | Workflow/DAG view                                                      |
+| `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event       |
+| `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10              |
+| `GET`  | `/api/v1/runs/live`                            | `text/event-stream`             | Route-only, schema-hidden global live stream                           |
+| `GET`  | `/api/v1/runs/{run_id}/live`                   | `text/event-stream`             | Route-only, schema-hidden per-run live stream                          |
 
 Common status codes for committed endpoints: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
 
@@ -46,7 +59,7 @@ Validation anchors:
 - `tests/unit/runtime/http/test_runtime_api_authz.py`
 - `tests/unit/runtime/http/test_lineage_routes.py`
 - `tests/unit/runtime/http/test_temporal_routes.py`
-- `tests/unit/runtime/http/test_access_invariants_properties.py`
+- `tests/property/runtime/http/test_access_invariants_properties.py`
 
 ## `GET /api/v1/runs`
 
@@ -199,7 +212,6 @@ Persisted root ArtifactRefs pass through with their selected manifest profiles. 
 profile-less refs remain unqualified; the root_artifact_id filter is an ID-only unqualified override.
 The response includes root_artifact_refs in addition to the compatibility ID list.
 
-
 - Query parameters:
   - `root_artifact_id`: optional repeated artifact root filter
   - `max_depth`: optional depth cap, `1..256`
@@ -339,8 +351,8 @@ http GET :8000/api/v1/runs/$RUN_ID/workflow \
 
 ## Live Streams
 
-The runtime also exposes two server-sent event streams from `routes/runs.py`.
-Both are current runtime routes, but they are deliberately excluded from the
+The runtime also exposes server-sent event streams from `routes/runs.py`.
+These are current runtime routes, but they are deliberately excluded from the
 committed OpenAPI snapshot and generated clients with `include_in_schema=False`.
 They are operator affordances, not a versioned SDK contract.
 
@@ -382,7 +394,6 @@ curl -N -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/runs/$RUN_ID/live"
 ```
 
-
 Timeline events expose the complete typed artifact refs already emitted by the
 trace producer in addition to the legacy ID lists. Temporal lineage filtering
 uses those refs, so same-ID sibling profiles are not interchangeable. Older
@@ -391,14 +402,69 @@ view is not retroactive producer attestation.
 
 ## Predictive calibration
 
-POST /api/v1/runs/{run_id}/predictive-calibration accepts an explicit `intent_id`, full selected refs for the resolved run candidate source and observed snapshot, plus model, policy, and calibration-rule refs, a contiguous train/holdout split, six distinct caller-declared temporal roles, a threshold, method parameters, and seed. The route reuses the existing `runs.feedback.evaluate` permission with ownership binding to the exact run; no role grant is added. The service resolves the completed control job and exact Core manifest, requires the candidate source in the run’s resolved candidate projection and the observed snapshot, model, policy, and calibration-rule refs as exact full-profile run roots, reopens each selected CAS profile, runs ForecastOwner, persists the empirical calibration bridge and limited S10 candidate projection, then appends a versioned association-ref event to the existing diagnostic event log. Earlier associations are not rewritten.
+The committed generated OpenAPI snapshot and both generated TypeScript
+operation-type surfaces describe `GET` and `POST`
+`/api/v1/runs/{run_id}/predictive-calibration`. The route implementation is in
+`src/polisyos/runtime/http/routes/runs.py`; this operation pair is schema
+described, not one of the schema-hidden live streams.
 
-GET /api/v1/runs/{run_id}/predictive-calibration uses `runs.review` with ownership binding to the exact run. It reads the latest association ref from the event log, verifies the payload hash, reopens the CAS association and evidence, verifies the current run binding, and recomputes S10 before returning it. No event yields 404; a mismatched event, selected profile, payload hash, or recomputed projection yields 409. POST returns 201 on success and 422 when selected inputs cannot be resolved or admitted. A purpose-scoped SQL intent row serializes identical authenticated-principal/run/intent requests across app instances sharing the database; the body digest binds the selected refs and run profile. Same-body completed retries resolve the stored exact association, changed bodies conflict, and pending/recovery states fail closed. Event publication and row completion share the database transaction. An abrupt process loss may leave a pending row for manual reconciliation; no automatic takeover or external exactly-once claim is made. Events created before principal scope was captured are not replayed under the new owner and return `predictive_calibration_legacy_intent_scope_unverifiable`. SQLite cross-instance/process checks are authored but UNRUN; PostgreSQL behavior remains unverified.
+`POST` accepts an explicit `intent_id`, selected refs for the run's candidate
+source and observed snapshot, model, policy, and calibration rule, a contiguous
+train/holdout split, distinct caller-declared temporal roles, a threshold,
+method parameters, and a seed. It requires the existing
+`runs.feedback.evaluate` action permission bound to the exact owned run, then
+checks that the authenticated tenant and cell match the run. The service
+resolves the completed control job and exact Core manifest; requires the
+candidate source in the resolved candidate projection and the other selected
+inputs as exact full-profile run roots; reopens each selected CAS profile;
+runs ForecastOwner; persists the empirical calibration bridge and limited S10
+candidate projection; and appends a versioned association-ref event. Earlier
+associations are not rewritten. Success returns `201`; unresolved or
+inadmissible selected inputs return `422`.
 
-The DTO remains limited and `predictive_only`; issuer, source-time currentness, population scope, and counterfactual credibility remain `not_established`. The association is not a causal effect, recommendation, promotion, or publication authorization. The normal runtime application/container root enables this candidate route by default; `allow_candidate_run_predictive_calibration_surface=False` disables both operations before producer execution. The setting does not add a permission and is separate from the artifact-preview diagnostic gate. Canonical OpenAPI/client regeneration and execution of the composed HTTP integration test remain pending.
+A purpose-scoped SQL intent row serializes identical
+authenticated-principal/run/intent requests across app instances sharing the
+database. Its body digest binds selected refs and the run profile. A completed
+same-body retry resolves the stored association; a changed body conflicts;
+pending and recovery states fail closed. Event publication and row completion
+share a database transaction. Abrupt process loss can leave a pending row for
+manual reconciliation; this does not establish external exactly-once
+execution. Events predating principal-scope capture are not replayed under a
+new owner and return `predictive_calibration_legacy_intent_scope_unverifiable`.
+SQLite cross-process checks are authored but unrun; PostgreSQL behavior is
+unverified.
 
-The response distinguishes observed holdout hit rate from nominal confidence metadata and preserves selected refs to the backtest report, empirical evidence, and forecasting uncertainty bundle. The dashboard opens the exact uncertainty-bundle profile in the artifact viewer so an operator can inspect forecast points and predictive intervals. Every result remains assessment=limited and authority_scope=predictive_only; issuer, source time, population scope, and counterfactual credibility remain not_established. A passing calibration floor does not establish causal credibility or publication authority.
+`GET` requires the existing `runs.review` action permission bound to the exact
+owned run. It reads the latest association ref from the event log, verifies
+the payload hash, reopens the CAS association and evidence, checks the current
+run binding, and recomputes S10 before returning it. No event yields `404`;
+a mismatched event, selected profile, payload hash, or recomputed projection
+yields `409`.
 
+The response distinguishes observed holdout hit rate from nominal confidence
+metadata and carries refs to the backtest report, empirical evidence, and
+forecasting uncertainty bundle. It remains limited with
+`authority_scope=predictive_only`; issuer, source-time currentness, population
+scope, and counterfactual credibility remain `not_established`. It is not a
+causal effect, recommendation, promotion, or publication authorization. The
+normal app/container root enables this candidate diagnostic surface; setting
+`allow_candidate_run_predictive_calibration_surface=False` disables both
+operations before producer execution. The setting grants no route permission
+and is separate from artifact-preview diagnostics.
+
+At this source pin, the OpenAPI snapshot and generated operation types include
+both methods in `packages/runtime-api-client/types.ts` and
+`apps/runtime-dashboard/src/api/types.ts`. The package transport helper in
+`packages/runtime-api-client/canonicalRuntimeApiClient.ts` exposes GET; the
+dashboard hook in
+`apps/runtime-dashboard/src/api/hooks/useRunPredictiveCalibration.ts` uses
+typed `openapi-fetch` for both methods. The route-level semantic test is
+`tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry`;
+profile-boundary probes are in
+`tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py`.
+This page records source inspection only: the OpenAPI generator, those tests,
+SQLite cross-process tests, and PostgreSQL behavior were not run during this
+documentation refresh. E02 remains unfinished.
 
 A served acquisition re-entry using receipt schema v3 appends a continued `GenerationCycleRun` and records its N6/N9 result in the run-details acquisition history. For same-candidate re-entry, the typed history binds the prior and selected N4/N5 refs, preserves the profile selection identity with separate prior/current profile content hashes, and requires the exact selected target baseline to change. Current occurrences and fronts are projected from the continued run. The history remains candidate-only and does not confer publication authority. Historical v1/v2 re-entry receipts remain readable without this projection.
 

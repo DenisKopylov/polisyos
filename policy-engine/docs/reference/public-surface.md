@@ -130,7 +130,10 @@ publish recommendation, rollout, closeout, or policy-design authority.
 - Source: `src/polisyos/common/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose side-effect-sensitive common helpers behind a lazy package facade.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (7; native exports unproved)</summary>
 
@@ -151,7 +154,10 @@ timestamps
 - Source: `src/polisyos/common/config.py`
 - Facade: `unresolved_exports`
 - Summary: Explicit process bootstrap helpers for env defaults, validation, and logging.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (8; native exports unproved)</summary>
 
@@ -198,7 +204,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/core/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable Core platform surface with lazy package imports.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (134; native exports unproved)</summary>
 
@@ -346,7 +355,10 @@ security
 - Source: `src/polisyos/core/artifacts/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (77; native exports unproved)</summary>
 
@@ -437,7 +449,10 @@ validate_core_model_json_artifact
 - Source: `src/polisyos/core/canon/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Exports canonical JSON helpers and hashing utilities for stable artifact identities.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (10; native exports unproved)</summary>
 
@@ -461,7 +476,10 @@ truncated_hash
 - Source: `src/polisyos/core/components/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable component discovery, metadata, compliance, and registry API.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (61; native exports unproved)</summary>
 
@@ -536,7 +554,10 @@ validate_metadata
 - Source: `src/polisyos/core/contracts/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
-- Export resolution incomplete: Unresolved export binding consumer: src/polisyos/core/contracts/__init__.py:_CHRONOLOGY_EXPORTS.
+- Export resolution incomplete: `Unresolved export binding consumer: src/polisyos/core/contracts/__init__.py:_CHRONOLOGY_EXPORTS`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (666; native exports unproved)</summary>
 
@@ -1216,7 +1237,10 @@ verify_scope_adjudication_candidate
 - Source: `src/polisyos/core/observability/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: PolicyOS Observability Module — Production-grade telemetry.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -1255,7 +1279,10 @@ with_trace_context
 - Source: `src/polisyos/core/security/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (106; native exports unproved)</summary>
 
@@ -1375,7 +1402,10 @@ verify_signed_evidence
 - Source: `src/polisyos/core/trace/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Exports trace records and sinks used to persist run-level execution telemetry.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (5; native exports unproved)</summary>
 
@@ -1417,7 +1447,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/ir/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (293; native exports unproved)</summary>
 
@@ -1724,7 +1757,10 @@ persist_dependent_sensitivity_result
 - Source: `src/polisyos/ir/analytics/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Curated lazy facade for analytics IR contracts.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (285; native exports unproved)</summary>
 
@@ -2023,7 +2059,10 @@ validate_truthfulness_receipt
 - Source: `src/polisyos/ir/analytics/calibration_diagnostics.py`
 - Facade: `unresolved_exports`
 - Summary: Typed IR contracts for probabilistic calibration diagnostics.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (6; native exports unproved)</summary>
 
@@ -2043,7 +2082,10 @@ CalibrationTestResult
 - Source: `src/polisyos/ir/api.py`
 - Facade: `unresolved_exports`
 - Summary: Machine-readable manifest for the documented IR package facades.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (11; native exports unproved)</summary>
 
@@ -2068,7 +2110,10 @@ resolve_lazy_export
 - Source: `src/polisyos/ir/governance/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the governance-side IR contracts for Trinity policy authoring.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (105; native exports unproved)</summary>
 
@@ -2187,7 +2232,10 @@ summarize_issues
 - Source: `src/polisyos/ir/observation/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the observation contract stack through a lazy package facade.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/ir/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (167; native exports unproved)</summary>
 
@@ -2386,7 +2434,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/obligation_rules/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Governed obligation rule catalog public module.
-- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_rules/catalog.py:class ObligationRule(ObligationRuleModel):
+- Export resolution incomplete; source reason follows:
+
+```text
+Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_rules/catalog.py:class ObligationRule(ObligationRuleModel):
     """Governed obligation rule contract consumed by downstream compilers."""
     rule_id: str = Field(pattern=ID_PATTERN)
     rule_family: ObligationRuleFamily
@@ -2419,7 +2470,11 @@ Export total is unknown; the static reader cannot resolve the extension.
                 raise ValueError('governed rules require owner, authority_level, and evidence_basis')
             if self.candidate_source_class is not None and self.candidate_source_class.value in _LLM_SOURCE_CLASSES and (not self.governance_decision_ref):
                 raise ValueError('LLM candidates require explicit governance admission')
-        return self.
+        return self
+```
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (22; native exports unproved)</summary>
 
@@ -2473,13 +2528,20 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/obligation_graph/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: W6.C obligation graph compiler and ledger contracts.
-- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_graph/_impl/compiler.py:class ObligationGraphCompileError(ValueError):
+- Export resolution incomplete; source reason follows:
+
+```text
+Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/obligation_graph/_impl/compiler.py:class ObligationGraphCompileError(ValueError):
     """Raised when the obligation graph cannot be compiled truthfully."""
 
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f'{code}: {message}')
         self.code = code
-        self.message = message.
+        self.message = message
+```
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (20; native exports unproved)</summary>
 
@@ -2531,7 +2593,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/method_requirement/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Method validity requirement compiler for universal Policy Design Cases.
-- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/method_requirement/_impl/compiler.py:class MethodValidityRequirementCompiler:
+- Export resolution incomplete; source reason follows:
+
+```text
+Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/method_requirement/_impl/compiler.py:class MethodValidityRequirementCompiler:
     """Deterministically compile W6.D claims into W7.C method requirements."""
 
     def compile(self, *, run_id: str, claims: Sequence[object], requirement_graph_ref: str | None=None, generated_at: datetime | None=None, metadata: Mapping[str, Any] | None=None) -> MethodValidityRequirementArtifact:
@@ -2553,7 +2618,11 @@ Export total is unknown; the static reader cannot resolve the extension.
         simulation_dgp = _simulation_dgp_requirement(tokens)
         assumption_needs = _assumption_validation_needs(identification_class=identification_class, fairness_need=fairness_need, strategic_sensitivity=strategic_sensitivity, simulation_dgp=simulation_dgp, method_needs=method_needs, tokens=tokens)
         method_expectations = _method_expectations(method_needs=method_needs, tokens=tokens, strategic_sensitivity=strategic_sensitivity)
-        return MethodValidityRequirementSpec(requirement_id=_stable_id('method_requirement', run_id, claim_id, method_needs), run_id=run_id, claim_id=claim_id, identification_class=identification_class, transportability_requirement=_transportability_requirement(identification_class, tokens), uncertainty_class=uncertainty_class, fairness_decomposition_need=fairness_need, strategic_response_sensitivity=strategic_sensitivity, simulation_dgp_requirements=simulation_dgp, assumption_validation_needs=assumption_needs, method_expectations=method_expectations, required_method_families=method_expectations, facet_refs=_string_list(claim.get('facet_refs')), obligation_refs=_string_list(claim.get('obligation_refs')), concept_spine_refs=_string_list(claim.get('concept_spine_refs')), authority_profile_refs=_string_list(claim.get('authority_profile_refs')), baseline_refs=_string_list(claim.get('baseline_refs')), alternative_refs=_string_list(claim.get('alternative_refs')), source_precondition_refs=[_text(precondition.get('precondition_id')) for precondition in _precondition_rows(claim) if _text(precondition.get('precondition_id'))], requires_ir_analytics=identification_class in {MethodIdentificationClass.POINT, MethodIdentificationClass.PARTIAL, MethodIdentificationClass.BOUNDS, MethodIdentificationClass.NEGATIVE_CERTIFICATE}, requires_runtime_assumption_gates=bool(assumption_needs), requires_uncertainty_envelope=uncertainty_class is not MethodUncertaintyClass.NONE, requires_limitation_refs=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_method_output=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_negative_certificate=identification_class is MethodIdentificationClass.NEGATIVE_CERTIFICATE, metadata={'claim_type': _text(claim.get('claim_type')), 'claim_family': _text(claim.get('claim_family')), 'claim_use': _text(claim.get('claim_use')), 'source': 'claim_method_need_preconditions'}).
+        return MethodValidityRequirementSpec(requirement_id=_stable_id('method_requirement', run_id, claim_id, method_needs), run_id=run_id, claim_id=claim_id, identification_class=identification_class, transportability_requirement=_transportability_requirement(identification_class, tokens), uncertainty_class=uncertainty_class, fairness_decomposition_need=fairness_need, strategic_response_sensitivity=strategic_sensitivity, simulation_dgp_requirements=simulation_dgp, assumption_validation_needs=assumption_needs, method_expectations=method_expectations, required_method_families=method_expectations, facet_refs=_string_list(claim.get('facet_refs')), obligation_refs=_string_list(claim.get('obligation_refs')), concept_spine_refs=_string_list(claim.get('concept_spine_refs')), authority_profile_refs=_string_list(claim.get('authority_profile_refs')), baseline_refs=_string_list(claim.get('baseline_refs')), alternative_refs=_string_list(claim.get('alternative_refs')), source_precondition_refs=[_text(precondition.get('precondition_id')) for precondition in _precondition_rows(claim) if _text(precondition.get('precondition_id'))], requires_ir_analytics=identification_class in {MethodIdentificationClass.POINT, MethodIdentificationClass.PARTIAL, MethodIdentificationClass.BOUNDS, MethodIdentificationClass.NEGATIVE_CERTIFICATE}, requires_runtime_assumption_gates=bool(assumption_needs), requires_uncertainty_envelope=uncertainty_class is not MethodUncertaintyClass.NONE, requires_limitation_refs=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_method_output=identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE, requires_negative_certificate=identification_class is MethodIdentificationClass.NEGATIVE_CERTIFICATE, metadata={'claim_type': _text(claim.get('claim_type')), 'claim_family': _text(claim.get('claim_family')), 'claim_use': _text(claim.get('claim_use')), 'source': 'claim_method_need_preconditions'})
+```
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
@@ -2599,7 +2668,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/participation_requirement/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Participation provenance requirement compiler and consumer enforcement.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:import hashlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/participation_requirement/__init__.py:import hashlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (23; native exports unproved)</summary>
 
@@ -2658,7 +2730,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/fabric/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (41; native exports unproved)</summary>
 
@@ -2713,7 +2788,10 @@ world
 - Source: `src/polisyos/fabric/api.py`
 - Facade: `unresolved_exports`
 - Summary: Explicit public Fabric API facade and connector bridge.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (41; native exports unproved)</summary>
 
@@ -2768,7 +2846,10 @@ world
 - Source: `src/polisyos/fabric/connectors/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Data Fabric Connectors - Protocol Foundation & Registry Architecture.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (127; native exports unproved)</summary>
 
@@ -2909,7 +2990,10 @@ with_retry
 - Source: `src/polisyos/fabric/data_plane/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Data Plane facade for orchestration, quarantine, snapshots, shape, and time.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/fabric/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (53; native exports unproved)</summary>
 
@@ -2976,7 +3060,10 @@ verify_journal_event_ref
 - Source: `src/polisyos/fabric/world/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Facade for emitting, validating, persisting, and materializing world facts.
-- Export resolution incomplete: Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__.
+- Export resolution incomplete: `Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (41; native exports unproved)</summary>
 
@@ -3053,7 +3140,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/foundry/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (31; native exports unproved)</summary>
 
@@ -3098,7 +3188,10 @@ validate_source_bound_gcm_spec
 - Source: `src/polisyos/foundry/api.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Foundry public facade for compile and execute entrypoints.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (3; native exports unproved)</summary>
 
@@ -3115,7 +3208,10 @@ execute
 - Source: `src/polisyos/foundry/compile/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (1; native exports unproved)</summary>
 
@@ -3130,7 +3226,10 @@ compile
 - Source: `src/polisyos/foundry/execute/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable execute facade for compiled Foundry plans.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (4; native exports unproved)</summary>
 
@@ -3148,7 +3247,10 @@ resolve_execution_posture
 - Source: `src/polisyos/foundry/uncertainty/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (18; native exports unproved)</summary>
 
@@ -3203,7 +3305,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/scientist/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (39; native exports unproved)</summary>
 
@@ -3256,7 +3361,10 @@ tool_contract_default_blockers
 - Source: `src/polisyos/scientist/governance/continuous/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Continuous governance and reissue loop for Scientist decision artifacts.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (87; native exports unproved)</summary>
 
@@ -3357,7 +3465,10 @@ persist_published_signature_custody_scan
 - Source: `src/polisyos/scientist/methods/research_dag/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Research DAG public API for Scientist best-in-class Phase 1.2.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (44; native exports unproved)</summary>
 
@@ -3415,7 +3526,10 @@ validate_source_invalidation_event
 - Source: `src/polisyos/scientist/replay/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Scientist replay hub for dead-letter, diff, and verification helpers.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -3454,7 +3568,10 @@ verify_and_persist_replay_bundle
 - Source: `src/polisyos/scientist/replay/deterministic.py`
 - Facade: `unresolved_exports`
 - Summary: Plan, measure, and verify deterministic replay from CAS decision packets.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scientist/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (20; native exports unproved)</summary>
 
@@ -3543,7 +3660,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/evidence/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Cross-producer evidence graph artifacts for PolicyOS.
-- Export resolution incomplete: Unresolved import-time Subscript outside pure-declaration grammar: src/polisyos/evidence/claims/claim_registry.py:dict[str, Any].
+- Export resolution incomplete: `Unresolved import-time Subscript outside pure-declaration grammar: src/polisyos/evidence/claims/claim_registry.py:dict[str, Any]`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (19; native exports unproved)</summary>
 
@@ -3594,7 +3714,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/runtime/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose replay/runtime contracts without importing heavy implementations eagerly.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (10; native exports unproved)</summary>
 
@@ -3636,7 +3759,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/runtime/quality/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Runtime quality evaluation helpers.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/runtime/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (970; native exports unproved)</summary>
 
@@ -4639,7 +4765,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/lex/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (51; native exports unproved)</summary>
 
@@ -4704,7 +4833,10 @@ run_legal_benchmark
 - Source: `src/polisyos/lex/knowledge/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Legal knowledge graph: SPO entities, facts, and semantic search.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/lex/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
@@ -4750,7 +4882,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/scholar/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Expose Scholar enrichment entrypoints and contracts via lazy imports.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scholar/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/scholar/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (25; native exports unproved)</summary>
 
@@ -4812,7 +4947,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/data_forge/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
+- Export resolution incomplete: `Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (49; native exports unproved)</summary>
 
@@ -4875,7 +5013,10 @@ write_snapshot_provenance_manifest
 - Source: `src/polisyos/data_forge/read_api/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Stable runtime-safe Data Forge read APIs.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
+- Export resolution incomplete: `Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (16; native exports unproved)</summary>
 
@@ -4905,7 +5046,10 @@ ukraine
 - Source: `src/polisyos/data_forge/read_api/academic.py`
 - Facade: `unresolved_exports`
 - Summary: Runtime-safe read API for academic Data Forge artifacts.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module.
+- Export resolution incomplete: `Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (93; native exports unproved)</summary>
 
@@ -5012,7 +5156,10 @@ select_academic_batch_stages
 - Source: `src/polisyos/data_forge/read_api/catalog.py`
 - Facade: `unresolved_exports`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
-- Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/catalog.py.
+- Export resolution incomplete: `Unresolved export expansion: src/polisyos/data_forge/read_api/catalog.py`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 #### `polisyos.data_forge.read_api.legal`
 
@@ -5026,7 +5173,10 @@ select_academic_batch_stages
 - Source: `src/polisyos/data_forge/read_api/ukraine.py`
 - Facade: `unresolved_exports`
 - Summary: Runtime-safe read API for Ukraine demographic static-aging artifacts.
-- Export resolution incomplete: Unresolved export expansion: src/polisyos/data_forge/read_api/ukraine.py.
+- Export resolution incomplete: `Unresolved export expansion: src/polisyos/data_forge/read_api/ukraine.py`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 Export total is unknown; the static reader cannot resolve the extension.
 
 ## `polisyos.berl`
@@ -5051,7 +5201,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/berl/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Bounded Explanation Reliability Layer public API.
-- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/berl/contracts/explanation_bundle.py:class ExplanationBundle(StrictModel):
+- Export resolution incomplete; source reason follows:
+
+```text
+Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/berl/contracts/explanation_bundle.py:class ExplanationBundle(StrictModel):
     """Audited explanation artifact that prevents assumption-free bar charts."""
     schema_version: str = Field(default=EXPLANATION_BUNDLE_SCHEMA_VERSION, pattern='^\\d+\\.\\d+\\.\\d+$')
     bundle_id: str = Field(min_length=1)
@@ -5067,7 +5220,11 @@ Export total is unknown; the static reader cannot resolve the extension.
     methods: list[MethodExplanation] = Field(default_factory=list)
     disagreement: DisagreementReport | None = None
     validity: ValidityReport = Field(default_factory=ValidityReport)
-    audit: AuditReport.
+    audit: AuditReport
+```
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
@@ -5113,7 +5270,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/calibration/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Calibration diagnostics public entrypoints.
-- Export resolution incomplete: Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/ir/governance/validation.py:class ValidationReport(BaseModel):
+- Export resolution incomplete; source reason follows:
+
+```text
+Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/ir/governance/validation.py:class ValidationReport(BaseModel):
     """Bundle issue summaries, optional repair notes, and diffs for a failed validation pass."""
     contract_id: ClassVar[str] = 'scientist.validation_report.v2'
     schema_version: str = '2.0'
@@ -5135,7 +5295,11 @@ Export total is unknown; the static reader cannot resolve the extension.
     waivers: list[Phase5GateWaiver] = Field(default_factory=list)
     generated_for: str | None = None
     generated_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
-    model_config = ConfigDict(extra='forbid').
+    model_config = ConfigDict(extra='forbid')
+```
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 6 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (10; native exports unproved)</summary>
 
@@ -5177,7 +5341,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/ddm/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Drift-and-Degradation Monitor for Phase 5 Problem 15.7.
-- Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from importlib import import_module.
+- Export resolution incomplete: `Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ddm/__init__.py:from importlib import import_module`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (17; native exports unproved)</summary>
 
@@ -5226,7 +5393,10 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Source: `src/polisyos/foundry/agent_sim/world/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Synthetic-world family with truth-centric generation and evaluation.
-- Export resolution incomplete: Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/foundry/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
 <details><summary>Source-declared candidates (23; native exports unproved)</summary>
 

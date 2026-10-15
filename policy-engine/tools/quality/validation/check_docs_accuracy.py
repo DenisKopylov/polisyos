@@ -1,32 +1,40 @@
 #!/usr/bin/env python3
 """Validate published docs against current repository reality.
 
-The checker intentionally focuses on the published MkDocs surface defined by
-``mkdocs.yml`` and enforces the D2 reference contract:
+The checker applies navigation policy from ``nav`` and ``not_in_nav`` while
+deriving the scan set from MkDocs' actual ``Files`` collection:
 
-* published pages come from ``nav`` or ``not_in_nav`` and must not be excluded
-  by ``exclude_docs``;
 * placeholder repository URLs such as ``<repo-url>`` are rejected;
 * workflow references must point to workflow files that actually exist under
   ``.github/workflows`` in this repository;
-* relative Markdown links from published docs must stay inside the published
-  docs surface, or use inline-code / stable external links instead;
+* inline and reference-style Markdown page links must resolve inside the
+  actual MkDocs-included docs surface;
 * generated reference pages must advertise a canonical regeneration command;
 * published manual reference pages must declare ``Owner:`` and
   ``Source of truth:`` metadata.
+
+The collector uses Python-Markdown's inline processors and supports
+single-line inline links, two-line inline labels, full/collapsed/shortcut
+reference links, nested link labels and destinations, and escaped/code-span
+syntax handled by Python-Markdown. Raw HTML links, images/assets, root-relative
+URLs, fragment-anchor existence, unsupported multiline link forms, external URL
+availability and rendered deployment remain unresolved by construction. Fenced
+and indented code blocks are excluded before link parsing.
 """
 
 from __future__ import annotations
 
 import argparse
-import fnmatch
+import json
 import re
 import subprocess
+from collections import Counter
 from dataclasses import dataclass
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
+from tools.lib.fs import measure_file_reads, measured_is_dir, measured_is_file, measured_read_text
 from tools.lib.imports import repo_root_from
 
 try:
@@ -37,8 +45,11 @@ except ImportError:  # pragma: no cover - fallback only used in broken envs.
 PLACEHOLDER_RE = re.compile(r"<repo-url>")
 WORKFLOW_PATH_RE = re.compile(r"(?:\.github/workflows|actions/workflows)/([A-Za-z0-9_.-]+\.yml)\b")
 URL_RE = re.compile(r"https?://[^\s)>'\"]+")
-INLINE_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 LOCAL_FILESYSTEM_RE = re.compile(r"^(?:file://|/Users/|/home/|/tmp/)")
+MULTILINE_LINK_HINT_RE = re.compile(
+    r"\[[^\]\n]{1,200}\n[^\]\n]{0,200}\][ \t]*(?:\(|\[)"
+    r"|\[[^\]\n]{1,200}\][ \t]*\n[ \t]*(?:\(|\[)"
+)
 PLANNING_DOC_RE = re.compile(r"(^|/).+(?:_PLAN|_ROADMAP|_REMEDIATION_PLAN)\.md$", re.IGNORECASE)
 OWNER_RE = re.compile(r"^Owner:\s+\S+", flags=re.MULTILINE)
 SOURCE_OF_TRUTH_RE = re.compile(r"^Source of truth:\s+\S+", flags=re.MULTILINE)
@@ -46,16 +57,6 @@ REGENERATION_RE = re.compile(
     r"(?:Regenerate this page with|Canonical regeneration command(?:s)?)(?::|\s)",
     flags=re.IGNORECASE,
 )
-NON_DOC_SEGMENTS = {
-    ".github",
-    "benchmarks",
-    "frontend",
-    "release",
-    "schemas",
-    "src",
-    "tests",
-    "tools",
-}
 GENERATED_REFERENCE_ALLOWLIST = (
     Path("docs/reference/public-surface.md"),
     Path("docs/reference/generated-artifacts.md"),
@@ -63,11 +64,17 @@ GENERATED_REFERENCE_ALLOWLIST = (
     Path("docs/reference/schemas.md"),
     Path("docs/reference/ir/schema-catalog.md"),
 )
-MEASURED = "Measured: declared MkDocs nav/not_in_nav publication membership, inline Markdown " \
-    "page/directory links, literal .yml workflow references and reference-page metadata."
-OMISSION = "Not measured: prose truth, runtime behavior, external URL availability, " \
-    "unpublished document contents, reference-style links, images, asset existence, " \
-    "unresolved extensionless links, .yaml workflows, rendered site deployment, or hosted CI."
+MEASURED = (
+    "Measured: navigation policy; actual MkDocs included files; inline and reference-style "
+    "Markdown page links (including two-line inline labels); literal .yml workflows; existing "
+    "generated-reference publication and regeneration checks; reference metadata."
+)
+OMISSION = (
+    "Not measured: prose truth, runtime behavior, raw HTML links, image/asset existence, "
+    "unpublished document contents, root-relative URL targets, fragment-anchor existence, unsupported multiline link forms, "
+    "presence of generated-reference allowlist entries absent from the repository, extensionless links with no .md/index.md target, "
+    "external URL availability, .yaml workflows, rendered deployment, or hosted CI."
+)
 
 
 @dataclass(frozen=True)
@@ -81,12 +88,23 @@ class Violation:
 
 @dataclass(frozen=True)
 class PublishedDocsConfig:
-    """Resolved published-docs configuration from ``mkdocs.yml``."""
+    """Resolved navigation policy and actual MkDocs file selection."""
 
     site_url: str | None
+    nav_files: tuple[Path, ...]
+    not_in_nav_files: tuple[Path, ...]
     published_files: tuple[Path, ...]
     docs_root: Path
     mkdocs_path: Path
+    exclusion_patterns: tuple[str, ...]
+    file_manifest: tuple[dict[str, str], ...]
+    selection_summary: dict[str, Any]
+    generated_reference_presence: tuple[dict[str, str], ...]
+
+    @property
+    def published_markdown_files(self) -> tuple[Path, ...]:
+        """Return actual included Markdown pages, excluding assets."""
+        return tuple(path for path in self.published_files if path.suffix.lower() == ".md")
 
 
 def collect_nav_entries(value: Any) -> list[str]:
@@ -108,16 +126,6 @@ def collect_nav_entries(value: Any) -> list[str]:
     raise ValueError(f"MkDocs nav has unsupported entry type: {type(value).__name__}")
 
 
-def parse_site_url(mkdocs_path: Path) -> str | None:
-    """Read ``site_url`` from one MkDocs file without resolving inheritance."""
-    if not mkdocs_path.exists():
-        return None
-    for line in mkdocs_path.read_text(encoding="utf-8").splitlines():
-        if line.startswith("site_url:"):
-            return line.split(":", 1)[1].strip()
-    return None
-
-
 def load_mkdocs_data(
     mkdocs_path: Path,
     loader_cls: type[yaml.SafeLoader],
@@ -129,7 +137,7 @@ def load_mkdocs_data(
     if resolved_path in seen:
         raise ValueError(f"cyclic MkDocs INHERIT chain at {mkdocs_path}")
     try:
-        data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=loader_cls) or {}
+        data = yaml.load(measured_read_text(mkdocs_path), Loader=loader_cls) or {}
     except yaml.YAMLError as exc:
         raise ValueError(f"MkDocs YAML unavailable: {exc}") from exc
     if not isinstance(data, dict):
@@ -161,24 +169,31 @@ def split_exclude_docs(value: Any) -> list[str]:
     raise ValueError("MkDocs publication patterns must be a string or list of strings")
 
 
-def is_excluded_docs_path(relative_to_docs: Path, patterns: list[str]) -> bool:
-    """Return whether a docs path matches MkDocs ``exclude_docs`` patterns."""
-    candidate = relative_to_docs.as_posix()
-    for pattern in patterns:
-        if fnmatch.fnmatch(candidate, pattern):
-            return True
-    return False
-
-
 def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Violation]]:
-    """Resolve the published MkDocs surface from ``mkdocs.yml``."""
+    """Resolve nav policy and MkDocs' actual included source files."""
     mkdocs_path = repo_root / "mkdocs.yml"
-    docs_root = repo_root / "docs"
     violations: list[Violation] = []
-    site_url = parse_site_url(mkdocs_path)
 
     if yaml is None:
         raise ValueError("PyYAML unavailable: publication membership was not measured")
+    measured_read_text(mkdocs_path)
+    try:
+        from mkdocs.config import load_config
+        from mkdocs.structure.files import get_files
+
+        actual_config = load_config(config_file=str(mkdocs_path))
+        docs_root = Path(actual_config["docs_dir"]).resolve()
+        docs_root.relative_to(repo_root.resolve())
+        all_files = tuple(get_files(actual_config))
+    except (ImportError, OSError, ValueError) as exc:
+        raise ValueError(
+            f"actual MkDocs file selection unavailable: {type(exc).__name__}: {exc}"
+        ) from exc
+    except Exception as exc:
+        # MkDocs reports malformed configuration through its own exception types.
+        raise ValueError(
+            f"actual MkDocs file selection unavailable: {type(exc).__name__}: {exc}"
+        ) from exc
 
     class MkDocsLoader(yaml.SafeLoader):
         pass
@@ -195,13 +210,33 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
     MkDocsLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", _unknown_tag)
     data = load_mkdocs_data(mkdocs_path, MkDocsLoader)
     site_url_value = data.get("site_url")
-    site_url = str(site_url_value).strip() if site_url_value else site_url
+    site_url = str(actual_config.get("site_url") or site_url_value or "").strip() or None
     nav_paths = collect_nav_entries(data.get("nav", []))
     exclude_patterns = split_exclude_docs(data.get("exclude_docs"))
     not_in_nav_paths = split_exclude_docs(data.get("not_in_nav"))
     if not nav_paths and not not_in_nav_paths:
         raise ValueError("MkDocs publication scope has no nav or not_in_nav entries")
+
+    source_records: list[tuple[Path, str, bool, bool]] = []
     published: set[Path] = set()
+    for file in all_files:
+        inclusion = file.inclusion.name
+        source_path = Path(file.abs_src_path).resolve()
+        try:
+            source_path.relative_to(docs_root)
+        except ValueError as exc:
+            raise ValueError(
+                f"MkDocs file `{file.src_uri}` resolves outside the repository docs root"
+            ) from exc
+        is_markdown = source_path.suffix.lower() == ".md"
+        included = file.inclusion.is_included()
+        source_records.append((source_path, inclusion, is_markdown, included))
+        if included:
+            published.add(source_path)
+
+    declared: set[Path] = set()
+    nav_published: set[Path] = set()
+    not_in_nav_published: set[Path] = set()
 
     for nav_entry in nav_paths:
         relative = Path(nav_entry)
@@ -223,17 +258,8 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 )
             )
             continue
-        if is_excluded_docs_path(relative, exclude_patterns):
-            violations.append(
-                Violation(
-                    mkdocs_path,
-                    1,
-                    f"nav entry `{nav_entry}` is excluded by `exclude_docs`",
-                )
-            )
-            continue
         file_path = (docs_root / relative).resolve()
-        if not file_path.exists():
+        if not file_path.is_relative_to(docs_root) or not measured_is_file(file_path):
             violations.append(
                 Violation(
                     mkdocs_path,
@@ -242,21 +268,22 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 )
             )
             continue
-        published.add(file_path)
-
-    for not_in_nav_entry in not_in_nav_paths:
-        relative = Path(not_in_nav_entry)
-        if is_excluded_docs_path(relative, exclude_patterns):
+        if file_path not in published:
             violations.append(
                 Violation(
                     mkdocs_path,
                     1,
-                    f"not_in_nav entry `{not_in_nav_entry}` is excluded by `exclude_docs`",
+                    f"nav entry `{nav_entry}` is not included by actual MkDocs file selection",
                 )
             )
             continue
+        declared.add(file_path)
+        nav_published.add(file_path)
+
+    for not_in_nav_entry in not_in_nav_paths:
+        relative = Path(not_in_nav_entry)
         file_path = (docs_root / relative).resolve()
-        if not file_path.exists():
+        if not file_path.is_relative_to(docs_root) or not measured_is_file(file_path):
             violations.append(
                 Violation(
                     mkdocs_path,
@@ -265,11 +292,26 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 )
             )
             continue
-        published.add(file_path)
+        if file_path not in published:
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"not_in_nav entry `{not_in_nav_entry}` is not included by actual MkDocs file selection",
+                )
+            )
+            continue
+        declared.add(file_path)
+        not_in_nav_published.add(file_path)
 
+    generated_reference_presence: list[dict[str, str]] = []
     for relative in GENERATED_REFERENCE_ALLOWLIST:
         path = (repo_root / relative).resolve()
-        if path.exists() and path not in published:
+        present = measured_is_file(path)
+        generated_reference_presence.append(
+            {"path": relative.as_posix(), "status": "present" if present else "absent"}
+        )
+        if present and path not in declared:
             violations.append(
                 Violation(
                     mkdocs_path,
@@ -278,12 +320,48 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 )
             )
 
+    manifest: list[dict[str, str]] = []
+    inclusion_counts: Counter[str] = Counter()
+    markdown_count = 0
+    included_markdown_count = 0
+    for source_path, inclusion, is_markdown, included in source_records:
+        inclusion_counts[inclusion] += 1
+        markdown_count += int(is_markdown)
+        if included:
+            included_markdown_count += int(is_markdown)
+            manifest.append(
+                {
+                    "path": source_path.relative_to(repo_root.resolve()).as_posix(),
+                    "type": "markdown" if is_markdown else "asset",
+                    "inclusion": inclusion,
+                }
+            )
+
+    selection_summary: dict[str, Any] = {
+        "selector": "mkdocs.config.load_config + mkdocs.structure.files.get_files; inclusion.is_included()",
+        "docs_root": docs_root.relative_to(repo_root.resolve()).as_posix(),
+        "enumerated_files": len(all_files),
+        "included_files": len(published),
+        "included_markdown_files": included_markdown_count,
+        "enumerated_markdown_files": markdown_count,
+        "inclusion_counts": dict(sorted(inclusion_counts.items())),
+        "exclude_docs": exclude_patterns,
+        "nav_files": len(nav_published),
+        "not_in_nav_files": len(not_in_nav_published),
+    }
+
     return (
         PublishedDocsConfig(
             site_url=site_url,
+            nav_files=tuple(sorted(nav_published)),
+            not_in_nav_files=tuple(sorted(not_in_nav_published)),
             published_files=tuple(sorted(published)),
             docs_root=docs_root,
             mkdocs_path=mkdocs_path,
+            exclusion_patterns=tuple(exclude_patterns),
+            file_manifest=tuple(manifest),
+            selection_summary=selection_summary,
+            generated_reference_presence=tuple(generated_reference_presence),
         ),
         violations,
     )
@@ -314,39 +392,204 @@ def actual_workflow_names(repo_root: Path) -> set[str]:
 
 
 def normalize_link_target(target: str) -> str:
-    """Drop anchors and optional titles from an inline Markdown link target."""
+    """Convert a local Markdown URL path into a filesystem path."""
     target = target.strip()
     if target.startswith("<") and target.endswith(">"):
         target = target[1:-1].strip()
-    if " " in target and not target.startswith(("http://", "https://")):
-        target = target.split(" ", 1)[0]
-    return target.split("#", 1)[0]
-
-
-def looks_like_relative_repo_link(target: str) -> bool:
-    """Return whether a relative target obviously points outside published docs."""
-    parts = {part for part in PurePosixPath(target).parts if part not in {".", ".."}}
-    return bool(parts & NON_DOC_SEGMENTS)
+    return unquote(urlparse(target).path)
 
 
 def resolve_relative_candidates(file_path: Path, target: str) -> list[Path]:
-    """Build candidate paths for a relative Markdown target."""
+    """Build filesystem candidates for a relative Markdown page target."""
     base = (file_path.parent / target).resolve()
-    candidates: list[Path] = [base]
-    if target.endswith("/") or base.is_dir():
-        candidates.append((base / "index.md").resolve())
-    elif base.suffix == "":
-        candidates.append(base.with_suffix(".md").resolve())
-        candidates.append((base / "index.md").resolve())
-    return candidates
+    if target.endswith("/"):
+        return [(base / "index.md").resolve()]
+    if base.suffix == "":
+        return [base.with_suffix(".md").resolve(), (base / "index.md").resolve()]
+    return [base]
 
 
-def first_existing_candidate(file_path: Path, target: str) -> Path | None:
-    """Resolve a relative target to the first existing candidate path."""
-    for candidate in resolve_relative_candidates(file_path, target):
-        if candidate.exists():
-            return candidate
-    return None
+def _markdown_lines_without_block_code(text: str) -> list[tuple[int, str]]:
+    """Keep source lines outside fenced and indented Markdown code blocks."""
+    visible: list[tuple[int, str]] = []
+    fence_char: str | None = None
+    fence_length = 0
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        fence_match = re.match(r"^(?: {0,3}> ?)* {0,3}(`{3,}|~{3,})", line)
+        if fence_char is not None:
+            closing = re.match(r"^(?: {0,3}> ?)* {0,3}(`+|~+)\s*$", line)
+            if (
+                closing
+                and closing.group(1)[0] == fence_char
+                and len(closing.group(1)) >= fence_length
+            ):
+                fence_char = None
+                fence_length = 0
+            continue
+        if fence_match:
+            marker = fence_match.group(1)
+            fence_char = marker[0]
+            fence_length = len(marker)
+            continue
+        if line.startswith(("    ", "\t")):
+            continue
+        visible.append((line_number, line))
+    return visible
+
+
+def _mask_inline_code(text: str) -> str:
+    """Blank matched backtick spans while preserving line breaks and offsets."""
+    chars = list(text)
+    index = 0
+    while index < len(text):
+        if text[index] != "`":
+            index += 1
+            continue
+        slash_count = 0
+        previous = index - 1
+        while previous >= 0 and text[previous] == "\\":
+            slash_count += 1
+            previous -= 1
+        if slash_count % 2:
+            index += 1
+            continue
+        run_end = index + 1
+        while run_end < len(text) and text[run_end] == "`":
+            run_end += 1
+        delimiter = text[index:run_end]
+        close = text.find(delimiter, run_end)
+        if close < 0:
+            index = run_end
+            continue
+        end = close + len(delimiter)
+        for position in range(index, end):
+            if chars[position] != "\n":
+                chars[position] = " "
+        index = end
+    return "".join(chars)
+
+
+def markdown_link_targets(text: str) -> list[tuple[int, str]]:
+    """Collect supported Markdown link destinations with their source lines."""
+    visible_lines = _markdown_lines_without_block_code(text)
+    visible_text = "\n".join(line for _, line in visible_lines)
+    try:
+        import markdown
+        from markdown.inlinepatterns import (
+            LinkInlineProcessor,
+            ReferenceInlineProcessor,
+            ShortReferenceInlineProcessor,
+        )
+    except ImportError as exc:  # pragma: no cover - docs extra is required in CI.
+        raise ValueError("Python-Markdown unavailable: Markdown links were not measured") from exc
+
+    link_markdown = markdown.Markdown()
+    link_markdown.treeprocessors["inline"].stashed_nodes = {}
+    link_parser = LinkInlineProcessor(r"\[", link_markdown)
+    code_masked_text = _mask_inline_code(visible_text)
+    multiline_spans: list[tuple[int, int, int]] = []
+    search_at = 0
+    while True:
+        start = code_masked_text.find("[", search_at)
+        if start < 0:
+            break
+        search_at = start + 1
+        if start and code_masked_text[start - 1] == "!":
+            continue
+        if start and code_masked_text[start - 1] == "\\":
+            continue
+        label, after_label, label_closed = link_parser.getText(code_masked_text, start + 1)
+        if not label_closed:
+            continue
+        _href, _title, end, link_closed = link_parser.getLink(code_masked_text, after_label)
+        if not link_closed:
+            continue
+        line_index = code_masked_text[:start].count("\n")
+        source_line = visible_lines[line_index][0]
+        if "\n" in code_masked_text[after_label:end]:
+            raise ValueError(
+                f"line {source_line}: unsupported multiline Markdown link destination/title"
+            )
+        if "\n" in label:
+            multiline_spans.append((start, end, source_line))
+            search_at = end
+
+    masked_text = list(visible_text)
+    for start, end, _line in multiline_spans:
+        for position in range(start, end):
+            if masked_text[position] != "\n":
+                masked_text[position] = " "
+    single_line_text = "".join(masked_text)
+    multiline_match = MULTILINE_LINK_HINT_RE.search(_mask_inline_code(single_line_text))
+    if multiline_match:
+        line_index = single_line_text[: multiline_match.start()].count("\n")
+        source_line = visible_lines[line_index][0]
+        raise ValueError(f"line {source_line}: unsupported multiline Markdown link syntax")
+
+    # Python-Markdown owns reference-label normalization and destination decoding.
+    reference_parser = markdown.Markdown()
+    reference_parser.convert(visible_text)
+    references = dict(reference_parser.references)
+    targets: list[tuple[int, str]] = []
+    collector = markdown.Markdown()
+    priorities = {"link": 160, "reference": 170, "short_reference": 130}
+
+    class RecordingLink(LinkInlineProcessor):
+        line_number = 0
+
+        def handleMatch(self, match, data):  # noqa: N802, ANN202 - Python-Markdown override.
+            element, start, end = super().handleMatch(match, data)
+            if element is not None:
+                targets.append((self.line_number, element.get("href", "")))
+            return element, start, end
+
+    class RecordingReference(ReferenceInlineProcessor):
+        line_number = 0
+
+        def handleMatch(self, match, data):  # noqa: N802, ANN202 - Python-Markdown override.
+            element, start, end = super().handleMatch(match, data)
+            if element is not None:
+                targets.append((self.line_number, element.get("href", "")))
+            return element, start, end
+
+    class RecordingShortReference(ShortReferenceInlineProcessor):
+        line_number = 0
+
+        def handleMatch(self, match, data):  # noqa: N802, ANN202 - Python-Markdown override.
+            element, start, end = super().handleMatch(match, data)
+            if element is not None:
+                targets.append((self.line_number, element.get("href", "")))
+            return element, start, end
+
+    collector.inlinePatterns.register(RecordingLink(r"\[", collector), "link", priorities["link"])
+    collector.inlinePatterns.register(
+        RecordingReference(r"\[", collector), "reference", priorities["reference"]
+    )
+    collector.inlinePatterns.register(
+        RecordingShortReference(r"\[", collector),
+        "short_reference",
+        priorities["short_reference"],
+    )
+
+    for start, end, line_number in multiline_spans:
+        collector.reset()
+        collector.references.update(references)
+        for name in ("link", "reference", "short_reference"):
+            collector.inlinePatterns[name].line_number = line_number
+        before = len(targets)
+        collector.convert(visible_text[start:end])
+        if len(targets) == before:
+            raise ValueError(f"line {line_number}: Markdown parser did not resolve multiline link")
+
+    masked_lines = single_line_text.split("\n") if visible_lines else []
+    for (line_number, _original_line), line in zip(visible_lines, masked_lines, strict=True):
+        collector.reset()
+        collector.references.update(references)
+        for name in ("link", "reference", "short_reference"):
+            collector.inlinePatterns[name].line_number = line_number
+        collector.convert(line)
+    targets.sort(key=lambda item: item[0])
+    return targets
 
 
 def scan_file(
@@ -360,7 +603,7 @@ def scan_file(
     violations: list[Violation] = []
     site_url_value = config.site_url.rstrip("/") + "/" if config.site_url else None
     site_url_parts = urlparse(site_url_value) if site_url_value else None
-    text = file_path.read_text(encoding="utf-8")
+    text = measured_read_text(file_path)
 
     for lineno, line in enumerate(text.splitlines(), start=1):
         if PLACEHOLDER_RE.search(line):
@@ -396,61 +639,73 @@ def scan_file(
                     )
                 )
 
-        for link_target in INLINE_LINK_RE.findall(line):
-            target = normalize_link_target(link_target)
-            if not target or target.startswith(("#", "mailto:")):
-                continue
-            if LOCAL_FILESYSTEM_RE.match(target):
-                violations.append(
-                    Violation(
-                        file_path, lineno, f"local filesystem link `{target}` is not publishable"
-                    )
+    try:
+        link_targets = markdown_link_targets(text)
+    except ValueError as exc:
+        raise ValueError(f"{file_path}: {exc}") from exc
+    for lineno, link_target in link_targets:
+        raw_target = link_target.strip()
+        if not raw_target or raw_target.startswith(("#", "mailto:")):
+            continue
+        if LOCAL_FILESYSTEM_RE.match(raw_target):
+            violations.append(
+                Violation(
+                    file_path,
+                    lineno,
+                    f"local filesystem link `{raw_target}` is not publishable",
                 )
+            )
+            continue
+        if "://" in raw_target or raw_target.startswith("/"):
+            continue
+        target = normalize_link_target(raw_target)
+        if not target:
+            continue
+        base = (file_path.parent / target).resolve()
+        if not base.is_relative_to(config.docs_root.resolve()):
+            violations.append(
+                Violation(
+                    file_path,
+                    lineno,
+                    f"relative repo link `{raw_target}` points outside the published docs surface; use inline code or a stable external URL",
+                )
+            )
+            continue
+        if base.suffix.lower() not in {"", ".md"} and not target.endswith("/"):
+            continue
+
+        candidates = resolve_relative_candidates(file_path, target)
+        resolved: Path | None = None
+        if not target.endswith("/") and base.suffix == "" and measured_is_dir(base):
+            candidates = [(base / "index.md").resolve()]
+        for candidate in candidates:
+            if not candidate.is_relative_to(config.docs_root.resolve()):
                 continue
-            if "://" in target or target.startswith("/"):
-                continue
-            if looks_like_relative_repo_link(target):
+            if measured_is_file(candidate):
+                resolved = candidate
+                break
+        if resolved is None:
+            if target.endswith(".md") or target.endswith("/"):
                 violations.append(
                     Violation(
                         file_path,
                         lineno,
-                        f"relative repo link `{target}` points outside the published docs surface; use inline code or a stable external URL",
+                        f"relative docs link `{target}` does not resolve",
                     )
                 )
-                continue
-            resolved = first_existing_candidate(file_path, target)
-            if resolved is None:
-                if target.endswith(".md") or target.endswith("/"):
-                    violations.append(
-                        Violation(
-                            file_path,
-                            lineno,
-                            f"relative docs link `{target}` does not resolve",
-                        )
-                    )
-                continue
-            if resolved.suffix.lower() == ".md":
-                if not resolved.is_relative_to(config.docs_root.resolve()):
-                    violations.append(
-                        Violation(
-                            file_path,
-                            lineno,
-                            f"relative repo link `{target}` points outside the published docs surface; use inline code or a stable external URL",
-                        )
-                    )
-                    continue
-                if resolved not in published_files:
-                    try:
-                        unpublished = resolved.relative_to(config.docs_root.resolve()).as_posix()
-                    except ValueError:
-                        unpublished = target
-                    violations.append(
-                        Violation(
-                            file_path,
-                            lineno,
-                            f"relative docs link `{target}` points to unpublished or excluded page `{unpublished}`",
-                        )
-                    )
+            continue
+        if resolved.suffix.lower() == ".md" and resolved not in published_files:
+            try:
+                unpublished = resolved.relative_to(config.docs_root.resolve()).as_posix()
+            except ValueError:
+                unpublished = target
+            violations.append(
+                Violation(
+                    file_path,
+                    lineno,
+                    f"relative docs link `{target}` points to unpublished or excluded page `{unpublished}`",
+                )
+            )
 
     repo_relative = file_path.relative_to(config.docs_root.parent)
     if repo_relative in GENERATED_REFERENCE_ALLOWLIST:
@@ -499,6 +754,48 @@ def _violation_sort_key(repo_root: Path, violation: Violation) -> tuple[str, int
     return (relative, violation.lineno, violation.message)
 
 
+def _input_receipt(
+    repo_root: Path,
+    measurement: Any,
+    *,
+    complete_verdict: bool,
+    config: PublishedDocsConfig | None,
+    workflow_names: set[str] | None,
+) -> dict[str, Any]:
+    """Build the explicit input and selection receipt printed with every verdict."""
+    return {
+        "complete_verdict": complete_verdict,
+        "repo_root": str(repo_root),
+        "actual_mkdocs_selection": config.selection_summary if config else None,
+        "included_file_manifest": list(config.file_manifest) if config else None,
+        "navigation_policy": {
+            "nav_files": [path.relative_to(repo_root).as_posix() for path in config.nav_files],
+            "not_in_nav_files": [
+                path.relative_to(repo_root).as_posix() for path in config.not_in_nav_files
+            ],
+        }
+        if config
+        else None,
+        "workflow_inventory": sorted(workflow_names) if workflow_names is not None else None,
+        "generated_reference_allowlist": (
+            list(config.generated_reference_presence) if config else None
+        ),
+        "workflow_inventory_boundary": (
+            "Filename discovery uses Git root resolution and directory enumeration; "
+            "those subprocess/directory operations are not in the explicit file-read receipt."
+        ),
+        "explicit_file_reads": measurement.snapshot(complete_verdict=complete_verdict),
+        "unresolved_by_construction": [
+            "Raw HTML, image and asset links are not scanned; asset paths appear in the actual MkDocs manifest only.",
+            "Unsupported multiline Markdown link forms make the run UNRUN when detected.",
+            "Root-relative URLs and fragment-anchor existence are not validated.",
+            "Generated-reference allowlist completeness is unestablished for absent candidates; only existing allowlisted files are checked for publication.",
+            "External URL availability and rendered deployment are not checked.",
+            "MkDocs config loader/plugin internal reads are not observed by measure_file_reads; the resolved source YAML chain is read separately and recorded.",
+        ],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the accuracy checks and return a CI-friendly exit code."""
     parser = build_arg_parser()
@@ -508,24 +805,43 @@ def main(argv: list[str] | None = None) -> int:
     print(MEASURED)
     print(OMISSION)
     violations: list[Violation] = []
-    try:
-        config, config_violations = published_docs_config(repo_root)
-        workflow_names = actual_workflow_names(repo_root)
-        published_files = set(config.published_files)
-        violations.extend(config_violations)
-        for file_path in config.published_files:
-            violations.extend(
-                scan_file(
-                    file_path,
-                    config=config,
-                    published_files=published_files,
-                    workflow_names=workflow_names,
+    config: PublishedDocsConfig | None = None
+    workflow_names: set[str] | None = None
+    unrun_error: Exception | None = None
+    with measure_file_reads(repo_root) as measurement:
+        try:
+            config, config_violations = published_docs_config(repo_root)
+            workflow_names = actual_workflow_names(repo_root)
+            published_files = set(config.published_files)
+            violations.extend(config_violations)
+            for file_path in config.published_markdown_files:
+                violations.extend(
+                    scan_file(
+                        file_path,
+                        config=config,
+                        published_files=published_files,
+                        workflow_names=workflow_names,
+                    )
                 )
-            )
-    except (OSError, ValueError) as exc:
-        print(f"UNRUN: no complete docs verdict: {type(exc).__name__}: {exc}")
+        except (OSError, UnicodeError, ValueError) as exc:
+            unrun_error = exc
+        complete_verdict = unrun_error is None
+        receipt = _input_receipt(
+            repo_root,
+            measurement,
+            complete_verdict=complete_verdict,
+            config=config,
+            workflow_names=workflow_names,
+        )
+        print("Input receipt JSON:")
+        print(json.dumps(receipt, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+    if unrun_error is not None:
+        print(f"UNRUN: no complete docs verdict: {type(unrun_error).__name__}: {unrun_error}")
         for violation in violations:
-            print(f"- partial coverage: {violation.file_path}:{violation.lineno}: {violation.message}")
+            print(
+                f"- partial coverage: {violation.file_path}:{violation.lineno}: {violation.message}"
+            )
         return 2
 
     if violations:
@@ -540,9 +856,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"- {relative}:{violation.lineno}: {violation.message}")
         return 1
 
-    print("Docs accuracy report: passed (declared scope only)")
+    print("Docs accuracy report: passed (actual MkDocs Markdown scope)")
     print("- violations: 0")
-    print(f"- checked files: {len(config.published_files)}")
+    print(f"- checked Markdown files: {len(config.published_markdown_files)}")
+    print(f"- actual MkDocs included files: {len(config.published_files)}")
     print(f"- site_url: {config.site_url or 'missing'}")
     print(f"- workflow inventory: {', '.join(sorted(workflow_names)) or 'none found'}")
     return 0

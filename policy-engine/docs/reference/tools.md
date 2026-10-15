@@ -96,7 +96,7 @@ Generated from `tools.registry` command metadata.
 | `diagnostics` | `capture-env` | `active` | `polisyos-tools diagnostics capture-env` | CLI tool to capture and compare environment manifests. | - | - | - |
 | `diagnostics` | `check-perf-regression` | `active` | `polisyos-tools diagnostics check-perf-regression` | Performance regression checker for CI/CD. | - | - | - |
 | `diagnostics` | `check-scientist-node-version-bump` | `active` | `polisyos-tools diagnostics check-scientist-node-version-bump` | diagnostics/check_scientist_node_version_bump | - | - | - |
-| `diagnostics` | `check-setup` | `active` | `polisyos-tools diagnostics check-setup` | Smoke test для проверки корректной установки всех компонентов Policy Engine. | - | - | - |
+| `diagnostics` | `check-setup` | `active` | `polisyos-tools diagnostics check-setup` | Smoke test to verify the correct installation of all Policy Engine components. | - | - | - |
 | `diagnostics` | `check-state-reads` | `active` | `polisyos-tools diagnostics check-state-reads` | diagnostics/check_state_reads | - | - | - |
 | `diagnostics` | `check-udf-perf` | `quarantined` | `polisyos-tools diagnostics check-udf-perf` | diagnostics/check_udf_perf | diagnostics check-setup | - | - |
 | `diagnostics` | `gen-schema` | `active` | `polisyos-tools diagnostics gen-schema` | diagnostics/gen_schema | - | - | - |
@@ -134,7 +134,11 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-docs-accuracy` | `active` | `polisyos-tools validation check-docs-accuracy` | Validate published docs against current repository reality. | - | - | - |
 | `validation` | `check-docs-freshness-baseline` | `active` | `polisyos-tools validation check-docs-freshness-baseline` | Validate the fail-closed docs freshness baseline without running repo-wide gates. | - | - | - |
 | `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
+| `validation` | `check-docs-impact` | `active` | `polisyos-tools validation check-docs-impact` | Queue tracked Markdown pages for review when their declared sources change. | - | - | - |
 | `validation` | `check-docs-lifecycle` | `active` | `polisyos-tools validation check-docs-lifecycle` | Validate the Phase 6.4 documentation lifecycle conversion contract. | - | - | - |
+| `validation` | `check-docs-rendered-links` | `active` | `polisyos-tools validation check-docs-rendered-links` | Check local files and HTML fragments in an already-built documentation site. | - | - | - |
+| `validation` | `check-docs-review` | `active` | `polisyos-tools validation check-docs-review` | Review Git-selected documentation changes with existing repository checks. | - | - | - |
+| `validation` | `check-docs-source-bindings` | `active` | `polisyos-tools validation check-docs-source-bindings` | Compare a documentation page's declared source owners across Git commits. | - | - | - |
 | `validation` | `check-docstring-quality` | `active` | `polisyos-tools validation check-docstring-quality` | Fail CI when public API docstrings regress to generic placeholders. | - | - | - |
 | `validation` | `check-domain-coverage-breadth` | `active` | `polisyos-tools validation check-domain-coverage-breadth` | Measure W11.F domain coverage breadth and authority useful-design rates. | - | - | - |
 | `validation` | `check-evidence-spine-connectivity` | `active` | `polisyos-tools validation check-evidence-spine-connectivity` | Check scenario evidence contract propagation inside a canary evidence bundle. | - | - | - |
@@ -283,6 +287,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `run-policy-design-case-rollout-decision` | `active` | `polisyos-tools validation run-policy-design-case-rollout-decision` | Run the W12.G rollout decision phase. | - | - | - |
 | `validation` | `run-universal-compilation-integration-realism-check` | `active` | `polisyos-tools validation run-universal-compilation-integration-realism-check` | Run I7-bis universal compilation integration realism check. | - | - | - |
 | `validation` | `run-universal-outcome-corpus` | `active` | `polisyos-tools validation run-universal-outcome-corpus` | Run W12.D universal outcome corpus evidence over W6/W7/W8. | - | - | - |
+| `validation` | `schema-fqn-census` | `active` | `polisyos-tools validation schema-fqn-census` | Measure local references and unresolved loaders for the DFK-01 schema family. | - | - | - |
 | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
 | `validation` | `validate-foundry-phase2-closure` | `active` | `polisyos-tools validation validate-foundry-phase2-closure` | Emit a machine-readable closure report for Foundry Phase 2. | - | - | - |
 | `validation` | `validate-phase-closure` | `active` | `polisyos-tools validation validate-phase-closure` | Emit a machine-readable closure report for the causal research phases. | - | - | - |
@@ -390,6 +395,8 @@ Generated from `tools.registry` command metadata.
 | `ukraine_data` | `harvest-spending-contracts-by-disposer` | `active` | `polisyos-tools ukraine_data harvest-spending-contracts-by-disposer` | Resumable server-side harvest for Spending contracts grouped by disposerId. | - | - | - |
 | `ukraine_data` | `harvest-spending-daily` | `active` | `polisyos-tools ukraine_data harvest-spending-daily` | Resumable server-side backfill for Spending.gov.ua daily transactions. | - | - | - |
 | `ukraine_data` | `pre-shard-lex-corpus` | `active` | `polisyos-tools ukraine_data pre-shard-lex-corpus` | Pre-materialize the ЄДРНПА corpus into per-pass shard JSONL.ZST manifests. | - | - | - |
+| `ukraine_data` | `server-bootstrap` | `active` | `polisyos-tools ukraine_data server-bootstrap` | Ops-facing owner for Ukraine server bootstrap composition. | - | - | - |
+| `ukraine_data` | `validate-part-a` | `active` | `polisyos-tools ukraine_data validate-part-a` | Run the Ukraine repository-only Part A gate from the ops layer. | - | - | - |
 
 ### `research`
 
@@ -407,16 +414,17 @@ Generated from `tools.registry` command metadata.
 | `demos` | `run-export-demo` | `deprecated` | `polisyos-tools demos run-export-demo` | Deprecated reference stub for the removed Foundry engine export demo. | runtime export-runtime-openapi | - | - |
 | `demos` | `run-foundry-ws9-frontier-demo` | `active` | `polisyos-tools demos run-foundry-ws9-frontier-demo` | demos/run_foundry_ws9_frontier_demo | - | - | - |
 | `demos` | `run-laffer-demo` | `active` | `polisyos-tools demos run-laffer-demo` | demos/run_laffer_demo | - | - | - |
-| `demos` | `run-mechanism-design` | `deprecated` | `polisyos-tools demos run-mechanism-design` | End-to-end demo: Mechanism Design через IR/Compiler/Foundry runtime + JAX grad. | benchmarks bench-domain | - | - |
+| `demos` | `run-mechanism-design` | `deprecated` | `polisyos-tools demos run-mechanism-design` | End-to-end demo: Mechanism Design through IR/Compiler/Foundry runtime + JAX grad. | benchmarks bench-domain | - | - |
 | `demos` | `run-udf-hybrid-demo` | `quarantined` | `polisyos-tools demos run-udf-hybrid-demo` | demos/run_udf_hybrid_demo | diagnostics check-setup | - | - |
 | `demos` | `run-udf-query-demo` | `quarantined` | `polisyos-tools demos run-udf-query-demo` | demos/run_udf_query_demo | diagnostics check-setup | - | - |
 | `research-experiments` | `filter-topics` | `active` | `polisyos-tools research-experiments filter-topics` | Filter OpenAlex topics down to policy-relevant rows. | - | - | - |
 | `research-experiments` | `organize-relevant-topics` | `active` | `polisyos-tools research-experiments organize-relevant-topics` | Theme-based ordering for relevant OpenAlex topics. | - | - | - |
 
-## Retired Compatibility Wrappers
+## Legacy Compatibility Mappings
 
-Legacy path-based wrappers are retained only for the Phase 1D migration window.
-All wrappers emit a deprecation warning and sunset on 2026-09-01.
+Registry mappings below are declared compatibility metadata and a current removal warning.
+They do not establish the mapped paths' current disposition, owner sign-off, or closeout receipt.
+The historical Phase 1D migration note recorded a planned sunset of 2026-09-01; that date is not a current retirement receipt.
 
 | Legacy path | Replacement |
 | ----------- | ----------- |
@@ -462,4 +470,4 @@ graph TD
   "workspace.python-base-mypy" --> "workspace.lint-full"
 ```
 
-_Repo root: `/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine`_
+_Paths and commands are relative to the `policy-engine/` product root._

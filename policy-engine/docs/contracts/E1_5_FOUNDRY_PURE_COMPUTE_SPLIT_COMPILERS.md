@@ -1,221 +1,219 @@
-# E1.5 (Phase 5) — Foundry: purge зависимостей + split компиляторов (surface_compiler vs trinity_compiler)
+# E1.5 (Phase 5) — Foundry: dependency cleanup + compiler split (`surface_compiler` vs `trinity_compiler`)
 
 **Repo snapshot date**: 2026-02-03  
-**Scope**: `policy-engine/src/polisyos/foundry/*` + touchpoints в `core/contracts/*`, `core/compiler/*`, `ir/linker/*`, `scientist/*`, `tests/*`  
-**Primary goal**: сделать Foundry **pure compute** ядром (CAS-in/CAS-out), удалить утечки верхних слоёв, и физически разделить компиляцию на:
+**Scope**: `policy-engine/src/polisyos/foundry/*` + touchpoints in `core/contracts/*`, `core/compiler/*`, `ir/linker/*`, `scientist/*`, and `tests/*`\
+**Primary goal**: make Foundry a **pure-compute** core (CAS-in/CAS-out), remove upper-layer leaks, and physically split compilation into:
 
 - **Legacy**: `PolicySurfaceIR → ExecPlan` (surface compiler, frozen compatibility)
-- **Canonical**: `TrinityBundle → ExecPlan` (trinity compiler, основной путь вперёд)
+- **Canonical**: `TrinityBundle → ExecPlan` (`trinity_compiler`, the primary path forward)
 
-При этом снаружи Foundry остаётся **один фасад** `compile()/execute()` с выбором компилятора по типу входа (или флагу), не смешивая модели.
+From the outside, Foundry still exposes **one facade**, `compile()/execute()`, which selects a compiler by input type (or flag) without mixing the models.
+
+> Historical snapshot note: Repository-state statements describe the dated snapshot above; phase labels and completion criteria belong to that historical plan. They do not establish current E02 status or end-to-end functionality.
 
 ---
 
-## 0) Цель фазы (что должно измениться “в ощущениях”)
+## 0) Phase goal (what should change in practice)
 
-После E1.5:
+After E1.5:
 
 1. **Foundry = pure compute**:
+   - inputs: only **IR/Core contracts** and/or **CAS refs** (`ArtifactRef`, typed refs from `core.contracts.*`)
+   - outputs: only **CAS artifacts** (through `FileSystemCAS.put_*`) + typed refs
+   - Foundry does **not know** about Scientist (not through types, imports, or governance profiles).
 
-   - входы: только **IR/Core контракты** и/или **CAS refs** (`ArtifactRef`, typed refs из `core.contracts.*`)
-   - выходы: только **CAS артефакты** (через `FileSystemCAS.put_*`) + typed refs
-   - Foundry **не знает** про Scientist (ни типами, ни импортами, ни governance-профилями).
+2. **Policy compilation is split**:
+   - `surface_compiler` serves legacy `PolicySurfaceIR` (frozen: compatibility and bug fixes only)
+   - `trinity_compiler` serves Trinity (`ProblemFrame/PolicySpec/ModelSpec`) and builds on `ir.linker.link_trinity()`.
 
-2. **Компиляция политики разделена**:
-
-   - `surface_compiler` обслуживает legacy `PolicySurfaceIR` (заморожен: только совместимость/bugfix)
-   - `trinity_compiler` обслуживает Trinity (`ProblemFrame/PolicySpec/ModelSpec`), строится поверх `ir.linker.link_trinity()`.
-
-3. **Один публичный входной API**:
-
+3. **One public entry API**:
    - `polisyos.foundry.compile.api.compile(request) -> CompileResult`
    - `polisyos.foundry.execute.api.execute(request) -> ExecuteResult`
-   - выбор компилятора **по kind входного ref** (`ir.policy_surface` vs `ir.trinity_bundle`) или явному `input_kind`.
+   - select a compiler **by the input ref kind** (`ir.policy_surface` vs `ir.trinity_bundle`) or explicit `input_kind`.
 
-4. **“До зелёного” по зависимостям**:
-
-   - import gate (`tools/quality/lint/lint_imports.py` + `architecture/imports/policy.toml`) зелёный
-   - внутри Foundry нет импортов `polisyos.scientist.*` и реализаций `polisyos.fabric.*` (контракты `core.contracts.fabric` разрешены).
+4. **Dependencies must be clean**:
+   - the import gate (`tools/quality/lint/lint_imports.py` + `architecture/imports/policy.toml`) passes
+   - Foundry contains no imports of `polisyos.scientist.*` or `polisyos.fabric.*` implementations (the `core.contracts.fabric` contracts are allowed).
 
 ---
 
-## 1) Входные условия (что уже есть после E1.1–E1.4)
+## 1) Preconditions (what already exists after E1.1–E1.4)
 
 ### 1.1 Import gate / Dependency-guard
 
-Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/architecture/imports/policy.toml`, `policy-engine/tools/quality/lint/lint_imports.py`, тест `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py`.
+Source of truth: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/architecture/imports/policy.toml`, `policy-engine/tools/quality/lint/lint_imports.py`, and test `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py`.
 
-Текущее правило: `foundry` может импортировать только `foundry|core|ir|common` (см. `architecture/imports/policy.toml`).
+Current rule: `foundry` may import only `foundry|core|ir|common` (see `architecture/imports/policy.toml`).
 
-### 1.2 Trinity и Linker уже существуют
+### 1.2 Trinity and the Linker already exist
 
-- `polisyos.ir.trinity.TrinityBundle` (payload контракт)
-- `polisyos.ir.linker.link_trinity()` + `LinkedTrinityBundle` + `LinkReport` (детерминированный, без I/O)
-- legacy surface linker живёт в `polisyos.ir.linker.legacy_surface.link_policy()`
+- `polisyos.ir.trinity.TrinityBundle` (payload contract)
+- `polisyos.ir.linker.link_trinity()` + `LinkedTrinityBundle` + `LinkReport` (deterministic, no I/O)
+- the legacy surface linker lives in `polisyos.ir.linker.legacy_surface.link_policy()`
 
-### 1.3 Core ports уже есть
+### 1.3 Core ports already exist
 
-Ключевые артефактные “порты” и refs, которые используются в E1.5:
+Key artifact ports and refs used in E1.5:
 
 - `polisyos.core.contracts.foundry`:
   - `ProgramGraphRef`, `ExecPlanRef`, `StateSnapshotRef`, `MetricsRef`, `ConstraintReportRef`
-  - `SimulationResultRef` + envelope `SimulationResult` (введён в E1.4, но ещё не везде используется)
+  - `SimulationResultRef` + `SimulationResult` envelope (introduced in E1.4, but not yet used everywhere)
 - `polisyos.core.contracts.trinity`:
   - `TrinityBundleRef` (kind=`ir.trinity_bundle`)
 - `polisyos.core.contracts.compiler`:
   - `LinkReportRef` (kind=`compiler.link_report`)
   - `CompileReportRef` (kind=`compiler.compile_report`)
 - Core registry plumbing:
-  - `polisyos.core.registry.build_default_registry_bundle()` создаёт `core.registry_bundle`
-  - `polisyos.core.registry.load_registry_bundle_content()` загружает typed registries из bundle
+  - `polisyos.core.registry.build_default_registry_bundle()` creates `core.registry_bundle`
+  - `polisyos.core.registry.load_registry_bundle_content()` loads typed registries from the bundle
 
 ---
 
-## 2) Текущее состояние репозитория (важное для E1.5)
+## 2) Current repository state (important for E1.5)
 
-### 2.1 Legacy компиляция (surface)
+### 2.1 Legacy compilation (surface)
 
-Файл: `policy-engine/src/polisyos/foundry/compiler.py`
+File: `policy-engine/src/polisyos/foundry/compiler.py`
 
-- `put_policy_surface(store, policy) -> PolicySurfaceIRRef` кладёт `ir.policy_surface` в CAS.
+- `put_policy_surface(store, policy) -> PolicySurfaceIRRef` stores `ir.policy_surface` in CAS.
 - `compile_surface_policy(store, policy, mechanism_registry, slot_registry, merge_registry, ...) -> CompileArtifacts`
-  - строит `ProgramGraph` (`foundry.program_graph`)
-  - строит `ExecPlan` (`foundry.exec_plan`)
-  - кладёт вспомогательные артефакты: `foundry.slot_layout`, `foundry.treasury_plan`
+  - builds a `ProgramGraph` (`foundry.program_graph`)
+  - builds an `ExecPlan` (`foundry.exec_plan`)
+  - stores supporting artifacts: `foundry.slot_layout`, `foundry.treasury_plan`
 
-Текущий важный факт для split:
+Key current fact for the split:
 
-- `ProgramGraph.ir_ref` в core.contracts **типизирован как `PolicySurfaceIRRef`**, то есть Trinity-путь сейчас физически невозможен без изменения порта.
+- `ProgramGraph.ir_ref` in `core.contracts` is typed as `PolicySurfaceIRRef`, so the Trinity path is currently impossible without changing the port.
 
-### 2.2 Выполнение (execute)
+### 2.2 Execution (`execute`)
 
-Файл: `policy-engine/src/polisyos/foundry/executor.py`
+File: `policy-engine/src/polisyos/foundry/executor.py`
 
 - `execute_program_graph(...) -> ExecuteArtifacts`:
-  - читает `ProgramGraph`/`ExecPlan` из CAS
-  - выполняет шаги, возвращает:
+  - reads `ProgramGraph`/`ExecPlan` from CAS
+  - executes steps and returns:
     - `foundry.state_delta` + `foundry.metrics`
-    - (опционально) `foundry.constraint_report`
-    - (опционально) `foundry.environment_manifest` (сейчас **capture_env=True по умолчанию**)
+    - optionally, `foundry.constraint_report`
+    - optionally, `foundry.environment_manifest` (`capture_env=True` by default at this time)
 
-Текущий важный факт для Trinity:
+Key current fact for Trinity:
 
-- executor извлекает constraint values, загружая `PolicySurfaceIR` через `program_graph.ir_ref`.
-  - для Trinity нужно расширить это место: распознавать `ir.trinity_bundle` и извлекать constraints из `ProblemFrame`.
+- the executor extracts constraint values by loading `PolicySurfaceIR` through `program_graph.ir_ref`.
+  - for Trinity, this location must be extended to recognize `ir.trinity_bundle` and extract constraints from `ProblemFrame`.
 
-### 2.3 Scientist сейчас вызывает legacy compiler напрямую
+### 2.3 Scientist currently calls the legacy compiler directly
 
-Файл: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
+File: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
 
-- делает `link_policy(...)` (legacy linker) + кладёт `compiler.link_report`
-- затем вызывает `compile_surface_policy(...)` напрямую
+- calls `link_policy(...)` (legacy linker) + stores `compiler.link_report`
+- then calls `compile_surface_policy(...)` directly
 
-Это точка миграции: в E1.5 Scientist должен вызывать **Foundry facade** (см. §8).
-
----
-
-## 3) Non-goals (вне E1.5)
-
-E1.5 **не делает**:
-
-- Fabric World Graph / Doc/Claim pipelines / Lex/Scholar (это E2+).
-- Унификацию “компонентной” расширяемости всех плагинов (это E3; skeleton уже есть в E1.4).
-- Переписывание plugin-системы `polisyos.foundry.plugins` (она не является целевым компилятором ExecPlan).
-
-E1.5 делает только то, что необходимо для:
-
-- чистого compute-ядра Foundry,
-- двух компиляторов,
-- одного стабильного фасада compile/execute,
-- миграции Scientist вызовов и тестового контура.
+This is the migration point: in E1.5, Scientist must call the **Foundry facade** (see §8).
 
 ---
 
-## 4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O
+## 3) Non-goals (out of scope for E1.5)
 
-### 4.1 Итог скана зависимостей (imports)
+E1.5 does **not**:
 
-На snapshot 2026-02-03 в `polisyos.foundry.*` **нет**:
+- implement Fabric World Graph / Doc/Claim pipelines / Lex/Scholar (those are E2+).
+- unify “component-based” extensibility across all plugins (that is E3; the skeleton already exists in E1.4).
+- rewrite the `polisyos.foundry.plugins` system (it is not the target ExecPlan compiler).
+
+E1.5 does only what is necessary for:
+
+- a clean Foundry compute core,
+- two compilers,
+- one stable `compile`/`execute` facade,
+- migration of Scientist calls and the test setup.
+
+---
+
+## 4) 5.2 Audit: find and classify dependency/I/O leaks
+
+### 4.1 Dependency scan results (imports)
+
+In the 2026-02-03 snapshot, `polisyos.foundry.*` has **no**:
 
 - `import polisyos.scientist.*`
 - `import polisyos.fabric.*`
 
-Это соответствует import gate и является **инвариантом** E1.5: любые новые модули `foundry.compile/*` и `foundry.execute/*` обязаны сохранять это.
+This matches the import gate and is an E1.5 **invariant**: any new `foundry.compile/*` and `foundry.execute/*` modules must preserve it.
 
-### 4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)
+### 4.2 Direct I/O inside Foundry (violates “pure compute” if the package boundary is used)
 
-Ниже перечислены места, где код внутри `polisyos.foundry.*` работает с файлами/подпроцессами/внешним миром вне CAS.
+The following are locations where code under `polisyos.foundry.*` works with files, subprocesses, or the outside world beyond CAS.
 
-> Важно: часть этих мест — tooling/dev-only. E1.5 фиксирует правило: **compute-kernel Foundry** (compile/execute) не делает таких операций; tooling выносится или изолируется (см. §9).
+> Important: some of these locations are tooling/dev-only. E1.5 fixes the rule that the **Foundry compute kernel** (`compile`/`execute`) performs none of these operations; tooling is moved out or isolated (see §9).
 
-#### 4.2.1 Таблица утечек и классификация замены
+#### 4.2.1 Leak table and replacement classification
 
-| Локация                                                                  | Симптом                                                                | Тип утечки             | Классификация замены                             | Нормативное решение E1.5                                                                                                                                             |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ---------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `polisyos.foundry.calibration.preflight.fetch_targets()`                 | дергает `udf_engine.query()` / `fetcher(...)`                          | I/O (world/data plane) | **Оркестрация** (должна жить в Scientist/Fabric) | Вынести fetch в Scientist. Foundry получает `raw_targets` как input артефакт/параметр.                                                                               |
-| `polisyos.foundry.execute.executor.execute_program_graph(..., capture_env=True)` | по умолчанию вызывает `capture_environment()` (FS, git, deps)          | I/O (host env)         | **Оркестрация/observability** (control plane)    | По умолчанию `capture_env=False` в kernel API; env capture делает Scientist/RunContext и передаёт refs.                                                              |
-| `polisyos.foundry.methods.artifacts`                                     | читает исходники (`Path.open`) и вызывает `git` через `subprocess.run` | I/O + subprocess       | **Нужно как контракт/metadata**                  | Сместить вычисление source fingerprints в Core (env manifest) или в build-time. Метод-артефакт должен ссылаться на уже зафиксированный artifact/ref, а не читать FS. |
-| `polisyos.foundry.plugins.cli`                                           | читает/пишет файлы результатов, создаёт директории                     | FS I/O                 | **Tooling**                                      | Вынести CLI в `policy-engine/tools/` или `polisyos.runtime` (не в compute kernel).                                                                                   |
-| `polisyos.foundry.agent_sim.*`                                           | пишет конфиги/метрики/артефакты в run dir                              | FS I/O                 | **Tooling / demo**                               | Вынести в `polisyos.runtime`/`tools` или пометить как отдельный пакет (не часть compute kernel).                                                                     |
-| `polisyos.foundry.methods.testing.golden`                                | хранит “golden records” на FS                                          | FS I/O                 | **Тестовая инфраструктура**                      | Перенести в `tests/` или `policy-engine/tools/` (не держать под `polisyos.foundry.*`).                                                                               |
+| Location                                                                         | Symptom                                                                   | I/O leak type          | Replacement classification                      | E1.5 normative decision                                                                                                                                            |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `polisyos.foundry.calibration.preflight.fetch_targets()`                         | calls `udf_engine.query()` / `fetcher(...)`                               | I/O (world/data plane) | **Orchestration** (belongs in Scientist/Fabric) | Move fetching to Scientist. Foundry receives `raw_targets` as an input artifact/parameter.                                                                         |
+| `polisyos.foundry.execute.executor.execute_program_graph(..., capture_env=True)` | calls `capture_environment()` by default (FS, git, deps)                  | I/O (host env)         | **Orchestration/observability** (control plane) | Set `capture_env=False` by default in the kernel API; Scientist/RunContext captures the environment and passes refs.                                               |
+| `polisyos.foundry.methods.artifacts`                                             | reads source files (`Path.open`) and calls `git` through `subprocess.run` | I/O + subprocess       | **Needed as a contract/metadata**               | Move source-fingerprint computation to Core (env manifest) or build time. A method artifact must refer to an already pinned artifact/ref, not read the filesystem. |
+| `polisyos.foundry.plugins.cli`                                                   | reads/writes result files and creates directories                         | FS I/O                 | **Tooling**                                     | Move the CLI to `policy-engine/tools/` or `polisyos.runtime` (outside the compute kernel).                                                                         |
+| `polisyos.foundry.agent_sim.*`                                                   | writes configs/metrics/artifacts to the run directory                     | FS I/O                 | **Tooling / demo**                              | Move to `polisyos.runtime`/`tools` or mark as a separate package (not part of the compute kernel).                                                                 |
+| `polisyos.foundry.methods.testing.golden`                                        | stores “golden records” on the filesystem                                 | FS I/O                 | **Test infrastructure**                         | Move to `tests/` or `policy-engine/tools/` (do not keep under `polisyos.foundry.*`).                                                                               |
 
-#### 4.2.2 Минимальный cut E1.5 (чтобы не раздувать фазу)
+#### 4.2.2 Minimal E1.5 cut (to keep the phase bounded)
 
-Для E1.5 достаточно:
+For E1.5, it is sufficient to:
 
-1. **Сделать новые фасады compile/execute строго CAS-only** (см. §6–§8).
-2. Зафиксировать **policy**: любые I/O tooling модули **не импортируются** из `polisyos.foundry.__init__` и не подтягиваются транзитивно compile/execute.
-3. (Рекомендуемо) добавить unit-test “no-IO-in-kernel” на `polisyos/foundry/compile/*` и `polisyos/foundry/execute/*` (см. §11.7).
+1. **Make the new `compile`/`execute` facades strictly CAS-only** (see §6–§8).
+2. Fix the **policy**: no I/O tooling modules are imported from `polisyos.foundry.__init__` or pulled transitively into `compile`/`execute`.
+3. (Recommended) add a “no I/O in kernel” unit test for `polisyos/foundry/compile/*` and `polisyos/foundry/execute/*` (see §11.7).
 
-Полный вынос tooling из пакета Foundry можно выполнить отдельным PR/подфазой, не блокируя split компиляторов.
+Tooling can be moved entirely out of the Foundry package in a separate PR/sub-phase without blocking the compiler split.
 
 ---
 
-## 5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)
+## 5) 5.3 Foundry API design (a minimally stable “port”)
 
-### 5.3.1 Принцип “только refs и контракты”
+### 5.3.1 Principle: “refs and contracts only”
 
-Foundry фасад **не принимает**:
+The Foundry facade does **not accept**:
 
-- “живые” объекты Scientist (state machine, governance profile, UDF engine, DB handle, и т.п.)
+- live Scientist objects (state machine, governance profile, UDF engine, DB handle, etc.)
 
-Foundry фасад **принимает только**:
+The Foundry facade **accepts only**:
 
-- Pydantic модели из IR/Core (`polisyos.ir.*`, `polisyos.core.contracts.*`)
-- CAS refs (`ArtifactRef` и typed refs)
+- Pydantic models from IR/Core (`polisyos.ir.*`, `polisyos.core.contracts.*`)
+- CAS refs (`ArtifactRef` and typed refs)
 
-### 5.3.2 Изменения в `polisyos.core.contracts.foundry` (обязательные для E1.5)
+### 5.3.2 Changes required in `polisyos.core.contracts.foundry` for E1.5
 
-Файл: `policy-engine/src/polisyos/core/contracts/foundry.py`
+File: `policy-engine/src/polisyos/core/contracts/foundry.py`
 
-#### A) Обобщить `ProgramGraph.ir_ref`
+#### A) Generalize `ProgramGraph.ir_ref`
 
-**Проблема:** сейчас `ProgramGraph.ir_ref: PolicySurfaceIRRef` блокирует Trinity путь.
+**Problem:** `ProgramGraph.ir_ref: PolicySurfaceIRRef` currently blocks the Trinity path.
 
-**Решение E1.5:** заменить тип поля на базовый `ArtifactRef`:
+**E1.5 decision:** replace the field type with the base `ArtifactRef`:
 
-- было: `ir_ref: PolicySurfaceIRRef`
-- стало: `ir_ref: ArtifactRef`
+- was: `ir_ref: PolicySurfaceIRRef`
+- becomes: `ir_ref: ArtifactRef`
 
-Инварианты:
+Invariants:
 
-- `ir_ref.kind` MUST быть одним из:
+- `ir_ref.kind` MUST be one of:
   - `"ir.policy_surface"` (legacy)
   - `"ir.trinity_bundle"` (canonical)
-- `ir_ref.media_type` SHOULD быть `"application/json"`
+- `ir_ref.media_type` SHOULD be `"application/json"`
 
-> Это изменение backward-compatible для существующих артефактов (payload без новых полей остаётся валидным).
+> This change is backward-compatible with existing artifacts (payloads without the new fields remain valid).
 
-#### B) Добавить compile/execute request/result envelopes
+#### B) Add compile/execute request/result envelopes
 
-Добавить (или расширить) модели:
+Add (or extend) these models:
 
 1. `CompileRequest`
 2. `CompileResult`
 3. `ExecuteRequest`
 4. `ExecuteResult`
 
-##### `CompileRequest` (нормативный минимум)
+##### `CompileRequest` (normative minimum)
 
 ```python
 class FoundryValidationFlags(BaseModel):
@@ -267,18 +265,18 @@ class CompileRequest(BaseModel):
     notes: list[str] = Field(default_factory=list)
 ```
 
-Нормативные правила:
+Normative rules:
 
-- `CompileRequest` MUST быть сериализуемым в canonical JSON (`polisyos.core.canon.to_canonical_bytes`) без float.
-- `input_kind="auto"` ⇒ компилятор выбирается по `policy_ref.kind`.
-- `input_kind!="auto"` ⇒ `policy_ref.kind` MUST соответствовать input_kind (иначе ошибка валидации).
+- `CompileRequest` MUST be serializable as canonical JSON (`polisyos.core.canon.to_canonical_bytes`) without floats.
+- `input_kind="auto"` ⇒ select the compiler from `policy_ref.kind`.
+- `input_kind!="auto"` ⇒ `policy_ref.kind` MUST match `input_kind` (otherwise validation fails).
 - `registry_bundle_ref`:
-  - если задан ⇒ используется он
-  - если не задан ⇒ компилятор пытается извлечь ref из входного IR:
+  - if provided ⇒ use it
+  - if not provided ⇒ the compiler tries to extract a ref from the input IR:
     - surface: `PolicySurfaceIR.semantic.registry_bundle_ref`
     - trinity: `TrinityBundle.model_spec.registry_bundle_ref`
 
-##### `CompileResult` (нормативный минимум)
+##### `CompileResult` (normative minimum)
 
 ```python
 class DerivedArtifact(BaseModel):
@@ -299,15 +297,15 @@ class CompileResult(BaseModel):
     notes: list[str] = Field(default_factory=list)
 ```
 
-Инварианты:
+Invariants:
 
-- `compile_report_ref` MUST быть всегда (даже если `ok=False`).
-- `derived_refs` MUST содержать (когда `ok=True`):
+- `compile_report_ref` MUST always be present (even when `ok=False`).
+- `derived_refs` MUST contain (when `ok=True`):
   - `role="program_graph"` → `foundry.program_graph`
-  - `role="exec_plan"` → `foundry.exec_plan` (можно дублировать exec_plan_ref, допустимо)
-  - (опционально) `slot_layout`, `treasury_plan`, `link_report`, `linked_trinity_bundle`
+  - `role="exec_plan"` → `foundry.exec_plan` (duplicating `exec_plan_ref` is allowed)
+  - optionally: `slot_layout`, `treasury_plan`, `link_report`, `linked_trinity_bundle`
 
-##### `ExecuteRequest` (нормативный минимум)
+##### `ExecuteRequest` (normative minimum)
 
 ```python
 class FoundryExecConfig(BaseModel):
@@ -335,15 +333,15 @@ class ExecuteRequest(BaseModel):
     notes: list[str] = Field(default_factory=list)
 ```
 
-Нормативные правила:
+Normative rules:
 
-- `execute()` MUST быть CAS-only (никаких DB/network).
-- должен быть определён ровно один источник состояния:
-  - `state_snapshot_ref` задан ⇒ используется он
-  - иначе `data_snapshot_ref` задан ⇒ Foundry читает `core.contracts.fabric.DataSnapshot` и требует, чтобы `data_ref.kind == "foundry.state_snapshot"` (временно, до E2)
-  - иначе ошибка.
+- `execute()` MUST be CAS-only (no DB/network).
+- exactly one state source must be defined:
+  - if `state_snapshot_ref` is set ⇒ use it
+  - otherwise, if `data_snapshot_ref` is set ⇒ Foundry reads `core.contracts.fabric.DataSnapshot` and requires `data_ref.kind == "foundry.state_snapshot"` (temporary, until E2)
+  - otherwise, return an error.
 
-##### `ExecuteResult` (нормативный минимум)
+##### `ExecuteResult` (normative minimum)
 
 ```python
 class ExecuteResult(BaseModel):
@@ -356,33 +354,33 @@ class ExecuteResult(BaseModel):
     notes: list[str] = Field(default_factory=list)
 ```
 
-Инварианты:
+Invariants:
 
-- при `ok=True` MUST вернуться `simulation_result_ref` (kind=`foundry.simulation_result`)
-- `derived_refs` SHOULD включать:
-  - `metrics`, `state_delta`, (опционально) `constraint_report`, `environment_manifest`
+- when `ok=True`, `simulation_result_ref` MUST be returned (kind=`foundry.simulation_result`)
+- `derived_refs` SHOULD include:
+  - `metrics`, `state_delta`, and optionally `constraint_report`, `environment_manifest`
 
-### 5.3.3 Изменения в `polisyos.core.contracts.compiler` (опционально, но рекомендуемо)
+### 5.3.3 Changes in `polisyos.core.contracts.compiler` (optional, but recommended)
 
-Файл: `policy-engine/src/polisyos/core/contracts/compiler.py`
+File: `policy-engine/src/polisyos/core/contracts/compiler.py`
 
-Если хочется строгих типов:
+For stricter types:
 
-- добавить typed `RegistryBundleRef` (kind=`core.registry_bundle`) **или** оставить `ArtifactRef`.
+- add a typed `RegistryBundleRef` (kind=`core.registry_bundle`) **or** keep `ArtifactRef`.
 
-Не является блокером для E1.5, но упрощает ошибки на границе.
+Not a blocker for E1.5, but it reduces boundary errors.
 
 ---
 
-## 6) 5.4 Split компиляторов: физическая декомпозиция кода
+## 6) 5.4 Split the compilers: physical code decomposition
 
-### 6.1 Цель структуры
+### 6.1 Structural goal
 
-- Legacy и Canonical компиляторы физически разделены (разные файлы/модули).
-- Общая точка входа (`compile.api`) выбирает реализацию.
-- Старые entrypoints живут как thin wrappers и помечены deprecated.
+- Legacy and Canonical compilers are physically separated (different files/modules).
+- The shared entry point (`compile.api`) selects the implementation.
+- Old entry points remain as thin wrappers and are marked deprecated.
 
-### 6.2 Рекомендуемая структура модулей Foundry
+### 6.2 Recommended Foundry module structure
 
 Target (E1.5):
 
@@ -406,121 +404,120 @@ polisyos/foundry/
     compiler.py            # deprecated wrappers around new facade
 ```
 
-Переходное состояние (backward-compat):
+Transition state (backward compatibility):
 
-- `polisyos.foundry.compiler` остаётся существовать, но превращается в thin wrapper:
-  - `compile_surface_policy(...)` → формирует `CompileRequest` и вызывает `foundry.compile.api.compile`
-  - `put_policy_surface(...)` остаётся (как helper), но помечается как legacy convenience
+- `polisyos.foundry.compiler` remains, but becomes a thin wrapper:
+  - `compile_surface_policy(...)` → builds a `CompileRequest` and calls `foundry.compile.api.compile`
+  - `put_policy_surface(...)` remains as a helper but is marked as a legacy convenience
 
-### 6.3 “Шлюз” между компиляторами (обязательный инвариант)
+### 6.3 “Gateway” between compilers (required invariant)
 
-Оба компилятора обязаны выпускать один и тот же набор CAS-артефактов:
+Both compilers must emit the same set of CAS artifacts:
 
 - `foundry.program_graph`
 - `foundry.exec_plan`
-- (опционально) `foundry.slot_layout`
-- (опционально) `foundry.treasury_plan`
-- `compiler.link_report` (если линковка выполняется внутри compile)
-- `compiler.compile_report` (всегда)
+- optionally, `foundry.slot_layout`
+- optionally, `foundry.treasury_plan`
+- `compiler.link_report` (if linking happens inside `compile`)
+- `compiler.compile_report` (always)
 
-И один и тот же базовый IR рантайма: `ExecPlan` + `ProgramGraph` из `polisyos.core.contracts.foundry`.
+And use the same base runtime IR: `ExecPlan` + `ProgramGraph` from `polisyos.core.contracts.foundry`.
 
-**Критично:** рантайм-исполнение по `ExecPlanRef` не должно требовать Scientist объектов (только CAS + registries bundle ref).
+**Critical:** runtime execution by `ExecPlanRef` must not require Scientist objects (CAS + registries bundle ref only).
 
 ---
 
-## 7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности
+## 7) 5.5 `surface_compiler`: stabilize legacy without expanding its surface
 
-### 7.1 Цель
+### 7.1 Goal
 
-- Сохранить поддержку существующих политик/тестов на `PolicySurfaceIR`.
-- Зафиксировать “поверхность” legacy: не добавлять новые фичи в формат.
-- Перевести внешний вызов на `CompileRequest`/`CompileResult`.
+- Preserve support for existing policies/tests using `PolicySurfaceIR`.
+- Freeze the legacy “surface”: add no new features to the format.
+- Move external calls to `CompileRequest`/`CompileResult`.
 
-### 7.2 Поведение surface compiler (нормативно)
+### 7.2 Surface compiler behavior (normative)
 
 `polisyos.foundry.compile.surface_compiler.compile_surface(request, store) -> CompileResult`
 
 Pipeline:
 
 1. **Load policy**:
-
    - `policy = PolicySurfaceIR.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))`
-2. **Resolve registry bundle** (см. §5.3.2):
 
+2. **Resolve the registry bundle** (see §5.3.2):
    - `registry_bundle_ref = request.registry_bundle_ref or policy.semantic.registry_bundle_ref`
-   - если нет ⇒ `ok=False`, compile_report с ошибкой `missing_registry_bundle`
+   - if missing ⇒ `ok=False`, `compile_report` with error `missing_registry_bundle`
+
 3. **Load registries**:
-
    - `registry_content = load_registry_bundle_content(store, registry_bundle_ref)`
+
 4. **Link legacy surface**:
-
    - `link_report = link_policy(policy, registry_content.mechanism_registry, slot_registry=..., units_registry=..., allow_extra_params=request.validation_flags.allow_extra_params, ...)`
-   - сохранить `compiler.link_report` (через `core.compiler.report.put_link_report`)
-   - если `strict_link=True` и `not link_report.ok` ⇒ `ok=False`, compile_report, выход без компиляции
-5. **Compile graph** (без ссылок на Scientist):
+   - save `compiler.link_report` (through `core.compiler.report.put_link_report`)
+   - if `strict_link=True` and `not link_report.ok` ⇒ `ok=False`; emit `compile_report` and exit without compiling
 
-   - переиспользовать текущую реализацию из `polisyos.foundry.compiler`:
+5. **Compile the graph** (without Scientist references):
+   - reuse the current implementation from `polisyos.foundry.compiler`:
      - build ProgramGraph nodes/edges
      - conflict check (CompileTimeConflictChecker)
-     - cost estimate gating (если budget включён)
+     - cost-estimate gating (if a budget is enabled)
+
 6. **Emit compile artifacts**:
-
    - `foundry.program_graph`
-   - `foundry.exec_plan` (поля берутся из `request.compile_config`, environment\_\* остаётся `None`)
-   - `foundry.slot_layout`, `foundry.treasury_plan` (если текущая логика сохраняется)
-7. **Emit compile_report** (`compiler.compile_report`, всегда):
+   - `foundry.exec_plan` (fields come from `request.compile_config`; `environment_*` remains `None`)
 
+7. `foundry.slot_layout`, `foundry.treasury_plan` (if current logic is retained)
+8. **Emit `compile_report`** (`compiler.compile_report`, always):
    - `ok`, `policy_ref`, `registry_bundle_ref`, `link_report_ref`, `program_graph_ref`, `exec_plan_ref`, `slot_layout_ref`, `treasury_plan_ref`
 
-### 7.3 Запреты и совместимость
+### 7.3 Prohibitions and compatibility
 
-- surface_compiler НЕ должен импортировать Trinity модели.
-- Любая новая логика доменной компиляции должна идти в `trinity_compiler`, а не в surface.
-- Если в legacy-коде есть хардкоды registries/механизмов:
-  - либо переводим на `registry_bundle_ref`
-  - либо выносим в `polisyos.foundry.legacy/*` и явно помечаем deprecated.
+- `surface_compiler` must NOT import Trinity models.
+- Any new domain-compilation logic must go into `trinity_compiler`, not `surface`.
+- If the legacy code hard-codes registries/mechanisms:
+  - either move to `registry_bundle_ref`
+  - or move to `polisyos.foundry.legacy/*` and mark it explicitly as deprecated.
 
 ### 7.4 Backward-compat wrappers
 
-Сохранить существующие публичные функции как thin wrappers:
+Preserve existing public functions as thin wrappers:
 
 - `polisyos.foundry.compiler.compile_surface_policy(...)`:
-  - допустимо оставить старую сигнатуру (для тестов/временной совместимости)
-  - внутри:
-    - (опционально) собрать `core.registry_bundle` из переданных registries (если bundle_ref не передан)
-    - `policy_ref = put_policy_surface(...)` если нужно
-    - сформировать `CompileRequest(input_kind="surface", policy_ref=..., registry_bundle_ref=...)`
-    - вызвать `foundry.compile.api.compile(request)`
-    - вернуть legacy `CompileArtifacts` либо переехать на `CompileResult` (предпочтительнее — постепенно)
+  - retaining the old signature is allowed (for tests/temporary compatibility)
+  - internally:
+    - optionally build `core.registry_bundle` from the supplied registries (if `bundle_ref` is not supplied)
+    - set `policy_ref = put_policy_surface(...)` if needed
+    - construct `CompileRequest(input_kind="surface", policy_ref=..., registry_bundle_ref=...)`
+    - call `foundry.compile.api.compile(request)`
+    - return legacy `CompileArtifacts` or move to `CompileResult` (the latter is preferable, gradually)
 
-Депрекейшн:
+Deprecation:
 
-- добавить `warnings.warn(..., DeprecationWarning)` при импорте/вызове legacy entrypoints, но не ломать тесты одномоментно.
+- add `warnings.warn(..., DeprecationWarning)` on import/call of legacy entry points, without breaking all tests at once.
 
 ---
 
-## 8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan
+## 8) 5.6 `trinity_compiler`: canonical Trinity → ExecPlan path
 
-### 8.1 Цель
+### 8.1 Goal
 
-- Сделать Trinity компиляцию first-class: `TrinityBundleRef` → `ProgramGraph/ExecPlan`.
-- Использовать IR linker `link_trinity()` как единственный источник “сопоставления с registries”.
-- Не вводить зависимостей на Scientist и не использовать legacy surface как промежуточный формат на границе.
+- Make Trinity compilation first-class: `TrinityBundleRef` → `ProgramGraph/ExecPlan`.
+- Use the IR linker `link_trinity()` as the single source for matching against registries.
+- Do not add Scientist dependencies or use the legacy surface as an intermediate boundary format.
 
-### 8.2 Входы
+### 8.2 Inputs
 
-`CompileRequest` с:
+`CompileRequest` with:
 
 - `policy_ref.kind == "ir.trinity_bundle"` (payload = `polisyos.ir.trinity.TrinityBundle`)
 - `registry_bundle_ref`:
-  - из request **или** из `bundle.model_spec.registry_bundle_ref`
+  - from the request **or** from `bundle.model_spec.registry_bundle_ref`
 
-Опционально (не блокер E1.5, но полезно):
+Optional (not an E1.5 blocker, but useful):
 
-- сохранять `LinkedTrinityBundle` как derived artifact (kind `compiler.linked_trinity_bundle`)
+- save `LinkedTrinityBundle` as a derived artifact (kind `compiler.linked_trinity_bundle`)
 
-### 8.3 Pipeline внутри trinity compiler (нормативно)
+### 8.3 Pipeline inside the Trinity compiler (normative)
 
 `polisyos.foundry.compile.trinity_compiler.compile_trinity(request, store) -> CompileResult`
 
@@ -532,16 +529,16 @@ Pipeline:
 
 #### Step 1: validate_structural (schema-level)
 
-Минимально:
+Minimum checks:
 
-- Pydantic validation (уже происходит при `.model_validate`)
-- дополнительные проверки, которые не требуют “мира”, только contracts:
-  - `bundle.policy_spec.interventions` ids unique (уже валидатор в PolicySpec)
-  - `bundle.problem_frame.hard_constraints/soft_constraints` ids unique (уже валидатор)
+- Pydantic validation (already occurs in `.model_validate`)
+- additional checks that require no “world” context, only contracts:
+  - `bundle.policy_spec.interventions` IDs are unique (already validated by `PolicySpec`)
+  - `bundle.problem_frame.hard_constraints/soft_constraints` IDs are unique (already validated)
 
 #### Step 2: resolve_symbols (linking)
 
-1. Собрать IR-level `RegistryBundle` из загруженных registries:
+1. Build an IR-level `RegistryBundle` from the loaded registries:
 
 - `mechanisms = registry_content.mechanism_registry`
 - `slots = registry_content.slot_registry`
@@ -549,9 +546,9 @@ Pipeline:
 - `constraints = registry_content.constraint_registry`
 - `selector_fields = registry_content.selector_field_registry`
 - `units = registry_content.units_registry`
-- `metrics = registry_content.metric_registry` (если есть)
+- `metrics = registry_content.metric_registry` (if present)
 
-1. Вызвать:
+1. Call:
 
 `linked_bundle, link_report = link_trinity(bundle, registries, allow_extra_params=request.validation_flags.allow_extra_params, strict=request.validation_flags.strict_link)`
 
@@ -559,47 +556,47 @@ Pipeline:
 
 - `link_report_ref = put_link_report(store, link_report, inputs=[policy_ref, registry_bundle_ref])`
 
-1. Если `strict_link=True` и `not link_report.ok` ⇒ `ok=False`, emit compile_report и return.
+1. If `strict_link=True` and `not link_report.ok` ⇒ `ok=False`, emit `compile_report`, and return.
 
-Опционально:
+Optional:
 
-- Persist `linked_bundle` как `compiler.linked_trinity_bundle` (schema `polisyos.ir.LinkedTrinityBundle`, version `linked_bundle.schema_version`) и добавить в `derived_refs`.
+- Persist `linked_bundle` as `compiler.linked_trinity_bundle` (schema `polisyos.ir.LinkedTrinityBundle`, version `linked_bundle.schema_version`) and add it to `derived_refs`.
 
 #### Step 3: build_program_graph (deterministic)
 
-Цель — тот же `ProgramGraph` контракт, что и в legacy, но:
+Goal: use the same `ProgramGraph` contract as legacy, but:
 
 - `ProgramGraph.ir_ref = policy_ref` (kind=`ir.trinity_bundle`)
 
-Маппинг interventions:
+Intervention mapping:
 
-- для каждого `PolicySpec.interventions[i]`:
-  - persist `ir.intervention_payload` (как сейчас в surface compiler): schedule/target/params/priority/notes
-  - создать `op.make_mask` (selector из intervention.target)
-  - создать `op.apply_mechanism`:
+- for each `PolicySpec.interventions[i]`:
+  - persist `ir.intervention_payload` (as in the current surface compiler): schedule/target/params/priority/notes
+  - create `op.make_mask` (selector from `intervention.target`)
+  - create `op.apply_mechanism`:
     - `mechanism_type = intervention.kind`
     - `params_ref = intervention_payload_ref`
-    - `inputs/outputs` брать из `linked_bundle.bindings.interventions[i].reads_slots/writes_slots`
+    - take `inputs/outputs` from `linked_bundle.bindings.interventions[i].reads_slots/writes_slots`
 
 Edges:
 
 - `make_mask → apply_mechanism (depends_on)`
-- slot dependency edges: writer → reader, если writer.outputs ∩ reader.inputs ≠ ∅
+- slot dependency edges: writer → reader when `writer.outputs ∩ reader.inputs ≠ ∅`
 
 Op nodes:
 
 - `op.merge_state`
 - `op.check_constraints`:
-  - `constraint_ids`: собрать из `bundle.problem_frame.hard_constraints + soft_constraints`
-  - (в E1.5 можно сохранять только ids; семантика “hard/soft” остаётся в IR, enforcement — позже)
+  - `constraint_ids`: collect from `bundle.problem_frame.hard_constraints + soft_constraints`
+  - for E1.5, it is acceptable to store only IDs; “hard/soft” semantics remain in IR, with enforcement deferred
 
 #### Step 4: build_exec_plan
 
-Одинаково для обоих компиляторов:
+For both compilers:
 
 - `order = topological_sort(program_graph)`
 - `exec_plan = ExecPlan(program_ref=..., order=..., mode=request.compile_config.mode, jit=request.compile_config.jit, max_steps=request.compile_config.max_steps, nan_guard_enabled=request.compile_config.nan_guard_enabled, determinism_tier=request.compile_config.determinism_tier, random_seed=request.compile_config.random_seed)`
-- **не** заполнять `environment_ref/environment_fingerprint` на compile (env capture переносится в execute/control plane)
+- **do not** populate `environment_ref/environment_fingerprint` during compilation (environment capture moves to execute/control plane)
 
 #### Step 5: emit artifacts
 
@@ -607,276 +604,274 @@ Persist:
 
 - `foundry.program_graph` (inputs: policy_ref, registry_bundle_ref, intervention_payloads, link_report_ref)
 - `foundry.exec_plan` (input: program_graph_ref)
-- `foundry.slot_layout`, `foundry.treasury_plan` (если сохраняем parity с legacy)
-- `compiler.compile_report` (всегда)
+- `foundry.slot_layout`, `foundry.treasury_plan` (if preserving parity with legacy)
+- `compiler.compile_report` (always)
 
-### 8.4 Изменение рантайма для Trinity (обязательная часть E1.5)
+### 8.4 Trinity runtime changes (required for E1.5)
 
-Файл: `policy-engine/src/polisyos/foundry/executor.py`
+File: `policy-engine/src/polisyos/foundry/executor.py`
 
-Задача: место, где executor загружает constraints из `PolicySurfaceIR`, должно стать полиморфным:
+Task: make the location where the executor loads constraints from `PolicySurfaceIR` polymorphic:
 
-- если `program_graph.ir_ref.kind == "ir.policy_surface"` ⇒ как сейчас
-- если `program_graph.ir_ref.kind == "ir.trinity_bundle"` ⇒
-  - загрузить TrinityBundle
-  - построить `constraint_values = {constraint.constraint_id: constraint.value}` из `ProblemFrame.hard_constraints/soft_constraints`
+- if `program_graph.ir_ref.kind == "ir.policy_surface"` ⇒ as now
+- if `program_graph.ir_ref.kind == "ir.trinity_bundle"` ⇒
+  - load `TrinityBundle`
+  - build `constraint_values = {constraint.constraint_id: constraint.value}` from `ProblemFrame.hard_constraints/soft_constraints`
 
-Инвариант:
+Invariant:
 
-- executor не импортирует Scientist
-- executor не импортирует Fabric реализации
+- the executor does not import Scientist
+- the executor does not import Fabric implementations
 
 ---
 
-## 9) 5.7 Pure compute правила (жёстко)
+## 9) 5.7 Pure-compute rules (strict)
 
-### 9.1 Запреты внутри Foundry compute-kernel (compile/execute)
+### 9.1 Prohibitions inside the Foundry compute kernel (`compile`/`execute`)
 
-Запрещено в модулях:
+Prohibited in these modules:
 
 - `polisyos.foundry.compile.*`
 - `polisyos.foundry.execute.*`
-- и в transitively-imported ими модулях
+- and in modules they import transitively
 
-**Запреты:**
+**Prohibitions:**
 
 1. `import polisyos.scientist.*`
-2. `import polisyos.fabric.*` (кроме `polisyos.core.contracts.fabric` — contracts разрешены)
-3. Любые прямые I/O вне CAS:
-
-   - `open()` на произвольных путях
-   - чтение/запись файлов с `Path.read_text/write_text/open`
+2. `import polisyos.fabric.*` (except `polisyos.core.contracts.fabric`; contracts are allowed)
+3. Any direct I/O outside CAS:
+   - `open()` on arbitrary paths
+   - reading/writing files with `Path.read_text/write_text/open`
    - `subprocess.run` (git, pip, etc)
-   - сетевые вызовы
-   - прямой DuckDB/GraphStore доступ
-4. Любые записи в FactLog / world state (это Fabric plane).
+   - network calls
+   - direct DuckDB/GraphStore access
 
-### 9.2 Разрешено
+4. Any writes to FactLog/world state (that is the Fabric plane).
 
-1. CAS I/O через `polisyos.core.artifacts.store.FileSystemCAS`
-2. Канонизация через `polisyos.core.canon.*`
-3. Валидация IR через `polisyos.ir.*` (linker, models)
-4. Выпуск trace/metrics как **CAS артефактов** (если это делается внутри execute и не требует внешнего I/O).
+### 9.2 Allowed
 
-### 9.3 Практическая стратегия (E1.5)
+1. CAS I/O through `polisyos.core.artifacts.store.FileSystemCAS`
+2. Canonicalization through `polisyos.core.canon.*`
+3. IR validation through `polisyos.ir.*` (linker, models)
+4. Emitting traces/metrics as **CAS artifacts** (if done inside `execute` and without external I/O).
 
-Чтобы не выносить всю demo/tooling подсистему одномоментно:
+### 9.3 Practical strategy (E1.5)
 
-- compute-kernel держим в новых пакетах `foundry/compile` и `foundry/execute` и следим, чтобы они не импортировали tooling
-- существующие I/O-heavy модули (`foundry.agent_sim`, `foundry.plugins`, `foundry.methods.testing`) не должны импортироваться из compile/execute
-- (рекомендуемо) добавить тест-скан, что в `foundry/compile` и `foundry/execute` нет `open(` / `subprocess.run` (см. §11.7)
+To avoid moving the entire demo/tooling subsystem at once:
+
+- keep the compute kernel in the new `foundry/compile` and `foundry/execute` packages and ensure they do not import tooling
+- do not import existing I/O-heavy modules (`foundry.agent_sim`, `foundry.plugins`, `foundry.methods.testing`) from `compile`/`execute`
+- (recommended) add a test scan confirming there is no `open(` / `subprocess.run` in `foundry/compile` and `foundry/execute` (see §11.7)
 
 ---
 
-## 10) 5.8 Миграция внешних вызовов Foundry + фасад API
+## 10) 5.8 Migrate external Foundry calls + facade API
 
 ### 10.1 Foundry facade: compile
 
-Файл: `policy-engine/src/polisyos/foundry/compile/api.py`
+File: `policy-engine/src/polisyos/foundry/compile/api.py`
 
-Нормативная сигнатура:
+Normative signature:
 
 ```python
 def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
     ...
 ```
 
-Поведение:
+Behavior:
 
-- валидирует request (schema_version, input_kind/policy_ref.kind)
-- выбирает компилятор:
-  - `surface` если `policy_ref.kind == "ir.policy_surface"`
-  - `trinity` если `policy_ref.kind == "ir.trinity_bundle"`
-- гарантирует выпуск `compiler.compile_report` всегда
+- validates the request (`schema_version`, `input_kind`/`policy_ref.kind`)
+- selects the compiler:
+  - `surface` if `policy_ref.kind == "ir.policy_surface"`
+  - `trinity` if `policy_ref.kind == "ir.trinity_bundle"`
+- always guarantees a `compiler.compile_report` is emitted
 
-Критично:
+Critical:
 
-- `compile()` НЕ принимает `PolicySurfaceIR`/`TrinityBundle` напрямую как “живые объекты” в публичном API;
-  - для тестов можно иметь internal helper `compile_from_payload(...)`, но он не считается портом.
+- `compile()` does NOT accept `PolicySurfaceIR`/`TrinityBundle` directly as “live objects” in the public API;
+  - tests may use an internal helper `compile_from_payload(...)`, but it does not count as a port.
 
 ### 10.2 Foundry facade: execute
 
-Файл: `policy-engine/src/polisyos/foundry/execute/api.py`
+File: `policy-engine/src/polisyos/foundry/execute/api.py`
 
-Нормативная сигнатура:
+Normative signature:
 
 ```python
 def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     ...
 ```
 
-Поведение:
+Behavior:
 
-- загружает `ExecPlan` и `ProgramGraph` из CAS
-- резолвит состояние:
-  - `state_snapshot_ref` (прямо)
-  - или `data_snapshot_ref` → `DataSnapshot.data_ref` (требуется `foundry.state_snapshot`)
-- загружает registries по `registry_bundle_ref` (или из program_graph inputs при желании, но предпочтительно явно)
-- вызывает существующий `execute_program_graph(...)`
-- формирует `SimulationResult` envelope (`core.contracts.foundry.SimulationResult`) и сохраняет как `foundry.simulation_result`
+- loads `ExecPlan` and `ProgramGraph` from CAS
+- resolves state:
+  - `state_snapshot_ref` directly
+  - or `data_snapshot_ref` → `DataSnapshot.data_ref` (requires `foundry.state_snapshot`)
+- loads registries through `registry_bundle_ref` (or optionally from `program_graph` inputs, though explicit is preferred)
+- calls the existing `execute_program_graph(...)`
+- creates a `SimulationResult` envelope (`core.contracts.foundry.SimulationResult`) and saves it as `foundry.simulation_result`
 
-Инвариант: `capture_env=False` по умолчанию и является **явным** флагом в request.
+Invariant: `capture_env=False` by default and is an **explicit** request flag.
 
-### 10.3 Миграция Scientist: замена прямых вызовов компилятора
+### 10.3 Scientist migration: replace direct compiler calls
 
-Файл: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
+File: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
 
-Текущее:
+Current:
 
 - `link_policy(...)`
 - `compile_surface_policy(...)`
 
-Целевое (E1.5):
+Target (E1.5):
 
 - `compile_result = foundry.compile.api.compile(store, CompileRequest(...))`
-- дальнейшие шаги опираются на refs из `compile_result`:
+- subsequent steps rely on refs from `compile_result`:
   - `compile_report_ref`
-  - `exec_plan_ref` (если ok)
+  - `exec_plan_ref` (if `ok`)
   - `derived_refs` (program_graph, slot_layout, treasury_plan)
 
-Рекомендация:
+Recommendation:
 
-- сохранить прежние runtime logs (`log_artifact(...)`) но теперь логировать:
+- keep the previous runtime logs (`log_artifact(...)`), but now log:
   - `compile_report_ref`
-  - `link_report_ref` (если он содержится внутри compile_report)
+  - `link_report_ref` (if contained in `compile_report`)
   - `exec_plan_ref`
 
-### 10.4 Миграция Scientist: выполнение через execute facade (минимум)
+### 10.4 Scientist migration: execute through the execute facade (minimum)
 
-`scientist/compute/runner.py` сейчас вызывает `execute_program_graph` напрямую.
+`scientist/compute/runner.py` currently calls `execute_program_graph` directly.
 
-E1.5 может сделать один из вариантов (выбрать один и закрепить):
+For E1.5, choose and document one of these options:
 
-**Вариант A (минимум вмешательств):** оставить runner как есть, но добавить “официальный” facade `foundry.execute.api.execute` и постепенно перевести вызовы.
+**Option A (minimal changes):** leave the runner as it is, but add the “official” facade `foundry.execute.api.execute` and migrate calls gradually.
 
-**Вариант B (сразу порт):** runner строит `ExecuteRequest` и вызывает `foundry.execute.api.execute`, получает `SimulationResultRef`, а затем (при необходимости) отдельно загружает итоговое состояние.
+**Option B (port immediately):** the runner builds an `ExecuteRequest` and calls `foundry.execute.api.execute`, receives a `SimulationResultRef`, and then (if needed) loads the final state separately.
 
-Для E1.5 достаточно варианта A + smoke test на execute facade.
+Option A + a smoke test for the execute facade is sufficient for E1.5.
 
 ---
 
-## 11) 5.9 Тестирование и валидация (обязательная часть фазы)
+## 11) 5.9 Testing and validation (required for the phase)
 
-### 11.1 Dependency gate (уже есть)
+### 11.1 Dependency gate (already exists)
 
-- `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py` должен оставаться зелёным.
-- В рамках E1.5 добавить регрессию: новые модули `foundry/compile/*` и `foundry/execute/*` не должны нарушать `architecture/imports/policy.toml`.
+- `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py` must remain green.
+- Add an E1.5 regression ensuring that new `foundry/compile/*` and `foundry/execute/*` modules do not violate `architecture/imports/policy.toml`.
 
 ### 11.2 Unit tests: surface_compiler
 
-Добавить/обновить тесты в `policy-engine/tests/unit/foundry/`:
+Add/update tests in `policy-engine/tests/unit/foundry/`:
 
-- перевести существующие тесты компиляции на новый фасад (или оставить legacy wrapper до миграции):
+- migrate existing compilation tests to the new facade (or retain a legacy wrapper until migration):
   - `test_program_graph_ops.py`
   - `test_constraints_executor.py`
   - `test_patch_executor.py`
 
-Минимальный новый тест:
+Minimum new test:
 
-- `compile(request)` с `input_kind="surface"`:
-  - поднимает `FileSystemCAS(tmp_path)`
-  - строит `core.registry_bundle` (`build_default_registry_bundle`)
-  - кладёт `PolicySurfaceIR` в CAS (`put_policy_surface`)
-  - вызывает facade compile
-  - проверяет:
+- `compile(request)` with `input_kind="surface"`:
+  - instantiates `FileSystemCAS(tmp_path)`
+  - builds `core.registry_bundle` (`build_default_registry_bundle`)
+  - stores `PolicySurfaceIR` in CAS (`put_policy_surface`)
+  - calls the compile facade
+  - checks:
     - `result.ok is True`
     - `result.exec_plan_ref.kind == "foundry.exec_plan"`
-    - среди `derived_refs` есть `program_graph`
+    - `program_graph` is present among `derived_refs`
 
 ### 11.3 Unit tests: trinity_compiler
 
-Новый тест (минимальный Trinity fixture):
+New test (minimal Trinity fixture):
 
-- собрать `TrinityBundle`:
-  - `ProblemFrame(domain=...)` без сложных целей
-  - `PolicySpec` с 1 intervention (`income_tax`/`tax_subsidy`)
+- build a `TrinityBundle`:
+  - `ProblemFrame(domain=...)` without complex goals
+  - `PolicySpec` with one intervention (`income_tax`/`tax_subsidy`)
   - `ModelSpec(data_snapshot_ref=<sha256 stub>, registry_bundle_ref=<bundle_ref.artifact_id>)`
-- persist `ir.trinity_bundle` в CAS (kind=`ir.trinity_bundle`, schema=`polisyos.ir.TrinityBundle`)
-- вызвать compile facade (`input_kind="trinity"` или auto)
-- проверить:
+- persist `ir.trinity_bundle` in CAS (kind=`ir.trinity_bundle`, schema=`polisyos.ir.TrinityBundle`)
+- call the compile facade (`input_kind="trinity"` or `auto`)
+- verify:
   - `ok=True`
-  - `ProgramGraph.ir_ref.kind == "ir.trinity_bundle"` (т.е. не смешали модели)
-  - `ExecPlanRef` существует
+  - `ProgramGraph.ir_ref.kind == "ir.trinity_bundle"` (the models were not mixed)
+  - `ExecPlanRef` exists
 
-### 11.4 Determinism test: одинаковый вход → одинаковый ArtifactID
+### 11.4 Determinism test: same input → same `ArtifactID`
 
-Нормативный тест:
+Normative test:
 
-- дважды вызвать compile с одинаковыми `policy_ref`, `registry_bundle_ref`, `compile_config`, `validation_flags`
-- ожидание:
-  - `exec_plan_ref.artifact_id` совпадает
-  - `program_graph_ref.artifact_id` совпадает
+- call `compile` twice with the same `policy_ref`, `registry_bundle_ref`, `compile_config`, and `validation_flags`
+- expect:
+  - `exec_plan_ref.artifact_id` to match
+  - `program_graph_ref.artifact_id` to match
 
-Чтобы тест был корректным:
+For the test to be valid:
 
-- compile не должен включать env capture / timestamps в payload.
+- `compile` must not include environment capture or timestamps in the payload.
 
-### 11.5 Contract tests: canonical JSON (без float)
+### 11.5 Contract tests: canonical JSON (no floats)
 
-Добавить в `policy-engine/tests/contract/`:
+Add to `policy-engine/tests/contract/`:
 
-- `to_canonical_bytes(CompileRequest(...))` не выбрасывает `CanonViolation`
-- `to_canonical_bytes(CompileResult(...))` не выбрасывает `CanonViolation`
-- аналогично для `ExecuteRequest/ExecuteResult`
+- `to_canonical_bytes(CompileRequest(...))` does not raise `CanonViolation`
+- `to_canonical_bytes(CompileResult(...))` does not raise `CanonViolation`
+- likewise for `ExecuteRequest/ExecuteResult`
 
-### 11.6 Smoke execute (минимальный end-to-end)
+### 11.6 Execute smoke test (minimal end-to-end)
 
-Цель: доказать, что Foundry может создать `SimulationResultRef` без зависимости на Scientist/Fabric.
+Goal: prove that Foundry can create a `SimulationResultRef` without depending on Scientist/Fabric.
 
 Smoke test:
 
-1. скомпилировать минимальную политику (surface или trinity) в `ExecPlanRef`
-2. создать `StateSnapshotRef`:
-
-   - собрать минимальный `GlobalState` fixture (как в текущих foundry tests)
+1. compile a minimal policy (surface or Trinity) into an `ExecPlanRef`
+2. create a `StateSnapshotRef`:
+   - build a minimal `GlobalState` fixture (as in the current Foundry tests)
    - `put_state_snapshot(store, state=..., step=0)`
-3. вызвать `foundry.execute.api.execute` с `ExecuteRequest(state_snapshot_ref=..., exec_plan_ref=..., registry_bundle_ref=...)`
-4. проверить:
 
+3. call `foundry.execute.api.execute` with `ExecuteRequest(state_snapshot_ref=..., exec_plan_ref=..., registry_bundle_ref=...)`
+4. verify:
    - `ok=True`
-   - вернулся `SimulationResultRef` (kind=`foundry.simulation_result`)
+   - a `SimulationResultRef` is returned (kind=`foundry.simulation_result`)
 
-### 11.7 (Рекомендуемо) “no I/O in kernel” тест
+### 11.7 (Recommended) “no I/O in kernel” test
 
-Простой тест-скан (как safety net):
+A simple test scan (as a safety net):
 
-- пройтись по `.py` файлам в `polisyos/foundry/compile/` и `polisyos/foundry/execute/`
-- убедиться, что нет подстрок:
+- iterate over `.py` files in `polisyos/foundry/compile/` and `polisyos/foundry/execute/`
+- verify that these substrings are absent:
   - `"open("`
   - `"subprocess.run"`
   - `"requests."`
 
-Это не заменяет архитектурную дисциплину, но ловит регрессии.
+This does not replace architectural discipline, but it catches regressions.
 
 ---
 
 ## 12) 5.10 Definition of Done (E1.5)
 
-Фаза считается завершённой, когда:
+The phase is complete when:
 
-1. В `polisyos.foundry` нет импортов `polisyos.scientist.*`.
-2. Реализованы два компилятора:
-
+1. `polisyos.foundry` has no imports of `polisyos.scientist.*`.
+2. Both compilers are implemented:
    - `polisyos.foundry.compile.surface_compiler`
    - `polisyos.foundry.compile.trinity_compiler`
-3. Существует один фасад:
 
+3. One facade exists:
    - `polisyos.foundry.compile.api.compile(request) -> CompileResult`
    - `polisyos.foundry.execute.api.execute(request) -> ExecuteResult`
-4. `ProgramGraph.ir_ref` поддерживает `ir.policy_surface` и `ir.trinity_bundle` (не смешивая модели).
-5. `compiler.compile_report` всегда выпускается, ошибки/предупреждения фиксируются как артефакты.
-6. Тесты:
 
-   - import gate зелёный
-   - unit tests для surface и trinity компиляции зелёные
-   - determinism test зелёный
-   - smoke execute зелёный
+4. `ProgramGraph.ir_ref` supports `ir.policy_surface` and `ir.trinity_bundle` without mixing the models.
+5. `compiler.compile_report` is always emitted; errors/warnings are recorded as artifacts.
+6. Tests:
+   - the import gate passes
+   - surface and Trinity compiler unit tests pass
+   - the determinism test passes
+   - the execute smoke test passes
 
 ## D1-L4 Validation Links
 
-| Link type           | Current anchor                                                                                                                                                                                                |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source plan phase   | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs                                                                                                                                    |
+| Link type           | Current anchor                                                                                                                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs                                                                                                                                                      |
 | Contract tests      | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/unit/foundry/compile/test_trinity_compiler.py`, `tests/unit/foundry/compile/test_trinity_field_coverage.py` |
-| Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`                                                              |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                        |
+| Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`                                                                                |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                          |

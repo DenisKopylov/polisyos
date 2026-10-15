@@ -1,12 +1,19 @@
 # Counterfactual Layer
 
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/**`, `src/polisyos/ir/**`, and `packages/runtime-api-client/**`
+Source of truth: `src/polisyos/runtime/http/routes/scenarios.py`, `src/polisyos/runtime/http/services/scenarios.py`, `src/polisyos/ir/`, and `tests/unit/runtime/http/test_scenarios_api.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the tests and scenario routes were not run.
 
 PolicyOS counterfactuals are named scenario manifests, not anonymous forecast
 flags. Any value rendered as a scenario value must point to a `ScenarioRef`, and
 the referenced scenario must include interventions, assumptions, temporal scope,
 model lineage, baseline lineage and known limitations.
+
+The scenario route and typed manifest provide candidate projections. They do
+not establish causal identification, producer authority, current world truth,
+or permission to publish a recommendation; keep unresolved assumptions or
+scope as typed limitations.
 
 ## Core Contracts
 
@@ -17,7 +24,7 @@ model lineage, baseline lineage and known limitations.
   scenario id, status, baseline run, temporal scope, manifest hash, lineage and
   assumption ids.
 - `CounterfactualMetric` contains `actual`, `counterfactual` and `delta`
-  quantities. All three are `QuantityValue` envelopes. The `counterfactual` and
+  quantities. Each is a `QuantityValue` envelope. The `counterfactual` and
   `delta` quantities must carry `time.scenario_id`.
 - `ScenarioCapability` declares which surfaces and metrics support scenario
   rendering. Unsupported metrics return explicit reason codes.

@@ -1,7 +1,15 @@
 # Email Templates
 
-PolicyOS emails summarize shareable run, compare and scenario links. They are
-not evidence dumps.
+This retained template is design guidance only. D6 classifies email delivery as
+`surface_out_of_scope` for the current Atlas slice plan: the repository has no
+admitted mail-delivery producer, provider/privacy owner, or notification
+retention contract. Email previews and fixtures do not imply that PolicyOS
+sends email or publishes an authority-bearing summary. Revisit only with the
+typed notification, privacy/redaction, delivery, locale, and negative-disclosure
+chain recorded in `ATLAS_SOURCE_OF_TRUTH.md` D6.
+
+If a successor surface is admitted, emails may summarize explicitly shareable
+run, compare, and scenario links. They are not evidence dumps.
 
 ## Public Summary Payload
 

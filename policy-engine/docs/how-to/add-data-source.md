@@ -1,24 +1,25 @@
-# Добавление источника данных
+# Add a Data Source
 
-> Создайте Fabric source connector, reusable profile, schema contract и тесты,
-> которые делают источник production-safe.
+> Add a Fabric source connector, a reusable profile, a schema contract, and
+> fixture-backed tests for verifiable connector-level behavior.
 
-Freshness: 2026-04-17.
+Freshness: 2026-10-14
 
-## Вход
+## Inputs
 
-- описание upstream source, auth и transport assumptions
-- понимание, подходит ли существующая connector family
-- sample payload или fixture для schema/normalization decisions
+- a description of the upstream source, authentication, and transport
+  assumptions;
+- an assessment of whether an existing connector family fits;
+- a sample payload or fixture for schema and normalization decisions.
 
-## Выход
+## Outputs
 
-- connector class под `src/polisyos/fabric/connectors/sources/`
-- export из `sources/__init__.py`
-- built-in `SourceProfile`, а при необходимости и schema contract
-- source-specific tests и schema-governance evidence
+- a connector class under `src/polisyos/fabric/connectors/sources/`;
+- an export from `sources/__init__.py`;
+- a built-in `SourceProfile` and, when needed, a schema contract;
+- source-specific tests and schema-governance evidence.
 
-## Команды
+## Commands
 
 ```bash
 uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
@@ -26,21 +27,31 @@ uv run pytest tests/unit/fabric/connectors/test_registry.py -q
 uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```
 
-## Перед началом
+## Before you begin
 
-Прочитайте [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md),
-[Fabric Connectors](../reference/fabric/connectors.md) и
-[Fabric Data Plane](../reference/fabric/data-plane.md). Текущая Fabric
-платформа содержит 20 exported connector classes и 38 built-in source profiles.
+Read [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md),
+[Fabric Connectors](../reference/fabric/connectors.md), and
+[Fabric Data Plane](../reference/fabric/data-plane.md). Current exports, profiles,
+and registration paths are listed in the [connector
+reference](../reference/fabric/connectors.md#registration-status); this is a
+census of source declarations, not evidence that an upstream provider is
+available.
 
-Новый источник должен закрывать D1-L2 obligations: safe query construction,
+The new source should satisfy D1-L2 obligations: safe query construction,
 bounded input, deterministic lifecycle, schema/quality validation,
 observability/lineage, quarantine for poison records, and catalog
 discoverability.
 
-## 1. Выберите ближайшую family
+These checks describe the connector contract and the listed artifacts; they do
+not prove live provider readiness, the truth of source content, or a complete
+source-to-world/query/policy workflow. For a broader capability, identify the
+production caller, persisted artifact, consumer, verification, and surface
+separately. If a link is not implemented, record its missing-state label (for
+example, `bridge_missing`, `consumer_missing`, or `semantic_test_missing`).
 
-| Источник                    | Стартовый класс                                           |
+## 1. Choose the closest family
+
+| Source                      | Starting class                                            |
 | --------------------------- | --------------------------------------------------------- |
 | HTTP/REST JSON              | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
 | SDMX                        | `SDMXSourceConnector`, `EurostatConnector`                |
@@ -54,33 +65,33 @@ discoverability.
 | GeoJSON                     | `GeoJSONConnector`                                        |
 | JSONL event stream          | `EventStreamConnector`                                    |
 
-Если нужен новый custom connector, начните со scaffold:
+If you need a new custom connector, start with the scaffold:
 
 ```bash
 uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
 ```
 
-Path-based connector wrappers retired in Phase 1D; workflow-доках
-канонический boundary теперь `polisyos-tools connectors ...`.
+Path-based connector wrappers were retired in Phase 1D; in workflow
+documentation, the canonical boundary is now `polisyos-tools connectors ...`.
 
-## 2. Реализуйте connector class
+## 2. Implement the connector class
 
-Новый файл размещайте под `src/polisyos/fabric/connectors/sources/`.
+Place the new file under `src/polisyos/fabric/connectors/sources/`.
 
-Минимальная surface:
+Minimum surface:
 
-| Method                       | Что должно быть реализовано                                                                                                                                     |
+| Method                       | Required behavior                                                                                                                                               |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `connect()` / `disconnect()` | Validate config, create/release handle, close sessions and pools deterministically.                                                                             |
 | `health_check()`             | Lightweight source probe returning `HealthStatus`.                                                                                                              |
 | `fetch()`                    | Return `FetchResult` with `row_count`, `schema_id`, `schema_version`, `DataVersion`, UTC `fetched_at`, `completeness`, and provenance-friendly hashes/metadata. |
 | `validate_config()`          | Reject missing auth, unsafe paths/query settings, unsupported formats, or unbounded execution settings.                                                         |
 
-Если family поддерживает discovery или streaming, добавьте
+If the family supports discovery or streaming, add
 `list_datasets()`, `get_dataset_schema()`, `fetch_stream()`, async fetch lease
-helpers, или source-specific capability methods.
+helpers, or source-specific capability methods.
 
-Полезные production examples:
+Useful production examples:
 
 - `who.py` and `world_bank.py` for HTTP + DataFrame normalization.
 - `sdmx_source.py` and `eurostat.py` for statistical APIs and async/bulk hints.
@@ -88,38 +99,39 @@ helpers, или source-specific capability methods.
 - `event_stream.py` for stream chunks and message IDs.
 - `geojson.py` for CRS/spatial metadata preservation.
 
-## 3. Примените safety rules
+## 3. Apply the safety rules
 
-- Не интерполируйте untrusted identifiers/literals в SQL, SPARQL, SoQL, ODSQL,
-  REST paths, GraphQL data paths или file/object paths.
+- Do not interpolate untrusted identifiers or literals into SQL, SPARQL, SoQL,
+  ODSQL, REST paths, GraphQL data paths, or file/object paths.
 
-- Используйте Fabric safety helpers, включая `safe_path_segment()`,
-  `validate_data_path()` and `extract_bounded_data_path()`, либо
-  family-specific identifier validators.
+- Use Fabric safety helpers, including `safe_path_segment()`,
+  `validate_data_path()`, and `extract_bounded_data_path()`, or family-specific
+  identifier validators.
 
-- Используйте только timezone-aware UTC datetimes.
+- Use only timezone-aware UTC datetimes.
 - Reject or quarantine `NaN`, `Inf`, out-of-range quality scores and invalid
   row-count bounds.
 
 - Keep resolver caches, prefetch queues, audit logs, and per-source maps
   bounded by TTL/LRU/maxsize.
 
-- Runtime imports из `polisyos.scientist.*` and `polisyos.foundry.*` запрещены.
+- Runtime imports from `polisyos.scientist.*` and `polisyos.foundry.*` are
+  prohibited.
 
-## 4. Зарегистрируйте connector
+## 4. Register the connector
 
-Добавьте import/export в `src/polisyos/fabric/connectors/sources/__init__.py`.
+Add the import/export in `src/polisyos/fabric/connectors/sources/__init__.py`.
 
-Если connector должен быть discoverable через package entry points, добавьте
-component в `src/polisyos/fabric/connectors/components.py` и запись в
+If the connector should be discoverable through package entry points, add a
+component in `src/polisyos/fabric/connectors/components.py` and an entry in
 `pyproject.toml` group `polisyos.fabric_connectors`. Internal/scaffold
 families can stay direct-import/registry-only until promoted.
 
-## 5. Добавьте built-in source profile
+## 5. Add a built-in source profile
 
-Profiles находятся в `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`.
+Profiles are defined in `src/polisyos/fabric/connectors/profiles/builtin_profiles.py`.
 
-Минимальные поля:
+Minimum fields:
 
 - `profile_id`
 - `display_name`
@@ -130,9 +142,9 @@ Production profiles should also set auth policy, rate limit, max concurrency,
 core/backfill transport, group limits, sync/async cell envelopes, capability
 cache TTLs, tags, source organization, source URL, and estimated datasets.
 
-## 6. Добавьте schema contract
+## 6. Add a schema contract
 
-Если payload shape stable, добавьте contract под:
+If the payload shape is stable, add a contract under:
 
 ```text
 src/polisyos/fabric/connectors/sources/_contracts/
@@ -153,7 +165,7 @@ Breaking changes require approved major bump metadata: owner, reviewer, risk
 level, migration status, downstream impact summary, migration note, and ADR refs
 when applicable.
 
-## 7. Протестируйте
+## 7. Test the connector
 
 Minimum local checks:
 
@@ -175,30 +187,30 @@ uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/
 uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/data_plane/test_streaming_windowed.py -q
 ```
 
-## Откат
+## Rollback
 
-Если connector family или schema story оказались ошибочными, откат обычно
-сводится к трём действиям:
+If the connector family or schema approach proves incorrect, rollback usually
+comes down to three actions:
 
-1. удалить незавершённый connector export, built-in profile и source-specific tests;
-2. откатить contract/snapshot изменения в
-   `src/polisyos/fabric/connectors/sources/_contracts/` и
+1. Remove the unfinished connector export, built-in profile, and source-specific tests.
+2. Revert the contract/snapshot changes in
+   `src/polisyos/fabric/connectors/sources/_contracts/`, and
    `schemas/snapshots/connectors/contracts.json`;
-3. повторно прогнать `check-contracts --check` и Fabric schema governance gate,
-   чтобы убедиться, что дерево снова совпадает с committed baseline.
+3. Rerun `check-contracts --check` and the Fabric schema governance gate to
+   confirm that the tree matches the committed baseline again.
 
 ## Troubleshooting
 
-- Если connector не виден в registry, проверьте export в `sources/__init__.py`
-  и built-in profile wiring.
+- If the connector does not appear in the registry, check the export in
+  `sources/__init__.py` and built-in profile wiring.
 
-- Если schema-governance gate сигналит breaking drift, либо добавьте одобренный
-  major-bump metadata block, либо откатите accidental schema change.
+- If the schema-governance gate reports breaking drift, add an approved
+  major-bump metadata block or revert the accidental schema change.
 
-- Если source-specific tests unstable из-за живого upstream, переходите на
-  recorded fixtures или replay-oriented integration path.
+- If source-specific tests are unstable because of a live upstream, switch to
+  recorded fixtures or a replay-oriented integration path.
 
-## Чеклист
+## Checklist
 
 - Connector class under `src/polisyos/fabric/connectors/sources/`.
 - Import/export added to `sources/__init__.py`.
@@ -208,9 +220,10 @@ uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/
 - Registry, protocol, contract, source-specific, and schema-governance tests
   pass.
 
-- Quality/lineage examples point to current artifacts or executable tests.
+- Quality/lineage examples point to current artifacts or executable tests;
+  fixture-backed examples are not live-provider or whole-system evidence.
 
-## Связанные документы
+## Related documents
 
 - [Connector CONTRIBUTING](../connectors/CONTRIBUTING.md)
 - [Fabric Connectors](../reference/fabric/connectors.md)

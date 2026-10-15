@@ -2,44 +2,44 @@
 
 ## Purpose
 
-`polisyos.ir` задает канонический контрактный слой PolicyOS для policy
+`polisyos.ir` defines PolicyOS's canonical contract layer for policy
 authoring, schema-backed reflection, registry-aware linking, observation-driven
-readiness bundles и аналитических результатов. Корневой пакет работает как lazy
-facade для наиболее частых import-path'ов и как локальная точка навигации по
-IR-подсистеме.
+readiness bundles, and analytical results. The root package acts as a lazy
+facade for the most common import paths and as a local navigation point for the
+IR subsystem.
 
-Важно: корневой facade не зеркалит весь код `src/polisyos/ir/**`.
-`TrinityBundle` реализован в [`trinity`](./trinity/README.md) и доступен через
-корневой facade; linker entrypoint-ы
-живут в [`linker`](./linker/README.md).
+The root facade does not mirror all code under `src/polisyos/ir/**`.
+`TrinityBundle` is implemented in [`trinity`](./trinity/README.md) and exposed
+through the root facade; linker entry points are in
+[`linker`](./linker/README.md).
 
 ## Where to Start
 
-- [`__init__.py`](./__init__.py) — стабильный lazy facade и поддерживаемый root import surface.
-- [`api.py`](./api.py) — public-surface manifest и shared lazy-facade helpers.
+- [`__init__.py`](./__init__.py) — stable lazy facade and supported root import surface.
+- [`api.py`](./api.py) — public-surface manifest and shared lazy-facade helpers.
 - [`model_layer`](./model_layer/README.md) — canonical model contracts: `ModelSpec`, canon, predicates, queries, types, and units.
-- [`loading`](./loading/README.md) — loader and load-time contracts, включая `load_policy()`.
+- [`loading`](./loading/README.md) — loader and load-time contracts, including `load_policy()`.
 - [`registry`](./registry/README.md) — registry fragments, artifact refs, and public-surface metadata.
-- [`schemas`](./schemas/__init__.py) — reflection API, который питает generated reference pages.
-- [`trinity/README.md`](./trinity/README.md) — канонический payload `ProblemFrame + PolicySpec + ModelSpec`.
-- [`governance/README.md`](./governance/README.md) — authoring surface для `ProblemFrame` и `PolicySpec`.
-- [`observation/README.md`](./observation/README.md) — measurement, readiness и execution bundles.
-- [`analytics/README.md`](./analytics/README.md) — causal, transportability, HTE, uncertainty и frontier result contracts.
-- Соседние пакеты, полезные для навигации: [`kernel/README.md`](./kernel/README.md), [`migrations/README.md`](./migrations/README.md), [`linker/README.md`](./linker/README.md), [`artifacts/README.md`](./artifacts/README.md), [`world/README.md`](./world/README.md).
+- [`schemas`](./schemas/__init__.py) — reflection API that powers generated reference pages.
+- [`trinity/README.md`](./trinity/README.md) — canonical `ProblemFrame + PolicySpec + ModelSpec` payload.
+- [`governance/README.md`](./governance/README.md) — authoring surface for `ProblemFrame` and `PolicySpec`.
+- [`observation/README.md`](./observation/README.md) — measurement, readiness, and execution bundles.
+- [`analytics/README.md`](./analytics/README.md) — causal, transportability, HTE, uncertainty, and frontier result contracts.
+- Neighboring packages useful for navigation: [`kernel/README.md`](./kernel/README.md), [`migrations/README.md`](./migrations/README.md), [`linker/README.md`](./linker/README.md), [`artifacts/README.md`](./artifacts/README.md), [`world/README.md`](./world/README.md).
 
 ## Public API
 
 | Entrypoint                                                                | Use when                                                                     | Defined in                                               |
 | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `polisyos.ir.load_policy()`                                               | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes     | [`loading/loaders.py`](./loading/loaders.py)             |
-| `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Нужны базовые Trinity contracts с root import path                           | [`__init__.py`](./__init__.py)                           |
-| `polisyos.ir.ArtifactRefModel`                                            | Нужна typed-ссылка на persisted IR/CAS artifact через root facade             | [`registry/refs.py`](./registry/refs.py)                 |
-| `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Нужен reflection/catalog API для local discovery и generated docs            | [`schemas`](./schemas/__init__.py)                       |
-| `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Нужен базовый observation surface для record/panel payloads                  | [`observation/contracts.py`](./observation/contracts.py) |
-| `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Нужны readiness/execution bundles для downstream foundry/scientist execution | [`observation`](./observation/README.md)                 |
-| `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Нужны canonical analytics result models                                      | [`analytics`](./analytics/README.md)                     |
-| `polisyos.ir.TrinityBundle`                                       | Нужен сам canonical Trinity container                                        | [`trinity/__init__.py`](./trinity/__init__.py)           |
-| `polisyos.ir.linker.link_trinity()`                                       | Нужно связать Trinity payload с registry surface до compile/runtime          | [`linker/README.md`](./linker/README.md)                 |
+| `polisyos.ir.load_policy()`                                               | Load a canonical policy payload from a `dict`, JSON, YAML, or bytes          | [`loading/loaders.py`](./loading/loaders.py)             |
+| `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Use the base Trinity contracts through the root import path                  | [`__init__.py`](./__init__.py)                           |
+| `polisyos.ir.ArtifactRefModel`                                            | Use a typed reference to a persisted IR/CAS artifact through the root facade | [`registry/refs.py`](./registry/refs.py)                 |
+| `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Use the reflection/catalog API for local discovery and generated docs        | [`schemas`](./schemas/__init__.py)                       |
+| `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Use the base observation surface for record/panel payloads                   | [`observation/contracts.py`](./observation/contracts.py) |
+| `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Use readiness/execution bundles for downstream Foundry/Scientist execution   | [`observation`](./observation/README.md)                 |
+| `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Use the canonical analytics result models                                    | [`analytics`](./analytics/README.md)                     |
+| `polisyos.ir.TrinityBundle`                                               | Use the canonical Trinity container                                          | [`trinity/__init__.py`](./trinity/__init__.py)           |
+| `polisyos.ir.linker.link_trinity()`                                       | Link a Trinity payload to the registry surface before compilation/runtime    | [`linker/README.md`](./linker/README.md)                 |
 
 ## Internal Layout
 
@@ -61,7 +61,9 @@ uncertainty schema unchanged. See the
 [structural causal models](../../../docs/reference/foundry/structural-causal-models.md).
 
 - [`api.py`](./api.py) and [`__init__.py`](./__init__.py) own the stable lazy
-  facade, remaining lazy legacy import aliases, and public-surface helper metadata.
+  facade and install the deprecated-import alias hook. The default
+  `_IR_LEGACY_MODULE_ALIASES` and `_IR_LEGACY_AGGREGATE_MODULES` maps are empty,
+  so this configuration registers no legacy module import paths.
 - [`_internal/`](./_internal/) is private implementation code. Do not import it
   from other packages.
 - [`registry/public_surface.py`](./registry/public_surface.py) owns the
@@ -161,7 +163,7 @@ analytics coverage is documented in
 - [TRINITY contract](../../../docs/contracts/TRINITY.md)
 - [Merge semantics contract](../../../docs/contracts/MERGE_SEMANTICS.md)
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-14
 
 `polisyos.ir.ArticleExtractionResult` lazily exposes the unchanged canonical
 literature extraction contract to DataForge. `polisyos.ir.TrinityBundle` exposes

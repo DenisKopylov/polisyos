@@ -5,9 +5,10 @@ Deprecation Policy](../api/versioning.md), [Logging and Trace Context](../loggin
 
 Owner: `@platform-owners`
 Source of truth: `src/polisyos/runtime/http/**`, `src/polisyos/core/artifacts/**`, `src/polisyos/core/observability/**`, and the linked API/operations reference pages
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; source inspection only. The diagrams summarize repository-defined boundaries, not a deployed production topology.
 
-> These diagrams are the operator-facing shorthand for the runtime platform
-> contract after WS-0 through WS-2 hardening.
+> These diagrams summarize selected repository-defined runtime paths at the
+> reviewed source pin. They are not a complete or deployed production topology.
 
 ## C4 Container View
 

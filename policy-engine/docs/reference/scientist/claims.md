@@ -4,16 +4,22 @@ Related references: [Scientist](index.md), [Best-in-class readiness](best-in-cla
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/evidence/claims/**`, decision/governance/causal integration targets, `tools/ci/check_scientist_best_in_class_phase1_1.py`, and `tests/unit/scientist/evidence/claims/**`.
+Source of truth: `src/polisyos/scientist/evidence/claims/models.py`, `src/polisyos/scientist/evidence/claims/readiness.py`, `src/polisyos/scientist/evidence/claims/ledger.py`, `src/polisyos/scientist/evidence/claims/projections.py`, `src/polisyos/scientist/evidence/claims/validators.py`, `src/polisyos/scientist/evidence/claims/head_index.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/evidence/README.md`, `tests/unit/scientist/evidence/claims/test_readiness.py`, `tests/unit/scientist/evidence/claims/test_lifecycle.py`, `tests/unit/scientist/evidence/claims/test_head_index.py`, and `tools/ci/check_scientist_best_in_class_phase1_1.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests not executed for this docs-only update.
 
 This page is the Phase 1.1 reference for the Scientist claim/evidence/readiness
-spine. It makes the plan rule concrete:
+spine. The plan rule is:
 
 > No naked claims.
 
-Decision-bearing statements must be projected into typed runtime objects with
-support status, evidence refs, counterevidence refs, provenance/readiness links,
-source attribution and publishability.
+Decision-bearing statements are intended to be projected into typed runtime
+objects with support status, evidence refs, counterevidence refs,
+provenance/readiness links, source attribution and publishability. This is a
+design rule, not a claim that the current runtime blocks every uncovered
+statement: the additive claim-spine producer is enabled by default, while
+missing-`claims_ref` enforcement is opt-in and defaults off (see
+[Feature Flags](#feature-flags)).
 
 ## Runtime Contracts
 
@@ -67,6 +73,29 @@ failing to load the old artifact.
 
 The fail-closed workflow set is `scientist_policy_design`,
 `scientist_policy_verified`, and `scientist_causal_full`.
+
+When the naked-claim validators inspect a decision-bearing payload or state
+without `claims_ref`, the default-off enforcement flag makes the result
+`warning` with `passed=true`; that validator result does not block the
+workflow. The flag changes the result to `blocked` only for the selected
+workflows above. Therefore “No naked claims” states the target invariant; it
+is not currently an unconditional runtime closeout gate.
+
+## Current-Head Authority
+
+Claim projection and Claim-owner currentness are separate handshakes. The
+workflow builder installs `build_default_claim_ledger_owner()`, which returns
+`UnappointedClaimLedgerOwner` in the production composition. That owner can
+persist and summarize a candidate ledger, but initial-root prepare/finalize and
+current-head resolution return typed `not_established` non-receipts, including
+`claim_root_issuance_not_established` and `claim_head_absent`. The production
+appointment slot remains empty (`absent/unallocated`); current Claim-head
+authority is `not_established`. A CAS blob, `claims_ref`, readiness summary,
+or publishability result therefore does not establish an owner-approved
+current Claim. See `src/polisyos/scientist/orchestration/workflows/builder.py`,
+`src/polisyos/scientist/evidence/claims/head_index.py`, and
+`src/polisyos/scientist/evidence/README.md` for the default wiring and
+appointment boundary.
 
 ## Validation
 

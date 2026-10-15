@@ -1,22 +1,22 @@
 # Knowledge (`polisyos.lex.knowledge`)
 
-`polisyos.lex.knowledge` дает read-only surface над legal knowledge graph,
-построенным Data Forge legal batch: typed entity/fact/provision models,
-DuckDB-backed search store и high-level retrieval API для downstream legal,
-policy и search flows.
+`polisyos.lex.knowledge` provides a read-only surface over the legal knowledge graph
+built by the Data Forge legal batch: typed entity/fact/provision models, a
+DuckDB-backed search store, and a high-level retrieval API for downstream legal,
+policy, and search flows.
 
-## Роль в системе
+## Role in the system
 
-- **Зависит от:** Data Forge generated DuckDB/HNSW artifacts
-- **Используется в:** `polisyos.lex`, `polisyos.lex.legal_evaluation`, downstream search and retrieval tooling
-- Пакет изолирует query logic от batch-пайплайна и от прямой работы с DuckDB/HNSW файлами.
+- **Depends on:** Data Forge-generated DuckDB/HNSW artifacts
+- **Used by:** `polisyos.lex`, `polisyos.lex.legal_evaluation`, downstream search, and retrieval tooling
+- The package isolates query logic from the batch pipeline and direct access to DuckDB/HNSW files.
 
-## Ключевые концепции
+## Key concepts
 
-- **Typed graph models** — `LegalEntity`, `LegalFact`, `LegalProvision` и search result models нормализуют retrieval output.
-- **Read-only store** — `LegalKnowledgeStore` открывает DuckDB в `read_only=True` и лениво подключает optional vector indexes.
-- **Hybrid retrieval** — text, structured и vector search могут комбинироваться через `LegalKnowledgeGraph`.
-- **Graph traversal** — API умеет искать related entities и нормы, а не только keyword matches.
+- **Typed graph models** — `LegalEntity`, `LegalFact`, `LegalProvision`, and search-result models normalize retrieval output.
+- **Read-only store** — `LegalKnowledgeStore` opens DuckDB with `read_only=True` and lazily connects optional vector indexes.
+- **Hybrid retrieval** — text, structured, and vector search can be combined through `LegalKnowledgeGraph`.
+- **Graph traversal** — the API can find related entities and norms, not only keyword matches.
 - **Content-bound vector admission** — `LegalQueryProfile` freezes the requested generation ID and full inventory bytes. Before encoding or native HNSW search, the Store resolves the current selector, verifies current projected members and matrix/index contents, and checks the recomputed live model state and installed runtime profile. Strict identity hashes only views of contiguous CPU `torch.Tensor` storage or C-contiguous NumPy arrays; it refuses other array-like values without conversion. The bounded candidate claim assumes a trusted process: no concurrent external model/runtime mutation during a lease, and no mutation of callable globals or closure state while the profile is admitted. The handle lock serializes owner leases but does not make pre/post hashes atomic against mutation and restoration; untrusted in-process plugins are outside scope.
 - **Explicit text fallback** — `hybrid_search_with_status()` returns results with the typed outcome from that same invocation, so concurrent consumers cannot exchange refusals through shared graph state. The list-returning `hybrid_search()` remains available and keeps `query_profile_error` as a legacy latest-call diagnostic. Direct vector methods raise `LegalQueryProfileError`; a missing vector result cannot be mistaken for an empty successful query.
 - **Chronology owner query** — `LegalKnowledgeStore` enumerates the complete
@@ -27,13 +27,13 @@ policy и search flows.
 
 ## Public API
 
-| Type/Function                                                  | Description                                             |
-| -------------------------------------------------------------- | ------------------------------------------------------- |
-| `LegalKnowledgeGraph`                                          | High-level read-only API over the legal knowledge graph |
+| Type/Function                                                    | Description                                                   |
+| ---------------------------------------------------------------- | ------------------------------------------------------------- |
+| `LegalKnowledgeGraph`                                            | High-level read-only API over the legal knowledge graph       |
 | `LegalQueryProfile`, `LegalQueryInput`, `LegalQueryProfileError` | Immutable request intent and typed refusal for vector queries |
-| `LegalEntity`, `LegalFact`, `LegalProvision`                   | Canonical graph record types                            |
-| `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval                    |
-| `search_legal_knowledge`                                       | Lex-owned grounded-fact CLI/search route                |
+| `LegalEntity`, `LegalFact`, `LegalProvision`                     | Canonical graph record types                                  |
+| `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult`   | Typed result envelopes for retrieval                          |
+| `search_legal_knowledge`                                         | Lex-owned grounded-fact CLI/search route                      |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

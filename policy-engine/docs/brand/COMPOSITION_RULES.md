@@ -10,6 +10,14 @@
 - Enforced by: design review, `eslint-plugin-boundaries`, `dependency-cruiser`,
   and the tests listed in §7.
 
+These are composition constraints, not evidence that a screen is implemented,
+browser-verified, or publishable. A color, glyph, badge, story, or rendered
+status is only a projection of its typed owner. It cannot prove the underlying
+claim or grant policy authority. Current source-backed UI and API boundaries
+are mapped in the [frontend surface reference](../reference/frontend/current-surface-map.md);
+its test references were inspected but not executed in this documentation
+pass.
+
 ## 1. Core invariants (copied from the plan, §2)
 
 These apply without exception. A PR that violates them is blocked.
@@ -18,8 +26,11 @@ These apply without exception. A PR that violates them is blocked.
 - Palette is sandstone + graphite. No blue introductions. No three-stop
   gradients.
 
-- Signal triad is `teal = verified, ember = blocked, gold = pending`. New
-  semantics find form inside the triad (pattern-fills, glyphs, diacritics).
+- The signal colors are visual aliases for named local states, never a
+  universal authority lattice: teal may represent an owner-supplied verified
+  state, ember a blocker, and gold a pending state. Text and accessible
+  semantics carry the typed state; color alone never establishes verification,
+  admissibility, or publishability.
 
 - Atlas mark is not replaced by Janus. Janus is a second layer.
 - No 3D renders, wax seals, heavy bevel or emboss.
@@ -50,8 +61,9 @@ These apply without exception. A PR that violates them is blocked.
 - **Glyph inside a glyph.** No radical may be inscribed inside another
   radical. Use two glyphs and whitespace instead.
 
-- **Gold next to ember in the same signal block.** Pending and blocked
-  cannot co-occur on a single status pill — one is the current state.
+- **Collapsing different status dimensions into one pill.** Pending and blocked
+  may both apply to different dimensions; show each with its own label instead
+  of silently choosing one or treating colors as a composed status.
 
 - **Teal and ember in a two-color gradient.** The triad is discrete;
   gradients between signals are banned.

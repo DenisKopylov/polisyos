@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import subprocess
 import sys
@@ -11,8 +12,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from click.testing import CliRunner
 
 import tools.cli as unified_cli
+import tools.registry as registry_module
 from tools.cli import EX_CONFIG, main
 from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 from tools.lib.runner import ToolSpec, ToolStatus
@@ -256,6 +259,57 @@ def test_graph_and_reference_docs_are_generated_from_metadata(capsys) -> None:
     assert "`polisyos-tools workspace format-check`" in docs
 
 
+def test_docs_command_is_repo_root_independent_and_check_rejects_field_drift(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    runner = CliRunner()
+    generated: list[bytes] = []
+    roots = (
+        tmp_path / "checkout-a" / "policy-engine",
+        tmp_path / "checkout-b" / "policy-engine",
+    )
+
+    for root in roots:
+        (root / "src").mkdir(parents=True)
+        (root / "tools").mkdir()
+        (root / "pyproject.toml").write_text("[project]\nname = 'fixture'\n", encoding="utf-8")
+        output = root / "docs" / "reference" / "tools.md"
+        output.parent.mkdir(parents=True)
+        monkeypatch.setattr(registry_module, "__file__", str(root / "tools" / "registry.py"))
+
+        write_result = runner.invoke(unified_cli.cli, ["docs", "--output", str(output)])
+        assert write_result.exit_code == 0, write_result.output
+        check_result = runner.invoke(
+            unified_cli.cli,
+            ["docs", "--check", "--output", str(output)],
+        )
+        assert check_result.exit_code == 0, check_result.output
+        generated.append(output.read_bytes())
+
+    output_a, output_b = generated
+    sha_a = hashlib.sha256(output_a).hexdigest()
+    sha_b = hashlib.sha256(output_b).hexdigest()
+    assert output_a == output_b, f"root-dependent docs: sha256 {sha_a} != {sha_b}"
+
+    corrupted_output = roots[1] / "docs" / "reference" / "tools.md"
+    corrupted = output_b.replace(
+        b"| `diagnostics` | `check-udf-perf` | `quarantined` |",
+        b"| `diagnostics` | `check-udf-perf` | `active` |",
+        1,
+    )
+    assert corrupted != output_b
+    corrupted_output.write_bytes(corrupted)
+    monkeypatch.setattr(registry_module, "__file__", str(roots[1] / "tools" / "registry.py"))
+    drift_result = runner.invoke(
+        unified_cli.cli,
+        ["docs", "--check", "--output", str(corrupted_output)],
+    )
+    assert drift_result.exit_code != 0
+    assert "Generated docs drift detected" in drift_result.output
+    corrupted_output.write_bytes(output_b)
+
+
 def test_completion_snippets_cover_supported_shells(capsys) -> None:
     assert main(["completion", "zsh"]) == 0
     assert "_POLISYOS_TOOLS_COMPLETE=zsh_source" in capsys.readouterr().out
@@ -370,7 +424,9 @@ def test_report_timing_lists_measured_catalog_lanes_without_a_timing_log(
     # The field is a list of observed-but-absent lanes now, not a constant excuse string.
     assert payload["uncatalogued_lanes"] == []
     frontend_lint = next(
-        lane for lane in payload["lane_summaries"] if lane["timing_key"] == "frontend.eslint:default"
+        lane
+        for lane in payload["lane_summaries"]
+        if lane["timing_key"] == "frontend.eslint:default"
     )
     assert frontend_lint["state"] == "measured"
     assert frontend_lint["local_runs"] == 0

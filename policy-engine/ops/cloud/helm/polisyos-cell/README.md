@@ -1,56 +1,56 @@
 # polisyos-cell chart
 
-Chart для изоляции PolicyOS cell на уровне namespace, сети, quota, RBAC и policy-pack.
+Helm chart for isolating a PolicyOS cell through namespaces, network policy, quotas, RBAC, and a policy pack.
 
-## Роль в системе
+## Role in the System
 
-- формирует минимальный изолированный периметр для tenant/cell;
-- публикует Rego-политики как ConfigMap для OPA sidecar/OPA service;
-- опционально создает RuntimeClass для confidential workload path.
+- creates a minimal isolation boundary for a tenant/cell;
+- publishes Rego policies as a ConfigMap for an OPA sidecar or OPA service;
+- optionally creates a RuntimeClass for the confidential workload path.
 
-## Ресурсы chart
+## Chart Resources
 
-- `Namespace` с `pod-security.kubernetes.io/*` labels;
+- `Namespace` with `pod-security.kubernetes.io/*` labels;
 - `NetworkPolicy` (deny ingress/egress by default + allow internal + allow configured egress);
 - `ResourceQuota`;
-- `ServiceAccount` + `Role` + `RoleBinding` (при `rbac.create=true`);
-- `ConfigMap` с OPA policies (при `opa.enabled=true`);
-- `Server` + `AuthorizationPolicy` Linkerd (при strict mTLS);
-- `RuntimeClass` `kata-cc` (условно, только для dedicated confidential tier).
+- `ServiceAccount` + `Role` + `RoleBinding` (when `rbac.create=true`);
+- `ConfigMap` with OPA policies (when `opa.enabled=true`);
+- Linkerd `Server` + `AuthorizationPolicy` (when strict mTLS is enabled);
+- `RuntimeClass` `kata-cc` (conditional; only for the dedicated confidential tier).
 
-## Ключевые values
+## Key Values
 
-| Value                                    | Обязателен | По умолчанию          | Назначение                                                   |
-| ---------------------------------------- | ---------- | --------------------- | ------------------------------------------------------------ |
-| `cell.id`                                | да         | `""`                  | идентификатор cell; используется в именах namespace/ресурсов |
-| `cell.tier`                              | нет        | `shared`              | влияет на рендер confidential RuntimeClass                   |
-| `networkPolicy.allowedEgress`            | нет        | preset DNS/monitoring | разрешенный egress                                           |
-| `opa.enabled`                            | нет        | `true`                | включение ConfigMap с Rego-политиками                        |
-| `linkerd.enabled` + `linkerd.strictMtls` | нет        | `true` + `true`       | рендер Linkerd Server/AuthorizationPolicy                    |
-| `confidentialCompute.enabled`            | нет        | `false`               | включает RuntimeClass `kata-cc`                              |
+| Value                                    | Required | Default               | Purpose                                              |
+| ---------------------------------------- | -------- | --------------------- | ---------------------------------------------------- |
+| `cell.id`                                | yes      | `""`                  | Cell identifier used in namespace and resource names |
+| `cell.tier`                              | no       | `shared`              | Affects rendering of the confidential RuntimeClass   |
+| `networkPolicy.allowedEgress`            | no       | preset DNS/monitoring | Allowed egress                                       |
+| `opa.enabled`                            | no       | `true`                | Enables the ConfigMap containing Rego policies       |
+| `linkerd.enabled` + `linkerd.strictMtls` | no       | `true` + `true`       | Renders the Linkerd Server/AuthorizationPolicy       |
+| `confidentialCompute.enabled`            | no       | `false`               | Enables the `kata-cc` RuntimeClass                   |
 
-## Операционные особенности
+## Operational Notes
 
-- `cell.id` обязателен (`required` в `_helpers.tpl`), namespace формата `polisyos-cell-<first8(cell.id)>`.
-- Для `RuntimeClass` нужно одновременно:
+- `cell.id` is required (`required` in `_helpers.tpl`); the namespace format is `polisyos-cell-<first8(cell.id)>`.
+- The `RuntimeClass` requires all of the following:
   - `confidentialCompute.enabled=true`;
   - `cell.tier=dedicated`;
-  - ноды с label `polisyos.io/tee=sev-snp` и taint `polisyos.io/confidential=true:NoSchedule`.
-- Linkerd policy создается по списку `linkerd.servers`; без него strict mTLS policy не рендерится.
+  - nodes with the label `polisyos.io/tee=sev-snp` and taint `polisyos.io/confidential=true:NoSchedule`.
+- The Linkerd policy is created from the `linkerd.servers` list; without it, the strict mTLS policy is not rendered.
 
-## Политики OPA и синхронизация
+## OPA Policies and Synchronization
 
-Chart содержит копию политик в `policies/*.rego` (tenant boundary, role access, data classification, delegation guard, decision, vulnerability, deploy).
+The chart contains a copy of the policies in `policies/*.rego` (tenant boundary, role access, data classification, delegation guard, decision, vulnerability, and deploy).
 
-Источник истины для разработки — `ops/policy/policies/*.rego`; перед релизом chart копия должна быть синхронизирована.
+The source of truth for development is `ops/policy/policies/*.rego`; the chart copy must be synchronized before release.
 
-## Связи с другими директориями
+## Related Directories
 
-- `ops/policy/` — исходные policy modules и tests.
-- `ops/cloud/terraform/modules/confidential_nodepool/` — инфраструктурная подготовка confidential node pool.
-- `src/polisyos/core/security/authz.py` и `src/polisyos/runtime/http/authz_middleware.py` — runtime вызовы OPA.
+- `ops/policy/` — source policy modules and tests.
+- `ops/cloud/terraform/modules/confidential_nodepool/` — infrastructure provisioning for the confidential node pool.
+- `src/polisyos/core/security/authz.py` and `src/polisyos/runtime/http/authz_middleware.py` — runtime calls to OPA.
 
-## Проверка рендера
+## Render Check
 
 ```bash
 helm template cell-a policy-engine/ops/cloud/helm/polisyos-cell \

@@ -1,9 +1,10 @@
 # Foundry Causal And Statistical Validity
 
 Owner: `team-foundry`
-Source of truth: `src/polisyos/foundry/validation/causal_validity.py`
-Primary tests: `tests/unit/foundry/validation/test_causal_validity.py`,
-`tests/unit/scientist/validation/test_policy_grounding_matrix.py`
+Source of truth: `src/polisyos/foundry/validation/causal_validity.py`, `src/polisyos/foundry/methods/catalog/causal/did.py`, `src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py`, and `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`.
+Tests inspected (not run): `tests/unit/foundry/validation/test_causal_validity.py`, `tests/unit/scientist/validation/test_policy_grounding_matrix.py`, `tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py`, and `tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test sources inspected at this pin; tests were not run for this docs-only review.
 
 This page defines the offline benchmark evidence contract for
 `causal_statistical_validity_report_ref`. The report is intentionally separate

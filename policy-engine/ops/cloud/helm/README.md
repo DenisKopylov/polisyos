@@ -1,29 +1,29 @@
 # Helm Charts (`ops/cloud/helm`)
 
-`ops/cloud/helm` содержит базовые chart'ы инфраструктурного периметра PolicyOS.
+`ops/cloud/helm` contains baseline charts for the PolicyOS infrastructure perimeter.
 
-## Что здесь
+## Contents
 
-| Chart           | Назначение                      | Ключевые ресурсы                                                                                    |
+| Chart           | Purpose                         | Key resources                                                                                       |
 | --------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `polisyos-cell` | tenant/cell isolation baseline  | Namespace, NetworkPolicy, ResourceQuota, RBAC, OPA ConfigMap, Linkerd policy, optional RuntimeClass |
 | `spire`         | SPIFFE/SPIRE identity plane     | server Deployment, agent DaemonSet, ConfigMap, ServiceAccounts                                      |
 | `keycloak`      | OIDC identity provider baseline | Keycloak StatefulSet + Service + Namespace                                                          |
 
-## Порядок применения
+## Application Order
 
 1. `spire`
-2. Linkerd (при использовании strict mTLS)
+2. Linkerd (when using strict mTLS)
 3. `keycloak`
 4. `polisyos-cell`
 
-## Интеграции
+## Integrations
 
-- `ops/policy/` — источник Rego-политик, которые пакуются в `polisyos-cell` ConfigMap.
-- `ops/cloud/terraform/modules/confidential_nodepool` — подготавливает ноды/taints/labels для confidential RuntimeClass из `polisyos-cell`.
-- `src/polisyos/core/security/identity.py` — runtime-валидация identity из Keycloak и SPIFFE/SPIRE.
+- `ops/policy/` — source of the Rego policies packaged into the `polisyos-cell` ConfigMap.
+- `ops/cloud/terraform/modules/confidential_nodepool` — prepares nodes, taints, and labels for the confidential RuntimeClass used by `polisyos-cell`.
+- `src/polisyos/core/security/identity.py` — runtime validation of identities from Keycloak and SPIFFE/SPIRE.
 
-## Быстрый рендер
+## Quick Rendering
 
 ```bash
 helm template spire policy-engine/ops/cloud/helm/spire
@@ -31,7 +31,7 @@ helm template keycloak policy-engine/ops/cloud/helm/keycloak
 helm template cell-a policy-engine/ops/cloud/helm/polisyos-cell --set cell.id=cell-00112233
 ```
 
-## Подробности по chart'ам
+## Chart Details
 
 - [polisyos-cell/README.md](polisyos-cell/README.md)
 - [spire/README.md](spire/README.md)

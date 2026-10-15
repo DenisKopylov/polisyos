@@ -5,9 +5,12 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
 Source of truth: `src/polisyos/scientist/publishing/publisher.py`, `src/polisyos/scientist/orchestration/orchestrator/decision_card.py`, `src/polisyos/scientist/evidence/claims/export.py`, `tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py`.
+Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
+Evidence level: implementation and test sources inspected at this pin; tests and gates not executed. Default compiler rollout is off/shadow; export refs do not establish Claim-owner currentness.
 
-The Phase 2.7 decision-grade compiler turns governed research artifacts into
-audience-specific outputs without losing provenance. Public summary, reviewer
+The Phase 2.7 decision-grade compiler contract projects supplied research
+artifacts into audience-specific outputs while preserving their provenance.
+It does not by itself establish end-to-end production custody. Public summary, reviewer
 packet, expert appendix and machine export all derive from the same Claim
 Ledger and Research DAG refs.
 

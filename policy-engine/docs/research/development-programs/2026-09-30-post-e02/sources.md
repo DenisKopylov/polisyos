@@ -1,138 +1,138 @@
-# Источники и судьба исходных обязательств
+# Sources and Disposition of Inherited Commitments
 
-[Обзор](README.md) · [Полный структурированный реестр](source_disposition.json) · [Версии источников](sources.json)
+[Overview](README.md) · [Full structured register](source_disposition.json) · [Source versions](sources.json)
 
-Это карта происхождения и аналитических решений, а не новый backlog. Официальный status сохраняется рядом с development disposition. Ни чтение, ни hash check не переаттестуют продукт.
+This is a provenance and analytical-decision map, not a new backlog. Official status is preserved alongside development disposition. Neither reading nor hash checking re-attests the product.
 
-## Отдельные популяции
+## Separate populations
 
-| Популяция | Число | Что сохраняется |
-|---|---:|---|
-| GV | 54 | Одна primary disposition и secondary interactions; introductions/refinements не новые направления |
-| GY | 77 | Точный status, owner и строка §8.5; executed не универсальная readiness |
-| Atlas | 22 | Отдельная область каждой DS; DS0 ratified, DS21 gate O1 AND O3 |
-| DEBT-REGISTER | 277 | Literal/effective status и row hash; тематическая связь не official edge |
-| Требования к данным | 8 | Состояние корпуса, уже построенный механизм и недостающее основание раздельно |
-| Плановые Markdown | 366 | Полный inventory в объявленной области и точный режим чтения каждого файла |
-| Исторические task/phase/lane headings | 285 | Source-qualified IDs, неоднородные единицы, не task total |
-| Foundry research problems | 182 | Все IDs Appendix A и optional applicability; не182новых задач |
-| Foundry phase pointers | 169 | Отдельные operational references, не прибавляются к182 |
-| Foundry extension aliases | 7 | Ссылки на существующие problems/families |
-| Causal stages | 48 | 37 execution_grade +11 narrow_accepted declarations; не независимая научная перепроверка |
-| E02 findings | 282 | 8 closed/261 partial/12 held/1 open на17:57:48; отдельная repair population |
+| Population                          | Count | What is preserved                                                                                    |
+| ----------------------------------- | ----: | ---------------------------------------------------------------------------------------------------- |
+| GV                                  |    54 | One primary disposition and secondary interactions; introductions/refinements are not new directions |
+| GY                                  |    77 | Exact status, owner, and §8.5 row; executed does not mean universally ready                          |
+| Atlas                               |    22 | Separate scope for each DS; DS0 is ratified, DS21 is gated by O1 AND O3                              |
+| DEBT-REGISTER                       |   277 | Literal/effective status and row hash; thematic relation is not an official edge                     |
+| Data requirements                   |     8 | Corpus state, mechanism already built, and missing basis kept separate                               |
+| Planning Markdown                   |   366 | Complete inventory within the declared scope and exact reading mode for each file                    |
+| Historical task/phase/lane headings |   285 | Source-qualified IDs and heterogeneous units; not a task total                                       |
+| Foundry research problems           |   182 | All Appendix A IDs and optional applicability; not 182 new tasks                                     |
+| Foundry phase pointers              |   169 | Separate operational references; not added to 182                                                    |
+| Foundry extension aliases           |     7 | References to existing problems/families                                                             |
+| Causal stages                       |    48 | 37 execution_grade + 11 narrow_accepted declarations; not independent scientific revalidation        |
+| E02 findings                        |   282 | 8 closed / 261 partial / 12 held / 1 open at 17:57:48; a separate repair population                  |
 
-Исторические LEDGER значения 213/271/16/18 являются constants прежнего отчёта, а не текущим census. Эти популяции не суммируются в число программ или процент готовности.
+Historical LEDGER values 213/271/16/18 are constants from a prior report, not a current census. These populations are not added into a program count or readiness percentage.
 
-## Чтение не равно инвентаризации
+## Reading is not inventory
 
-Содержательная сверка планового корпуса различает 86 полных чтений, адресные/narrative-only/opaque-elided чтения и prior-linked материалы. 221 подробная Atlas/E02 запись остаётся inventory-only в исходной карте покрытия. Изученные полные masters и точные дочерние scopes сохраняют требования, но не дают права назвать каждое приложение полностью прочитанным. Точные ranges и версии находятся в sources.json и source_disposition.json.
+Substantive reconciliation of the planning corpus distinguishes 86 full readings, targeted/narrative-only/opaque-elided readings, and prior-linked materials. 221 detailed Atlas/E02 records remain inventory-only in the original coverage map. Fully read masters and exact child scopes preserve requirements, but do not justify calling every appendix fully read. Exact ranges and versions are in sources.json and source_disposition.json.
 
-Дополнительное чтение смысловых разделов S10–S13 и G2/G3/G6/G7 расширило покрытие на 3 727 ранее не заявленных строк. Оно завершено 19:31 UTC по тем же исходным bytes 17:31:36; ни один из восьми файлов не повышен до full-document, source freshness не изменилась.
+Additional reading of semantic sections S10–S13 and G2/G3/G6/G7 expanded coverage by 3,727 previously unclaimed lines. This was completed at 19:31 UTC against the same source bytes from 17:31:36; none of the eight files was upgraded to full-document status, and source freshness did not change.
 
-Пять Fabric/Foundry источников прочитаны целиком:10 455строк; пять Scientist:8 945; пять архивов данных:10 121; пять causal archives:18 219. Их строки и рабочие единицы пересекаются по предмету и не складываются в дополнительный объём реализации. Полный causal ResultPlan имеет49stage headings из-за повторения11.2, но48unique stages.
+Five Fabric/Foundry sources were read in full: 10,455 lines; five Scientist sources: 8,945; five data archives: 10,121; five causal archives: 18,219. Their lines and work units overlap in subject matter and are not added as a separate implementation volume. The full causal ResultPlan has 49 stage headings because 11.2 repeats, but 48 unique stages.
 
-Реестр sources.json отдельно указывает полный retained manifest, selected metadata, numbered source excerpt и transcription Parquet footer. SHA256 относится только к обозначенному hash_scope; hash выдержки или footer summary не удостоверяет весь underlying file. В частности, метаданные Spending не доказывают чтение строк, совместимый consumer или успешный согласованный release.
+sources.json separately identifies the full retained manifest, selected metadata, numbered source excerpt, and Parquet-footer transcription. SHA256 applies only to the named hash_scope; an excerpt or footer-summary hash does not attest the entire underlying file. In particular, Spending metadata does not prove that rows were read, that a compatible consumer exists, or that a coordinated release succeeded.
 
-Короткие архивные aliases разрешаются через source_aliases с точными path и hash. archive_data:DR означает DEBT-REGISTER, тогда как DR в реестре решений означает DECISION_RECORDS. archive_data:OP сохраняет исходную версию e36d7f, а не автоматически последнюю редакцию.
+Short archive aliases are resolved through source_aliases with exact path and hash. archive_data:DR means DEBT-REGISTER, while DR in the decision register means DECISION_RECORDS. archive_data:OP preserves original version e36d7f and does not automatically point to the latest revision.
 
-## Шесть возможных диспозиций
+## Six possible dispositions
 
-- Сохранить вопрос и развивать выбранный полезный increment
-- Повторно использовать существующего владельца и механизм
-- Потребить exact E02 repair output без повторного бюджета
-- Не переносить superseded recipe, ложную premise или старую migration
-- Отложить conditional extension до конкретного question/data/consumer gate
-- Сохранить явно неразрешённую область и точный следующий discriminator
+- Preserve the question and develop the selected useful increment.
+- Reuse an existing owner and mechanism.
+- Consume the exact E02 repair output without duplicating its budget.
+- Do not carry forward a superseded recipe, false premise, or old migration.
+- Defer a conditional extension until a specific question/data/consumer gate.
+- Preserve an explicitly unresolved scope and its exact next discriminator.
 
-Ни deferred, ни narrow accepted не означает автоматически дефект. Source file в archive не означает, что всё закончено или всё устарело.
+Neither deferred nor narrow_accepted automatically means defective. An archived source file does not mean that everything is finished or everything is obsolete.
 
-E02 repair_output_baseline условен: выбранная программа потребляет только реально принятый exact output владельца. premise_resolution_assumed=false сохраняет нерешённые principal/owner, data и institutional premises отдельно. Сценарий не принимает решения B122, LA-055 или B31 и не меняет официальный status. Исторический materialized ledger сохранён отдельно от утренней reported-current overlay; новые literal значения B197/B61/B152/B154/B155 не выдумываются по сообщённым selectors или summary.
+E02 repair_output_baseline is conditional: the selected program consumes only the exact output actually accepted by its owner. premise_resolution_assumed=false keeps unresolved principal/owner, data, and institutional premises separate. The scenario does not decide B122, LA-055, or B31 and does not change official status. The historical materialized ledger remains separate from the morning reported-current overlay; new literal values for B197/B61/B152/B154/B155 are not invented from reported selectors or summaries.
 
-## Все54 GV в выбранной структуре
+## All 54 GV items in the selected structure
 
-| ID | Вопрос | Основной адрес |
-|---|---|---|
-| GV-01 | Представление под решение и достаточная детализация | S Идентичность вопроса и сохранение смысла |
-| GV-02 | Приобретение под причинную идентификацию | E2 Идентификация синтез и приобретение основания |
-| GV-03 | Процедурный перенос исследовательского опыта | R Улучшение исследовательской процедуры |
-| GV-04 | Независимое различающее оценивание | V Независимая проверка |
-| GV-05 | Совместная компетентность человека и системы | H Человеческое употребление и обучение |
-| GV-06 | Исполнимость и изменение процесса наблюдения | P3 Исполнение масштаб и реакция участников |
-| GV-07 | Портфель развиваемых способностей | PORTFOLIO Выбор и развитие портфеля способностей |
-| GV-08 | Вычислительный эксперимент под контраст | N Численный эксперимент и вычисление нужной величины |
-| GV-09 | Цифровое измерение с вероятностной проверкой прогнозов | E1 Измерение и смысл источника |
-| GV-10 | Согласованные совместные множества и worlds | M1 Совместная модель состояние и прогноз |
-| GV-11 | Инкрементальное исследование и общие подвычисления | C Происхождение актуальность и историческое воспроизведение |
-| GV-12 | Разнообразные области отказа и отдельно риск | N Численный эксперимент и вычисление нужной величины |
-| GV-13 | Selection-aware обучение внутренней исследовательской стратегии | R Улучшение исследовательской процедуры |
-| GV-14 | Question-relative linkage и перенос его неопределённости | E1 Измерение и смысл источника |
-| GV-15 | Разрешённый аналитический ответ у владельца данных | A Ограниченный ответ у владельца данных |
-| GV-16 | Сохраняющее научный смысл physical planning | N Численный эксперимент и вычисление нужной величины |
-| GV-17 | Пространство вмешательств и ограниченный синтез | P1 Совместный дизайн и осмысленный выбор |
-| GV-18 | Адаптивная программа и совместный дизайн наблюдений | P2 Адаптивные правила с сохранённым продолжением |
-| GV-19 | Композиционный синтез совместимых альтернатив | P1 Совместный дизайн и осмысленный выбор |
-| GV-20 | Рамка населения и процесс наблюдения | E1 Измерение и смысл источника |
-| GV-21 | Эффект при изменении масштаба | P3 Исполнение масштаб и реакция участников |
-| GV-22 | Реакция участников и производство свидетельств | P3 Исполнение масштаб и реакция участников |
-| GV-23 | Накопительный синтез под целевой вопрос | E2 Идентификация синтез и приобретение основания |
-| GV-24 | Специальные прокси и отрицательные контроли | E2 Идентификация синтез и приобретение основания |
-| GV-25 | Разнообразие сред как источник различающего знания | E2 Идентификация синтез и приобретение основания |
-| GV-26 | Экспериментальная диагностика пределов системы | R Улучшение исследовательской процедуры |
-| GV-27 | Оптимизируемое семантическое производство данных | E1 Измерение и смысл источника |
-| GV-28 | Калибровка и обратное моделирование под политическое сравнение | M1 Совместная модель состояние и прогноз |
-| GV-29 | Временная доступность основания | C Происхождение актуальность и историческое воспроизведение |
-| GV-30 | Ранний вывод о позднем результате через проверяемый мост | E2 Идентификация синтез и приобретение основания |
-| GV-31 | Оркестрация по времени до пригодного знания | R Улучшение исследовательской процедуры |
-| GV-32 | Эмпирическая модель исполнения по событиям, объектам и ресурсам | P3 Исполнение масштаб и реакция участников |
-| GV-33 | Осмысленное сохранённое множество альтернатив | P1 Совместный дизайн и осмысленный выбор |
-| GV-34 | Обучаемый поиск с проверяемой математической границей | P1 Совместный дизайн и осмысленный выбор |
-| GV-35 | Совместная популяционная структура под вопрос | E1 Измерение и смысл источника |
-| GV-36 | Механизм назначения как исследовательская возможность | E2 Идентификация синтез и приобретение основания |
-| GV-37 | Ограниченная адресная политика с независимой оценкой | P1 Совместный дизайн и осмысленный выбор |
-| GV-38 | Измерение из пространственных/мультимодальных цифровых каналов | E1 Измерение и смысл источника |
-| GV-39 | Причинная структура ровно до достаточного ответа | E2 Идентификация синтез и приобретение основания |
-| GV-40 | Производная нужного действия и вычислительный режим | N Численный эксперимент и вычисление нужной величины |
-| GV-41 | Контролируемое обнаружение и screening оснований | E2 Идентификация синтез и приобретение основания |
-| GV-42 | Вычисление по достаточному компактному представлению | N Численный эксперимент и вычисление нужной величины |
-| GV-43 | Проверяемая специализация повторяемой операции | R Улучшение исследовательской процедуры |
-| GV-44 | Пригодное последовательное состояние | M1 Совместная модель состояние и прогноз |
-| GV-45 | Несоответствие модели как исследовательский объект | M2 Диагноз и обучение о мире |
-| GV-46 | Численно согласованная совместная симуляция | N Численный эксперимент и вычисление нужной величины |
-| GV-47 | Вычисление по структуре вероятностной задачи | N Численный эксперимент и вычисление нужной величины |
-| GV-48 | Направленное объединение вероятностных оснований | M1 Совместная модель состояние и прогноз |
-| GV-49 | Защищённый измерительный ответ под запрос | A Ограниченный ответ у владельца данных |
-| GV-50 | Точность вложенного исследования | N Численный эксперимент и вычисление нужной величины |
-| GV-51 | GV-51: выбирать геометрию вычисления, сохраняя исследуемую величину | N Численный эксперимент и вычисление нужной величины |
-| GV-52 | GV-52: адаптивная программа при неизвестном, но сохраняющемся механизме | P2 Адаптивные правила с сохранённым продолжением |
-| GV-53 | GV-53: от текущего допустимого состояния к проверенному продолжению | P2 Адаптивные правила с сохранённым продолжением |
-| GV-54 | GV-54: время до чего, для кого и на каком горизонте | E1 Измерение и смысл источника |
+| ID    | Question                                                                       | Primary address                                             |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| GV-01 | Representation for a decision and sufficient detail                            | S Question identity and meaning preservation                |
+| GV-02 | Acquisition for causal identification                                          | E2 Identification, synthesis, and basis acquisition         |
+| GV-03 | Procedural transfer of research experience                                     | R Improvement of research procedure                         |
+| GV-04 | Independent discriminating evaluation                                          | V Independent verification                                  |
+| GV-05 | Joint human/system competence                                                  | H Human use and learning                                    |
+| GV-06 | Executability and change in the observation process                            | P3 Execution, scale, and participant response               |
+| GV-07 | Portfolio of capabilities to develop                                           | PORTFOLIO Capability portfolio selection and development    |
+| GV-08 | Computational experiment for a contrast                                        | N Numerical experimentation and target-quantity computation |
+| GV-09 | Digital measurement with probabilistic forecast checking                       | E1 Measurement and source semantics                         |
+| GV-10 | Coherent joint sets and worlds                                                 | M1 Joint model, state, and forecast                         |
+| GV-11 | Incremental research and shared subcomputations                                | C Provenance, currentness, and historical replay            |
+| GV-12 | Diverse failure regions and separate risk                                      | N Numerical experimentation and target-quantity computation |
+| GV-13 | Selection-aware learning of internal research strategy                         | R Improvement of research procedure                         |
+| GV-14 | Question-relative linkage and transfer of its uncertainty                      | E1 Measurement and source semantics                         |
+| GV-15 | Permitted analytical answer at the data holder                                 | A Bounded answer at the data holder                         |
+| GV-16 | Physical planning that preserves scientific meaning                            | N Numerical experimentation and target-quantity computation |
+| GV-17 | Intervention space and bounded synthesis                                       | P1 Joint design and meaningful choice                       |
+| GV-18 | Adaptive program and joint design of observations                              | P2 Adaptive rules with preserved continuation               |
+| GV-19 | Compositional synthesis of compatible alternatives                             | P1 Joint design and meaningful choice                       |
+| GV-20 | Population frame and observation process                                       | E1 Measurement and source semantics                         |
+| GV-21 | Effect under changes of scale                                                  | P3 Execution, scale, and participant response               |
+| GV-22 | Participant response and evidence production                                   | P3 Execution, scale, and participant response               |
+| GV-23 | Cumulative synthesis for a target question                                     | E2 Identification, synthesis, and basis acquisition         |
+| GV-24 | Specialized proxies and negative controls                                      | E2 Identification, synthesis, and basis acquisition         |
+| GV-25 | Diversity of environments as a source of discriminating knowledge              | E2 Identification, synthesis, and basis acquisition         |
+| GV-26 | Experimental diagnosis of system limits                                        | R Improvement of research procedure                         |
+| GV-27 | Semantically optimized data production                                         | E1 Measurement and source semantics                         |
+| GV-28 | Calibration and inverse modeling for policy comparison                         | M1 Joint model, state, and forecast                         |
+| GV-29 | Temporal availability of the basis                                             | C Provenance, currentness, and historical replay            |
+| GV-30 | Early inference about a later outcome through a verifiable bridge              | E2 Identification, synthesis, and basis acquisition         |
+| GV-31 | Orchestration by time to usable knowledge                                      | R Improvement of research procedure                         |
+| GV-32 | Empirical execution model from events, objects, and resources                  | P3 Execution, scale, and participant response               |
+| GV-33 | Meaningful preserved set of alternatives                                       | P1 Joint design and meaningful choice                       |
+| GV-34 | Learnable search with a verifiable mathematical boundary                       | P1 Joint design and meaningful choice                       |
+| GV-35 | Joint population structure for a question                                      | E1 Measurement and source semantics                         |
+| GV-36 | Assignment mechanism as a research opportunity                                 | E2 Identification, synthesis, and basis acquisition         |
+| GV-37 | Bounded targeted policy with independent evaluation                            | P1 Joint design and meaningful choice                       |
+| GV-38 | Measurement from spatial/multimodal digital channels                           | E1 Measurement and source semantics                         |
+| GV-39 | Causal structure only as far as needed for a sufficient answer                 | E2 Identification, synthesis, and basis acquisition         |
+| GV-40 | Derivative of the required action and computational regime                     | N Numerical experimentation and target-quantity computation |
+| GV-41 | Controlled discovery and screening of evidence bases                           | E2 Identification, synthesis, and basis acquisition         |
+| GV-42 | Computation from a sufficient compact representation                           | N Numerical experimentation and target-quantity computation |
+| GV-43 | Verifiable specialization of a repeatable operation                            | R Improvement of research procedure                         |
+| GV-44 | Fit-for-purpose sequential state                                               | M1 Joint model, state, and forecast                         |
+| GV-45 | Model mismatch as a research object                                            | M2 Diagnosis and learning about the world                   |
+| GV-46 | Numerically coherent joint simulation                                          | N Numerical experimentation and target-quantity computation |
+| GV-47 | Computation using the structure of a probabilistic problem                     | N Numerical experimentation and target-quantity computation |
+| GV-48 | Directed integration of probabilistic evidence bases                           | M1 Joint model, state, and forecast                         |
+| GV-49 | Protected measurement response to a request                                    | A Bounded answer at the data holder                         |
+| GV-50 | Precision of nested research                                                   | N Numerical experimentation and target-quantity computation |
+| GV-51 | GV-51: choose computational geometry while preserving the quantity under study | N Numerical experimentation and target-quantity computation |
+| GV-52 | GV-52: adaptive program under an unknown but persistent mechanism              | P2 Adaptive rules with preserved continuation               |
+| GV-53 | GV-53: from the current admissible state to a verified continuation            | P2 Adaptive rules with preserved continuation               |
+| GV-54 | Time to what, for whom, and over which horizon                                 | E1 Measurement and source semantics                         |
 
-Primary address — место аналитического принятия решения, не единственный потребитель. Secondary edges и точные introduction/refinement locators сохранены в JSON. GV-07 относится к выбору портфеля, а не заставляет строить meta-learner.
+Primary address is the analytical decision home, not the only consumer. Secondary edges and exact introduction/refinement locators remain in JSON. GV-07 concerns portfolio selection; it does not mandate building a meta-learner.
 
-## Существенные решения по наследию
+## Substantive decisions about inherited work
 
-- Data Forge consolidation, CLI/topology, ClaimLedger, ResearchDAG, VOI, memory, challenge factory и audience compiler не становятся новыми платформенными проектами
-- Архивные CI из source spread/confidence, автоматические confidence bonuses, Hessian-as-identification, fixed horizon12 и blanket DP/IC requirements не принимаются как научные guarantees
-- Текущий PStarZ имеет direct exact point path и отдельную non-exact heuristic interval ветвь. Последняя присутствует в source-level transport chain; её scientific coverage и harmful final consumption не установлены. Это точный semantic/correctness вопрос, не новый отсутствующий engine
-- D2 observation Parquet и generated method-contract JSON различны. Наличие реальной таблицы не доказывает, что selected method получил её наблюдения
-- Causal declaration validator проверяет mapping и evidence-path presence. Sound-but-incomplete, scoped и narrow results сохраняются; broad theorem-candidate claims не повышаются автоматически
-- Participation имеет собственные consent/sampling/dissent/claim-use требования. CB2 comprehension не заменяет их
-- BusinessKB, funding и legal branches сохранены отдельно с их consumers и условиями
+- Data Forge consolidation, CLI/topology, ClaimLedger, ResearchDAG, VOI, memory, challenge factory, and audience compiler do not become new platform projects.
+- Archived CI approaches based on source spread/confidence, automatic confidence bonuses, Hessian-as-identification, fixed horizon12, and blanket DP/IC requirements are not adopted as scientific guarantees.
+- Current PStarZ has a direct exact point path and a separate non-exact heuristic interval branch. The latter appears in the source-level transport chain; its scientific coverage and harmful final consumption are not established. This is an exact semantic/correctness question, not a missing new engine.
+- D2 observation Parquet and generated method-contract JSON are distinct. The presence of a real table does not prove that the selected method received its observations.
+- The causal declaration validator checks mapping and evidence-path presence. Sound-but-incomplete, scoped, and narrow results remain valid; broad theorem-candidate claims are not automatically promoted.
+- Participation has its own consent/sampling/dissent/claim-use requirements. CB2 comprehension does not replace them.
+- BusinessKB, funding, and legal branches remain separate with their consumers and conditions.
 
-## Сила утверждений
+## Claim strength
 
-Различаются: аналитический exact reference; source code/contract; историческая fixture/receipt; authentic bounded data; действительный served consumer; человеческий outcome; компетентный institutional act. Успех одного уровня не передаётся другим по имени файла, подписи или числу тестов.
+Keep distinct: analytical exact reference; source code/contract; historical fixture/receipt; authentic bounded data; actual served consumer; human outcome; competent institutional act. Success at one level does not transfer to another through a filename, signature, or test count.
 
-## Исторические bytes и утреннее локальное чтение
+## Historical bytes and morning local read
 
-Материализованные версии 30 сентября: планы17:31:36UTC; bounded code17:49–17:53; E02 delta17:57:48; data/semantic18:09–18:14; Spending metadata18:21–18:22. Эти514 представлений имеют проверенные здесь bytes/hashes. Исторические DECISION_RECORDS/P_DECISION_DRAFTS по-прежнему имеют своё observation17:31:36; новые сведения не переписывают старые source records и aliases.
+Materialized versions from September 30: plans at 17:31:36; bounded code at 17:49–17:53; E02 delta at 17:57:48; data/semantic at 18:09–18:14; Spending metadata at 18:21–18:22. These 514 entries have bytes/hashes verified here. Historical DECISION_RECORDS/P_DECISION_DRAFTS retain their 17:31:36 observation; new information does not rewrite old source records or aliases.
 
-Первый reported-local срез 1 октября03:46:49–03:48:10 с уточнением03:51:48–03:52:18 относится к HEAD252f6b8e. Заключительная ограниченная сверка05:01:10–05:01:44 сообщает HEAD8b40f8f5 и отдельно проверенное clean tree. В sources.json сохранены18 прежних reported records и добавлены четыре версии: два ledger, R9 receipt и store. Всего22 reported records:19 hashes сообщены локальной проверкой, у3 code-section locators hash не сообщён. Эти source bytes сюда не скопированы и здесь не rehashed; прежние timestamps, IDs и aliases сохранены. Последовательные чтения не являются atomic snapshot.
+The first reported-local slice on October 1 at 03:46:49–03:48:10 with an update at 03:51:48–03:52:18 refers to HEAD 252f6b8e. The final bounded reconciliation at 05:01:10–05:01:44 reports HEAD 8b40f8f5 and a separately verified clean tree. sources.json preserves 18 earlier reported records and adds four versions: two ledgers, an R9 receipt, and store. There are 22 reported records total: local checking reports hashes for 19; for 3 code-section locators, no hash is reported. These source bytes were not copied here and were not rehashed here; earlier timestamps, IDs, and aliases are preserved. Sequential reads are not an atomic snapshot.
 
-Все282ID/status подтверждены обоими локальными сравнениями без переходов. В первом срезе изменилось содержание B197: сообщён31changed selector без новых literal values. В финальном срезе B197 неизменён, обновлены B61/B152/B154/B155; полные новые строки сюда не получены. B61 теперь явно supersedes старый v2 blocker bounded V11 evidence. Owner scope B152/B154/B155 уточнён без individual appointments, B154 сохраняет production all-confirmations consumer_missing. Внутренняя B197 covariance/report/welfare и B61 prepared-read цепочки интегрированы; configured producer/type admission и authority остаются отдельно. R9 canonical-ID patch теперь интегрирован, хотя неизменённый FINAL_REPORT хранит более раннее «не интегрирован». Новый receipt сохраняет четыре CAS-03 failures и report_authentication=invalid при corrected-fixture HTTP201/200. Это не closure. R14 не исполнил9setup-blocked properties; R1V3 engineering draft/GO не served acceptance, N6 projection остаётся proposed. Разные execution cohorts не суммируются.
+All 282 IDs/statuses were confirmed in both local comparisons with no transitions. In the first slice, B197 content changed: 31 changed selectors were reported without new literal values. In the final slice, B197 is unchanged; B61/B152/B154/B155 are updated, but their complete new rows were not obtained here. B61 now explicitly supersedes the old v2 blocker with bounded V11 evidence. Owner scope for B152/B154/B155 is refined without individual appointments; B154 retains consumer_missing for production all-confirmations. Internal B197 covariance/report/welfare and B61 prepared-read chains are integrated; configured producer/type admission and authority remain separate. The R9 canonical-ID patch is now integrated even though unchanged FINAL_REPORT retains the earlier “not integrated” statement. The new receipt retains four CAS-03 failures and report_authentication=invalid with corrected-fixture HTTP 201/200. This is not closure. R14 did not execute nine setup-blocked properties; R1 V3 engineering draft/GO is not served acceptance; N6 projection remains proposed. Different execution cohorts are not added together.
 
-Сравнение47bounded-code sources, causal frontier/validator и52data-semantic файлов сохраняет свой первый утренний observation: изменены calibrator.py и resolve_transport.py. Финальная сверка отдельно подтвердила только пять названных E02 документов, три receipts и пять code owners. Она не переименовывает более раннее чтение всего корпуса в свежее. Bounded freshness gate завершён для05:01:10–05:01:44UTC с этими пределами. Repository destination на этом срезе свободен; передача комплекта ещё не подтверждена.
+The comparison of 47 bounded code sources, causal frontier/validator, and 52 data-semantic files preserves its first-morning observation: calibrator.py and resolve_transport.py changed. The final reconciliation separately confirmed only five named E02 documents, three receipts, and five code owners. It does not relabel the earlier whole-corpus read as fresh. The bounded freshness gate is complete for 05:01:10–05:01:44 UTC within these limits. The repository destination was free at that slice; transfer of the package is not yet confirmed.
 
-Дополнительно полностью прочитаны шесть исследовательских root-документов,4 757строк, наблюдённых18:37:27UTC. Отдельно сохраняются40moves,139distillation-dispatch пар,67operations IDs,36deferred triggers и88исторических import statements. Метаданные360research файлов не являются чтением354остальных полных текстов. Пустые plan_adopted поля distillation не отменяют поздние scoped PA1/PA2/PA3 adoption/closure; они также не означают adoption всех40moves. P6.09 nested/rectangular условие относится к одной dynamic-risk family, а не ко всем adaptive policies. Отдельный H2-plan superseded маршрутом GY CR1–CR3. October1 not-before/report_only не является автоматическим переключением gate.
+An additional six research root documents were read in full: 4,757 lines, observed at 18:37:27 UTC. The record separately retains 40 moves, 139 distillation-dispatch pairs, 67 operations IDs, 36 deferred triggers, and 88 historical import statements. Metadata for 360 research files is not full-text reading of the other 354. Empty plan_adopted fields in distillation do not cancel later scoped PA1/PA2/PA3 adoption/closure; they also do not mean that all 40 moves were adopted. The P6.09 nested/rectangular condition applies to one dynamic-risk family, not all adaptive policies. A separate H2 plan is superseded by the GY CR1–CR3 route. October 1 not-before/report_only is not an automatic gate transition.
 
-Канонические source paths в JSON даны относительно policy-engine; предоставленная Global Vision указана по title/version/hash. Здесь нет cloud-only рабочих путей. Содержательный срез завершён на указанную дату. Поле repository_transfer_verified=false относится к pre-transfer artifact validation, а не к предварительности исследования. Размещение в repository подтверждается отдельной receipt по точным hashes этого неизменённого комплекта.
+Canonical source paths in JSON are relative to policy-engine; the supplied Global Vision is identified by title/version/hash. No cloud-only working paths appear here. This substantive slice is complete as of the stated date. repository_transfer_verified=false concerns pre-transfer artifact validation, not whether the research is preliminary. Repository placement is confirmed separately by a receipt against exact hashes of this unchanged package.

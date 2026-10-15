@@ -2,35 +2,35 @@
 
 ## Purpose
 
-`polisyos.ir.governance` задает policy-facing authoring surface Trinity:
+`polisyos.ir.governance` defines the policy-facing Trinity authoring surface:
 problem framing, intervention specs, selector expressions, schedule semantics,
-gate events, temporal logic и layered policy composition. Здесь находятся
-контракты, которые отвечают на вопросы "зачем", "что именно делаем" и "какие
-governance constraints должны соблюдаться" до compile/runtime стадии.
+gate events, temporal logic, and layered policy composition. It contains the
+contracts that answer "why?", "what exactly are we doing?", and "which
+governance constraints must hold?" before compilation or runtime.
 
 ## Where to Start
 
-- [`problem_frame.py`](./problem_frame.py) — `ProblemFrame`, objectives, KPI, constraints и stakeholders.
-- [`policy_spec.py`](./policy_spec.py) — `PolicySpec`, `InterventionSpec`, bindings и temporal intervention sequencing.
-- [`selector_expr.py`](./selector_expr.py) — targeting AST, quantifiers и temporal predicates.
+- [`problem_frame.py`](./problem_frame.py) — `ProblemFrame`, objectives, KPIs, constraints, and stakeholders.
+- [`policy_spec.py`](./policy_spec.py) — `PolicySpec`, `InterventionSpec`, bindings, and temporal intervention sequencing.
+- [`selector_expr.py`](./selector_expr.py) — targeting AST, quantifiers, and temporal predicates.
 - [`schedule.py`](./schedule.py) — step-based schedule semantics.
-- [`temporal_logic.py`](./temporal_logic.py) — LTL/MTL-style policy constraints и execution semantics.
-- [`policy_composition.py`](./policy_composition.py) — layered policy stacks, overrides и compatibility rules.
-- [`game_design.py`](./game_design.py) — mechanism/game-design contracts для frontier governance surface.
-- [`validation.py`](./validation.py) — validation diagnostics и report builders.
+- [`temporal_logic.py`](./temporal_logic.py) — LTL/MTL-style policy constraints and execution semantics.
+- [`policy_composition.py`](./policy_composition.py) — layered policy stacks, overrides, and compatibility rules.
+- [`game_design.py`](./game_design.py) — mechanism/game-design contracts for the frontier governance surface.
+- [`validation.py`](./validation.py) — validation diagnostics and report builders.
 
 ## Public entrypoints
 
-| Entrypoint                                                                              | Use when                                                   | Defined in                               |
-| --------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------- |
-| `polisyos.ir.governance.ProblemFrame`                                                   | Нужно описать policy problem, goals и success criteria     | [`problem_frame.py`](./problem_frame.py) |
-| `polisyos.ir.governance.PolicySpec`                                                     | Нужно описать interventions, bindings и execution metadata | [`policy_spec.py`](./policy_spec.py)     |
-| `polisyos.ir.governance.InterventionSpec`                                               | Нужен contract одного intervention                         | [`policy_spec.py`](./policy_spec.py)     |
-| `polisyos.ir.governance.TemporalInterventionSequence`                                   | Нужен staged rollout / temporal intervention plan          | [`policy_spec.py`](./policy_spec.py)     |
-| `polisyos.ir.governance.ScheduleSpec`                                                   | Нужны step-based activation windows                        | [`schedule.py`](./schedule.py)           |
-| `polisyos.ir.governance.SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot` | Нужно описать targeting surface                            | [`selector_expr.py`](./selector_expr.py) |
-| `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent`                       | Нужен typed governance gate protocol                       | [`gate.py`](./gate.py)                   |
-| `polisyos.ir.governance.ValidationReport`                                               | Нужны structured validation diagnostics                    | [`validation.py`](./validation.py)       |
+| Entrypoint                                                                              | Use when                                                 | Defined in                               |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------- |
+| `polisyos.ir.governance.ProblemFrame`                                                   | Describe the policy problem, goals, and success criteria | [`problem_frame.py`](./problem_frame.py) |
+| `polisyos.ir.governance.PolicySpec`                                                     | Describe interventions, bindings, and execution metadata | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.InterventionSpec`                                               | Define the contract for one intervention                 | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.TemporalInterventionSequence`                                   | Define a staged rollout or temporal intervention plan    | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.ScheduleSpec`                                                   | Define step-based activation windows                     | [`schedule.py`](./schedule.py)           |
+| `polisyos.ir.governance.SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot` | Describe the targeting surface                           | [`selector_expr.py`](./selector_expr.py) |
+| `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent`                       | Use the typed governance gate protocol                   | [`gate.py`](./gate.py)                   |
+| `polisyos.ir.governance.ValidationReport`                                               | Produce structured validation diagnostics                | [`validation.py`](./validation.py)       |
 
 ## Replay-bound gate requests
 

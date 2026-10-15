@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+from polisyos.common.markdown import split_markdown_table_row
+
 _JOURNAL_ROOT = ("docs", "superpowers", "journals")
 _ARCHIVE_REFERENCE = re.compile(r"(?P<archive>[^\s`\"<>]+\.zip)::[^\s`\"<>]+")
 _SHA256 = re.compile(r"[a-fA-F0-9]{64}\Z")
@@ -53,19 +55,19 @@ def _archive_table_text(text: str) -> str:
             archive_columns = set()
             output.append(line)
             continue
-        cells = line.split("|")
+        line_ending = line[len(line.rstrip("\r\n")) :]
+        row = line[: len(line) - len(line_ending)] if line_ending else line
+        cells = split_markdown_table_row(row)
         headings = {
-            index
-            for index, cell in enumerate(cells)
-            if cell.strip().lower() in _ARCHIVE_COLUMNS
+            index for index, cell in enumerate(cells) if cell.strip().lower() in _ARCHIVE_COLUMNS
         }
         if headings:
             archive_columns = headings
         elif archive_columns:
             for index in archive_columns:
-                if index < len(cells) - 1:
+                if index < len(cells):
                     cells[index] = " "
-            line = "|".join(cells)
+            line = "|".join(cells) + line_ending
         output.append(line)
     return "".join(output)
 

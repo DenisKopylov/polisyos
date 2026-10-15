@@ -1,8 +1,9 @@
 # Ukraine Data Tests
 
 `tests/unit/data_forge/domains/ukraine` covers the Data Forge-owned Ukraine data domain: adapters,
-builders, orchestrator, CLI, demography artifacts, and server surfaces. The
-slice currently contains `6` `test_*.py` files.
+builders, orchestrator, CLI, demography artifacts, and server surfaces. Its
+tracked `test_*.py` files are the source inventory; file counts are not counts
+of tests collected or executed.
 
 ## Purpose
 
@@ -12,24 +13,26 @@ slice currently contains `6` `test_*.py` files.
 
 ## Where To Start
 
-- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
+- `tools/ops_runners/ukraine_data/README.md`
 - `test_orchestrator.py` and `test_server.py` for end-to-end wiring issues.
 - `test_cli.py` for command-surface regressions.
 
-## Public Entrypoints
+## Test Module Inventory
 
-- `tests/unit/data_forge/domains/ukraine/test_adapters.py`
-- `tests/unit/data_forge/domains/ukraine/test_builders.py`
-- `tests/unit/data_forge/domains/ukraine/test_cli.py`
-- `tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py`
-- `tests/unit/data_forge/domains/ukraine/test_orchestrator.py`
-- `tests/unit/data_forge/domains/ukraine/test_server.py`
+The canonical inventory is the tracked `test_*.py` files under this directory.
+From `policy-engine/`, list those source files with:
+
+```bash
+git ls-files tests/unit/data_forge/domains/ukraine | rg '(^|/)test_[^/]+\.py$'
+```
+
+This lists test modules; it does not collect or execute test cases.
 
 ## Depends On / Depended On By
 
 ### Depends On
 
-- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
+- `tools/ops_runners/ukraine_data/README.md`
 - `src/polisyos/data_forge/domains/ukraine/adapters.py`
 - `src/polisyos/data_forge/domains/ukraine/builders/`
 - `src/polisyos/data_forge/domains/ukraine/orchestrator.py`
@@ -38,9 +41,7 @@ slice currently contains `6` `test_*.py` files.
 ### Depended On By
 
 - Data tooling and server workflows built around the `ukraine-data` entrypoint
-- [`../../../tools/README.md`](../../../tools/README.md) and
-  [`../../../README.md`](../../../README.md)
-  for local navigation
+- `tools/README.md` and `tests/README.md` for local navigation
 
 ## Common Commands
 
@@ -56,7 +57,8 @@ uv run pytest tests/unit/data_forge/domains/ukraine/test_server.py -q
 
 ## Test And Verification Commands
 
-The collect-only command below was smoke-checked on `2026-04-17`.
+The collect-only command below is a historical receipt dated `2026-04-17`; it
+was not rerun for this documentation correction.
 
 ```bash
 cd policy-engine
@@ -65,10 +67,10 @@ uv run pytest --collect-only tests/unit/data_forge/domains/ukraine -q
 
 ## Reference Docs
 
-- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
-- [`../../../TESTING_POLICY.md`](../../../TESTING_POLICY.md)
-- [`../../../README.md`](../../../README.md)
+- `tools/ops_runners/ukraine_data/README.md`
+- `tests/TESTING_POLICY.md`
+- `tests/README.md`
 
 ## Last Updated
 
-2026-05-02
+2026-10-14

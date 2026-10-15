@@ -1,34 +1,34 @@
-# schemas — контрактный baseline Policy Engine
+# schemas — Policy Engine Contract Baseline
 
-`schemas/` хранит фиксированные контрактные артефакты между слоями `ir`, `fabric`, `runtime` и клиентами. Эти файлы используются в CI для drift/compatibility checks и не должны меняться вручную вне генераторов.
+`schemas/` stores fixed contract artifacts shared by `ir`, `fabric`, `runtime`, and clients. CI uses these files for drift and compatibility checks; do not edit them manually outside the generators.
 
-## Что находится в директории
+## Directory Contents
 
-| Артефакт                                                       | Назначение                                                     |
-| -------------------------------------------------------------- | -------------------------------------------------------------- |
-| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff                         |
-| `snapshots/*/_manifest.json`                                   | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`) |
-| `snapshots/connectors/contracts.json`                          | Snapshot контрактов source-коннекторов                         |
-| `runtime_api_v1.openapi.json`                                  | Коммитный OpenAPI контракт Runtime API v1                      |
+| Artifact                                                       | Purpose                                                           |
+| -------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline for semantic diff                            |
+| `snapshots/*/_manifest.json`                                   | Generation metadata and hashes (`sha256_full`, `sha256_semantic`) |
+| `snapshots/connectors/contracts.json`                          | Snapshot of source-connector contracts                            |
+| `runtime_api_v1.openapi.json`                                  | Committed OpenAPI contract for Runtime API v1                     |
 
-Кодовый ABI registry находится в `src/polisyos/schemas/abi_models.py`; эта
-директория остается только для JSON/YAML/OpenAPI snapshot артефактов.
+The code ABI registry is in `src/polisyos/schemas/abi_models.py`; this directory is reserved for JSON/YAML/OpenAPI snapshot artifacts.
 
-## Актуальное состояние (2026-03-03)
+## Where to Check Current State
 
-- ABI registry: `50` активных моделей (`ir=48`, `fabric=2`), все в `compat_mode=strict`.
-- Приоритеты ABI: `p0=18`, `p1=23`, `p2=9`.
-- `version_field=None` у `certification_result`, `data_view_request`, `outer_search_result`, `edge_kind`, `node_kind`.
-- ABI manifests:
-  - `snapshots/ir/_manifest.json`: `generated_at=2026-03-03T16:49:25+00:00`;
-  - `snapshots/fabric/_manifest.json`: `generated_at=2026-03-02T16:48:08+00:00`.
-- Connector snapshot: `version=1`, контрактов `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
-- Runtime OpenAPI: `openapi=3.1.0`, `PolicyOS Runtime API 1.0.0`, `37` операций (`27 GET`, `10 POST`).
-- `packages/runtime-api-client` owns the full generated client chain; its
-  low-level renderer writes only to a caller-provided private scratch path,
-  while `types.ts` and the canonical TS/JS client are the committed outputs.
+This page describes where contracts live; it is not a consolidated inventory of their current sizes and versions. For owners, statuses, and committed outputs, use the [generated-artifact catalog](../docs/reference/generated-artifacts.md) and its [source registry](../architecture/generated_artifacts.toml). For any specific value, check the corresponding source contract and snapshot or manifest.
 
-## Архитектурные потоки
+- Code ABI registry: `src/polisyos/schemas/abi_models.py`; ABI snapshots and manifests: `snapshots/ir/` and `snapshots/fabric/`.
+- Source connector contracts: `src/polisyos/fabric/connectors/sources/_contracts/`; committed snapshot: `snapshots/connectors/contracts.json`.
+- Runtime API source: `src/polisyos/runtime/http/`; committed OpenAPI snapshot:
+  `runtime_api_v1.openapi.json`.
+
+These are distinct sets with different denominators: the number of models in the registry is not the number of schema files in a snapshot, and the number of connector definitions is not the number of OpenAPI operations. When stating any count or version, name the exact artifact and its own version or generation metadata; do not combine them into one “current” counter.
+
+`packages/runtime-api-client` owns the full generated client chain; its
+low-level renderer writes only to a caller-provided private scratch path,
+while `types.ts` and the canonical TS/JS client are the committed outputs.
+
+## Architecture Flows
 
 ```text
 src/polisyos/ir/** + src/polisyos/ir/world/abi.py
@@ -55,31 +55,31 @@ src/polisyos/runtime/http/app.py
   -> apps/runtime-dashboard/scripts/generate-api-client.sh -> apps/runtime-dashboard/src/api/types.ts
 ```
 
-## Связи с соседними директориями
+## Related Directories
 
-| Директория                                          | Роль относительно `schemas/`                                            |
-| --------------------------------------------------- | ----------------------------------------------------------------------- |
-| `src/polisyos/ir`                                   | Источник Pydantic ABI-моделей для `snapshots/ir`                        |
-| `src/polisyos/ir/world/abi.py`                      | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric`     |
-| `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector-контрактов для `snapshots/connectors/contracts.json` |
-| `src/polisyos/runtime/http`                         | Источник OpenAPI контракта для `runtime_api_v1.openapi.json`            |
-| `tools/quality/diagnostics`                                 | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
-| `tools/devx/connectors`                             | Drift/compatibility проверка и обновление connector snapshot            |
-| `tools/ops_runners/runtime`                                     | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
-| `packages/runtime-api-client`                       | Коммитный runtime SDK (TS/JS)                                           |
-| `apps/runtime-dashboard`                        | Генерация OpenAPI типов для UI (`corepack pnpm run generate:api`)                 |
+| Directory                                           | Role relative to `schemas/`                                                |
+| --------------------------------------------------- | -------------------------------------------------------------------------- |
+| `src/polisyos/ir`                                   | Source of Pydantic ABI models for `snapshots/ir`                           |
+| `src/polisyos/ir/world/abi.py`                      | Source of enum ABI (`edge_kind`, `node_kind`) for `snapshots/fabric`       |
+| `src/polisyos/fabric/connectors/sources/_contracts` | Source of connector contracts for `snapshots/connectors/contracts.json`    |
+| `src/polisyos/runtime/http`                         | Source of the OpenAPI contract for `runtime_api_v1.openapi.json`           |
+| `tools/quality/diagnostics`                         | ABI snapshot and semantic-diff generation (`gen_schema.py`, `abi_diff.py`) |
+| `tools/devx/connectors`                             | Drift/compatibility checks and connector-snapshot updates                  |
+| `tools/ops_runners/runtime`                         | OpenAPI export, hardening and drift checks, runtime-client generation      |
+| `packages/runtime-api-client`                       | Committed runtime SDK (TS/JS)                                              |
+| `apps/runtime-dashboard`                            | Generation of OpenAPI types for the UI (`corepack pnpm run generate:api`)  |
 
-## Рабочие команды (из `policy-engine/`)
+## Commands (from `policy-engine/`)
 
 ```bash
-# Проверка baseline без изменений
+# Check the baseline without modifying it
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 uv run polisyos-tools connectors check-contracts --check
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 ```bash
-# Обновление baseline
+# Update the baseline
 uv run --extra ml polisyos-tools diagnostics gen-schema
 uv run polisyos-tools connectors check-contracts --update
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
@@ -87,13 +87,13 @@ corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schema
 ```
 
 ```bash
-# Синхронизация UI типов
+# Synchronize UI types
 cd apps/runtime-dashboard
 corepack pnpm run generate:api
 ```
 
 ```bash
-# Локальный semantic diff ABI (перед PR)
+# Local ABI semantic diff (before a PR)
 uv run --extra ml polisyos-tools diagnostics gen-schema --output-dir /tmp/current_schemas
 python3 tools/quality/diagnostics/abi_diff.py \
   --baseline schemas/snapshots \
@@ -101,18 +101,17 @@ python3 tools/quality/diagnostics/abi_diff.py \
   --format markdown
 ```
 
-## Инварианты сопровождения
+## Maintenance Invariants
 
-- Не добавлять Python modules/package markers в `schemas/`; product imports идут
-  через `polisyos.*`, а не через `import schemas`.
-- Не редактировать вручную файлы в `snapshots/ir` и `snapshots/fabric`.
-- Не редактировать вручную `snapshots/connectors/contracts.json`, использовать `check_contracts.py --update`.
-- Любое изменение Runtime API сопровождается синхронным обновлением:
+- Do not add Python modules or package markers to `schemas/`; product imports go through `polisyos.*`, not `import schemas`.
+- Do not edit files in `snapshots/ir` or `snapshots/fabric` manually.
+- Do not edit `snapshots/connectors/contracts.json` manually; use `check_contracts.py --update`.
+- Every Runtime API change must be accompanied by synchronized updates to:
   - `schemas/runtime_api_v1.openapi.json`,
-  - `packages/runtime-api-client/types.ts` и canonical TS/JS client,
+  - `packages/runtime-api-client/types.ts` and the canonical TS/JS client,
   - `apps/runtime-dashboard/src/api/types.ts`.
 
-## Подробности по подпапкам
+## Subdirectory Details
 
 - `schemas/snapshots/README.md`
 - `schemas/snapshots/ir/README.md`

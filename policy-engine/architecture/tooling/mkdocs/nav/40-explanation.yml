@@ -1,8 +1,14 @@
   - Explanation:
       - explanation/index.md
+      - Historical ADR Reader Editions: explanation/adr-readings/index.md
       - Architecture: explanation/architecture.md
+      - End-to-End Data Flow: explanation/end-to-end-data-flow.md
+      - Identity and Custody Boundary (Ratified): system-design-decisions/policyos-identity-and-custody-boundary.md
+      - North Star (Proposed): system-design-decisions/policy-design-causal-operating-system-north-star.md
+      - Stage 0 Custody Ratification: system-design-decisions/stage0-custody-kernel-ratification.md
       - Trinity: explanation/trinity.md
       - Causal Engine: explanation/causal-engine.md
+      - BERL Method Identity: explanation/berl-method-identity.md
       - Governance Model: explanation/governance-model.md
       - Data Fabric: explanation/data-fabric.md
       - Lex Pipeline: explanation/lex-pipeline.md

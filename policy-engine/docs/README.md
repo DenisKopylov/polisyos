@@ -1,42 +1,73 @@
 # PolicyOS Docs
 
-Short entrypoint for the documentation surface that Wave 1 closes in-repo.
-`docs/index.md` remains the primary handbook landing page; this file exists so
-CI, ADRs, and generator rules have one stable path to the Wave 1 design and
-compliance corpus.
+[The handbook](index.md) is the reader entrypoint. This repository index also
+routes execution plans, research and historical evidence that are deliberately
+separate from the published handbook.
 
-## Brand
+## Read the system
 
-- [Brand overview](./brand/README.md)
-- [Glyph specification](./brand/GLYPH_SPECIFICATION.md)
-- [Uncertainty language](./brand/UNCERTAINTY_LANGUAGE.md)
-- [Motion specification](./brand/MOTION.md)
-- [Composition rules](./brand/COMPOSITION_RULES.md)
-- [Typography UA/RU](./brand/TYPOGRAPHY_UA_RU.md)
-- [Contrast spec index](./brand/A11Y_CONTRAST.md)
+- [Architecture](explanation/architecture.md) and
+  [end-to-end data flow](explanation/end-to-end-data-flow.md).
+- [Current subsystem references](reference/index.md) and
+  [contributor task map](reference/contributor-start-here.md).
+- [System-design decisions](system-design-decisions/README.md), including the
+  identity/custody boundary, north star and Stage 0 ratification.
+- [ADR status index](adr/index.md) and [ADRs by topic](adr/by-topic.md).
 
-## Compliance
+The implementation maps were inspected at source commit
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14. The
+[E02 snapshot](reference/e02-documentation-snapshot.md) explains why ongoing
+integration and a historical receipt cannot be treated as current closure.
+The system is not functional end to end; tutorial smoke examples and blueprints
+retain that limit even when an individual component or documentation check passes.
 
-- [Generated contrast matrix](./compliance/A11Y_CONTRAST.md)
-- [VPAT](./compliance/VPAT.md)
-- [A11Y audit 2026Q2](./compliance/A11Y_AUDIT_2026Q2.md)
+## Find the right document
 
-## Design Plans
+| Need | Location |
+| --- | --- |
+| Learn a flow | [Tutorials](tutorials/index.md) |
+| Perform a task | [How-to](how-to/index.md) |
+| Look up a contract or owner | [Reference](reference/index.md) |
+| Understand responsibilities and tradeoffs | [Explanation](explanation/index.md) |
+| Operate or recover | [Runbooks](runbooks/index.md) |
+| Read accepted decisions and proposals | [ADRs](adr/README.md), [system-design decisions](system-design-decisions/README.md) |
+| Locate current execution or a historical plan | [Plans lifecycle](plans/README.md), [active index](plans/active/README.md), [archive disposition](plans/documentation-refresh-disposition-20261014.md) |
+| Find research and E02 evidence owners | [Research map](research/README.md) |
+| Read frozen evidence | [Archive lifecycle and entrypoints](archive/README.md) |
+| Review migration and rollback records | [Migration record map](migration/README.md) |
+| Work on visual identity or compliance records | [Brand](brand/README.md), [accessibility records](compliance/README.md) |
 
-- Wave 1 / Wave 2 design evidence: `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md`
-- Wave 1 release evidence: `release/design-wave1-release-notes.md`
+## Maintain the documentation
 
-## System Design Decisions
+English is the sole official documentation language. The
+[language policy](reference/documentation-language.md) defines first-stage
+migration and source-preservation boundaries. Use the [reader vocabulary](reference/reader-vocabulary.md)
+for ordinary search terms and the [usability protocol](how-to/evaluate-documentation-usability.md)
+for a later human pilot; the human study has not run.
 
-- [System design decision index](./system-design-decisions/README.md)
-- [Honest diagnostics substrate](./system-design-decisions/honest-diagnostics-substrate.md)
-- [Best-in-class policy design operating model](./system-design-decisions/policy-design-best-in-class-operating-model.md) - includes the reuse-first capability realization map and Scholar academic evidence producer.
+Follow the [style guide](style-guide.md) and
+[verification contract](reference/documentation-verification.md). The
+[inventory](reference/documentation-inventory.md) records the measured scope;
+the [failure/repair register](reference/policy-design-case-failure-patterns.md)
+defines the capability and authority vocabulary.
 
-## ADR
+The [third-pass closeout](archive/reports/2026-10-14-documentation-sustainability-audit.md)
+records source/reader clarification and repeatable source/link checks; it names
+E02 drift, incomplete lifecycle verification and unmeasured reader usability.
+The [comprehensive maintenance audit](archive/reports/2026-10-14-documentation-maintenance-audit.md)
+records the second slice's source audits and verification-tool repairs; its
+verdict table distinguishes passing checks, incomplete global gates and the
+narrowly reproduced snapshot failure. The earlier
+[refresh closeout](archive/reports/2026-10-14-documentation-refresh-e02.md)
+records a separate publication boundary and verification wave. Runtime and
+E02 closure remain outside these reports.
 
-- [ADR template](./adr/_template.md)
-- [ADR-042 Janus-Atlas dual brand](./adr/ADR-042-janus-atlas-dual-brand.md)
-- [ADR-043 Provenance law](./adr/ADR-043-provenance-law.md)
-- [ADR-044 Time as a primitive](./adr/ADR-044-time-as-primitive.md)
-- [ADR-045 Glyph alphabet limit 10](./adr/ADR-045-glyph-alphabet-limit-10.md)
-- [ADR-046 Authored text registry](./adr/ADR-046-authored-text-registry.md)
+Stable behavior belongs in authored explanation/reference/procedure pages;
+plans and receipts retain their historical authority and explicit scope.
+Generated references link to their canonical owners and regeneration commands.
+Do not copy their inventories into a second manual source of truth.
+
+When an implementation, schema, rule or generator changes, review the affected
+claims through their existing owner. The verification contract distinguishes
+source-binding comparison, generated-output drift and rendered-link checks;
+none substitutes for checking the meaning of the changed claim.

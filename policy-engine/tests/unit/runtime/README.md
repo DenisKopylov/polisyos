@@ -1,8 +1,7 @@
 # Runtime Tests
 
 `tests/unit/runtime` covers replay correctness, runtime manifest portability, and
-the FastAPI runtime surface. The slice currently contains `31` `test_*.py`
-files: `3` in the root runtime directory and `28` under `runtime/http/`.
+the FastAPI runtime surface, with focused HTTP and mirror-contract suites.
 
 ## Purpose
 
@@ -12,18 +11,19 @@ files: `3` in the root runtime directory and `28` under `runtime/http/`.
 
 ## Where To Start
 
-- [`../../src/polisyos/runtime/README.md`](../../src/polisyos/runtime/README.md)
-- [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
+- [`../../../src/polisyos/runtime/README.md`](../../../src/polisyos/runtime/README.md)
+- [`../../../src/polisyos/runtime/http/README.md`](../../../src/polisyos/runtime/http/README.md)
 - `test_replay_runtime.py` and the `runtime/http/` directory for route-level
   debugging.
 
 ## Public Entrypoints
 
-- `tests/unit/runtime/` root: `3` tests for replay completeness and manifest path
-  portability.
+- `tests/unit/runtime/` root: replay completeness and manifest path portability.
 
-- `tests/unit/runtime/http/`: `28` tests for runs, timeline, debug, control,
-  artifacts, review, auth, and OpenAPI hardening.
+- `tests/unit/runtime/http/`: tests for runs, timeline, debug, control, artifacts,
+  review, auth, and OpenAPI hardening.
+
+- `tests/unit/runtime/mirror_contracts/`: runtime mirror-contract coverage.
 
 - `tests/unit/runtime/http/conftest.py` for HTTP-specific fixtures.
 
@@ -31,16 +31,16 @@ files: `3` in the root runtime directory and `28` under `runtime/http/`.
 
 ### Depends On
 
-- [`../../src/polisyos/runtime/README.md`](../../src/polisyos/runtime/README.md)
-- [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
+- [`../../../src/polisyos/runtime/README.md`](../../../src/polisyos/runtime/README.md)
+- [`../../../src/polisyos/runtime/http/README.md`](../../../src/polisyos/runtime/http/README.md)
 - `src/polisyos/core/run` and `src/polisyos/core/security`
 - Optional `runtime-http` dependencies such as `fastapi` and `PyJWT`
 
 ### Depended On By
 
 - Frontend and local stack flows that assume runtime API compatibility
-- [`../integration/README.md`](../integration/README.md) and
-  [`../performance/README.md`](../performance/README.md)
+- [`../../integration/README.md`](../../integration/README.md) and
+  [`../../performance/README.md`](../../performance/README.md)
 
 - `tools/quality/testing/local_integration_stack.py`
 
@@ -73,11 +73,11 @@ uv run pytest --collect-only tests/unit/runtime/http -q
 
 ## Reference Docs
 
-- [`../../src/polisyos/runtime/README.md`](../../src/polisyos/runtime/README.md)
-- [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
-- [`../../tools/ops_runners/runtime/README.md`](../../tools/ops_runners/runtime/README.md)
-- [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+- [`../../../src/polisyos/runtime/README.md`](../../../src/polisyos/runtime/README.md)
+- [`../../../src/polisyos/runtime/http/README.md`](../../../src/polisyos/runtime/http/README.md)
+- [`../../../tools/ops_runners/runtime/README.md`](../../../tools/ops_runners/runtime/README.md)
+- [`../../TESTING_POLICY.md`](../../TESTING_POLICY.md)
 
 ## Last Updated
 
-2026-04-17
+2026-10-14

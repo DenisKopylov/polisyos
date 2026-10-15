@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test для проверки корректной установки всех компонентов Policy Engine."""
+"""Smoke test to verify the correct installation of all Policy Engine components."""
 
 from __future__ import annotations
 

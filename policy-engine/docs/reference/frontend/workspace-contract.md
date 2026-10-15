@@ -1,6 +1,6 @@
 # Frontend Workspace Contract
 
-Freshness: 2026-05-03
+Freshness: 2026-10-14
 Owner: `team-frontend`
 Source of truth: `architecture/frontend_workspaces.toml`
 
@@ -44,6 +44,23 @@ one is supplied; the low-level raw pair is an ephemeral scratch handoff to the
 canonicalizer. The dashboard generator accepts the same explicit input and
 writes only its dashboard types output, preserving the downstream
 normalization and formatting profile.
+
+Workspace ownership and generated-artifact ownership are separate labels. The
+workspace owners in the table above remain those in
+`architecture/frontend_workspaces.toml`. The generated runtime-client pair
+and dashboard API types have `team-polisyos` as artifact owner and approval
+owner, while `team-frontend` owns their compatibility/version lifecycle in
+`architecture/generated_artifacts.toml`.
+
+The dashboard's generated `src/api/types.ts` is a local typing surface for
+`src/api/client.ts`, which binds OpenAPI `paths` to `openapi-fetch` and the
+dashboard's auth-aware fetch implementation. The shared package's canonical
+JavaScript client is consumed by the reference shell and other non-dashboard
+callers; it is not the dashboard's normal request transport. Treat these as
+separate generated outputs and consumer paths when reviewing a contract
+change. This split was source-inspected at the pin recorded in the
+[current frontend surface map](current-surface-map.md); cited tests there were
+inspected but not run.
 
 Local outputs stay ignored under workspace-local `node_modules/`, product
 `_build/{apps,packages}/...`, and product `_cache/{apps,packages}/...`.

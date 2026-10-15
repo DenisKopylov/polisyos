@@ -58,13 +58,12 @@ Active top-level tool namespaces are limited to:
 - `tools/design`
 
 Facade files at `tools/cli.py` and `tools/registry.py` remain the public CLI
-boundary. Phase 1D compatibility shims may remain until 2026-09-01 under:
-
-- `tools/architecture`
-- `tools/connectors`
-- `tools/foundry`
-- `tools/migrations`
-- `tools/demos`
+boundary. The Phase 1D compatibility-shim sunset date was 2026-09-01; that date
+has elapsed. The previously listed product-root paths
+`tools/{architecture,connectors,foundry,migrations,demos}` are absent from this
+source snapshot and should be treated as historical references. This was
+checked by walking every tracked path under `policy-engine/tools/` at
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; tests were not run.
 
 Deprecated compatibility code may exist only under `tools/archive/` with a
 registered owner, reason, target, and sunset rule. New commands should be
@@ -91,6 +90,14 @@ The physical test taxonomy is:
 | `tests/repo_quality/tools` | Tooling behavior and command integration. |
 | `tests/repo_quality/lint` | Lint policy tests. |
 | `tests/unit/data_forge` | Data Forge fixture and artifact behavior. |
+
+Adjacent test-support paths have separate roles: `tests/fixtures/` holds shared
+fixtures reused across package boundaries; `tests/lint/` and `tests/tools/` are
+redirect stubs whose collectable tests live under `tests/repo_quality/lint/`
+and `tests/repo_quality/tools/`; `tests/typecheck/` holds static type-check
+inputs rather than pytest cases. This classification was checked against all
+tracked paths under `tests/` and the corresponding README/source files at
+`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; tests were not run.
 
 ## Ops
 

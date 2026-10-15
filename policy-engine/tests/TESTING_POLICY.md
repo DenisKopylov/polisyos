@@ -2,39 +2,39 @@
 
 Phase 4 ownership document for `policy-engine/tests` and `apps/runtime-dashboard`.
 
-Актуально на **3 апреля 2026**.
+Current as of **April 3, 2026**.
 
 ## 1. Taxonomy
 
 ### Python taxonomy
 
-| Class | Meaning | Canonical surface | Default selection |
-|---|---|---|---|
-| `unit` | isolated logic, no multi-service seam | everything not classified below | `pytest -m unit` |
-| `contract` | compatibility, schema, ABI and boundary stability | `tests/contract/**` | `pytest -m contract` |
-| `property` | Hypothesis/property-based invariants | explicit `@pytest.mark.property` or `test_*property*.py` / `test_*properties.py` | `pytest -m property` |
-| `integration` | cross-subsystem, runtime-boundary or reference-source tests | `tests/integration/**`, `tests/unit/runtime/http/**`, `tests/unit/fabric/connectors/reference/**` | `pytest -m integration` |
-| `performance` | benchmark and cost-regression tests | `tests/performance/**`, tests with `@pytest.mark.benchmark` | `pytest -m performance` |
-| `repo_quality` | repository structure, lint, tooling, and topology quality gates | `tests/repo_quality/**` | `pytest -m repo_quality` |
+| Class          | Meaning                                                         | Canonical surface                                                                                 | Default selection        |
+| -------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------ |
+| `unit`         | isolated logic, no multi-service seam                           | everything not classified below                                                                   | `pytest -m unit`         |
+| `contract`     | compatibility, schema, ABI and boundary stability               | `tests/contract/**`                                                                               | `pytest -m contract`     |
+| `property`     | Hypothesis/property-based invariants                            | explicit `@pytest.mark.property` or `test_*property*.py` / `test_*properties.py`                  | `pytest -m property`     |
+| `integration`  | cross-subsystem, runtime-boundary or reference-source tests     | `tests/integration/**`, `tests/unit/runtime/http/**`, `tests/unit/fabric/connectors/reference/**` | `pytest -m integration`  |
+| `performance`  | benchmark and cost-regression tests                             | `tests/performance/**`, tests with `@pytest.mark.benchmark`                                       | `pytest -m performance`  |
+| `repo_quality` | repository structure, lint, tooling, and topology quality gates | `tests/repo_quality/**`                                                                           | `pytest -m repo_quality` |
 
 ### Frontend taxonomy
 
-| Class | Meaning | Canonical surface | Default selection |
-|---|---|---|---|
-| `frontend component` | component, hook, route, and Storybook interaction tests | `src/**/*.test.ts(x)`, `src/**/*.a11y.test.ts(x)`, `corepack pnpm run test:components` | `corepack pnpm run test:components` |
-| `frontend journey` | end-to-end operator flows across runtime API + dashboard | `e2e/journeys/*.spec.ts`, `corepack pnpm run test:journeys` | `corepack pnpm run test:journeys` |
-| `visual` | screenshot/snapshot-regression coverage | `e2e/*.visual.spec.ts`, `corepack pnpm run test:visual` | `corepack pnpm run test:visual` |
+| Class                | Meaning                                                  | Canonical surface                                                                      | Default selection                   |
+| -------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------- |
+| `frontend component` | component, hook, route, and Storybook interaction tests  | `src/**/*.test.ts(x)`, `src/**/*.a11y.test.ts(x)`, `corepack pnpm run test:components` | `corepack pnpm run test:components` |
+| `frontend journey`   | end-to-end operator flows across runtime API + dashboard | `e2e/journeys/*.spec.ts`, `corepack pnpm run test:journeys`                            | `corepack pnpm run test:journeys`   |
+| `visual`             | screenshot/snapshot-regression coverage                  | `e2e/*.visual.spec.ts`, `corepack pnpm run test:visual`                                | `corepack pnpm run test:visual`     |
 
 ## 2. Marker and Tag Policy
 
 ### Pytest markers
 
-Registered markers live in [`pytest.ini`](/Users/deniskopylov/polisyos/policy-engine/pytest.ini).
+Registered markers live in [`pytest.ini`](../pytest.ini).
 
 - Primary class markers are auto-applied during collection: `unit`, `contract`, `property`, `integration`, `performance`, `repo_quality`.
 - `benchmark` remains available as the plugin-specific marker used by `pytest-benchmark`; it also implies `performance`.
 - `--strict-markers` is enabled. New markers must be registered before use.
-- Quarantined pytest tests are declared in [`tests/quarantine.toml`](/Users/deniskopylov/polisyos/policy-engine/tests/quarantine.toml) and are skipped by default. Use `pytest --run-quarantine ...` to include them.
+- Quarantined pytest tests are declared in [`tests/quarantine.toml`](quarantine.toml) and are skipped by default. Use `pytest --run-quarantine ...` to include them.
 
 ### Frontend tags
 
@@ -104,7 +104,7 @@ corepack pnpm run test:visual
 
 ### Local integration smoke stack
 
-Use [`tools/quality/testing/local_integration_stack.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/local_integration_stack.py):
+Use [`tools/quality/testing/local_integration_stack.py`](../tools/quality/testing/local_integration_stack.py):
 
 ```bash
 cd policy-engine
@@ -146,5 +146,5 @@ Historical duration data should come from the economics report tool instead of i
 ## 7. Enforcement and Reporting
 
 - Active PR CI emits JUnit XML for the Python `runtime-http`, `integration`, and `performance` lanes.
-- [`tools/quality/testing/report_test_economics.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/report_test_economics.py) renders the top slowest suites/tests plus active quarantine inventory into the GitHub Actions step summary.
-- [`tools/quality/testing/check_playwright_quarantines.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/check_playwright_quarantines.py) fails CI if a Playwright `@flaky` or `@quarantine` title has no matching registry entry, if selectors are duplicated, or if a registry entry points at a non-tagged test.
+- [`tools/quality/testing/report_test_economics.py`](../tools/quality/testing/report_test_economics.py) renders the top slowest suites/tests plus active quarantine inventory into the GitHub Actions step summary.
+- [`tools/quality/testing/check_playwright_quarantines.py`](../tools/quality/testing/check_playwright_quarantines.py) fails CI if a Playwright `@flaky` or `@quarantine` title has no matching registry entry, if selectors are duplicated, or if a registry entry points at a non-tagged test.

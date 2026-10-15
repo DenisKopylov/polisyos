@@ -2,6 +2,13 @@
 
 Governed public-record issuance now defaults to the paired v2 document/profile and signed-record schema/rule. The HTTP routes and artifact ID wire format have not changed. Consumers that use the governed response must read its declared versions before interpreting evidence references.
 
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked
+by reading `src/polisyos/scientist/governance/continuous/governed_public_record.py`,
+`src/polisyos/runtime/http/routes/public_decisions.py`,
+`apps/runtime-dashboard/src/features/runs/api/publicDecisionVerification.ts`, and
+`schemas/runtime_api_v1.openapi.json`. No generation, typecheck, or behavioral test
+was run; these statements describe the checked-in contract, not a deployed consumer.
+
 ## Read the version pair
 
 Accept a governed document only when its `schema_version` and `profile` form a supported pair, and a promoted record only when its `schema_version` and `rule_version` form the corresponding pair. Require the document and record to agree on v1 or v2. Reject a mixed pair, an unknown version, or a missing required field as an unsupported response. The runtime dashboard's response validator is a concrete consumer of this rule; the generated OpenAPI type union alone is insufficient.

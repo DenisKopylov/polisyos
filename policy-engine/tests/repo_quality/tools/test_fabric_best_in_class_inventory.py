@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from pathlib import Path
 
@@ -172,6 +173,11 @@ def test_render_markdown_includes_planes_gaps_and_validation_commands() -> None:
     manifest = inventory.build_manifest(REPO_ROOT)
     page = inventory.render_markdown(manifest)
 
+    assert (
+        "Source of truth: `tools/quality/validation/fabric_best_in_class_inventory.py`, "
+        "`tools/quality/validation/fabric_best_in_class_manifest.json`, and repository "
+        "source inputs listed in the manifest's `input_receipt`."
+    ) in page
     assert "Phase 0 is report-only" in page
     assert "## Coverage Report" in page
     assert "## Tests By Plane" in page
@@ -181,7 +187,9 @@ def test_render_markdown_includes_planes_gaps_and_validation_commands() -> None:
     assert "`semantics.semantic_dataset_catalog`" in page
     assert "`world.discovery_graph_reasoning`" in page
     assert "uv run python tools/quality/validation/fabric_wave2_strict_closure.py --check" in page
-    assert "uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check" in page
+    assert (
+        "uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check" in page
+    )
 
 
 def test_checked_in_manifest_and_report_are_current() -> None:
@@ -215,3 +223,349 @@ def test_check_artifacts_detects_manifest_drift(tmp_path: Path) -> None:
     )
 
     assert drift == [f"manifest out of date: {manifest_path}"]
+
+
+def _write_connector_fixture(root: Path, *, include_beta: bool = False) -> None:
+    source_dir = root / "src/polisyos/fabric/connectors/sources"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    (root / "src/polisyos/fabric/connectors").mkdir(parents=True, exist_ok=True)
+    (root / "src/polisyos/fabric/connectors/base.py").write_text(
+        "from typing import ClassVar, Protocol\n"
+        "class SourceConnector(Protocol):\n"
+        "    connector_id: ClassVar[str]\n"
+        "    capabilities: ClassVar[int]\n"
+        "    metadata: ClassVar[dict[str, str]]\n"
+        "class BaseConnector:\n"
+        "    connector_id: ClassVar[str] = 'base.connector'\n"
+        "    capabilities: ClassVar[int] = 0\n"
+        "    metadata: ClassVar[dict[str, str]]\n",
+        encoding="utf-8",
+    )
+    (source_dir / "sample.py").write_text(
+        "from typing import Protocol\n"
+        "from polisyos.fabric.connectors.base import BaseConnector\n"
+        "raise RuntimeError('connector source must not be imported for inventory')\n"
+        "class AlphaConnector(BaseConnector):\n"
+        "    connector_id = 'alpha'\n"
+        "    capabilities = 1\n"
+        "    metadata = {}\n"
+        "class HiddenConnector(BaseConnector):\n"
+        "    connector_id = 'hidden'\n"
+        "    capabilities = 1\n"
+        "    metadata = {}\n"
+        "class HelperConnector(BaseConnector):\n"
+        "    pass\n"
+        "class AlphaProtocol(Protocol):\n"
+        "    connector_id: str\n"
+        "def normalize_rows(value):\n"
+        "    return value\n"
+        + (
+            "class BetaConnector(BaseConnector):\n"
+            "    connector_id = 'beta'\n"
+            "    capabilities = 1\n"
+            "    metadata = {}\n"
+            if include_beta
+            else ""
+        ),
+        encoding="utf-8",
+    )
+    exports = ["AlphaConnector", "AlphaProtocol", "HelperConnector", "normalize_rows"]
+    if include_beta:
+        exports.append("BetaConnector")
+    (source_dir / "__init__.py").write_text(
+        "from polisyos.fabric.connectors.sources.sample import (\n"
+        + "".join(f"    {name},\n" for name in exports)
+        + ")\n__all__ = [\n"
+        + "".join(f"    {name!r},\n" for name in exports)
+        + "]\n",
+        encoding="utf-8",
+    )
+
+
+def _connector_export_evidence(root: Path) -> dict[str, object]:
+    manifest = inventory.build_manifest(root)
+    return _surface_by_id(manifest)["source.connector_public_exports"]["evidence"]
+
+
+def test_concrete_exports_resolve_declared_connector_classes_only(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+
+    evidence = _connector_export_evidence(tmp_path)
+
+    assert evidence["concrete_connectors"] == ["AlphaConnector"]
+    assert evidence["concrete_connector_count"] == 1
+    assert evidence["export_count"] == 4
+    assert evidence["declared_exports"] == [
+        "AlphaConnector",
+        "AlphaProtocol",
+        "HelperConnector",
+        "normalize_rows",
+    ]
+    assert {row["export"] for row in evidence["excluded_exports"]} == {
+        "AlphaProtocol",
+        "HelperConnector",
+        "normalize_rows",
+    }
+    excluded_by_name = {row["export"]: row["reason"] for row in evidence["excluded_exports"]}
+    assert "missing_declared_SourceConnector_slots" in excluded_by_name["HelperConnector"]
+    assert "HiddenConnector" not in evidence["declared_exports"]
+    assert evidence["inventory_complete"] is True
+    assert evidence["unresolved_exports"] == []
+
+
+def test_added_declared_connector_changes_count_and_input_receipt(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    before = inventory.build_manifest(tmp_path)
+    _write_connector_fixture(tmp_path, include_beta=True)
+
+    after = inventory.build_manifest(tmp_path)
+    evidence = _surface_by_id(after)["source.connector_public_exports"]["evidence"]
+
+    assert evidence["concrete_connectors"] == ["AlphaConnector", "BetaConnector"]
+    assert evidence["concrete_connector_count"] == 2
+    assert before["input_receipt"] != after["input_receipt"]
+    receipt_paths = {row["path"] for row in after["input_receipt"]["inputs"]}
+    assert "src/polisyos/fabric/connectors/sources/sample.py" in receipt_paths
+
+
+def test_connector_property_removal_keeps_name_but_stops_counting(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    before = _connector_export_evidence(tmp_path)
+    source = tmp_path / "src/polisyos/fabric/connectors/sources/sample.py"
+    source.write_text(
+        source.read_text(encoding="utf-8").replace(
+            "class AlphaConnector(BaseConnector):", "class AlphaConnector(object):"
+        ),
+        encoding="utf-8",
+    )
+
+    after = _connector_export_evidence(tmp_path)
+
+    assert before["concrete_connectors"] == ["AlphaConnector"]
+    assert after["concrete_connectors"] == []
+    assert after["concrete_connector_count"] == 0
+    assert after["export_count"] == before["export_count"]
+
+
+def test_unreadable_export_module_is_receipted_and_makes_coverage_partial(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    _write_connector_fixture(tmp_path)
+    original_read_text = Path.read_text
+
+    def unread_sample(path: Path, *args, **kwargs) -> str:
+        if path.name == "sample.py":
+            raise PermissionError("fixture marks the exported class module unreadable")
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", unread_sample)
+    manifest = inventory.build_manifest(tmp_path)
+    surface = _surface_by_id(manifest)["source.connector_public_exports"]
+    evidence = surface["evidence"]
+    receipt_rows = manifest["input_receipt"]["inputs"]
+
+    assert surface["status"] == "partial"
+    assert evidence["inventory_complete"] is False
+    assert any(
+        "unreadable:PermissionError" in row["reason"] for row in evidence["unresolved_exports"]
+    )
+    assert any(
+        row["path"] == "src/polisyos/fabric/connectors/sources/sample.py"
+        and row["operation"] == "read_text"
+        and row["status"] == "unreadable"
+        for row in receipt_rows
+    )
+
+
+def test_markdown_binds_compactly_and_cli_check_prints_full_receipt(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    _write_connector_fixture(tmp_path)
+    manifest_path = tmp_path / "artifacts/manifest.json"
+    report_path = tmp_path / "artifacts/report.md"
+    manifest = inventory.update_artifacts(
+        repo_root=tmp_path,
+        manifest_path=manifest_path,
+        docs_path=report_path,
+    )
+    page = inventory.render_markdown(manifest)
+
+    assert "## Input Receipt" in page
+    assert (
+        f"Receipt SHA-256: `{inventory._input_receipt_digest(manifest['input_receipt'])}`" in page
+    )
+    assert "matched_paths" not in page
+    assert (
+        inventory.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--manifest",
+                "artifacts/manifest.json",
+                "--docs-out",
+                "artifacts/report.md",
+                "--check",
+            ]
+        )
+        == 0
+    )
+    stdout = capsys.readouterr().out
+    assert "Input receipt (explicit operations; incomplete by construction):" in stdout
+    assert "src/polisyos/fabric/connectors/sources/sample.py" in stdout
+    assert '"text_sha256"' in stdout
+
+
+def test_markdown_preserves_source_scope_and_selector_as_literal_text(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    manifest = inventory.build_manifest(tmp_path)
+    receipt = manifest["input_receipt"]
+
+    page = inventory.render_markdown(manifest)
+
+    assert receipt["complete_verdict"] is False
+    assert f"Scope: `{receipt['scope']}`" in page
+    assert f"Selector: `{receipt['selector']}`" in page
+    assert "complete verdict: `false`" in page
+    assert "`concrete_connector_count`=1" in page
+    assert "src/polisyos/fabric/connectors/sources/__init__.py::__all__" in page
+
+
+def test_unresolved_declared_connector_import_makes_coverage_partial(tmp_path: Path) -> None:
+    source_dir = tmp_path / "src/polisyos/fabric/connectors/sources"
+    source_dir.mkdir(parents=True)
+    (source_dir / "__init__.py").write_text(
+        "from polisyos.fabric.connectors.sources.missing import MissingConnector\n"
+        "__all__ = ['MissingConnector']\n",
+        encoding="utf-8",
+    )
+
+    manifest = inventory.build_manifest(tmp_path)
+    surface = _surface_by_id(manifest)["source.connector_public_exports"]
+    evidence = surface["evidence"]
+
+    assert surface["status"] == "partial"
+    assert evidence["inventory_complete"] is False
+    assert evidence["concrete_connector_count"] == 0
+    assert evidence["unresolved_exports"]
+    assert "missing" in json.dumps(evidence["unresolved_exports"]).lower()
+
+
+def test_dynamic_public_export_list_remains_partial(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    source_dir = tmp_path / "src/polisyos/fabric/connectors/sources"
+    (source_dir / "__init__.py").write_text(
+        "__all__ = ['ConnectorCandidate'] + dynamic_exports\n",
+        encoding="utf-8",
+    )
+
+    surface = _surface_by_id(inventory.build_manifest(tmp_path))["source.connector_public_exports"]
+    evidence = surface["evidence"]
+
+    assert surface["status"] == "partial"
+    assert evidence["inventory_complete"] is False
+    assert evidence["unresolved_exports"] == [
+        {
+            "export": "__all__",
+            "reason": "dynamic_or_non_string_public_export_list",
+        }
+    ]
+
+
+def test_mutated_public_export_list_remains_partial(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    source_init = tmp_path / "src/polisyos/fabric/connectors/sources/__init__.py"
+    source_init.write_text(
+        "from polisyos.fabric.connectors.sources.sample import AlphaConnector\n"
+        "__all__ = ['AlphaConnector']\n"
+        "__all__.append('DynamicConnector')\n",
+        encoding="utf-8",
+    )
+
+    surface = _surface_by_id(inventory.build_manifest(tmp_path))["source.connector_public_exports"]
+    evidence = surface["evidence"]
+
+    assert surface["status"] == "partial"
+    assert evidence["inventory_complete"] is False
+    assert evidence["unresolved_exports"] == [
+        {
+            "export": "__all__",
+            "reason": "dynamic_or_non_string_public_export_list",
+        }
+    ]
+
+
+def test_aliased_mutated_public_export_list_makes_manifest_partial(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    source_init = tmp_path / "src/polisyos/fabric/connectors/sources/__init__.py"
+    source_init.write_text(
+        "from polisyos.fabric.connectors.sources.sample import AlphaConnector\n"
+        "__all__ = exported = ['AlphaConnector']\n"
+        "exported.append('BetaConnector')\n",
+        encoding="utf-8",
+    )
+
+    manifest = inventory.build_manifest(tmp_path)
+    surface = _surface_by_id(manifest)["source.connector_public_exports"]
+
+    assert surface["status"] == "partial"
+    assert surface["evidence"]["inventory_complete"] is False
+    assert surface["evidence"]["concrete_connector_count"] == 0
+    assert surface["evidence"]["unresolved_exports"] == [
+        {
+            "export": "__all__",
+            "reason": "aliased_or_multi_target_public_export_assignment",
+        }
+    ]
+
+
+def test_rebound_exported_class_makes_manifest_partial(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    sample = tmp_path / "src/polisyos/fabric/connectors/sources/sample.py"
+    sample.write_text(
+        sample.read_text(encoding="utf-8") + "AlphaConnector = object\n",
+        encoding="utf-8",
+    )
+
+    manifest = inventory.build_manifest(tmp_path)
+    surface = _surface_by_id(manifest)["source.connector_public_exports"]
+
+    assert surface["status"] == "partial"
+    assert surface["evidence"]["inventory_complete"] is False
+    assert surface["evidence"]["concrete_connector_count"] == 0
+    assert surface["evidence"]["unresolved_exports"] == [
+        {"export": "AlphaConnector", "reason": "symbol_rebound_in_module"}
+    ]
+
+
+def test_equal_family_counts_with_different_ids_remain_partial(tmp_path: Path) -> None:
+    _write_connector_fixture(tmp_path)
+    snapshot = tmp_path / "schemas/snapshots/fabric/source_contracts_v2.json"
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text(
+        json.dumps(
+            {
+                "contracts": {
+                    "other.connector.contract": {
+                        "connector_id": "other.connector",
+                        "contract": {"id": "other.connector.contract"},
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    validator = tmp_path / "tools/quality/validation/fabric_source_contracts.py"
+    validator.parent.mkdir(parents=True, exist_ok=True)
+    validator.write_text("# source-contract validator marker\n", encoding="utf-8")
+
+    manifest = inventory.build_manifest(tmp_path)
+    surface = _surface_by_id(manifest)["source.entrypoint_coverage.direct_import_families"]
+
+    assert surface["evidence"]["concrete_connector_count"] == 1
+    assert surface["evidence"]["source_contract_v2_count"] == 1
+    assert surface["evidence"]["source_contracts_validator_present"] is True
+    assert surface["status"] == "partial"
+    assert surface["evidence"]["mapped_identity_status"] == "not_established"
+    assert surface["evidence"]["source_family_state"] == "partial"

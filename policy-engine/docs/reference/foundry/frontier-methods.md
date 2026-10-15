@@ -1,21 +1,30 @@
 # Foundry Frontier Methods
 
-This page maps the Phase 5 and Phase 6 frontier tracks from the Foundry
-remediation plan to current catalog surfaces. It is intentionally explicit
-about runtime posture: a frontier method can be shipped and still carry higher
+This page maps frontier method families to catalog surfaces. Historical Phase
+5/6 labels below are planning vocabulary, not release or capability statuses.
+A frontier method can be registered and runnable while still carrying higher
 operational cost, optional dependencies, or research-gated interpretation.
 
-Freshness: 2026-04-17
-Owner: `@foundry-owners`
-Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/methods/catalog/causal/frontier.py`, `src/polisyos/foundry/methods/catalog/ml/frontier.py`, `src/polisyos/foundry/methods/catalog/policy/frontier.py`, `src/polisyos/foundry/methods/catalog/bayesian/frontier.py`, linked tests, and the frontier demo script
+Historical freshness receipt: 2026-04-17 (an earlier documentation pass; not a
+current verification receipt).
+Owner: @foundry-owners
+Historical planning context: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md` and the D1-L3 section of `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`.
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/frontier.py`, `src/polisyos/foundry/methods/catalog/ml/frontier.py`, `src/polisyos/foundry/methods/catalog/policy/frontier.py`, and `src/polisyos/foundry/methods/catalog/bayesian/frontier.py`.
+Source inspection pin: `c35222b3dcf103338175cf300c5fe9487e6416f3`.
+Evidence level: implementation and listed test/demo sources were inspected at this pin; tests and demos were not run for this docs-only review.
+
+Registry membership, method-specific tests, and the smoke demo establish only
+their bounded method contracts. They do not compose an end-to-end policy
+design, ground a predicted effect in observed outcomes, or authorize a
+recommendation. See [Causal Engine](../../explanation/causal-engine.md) for the
+implemented design-composition and grounding boundaries.
 
 ## Phase Coverage
 
-| Source phase | Frontier meaning                                                                                                                                                                         |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 5      | Bayesian, UQ, and calibration frontier: posterior sampling and SBI are tracked in ADRs and catalog metadata; current docs do not claim production HMC/NUTS beyond shipped code evidence. |
-| Phase 6      | Causal, ML, agent-sim, and policy frontier: runnable catalog additions live behind normal registry, dispatcher, tests, and demo commands.                                                |
+| Historical plan label | Frontier meaning                                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 5               | Bayesian, UQ, and calibration frontier: posterior sampling and SBI are tracked in ADRs and catalog metadata; this page does not claim production HMC/NUTS beyond source evidence. |
+| Phase 6               | Causal, ML, agent-sim, and policy frontier: catalog and smoke-demo surfaces have their own bounded registration, dispatch, and test contracts.                                    |
 
 ## Currently Exercised Frontier Coverage
 

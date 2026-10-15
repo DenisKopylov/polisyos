@@ -1,19 +1,26 @@
 # Add Schema-Backed IR Type
 
-> Добавьте новый IR contract так, чтобы он появился в schema catalog, при
-> необходимости попал в ABI snapshots, и не разошелся с published reference docs.
+> Add an IR contract so it appears in the schema catalog, enters ABI snapshots
+> when appropriate, and stays aligned with the published reference pages.
+
+Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14), checked by
+reading `src/polisyos/schemas/abi_models.py`,
+`tools/quality/diagnostics/gen_schema.py`, and
+`tools/quality/diagnostics/generate_ir_reference_catalog.py`. Generators and
+tests were not run; a specific type still needs its own visibility and ABI decision.
 
 ## Inputs
 
-- fully qualified name нового model/enum;
-- раздел IR, где type должен жить;
-- решение, нужен ли ему только catalog visibility или полноценный ABI snapshot.
+- the fully qualified name of the new model or enum;
+- the IR section where the type belongs;
+- a decision about whether it needs catalog visibility only or a full ABI
+  snapshot.
 
 ## Output
 
-- новый IR type под `src/polisyos/ir/**`;
-- при необходимости запись в `src/polisyos/schemas/abi_models.py`;
-- обновленные schema snapshots и reference catalog.
+- a new IR type under `src/polisyos/ir/**`;
+- an entry in `src/polisyos/schemas/abi_models.py`, when needed;
+- updated schema snapshots and the reference catalog.
 
 ## Commands
 

@@ -2,8 +2,11 @@
 
 `tests/unit/ir` covers the intermediate-representation layer: Trinity loading,
 migrations, analytics models, observation/governance contracts, and the
-architectural rule that IR remains mostly independent from `core`. The slice
-currently contains `64` `test_*.py` files.
+architectural rule that IR remains mostly independent from `core`. At source
+snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`, a full tracked-path census
+under `tests/unit/ir/` counted `172` files whose basename matches `test_*.py`.
+That path count is not a pytest collection or execution result; tests were not
+run during this documentation review.
 
 ## Purpose
 
@@ -19,17 +22,12 @@ currently contains `64` `test_*.py` files.
 - `analytics/`, `observation/`, and `governance/` when a change touches those
   contract families.
 
-## Public Entrypoints
+## Where Tests Are Grouped
 
-- `tests/unit/ir/` root: `36` tests for loaders, migrations, canon parity,
-  architectural boundaries, and core IR contracts.
-
-- `tests/unit/ir/analytics/`: `17` tests for analytics and policy-portfolio style
-  contracts.
-
-- `tests/unit/ir/observation/`: `7` tests for observation and measurement surfaces.
-- `tests/unit/ir/governance/`: `2` tests for governance-facing IR models.
-- `tests/unit/ir/data/`: `2` tests for data-adjacent IR behavior.
+`analytics/`, `observation/`, `governance/`, and `data/` organize focused
+contract families. Other areas cover artifacts, registry, migrations, and
+cross-package mirror contracts. Consult the directory tree for the current
+complete grouping rather than relying on a fixed inventory here.
 
 ## Depends On / Depended On By
 

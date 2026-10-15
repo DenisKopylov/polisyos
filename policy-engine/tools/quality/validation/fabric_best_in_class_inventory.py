@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import sys
 import tomllib
@@ -18,6 +19,13 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from tools.lib.fs import (
+    FileReadMeasurement,
+    measure_file_reads,
+    measured_is_dir,
+    measured_is_file,
+    measured_read_text,
+)
 from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
@@ -62,6 +70,11 @@ def _resolve_path(path: Path, repo_root: Path) -> Path:
     return path if path.is_absolute() else repo_root / path
 
 
+def _path_exists(path: Path) -> bool:
+    """Probe whether a repository path is a file or directory, with a receipt."""
+    return measured_is_file(path) or measured_is_dir(path)
+
+
 def _rel(path: Path, repo_root: Path) -> str:
     try:
         return path.resolve().relative_to(repo_root.resolve()).as_posix()
@@ -70,16 +83,16 @@ def _rel(path: Path, repo_root: Path) -> str:
 
 
 def _read_text(path: Path) -> str:
-    if not path.exists():
+    if not _path_exists(path):
         return ""
-    return path.read_text(encoding="utf-8")
+    return measured_read_text(path, encoding="utf-8")
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    if not path.exists():
+    if not _path_exists(path):
         return {}
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload = json.loads(measured_read_text(path, encoding="utf-8"))
     except json.JSONDecodeError:
         return {}
     return payload if isinstance(payload, dict) else {}
@@ -167,10 +180,10 @@ def _source_contract_files(contract_id: str, connector_id: str) -> list[str]:
 
 
 def _parse_ast(path: Path) -> ast.Module | None:
-    if not path.exists():
+    if not _path_exists(path):
         return None
     try:
-        return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        return ast.parse(measured_read_text(path, encoding="utf-8"), filename=str(path))
     except SyntaxError:
         return None
 
@@ -200,6 +213,528 @@ def _string_list_assignment(path: Path, name: str) -> list[str]:
     return []
 
 
+def _assigned_target_names(target: ast.AST) -> set[str]:
+    """Return names bound by a simple assignment target."""
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return set().union(*(_assigned_target_names(item) for item in target.elts))
+    if isinstance(target, ast.Starred):
+        return _assigned_target_names(target.value)
+    return set()
+
+
+def _literal_string_list(tree: ast.Module | None, name: str) -> tuple[list[str], bool, str]:
+    """Return literal members, completeness, and a bounded reason when unresolved."""
+    if tree is None:
+        return [], False, "dynamic_or_non_string_public_export_list"
+    assignments: list[ast.AST] = []
+    target_node_ids: set[int] = set()
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            node_targets = node.targets
+        elif isinstance(node, ast.AnnAssign):
+            node_targets = [node.target]
+        else:
+            continue
+        matching_targets = [
+            target for target in node_targets if name in _assigned_target_names(target)
+        ]
+        if matching_targets:
+            assignments.append(node)
+            target_node_ids.update(
+                id(target)
+                for matching_target in matching_targets
+                for target in ast.walk(matching_target)
+                if isinstance(target, ast.Name)
+                and target.id == name
+                and isinstance(target.ctx, ast.Store)
+            )
+    if len(assignments) != 1:
+        return [], False, "dynamic_or_non_string_public_export_list"
+
+    assignment = assignments[0]
+    targets = assignment.targets if isinstance(assignment, ast.Assign) else [assignment.target]
+    if len(targets) != 1 or not isinstance(targets[0], ast.Name) or targets[0].id != name:
+        return [], False, "aliased_or_multi_target_public_export_assignment"
+
+    uses_are_closed = all(
+        isinstance(node.ctx, ast.Store) and id(node) in target_node_ids
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == name
+    )
+    if not uses_are_closed:
+        return [], False, "dynamic_or_non_string_public_export_list"
+
+    for node in tree.body:
+        value: ast.AST | None = None
+        targets: Sequence[ast.AST] = ()
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+            value = node.value
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+            value = node.value
+        if not any(name in _assigned_target_names(target) for target in targets):
+            continue
+        if not isinstance(value, (ast.List, ast.Tuple)):
+            return [], False, "dynamic_or_non_string_public_export_list"
+        members = [
+            item.value
+            for item in value.elts
+            if isinstance(item, ast.Constant) and isinstance(item.value, str)
+        ]
+        complete = len(members) == len(value.elts)
+        return members, complete, "" if complete else "dynamic_or_non_string_public_export_list"
+    return [], False, "dynamic_or_non_string_public_export_list"
+
+
+def _parse_ast_detail(path: Path) -> tuple[ast.Module | None, str | None]:
+    if not _path_exists(path):
+        return None, "file_missing"
+    try:
+        return ast.parse(measured_read_text(path, encoding="utf-8"), filename=str(path)), None
+    except SyntaxError:
+        return None, "syntax_error"
+    except (OSError, UnicodeError) as error:
+        return None, f"unreadable:{type(error).__name__}"
+
+
+def _module_file(repo_root: Path, module_name: str) -> tuple[Path | None, str | None]:
+    if not module_name.startswith("polisyos"):
+        return None, "external_module"
+    parts = module_name.split(".")
+    source_root = repo_root / "src"
+    if parts[0] != "polisyos":
+        return None, "module_outside_source_root"
+    stem = source_root.joinpath(*parts)
+    candidates = [stem.with_suffix(".py"), stem / "__init__.py"]
+    present = [path for path in candidates if _path_exists(path)]
+    if len(present) == 1:
+        return present[0], None
+    if not present:
+        return candidates[0], "module_missing"
+    return None, "ambiguous_module_path"
+
+
+def _import_bindings(
+    tree: ast.Module, module_name: str, module_path: Path
+) -> dict[str, tuple[str, str]]:
+    """Map top-level import aliases to their statically named targets."""
+    bindings: dict[str, tuple[str, str]] = {}
+    is_package = module_path.name == "__init__.py"
+    package = module_name if is_package else module_name.rpartition(".")[0]
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            if node.level:
+                package_parts = package.split(".")
+                keep = max(0, len(package_parts) - node.level + 1)
+                target_parts = package_parts[:keep]
+                if node.module:
+                    target_parts.extend(node.module.split("."))
+                target_module = ".".join(target_parts)
+            else:
+                target_module = node.module or ""
+            for alias in node.names:
+                if alias.name == "*":
+                    continue
+                bindings[alias.asname or alias.name] = (
+                    "symbol",
+                    f"{target_module}.{alias.name}" if target_module else alias.name,
+                )
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                local_name = alias.asname or alias.name.split(".", 1)[0]
+                bindings[local_name] = ("module", alias.name)
+    return bindings
+
+
+class _ModuleBindingVisitor(ast.NodeVisitor):
+    """Collect statically visible module-scope bindings without executing source."""
+
+    def __init__(self, symbol_name: str) -> None:
+        self.symbol_name = symbol_name
+        self.bindings: list[str] = []
+        self.has_star_import = False
+
+    def _record(self, name: str, kind: str) -> None:
+        if name == self.symbol_name:
+            self.bindings.append(kind)
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            self._record(node.id, "assignment")
+
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self._record(alias.asname or alias.name.split(".", 1)[0], "import")
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        for alias in node.names:
+            if alias.name == "*":
+                self.has_star_import = True
+            else:
+                self._record(alias.asname or alias.name, "import")
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self._record(node.name, "class")
+        for expression in (*node.decorator_list, *node.bases):
+            self.visit(expression)
+        for keyword in node.keywords:
+            self.visit(keyword.value)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self._record(node.name, "function")
+        for expression in (*node.decorator_list, *node.args.defaults, *node.args.kw_defaults):
+            if expression is not None:
+                self.visit(expression)
+        for argument in (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs):
+            if argument.annotation is not None:
+                self.visit(argument.annotation)
+        if node.args.vararg and node.args.vararg.annotation is not None:
+            self.visit(node.args.vararg.annotation)
+        if node.args.kwarg and node.args.kwarg.annotation is not None:
+            self.visit(node.args.kwarg.annotation)
+        if node.returns is not None:
+            self.visit(node.returns)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self.visit_FunctionDef(node)
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        for expression in (*node.args.defaults, *node.args.kw_defaults):
+            if expression is not None:
+                self.visit(expression)
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+        if node.name is not None:
+            self._record(node.name, "assignment")
+        if node.type is not None:
+            self.visit(node.type)
+        for statement in node.body:
+            self.visit(statement)
+
+    def visit_MatchAs(self, node: ast.MatchAs) -> None:
+        if node.name is not None:
+            self._record(node.name, "assignment")
+        if node.pattern is not None:
+            self.visit(node.pattern)
+
+    def visit_MatchStar(self, node: ast.MatchStar) -> None:
+        if node.name is not None:
+            self._record(node.name, "assignment")
+
+    def visit_MatchMapping(self, node: ast.MatchMapping) -> None:
+        if node.rest is not None:
+            self._record(node.rest, "assignment")
+        self.generic_visit(node)
+
+    def visit_comprehension(self, node: ast.comprehension) -> None:
+        # Comprehension targets have their own scope; walrus expressions in
+        # the iterables/filters still execute in the containing module scope.
+        self.visit(node.iter)
+        for expression in node.ifs:
+            self.visit(expression)
+
+
+def _resolve_class_symbol(
+    repo_root: Path,
+    module_name: str,
+    symbol_name: str,
+    module_cache: dict[str, tuple[Path | None, ast.Module | None, str | None]],
+    seen: frozenset[tuple[str, str]] = frozenset(),
+) -> tuple[str, Path | None, ast.Module | None, ast.ClassDef | None, str | None]:
+    """Resolve an exported symbol through literal Python imports without importing code."""
+    key = (module_name, symbol_name)
+    if key in seen:
+        return "unknown", None, None, None, "import_cycle"
+    module = module_cache.get(module_name)
+    if module is None:
+        module_path, path_error = _module_file(repo_root, module_name)
+        if module_path is None:
+            module = (None, None, path_error or "module_unresolved")
+        else:
+            tree, parse_error = _parse_ast_detail(module_path)
+            module = (module_path, tree, parse_error)
+        module_cache[module_name] = module
+    module_path, tree, module_error = module
+    if module_error or module_path is None or tree is None:
+        return "unknown", module_path, tree, None, module_error or "module_unreadable"
+
+    binding_visitor = _ModuleBindingVisitor(symbol_name)
+    binding_visitor.visit(tree)
+    if binding_visitor.has_star_import:
+        return "unknown", module_path, tree, None, "star_import_may_bind_symbol"
+    if len(binding_visitor.bindings) > 1:
+        return "unknown", module_path, tree, None, "symbol_rebound_in_module"
+
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == symbol_name:
+            return "class", module_path, tree, node, None
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == symbol_name:
+            return "function", module_path, tree, None, None
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+            if any(isinstance(target, ast.Name) and target.id == symbol_name for target in targets):
+                return "unknown", module_path, tree, None, "assigned_symbol_alias_unresolved"
+
+    bindings = _import_bindings(tree, module_name, module_path)
+    binding = bindings.get(symbol_name)
+    if binding is None:
+        return "unknown", module_path, tree, None, "symbol_unresolved"
+    kind, target = binding
+    if kind != "symbol" or "." not in target:
+        return "unknown", module_path, tree, None, "module_alias_not_class_symbol"
+    target_module, target_symbol = target.rsplit(".", 1)
+    return _resolve_class_symbol(
+        repo_root,
+        target_module,
+        target_symbol,
+        module_cache,
+        seen | {key},
+    )
+
+
+def _base_target(
+    expression: ast.expr,
+    *,
+    module_name: str,
+    module_path: Path,
+    tree: ast.Module,
+) -> tuple[str | None, str | None]:
+    while isinstance(expression, ast.Subscript):
+        expression = expression.value
+    if isinstance(expression, ast.Name):
+        name = expression.id
+        bindings = _import_bindings(tree, module_name, module_path)
+        binding = bindings.get(name)
+        if binding is not None:
+            kind, target = binding
+            if kind == "symbol":
+                return target, None
+            return target, None
+        if name in {"object", "Protocol"}:
+            return f"builtins.{name}" if name == "object" else "typing.Protocol", None
+        return None, f"base_name_unresolved:{name}"
+    if isinstance(expression, ast.Attribute):
+        parts: list[str] = []
+        current: ast.expr = expression
+        while isinstance(current, ast.Attribute):
+            parts.append(current.attr)
+            current = current.value
+        if not isinstance(current, ast.Name):
+            return None, "dynamic_base_expression"
+        parts.append(current.id)
+        dotted = ".".join(reversed(parts))
+        first, _, remainder = dotted.partition(".")
+        binding = _import_bindings(tree, module_name, module_path).get(first)
+        if binding is None:
+            return None, f"base_attribute_unresolved:{dotted}"
+        kind, target = binding
+        if kind == "module":
+            return f"{target}.{remainder}" if remainder else target, None
+        return f"{target}.{remainder}" if remainder else target, None
+    return None, "dynamic_base_expression"
+
+
+def _declared_class_slots(class_node: ast.ClassDef) -> set[str]:
+    declared: set[str] = set()
+    for node in class_node.body:
+        if isinstance(node, ast.AnnAssign):
+            if isinstance(node.target, ast.Name) and node.value is not None:
+                declared.add(node.target.id)
+        elif isinstance(node, ast.Assign):
+            declared.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    return declared
+
+
+def _base_connector_ancestry(
+    repo_root: Path,
+    module_name: str,
+    module_path: Path,
+    tree: ast.Module,
+    class_node: ast.ClassDef,
+    *,
+    base_connector: str,
+    module_cache: dict[str, tuple[Path | None, ast.Module | None, str | None]],
+    seen: frozenset[str] = frozenset(),
+) -> tuple[bool, list[str]]:
+    class_fqn = f"{module_name}.{class_node.name}"
+    if class_fqn in seen:
+        return False, [f"inheritance_cycle:{class_fqn}"]
+    unresolved: list[str] = []
+    for expression in class_node.bases:
+        target, target_error = _base_target(
+            expression,
+            module_name=module_name,
+            module_path=module_path,
+            tree=tree,
+        )
+        if target_error:
+            unresolved.append(target_error)
+            continue
+        if target == base_connector:
+            return True, unresolved
+        if target is None or target in {"builtins.object", "typing.Protocol", "typing.Generic"}:
+            continue
+        if target.startswith("typing.") or target.startswith("typing_extensions."):
+            continue
+        if not target.startswith("polisyos."):
+            unresolved.append(f"external_base_not_inspected:{target}")
+            continue
+        base_module, _, base_symbol = target.rpartition(".")
+        kind, base_path, base_tree, base_node, resolve_error = _resolve_class_symbol(
+            repo_root,
+            base_module,
+            base_symbol,
+            module_cache,
+        )
+        if (
+            resolve_error
+            or kind != "class"
+            or base_path is None
+            or base_tree is None
+            or base_node is None
+        ):
+            unresolved.append(f"base_class_unresolved:{target}:{resolve_error or kind}")
+            continue
+        inherited, inherited_unresolved = _base_connector_ancestry(
+            repo_root,
+            base_module,
+            base_path,
+            base_tree,
+            base_node,
+            base_connector=base_connector,
+            module_cache=module_cache,
+            seen=seen | {class_fqn},
+        )
+        if inherited:
+            return True, unresolved + inherited_unresolved
+        unresolved.extend(inherited_unresolved)
+    return False, unresolved
+
+
+def _source_connector_exports(
+    repo_root: Path,
+    source_init: Path,
+) -> tuple[list[str], dict[str, Any]]:
+    """Resolve literal public exports to statically declared BaseConnector classes."""
+    source_module = "polisyos.fabric.connectors.sources"
+    base_module = "polisyos.fabric.connectors.base"
+    module_cache: dict[str, tuple[Path | None, ast.Module | None, str | None]] = {}
+    unresolved: list[dict[str, str]] = []
+    source_tree, source_error = _parse_ast_detail(source_init)
+    exports, literal_exports_complete, literal_exports_error = _literal_string_list(
+        source_tree, "__all__"
+    )
+    if source_error:
+        unresolved.append({"export": "__all__", "reason": source_error})
+    elif not literal_exports_complete:
+        unresolved.append({"export": "__all__", "reason": literal_exports_error})
+    if len(set(exports)) != len(exports):
+        unresolved.append({"export": "__all__", "reason": "duplicate_public_export_name"})
+
+    base_path, base_path_error = _module_file(repo_root, base_module)
+    base_tree: ast.Module | None = None
+    if base_path is not None:
+        base_tree, base_parse_error = _parse_ast_detail(base_path)
+        base_path_error = base_parse_error
+    interface_slots: set[str] = set()
+    base_connector_name = ""
+    interface_found = False
+    if base_tree is not None and base_path is not None:
+        for node in base_tree.body:
+            if isinstance(node, ast.ClassDef) and node.name == "SourceConnector":
+                interface_found = True
+                interface_slots = {
+                    item.target.id
+                    for item in node.body
+                    if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name)
+                }
+            elif isinstance(node, ast.ClassDef) and node.name == "BaseConnector":
+                base_connector_name = node.name
+    if base_path_error or not interface_found or not interface_slots or not base_connector_name:
+        unresolved.append(
+            {
+                "export": "SourceConnector/BaseConnector interface",
+                "reason": base_path_error or "canonical_connector_interface_unresolved",
+            }
+        )
+
+    concrete: set[str] = set()
+    excluded: list[dict[str, str]] = []
+    for export in exports:
+        kind, module_path, tree, class_node, resolve_error = _resolve_class_symbol(
+            repo_root,
+            source_module,
+            export,
+            module_cache,
+        )
+        if resolve_error:
+            unresolved.append({"export": export, "reason": resolve_error})
+            continue
+        if kind != "class" or module_path is None or tree is None or class_node is None:
+            excluded.append(
+                {
+                    "export": export,
+                    "reason": f"resolved_symbol_is_{kind}",
+                }
+            )
+            continue
+        resolved_module = next(
+            (
+                module_name
+                for module_name, cached in module_cache.items()
+                if cached[0] == module_path and cached[1] is tree
+            ),
+            source_module,
+        )
+        is_connector, base_errors = _base_connector_ancestry(
+            repo_root,
+            resolved_module,
+            module_path,
+            tree,
+            class_node,
+            base_connector=f"{base_module}.{base_connector_name}",
+            module_cache=module_cache,
+        )
+        if base_errors:
+            unresolved.extend({"export": export, "reason": error} for error in base_errors)
+        if not is_connector:
+            if base_errors:
+                continue
+            excluded.append(
+                {
+                    "export": export,
+                    "reason": "class_not_descendant_of_canonical_BaseConnector",
+                }
+            )
+            continue
+        missing_slots = sorted(interface_slots - _declared_class_slots(class_node))
+        if missing_slots:
+            excluded.append(
+                {
+                    "export": export,
+                    "reason": "missing_declared_SourceConnector_slots:" + ",".join(missing_slots),
+                }
+            )
+        else:
+            concrete.add(export)
+
+    unresolved = sorted(unresolved, key=lambda item: (item["export"], item["reason"]))
+    excluded = sorted(excluded, key=lambda item: (item["export"], item["reason"]))
+    complete = literal_exports_complete and not unresolved
+    return sorted(exports), {
+        "declared_exports": sorted(exports),
+        "concrete_connector_count": len(concrete),
+        "concrete_connectors": sorted(concrete),
+        "excluded_exports": excluded,
+        "inventory_complete": complete,
+        "unresolved_exports": unresolved,
+        "selection": "literal sources.__all__ entries resolving to classes that inherit the canonical BaseConnector and declare SourceConnector identity slots",
+    }
+
+
 def _call_name(node: ast.AST) -> str:
     if isinstance(node, ast.Name):
         return node.id
@@ -225,10 +760,10 @@ def _source_profile_ids(path: Path) -> list[str]:
 
 
 def _fabric_connector_entrypoints(path: Path) -> dict[str, str]:
-    if not path.exists():
+    if not _path_exists(path):
         return {}
     try:
-        payload = tomllib.loads(path.read_text(encoding="utf-8"))
+        payload = tomllib.loads(measured_read_text(path, encoding="utf-8"))
     except tomllib.TOMLDecodeError:
         return {}
     project = payload.get("project", {})
@@ -244,23 +779,73 @@ def _fabric_connector_entrypoints(path: Path) -> dict[str, str]:
 
 
 def _existing_paths(repo_root: Path, paths: Iterable[str]) -> list[str]:
-    return [path for path in paths if (repo_root / path).exists()]
+    return [path for path in paths if _path_exists(repo_root / path)]
 
 
-def _python_files(repo_root: Path, directory: str) -> list[str]:
+def _python_files(
+    repo_root: Path,
+    directory: str,
+    *,
+    reads: FileReadMeasurement,
+) -> list[str]:
     root = repo_root / directory
-    if not root.exists():
+    if not measured_is_dir(root):
         return []
-    return [
-        _rel(path, repo_root) for path in sorted(root.glob("*.py")) if path.name != "__init__.py"
-    ]
+    try:
+        matches = sorted(root.glob("*.py"))
+    except OSError as error:
+        reads.record(
+            root,
+            "glob",
+            status="unreadable",
+            pattern="*.py",
+            error=type(error).__name__,
+        )
+        raise
+    selected = [path for path in matches if path.name != "__init__.py"]
+    reads.record(
+        root,
+        "glob",
+        status="read",
+        pattern="*.py",
+        matched_paths=[_rel(path, repo_root) for path in matches],
+        excluded_paths=[_rel(path, repo_root) for path in matches if path.name == "__init__.py"],
+        selected_paths=[_rel(path, repo_root) for path in selected],
+    )
+    return [_rel(path, repo_root) for path in selected]
 
 
-def _python_files_recursive(repo_root: Path, directory: str) -> list[str]:
+def _python_files_recursive(
+    repo_root: Path,
+    directory: str,
+    *,
+    reads: FileReadMeasurement,
+) -> list[str]:
     root = repo_root / directory
-    if not root.exists():
+    if not measured_is_dir(root):
         return []
-    return [_rel(path, repo_root) for path in sorted(root.rglob("*.py"))]
+    try:
+        matches = sorted(root.rglob("*.py"))
+    except OSError as error:
+        reads.record(
+            root,
+            "rglob",
+            status="unreadable",
+            pattern="**/*.py",
+            error=type(error).__name__,
+        )
+        raise
+    selected = [_rel(path, repo_root) for path in matches]
+    reads.record(
+        root,
+        "rglob",
+        status="read",
+        pattern="**/*.py",
+        matched_paths=selected,
+        excluded_paths=[],
+        selected_paths=selected,
+    )
+    return selected
 
 
 def _has_token(path: Path, token: str) -> bool:
@@ -336,6 +921,44 @@ def _plane_counts(surfaces: Sequence[Mapping[str, Any]]) -> dict[str, int]:
         if plane in counts:
             counts[plane] += 1
     return counts
+
+
+def _input_receipt_digest(receipt: Mapping[str, Any]) -> str:
+    canonical = json.dumps(receipt, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _input_receipt_summary(receipt: Mapping[str, Any]) -> str:
+    inputs = receipt.get("inputs", [])
+    input_rows = inputs if isinstance(inputs, list) else []
+    return (
+        f"sha256={_input_receipt_digest(receipt)}; explicit_operations={len(input_rows)}; "
+        f"complete_verdict={str(receipt.get('complete_verdict', False)).lower()}"
+    )
+
+
+def _input_receipt_snapshot(
+    reads: FileReadMeasurement,
+    *,
+    scope: str = "Manifest derivation records explicit filesystem reads, file/directory probes, "
+    "and selected Python glob results.",
+) -> dict[str, Any]:
+    receipt = reads.snapshot(complete_verdict=False)
+    receipt["scope"] = scope
+    receipt["selector"] = (
+        "Connector export inventory is bounded to literal names in "
+        "src/polisyos/fabric/connectors/sources/__init__.py::__all__."
+    )
+    receipt["unresolved_by_construction"].extend(
+        [
+            "Runtime imports, plugin entry-point execution, Git/subprocess reads, and external "
+            "services are not observed; the connector count is a static source declaration, "
+            "not proof of installed or operational connectors.",
+            "JSON, TOML, and Python AST readers consume only the structures and fields named "
+            "by this inventory; unselected document semantics are not validated here.",
+        ]
+    )
+    return receipt
 
 
 def _paths(repo_root: Path) -> dict[str, Path]:
@@ -476,7 +1099,10 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "product-api-integration.md",
         "runtime_openapi": repo_root / "schemas" / "runtime_api_v1.openapi.json",
-        "runtime_client_ts": repo_root / "packages" / "runtime-api-client" / "canonicalRuntimeApiClient.ts",
+        "runtime_client_ts": repo_root
+        / "packages"
+        / "runtime-api-client"
+        / "canonicalRuntimeApiClient.ts",
         "dashboard_fixture_registry": repo_root
         / "apps"
         / "runtime-dashboard"
@@ -785,7 +1411,11 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
     return {plane: _existing_paths(repo_root, paths) for plane, paths in raw.items()}
 
 
-def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def _build_surfaces(
+    repo_root: Path,
+    *,
+    reads: FileReadMeasurement,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     paths = _paths(repo_root)
     fabric_contract_records = _contract_records(paths["fabric_contract_snapshot"])
     fabric_contract_ids = _contract_ids(paths["fabric_contract_snapshot"])
@@ -870,15 +1500,22 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         if isinstance(contract, Mapping) and contract.get("owner") and contract.get("reviewer")
     )
     entrypoints = _fabric_connector_entrypoints(paths["pyproject"])
-    source_exports = _string_list_assignment(paths["source_init"], "__all__")
-    source_tree_files = _python_files_recursive(repo_root, "src/polisyos/fabric/connectors/sources")
-    concrete_connectors = sorted(
-        export
-        for export in source_exports
-        if export not in {"HTTPConnectorBase", "HTTPResilienceProfile"}
+    source_exports, connector_export_inventory = _source_connector_exports(
+        repo_root,
+        paths["source_init"],
     )
+    source_tree_files = _python_files_recursive(
+        repo_root,
+        "src/polisyos/fabric/connectors/sources",
+        reads=reads,
+    )
+    concrete_connectors = connector_export_inventory["concrete_connectors"]
     profile_ids = _source_profile_ids(paths["builtin_profiles"])
-    quality_modules = _python_files(repo_root, "src/polisyos/fabric/connectors/quality")
+    quality_modules = _python_files(
+        repo_root,
+        "src/polisyos/fabric/connectors/quality",
+        reads=reads,
+    )
     public_exports = _string_list_assignment(paths["fabric_facade"], "__all__")
     tests_by_plane = _tests_by_plane(repo_root)
 
@@ -1012,7 +1649,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         "fabric-impact.json",
     ]
     product_fixture_count = sum(
-        1 for name in product_fixture_names if (paths["dashboard_fixture_dir"] / name).exists()
+        1 for name in product_fixture_names if _path_exists(paths["dashboard_fixture_dir"] / name)
     )
     product_runtime_operation_ids = [
         "get_fabric_source_scorecards",
@@ -1022,8 +1659,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         "analyze_fabric_impact",
     ]
     runtime_product_status = _status_if(
-        paths["fabric_route"].exists()
-        and paths["fabric_service"].exists()
+        _path_exists(paths["fabric_route"])
+        and _path_exists(paths["fabric_service"])
         and all(
             _has_token(paths["fabric_route"], operation)
             for operation in product_runtime_operation_ids
@@ -1051,18 +1688,18 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         and _has_token(paths["dashboard_fabric_decision_hook"], "useRunFabricDecisionData")
     )
     scientist_product_status = _status_if(
-        paths["scientist_fabric_trust_gate"].exists()
+        _path_exists(paths["scientist_fabric_trust_gate"])
         and _has_token(paths["scientist_fabric_trust_gate"], "FabricTrustGatePass")
         and _has_token(paths["scientist_readiness"], "fabric_readiness_cap")
         and "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py"
         in product_integration_tests
     )
     product_adapter_status = _status_if(
-        paths["product_integration"].exists()
-        and paths["scholar_provenance"].exists()
-        and paths["lex_provenance"].exists()
-        and paths["foundry_calibration_fabric"].exists()
-        and paths["foundry_uncertainty_fabric"].exists()
+        _path_exists(paths["product_integration"])
+        and _path_exists(paths["scholar_provenance"])
+        and _path_exists(paths["lex_provenance"])
+        and _path_exists(paths["foundry_calibration_fabric"])
+        and _path_exists(paths["foundry_uncertainty_fabric"])
         and _has_token(paths["product_integration"], "FabricProductEvidencePath")
         and _has_token(paths["scholar_provenance"], "ScholarFabricCitation")
         and _has_token(paths["lex_provenance"], "LexFabricEvidencePath")
@@ -1070,19 +1707,19 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         and _has_token(paths["foundry_uncertainty_fabric"], "FabricUncertaintyContext")
     )
     compatibility_status = _status_if(
-        paths["compatibility"].exists()
+        _path_exists(paths["compatibility"])
         and _has_token(paths["compatibility"], "FABRIC_COMPATIBILITY_BRIDGES")
         and _has_token(paths["compatibility"], "sunset_date")
         and _has_token(paths["compatibility"], "migration_issue")
-        and paths["product_integration_validator"].exists()
-        and paths["product_integration_doc"].exists()
+        and _path_exists(paths["product_integration_validator"])
+        and _path_exists(paths["product_integration_doc"])
     )
     decision_data_report = _load_json(paths["decision_data_coverage_report"])
     decision_data_status = (
         "implemented"
-        if paths["decision_data"].exists()
-        and paths["trust_envelope_schema"].exists()
-        and paths["decision_data_coverage"].exists()
+        if _path_exists(paths["decision_data"])
+        and _path_exists(paths["trust_envelope_schema"])
+        and _path_exists(paths["decision_data_coverage"])
         and decision_data_report.get("summary", {}).get("status") == "implemented"
         else "missing"
     )
@@ -1132,14 +1769,14 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="source.source_contract_v2_platform",
             plane="source",
             status=_status_if(
-                paths["source_contract_v2"].exists()
-                and paths["source_contract_schema"].exists()
+                _path_exists(paths["source_contract_v2"])
+                and _path_exists(paths["source_contract_schema"])
                 and bool(source_contract_v2_ids)
                 and source_v2_bounded_read_count == len(source_contract_v2_ids)
                 and source_v2_replay_fixture_count == len(source_contract_v2_ids)
                 and source_v2_non_replayable_reason_count == 0
                 and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
-                and paths["source_contracts_validator"].exists()
+                and _path_exists(paths["source_contracts_validator"])
                 and bool(source_platform_tests)
             ),
             priority="P1",
@@ -1174,9 +1811,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="source.processing_guarantee_contracts",
             plane="source",
             status=_status_if(
-                paths["processing_guarantees"].exists()
-                and paths["processing_guarantee_schema"].exists()
-                and paths["processing_guarantees_validator"].exists()
+                _path_exists(paths["processing_guarantees"])
+                and _path_exists(paths["processing_guarantee_schema"])
+                and _path_exists(paths["processing_guarantees_validator"])
                 and source_v2_processing_count == len(source_contract_v2_ids)
                 and source_v2_dedupe_window_count == len(source_contract_v2_ids)
                 and source_v2_replay_retention_count == len(source_contract_v2_ids)
@@ -1212,14 +1849,18 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="source.connector_sdk_authoring_helpers",
             plane="source",
-            status=_status_if(paths["connector_sdk"].exists() and bool(source_platform_tests)),
+            status=_status_if(_path_exists(paths["connector_sdk"]) and bool(source_platform_tests)),
             priority="P1",
             title="Connector SDK authoring helpers",
             description=(
                 "Scaffold helpers derive source, profile, contract, replay, quality, "
                 "and docs ids before a connector becomes production-visible."
             ),
-            source_files=_python_files_recursive(repo_root, "src/polisyos/fabric/connectors/sdk"),
+            source_files=_python_files_recursive(
+                repo_root,
+                "src/polisyos/fabric/connectors/sdk",
+                reads=reads,
+            ),
             tests=source_platform_tests,
             docs=["docs/reference/fabric/source-platform.md"],
             evidence={
@@ -1230,7 +1871,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="source.conformance_harness_v2",
             plane="source",
-            status=_status_if(paths["conformance_v2"].exists() and bool(source_platform_tests)),
+            status=_status_if(
+                _path_exists(paths["conformance_v2"]) and bool(source_platform_tests)
+            ),
             priority="P1",
             title="Connector conformance harness v2",
             description=(
@@ -1275,7 +1918,10 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="source.connector_public_exports",
             plane="source",
-            status=_status_if(bool(concrete_connectors)),
+            status=_status_if(
+                bool(concrete_connectors) and connector_export_inventory["inventory_complete"],
+                partial_when_false=not connector_export_inventory["inventory_complete"],
+            ),
             priority="P1",
             title="Concrete connector public exports",
             description="Concrete connector classes exported from the source package.",
@@ -1290,8 +1936,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             docs=["docs/reference/fabric/connectors.md"],
             evidence={
                 "export_count": len(source_exports),
-                "concrete_connector_count": len(concrete_connectors),
-                "concrete_connectors": concrete_connectors,
+                **connector_export_inventory,
             },
         ),
         _surface(
@@ -1323,35 +1968,41 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="source.entrypoint_coverage.direct_import_families",
             plane="source",
-            status=_status_if(
-                bool(source_contract_v2_ids)
-                and len(source_contract_v2_ids) == len(concrete_connectors)
-                and paths["source_contracts_validator"].exists()
-            ),
+            status="partial",
             priority="P2",
-            title="Governed production visibility for connector families",
+            title="Connector-family contract identity mapping",
             description=(
-                "Production-visible connector families are admitted through governed "
-                "components and SourceContract v2 evidence. Families without a public "
-                "plugin entry point are explicit internal-support surfaces, not ungated "
-                "production paths."
+                "Connector and SourceContract v2 counts plus validator presence are "
+                "observed, but a semantic contract-ID-to-connector-ID mapping is not "
+                "established; connector-family identity remains partial."
             ),
-            source_files=["pyproject.toml", _rel(paths["source_init"], repo_root)],
+            source_files=[
+                "pyproject.toml",
+                _rel(paths["source_init"], repo_root),
+                _rel(paths["source_contract_snapshot_v2"], repo_root),
+                _rel(paths["source_contracts_validator"], repo_root),
+            ],
             tests=_existing_paths(
                 repo_root,
                 [
                     "tests/unit/fabric/connectors/test_connector_family_expansion.py",
                     "tests/unit/fabric/connectors/test_registry.py",
+                    "tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
                 ],
             ),
             docs=["docs/reference/fabric/connectors.md"],
             evidence={
                 "entrypoint_count": len(entrypoints),
                 "concrete_connector_count": len(concrete_connectors),
-                "governed_component_count": len(source_contract_v2_ids),
-                "internal_support_only_count": max(0, len(concrete_connectors) - len(entrypoints)),
-                "production_visibility_source": (
-                    "__polisyos_components__ plus SourceContract v2 snapshot"
+                "source_contract_v2_count": len(source_contract_v2_ids),
+                "source_contracts_validator_present": _path_exists(
+                    paths["source_contracts_validator"]
+                ),
+                "mapped_identity_status": "not_established",
+                "source_family_state": "partial",
+                "identity_binding_gap": (
+                    "contract-ID-to-connector-ID semantic binding and a positive test "
+                    "are not established"
                 ),
             },
         ),
@@ -1394,7 +2045,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="evidence.record_replay_store",
             plane="evidence",
-            status=_status_if(paths["replay_store"].exists() and bool(replay_tests)),
+            status=_status_if(_path_exists(paths["replay_store"]) and bool(replay_tests)),
             priority="P1",
             title="Record/replay persistence surface",
             description="Data-plane replay store and tests for deterministic ingestion replay.",
@@ -1402,7 +2053,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=replay_tests,
             docs=["docs/reference/fabric/data-plane.md"],
             evidence={
-                "replay_store": paths["replay_store"].exists(),
+                "replay_store": _path_exists(paths["replay_store"]),
                 "record_replay_tests": "tests/unit/fabric/data_plane/test_record_replay.py"
                 in replay_tests,
             },
@@ -1410,7 +2061,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="evidence.quarantine_replay_surface",
             plane="evidence",
-            status=_status_if(paths["quarantine"].exists() and bool(replay_tests)),
+            status=_status_if(_path_exists(paths["quarantine"]) and bool(replay_tests)),
             priority="P1",
             title="Quarantine/DLQ replay surface",
             description="Quarantine records, replay hooks, and DLQ operational coverage.",
@@ -1421,7 +2072,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md",
             ],
             evidence={
-                "quarantine_module": paths["quarantine"].exists(),
+                "quarantine_module": _path_exists(paths["quarantine"]),
                 "quarantine_tests": "tests/unit/fabric/data_plane/test_quarantine.py"
                 in replay_tests,
             },
@@ -1469,7 +2120,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="evidence.streaming_scale_semantics",
             plane="evidence",
             status=_status_if(
-                paths["streaming"].exists()
+                _path_exists(paths["streaming"])
                 and _has_token(paths["streaming"], "processing_contract_snapshot")
                 and _has_token(paths["streaming"], "_apply_out_of_order_policy")
                 and _has_token(paths["streaming"], "classify_cdc_schema_change")
@@ -1501,7 +2152,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="evidence.distributed_execution_trust_gate",
             plane="evidence",
             status=_status_if(
-                paths["orchestrator"].exists()
+                _path_exists(paths["orchestrator"])
                 and _has_token(paths["orchestrator"], "DistributedExecutionTrustContract")
                 and _has_token(paths["orchestrator"], "_validate_distributed_execution_trust")
                 and "tests/unit/fabric/data_plane/test_orchestrator.py" in processing_tests
@@ -1528,7 +2179,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="evidence.fabric_scale_benchmark_suite",
             plane="evidence",
             status=_status_if(
-                paths["benchmarks"].exists()
+                _path_exists(paths["benchmarks"])
                 and _has_token(paths["benchmarks"], "latency_quantiles_ms")
                 and _has_token(paths["benchmarks"], "correctness_counters")
                 and _has_token(paths["benchmarks"], "benchmark_query_execution")
@@ -1553,7 +2204,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="evidence.cas_evidence_bundle",
             plane="evidence",
             status="implemented"
-            if paths["evidence"].exists()
+            if _path_exists(paths["evidence"])
             and "tests/unit/fabric/test_provenance.py" in tests_by_plane["evidence"]
             else "partial",
             priority="P2",
@@ -1563,7 +2214,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(repo_root, ["tests/unit/fabric/test_provenance.py"]),
             docs=["docs/reference/fabric/lineage.md"],
             evidence={
-                "evidence_module": paths["evidence"].exists(),
+                "evidence_module": _path_exists(paths["evidence"]),
                 "provenance_bundle_tests": "tests/unit/fabric/test_provenance.py"
                 in tests_by_plane["evidence"],
             },
@@ -1571,7 +2222,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="semantics.quality_indicators",
             plane="semantics",
-            status=_status_if(paths["quality"].exists() and bool(quality_tests)),
+            status=_status_if(_path_exists(paths["quality"]) and bool(quality_tests)),
             priority="P1",
             title="Metric-level quality indicators",
             description="Quality indicator scoring, finite-value guards, and metric fitness reports.",
@@ -1582,8 +2233,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=quality_tests,
             docs=["docs/reference/fabric/quality.md"],
             evidence={
-                "quality_module": paths["quality"].exists(),
-                "fitness_report_module": paths["fitness_report"].exists(),
+                "quality_module": _path_exists(paths["quality"]),
+                "fitness_report_module": _path_exists(paths["fitness_report"]),
                 "quality_tests": quality_tests,
             },
         ),
@@ -1607,7 +2258,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             plane="semantics",
             status=_status_if(
                 bool(source_contract_v2_ids)
-                and paths["source_contracts_validator"].exists()
+                and _path_exists(paths["source_contracts_validator"])
                 and bool(source_platform_tests),
                 partial_when_false=True,
             ),
@@ -1641,8 +2292,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="semantics.source_scorecards",
             plane="semantics",
             status=_status_if(
-                paths["scorecard"].exists()
-                and paths["source_scorecard_schema"].exists()
+                _path_exists(paths["scorecard"])
+                and _path_exists(paths["source_scorecard_schema"])
                 and bool(source_scorecard_records)
                 and bool(source_platform_tests)
             ),
@@ -1676,11 +2327,11 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="semantics.semantic_dataset_catalog",
             plane="semantics",
             status=_status_if(
-                paths["catalog_discovery"].exists()
+                _path_exists(paths["catalog_discovery"])
                 and _has_token(paths["catalog_discovery"], "class SemanticDatasetCatalog")
                 and _has_token(paths["catalog_discovery"], "DatasetDiscoveryEvidence")
                 and _has_token(paths["catalog_discovery"], "SourceContract")
-                and paths["discovery_intelligence_doc"].exists()
+                and _path_exists(paths["discovery_intelligence_doc"])
                 and bool(discovery_tests)
             ),
             priority="P1",
@@ -1710,7 +2361,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="semantics.stale_embedding_invalidation",
             plane="semantics",
             status=_status_if(
-                paths["catalog_discovery"].exists()
+                _path_exists(paths["catalog_discovery"])
                 and _has_token(paths["catalog_discovery"], "def mark_stale")
                 and _has_token(paths["catalog_discovery"], "def refresh")
                 and _has_token(paths["catalog_discovery"], "fingerprint")
@@ -1738,9 +2389,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="semantics.nl_to_dataset_resolution_eval",
             plane="semantics",
             status=_status_if(
-                paths["catalog_discovery"].exists()
-                and paths["discovery_intelligence_validator"].exists()
-                and paths["discovery_eval_fixture"].exists()
+                _path_exists(paths["catalog_discovery"])
+                and _path_exists(paths["discovery_intelligence_validator"])
+                and _path_exists(paths["discovery_eval_fixture"])
                 and discovery_eval_case_count > 0
                 and _has_token(paths["catalog_discovery"], "DatasetResolutionPlan")
                 and _has_token(paths["catalog_discovery"], "evaluate_benchmark")
@@ -1771,7 +2422,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="semantics.schema_governance_snapshot_gate",
             plane="semantics",
-            status=_status_if(paths["schema_governance"].exists() and bool(source_contract_tests)),
+            status=_status_if(
+                _path_exists(paths["schema_governance"]) and bool(source_contract_tests)
+            ),
             priority="P1",
             title="Schema governance snapshot gate",
             description="Governance check for connector contract evolution and committed snapshots.",
@@ -1790,8 +2443,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="semantics.fabric_quality_governance_evidence",
             plane="semantics",
             status=_status_if(
-                paths["quality_evidence"].exists()
-                and paths["scientist_quality_gate"].exists()
+                _path_exists(paths["quality_evidence"])
+                and _path_exists(paths["scientist_quality_gate"])
                 and bool(phase4_tests)
             ),
             priority="P1",
@@ -1824,7 +2477,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.bitemporal_world_query",
             plane="world",
             status=_status_if(
-                paths["world_query"].exists()
+                _path_exists(paths["world_query"])
                 and _has_token(paths["world_query"], "as_of_tx_time")
                 and _has_token(paths["world_query"], "as_of_valid_time")
                 and bool(temporal_tests)
@@ -1845,13 +2498,13 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.snapshot_branch_surface",
             plane="world",
             status=_status_if(
-                paths["snapshots"].exists()
+                _path_exists(paths["snapshots"])
                 and _has_token(paths["snapshots"], "create_world_branch")
                 and _has_token(paths["snapshots"], "merge_world_branch")
                 and _has_token(paths["snapshots"], "update_world_branch_head")
                 and _has_token(paths["snapshots"], "delete_world_branch")
-                and paths["world_branch_schema"].exists()
-                and paths["scenario_branch_schema"].exists()
+                and _path_exists(paths["world_branch_schema"])
+                and _path_exists(paths["scenario_branch_schema"])
                 and _has_token(paths["snapshots"], "_validate_snapshot_retention_governance")
                 and _has_token(paths["retention"], "SnapshotDeletionImpact")
             ),
@@ -1880,8 +2533,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                     paths["snapshots"], "export_world_branch_governance"
                 ),
                 "gc_world_snapshots": _has_token(paths["snapshots"], "gc_world_snapshots"),
-                "world_branch_schema": paths["world_branch_schema"].exists(),
-                "scenario_branch_schema": paths["scenario_branch_schema"].exists(),
+                "world_branch_schema": _path_exists(paths["world_branch_schema"]),
+                "scenario_branch_schema": _path_exists(paths["scenario_branch_schema"]),
                 "legal_hold_encryption_gate": _has_token(
                     paths["snapshots"], "_validate_snapshot_retention_governance"
                 ),
@@ -1892,7 +2545,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.correction_revocation_mutations",
             plane="world",
             status=_status_if(
-                paths["world_segments"].exists()
+                _path_exists(paths["world_segments"])
                 and _has_token(paths["world_segments"], "WorldMutationKind")
                 and _has_token(paths["world_segments"], "parse_world_mutation_notes")
                 and _has_token(paths["world_emit"], "mutation_kind")
@@ -1924,8 +2577,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.temporal_runtime_adapter",
             plane="world",
             status=_status_if(
-                paths["temporal_route"].exists()
-                and paths["temporal_service"].exists()
+                _path_exists(paths["temporal_route"])
+                and _path_exists(paths["temporal_service"])
                 and "tests/unit/runtime/http/test_temporal_routes.py" in temporal_tests
                 and _has_token(paths["temporal_service"], "slow_query_evidence")
             ),
@@ -1946,8 +2599,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             ),
             docs=["docs/reference/fabric/time-travel.md", "docs/reference/api/index.md"],
             evidence={
-                "route": paths["temporal_route"].exists(),
-                "service": paths["temporal_service"].exists(),
+                "route": _path_exists(paths["temporal_route"]),
+                "service": _path_exists(paths["temporal_service"]),
                 "supported_tables": _has_token(paths["temporal_service"], "supported_tables"),
                 "slow_query_evidence": _has_token(paths["temporal_service"], "slow_query_evidence"),
                 "branch_support": _has_token(paths["temporal_service"], "branch_support"),
@@ -1957,7 +2610,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.kuzu_temporal_scope_capability",
             plane="world",
             status="partial"
-            if paths["world_kuzu"].exists()
+            if _path_exists(paths["world_kuzu"])
             and _has_token(paths["world_kuzu"], "WorldKuzuTemporalCapability")
             and _has_token(
                 paths["world_kuzu"],
@@ -1988,7 +2641,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="world.discovery_graph_reasoning",
             plane="world",
             status=_status_if(
-                paths["world_kuzu"].exists()
+                _path_exists(paths["world_kuzu"])
                 and _has_token(paths["world_kuzu"], "query_world_origin_trace")
                 and _has_token(paths["world_kuzu"], "query_world_source_overlap")
                 and _has_token(paths["world_kuzu"], "query_world_conflict_neighborhood")
@@ -2069,9 +2722,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.fabric_slo_error_budget_gate",
             plane="trust",
             status=_status_if(
-                paths["observability"].exists()
-                and paths["core_metrics_base"].exists()
-                and paths["core_metrics_parts"].exists()
+                _path_exists(paths["observability"])
+                and _path_exists(paths["core_metrics_base"])
+                and _path_exists(paths["core_metrics_parts"])
                 and bool(phase4_tests)
             ),
             priority="P1",
@@ -2106,8 +2759,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.connector_governance_metadata",
             plane="trust",
             status=_status_if(
-                paths["connector_governance_metadata"].exists()
-                and paths["ir_connectors"].exists()
+                _path_exists(paths["connector_governance_metadata"])
+                and _path_exists(paths["ir_connectors"])
                 and bool(phase4_tests)
             ),
             priority="P1",
@@ -2202,7 +2855,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="trust.lineage_nodes_edges",
             plane="trust",
-            status=_status_if(paths["lineage"].exists() and bool(lineage_tests)),
+            status=_status_if(_path_exists(paths["lineage"]) and bool(lineage_tests)),
             priority="P1",
             title="Lineage graph nodes, edges, trace, and impact APIs",
             description="FabricLineageTracker records source, schema, dataset, transform, query, and claim lineage.",
@@ -2219,7 +2872,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.openlineage_export",
             plane="trust",
             status=_status_if(
-                paths["lineage"].exists()
+                _path_exists(paths["lineage"])
                 and _has_token(paths["lineage"], "export_openlineage_json")
                 and "tests/unit/fabric/test_lineage.py" in lineage_tests
             ),
@@ -2237,7 +2890,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.prov_export",
             plane="trust",
             status=_status_if(
-                paths["provo"].exists()
+                _path_exists(paths["provo"])
                 and "tests/unit/fabric/test_provenance.py" in tests_by_plane["trust"]
             ),
             priority="P2",
@@ -2255,8 +2908,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.runtime_lineage_adapter",
             plane="trust",
             status=_status_if(
-                paths["lineage_route"].exists()
-                and paths["lineage_service"].exists()
+                _path_exists(paths["lineage_route"])
+                and _path_exists(paths["lineage_service"])
                 and "tests/unit/runtime/http/test_lineage_api.py" in tests_by_plane["trust"]
             ),
             priority="P1",
@@ -2269,16 +2922,16 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(repo_root, ["tests/unit/runtime/http/test_lineage_api.py"]),
             docs=["docs/reference/fabric/lineage.md", "docs/reference/api/index.md"],
             evidence={
-                "route": paths["lineage_route"].exists(),
-                "service": paths["lineage_service"].exists(),
+                "route": _path_exists(paths["lineage_route"]),
+                "service": _path_exists(paths["lineage_service"]),
             },
         ),
         _surface(
             surface_id="trust.entity_resolution_override_governance",
             plane="trust",
             status=_status_if(
-                paths["entity_resolution_models"].exists()
-                and paths["entity_resolution_store"].exists()
+                _path_exists(paths["entity_resolution_models"])
+                and _path_exists(paths["entity_resolution_store"])
                 and _has_token(paths["entity_resolution_models"], "EntityOverrideAuditRecord")
                 and _has_token(paths["entity_resolution_models"], "EntityOverrideEnvelope")
                 and _has_token(paths["entity_resolution_store"], "merge_governance_ref")
@@ -2317,9 +2970,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             surface_id="trust.access_classification",
             plane="trust",
             status=_status_if(
-                paths["access_control"].exists()
-                and paths["column_mask"].exists()
-                and paths["pii_stage"].exists()
+                _path_exists(paths["access_control"])
+                and _path_exists(paths["column_mask"])
+                and _path_exists(paths["pii_stage"])
                 and bool(source_contract_v2_ids)
                 and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
                 and bool(access_tests)
@@ -2341,9 +2994,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=access_tests,
             docs=["docs/reference/fabric/time-travel.md", "docs/reference/fabric/quality.md"],
             evidence={
-                "access_control_module": paths["access_control"].exists(),
-                "column_mask_module": paths["column_mask"].exists(),
-                "pii_stage_module": paths["pii_stage"].exists(),
+                "access_control_module": _path_exists(paths["access_control"]),
+                "column_mask_module": _path_exists(paths["column_mask"]),
+                "pii_stage_module": _path_exists(paths["pii_stage"]),
                 "source_contract_v2_count": len(source_contract_v2_ids),
                 "field_access_policy_contract_count": source_v2_field_policy_contract_count,
                 "field_access_policy_count": source_v2_field_policy_count,
@@ -2429,10 +3082,10 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             docs=["docs/reference/fabric/product-api-integration.md"],
             evidence={
                 "operation_ids": product_runtime_operation_ids,
-                "route": paths["fabric_route"].exists(),
-                "service": paths["fabric_service"].exists(),
-                "openapi": paths["runtime_openapi"].exists(),
-                "client": paths["runtime_client_ts"].exists(),
+                "route": _path_exists(paths["fabric_route"]),
+                "service": _path_exists(paths["fabric_service"]),
+                "openapi": _path_exists(paths["runtime_openapi"]),
+                "client": _path_exists(paths["runtime_client_ts"]),
             },
         ),
         _surface(
@@ -2491,7 +3144,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=product_integration_tests,
             docs=["docs/reference/fabric/product-api-integration.md"],
             evidence={
-                "pass": paths["scientist_fabric_trust_gate"].exists(),
+                "pass": _path_exists(paths["scientist_fabric_trust_gate"]),
                 "readiness_cap": _has_token(paths["scientist_readiness"], "fabric_readiness_cap"),
             },
         ),
@@ -2636,7 +3289,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             and source_v2_replay_fixture_count == len(source_contract_v2_ids)
             and source_v2_non_replayable_reason_count == 0
             and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
-            and paths["source_contracts_validator"].exists()
+            and _path_exists(paths["source_contracts_validator"])
             else "missing",
             "source_contract_v2_count": len(source_contract_v2_ids),
             "source_scorecard_count": len(source_scorecard_records),
@@ -2655,12 +3308,12 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             and source_v2_processing_count == len(source_contract_v2_ids)
             and source_v2_dedupe_window_count == len(source_contract_v2_ids)
             and source_v2_replay_retention_count == len(source_contract_v2_ids)
-            and paths["processing_guarantees_validator"].exists()
+            and _path_exists(paths["processing_guarantees_validator"])
             else "missing",
             "processing_contract_count": source_v2_processing_count,
             "dedupe_window_count": source_v2_dedupe_window_count,
             "replay_retention_count": source_v2_replay_retention_count,
-            "streaming_runtime": paths["streaming"].exists(),
+            "streaming_runtime": _path_exists(paths["streaming"]),
             "distributed_trust_gate": _has_token(
                 paths["orchestrator"], "DistributedExecutionTrustContract"
             ),
@@ -2679,8 +3332,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             and source_v2_replay_fixture_count == len(source_contract_v2_ids)
             and source_v2_non_replayable_reason_count == 0
             else "partial",
-            "record_replay_store": paths["replay_store"].exists(),
-            "quarantine_module": paths["quarantine"].exists(),
+            "record_replay_store": _path_exists(paths["replay_store"]),
+            "quarantine_module": _path_exists(paths["quarantine"]),
             "production_entrypoint_count": len(entrypoints),
             "contract_snapshot_count": len(fabric_contract_ids),
             "source_contract_v2_count": len(source_contract_v2_ids),
@@ -2690,7 +3343,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         },
         "quality_contracts": {
             "status": "implemented" if source_contract_v2_ids else "partial",
-            "quality_module": paths["quality"].exists(),
+            "quality_module": _path_exists(paths["quality"]),
             "connector_quality_module_count": len(quality_modules),
             "profile_count": len(profile_ids),
             "contract_count": len(fabric_contract_ids),
@@ -2698,34 +3351,34 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests": quality_tests + source_platform_tests,
         },
         "lineage_nodes_edges": {
-            "status": "implemented" if paths["lineage"].exists() else "missing",
-            "lineage_module": paths["lineage"].exists(),
+            "status": "implemented" if _path_exists(paths["lineage"]) else "missing",
+            "lineage_module": _path_exists(paths["lineage"]),
             "openlineage_export": _has_token(paths["lineage"], "export_openlineage_json"),
-            "prov_export": paths["provo"].exists(),
+            "prov_export": _path_exists(paths["provo"]),
             "tests": lineage_tests
             + _existing_paths(repo_root, ["tests/unit/fabric/test_provenance.py"]),
         },
         "temporal_support": {
             "status": "implemented"
-            if paths["world_query"].exists() and paths["snapshots"].exists()
+            if _path_exists(paths["world_query"]) and _path_exists(paths["snapshots"])
             else "missing",
-            "world_query": paths["world_query"].exists(),
-            "snapshot_store": paths["snapshots"].exists(),
-            "runtime_temporal_adapter": paths["temporal_route"].exists()
-            and paths["temporal_service"].exists(),
+            "world_query": _path_exists(paths["world_query"]),
+            "snapshot_store": _path_exists(paths["snapshots"]),
+            "runtime_temporal_adapter": _path_exists(paths["temporal_route"])
+            and _path_exists(paths["temporal_service"]),
             "tests": temporal_tests,
         },
         "access_classification": {
             "status": "implemented"
-            if paths["access_control"].exists()
-            and paths["column_mask"].exists()
-            and paths["pii_stage"].exists()
+            if _path_exists(paths["access_control"])
+            and _path_exists(paths["column_mask"])
+            and _path_exists(paths["pii_stage"])
             and source_contract_v2_ids
             and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
             else "partial",
-            "access_control_module": paths["access_control"].exists(),
-            "column_mask_module": paths["column_mask"].exists(),
-            "pii_stage_module": paths["pii_stage"].exists(),
+            "access_control_module": _path_exists(paths["access_control"]),
+            "column_mask_module": _path_exists(paths["column_mask"]),
+            "pii_stage_module": _path_exists(paths["pii_stage"]),
             "source_contract_v2_count": len(source_contract_v2_ids),
             "field_access_policy_contract_count": source_v2_field_policy_contract_count,
             "field_access_policy_count": source_v2_field_policy_count,
@@ -2734,20 +3387,20 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         },
         "observability_governance": {
             "status": "implemented"
-            if paths["observability"].exists()
-            and paths["connector_governance_metadata"].exists()
-            and paths["quality_evidence"].exists()
+            if _path_exists(paths["observability"])
+            and _path_exists(paths["connector_governance_metadata"])
+            and _path_exists(paths["quality_evidence"])
             else "missing",
-            "slo_contract": paths["observability"].exists(),
-            "connector_governance_metadata": paths["connector_governance_metadata"].exists(),
-            "quality_evidence": paths["quality_evidence"].exists(),
+            "slo_contract": _path_exists(paths["observability"]),
+            "connector_governance_metadata": _path_exists(paths["connector_governance_metadata"]),
+            "quality_evidence": _path_exists(paths["quality_evidence"]),
             "tests": phase4_tests,
         },
         "decision_data_envelope": {
             "status": decision_data_status,
-            "decision_data_module": paths["decision_data"].exists(),
-            "trust_envelope_schema": paths["trust_envelope_schema"].exists(),
-            "coverage_report": paths["decision_data_coverage_report"].exists(),
+            "decision_data_module": _path_exists(paths["decision_data"]),
+            "trust_envelope_schema": _path_exists(paths["trust_envelope_schema"]),
+            "coverage_report": _path_exists(paths["decision_data_coverage_report"]),
             "naked_decision_values": decision_data_report.get("summary", {}).get(
                 "naked_decision_value_count"
             ),
@@ -2760,15 +3413,15 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         },
         "discovery_intelligence": {
             "status": "implemented"
-            if paths["catalog_discovery"].exists()
-            and paths["entity_resolution_models"].exists()
-            and paths["entity_resolution_store"].exists()
-            and paths["discovery_intelligence_validator"].exists()
-            and paths["discovery_eval_fixture"].exists()
-            and paths["discovery_intelligence_doc"].exists()
+            if _path_exists(paths["catalog_discovery"])
+            and _path_exists(paths["entity_resolution_models"])
+            and _path_exists(paths["entity_resolution_store"])
+            and _path_exists(paths["discovery_intelligence_validator"])
+            and _path_exists(paths["discovery_eval_fixture"])
+            and _path_exists(paths["discovery_intelligence_doc"])
             and bool(discovery_tests)
             else "missing",
-            "semantic_catalog": paths["catalog_discovery"].exists(),
+            "semantic_catalog": _path_exists(paths["catalog_discovery"]),
             "source_contract_v2_count": len(source_contract_v2_ids),
             "eval_case_count": discovery_eval_case_count,
             "stale_invalidation": _has_token(paths["catalog_discovery"], "stale_filter"),
@@ -2797,7 +3450,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "runtime_endpoints": product_runtime_operation_ids,
             "frontend_fixture_count": product_fixture_count,
             "required_frontend_fixture_count": len(product_fixture_names),
-            "scientist_trust_gate": paths["scientist_fabric_trust_gate"].exists(),
+            "scientist_trust_gate": _path_exists(paths["scientist_fabric_trust_gate"]),
             "product_adapters": product_adapter_status,
             "compatibility_bridges": compatibility_status,
             "validator": _rel(paths["product_integration_validator"], repo_root),
@@ -2816,7 +3469,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
 
 def build_manifest(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     repo_root = repo_root.resolve()
-    surfaces, coverage = _build_surfaces(repo_root)
+    with measure_file_reads(repo_root) as reads:
+        surfaces, coverage = _build_surfaces(repo_root, reads=reads)
+        input_receipt = _input_receipt_snapshot(reads)
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at": GENERATED_AT,
@@ -2851,6 +3506,7 @@ def build_manifest(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
             "plane_counts": _plane_counts(surfaces),
         },
         "coverage": coverage,
+        "input_receipt": input_receipt,
         "surfaces": surfaces,
     }
 
@@ -2963,6 +3619,26 @@ def _md_escape(value: object) -> str:
     return str(value).replace("|", "\\|").replace("\n", " ")
 
 
+def _md_code_text(value: object) -> str:
+    """Render source text literally as Markdown code, preserving visible line breaks."""
+    text = str(value)
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    rendered: list[str] = []
+    for line in lines:
+        longest_backtick_run = 0
+        current_backtick_run = 0
+        for character in line:
+            if character == "`":
+                current_backtick_run += 1
+                longest_backtick_run = max(longest_backtick_run, current_backtick_run)
+            else:
+                current_backtick_run = 0
+        delimiter = "`" * (longest_backtick_run + 1)
+        padding = " " if line.startswith(("`", " ")) or line.endswith(("`", " ")) else ""
+        rendered.append(f"{delimiter}{padding}{line}{padding}{delimiter}")
+    return "<br>".join(rendered)
+
+
 def _md_code_list(values: Iterable[str], *, limit: int = 5) -> str:
     rows = [f"`{value}`" for value in values]
     if not rows:
@@ -2976,13 +3652,13 @@ def _evidence_summary(evidence: Mapping[str, Any]) -> str:
     rows: list[str] = []
     for key, value in evidence.items():
         if isinstance(value, bool):
-            rows.append(f"{key}={str(value).lower()}")
+            rows.append(f"{_md_code_text(key)}={str(value).lower()}")
         elif isinstance(value, int):
-            rows.append(f"{key}={value}")
+            rows.append(f"{_md_code_text(key)}={value}")
         elif isinstance(value, str):
-            rows.append(f"{key}=`{value}`")
+            rows.append(f"{_md_code_text(key)}={_md_code_text(value)}")
         elif isinstance(value, (Mapping, list)):
-            rows.append(f"{key}={len(value)}")
+            rows.append(f"{_md_code_text(key)}={len(value)}")
         if len(rows) == 4:
             break
     return _md_escape("; ".join(rows) if rows else "-")
@@ -3002,14 +3678,23 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
     surfaces = [surface for surface in manifest.get("surfaces", []) if isinstance(surface, Mapping)]
     summary = manifest.get("summary", {})
     coverage = manifest.get("coverage", {})
+    input_receipt = manifest.get("input_receipt", {})
     status_counts = summary.get("status_counts", {}) if isinstance(summary, Mapping) else {}
     plane_counts = summary.get("plane_counts", {}) if isinstance(summary, Mapping) else {}
+    receipt = input_receipt if isinstance(input_receipt, Mapping) else {}
+    receipt_inputs = receipt.get("inputs", [])
+    receipt_count = len(receipt_inputs) if isinstance(receipt_inputs, list) else 0
+    unresolved = receipt.get("unresolved_by_construction", [])
+    unresolved_count = len(unresolved) if isinstance(unresolved, list) else 0
 
     lines = [
         "# Fabric Best-in-Class Inventory",
         "",
         "Freshness: 2026-04-26.",
         f"Owner: `{OWNER}`",
+        "Source of truth: `tools/quality/validation/fabric_best_in_class_inventory.py`, "
+        "`tools/quality/validation/fabric_best_in_class_manifest.json`, and repository "
+        "source inputs listed in the manifest's `input_receipt`.",
         "Phase: 0 baseline inventory.",
         "",
         "This page is generated from "
@@ -3033,6 +3718,23 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
         lines.append(f"| `{status}` | {status_counts.get(status, 0)} |")
     for plane in PLANES:
         lines.append(f"| `{plane}` plane surfaces | {plane_counts.get(plane, 0)} |")
+
+    lines.extend(
+        [
+            "",
+            "## Input Receipt",
+            "",
+            f"Scope: {_md_code_text(receipt.get('scope', 'not recorded'))}",
+            f"Selector: {_md_code_text(receipt.get('selector', 'not recorded'))}",
+            f"Explicit filesystem operations: {receipt_count}; "
+            f"complete verdict: `{str(receipt.get('complete_verdict', False)).lower()}`; "
+            f"unresolved boundary classes: {unresolved_count}.",
+            f"Receipt SHA-256: `{_input_receipt_digest(receipt)}`.",
+            "The full path, operation, status, selector, and content-hash receipt is in "
+            "`tools/quality/validation/fabric_best_in_class_manifest.json` under "
+            "`input_receipt`; the Markdown view binds it without duplicating its records.",
+        ]
+    )
 
     lines.extend(
         [
@@ -3100,7 +3802,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
                 risk = surface.get("accepted_risk", {})
                 if isinstance(risk, Mapping):
                     follow_up = (
-                        f"accepted risk: {risk.get('reason', '-')}; "
+                        f"accepted risk: {_md_code_text(risk.get('reason', '-'))}; "
                         f"review {risk.get('review_date', '-')}; "
                         f"expires {risk.get('expiry_date', '-')}"
                     )
@@ -3141,7 +3843,8 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
             risk = surface.get("accepted_risk", {})
             if isinstance(risk, Mapping):
                 follow_up = (
-                    f"{risk.get('reason', '-')}; review {risk.get('review_date', '-')}; "
+                    f"{_md_code_text(risk.get('reason', '-'))}; "
+                    f"review {risk.get('review_date', '-')}; "
                     f"expires {risk.get('expiry_date', '-')}"
                 )
         lines.append(
@@ -3194,14 +3897,14 @@ def check_artifacts(
     expected_report = render_markdown(manifest)
 
     drift: list[str] = []
-    if not manifest_path.exists():
+    if not _path_exists(manifest_path):
         drift.append(f"manifest missing: {_rel(manifest_path, repo_root)}")
-    elif manifest_path.read_text(encoding="utf-8") != expected_manifest:
+    elif measured_read_text(manifest_path, encoding="utf-8") != expected_manifest:
         drift.append(f"manifest out of date: {_rel(manifest_path, repo_root)}")
 
-    if not docs_path.exists():
+    if not _path_exists(docs_path):
         drift.append(f"report missing: {_rel(docs_path, repo_root)}")
-    elif docs_path.read_text(encoding="utf-8") != expected_report:
+    elif measured_read_text(docs_path, encoding="utf-8") != expected_report:
         drift.append(f"report out of date: {_rel(docs_path, repo_root)}")
     return drift
 
@@ -3235,7 +3938,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.update:
         try:
-            update_artifacts(
+            manifest = update_artifacts(
                 repo_root=repo_root,
                 manifest_path=manifest_path,
                 docs_path=docs_path,
@@ -3246,14 +3949,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         print(f"Updated Fabric best-in-class manifest: {_rel(manifest_path, repo_root)}")
         print(f"Updated Fabric best-in-class report: {_rel(docs_path, repo_root)}")
+        print(
+            "Input receipt: "
+            + _input_receipt_summary(manifest["input_receipt"])
+            + "; full receipt is in the manifest."
+        )
         return 0
 
     if args.check:
-        drift = check_artifacts(
-            repo_root=repo_root,
-            manifest_path=manifest_path,
-            docs_path=docs_path,
-        )
+        with measure_file_reads(repo_root) as reads:
+            drift = check_artifacts(
+                repo_root=repo_root,
+                manifest_path=manifest_path,
+                docs_path=docs_path,
+            )
+            check_receipt = _input_receipt_snapshot(
+                reads,
+                scope=(
+                    "Artifact check includes manifest derivation plus explicit reads and "
+                    "probes of the checked manifest and Markdown report."
+                ),
+            )
         if drift:
             print("Fabric best-in-class inventory check FAILED")
             for row in drift:
@@ -3262,8 +3978,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "Run: uv run python tools/quality/validation/"
                 "fabric_best_in_class_inventory.py --update"
             )
+            print("Input receipt (explicit operations; incomplete by construction):")
+            print(dump_json(check_receipt), end="")
             return 1
         print("Fabric best-in-class inventory check PASSED (report-only)")
+        print("Input receipt (explicit operations; incomplete by construction):")
+        print(dump_json(check_receipt), end="")
         return 0
 
     manifest = build_manifest(repo_root)

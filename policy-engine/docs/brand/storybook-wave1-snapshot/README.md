@@ -3,6 +3,14 @@
 This folder freezes the Storybook review surface used for Wave 1 closeout on
 `2026-04-22`.
 
+This is a historical repository snapshot, not a current Storybook build,
+recorded visual review, accessibility receipt, deployed URL, or public product
+surface. The files below identify the archived story index and rollout
+manifest; the deployment handoff section is a procedure, not evidence that a
+deployment or review occurred. Current source-backed frontend behavior and
+the limits of this documentation pass are in the
+[frontend surface map](../../reference/frontend/current-surface-map.md).
+
 It is intentionally manifest-centric:
 
 - the canonical generated site stays in
@@ -11,6 +19,10 @@ It is intentionally manifest-centric:
 - this archive keeps the curated story index, rollout manifest, and onboarding
   script needed for release review and later audits
 
+`EVIDENCE_BUNDLE.md` lists the intended CI artifact surface. This archive does
+not include a run-specific manifest or establish that a named workflow passed;
+`SESSION_RECORDING_SCRIPT.md` is a walkthrough plan, not a recording receipt.
+
 ## Snapshot Metadata
 
 - Source command: `corepack pnpm run build-storybook`
@@ -18,7 +30,8 @@ It is intentionally manifest-centric:
   `_build/apps/runtime-dashboard/storybook-static/`
 
 - Archived story index: [`stories.index.json`](./stories.index.json)
-- Story count: `92`
+- Archived index entries: 92 total (`67` `story`, `25` `docs`), from a complete
+  index census; this is not a current Storybook build count.
 - Snapshot date: `2026-04-22`
 
 ## Files

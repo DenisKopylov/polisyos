@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import gzip
 import json
 import subprocess
 from pathlib import Path
 
 import pytest
 
-from tools.lib import document_references
 from tools.quality.validation import check_docs_lifecycle as lifecycle
 
 OLD_DASHBOARD = "frontend" + "/runtime-dashboard"
@@ -83,6 +83,117 @@ def test_historical_reference_roles_do_not_become_live_paths(
         assert OLD_CLIENT in findings[0].message
 
 
+def test_archive_table_pipe_inside_code_span_does_not_shift_live_reference_role(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    relative = "docs/reference/archive-ledger.md"
+    _write(
+        tmp_path,
+        relative,
+        "| Item / archive evidence | Live consumer |\n"
+        "| --- | --- |\n"
+        f"| `archive | {OLD_DASHBOARD}/archive.ts` | current consumer |\n",
+    )
+    _git(tmp_path, "add", ".")
+
+    findings = lifecycle.check_removed_stub_references(tmp_path)
+
+    assert findings == []
+
+
+def test_utf8_text_with_binary_like_suffix_still_enters_reference_scan(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    relative = "docs/evidence.blob"
+    _write(tmp_path, relative, f"Recorded source: {OLD_CLIENT}\n")
+    _git(tmp_path, "add", ".")
+
+    findings = lifecycle.check_removed_stub_references(tmp_path)
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", relative)
+    ]
+
+
+def test_reference_scan_receipt_preserves_opaque_and_selector_boundaries(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    live = "docs/current.md"
+    opaque = "docs/evidence.gz"
+    malformed = "docs/unknown.bin"
+    excluded = "production_data/source.md"
+    _write(tmp_path, live, f"Current reference: {OLD_CLIENT}\n")
+    (tmp_path / opaque).write_bytes(gzip.compress(OLD_DASHBOARD.encode("utf-8")))
+    (tmp_path / malformed).write_bytes(b"not text: \xff")
+    _write(tmp_path, excluded, f"Excluded source: {OLD_DASHBOARD}\n")
+    _git(tmp_path, "add", ".")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, receipt=receipt)
+
+    assert {(finding.check, finding.path) for finding in findings} == {
+        ("removed_stub_reference", live),
+        ("reference_scan_unresolved", opaque),
+        ("reference_scan_ambiguous", malformed),
+        ("reference_scan_unresolved", excluded),
+    }
+    assert receipt["scope"] == "removed-stub-reference-scan-only"
+    assert receipt["receipt_coverage"] == "partial"
+    assert receipt["reference_scan_status"] == "partial"
+    assert receipt["selected_reference_scan_complete"] is False
+    denominator = receipt["denominator"]
+    assert denominator["tracked_path_count"] == 4
+    assert denominator["selected_path_count"] == 3
+    assert denominator["excluded_path_count"] == 1
+    assert receipt["opaque_formats"] == {"gzip": 1}
+    assert receipt["opaque_reference_status"] == "byte-read-but-not-decoded"
+    assert receipt["ambiguous_input_count"] == 1
+    assert receipt["excluded_inputs"] == {"production_data": [excluded]}
+    operations = receipt["read_evidence"]["operations"]
+    assert {operation["path"] for operation in operations} == {live, opaque, malformed}
+    assert len(operations) == 3
+    by_path = {operation["path"]: operation for operation in operations}
+    for path in (live, opaque, malformed):
+        assert by_path[path]["status"] == "read"
+        assert len(by_path[path]["sha256"]) == 64
+
+
+def test_removed_stub_presence_uses_tracked_paths_outside_text_selector(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    relative = "tests/architecture/production_data/retained.gz"
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_bytes(gzip.compress(b"retained opaque artifact"))
+    _git(tmp_path, "add", ".")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, receipt=receipt)
+
+    assert ("removed_stub_path", "tests/architecture") in {
+        (finding.check, finding.path) for finding in findings
+    }
+    assert ("removed_stub_reference", relative) in {
+        (finding.check, finding.path) for finding in findings
+    }
+    assert ("reference_scan_unresolved", relative) in {
+        (finding.check, finding.path) for finding in findings
+    }
+    assert relative in receipt["excluded_inputs"]["production_data"]
+    assert (
+        receipt["selector_exclusions"]["production_data"]["read_status"] == "not-read-by-selector"
+    )
+    assert relative not in {
+        operation["path"] for operation in receipt["read_evidence"]["operations"]
+    }
+    assert receipt["opaque_formats"] == {}
+    assert receipt["opaque_reference_status"] == "none"
+
+
 @pytest.mark.parametrize(
     ("relative", "text"),
     [
@@ -123,7 +234,9 @@ def test_live_or_unestablished_reference_roles_still_fail(
     assert OLD_DASHBOARD in findings[0].message
 
 
-def test_station_debris_cannot_enter_committed_reference_or_plan_denominator(tmp_path: Path) -> None:
+def test_station_debris_cannot_enter_committed_reference_or_plan_denominator(
+    tmp_path: Path,
+) -> None:
     _git(tmp_path, "init")
     _write(tmp_path, ".gitignore", ".tmp/\n")
     _write(tmp_path, "docs/live.md", "Current documentation.\n")
@@ -158,10 +271,18 @@ def test_unreadable_committed_reference_is_ambiguous(tmp_path: Path, damage: str
         path.write_bytes(b"\xff")
     else:
         path.write_text("{bad", encoding="utf-8")
-    findings = lifecycle.check_removed_stub_references(tmp_path)
+    receipt: dict[str, object] = {}
+    findings = lifecycle.check_removed_stub_references(tmp_path, receipt=receipt)
     assert [(finding.check, finding.path) for finding in findings] == [
         ("reference_scan_ambiguous", "docs/input.json")
     ]
+    operation = receipt["read_evidence"]["operations"][0]
+    if damage == "missing":
+        assert operation["status"] == "unreadable"
+        assert operation["error"] == "FileNotFoundError"
+    else:
+        assert operation["status"] == "read"
+        assert len(operation["sha256"]) == 64
 
 
 def test_generated_ledger_role_does_not_exempt_an_actual_plan(tmp_path: Path) -> None:
@@ -207,16 +328,23 @@ def test_missing_repository_enumeration_fails_the_gate(
         and "check_removed_stub_references" in finding.message
         for finding in findings
     )
-    assert lifecycle.main(["--repo-root", str(tmp_path)]) == 1
+    assert lifecycle.main(["--repo-root", str(tmp_path)]) == 2
 
 
-def test_archive_map_keeps_member_paths_when_its_denominator_is_unestablished() -> None:
+def test_archive_map_keeps_member_paths_when_its_denominator_is_unestablished(
+    tmp_path: Path,
+) -> None:
     payload = _archive_map()
     payload["archive_non_directory_members"] = 2
-    text = document_references.reference_scan_text(
-        Path("architecture/incomplete-map.json"), json.dumps(payload)
-    )
-    assert OLD_DASHBOARD in text
+    relative = "architecture/incomplete-map.json"
+    _write(tmp_path, relative, json.dumps(payload))
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, receipt={})
+
+    assert {(finding.check, finding.path) for finding in findings} == {
+        ("removed_stub_reference", relative),
+    }
+    assert OLD_DASHBOARD in findings[0].message
 
 
 def test_adr_producer_uses_the_same_committed_file_denominator(

@@ -1,7 +1,9 @@
 # Production Resilience Matrix
 
 Owner: `@runtime-owners`
-Source of truth: `tools/quality/testing/runtime_resilience_matrix.py`, `src/polisyos/runtime/quality/resilience.py`, and `tests/unit/runtime/quality/**`
+Source of truth: `tools/quality/testing/runtime_resilience_matrix.py`, `src/polisyos/runtime/quality/scorecard.py`, and `tests/repo_quality/tools/test_runtime_resilience_matrix.py`
+Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Validation status: Source and test-reference inspection only for this documentation update; the matrix generator and tests were not run.
 
 Phase 5.5/5.6 defines the `policyos.runtime_resilience_matrix.v1` payload
 emitted by:
@@ -108,3 +110,6 @@ approval instead of silently passing.
 `quarantined` means the lane is declared but intentionally excluded from
 deterministic CI. Operators must opt in explicitly and attach the resulting
 provider evidence before using it for approval.
+
+The deterministic report is a local test/measurement artifact. It is not a
+production soak, live provider observation, or publication authorization.

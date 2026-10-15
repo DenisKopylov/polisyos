@@ -1,5 +1,9 @@
 # Release, Versioning, and Deprecation Policy
 
+Owner: `team-release`
+Source of truth: `pyproject.toml`, `apps/runtime-dashboard/package.json`, `architecture/generated_artifacts.toml`, `architecture/control_plane_supply_chain.toml`, `ops/release/`, `ops/migrations/migration-contracts.toml`, and `.github/workflows/release.yml`
+Repository source reviewed: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` on 2026-10-14; release metadata, workflow, and command source inspected only. No release, promotion, lifecycle cleanup, GitHub setting, or published artifact was verified.
+
 This page defines the version namespaces used in PolicyOS and the deprecation
 rules that keep them understandable.
 

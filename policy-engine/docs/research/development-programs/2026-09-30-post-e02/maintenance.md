@@ -1,63 +1,63 @@
-# Как обновлять предложение
+# How to Maintain This Proposal
 
-[Обзор](README.md) · [Источники](sources.md) · [Каталог](catalogue.json)
+[Overview](README.md) · [Sources](sources.md) · [Catalogue](catalogue.json)
 
-## Статус документа
+## Document status
 
-Это изолированный исследовательский комплект. Он не заменяет GY, Atlas, DEBT-REGISTER, E02, ADR, действующие контракты или owner decisions. Аналитический ID с префиксом DEV программы, пакета или связи не является официальным task ID и не разрешает реализацию.
+This is a self-contained research package. It does not replace GY, Atlas, DEBT-REGISTER, E02, ADRs, active contracts, or owner decisions. An analytical ID prefixed with DEV for a program, package, or relationship is not an official task ID and does not authorize implementation.
 
-## Единицы обновления
+## Update units
 
-Обновлять следует утверждение, source version, конкретный program increment и его затронутые связи. Не переписывать весь портфель после каждого нового PASS. Закрытие узкой E02-карточки меняет ровно потребляемый repair output; не обязательно scientific suitability, deployment, human usefulness или institutional authority.
+Update the claim, source version, specific program increment, and relationships it affects. Do not rewrite the whole portfolio after every new PASS. Closing a narrow E02 card changes exactly the repair output consumed by the proposal; it does not necessarily change scientific suitability, deployment, human usefulness, or institutional authority.
 
-1. Сохранить новый source path, hash, observation time и точный диапазон/selector. Stable HEAD недостаточен при dirty edits
-2. Определить тип нового сведения: ruling, source observation, historical receipt, fresh execution, independent scientific evidence, actual consumer или permitted authority
-3. Указать supersedes только для того утверждения, которое действительно заменено. Новое evidence не становится новым principal ruling
-4. Обновить observed baseline отдельно от development scenario. Исторические сведения остаются в provenance
-5. Удалить из будущей сметы работу, оказавшуюся уже выполненной; при исчезновении reuse premise приостановить либо пересчитать только затронутый диапазон
-6. Проверить границы первого приращения, проверки переноса и зрелой способности, конкретный consumer и условия остановки. Новый метод не требует новой программы автоматически
-7. Сверить все machine-readable ссылки и отдельные знаменатели, затем прочитать обзор как самостоятельный ответ
+1. Record the new source path, hash, observation time, and exact range/selector. A stable HEAD is insufficient when there are dirty edits.
+2. Classify the new information: ruling, source observation, historical receipt, fresh execution, independent scientific evidence, actual consumer, or permitted authority.
+3. Use “supersedes” only for a claim that is actually replaced. New evidence does not become a new principal ruling.
+4. Update the observed baseline separately from the development scenario. Preserve historical information in provenance.
+5. Remove work from the future estimate when it has already been completed; if a reuse premise disappears, pause or recalculate only the affected range.
+6. Check the boundaries of the first increment, transfer test, and mature capability; identify the specific consumer and stop conditions. A new method does not automatically require a new program.
+7. Reconcile all machine-readable references and distinct denominators, then read the overview as a self-contained answer.
 
-## Когда менять границу программы
+## When to change a program boundary
 
-Выделять ветвь, если у неё появились самостоятельный повторяемый outcome/consumer, отличающаяся scientific/behavioral acceptance, свой data cadence и upkeep, а общая программа скрывает важные решения. Например, forecasting с отдельными vintages и rolling horizon или market design с собственными actors/messages/equilibrium witnesses.
+Split out a branch when it has an independent, repeatable outcome/consumer, distinct scientific/behavioral acceptance, its own data cadence and upkeep, and the shared program hides important decisions. Examples include forecasting with separate vintages and a rolling horizon, or market design with its own actors/messages/equilibrium witnesses.
 
-Объединять, если две траектории всё время меняют один и тот же объект, проходят одну совместную проверку и не дают автономного результата. Но общий serializer или repository package недостаточны. Scientific adequacy и human comprehension, либо custody и causal identification, нельзя объединить одним PASS ради удобства.
+Combine branches when two trajectories continually change the same object, pass one joint check, and produce no independent result. A shared serializer or repository package is not enough. Scientific adequacy and human comprehension, or custody and causal identification, must not be combined into one PASS for convenience.
 
-Вынести работу в общее условие можно, если она действительно нужна нескольким outcomes и имеет existing owner. Это не означает нулевую цену и не требует новой платформы. У shared cost должен остаться один unique work node и названные consumers.
+Work may become a shared condition when several outcomes genuinely need it and an existing owner exists. This does not make it cost-free or require a new platform. Shared cost must remain one unique work node with named consumers.
 
-## Состав машиночитаемого комплекта
+## Machine-readable package
 
-- `catalogue.json`: выбранная иерархия, программы, условные и прикладные ветви, альтернативы и ссылки на карточки
-- `decisions.json`: принятые направления, аналитические рекомендации, 25 E02 families, 13 P118 cards и отдельный LA055 scope
-- `dependencies.json`: типизированные входы, общие активы, положительное повторное использование, комплементы, обратные связи и вредные связи
-- `effort.json`: точные bounded scopes, D/A/B/I/V, условность и история приостановленных/снятых оценок; нет суммы всех опций
-- `source_disposition.json`: отдельные исходные популяции и их аналитическая судьба с сохранённым source standing
-- `sources.json`: канонические пути, versions/hashes, точные reading modes и ограничения evidence
-- `validation.json`: проверка структуры **этого комплекта**, не результат тестов PolicyOS
+- `catalogue.json`: selected hierarchy, programs, conditional and applied branches, alternatives, and links to cards.
+- `decisions.json`: accepted directions, analytical recommendations, 25 E02 families, 13 P118 cards, and the separate LA055 scope.
+- `dependencies.json`: typed inputs, shared assets, positive reuse, complements, feedback, and harmful interactions.
+- `effort.json`: exact bounded scopes, D/A/B/I/V, conditions, and history of paused/withdrawn estimates; it does not sum every option.
+- `source_disposition.json`: separate source populations and their analytical disposition, preserving source standing.
+- `sources.json`: canonical paths, versions/hashes, exact reading modes, and evidence limitations.
+- `validation.json`: validation of **this package's structure**, not PolicyOS test results.
 
-Текстовые карточки являются авторским изложением. При изменении каталога и Markdown следует сверять одноимённые поля одновременно; validator не решает смысловой спор и не доказывает научное утверждение.
+The text cards are authored narrative. When the catalogue or Markdown changes, reconcile corresponding fields together; the validator does not resolve semantic disputes or prove scientific claims.
 
-## Контроль полноты
+## Completeness checks
 
-Не складывать 54 GV, 77 GY, 22 Atlas, 277 debt rows, восемь data requirements, 366 planning Markdown, 182 Foundry research IDs и 169 phase pointers. Исторический повтор Refinement или Addition не становится новой независимой способностью. Source-qualified IDs предотвращают столкновение старого E2, текущего E02 и одинаковых номеров разных планов.
+Do not add up 54 GV, 77 GY, 22 Atlas, 277 debt rows, eight data requirements, 366 planning Markdown files, 182 Foundry research IDs, and 169 phase pointers. A repeated historical Refinement or Addition does not become a new independent capability. Source-qualified IDs prevent collisions between the older E2, current E02, and identical numbers from different plans.
 
-File inventory completeness не означает full reading. Full reading не означает scientific revalidation. Declared implementation не означает actual default consumer, а actual consumer не означает правильность исходных предпосылок. Эти ограничения не стираются после machine validation.
+A complete file inventory is not full reading. Full reading is not scientific revalidation. A declared implementation is not an actual default consumer, and an actual consumer does not establish the correctness of its premises. Machine validation does not remove these limitations.
 
-## Перед окончательной передачей
+## Before final handoff
 
-Первый утренний reported-local срез 03:46–03:52 UTC и заключительная ограниченная сверка 05:01:10–05:01:44 учтены. Последняя сообщает HEAD `8b40f8f5`, отдельно проверенное clean tree, все 282 ID/status без переходов и точные изменённые области. Bounded freshness gate завершён для этого среза. Он не означает проверки всего текущего корпуса или состояния после 05:01:44. Прежним source records не приписано новое observation time; совпадение пяти документов, трёх receipts и пяти code owners записано отдельным сравнением.
+The first morning reported-local slice at 03:46–03:52 UTC and the final bounded reconciliation at 05:01:10–05:01:44 are accounted for. The latter reports HEAD `8b40f8f5`, a separately verified clean tree, all 282 IDs/statuses with no transitions, and the exact changed areas. The bounded freshness gate is complete for that slice. It does not verify the entire current corpus or state after 05:01:44. No new observation time has been assigned to earlier source records; the match across five documents, three receipts, and five code owners is recorded as a separate comparison.
 
-`validation.json` фиксирует проверку готового содержательного комплекта до размещения. Поэтому `repository_transfer_verified=false` описывает только границу этой проверки и не делает исследовательские выводы предварительными. Размещение в изолированном repository docs subtree проверяется отдельно по точным hashes этих файлов и внутренним ссылкам; результат сохраняется отдельной placement receipt без изменения уже проверенного комплекта. Официальные планы, статусы, контракты, код и процессы E02 этим комплектом не меняются.
+`validation.json` records validation of the completed substantive package before placement. Therefore `repository_transfer_verified=false` describes only the boundary of that validation; it does not make the research conclusions preliminary. Placement in the isolated repository docs subtree is checked separately against exact hashes of these files and their internal links; the result is recorded in a separate placement receipt without changing the already-validated package. This package does not change official plans, statuses, contracts, code, or E02 processes.
 
-## Что не превращать в постоянное обязательство
+## What not to turn into a standing obligation
 
-Не возобновлять retired migration/cleanup только по старому checkbox или архивной дате. Не запускать все conditional branches ради полноты каталога. Не делать внешний акт, runtime appointment или protected publication универсальным prerequisite candidate research. Не ослаблять явно выбранный protected mode под видом более дешёвой демонстрации.
+Do not restart a retired migration/cleanup solely because of an old checkbox or archive date. Do not launch all conditional branches for catalogue completeness. Do not make an external act, runtime appointment, or protected publication a universal prerequisite for candidate research. Do not weaken an explicitly selected protected mode under the label of a cheaper demonstration.
 
-## Значение схемы источников
+## Meaning of the source schemas
 
-В source_disposition.v3 E02-записи сохраняют materialized исторический ledger со своим статусом и unresolved premise; текущая reported-local overlay отделена от него. repair_output_baseline означает условное повторное использование принятого выхода существующего repair owner. premise_resolution_assumed=false запрещает читать этот сценарий как принятое principal/owner решение, назначение владельца или допуск данных. B122, LA-055 и B31 сохраняют свои отдельные decision references.
+In `source_disposition.v3`, E02 records preserve the materialized historical ledger with its status and unresolved premise; the current reported-local overlay is separate. `repair_output_baseline` means conditional reuse of an accepted output from the existing repair owner. `premise_resolution_assumed=false` prohibits reading this scenario as an accepted principal/owner decision, owner appointment, or data admission. B122, LA-055, and B31 retain their separate decision references.
 
-В sources.v3 исторический массив sources содержит514materialized представлений; отдельный reported_current_sources содержит22local-report records, из которых19 имеют reported hashes, а3 — только paths/selectors. Сохранены18прежних записей и добавлены четыре новые версии финального среза. Эти22не засчитываются как source bytes, rehashed здесь. Поле sha256 относится к явно указанному hash_scope. Полный retained manifest, numbered source excerpt и transcription Parquet footer имеют разные границы: hash выдержки не является hash всего исходного файла. Source aliases имеют namespace и точную версию; archive_data:DR означает DEBT-REGISTER, а DR в реестре решений означает DECISION_RECORDS. Старые locators не переназначаются автоматически на последнюю версию.
+In `sources.v3`, the historical `sources` array contains 514 materialized entries; the separate `reported_current_sources` has 22 local-report records, 19 with reported hashes and 3 with paths/selectors only. Eighteen prior entries are preserved and four new versions of the final slice are added. These 22 are not counted as source bytes rehashed here. The `sha256` field refers to the explicitly named `hash_scope`. The complete retained manifest, numbered source excerpt, and Parquet-footer transcription have different boundaries: the excerpt hash is not the hash of the entire source file. Source aliases have a namespace and exact version; `archive_data:DR` means DEBT-REGISTER, whereas DR in the decision register means DECISION_RECORDS. Old locators are not automatically reassigned to the latest version.
 
-Current reported hash, materialized historical hash и hash самого readback report — разные свидетельства. Сообщённые31changed B197 selectors не дают права восстановить новые literal values полного ledger. Финальный B61 ledger уже supersedes старый v2 blocker; прежняя строка сохраняется только в исторической materialized копии. B152/B154/B155 имеют сообщённое уточнение owner scope без appointments. Утренний frozen producer census на28ea3bb не переименовывается в полный census на8b40f8f5. Неизменённый FINAL_REPORT хранит свой старый R9 cut; новая integration подтверждается отдельным source/receipt observation.
+A current reported hash, materialized historical hash, and hash of the readback report are different evidence. The reported 31 changed B197 selectors do not authorize reconstructing new literal values for the full ledger. The final B61 ledger already supersedes the old v2 blocker; the earlier row remains only in the historical materialized copy. B152/B154/B155 have a reported refinement of owner scope without appointments. The morning frozen producer census at `28ea3bb` is not relabeled as a complete census at `8b40f8f5`. The unchanged FINAL_REPORT retains its old R9 cut; the new integration is supported by a separate source/receipt observation.

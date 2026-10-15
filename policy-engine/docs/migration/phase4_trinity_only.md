@@ -2,12 +2,12 @@
 
 ## Summary
 
-Phase 4 removes legacy surface IR support from runtime code. Canonical IR is now only:
+Phase 4 removes legacy surface-IR support from runtime code. The canonical policy
+representation is `TrinityBundle`, composed of these contracts:
 
 - `ProblemFrame`
 - `PolicySpec`
 - `ModelSpec`
-- `TrinityBundle`
 
 ## Breaking Changes
 

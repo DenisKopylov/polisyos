@@ -5,7 +5,7 @@ Backup owner: `@tools-owners`
 Source of truth: `architecture/control_plane_supply_chain.toml`,
 `docs/reference/{quality-gates.md,ownership.md}`, repository-root
 `.github/{CODEOWNERS,repository-rulesets/main.yml,PULL_REQUEST_TEMPLATE.md,labels.yml}`,
-and the current root workflow inventory under `.github/workflows/*.yml`
+and the repo-tracked root workflow inventory under `.github/workflows/*.yml`
 
 This page describes the repo-tracked part of the merge contract for `main`.
 
@@ -24,7 +24,7 @@ For the current manual GitHub-UI checklist, see
 The repository itself currently versions these merge-governance surfaces:
 
 - default-branch ruleset intent in `.github/repository-rulesets/main.yml`;
-- enforceable personal-repo reviewer routing in `.github/CODEOWNERS`;
+- reviewer routing recorded in `.github/CODEOWNERS`;
 - active control-plane owner mappings and supply-chain controls in
   `architecture/control_plane_supply_chain.toml`;
 - PR taxonomy and reviewer prompts in `.github/PULL_REQUEST_TEMPLATE.md`;
@@ -55,17 +55,17 @@ above.
 
 ## Reviewer Routing With CODEOWNERS
 
-`.github/CODEOWNERS` currently maps owned paths to `@DenisKopylov`, because
-this is a personal repository without provisioned organization team slugs. The
-logical owner model still lives in [Ownership](ownership.md), and the active
-Phase 2.8 CODEOWNERS projection lives in
-`architecture/control_plane_supply_chain.toml`.
+The checked-in `.github/CODEOWNERS` routes the owned paths to
+`@DenisKopylov`; `architecture/control_plane_supply_chain.toml` records the
+personal-repository exception and logical-owner projection. These repository
+files describe the tracked routing and do not prove that GitHub has applied it.
+The logical owner model still lives in [Ownership](ownership.md).
 
 Use these sources in order:
 
-- `.github/CODEOWNERS` for current enforceable reviewer routing;
-- `architecture/control_plane_supply_chain.toml` for active logical-owner to
-  CODEOWNERS projection and path-prefix cleanup enforcement;
+- `.github/CODEOWNERS` for reviewer routing recorded in the checkout;
+- `architecture/control_plane_supply_chain.toml` for the tracked logical-owner
+  to CODEOWNERS projection and path-prefix cleanup contract;
 - [Ownership](ownership.md) for subsystem and shared-surface escalation;
 - the nearest package `README.md` for boundary-specific reviewer hints;
 - [Quality Gates](quality-gates.md) for category-specific review expectations.
@@ -81,21 +81,17 @@ attention explicitly. That includes:
 - shared pages under `docs/reference/**`
 - release ledgers and closeout manifests under `release/**`
 
-## Current Workflow Reality
+## Repo-Tracked Workflow Sources
 
-The current repo-tracked workflow inventory is the one listed in
-[Quality Gates](quality-gates.md). In particular:
+The complete root workflow-file inventory and each file's declared triggers
+are listed in [Quality Gates](quality-gates.md). Those YAML files describe the
+checked-in workflow configuration; their presence does not establish GitHub
+enablement or successful run history.
 
-- repository-root `.github/workflows/abi.yml`, `.github/workflows/ci.yml`,
-  `.github/workflows/core-runtime-release-gate.yml`, `.github/workflows/docs-pages.yml`,
-  `.github/workflows/fabric-remediation.yml`, `.github/workflows/frontend-nightly.yml`,
-  `.github/workflows/frontend-quality.yml`, and `.github/workflows/release.yml` are
-  active and factual;
-
-- product-local templates such as `arch.yml`, `perf.yml`, `replay.yml`,
-  `signatures.yml`, and `foundry-release-gate.yml` live under
-  `policy-engine/ops/ci/templates/workflows/` and are not active GitHub
-  workflows unless copied or promoted intentionally.
+Product-local templates such as `arch.yml`, `perf.yml`, `replay.yml`,
+`signatures.yml`, and `foundry-release-gate.yml` live under
+`policy-engine/ops/ci/templates/workflows/`. They are not root GitHub workflows
+unless copied or promoted intentionally.
 
 ## Recommended Manual Branch-Protection Posture
 
@@ -133,18 +129,22 @@ Merge queue is explicitly disabled in `.github/repository-rulesets/main.yml`
 with a personal-repository rationale. Enabling it later requires a control-plane
 contract update plus merge_group-compatible workflow contexts.
 
-## Signatures Policy
+## Signing and Provenance
 
-- `signatures.yml` is the repo-tracked regression surface for artifact-signing
-  behavior and private-key hygiene;
+- `ops/ci/templates/workflows/signatures.yml` is a product-local template for
+  artifact-signing checks; it is not a root GitHub workflow in this checkout.
 
-- `build-and-push.yml` is the repo-tracked SBOM/signing bundle for manual build
-  dispatches;
+- `ops/ci/templates/workflows/build-and-push.yml` is a product-local SBOM and
+  signing template, not a root GitHub workflow in this checkout.
 
-- signed release tags are required by the ruleset artifact;
+- root `.github/workflows/release.yml` defines release SBOM and vulnerability
+  checks, a canary, artifact signing, provenance attestations, and publication.
+  This is workflow source, not evidence of a completed run or published release;
+
+- `.github/repository-rulesets/main.yml` records the intent to require signed
+  release tags;
 - commit-signature enforcement on `main` remains recommended but not enforced
   until contributor key management and automation signing posture are
   standardized.
 
-This keeps provenance anchored in versioned tests and build steps without
-pretending that GitHub-side application proof is tracked in-repo when it is not.
+Whether GitHub has applied the ruleset remains external operational evidence.

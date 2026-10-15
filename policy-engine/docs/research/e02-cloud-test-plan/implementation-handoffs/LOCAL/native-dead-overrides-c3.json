@@ -1,0 +1,237 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "native-dead-overrides-current-inputs-c3",
+  "status": "bounded_source_implemented; full_phase5_5_HOLD",
+  "slice_base": {
+    "sha": "b2f1c1f2e1218da6a20c7652a6bf4cf51b807686",
+    "tree": "0f772c84b9e112cf9f8927ceaabdcd11ea5166cf",
+    "meaning": "actual C3 application boundary; no inherited red claim"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "ecfb39795d5e12e7323784807ec8e65a1f754d60",
+    "tree": "7956a39cb017e760ffc9f14fdf2537e0756f5721",
+    "parents": [
+      "b2f1c1f2e1218da6a20c7652a6bf4cf51b807686"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_dead_override_report.py",
+      "git_blob": "926153711647f12e76afb30225658620ad67cb96",
+      "sha256": "d97b8394791a7b2639ab60b851917b4d900aeadc6b8301b2aba90c8ae37a6390",
+      "bytes": 15866,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/reports/dead_overrides.py",
+      "git_blob": "0cc481734ba6023960851c221e4df80e1a0b28d0",
+      "sha256": "c6f5dc8110c9c20aec976dc3d44163d45d6cadca25a861c2d5f92da3a02149e1",
+      "bytes": 31603,
+      "branch_readback_equal": true
+    }
+  ],
+  "property_and_chain": [
+    "canonical current Ruff input collector -> complete current path index -> compile one supported matcher per selector -> dead-override report -> CLI native gate -> scoped V19 output writer",
+    "Ambient historical/raw filesystem matches no longer establish current selector liveness. Synthetic fixture fallback requires explicit opt-in.",
+    "Unsupported negation fails closed; current Ruff selectors contain no negation."
+  ],
+  "input_backend": {
+    "ruff": "OWN locked0.14.10",
+    "selectors": 242,
+    "fragments": 9,
+    "current_input_census": "independent report:6476paths (6471.py+5.pyi), activeQ2 inputs retained, otherRAW excluded; this is that reviewed current-input census, not all repo files"
+  },
+  "verification": {
+    "root_composed_junit": {
+      "tests": 24,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "interpretation": "23PASS/1FAIL; 19 C3 tests+4 V19 tests pass, both-generated-roots metadata gate fails",
+    "ruff": "PASS2paths",
+    "format": "PASS2paths",
+    "commands": [
+      {
+        "name": "pytest",
+        "argv": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "faulthandler_timeout=60",
+          "-q",
+          "-ra",
+          "tests/repo_quality/tools/test_dead_override_report.py",
+          "tests/repo_quality/tools/test_native_output_registry_scope.py",
+          "tests/repo_quality/tools/test_tool_config_split.py::test_phase5_5_dead_override_report_covers_both_generated_ruff_roots",
+          "--junitxml",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/junit.xml"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 6.987930666073225
+      },
+      {
+        "name": "ruff",
+        "argv": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "tools/ops_runners/reports/dead_overrides.py",
+          "tests/repo_quality/tools/test_dead_override_report.py"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.07590795797295868
+      },
+      {
+        "name": "format",
+        "argv": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "tools/ops_runners/reports/dead_overrides.py",
+          "tests/repo_quality/tools/test_dead_override_report.py"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.07546824996825308
+      }
+    ],
+    "independent": "GO bounded supported-selector liveness; HOLD fullPhase5.5",
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/commands.json",
+        "sha256": "880c6cfcdc8844fb7adc4be5196608331fd6caff766ecd455ab64da6ad93b64c",
+        "bytes": 1359,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "bytes": 26,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/junit.xml",
+        "sha256": "072cecc9e6e9c13a8c4fd91656fa9e72b34a022e4c57be7b92f5e8a656131f9a",
+        "bytes": 6985,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/pytest.stdout.txt",
+        "sha256": "4210d0d0fc00ef2c91f205d94ec236d6b4e5611a0d695a52fceadc5b30d6b46b",
+        "bytes": 3066,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-application-root-20261015/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/assessment.md",
+        "sha256": "608c13245a2d288b9b28536ef56f2a38054d17f753b2db72f02f77e8ba3e5fbb",
+        "bytes": 7758,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/candidate-tests.txt",
+        "sha256": "8ad11be6e822755947d3b2214fe613fb52e8518a5b4f8e54c7a1dc56757ad65b",
+        "bytes": 398,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/fixture-callers.txt",
+        "sha256": "9d14f597de69b9a6e3073582924042f06b3a669c0b6c553764503ef2528fc657",
+        "bytes": 5384,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/focused-target-test.txt",
+        "sha256": "f92fe975803aea6e30c2b2dbfb634a72ebdc233428f4ed43508b0395cd5b53bb",
+        "bytes": 1010,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/negated-cli-control.txt",
+        "sha256": "b37c77648065a2111b9f91fab23a75a11d6b4cc707ff76ccbab30111c9437358",
+        "bytes": 214,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/pinned-ruff-positive-globs.txt",
+        "sha256": "db3e97698080f134d5c12d6da60c319ae1906804ae46b69ee561c0f24d02f789",
+        "bytes": 1001,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/removal-and-fixture-controls.txt",
+        "sha256": "8668e30a014908dcba39ee8fa65eeed18975f5c90fd4aa1dc44accf4cce63c9d",
+        "bytes": 953,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/runtime-profile.txt",
+        "sha256": "50a0f48c51759feb213972b0a7c4b58bfcfe765a4186f08297940faea7c61595",
+        "bytes": 510,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-c3-independent-20261015/selector-census.txt",
+        "sha256": "fc289274fd85bbd7895c92f8351379d857c4b259484eee934e4a6ccadabd06c6",
+        "bytes": 1628,
+        "availability": "local ignored RAW"
+      }
+    ]
+  },
+  "adversarial_removal_controls": [
+    "current-input omitted path remains dead even if historical raw filesystem contains a matching filename",
+    "negated patterns rejected at both matcher boundaries",
+    "independent locked Ruff comparison, no blanket arbitrary-glob equivalence claim"
+  ],
+  "remaining_failure": {
+    "criterion": "test_phase5_5_dead_override_report_covers_both_generated_ruff_roots",
+    "output": "stale_count0,metadata_count1: workers/**/tests/** missing lifecycle ownership scope",
+    "P41": "not_established; no exact original-slice base+complete denominator disjoint replay, therefore not called inherited",
+    "next_check": "Investigate whether actual worker tests need these suppressions; remove obsolete debt if possible. If still required, a named issuer must establish narrow owner/lifecycle metadata; no invented expiry/blanket waiver."
+  },
+  "limitations": [
+    "Full native13-row wave, current installed wheel and rebuilt-sdist consumers UNRUN.",
+    "No formal finding closures from successful current-input matching."
+  ],
+  "p40": "Same root liveness/proxy-gate class widened to complete canonical input denominator; unsupported pattern grammar explicitly refuses.",
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_acceptance": false,
+    "author_proposals": []
+  }
+}

@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from polisyos.runtime.quality.approval import build_production_approval_packet
 from polisyos.runtime.quality.assurance_case import (
     build_policy_design_case_profile,
     build_policy_design_jurisdiction_spine,
@@ -41,7 +42,9 @@ from tests._helpers.hds_quality import (
     attestation_material_refs,
     attestation_product_refs,
     authority_envelope_for,
+    complete_job_payload,
     complete_policy_design_concept_spine,
+    complete_quality_evidence,
     complete_scholar_academic_evidence,
     complete_semantic_binding_ledger,
     policy_design_capability_ledger,
@@ -597,9 +600,7 @@ def _complete_quality_evidence() -> dict[str, object]:
                         {
                             "feature_ref": "feature:msme_survival_rate",
                             "source_ref": "production-msme-panel",
-                            "source_facet_refs": [
-                                "field:production-msme-panel.survival"
-                            ],
+                            "source_facet_refs": ["field:production-msme-panel.survival"],
                             "claim_ids": ["rec_1"],
                             "claim_support_feature_refs": [
                                 "claim-feature:rec_1:msme_survival_rate"
@@ -844,25 +845,23 @@ def _complete_quality_evidence() -> dict[str, object]:
             )
         ],
     )
-    evidence["policy_design_case"]["jurisdiction_spine"] = (
-        build_policy_design_jurisdiction_spine(
-            spine_id="jurisdiction-spine-R_quality",
-            jurisdiction_spine_ref=_sha("6"),
-            run_id="R_quality",
-            job_id="job-quality",
-            tenant_id="tenant-1",
-            policy_intent_ref=refs["policy_intent_envelope_ref"],
-            lex_normative_report=evidence["normative_evidence"],
-            runtime_authority={
-                "authority_role": "producer_authority",
-                "provenance_kind": "runtime_emitted",
-                "cas_ref": _sha("6"),
-                "runtime_event_ref": _sha("e"),
-                "same_input_closure_ref": _sha("3"),
-                "effective_mode_ref": _sha("e"),
-                "schema_compatibility_ref": _sha("c"),
-            },
-        )
+    evidence["policy_design_case"]["jurisdiction_spine"] = build_policy_design_jurisdiction_spine(
+        spine_id="jurisdiction-spine-R_quality",
+        jurisdiction_spine_ref=_sha("6"),
+        run_id="R_quality",
+        job_id="job-quality",
+        tenant_id="tenant-1",
+        policy_intent_ref=refs["policy_intent_envelope_ref"],
+        lex_normative_report=evidence["normative_evidence"],
+        runtime_authority={
+            "authority_role": "producer_authority",
+            "provenance_kind": "runtime_emitted",
+            "cas_ref": _sha("6"),
+            "runtime_event_ref": _sha("e"),
+            "same_input_closure_ref": _sha("3"),
+            "effective_mode_ref": _sha("e"),
+            "schema_compatibility_ref": _sha("c"),
+        },
     )
     evidence["policy_design_case"].update(policy_design_phase27_records())
     evidence["policy_design_case"].update(policy_design_phase28_2_records())
@@ -1005,7 +1004,8 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
     assert scorecard["quality_status"] == "pass"
     assert scorecard["overall_score"] == 1.0
     privacy_gate = next(
-        gate for gate in scorecard["quality_gates"]
+        gate
+        for gate in scorecard["quality_gates"]
         if gate["name"] == "privacy_compliance_report_present"
     )
     assert privacy_gate["status"] == "pass"
@@ -1054,7 +1054,8 @@ def test_scorecard_rejects_malformed_aliases_for_the_complete_report_registry() 
     )
 
     privacy_gate = next(
-        gate for gate in scorecard["quality_gates"]
+        gate
+        for gate in scorecard["quality_gates"]
         if gate["name"] == "privacy_compliance_report_present"
     )
     assert privacy_gate["status"] == "fail"
@@ -1177,10 +1178,7 @@ def test_review_effectiveness_telemetry_cannot_block_without_mature_policy() -> 
 def test_scorecard_consumes_calibration_behavior_as_future_readiness_cap() -> None:
     quality_evidence = _complete_quality_evidence()
     quality_evidence["calibration_ledger"] = build_calibration_ledger(
-        entries=[
-            _calibration_entry(index, false_pass=index <= 30)
-            for index in range(1, 211)
-        ],
+        entries=[_calibration_entry(index, false_pass=index <= 30) for index in range(1, 211)],
         target_scope=_calibration_scope(),
         target_run_id="R_quality",
         target_claim_id="rec_1",
@@ -1219,9 +1217,7 @@ def test_scorecard_consumes_calibration_behavior_as_future_readiness_cap() -> No
         == "input_payload_to_scorecard_or_readiness_authority"
     )
     assert scorecard["approval_eligibility"]["eligible"] is False
-    assert "calibration_mature_history_scoped_block" in scorecard["approval_eligibility"][
-        "reasons"
-    ]
+    assert "calibration_mature_history_scoped_block" in scorecard["approval_eligibility"]["reasons"]
 
     cap_rows = [
         row
@@ -1290,8 +1286,9 @@ def test_scorecard_emits_first_failing_producer_owner_map() -> None:
     failure = _failure_by_code(scorecard, "source_family_mismatch")
     assert failure["owner"] == "team-fabric"
     assert failure["root_cause_class"] == "runtime_owned_domain_failure"
-    assert failure["first_failing_artifact_ref"] == (
-        _complete_runtime_refs()["fabric_retrieval_trace_ref"]
+    assert (
+        failure["first_failing_artifact_ref"]
+        == (_complete_runtime_refs()["fabric_retrieval_trace_ref"])
     )
     assert failure["next_action"] == "Bind Fabric to an admissible scenario source contract."
 
@@ -1378,9 +1375,7 @@ def test_scorecard_semantic_failures_match_closed_producer_ledger_status() -> No
     assert closed_ledger["status"] == "fail"
     assert closed_ledger["runtime_report_status"] == "fail"
     assert scorecard["quality_status"] == "fail"
-    assert {
-        issue["code"] for issue in closed_ledger["issues"]
-    } <= _blocking_codes(scorecard)
+    assert {issue["code"] for issue in closed_ledger["issues"]} <= _blocking_codes(scorecard)
 
 
 def test_scorecard_blocks_unverified_hypothesis_candidate_for_dashboard_surfaces() -> None:
@@ -2189,27 +2184,30 @@ def test_runtime_quality_scorecard_distinguishes_quality_warning_state() -> None
 
 def test_runtime_quality_scorecard_requires_override_for_performance_budget_failure() -> None:
     quality_evidence = normalize_quality_evidence(
-        _complete_quality_evidence(),
+        complete_quality_evidence(),
         canary_kind="production",
     )
-    job_payload = _complete_job_payload()
-    job_payload["progress"]["details"]["run_performance_summary"] = {
-        "schema_version": "1.0",
-        "phase_budgets": [
-            {
-                "phase": "llm.total",
-                "duration_ms": 65000,
-                "budget_ms": 60000,
-                "status": "over_budget",
+    job_payload = complete_job_payload(
+        details={
+            "run_performance_summary": {
+                "schema_version": "1.0",
+                "phase_budgets": [
+                    {
+                        "phase": "llm.total",
+                        "duration_ms": 65000,
+                        "budget_ms": 60000,
+                        "status": "over_budget",
+                    }
+                ],
+                "budget_summary": {"over_budget_count": 1},
             }
-        ],
-        "budget_summary": {"over_budget_count": 1},
-    }
+        }
+    )
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
+        job_id="job-hds-red-control",
+        run_id="R_hds_red_control",
         execution_status="completed",
         job_payload=job_payload,
         run_payload=None,
@@ -2225,13 +2223,8 @@ def test_runtime_quality_scorecard_requires_override_for_performance_budget_fail
     assert scorecard["approval_eligibility"]["reasons"] == ["performance_budget_failed"]
 
 
-def test_runtime_quality_scorecard_sanitizes_override_evidence() -> None:
-    quality_evidence = normalize_quality_evidence(
-        _complete_quality_evidence(),
-        canary_kind="production",
-    )
-    job_payload = _complete_job_payload()
-    job_payload["progress"]["details"]["run_performance_summary"] = {
+def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -> None:
+    performance_failure = {
         "schema_version": "1.0",
         "phase_budgets": [
             {
@@ -2243,40 +2236,110 @@ def test_runtime_quality_scorecard_sanitizes_override_evidence() -> None:
         ],
         "budget_summary": {"over_budget_count": 1},
     }
-    job_payload["progress"]["quality_override"] = {
+    raw_markers = {
         "status": "overridden",
-        "decision_ref": "cas://quality-overrides/decision-1",
-        "packet_ref": "cas://quality-overrides/packet-1",
+        "review_status": "approved",
+        "human_review_status": "signed",
+        "action": "override",
+        "decision_ref": "cas://candidate-only/decision",
+        "human_review_decision_ref": "cas://candidate-only/human-decision",
+        "reviewer_decision_ref": "cas://candidate-only/reviewer-decision",
+        "packet_ref": "cas://candidate-only/packet",
+        "human_review_packet_ref": "cas://candidate-only/human-packet",
+        "review_packet_ref": "cas://candidate-only/review-packet",
+        "signed": True,
+        "signature": "unverified-signature-bytes",
+        "signature_ref": "signature://candidate-only/signature",
+        "reviewer_signatures": [{"signature": "unverified"}],
         "reviewer_id": "reviewer@example.com",
         "rationale": "contains private deliberation",
         "api_key": "sk-secret",
-        "signed": True,
     }
 
-    scorecard = build_quality_scorecard(
-        canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
-        execution_status="completed",
-        job_payload=job_payload,
-        run_payload=None,
-        provider_preflight={"status": "passed"},
-        quality_evidence=quality_evidence,
-    )
+    def build_scorecard(
+        *,
+        payload_target: str,
+        container_key: str | None = None,
+        top_level_aliases: bool = False,
+    ) -> dict[str, object]:
+        job_payload = _complete_job_payload()
+        job_payload["progress"]["details"]["run_performance_summary"] = copy.deepcopy(
+            performance_failure
+        )
+        run_payload = None
+        target_payload = job_payload
+        if payload_target == "run":
+            run_payload = {
+                "progress": {
+                    "details": {"run_performance_summary": copy.deepcopy(performance_failure)}
+                }
+            }
+            target_payload = run_payload
+        if top_level_aliases:
+            target_payload["progress"]["details"].update(
+                {
+                    "human_review_status": "overridden",
+                    "review_status": "approved",
+                    "human_review_decision_ref": "cas://candidate-only/human-decision",
+                    "reviewer_decision_ref": "cas://candidate-only/reviewer-decision",
+                    "human_review_packet_ref": "cas://candidate-only/human-packet",
+                    "review_packet_ref": "cas://candidate-only/review-packet",
+                }
+            )
+        elif container_key is not None:
+            target_payload["progress"]["details"][container_key] = copy.deepcopy(raw_markers)
 
-    assert scorecard["approval_state"] == "approval_ready"
-    assert scorecard["approval_eligibility"]["requires_override"] is True
-    assert scorecard["approval_eligibility"]["override_accepted"] is True
-    assert scorecard["override_evidence"] == {
-        "status": "accepted",
-        "accepted": True,
-        "decision_ref": "cas://quality-overrides/decision-1",
-        "packet_ref": "cas://quality-overrides/packet-1",
-    }
-    rendered = str(scorecard["override_evidence"])
-    assert "reviewer@example.com" not in rendered
-    assert "private deliberation" not in rendered
-    assert "sk-secret" not in rendered
+        return build_quality_scorecard(
+            canary_kind="production",
+            job_id="job-quality",
+            run_id="R_quality",
+            execution_status="completed",
+            job_payload=job_payload,
+            run_payload=run_payload,
+            provider_preflight={"status": "passed"},
+            quality_evidence=normalize_quality_evidence(
+                copy.deepcopy(_complete_quality_evidence()),
+                canary_kind="production",
+            ),
+        )
+
+    absent_scorecard = build_scorecard(payload_target="job")
+    absent_packet = build_production_approval_packet(scorecard=absent_scorecard)
+    raw_cases = [
+        (payload_target, container_key, False)
+        for payload_target in ("job", "run")
+        for container_key in (
+            "quality_override",
+            "approval_override",
+            "governance_override",
+            "override_evidence",
+            "human_review",
+        )
+    ]
+    raw_cases.extend((payload_target, None, True) for payload_target in ("job", "run"))
+
+    for payload_target, container_key, top_level_aliases in raw_cases:
+        scorecard = build_scorecard(
+            payload_target=payload_target,
+            container_key=container_key,
+            top_level_aliases=top_level_aliases,
+        )
+        packet = build_production_approval_packet(scorecard=scorecard)
+
+        assert scorecard["quality_status"] == absent_scorecard["quality_status"] == "fail"
+        assert scorecard["performance_status"] == absent_scorecard["performance_status"] == "fail"
+        assert scorecard["approval_state"] == absent_scorecard["approval_state"] == "quality_failed"
+        assert scorecard["approval_eligibility"]["override_accepted"] is False
+        assert scorecard["approval_eligibility"]["eligible"] is False
+        assert scorecard["override_evidence"] == {"status": "candidate", "accepted": False}
+        assert packet.decision == absent_packet.decision == "blocked"
+        assert packet.eligibility.eligible is absent_packet.eligibility.eligible is False
+        assert packet.eligibility.performance_blocking is True
+        assert packet.eligibility.reasons == absent_packet.eligibility.reasons
+        rendered = str(scorecard["override_evidence"])
+        assert "reviewer@example.com" not in rendered
+        assert "private deliberation" not in rendered
+        assert "sk-secret" not in rendered
 
 
 @pytest.mark.parametrize(
@@ -2492,9 +2555,7 @@ def test_scorecard_rejects_ambiguous_registry_roles_over_clean_sibling_overlay()
     registry_roles = set(body_ref_keys.values()) & set(ref_keys)
     report_roles = tuple(
         dict.fromkeys(
-            role
-            for role in QUALITY_REPORT_RUNTIME_REFS.values()
-            if role in registry_roles
+            role for role in QUALITY_REPORT_RUNTIME_REFS.values() if role in registry_roles
         )
     )
     assert len(report_roles) >= 2
@@ -2528,8 +2589,7 @@ def test_scorecard_rejects_ambiguous_registry_roles_over_clean_sibling_overlay()
         for role, report_key in report_key_by_role.items()
         if any(
             gate.get("status") == "pass"
-            and gate.get("evidence_ref")
-            == f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
+            and gate.get("evidence_ref") == f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
             for gate in clean_control["quality_gates"]
         )
     }
@@ -2571,6 +2631,7 @@ def test_scorecard_rejects_ambiguous_registry_roles_over_clean_sibling_overlay()
             for gate in scorecard["quality_gates"]
         )
 
+
 def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> None:
     ref_keys, body_ref_keys = quality_report_ref_intake_registry()
     job_payload = _complete_job_payload()
@@ -2582,9 +2643,7 @@ def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> N
     details["runtime_quality_refs"] = valid_overlay
 
     quality_evidence = _complete_quality_evidence()
-    malformed_refs = {
-        key: f"bad\nscorecard-role-{index}" for index, key in enumerate(ref_keys)
-    }
+    malformed_refs = {key: f"bad\nscorecard-role-{index}" for index, key in enumerate(ref_keys)}
     quality_evidence["runtime_quality_refs"] = malformed_refs
     malformed_values = set(malformed_refs.values())
     for index, (alias, _ref_key) in enumerate(sorted(body_ref_keys.items())):
@@ -2629,8 +2688,7 @@ def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> N
         for gate in scorecard["quality_gates"]
     )
     assert not any(
-        gate.get("name") == "privacy_compliance_report_present"
-        and gate.get("status") == "pass"
+        gate.get("name") == "privacy_compliance_report_present" and gate.get("status") == "pass"
         for gate in scorecard["quality_gates"]
     )
     serialized = json.dumps(scorecard, sort_keys=True)

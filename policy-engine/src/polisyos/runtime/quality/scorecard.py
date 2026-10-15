@@ -414,21 +414,6 @@ PERFORMANCE_FAIL_STATUSES = {
     "timeout",
 }
 PERFORMANCE_WARN_STATUSES = {"degraded", "warn", "warning"}
-OVERRIDE_ACCEPTED_STATUSES = {"accepted", "approved", "overridden", "signed"}
-OVERRIDE_ACCEPTED_ACTIONS = {"override"}
-OVERRIDE_REJECTED_STATUSES = {
-    "explanation_insufficient",
-    "interrupted",
-    "rejected",
-    "rerun_requested",
-}
-OVERRIDE_REJECTED_ACTIONS = {
-    "explanation_insufficient",
-    "interrupt_release",
-    "reject",
-    "request_rerun",
-}
-OVERRIDE_PENDING_STATUSES = {"pending", "required", "requested"}
 SCORECARD_CONTROL_PROGRESS_KEYS = (
     "schema_version",
     "generated_at",
@@ -9902,53 +9887,7 @@ def _override_evidence(
     candidate = _override_candidate(job_payload=job_payload, run_payload=run_payload)
     if candidate is None:
         return {"status": "missing", "accepted": False}
-
-    raw_status = (
-        str(
-            candidate.get("status")
-            or candidate.get("review_status")
-            or candidate.get("human_review_status")
-            or ""
-        )
-        .strip()
-        .lower()
-    )
-    raw_action = str(candidate.get("action") or "").strip().lower()
-    decision_ref = _sanitize_ref(
-        candidate.get("decision_ref")
-        or candidate.get("human_review_decision_ref")
-        or candidate.get("reviewer_decision_ref")
-    )
-    packet_ref = _sanitize_ref(
-        candidate.get("packet_ref")
-        or candidate.get("human_review_packet_ref")
-        or candidate.get("review_packet_ref")
-    )
-    has_signature = any(
-        bool(candidate.get(key))
-        for key in ("signed", "signature", "signature_ref", "reviewer_signatures")
-    )
-    accepted = raw_status in OVERRIDE_ACCEPTED_STATUSES
-    accepted = accepted or raw_action in OVERRIDE_ACCEPTED_ACTIONS
-    rejected = raw_status in OVERRIDE_REJECTED_STATUSES
-    rejected = rejected or raw_action in OVERRIDE_REJECTED_ACTIONS
-
-    if accepted and (decision_ref is not None or has_signature):
-        evidence = {"status": "accepted", "accepted": True}
-    elif accepted:
-        evidence = {"status": "invalid", "accepted": False}
-    elif rejected:
-        evidence = {"status": "rejected", "accepted": False}
-    elif raw_status in OVERRIDE_PENDING_STATUSES:
-        evidence = {"status": "pending", "accepted": False}
-    else:
-        evidence = {"status": "invalid", "accepted": False}
-
-    if decision_ref is not None:
-        evidence["decision_ref"] = decision_ref
-    if packet_ref is not None:
-        evidence["packet_ref"] = packet_ref
-    return evidence
+    return {"status": "candidate", "accepted": False}
 
 
 def _warning_summaries(

@@ -27,6 +27,7 @@ from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -34,7 +35,14 @@ def _sha256_bytes(payload: bytes) -> str:
 
 
 def _normalize_simulation_payload(payload: dict[str, Any]) -> dict[str, Any]:
-    normalized = json.loads(json.dumps(payload))
+    decoded: object = json.loads(json.dumps(payload))
+    if not isinstance(decoded, dict):
+        raise ValueError("Simulation result payload must encode as a JSON object")
+    normalized: dict[str, Any] = {}
+    for key, value in decoded.items():
+        if not isinstance(key, str):
+            raise ValueError("Simulation result payload keys must be strings")
+        normalized[key] = value
     for field in (
         "metrics_ref",
         "state_snapshot_ref",
@@ -204,7 +212,7 @@ class ReleaseAcceptanceRunner:
     ) -> FoundryReleaseAcceptanceReceipt:
         """Run deterministic Foundry acceptance over immutable CAS inputs."""
         from polisyos.core.artifacts import (
-            load_core_json_artifact,
+            ensure_ir_artifact_store,
             validate_core_model_json_artifact,
         )
 
@@ -214,8 +222,8 @@ class ReleaseAcceptanceRunner:
             runtime_agents_bytes = self._store.get_bytes(runtime_agent_registry_ref)
             cell_registry_bytes = self._store.get_bytes(cell_registry_ref)
             trinity_bytes = self._store.get_bytes(trinity_bundle_ref)
-            trinity_bundle = validate_core_model_json_artifact(
-                TrinityBundle, self._store, trinity_bundle_ref, raw_payload_bytes=trinity_bytes
+            trinity_bundle = load_trinity_bundle_artifact(
+                ensure_ir_artifact_store(self._store), trinity_bundle_ref
             )
             runtime_agents = pd.read_parquet(BytesIO(runtime_agents_bytes))
             cell_registry = pd.read_parquet(BytesIO(cell_registry_bytes))
@@ -320,7 +328,8 @@ class ReleaseAcceptanceRunner:
                 registry_bundle_ref=registry_bundle.bundle_ref,
             ),
         )
-        compile_ok = bool(compile_result.ok and compile_result.exec_plan_ref is not None)
+        exec_plan_ref = compile_result.exec_plan_ref
+        compile_ok = bool(compile_result.ok and exec_plan_ref is not None)
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="compile_exec_plan",
@@ -328,7 +337,7 @@ class ReleaseAcceptanceRunner:
                 details={"notes": list(compile_result.notes)},
             )
         )
-        if not compile_ok:
+        if not compile_result.ok or exec_plan_ref is None:
             return self._failed(
                 manifest_path=manifest_path,
                 release_bundle_root=release_bundle_root,
@@ -337,14 +346,15 @@ class ReleaseAcceptanceRunner:
             )
 
         exec_request = ExecuteRequest(
-            exec_plan_ref=compile_result.exec_plan_ref,
+            exec_plan_ref=exec_plan_ref,
             input_bindings_ref=FoundryInputBindingsRef(
                 artifact_id=built.input_bindings_ref.artifact_id
             ),
             registry_bundle_ref=registry_bundle.bundle_ref,
         )
         execute_result = execute_foundry(self._store, exec_request)
-        execute_ok = bool(execute_result.ok and execute_result.simulation_result_ref is not None)
+        simulation_result_ref = execute_result.simulation_result_ref
+        execute_ok = bool(execute_result.ok and simulation_result_ref is not None)
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="execute_simulation_step",
@@ -352,7 +362,7 @@ class ReleaseAcceptanceRunner:
                 details={"notes": list(execute_result.notes)},
             )
         )
-        if not execute_ok:
+        if not execute_result.ok or simulation_result_ref is None:
             return self._failed(
                 manifest_path=manifest_path,
                 release_bundle_root=release_bundle_root,
@@ -361,9 +371,8 @@ class ReleaseAcceptanceRunner:
             )
 
         replay_execute_result = execute_foundry(self._store, exec_request)
-        replay_ok = bool(
-            replay_execute_result.ok and replay_execute_result.simulation_result_ref is not None
-        )
+        replay_simulation_result_ref = replay_execute_result.simulation_result_ref
+        replay_ok = bool(replay_execute_result.ok and replay_simulation_result_ref is not None)
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="replay_execute_roundtrip",
@@ -371,24 +380,22 @@ class ReleaseAcceptanceRunner:
                 details={"notes": list(replay_execute_result.notes)},
             )
         )
-        if not replay_ok:
+        if not replay_execute_result.ok or replay_simulation_result_ref is None:
             return self._failed(
                 manifest_path=manifest_path,
                 release_bundle_root=release_bundle_root,
                 steps=steps,
                 note="acceptance_replay_execute_failed",
-                original_simulation_result_ref=str(
-                    execute_result.simulation_result_ref.artifact_id
-                ),
+                original_simulation_result_ref=str(simulation_result_ref.artifact_id),
             )
 
         original_metrics_ref = _extract_metrics_ref(execute_result)
         replay_metrics_ref = _extract_metrics_ref(replay_execute_result)
-        original_sim_payload = SimulationResult.model_validate(
-            load_core_json_artifact(self._store, execute_result.simulation_result_ref)
+        original_sim_payload = validate_core_model_json_artifact(
+            SimulationResult, self._store, simulation_result_ref
         ).model_dump(mode="json")
-        replay_sim_payload = SimulationResult.model_validate(
-            load_core_json_artifact(self._store, replay_execute_result.simulation_result_ref)
+        replay_sim_payload = validate_core_model_json_artifact(
+            SimulationResult, self._store, replay_simulation_result_ref
         ).model_dump(mode="json")
         normalized_original = _normalize_simulation_payload(original_sim_payload)
         normalized_replay = _normalize_simulation_payload(replay_sim_payload)
@@ -404,17 +411,19 @@ class ReleaseAcceptanceRunner:
             original_metrics_sha = _sha256_bytes(original_metrics_bytes)
             replay_metrics_sha = _sha256_bytes(replay_metrics_bytes)
             stable_original_metrics = _stable_metrics(
-                Metrics.model_validate(
-                    load_core_json_artifact(
-                        self._store, original_metrics_ref, raw_payload_bytes=original_metrics_bytes
-                    )
+                validate_core_model_json_artifact(
+                    Metrics,
+                    self._store,
+                    original_metrics_ref,
+                    raw_payload_bytes=original_metrics_bytes,
                 ).values
             )
             stable_replay_metrics = _stable_metrics(
-                Metrics.model_validate(
-                    load_core_json_artifact(
-                        self._store, replay_metrics_ref, raw_payload_bytes=replay_metrics_bytes
-                    )
+                validate_core_model_json_artifact(
+                    Metrics,
+                    self._store,
+                    replay_metrics_ref,
+                    raw_payload_bytes=replay_metrics_bytes,
                 ).values
             )
             metrics_exact = stable_original_metrics == stable_replay_metrics
@@ -442,8 +451,8 @@ class ReleaseAcceptanceRunner:
             "compiled_trinity_bundle_ref": str(effective_trinity_ref.artifact_id),
             "registry_bundle_ref": str(registry_bundle.bundle_ref.artifact_id),
             "input_bindings_ref": str(built.input_bindings_ref.artifact_id),
-            "exec_plan_ref": str(compile_result.exec_plan_ref.artifact_id),
-            "simulation_result_ref": str(execute_result.simulation_result_ref.artifact_id),
+            "exec_plan_ref": str(exec_plan_ref.artifact_id),
+            "simulation_result_ref": str(simulation_result_ref.artifact_id),
         }
         if original_metrics_ref is not None:
             execution_artifacts["metrics_ref"] = str(original_metrics_ref.artifact_id)
@@ -451,10 +460,8 @@ class ReleaseAcceptanceRunner:
             technical_passed=all(step.status == "passed" for step in steps),
             manifest_path=manifest_path,
             release_bundle_root=release_bundle_root,
-            original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
-            replay_simulation_result_ref=str(
-                replay_execute_result.simulation_result_ref.artifact_id
-            ),
+            original_simulation_result_ref=str(simulation_result_ref.artifact_id),
+            replay_simulation_result_ref=str(replay_simulation_result_ref.artifact_id),
             execution_artifacts=execution_artifacts,
             replay_verification={
                 "passed": replay_verified,

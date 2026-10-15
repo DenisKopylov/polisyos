@@ -61,11 +61,10 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         `program_graph`, `exec_plan`, `link_report`, `slot_layout`, and
         `treasury_plan` refs when compilation succeeds.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     policy_ref = request.policy_ref
-    payload = load_core_json_artifact(store, policy_ref)
-    bundle = TrinityBundle.model_validate(payload)
+    bundle = validate_core_model_json_artifact(TrinityBundle, store, policy_ref)
 
     registry_bundle_ref = _resolve_registry_bundle_ref(
         request.registry_bundle_ref, bundle.model_spec.registry_bundle_ref

@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.manifest import (
     InputRef,
     SchemaInfo,
@@ -16,12 +17,18 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import FoundryInputBindingRule, StateSnapshot
+from polisyos.core.contracts.foundry import (
+    FoundryInputBindingRule,
+    FoundryInputBindings,
+    StateSnapshot,
+    StateSnapshotRef,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.read_api import ukraine as ukraine_read_api
 from polisyos.foundry.data_plane.bindings import (
     _auto_rules_from_payload,
     _infer_entity_sizes,
+    _load_data_snapshot,
     build_input_bindings,
     load_input_bindings,
     load_ukraine_foundry_intake,
@@ -1030,3 +1037,62 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
     assert report["registry_bundle_ref"]["manifest_profile_sha256"] == (
         selected_registry_bundle_ref.manifest_profile_sha256
     )
+
+
+def test_load_input_bindings_rejects_payload_version_drift(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    dependency_ref = _put_json(store, {}, kind="test.dependency")
+    bindings = FoundryInputBindings(
+        data_snapshot_ref=dependency_ref,
+        registry_bundle_ref=dependency_ref,
+        bound_state_snapshot_ref=StateSnapshotRef(
+            artifact_id=dependency_ref.artifact_id,
+        ),
+    )
+    payload = bindings.model_dump(mode="json")
+    payload["schema_version"] = "1.1"
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        load_input_bindings(store, ref)
+
+
+def test_load_data_snapshot_checks_owner_schema_for_profileless_refs(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = _put_json(store, SYNTHETIC_MULTISCALE_PAYLOAD, kind="test.payload")
+    current_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=payload_ref),
+        kind=DataSnapshot.ARTIFACT_KIND,
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
+    )
+    unsupported_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=payload_ref, notes=["unsupported-schema-profileless-case"]),
+        kind=DataSnapshot.ARTIFACT_KIND,
+        schema=SchemaInfo(name=DataSnapshot.ARTIFACT_SCHEMA_NAME, version="9.0"),
+    )
+    assert current_ref.manifest_profile_sha256 is None
+    assert isinstance(_load_data_snapshot(store, current_ref), DataSnapshot)
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        _load_data_snapshot(store, unsupported_ref)

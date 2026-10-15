@@ -1525,8 +1525,11 @@ def test_actual_foundry_basis_ref_survives_abm_ir_cas_roundtrip(
 def test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer(
     source_bundle,
 ) -> None:
+    from polisyos.scientist.methods.search.uncertainty import _source_typed_json_model
+
     store, candidate_ref, welfare_ref = source_bundle
     bundle = _assert_real_mixed_nested_monte_carlo_source(store, welfare_ref)
+    welfare_manifest = store.get_manifest(welfare_ref)
     benchmark_context = _benchmark_funnel_context(store, candidate_ref, welfare_ref)
     assert benchmark_context["welfare_bundle_ref"] == welfare_ref
 
@@ -1570,6 +1573,159 @@ def test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel
     assert outcome.current_uncertainty_envelope is None
     assert all(
         estimate.level == 1.0 for estimate in outcome.uncertainty_envelope.uncertainties.values()
+    )
+
+    # A payload schema-version disagreement in the actual ProgramGraph source must
+    # stop the same fresh consumer from emitting a candidate observation.
+    def persist_variant(ref: ArtifactRef, payload: object, inputs: list[InputRef]) -> ArtifactRef:
+        manifest = store.get_manifest(ref)
+        assert manifest.artifact_schema is not None
+        assert manifest.canon is not None
+        return store.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                env=manifest.env,
+                inputs=inputs,
+                canon=manifest.canon,
+                governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
+                warnings=manifest.warnings,
+            ),
+            canon_spec=CanonSpec(**manifest.canon.model_dump(mode="python")),
+            return_selected_profile=True,
+        )
+
+    simulation_edge = next(
+        edge for edge in welfare_manifest.inputs if edge.role == "simulation_result"
+    )
+    simulation_ref = _selected_ref_from_edge(store, simulation_edge)
+    simulation = _source_typed_json_model(store, SimulationResult, simulation_ref)
+    assert simulation.execution_input_basis_ref is not None
+    basis_ref = _producer_output_ref(
+        simulation.execution_input_basis_ref,
+        FoundryExecutionInputBasisRef,
+        expected_kind="foundry.execution_input_basis",
+    )
+    basis = _source_typed_json_model(store, FoundryExecutionInputBasis, basis_ref)
+    graph_ref = _producer_output_ref(
+        basis.program_graph_ref, ProgramGraphRef, expected_kind="foundry.program_graph"
+    )
+    graph = _source_typed_json_model(store, ProgramGraph, graph_ref)
+    assert graph.schema_version == "0.2"
+    assert store.get_manifest(graph_ref).artifact_schema.version == "0.2.0"
+    forged_graph_payload = graph.model_dump(mode="json") | {"schema_version": "0.3"}
+    graph_manifest = store.get_manifest(graph_ref)
+    assert graph_manifest.canon is not None
+    forged_graph_ref = persist_variant(
+        graph_ref,
+        forged_graph_payload,
+        graph_manifest.inputs,
+    )
+    forged_graph_ref = _producer_output_ref(
+        forged_graph_ref, ProgramGraphRef, expected_kind="foundry.program_graph"
+    )
+
+    with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_version_mismatch"):
+        _source_typed_json_model(store, ProgramGraph, forged_graph_ref)
+
+    exec_plan_ref = _producer_output_ref(
+        basis.exec_plan_ref, ExecPlanRef, expected_kind="foundry.exec_plan"
+    )
+    exec_plan = _source_typed_json_model(store, ExecPlan, exec_plan_ref)
+    exec_plan_manifest = store.get_manifest(exec_plan_ref)
+    forged_exec_plan_inputs = [
+        _input_edge(forged_graph_ref, role=edge.role) if edge.role == "program_graph" else edge
+        for edge in exec_plan_manifest.inputs
+    ]
+    assert sum(edge.role == "program_graph" for edge in exec_plan_manifest.inputs) == 1
+    forged_exec_plan_ref = persist_variant(
+        exec_plan_ref,
+        exec_plan.model_copy(update={"program_ref": forged_graph_ref}).model_dump(mode="json"),
+        forged_exec_plan_inputs,
+    )
+    forged_exec_plan_ref = _producer_output_ref(
+        forged_exec_plan_ref, ExecPlanRef, expected_kind="foundry.exec_plan"
+    )
+
+    basis_manifest = store.get_manifest(basis_ref)
+    basis_source_updates = {
+        "basis.source.exec_plan": forged_exec_plan_ref,
+        "basis.source.program_graph": forged_graph_ref,
+        "basis.edge.exec_plan.program_graph": forged_graph_ref,
+    }
+    forged_basis_inputs = [
+        _input_edge(basis_source_updates[edge.role], role=edge.role)
+        if edge.role in basis_source_updates
+        else edge
+        for edge in basis_manifest.inputs
+    ]
+    assert set(basis_source_updates) <= {edge.role for edge in basis_manifest.inputs}
+    forged_basis = basis.model_copy(
+        update={
+            "exec_plan_ref": forged_exec_plan_ref,
+            "program_graph_ref": forged_graph_ref,
+            "request": basis.request.model_copy(update={"exec_plan_ref": forged_exec_plan_ref}),
+        }
+    )
+    forged_basis_ref = persist_variant(
+        basis_ref,
+        forged_basis.model_dump(mode="json"),
+        forged_basis_inputs,
+    )
+    forged_basis_ref = _producer_output_ref(
+        forged_basis_ref,
+        FoundryExecutionInputBasisRef,
+        expected_kind="foundry.execution_input_basis",
+    )
+
+    simulation_manifest = store.get_manifest(simulation_ref)
+    assert simulation.exec_plan_ref is not None
+    forged_simulation_inputs = [
+        _input_edge(forged_exec_plan_ref, role=edge.role)
+        if edge.role == "exec_plan"
+        else _input_edge(forged_basis_ref, role=edge.role)
+        if edge.role == "execution_input_basis"
+        else edge
+        for edge in simulation_manifest.inputs
+    ]
+    assert sum(edge.role == "exec_plan" for edge in simulation_manifest.inputs) == 1
+    assert sum(edge.role == "execution_input_basis" for edge in simulation_manifest.inputs) == 1
+    forged_simulation = simulation.model_copy(
+        update={
+            "exec_plan_ref": forged_exec_plan_ref,
+            "execution_input_basis_ref": forged_basis_ref,
+        }
+    )
+    forged_simulation_ref = persist_variant(
+        simulation_ref,
+        forged_simulation.model_dump(mode="json"),
+        forged_simulation_inputs,
+    )
+    forged_simulation_ref = _producer_output_ref(
+        forged_simulation_ref,
+        SimulationResultRef,
+        expected_kind="foundry.simulation_result",
+    )
+    forged_welfare_inputs = [
+        _input_edge(forged_simulation_ref, role=edge.role)
+        if edge.role == "simulation_result"
+        else edge
+        for edge in welfare_manifest.inputs
+    ]
+    forged_welfare_ref = _persist_welfare_bundle_view(store, bundle, forged_welfare_inputs)
+    forged_outcome = _funnel_outcome(store, candidate_ref, forged_welfare_ref)
+
+    assert all(ref.kind != _SOURCE_KIND for ref in forged_outcome.audit_refs)
+    assert forged_outcome.current_uncertainty_envelope is None
+    assert all(
+        estimate.level == 1.0
+        for estimate in forged_outcome.uncertainty_envelope.uncertainties.values()
     )
 
 

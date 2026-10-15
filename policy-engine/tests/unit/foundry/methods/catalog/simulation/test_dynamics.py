@@ -49,6 +49,18 @@ class TestSIRCompartmental:
         assert isinstance(result, dict)
 
 
+class TestQueueDiscreteEvent:
+    def test_pure_step_constructs_and_runs_foundry_queue_state(self, isolated_registry) -> None:
+        method = _method_or_skip(isolated_registry, "simulation.discrete_event.queue@1.0.0")
+        result = method.pure_step(
+            {"queue_length": 3.0},
+            {"service_rate": 1.0, "arrival_rate": 0.5, "n_steps": 2},
+        )["result"]
+
+        assert result["initial_queue_length"] == 3.0
+        assert result["final_queue_length"] == 2.0
+
+
 class TestCanonicalDynamicalSystems:
     def test_registered(self, isolated_registry) -> None:
         method = _method_or_skip(

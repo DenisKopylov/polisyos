@@ -8,17 +8,19 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.governance.stress_scenarios import load_stress_test_report
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
 from polisyos.scientist.methods.search.judge_stack import (
     JudgeVerdict,
@@ -177,7 +179,6 @@ class BuildPolicyOutputBundleNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
         if (
@@ -303,9 +304,7 @@ class BuildPolicyOutputBundleNode:
             artifact_ref=stress_test_ref,
             artifact_key=ARTIFACT_STRESS_TEST_REPORT_REF,
             reason="stress_test_report_load_failed",
-            loader=lambda ref: StressTestReport.model_validate(
-                load_core_json_artifact(ctx.store, ref)
-            ),
+            loader=lambda ref: load_stress_test_report(ctx.store, ref),
         )
         calibration_validation_bundle = _load_optional_artifact(
             ctx,
@@ -559,7 +558,6 @@ def _resolve_candidate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> tuple[PolicyCandidateSchema | None, ArtifactRef | None]:
-    from polisyos.core.artifacts import load_core_json_artifact
     payload = state.params.get("policy_candidate_schema")
     if isinstance(payload, dict):
         return PolicyCandidateSchema.model_validate(payload), None
@@ -569,7 +567,7 @@ def _resolve_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None, None
-    bundle = TrinityBundle.model_validate(load_core_json_artifact(ctx.store, trinity_ref))
+    bundle = load_trinity_bundle_artifact(_ensure_ir_artifact_store(ctx.store), trinity_ref)
     return (
         PolicyCandidateSchema.from_trinity_bundle(
             bundle,

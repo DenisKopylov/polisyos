@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import os
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import patch
+
+import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
@@ -65,6 +68,7 @@ from polisyos.scientist.nodes.builtins.decide.build_decision_packet import Build
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     BuildPolicyOutputBundleNode,
     _dedupe_artifact_refs,
+    _resolve_candidate,
 )
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     _persist_frontier_report,
@@ -225,6 +229,65 @@ def _bundle() -> TrinityBundle:
             ],
         ),
     )
+
+
+def test_policy_output_candidate_resolution_refuses_foreign_trinity_schema(tmp_path) -> None:
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_policy_candidate_schema",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.policy-output.schema"),
+    )
+    valid_ref = store.put_json(
+        _bundle(),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    foreign_schema_ref = store.put_json(
+        _bundle(),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=TrinityBundle.ARTIFACT_SCHEMA_NAME, version="9.0"),
+        ),
+    )
+
+    valid_candidate, selected_ref = _resolve_candidate(
+        ctx,
+        ExperimentState(
+            run_id="R_policy_candidate_schema",
+            inputs={INPUT_TRINITY_BUNDLE_REF: valid_ref},
+            params={"policy_candidate_id": "policy_schema_candidate"},
+        ),
+    )
+    assert valid_candidate is not None
+    assert selected_ref == valid_ref
+    with pytest.raises(ValueError, match="manifest does not match its IR owner"):
+        _resolve_candidate(
+            ctx,
+            ExperimentState(
+                run_id="R_policy_candidate_schema",
+                inputs={INPUT_TRINITY_BUNDLE_REF: foreign_schema_ref},
+                params={"policy_candidate_id": "policy_schema_candidate"},
+            ),
+        )
 
 
 def _candidate() -> PolicyCandidateSchema:

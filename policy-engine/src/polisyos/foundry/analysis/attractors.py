@@ -12,8 +12,8 @@ from pydantic import BaseModel
 
 from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
-    read_core_json_artifact,
     read_core_manifest_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -233,7 +233,7 @@ def largest_lyapunov_exponent(
         raise ValueError("x0 must be one-dimensional")
 
     rng = np.random.default_rng(seed)
-    direction = rng.normal(size=point.shape[0])
+    direction: np.ndarray = np.asarray(rng.normal(size=point.shape[0]), dtype=float)
     direction_norm = float(np.linalg.norm(direction))
     if direction_norm <= 0.0:
         direction = np.ones(point.shape[0], dtype=float)
@@ -634,13 +634,14 @@ def _load_typed_analysis_artifact(
     """Load one selected analysis artifact through its typed kind and schema contract."""
     manifest, _declaration = read_core_manifest_profile(store, ref)
     selected_ref = _typed_analysis_ref_for_manifest(manifest, ref_type)
-    schema = manifest.artifact_schema
-    if schema is None:
-        raise ValueError("typed analysis artifact schema is absent")
-    payload = payload_type.model_validate(read_core_json_artifact(store, selected_ref).value)
-    if getattr(payload, "schema_version", None) != schema.version:
-        raise ValueError("artifact payload schema_version does not match its manifest schema")
-    return payload
+    return validate_core_model_json_artifact(payload_type, store, selected_ref)
+
+
+def _selected_artifact_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
+    """Resolve a typed artifact reference to its exact selected manifest profile."""
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected_ref = artifact_ref_for_manifest(manifest)
+    return type(ref).model_validate(selected_ref.model_dump(mode="python"))
 
 
 def persist_attractor_analysis_result(
@@ -651,8 +652,20 @@ def persist_attractor_analysis_result(
 ) -> AttractorAnalysisResultRef:
     """Persist an attractor-analysis result as a Foundry CAS artifact."""
 
+    updates: dict[str, ArtifactRef] = {}
+    for field_name in (
+        "model_ref",
+        "simulation_result_ref",
+        "exec_plan_ref",
+        "feedback_result_ref",
+    ):
+        source_ref = getattr(result, field_name)
+        if source_ref is not None:
+            updates[field_name] = _selected_artifact_ref(store, source_ref)
+    selected_result = result.model_copy(update=updates)
+
     ref = store.put_json(
-        result,
+        selected_result,
         PutOptions(
             kind=AttractorAnalysisResult.ARTIFACT_KIND,
             media_type=AttractorAnalysisResult.ARTIFACT_MEDIA_TYPE,
@@ -661,13 +674,14 @@ def persist_attractor_analysis_result(
                 version=AttractorAnalysisResult.ARTIFACT_SCHEMA_VERSION,
             ),
             inputs=[
-                *_result_input_refs(result),
+                *_result_input_refs(selected_result),
                 *_coerce_input_refs(extra_inputs, role_prefix="extra"),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return AttractorAnalysisResultRef(artifact_id=ref.artifact_id)
+    return AttractorAnalysisResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def attach_abm_bifurcation_report_ref(
@@ -678,16 +692,47 @@ def attach_abm_bifurcation_report_ref(
 ) -> ABMResultRef:
     """Persist an exact Phase-4 ``ABMResult`` with bifurcation report populated."""
 
-    simulation_result = SimulationResult.model_validate(
-        read_core_json_artifact(store, simulation_result_ref).value
+    selected_simulation_ref = SimulationResultRef.model_validate(
+        _selected_artifact_ref(store, simulation_result_ref).model_dump(mode="python")
     )
-    analysis = load_attractor_analysis_result(store, attractor_analysis_ref)
-    abm_result = build_abm_result_from_simulation(
-        simulation_result,
-        attractor_analysis_ref=attractor_analysis_ref,
-        bifurcation_count=len(analysis.bifurcations),
-        attractor_count=len(analysis.attractors),
+    simulation_result = validate_core_model_json_artifact(
+        SimulationResult,
+        store,
+        selected_simulation_ref,
     )
+
+    analysis_manifest, _declaration = read_core_manifest_profile(store, attractor_analysis_ref)
+    selected_analysis_ref = _typed_analysis_ref_for_manifest(
+        analysis_manifest,
+        AttractorAnalysisResultRef,
+    )
+    analysis = load_attractor_analysis_result(store, selected_analysis_ref)
+    if analysis.simulation_result_ref is None or (
+        analysis.simulation_result_ref.artifact_id != selected_simulation_ref.artifact_id
+        or analysis.simulation_result_ref.manifest_profile_sha256
+        != selected_simulation_ref.manifest_profile_sha256
+    ):
+        raise ValueError("attractor analysis is not bound to this selected simulation")
+    simulation_inputs = [
+        item for item in analysis_manifest.inputs if item.role == "simulation_result_ref"
+    ]
+    if len(simulation_inputs) != 1 or (
+        simulation_inputs[0].artifact_id != selected_simulation_ref.artifact_id
+        or simulation_inputs[0].manifest_profile_sha256
+        != selected_simulation_ref.manifest_profile_sha256
+    ):
+        raise ValueError("attractor manifest lineage differs from its selected simulation")
+
+    abm_result = build_abm_result_from_simulation(simulation_result)
+    abm_payload = abm_result.model_dump(mode="python")
+    abm_payload["bifurcation_report"] = {
+        "status": "available",
+        "attractor_analysis_ref": selected_analysis_ref.model_dump(mode="python"),
+        "bifurcation_count": len(analysis.bifurcations),
+        "attractor_count": len(analysis.attractors),
+        "summary": "CAS-resolved attractor analysis matches the selected simulation",
+    }
+    abm_result = type(abm_result).model_validate(abm_payload)
     ref = store.put_json(
         abm_result,
         PutOptions(
@@ -696,24 +741,21 @@ def attach_abm_bifurcation_report_ref(
             schema=SchemaInfo(name="polisyos.ir.ABMResult", version="1.0"),
             inputs=[
                 InputRef(
-                    artifact_id=simulation_result_ref.artifact_id,
+                    artifact_id=selected_simulation_ref.artifact_id,
                     role="artifact.simulation_result_ref",
+                    manifest_profile_sha256=selected_simulation_ref.manifest_profile_sha256,
                 ),
                 InputRef(
-                    artifact_id=attractor_analysis_ref.artifact_id,
+                    artifact_id=selected_analysis_ref.artifact_id,
                     role="artifact.attractor_analysis_result_ref",
+                    manifest_profile_sha256=selected_analysis_ref.manifest_profile_sha256,
                 ),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return ABMResultRef.model_validate(
-        {
-            "artifact_id": ref.artifact_id,
-            "kind": "ir.abm_result",
-            "media_type": "application/json",
-        }
-    )
+    return ABMResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def load_attractor_analysis_result(
@@ -851,7 +893,7 @@ def _effective_tolerance(tail: np.ndarray, *, tolerance: float, rtol: float) -> 
 def _row_inf_norm(values: np.ndarray) -> np.ndarray:
     if values.size == 0:
         return np.asarray([], dtype=float)
-    return np.max(np.abs(values), axis=1)
+    return np.asarray(np.max(np.abs(values), axis=1), dtype=float)
 
 
 def _fixed_residual(tail: np.ndarray) -> float:
@@ -914,7 +956,10 @@ def _renormalize_log_norm(direction: np.ndarray) -> float:
 def _safe_unit(direction: np.ndarray) -> np.ndarray:
     norm = float(np.linalg.norm(direction))
     if norm <= 0.0 or not np.isfinite(norm):
-        return np.ones(direction.shape[0], dtype=float) / np.sqrt(float(direction.shape[0]))
+        return np.asarray(
+            np.ones(direction.shape[0], dtype=float) / np.sqrt(float(direction.shape[0])),
+            dtype=float,
+        )
     return direction / norm
 
 
@@ -1240,7 +1285,13 @@ def _result_input_refs(result: AttractorAnalysisResult) -> list[InputRef]:
         ("feedback_result_ref", result.feedback_result_ref),
     ]
     return [
-        InputRef(artifact_id=ref.artifact_id, role=role) for role, ref in refs if ref is not None
+        InputRef(
+            artifact_id=ref.artifact_id,
+            role=role,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
+        )
+        for role, ref in refs
+        if ref is not None
     ]
 
 
@@ -1258,6 +1309,7 @@ def _coerce_input_refs(
                 InputRef(
                     artifact_id=ref.artifact_id,
                     role=f"{role_prefix}:{ref.kind}:{index}",
+                    manifest_profile_sha256=ref.manifest_profile_sha256,
                 )
             )
     return coerced

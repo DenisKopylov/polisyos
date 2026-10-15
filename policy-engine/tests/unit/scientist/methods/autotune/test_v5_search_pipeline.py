@@ -16,6 +16,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.foundry.methods import (
     ComplexityClass,
     ComputeBackend,
@@ -28,6 +29,7 @@ from polisyos.foundry.methods import (
     SlotType,
     Unit,
 )
+from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -56,6 +58,7 @@ from polisyos.scientist.methods.autotune.runtime import (
     MethodJobBenchmarkEvaluator,
     PydanticMutationCodec,
     _build_search_method_run_profile,
+    _method_request_matches_search_run_profile,
     _persist_search_benchmark_evaluation,
     _search_source_fingerprint,
     _verify_search_source_profile_receipt,
@@ -176,6 +179,144 @@ def _persist_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactRef]:
         inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
     )
     return candidate_ref, suite_ref
+
+
+def test_search_profile_readers_require_selected_data_snapshot_owner_schema(tmp_path) -> None:
+    _register_method()
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_snapshot_schema_suite", kind="method_job"),
+    )
+    candidate_ref = persist_mutation_artifact(
+        store,
+        _V5Mutation(value=0.25),
+        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+    )
+    data_ref = store.put_json(
+        {"X": [[0.1], [0.2]]},
+        ArtifactWriteOptions(
+            kind="scientist.method_dataset",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.SearchMethodDataset", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    def persist_snapshot(schema_version: str) -> ArtifactRef:
+        return store.put_json(
+            DataSnapshot(data_ref=data_ref),
+            ArtifactWriteOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=schema_version,
+                ),
+                inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+
+    valid_snapshot_ref = persist_snapshot(DataSnapshot.ARTIFACT_SCHEMA_VERSION)
+    foreign_schema_snapshot_ref = persist_snapshot("9.0")
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=_V5ScoreMethod.signature.fqn,
+        method_version=_V5ScoreMethod.signature.version,
+        candidate_input_bindings={},
+        data_snapshot_bindings={"value": "X"},
+        split=BenchmarkSplit.SELECTION,
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        n_initial=2,
+        seed=101,
+    )
+    valid_context = {
+        "policy_context": {"case": "selected_data_snapshot"},
+        "data_snapshot_ref": valid_snapshot_ref,
+    }
+    generator.set_search_run_context(valid_context)
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=evaluator,
+        promotion_policy=_policy(),
+    )
+    profile = _build_search_method_run_profile(
+        store=store,
+        generator=generator,
+        spec=spec,
+        suite_ref=suite_ref,
+        context=valid_context,
+    )
+    assert profile is not None
+    assert profile.data_snapshot_ref == valid_snapshot_ref
+    assert profile.data_ref == data_ref
+
+    job_spec = JobSpec(
+        job_kind="method",
+        method_fqn=profile.method_fqn,
+        method_version=profile.method_version,
+        seed=profile.method_seed,
+        input_refs={
+            "candidate": candidate_ref,
+            "benchmark_suite": suite_ref,
+            "data_snapshot": valid_snapshot_ref,
+            "data": data_ref,
+        },
+    )
+
+    def request_receipt(snapshot_ref: ArtifactRef) -> dict[str, object]:
+        updated_job_spec = job_spec.model_copy(
+            update={
+                "input_refs": {
+                    **job_spec.input_refs,
+                    "data_snapshot": snapshot_ref,
+                }
+            }
+        )
+        return {
+            "candidate_ref": candidate_ref.model_dump(mode="json"),
+            "suite_ref": suite_ref.model_dump(mode="json"),
+            "method_request_basis": {
+                "schema_version": "1",
+                "job_spec": updated_job_spec.model_dump(mode="json", exclude_none=True),
+                "candidate_ref": candidate_ref.model_dump(mode="json"),
+                "suite_ref": suite_ref.model_dump(mode="json"),
+                "candidate_input_bindings": {},
+                "data_snapshot_bindings": {"value": "X"},
+                "primary_metric": "score",
+                "direction": "maximize",
+                "split": "selection",
+                "unit": None,
+            },
+        }
+
+    evaluation = BenchmarkEvaluation(
+        loop_id=profile.loop_id,
+        suite_id="v5_snapshot_schema_suite",
+        candidate_ref=candidate_ref,
+    )
+    valid_receipt = request_receipt(valid_snapshot_ref)
+    assert _method_request_matches_search_run_profile(
+        reader=FileSystemCAS(tmp_path / "cas"),
+        evaluation=evaluation,
+        receipt=valid_receipt,
+        run_profile=profile,
+    )
+
+    foreign_profile = profile.model_copy(update={"data_snapshot_ref": foreign_schema_snapshot_ref})
+    foreign_receipt = request_receipt(foreign_schema_snapshot_ref)
+    assert not _method_request_matches_search_run_profile(
+        reader=FileSystemCAS(tmp_path / "cas"),
+        evaluation=evaluation,
+        receipt=foreign_receipt,
+        run_profile=foreign_profile,
+    )
 
 
 def _selected_evaluation_ref(stage_b: dict[str, Any]) -> ArtifactRef:

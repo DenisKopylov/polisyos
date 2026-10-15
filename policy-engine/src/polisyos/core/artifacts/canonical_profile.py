@@ -9,7 +9,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Annotated, Any, Literal, TypeVar, Union, get_args, get_origin
 
-from pydantic import BaseModel, RootModel, TypeAdapter, ValidationError
+from pydantic import BaseModel, ConfigDict, RootModel, TypeAdapter, ValidationError
 from pydantic.errors import PydanticUserError
 
 from polisyos.common.canonical_profile import (
@@ -50,6 +50,27 @@ def _core_spec(profile: CanonInfo) -> CanonSpec:
         separators=profile.separators,
         ensure_ascii=profile.ensure_ascii,
     )
+
+
+def _core_spec_from_profile(profile: BaseModel) -> object:
+    """Adapt the shared profile callback to Core's concrete profile model."""
+    if not isinstance(profile, CanonInfo):
+        raise TypeError("Core canonicalization requires CanonInfo")
+    return _core_spec(profile)
+
+
+def _encode_core_profiled_value(value: Any, spec: object) -> bytes:
+    """Encode only with the concrete Core spec built from its selected profile."""
+    if not isinstance(spec, CanonSpec):
+        raise TypeError("Core canonicalization requires CanonSpec")
+    return to_canonical_bytes(value, spec)
+
+
+def _require_exact_bytes(value: object, refusal_code: str) -> bytes:
+    """Narrow an untyped storage result only after checking its runtime type."""
+    if type(value) is not bytes:
+        raise CanonicalProfileRefusalError(refusal_code)
+    return value
 
 
 def read_core_manifest_profile(
@@ -150,9 +171,9 @@ def decode_core_json_payload(
         raw_payload_bytes,
         declaration,
         profile_model=CanonInfo,
-        make_spec=_core_spec,
+        make_spec=_core_spec_from_profile,
         decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
-        encode=lambda value, spec: to_canonical_bytes(value, spec),
+        encode=_encode_core_profiled_value,
     )
     return read
 
@@ -213,9 +234,9 @@ def read_core_json_artifact(
         raw_payload_bytes,
         declaration,
         profile_model=CanonInfo,
-        make_spec=_core_spec,
+        make_spec=_core_spec_from_profile,
         decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
-        encode=lambda value, spec: to_canonical_bytes(value, spec),
+        encode=_encode_core_profiled_value,
     )
     return _bind_selected_artifact_identity(
         read,
@@ -280,7 +301,7 @@ def _without_annotated(annotation: Any) -> Any:
         return annotation
 
 
-def _core_type_adapter(annotation: Any, model_config: object) -> TypeAdapter[Any]:
+def _core_type_adapter(annotation: Any, model_config: ConfigDict) -> TypeAdapter[Any]:
     """Build the public Pydantic adapter with the owning model's JSON settings."""
     annotation = _without_annotated(annotation)
     try:
@@ -384,14 +405,16 @@ def _core_schema_union_model_types(schema: Any) -> tuple[type[BaseModel], ...]:
         return ()
     choices = schema.get("choices")
     if isinstance(choices, Mapping):
-        branches = choices.values()
+        branch_values = tuple(choices.values())
     elif isinstance(choices, (tuple, list)):
-        branches = (choice[0] if isinstance(choice, tuple) else choice for choice in choices)
+        branch_values = tuple(
+            choice[0] if isinstance(choice, tuple) else choice for choice in choices
+        )
     else:
         return ()
 
     models: list[type[BaseModel]] = []
-    for branch in branches:
+    for branch in branch_values:
         model = _core_schema_model_type(branch, definitions)
         if model is not None and model not in models:
             models.append(model)
@@ -580,7 +603,7 @@ def _contains_base_model(annotation: Any) -> bool:
 def _core_typed_value(
     annotation: Any,
     value: Any,
-    model_config: object,
+    model_config: ConfigDict,
     *,
     discriminator: Any = None,
 ) -> Any:
@@ -632,11 +655,14 @@ def _core_typed_value(
     if origin is tuple and isinstance(value, (list, tuple)):
         if len(args) == 2 and args[1] is Ellipsis:
             item_annotations = (args[0],) * len(value)
+            valid_shape = True
         elif len(args) == len(value):
             item_annotations = args
+            valid_shape = True
         else:
             item_annotations = ()
-        if item_annotations or not args:
+            valid_shape = False
+        if valid_shape:
             candidate = tuple(
                 _core_typed_value(
                     item_annotation,
@@ -650,15 +676,19 @@ def _core_typed_value(
 
     if isinstance(origin, type) and issubclass(origin, Sequence) and isinstance(value, list):
         item_annotation = args[0] if args else Any
-        candidate = [
+        sequence_candidate = [
             _core_typed_value(item_annotation, item, model_config, discriminator=discriminator)
             for item in value
         ]
-        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+        return (
+            sequence_candidate
+            if contains_model
+            else adapter.validate_python(sequence_candidate, strict=True)
+        )
 
     if isinstance(origin, type) and issubclass(origin, Mapping) and isinstance(value, Mapping):
         key_annotation, item_annotation = args if len(args) == 2 else (Any, Any)
-        candidate = {
+        mapping_candidate = {
             _core_typed_value(
                 key_annotation, key, model_config, discriminator=discriminator
             ): _core_typed_value(
@@ -669,7 +699,11 @@ def _core_typed_value(
             )
             for key, item in value.items()
         }
-        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+        return (
+            mapping_candidate
+            if contains_model
+            else adapter.validate_python(mapping_candidate, strict=True)
+        )
 
     if origin in (set, frozenset) and isinstance(value, (list, tuple, set, frozenset)):
         item_annotation = args[0] if args else Any
@@ -677,8 +711,10 @@ def _core_typed_value(
             _core_typed_value(item_annotation, item, model_config, discriminator=discriminator)
             for item in value
         )
-        candidate = set(items) if origin is set else frozenset(items)
-        return candidate if contains_model else adapter.validate_python(candidate, strict=True)
+        set_candidate = set(items) if origin is set else frozenset(items)
+        return (
+            set_candidate if contains_model else adapter.validate_python(set_candidate, strict=True)
+        )
 
     if contains_model:
         return value
@@ -713,15 +749,97 @@ def validate_core_model_json_artifact(
     manifest_profile_sha256: str | None = None,
 ) -> _ModelT:
     """Strictly validate a Pydantic model after selected-profile byte admission."""
+    manifest, _declaration = read_core_manifest_profile(
+        store,
+        selector,
+        manifest_profile_sha256=manifest_profile_sha256,
+    )
+    selected_profile_sha256 = artifact_manifest_profile_sha256(manifest)
+    _validate_model_artifact_manifest(model, manifest)
     read = read_core_json_artifact(
         store,
         selector,
         raw_payload_bytes=raw_payload_bytes,
-        manifest_profile_sha256=manifest_profile_sha256,
+        manifest_profile_sha256=selected_profile_sha256,
     )
     value = require_declared_profile(read)
     normalized = _core_model_payload(model, value)
-    return model.model_validate(normalized, strict=True, by_alias=False, by_name=True)
+    typed_model = model.model_validate(normalized, strict=True, by_alias=False, by_name=True)
+    _validate_model_payload_schema_version(model, typed_model, manifest)
+    return typed_model
+
+
+def _validate_model_artifact_manifest(model: type[BaseModel], manifest: ArtifactManifest) -> None:
+    """Require a declared typed-artifact owner ABI to match its selected manifest."""
+    expected_kind = getattr(model, "ARTIFACT_KIND", None)
+    if expected_kind is not None and manifest.kind != expected_kind:
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_kind_mismatch")
+
+    expected_media_type = getattr(model, "ARTIFACT_MEDIA_TYPE", None)
+    if expected_media_type is not None and manifest.media_type != expected_media_type:
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_media_type_mismatch")
+
+    expected_schema_name = getattr(model, "ARTIFACT_SCHEMA_NAME", None)
+    expected_schema_version = getattr(model, "ARTIFACT_SCHEMA_VERSION", None)
+    schema = manifest.artifact_schema
+    if expected_schema_name is not None and (schema is None or schema.name != expected_schema_name):
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_name_mismatch")
+
+    if expected_schema_version is not None:
+        if not isinstance(expected_schema_version, str) or not expected_schema_version:
+            raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+        if schema is None:
+            raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_missing")
+        supported_versions = {expected_schema_version}
+        legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
+        if legacy_version is not None:
+            if not isinstance(legacy_version, str) or not legacy_version:
+                raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+            supported_versions.add(legacy_version)
+        if schema.version not in supported_versions:
+            raise CanonicalProfileRefusalError(
+                "canon_profile_typed_artifact_schema_version_unsupported"
+            )
+
+
+def _validate_model_payload_schema_version(
+    model: type[BaseModel],
+    typed_model: BaseModel,
+    manifest: ArtifactManifest,
+) -> None:
+    """Require payload and selected schema versions to follow the owner's exact relation."""
+    if "schema_version" not in model.model_fields:
+        return
+    current_version = getattr(model, "ARTIFACT_SCHEMA_VERSION", None)
+    if current_version is None:
+        return
+    if not isinstance(current_version, str) or not current_version:
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+    schema = manifest.artifact_schema
+    if schema is None:
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_version_mismatch")
+    supported_manifest_versions = {current_version}
+    legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
+    if legacy_version is not None:
+        supported_manifest_versions.add(legacy_version)
+    if schema.version not in supported_manifest_versions:
+        raise CanonicalProfileRefusalError(
+            "canon_profile_typed_artifact_schema_version_unsupported"
+        )
+    version_map = getattr(model, "ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST", {})
+    if not isinstance(version_map, Mapping) or any(
+        not isinstance(manifest_version, str)
+        or not manifest_version
+        or not isinstance(payload_version, str)
+        or not payload_version
+        or manifest_version not in supported_manifest_versions
+        for manifest_version, payload_version in version_map.items()
+    ):
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+    expected_payload_version = version_map.get(schema.version, schema.version)
+    payload_version = getattr(typed_model, "schema_version", None)
+    if not isinstance(payload_version, str) or payload_version != expected_payload_version:
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_version_mismatch")
 
 
 def _split_core_json_frames(payload: bytes) -> list[bytes]:
@@ -769,9 +887,9 @@ def load_core_json_frame_records(
             raw_record,
             declaration,
             profile_model=CanonInfo,
-            make_spec=_core_spec,
+            make_spec=_core_spec_from_profile,
             decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
-            encode=lambda value, spec: to_canonical_bytes(value, spec),
+            encode=_encode_core_profiled_value,
         )
         values.append(require_declared_profile(read))
     return values
@@ -796,7 +914,9 @@ async def aload_core_json_artifact(
 
     selected_profile = getattr(selector, "manifest_profile_sha256", None)
     try:
-        raw_manifest = await raw_reader(selector)
+        raw_manifest = _require_exact_bytes(
+            await raw_reader(selector), "canon_profile_raw_manifest_invalid"
+        )
         declaration = parse_canonical_profile(
             raw_manifest,
             profile_model=CanonInfo,
@@ -805,7 +925,9 @@ async def aload_core_json_artifact(
         if declaration.status != "declared":
             raise CanonicalProfileRefusalError("canon_profile_not_verified")
         manifest = await manifest_reader(selector)
-        payload = await payload_reader(selector)
+        payload = _require_exact_bytes(
+            await payload_reader(selector), "canon_profile_payload_bytes_invalid"
+        )
     except (AttributeError, NotImplementedError, TypeError) as exc:
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable") from exc
 

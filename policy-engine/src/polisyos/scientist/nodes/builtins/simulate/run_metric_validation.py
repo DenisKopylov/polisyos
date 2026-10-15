@@ -23,6 +23,7 @@ from polisyos.core.contracts.scientist import (
     MetricValidationReportRef as CoreMetricValidationReportRef,
 )
 from polisyos.ir.analytics.metric_validation_report import persist_metric_validation_report
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
@@ -163,7 +164,7 @@ class RunMetricValidationNode:
                 ],
             )
 
-        bundle = load_metric_observation_bundle(ctx.store, bundle_ref)
+        bundle = load_metric_observation_bundle(_ensure_ir_artifact_store(ctx.store), bundle_ref)
         baseline_model_id = _resolve_baseline_model_id(bundle, config)
         if baseline_model_id is None:
             return NodeOutcome(
@@ -225,12 +226,20 @@ class RunMetricValidationNode:
             _ensure_ir_artifact_store(ctx.store),
             report,
             inputs=[
-                InputRef(artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"),
-                InputRef(
-                    artifact_id=str(simulation_result_ref.artifact_id), role="simulation_result"
+                IRInputRef(
+                    artifact_id=str(bundle_ref.artifact_id),
+                    role="metric_observation_bundle",
+                    manifest_profile_sha256=bundle_ref.manifest_profile_sha256,
                 ),
-                InputRef(
-                    artifact_id=str(simulation_result.metrics_ref.artifact_id), role="metrics"
+                IRInputRef(
+                    artifact_id=str(simulation_result_ref.artifact_id),
+                    role="simulation_result",
+                    manifest_profile_sha256=simulation_result_ref.manifest_profile_sha256,
+                ),
+                IRInputRef(
+                    artifact_id=str(simulation_result.metrics_ref.artifact_id),
+                    role="metrics",
+                    manifest_profile_sha256=simulation_result.metrics_ref.manifest_profile_sha256,
                 ),
             ],
         )
@@ -244,28 +253,62 @@ class RunMetricValidationNode:
                 "metric_validation_report_ref": report_ref,
             }
         )
+        return_selected_profile = (
+            simulation_result_ref.manifest_profile_sha256 is not None
+            or updated_simulation_result.schema_version == SimulationResult.ARTIFACT_SCHEMA_VERSION
+        )
+        update_inputs = [
+            InputRef(
+                artifact_id=str(simulation_result_ref.artifact_id),
+                role="base_simulation_result",
+                manifest_profile_sha256=simulation_result_ref.manifest_profile_sha256,
+            ),
+            InputRef(
+                artifact_id=str(bundle_ref.artifact_id),
+                role="metric_observation_bundle",
+                manifest_profile_sha256=bundle_ref.manifest_profile_sha256,
+            ),
+            InputRef(
+                artifact_id=str(report_ref.artifact_id),
+                role="metric_validation_report",
+                manifest_profile_sha256=report_ref.manifest_profile_sha256,
+            ),
+        ]
+        if updated_simulation_result.execution_input_basis_ref is not None:
+            update_inputs.append(
+                InputRef(
+                    artifact_id=updated_simulation_result.execution_input_basis_ref.artifact_id,
+                    role="execution_input_basis",
+                    manifest_profile_sha256=(
+                        updated_simulation_result.execution_input_basis_ref.manifest_profile_sha256
+                    ),
+                )
+            )
+        if updated_simulation_result.feedback_result_ref is not None:
+            update_inputs.append(
+                InputRef(
+                    artifact_id=updated_simulation_result.feedback_result_ref.artifact_id,
+                    role="artifact.feedback_result_ref",
+                    manifest_profile_sha256=(
+                        updated_simulation_result.feedback_result_ref.manifest_profile_sha256
+                    ),
+                )
+            )
         updated_simulation_result_payload = ctx.store.put_json(
-            updated_simulation_result,
+            updated_simulation_result.to_artifact_payload(),
             PutOptions(
                 kind="foundry.simulation_result",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
-                inputs=[
-                    InputRef(
-                        artifact_id=str(simulation_result_ref.artifact_id),
-                        role="base_simulation_result",
-                    ),
-                    InputRef(
-                        artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"
-                    ),
-                    InputRef(
-                        artifact_id=str(report_ref.artifact_id), role="metric_validation_report"
-                    ),
-                ],
+                schema=SchemaInfo(
+                    name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                    version=updated_simulation_result.schema_version,
+                ),
+                inputs=update_inputs,
             ),
+            return_selected_profile=return_selected_profile,
         )
-        updated_simulation_result_ref = SimulationResultRef(
-            artifact_id=updated_simulation_result_payload.artifact_id
+        updated_simulation_result_ref = SimulationResultRef.model_validate(
+            updated_simulation_result_payload.model_dump(mode="python")
         )
 
         new_state = branch_state(state, write_paths=("artifacts_index",)).state
@@ -310,6 +353,7 @@ def _load_config(payload: Any) -> MetricValidationNodeConfig:
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls: type[Any]) -> Any:
     from polisyos.core.artifacts import validate_core_model_json_artifact
+
     return validate_core_model_json_artifact(model_cls, ctx.store, ref)
 
 
@@ -333,10 +377,10 @@ def _resolve_observation_bundle_ref(
             else MetricObservationBundle.model_validate(config.observation_bundle)
         )
         ref = persist_metric_observation_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=[
-                InputRef(
+                IRInputRef(
                     artifact_id=str(simulation_result.metrics_ref.artifact_id),
                     role="metrics",
                 )

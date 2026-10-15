@@ -34,7 +34,14 @@ from polisyos.core.artifacts import (
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    MetricsRef,
+    ProgramGraph,
+    SimulationResult,
+)
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -61,6 +68,11 @@ from polisyos.ir.trinity import TrinityBundle
 class _Payload(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     value: int
+
+
+class _NestedTuplePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    values: tuple[tuple[str, ...], ...]
 
 
 def _profiled_json_store(tmp_path, payload: object):
@@ -106,6 +118,228 @@ def test_core_json_facade_returns_only_profile_conformant_selected_values(tmp_pa
     assert read_core_json_artifact_bytes(store, ref) == raw
     assert load_core_json_artifact(store, ref) == {"value": 7}
     assert validate_core_model_json_artifact(_Payload, store, ref) == _Payload(value=7)
+
+
+def test_typed_core_reader_reifies_empty_nested_variadic_tuples(tmp_path) -> None:
+    store, ref, _raw = _profiled_json_store(tmp_path, {"values": []})
+
+    assert validate_core_model_json_artifact(_NestedTuplePayload, store, ref) == (
+        _NestedTuplePayload(values=())
+    )
+
+
+def _simulation_result_for_artifact_version(version: str) -> SimulationResult:
+    return SimulationResult(
+        schema_version=version,
+        exec_plan_ref=ExecPlanRef(artifact_id=f"sha256:{'a' * 64}"),
+        metrics_ref=MetricsRef(artifact_id=f"sha256:{'b' * 64}"),
+    )
+
+
+def _put_simulation_result_view(
+    store: FileSystemCAS,
+    result: SimulationResult,
+    *,
+    schema_name: str | None = None,
+    schema_version: str | None = None,
+    kind: str | None = None,
+    media_type: str | None = None,
+):
+    payload = result.to_artifact_payload()
+    spec = CanonSpec(forbid_floats=False)
+    options = PutOptions(
+        kind=kind or SimulationResult.ARTIFACT_KIND,
+        media_type=media_type or SimulationResult.ARTIFACT_MEDIA_TYPE,
+        schema=SchemaInfo(
+            name=schema_name or SimulationResult.ARTIFACT_SCHEMA_NAME,
+            version=schema_version or result.schema_version,
+        ),
+        canon=CanonInfo.from_spec(spec),
+    )
+    if media_type is not None and media_type != "application/json":
+        return store.put_bytes(
+            to_canonical_bytes(payload, spec),
+            options,
+            return_selected_profile=True,
+        )
+    return store.put_json(
+        payload,
+        options,
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+
+@pytest.mark.parametrize("version", ["1.3", "1.4"])
+def test_typed_core_reader_accepts_only_owner_supported_simulation_versions(
+    tmp_path, version
+) -> None:
+    store = FileSystemCAS(tmp_path / f"simulation-{version}")
+    result = _simulation_result_for_artifact_version(version)
+    ref = _put_simulation_result_view(store, result)
+
+    restored = validate_core_model_json_artifact(SimulationResult, store, ref)
+
+    assert restored == result
+    assert restored.schema_version == version
+    assert ref.manifest_profile_sha256 is not None
+
+
+@pytest.mark.parametrize(
+    ("payload_version", "manifest_name", "manifest_version", "kind", "media_type", "reason"),
+    [
+        pytest.param(
+            "1.3",
+            "polisyos.other.SimulationResult",
+            "1.3",
+            None,
+            None,
+            "canon_profile_typed_artifact_schema_name_mismatch",
+            id="wrong-schema-name",
+        ),
+        pytest.param(
+            "1.3",
+            None,
+            "9.0",
+            None,
+            None,
+            "canon_profile_typed_artifact_schema_version_unsupported",
+            id="unsupported-version",
+        ),
+        pytest.param(
+            "1.3",
+            None,
+            "1.4",
+            None,
+            None,
+            "canon_profile_typed_artifact_schema_version_mismatch",
+            id="payload-version-mismatch",
+        ),
+        pytest.param(
+            "1.3",
+            None,
+            None,
+            "foundry.metrics",
+            None,
+            "canon_profile_typed_artifact_kind_mismatch",
+            id="wrong-kind",
+        ),
+        pytest.param(
+            "1.3",
+            None,
+            None,
+            None,
+            "application/jsonl",
+            "canon_profile_typed_artifact_media_type_mismatch",
+            id="wrong-media-type",
+        ),
+    ],
+)
+def test_typed_core_reader_refuses_simulation_schema_contract_drift(
+    tmp_path,
+    payload_version,
+    manifest_name,
+    manifest_version,
+    kind,
+    media_type,
+    reason,
+) -> None:
+    store = FileSystemCAS(tmp_path / reason)
+    result = _simulation_result_for_artifact_version(payload_version)
+    ref = _put_simulation_result_view(
+        store,
+        result,
+        schema_name=manifest_name,
+        schema_version=manifest_version,
+        kind=kind,
+        media_type=media_type,
+    )
+
+    with pytest.raises(CanonicalProfileRefusalError, match=reason):
+        validate_core_model_json_artifact(SimulationResult, store, ref)
+
+
+def test_typed_core_reader_refuses_a_different_selected_manifest_profile(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "simulation-wrong-profile")
+    result = _simulation_result_for_artifact_version("1.3")
+    ref = _put_simulation_result_view(store, result)
+    wrong_profile_ref = ref.model_copy(update={"manifest_profile_sha256": f"sha256:{'c' * 64}"})
+
+    with pytest.raises(FileNotFoundError):
+        validate_core_model_json_artifact(SimulationResult, store, wrong_profile_ref)
+
+
+def _put_program_graph_view(
+    tmp_path,
+    payload: ProgramGraph,
+    *,
+    manifest_version: str | None = None,
+):
+    store = FileSystemCAS(tmp_path / "program-graph-cas")
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=manifest_version or ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
+            canon=CanonInfo.from_spec(spec),
+        ),
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+    return store, artifact_ref_for_manifest(store.get_manifest(ref))
+
+
+def _program_graph_payload(*, payload_version: str = "0.2") -> ProgramGraph:
+    return ProgramGraph(
+        schema_version=payload_version,
+        ir_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.policy_spec",
+            media_type="application/json",
+        ),
+    )
+
+
+def test_typed_core_reader_preserves_program_graph_owner_version_mapping(tmp_path) -> None:
+    program_graph = _program_graph_payload()
+    store, selected_ref = _put_program_graph_view(tmp_path, program_graph)
+
+    restored = validate_core_model_json_artifact(ProgramGraph, store, selected_ref)
+
+    assert restored == program_graph
+    assert selected_ref.manifest_profile_sha256 is not None
+
+
+def test_typed_core_reader_refuses_program_graph_payload_version_drift(tmp_path) -> None:
+    store, selected_ref = _put_program_graph_view(
+        tmp_path,
+        _program_graph_payload(payload_version="0.3"),
+    )
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        validate_core_model_json_artifact(ProgramGraph, store, selected_ref)
+
+
+def test_typed_core_reader_refuses_unsupported_program_graph_manifest_version(tmp_path) -> None:
+    store, selected_ref = _put_program_graph_view(
+        tmp_path,
+        _program_graph_payload(),
+        manifest_version="9.0",
+    )
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        validate_core_model_json_artifact(ProgramGraph, store, selected_ref)
 
 
 def test_core_json_missing_profile_is_refused_before_selected_semantics(
@@ -541,9 +775,12 @@ def _write_selected_trinity(tmp_path, payload: object):
     ref = store.put_json(
         payload,
         PutOptions(
-            kind="polisyos.ir.TrinityBundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
             canon=CanonInfo.from_spec(spec),
         ),
         canon_spec=spec,

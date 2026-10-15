@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import Literal
 
 import pytest
+from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import artifact_ref_for_manifest
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -55,6 +58,32 @@ from polisyos.ir.registry.refs import (
     SimulationProofBridgeRef,
 )
 from polisyos.ir.trinity import TrinityBundle
+
+
+class _StrictSimulationResultV13(BaseModel):
+    """Independent strict reader for the pre-1.4 SimulationResult wire shape."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["1.3"]
+    exec_plan_ref: dict[str, object]
+    metrics_ref: dict[str, object]
+    metric_observation_bundle_ref: dict[str, object] | None = None
+    state_snapshot_ref: dict[str, object] | None = None
+    environment_ref: dict[str, object] | None = None
+    environment_fingerprint: str | None = None
+    trace_slice_ref: dict[str, object] | None = None
+    uncertainty_envelopes: dict[str, object] | None = None
+    distributional_report_ref: dict[str, object] | None = None
+    welfare_bundle_ref: dict[str, object] | None = None
+    welfare_bound_refs: dict[str, object] | None = None
+    metric_validation_report_ref: dict[str, object] | None = None
+    fairness_audit_report_ref: dict[str, object] | None = None
+    propagation_config_ref: dict[str, object] | None = None
+    propagation_report_ref: dict[str, object] | None = None
+    feedback_result_ref: dict[str, object] | None = None
+    identifiability_diagnostic_ref: dict[str, object] | None = None
+    notes: list[str] = Field(default_factory=list)
 
 
 def _produce_real_foundry_simulation(store: FileSystemCAS):
@@ -133,6 +162,90 @@ def _produce_real_foundry_simulation(store: FileSystemCAS):
         from_canonical_bytes(store.get_bytes(result.simulation_result_ref.artifact_id))
     )
     return result.simulation_result_ref, simulation.metrics_ref
+
+
+def test_real_foundry_legacy_artifact_remains_readable_and_limited_in_ir_bridge(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref, metrics_ref = _produce_real_foundry_simulation(store)
+
+    manifest = store.get_manifest(simulation_ref)
+    payload = from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))
+    legacy_reader = _StrictSimulationResultV13.model_validate(payload)
+
+    assert manifest.artifact_schema.version == "1.3"
+    assert legacy_reader.schema_version == "1.3"
+    assert "execution_input_basis_ref" not in payload
+    assert "execution_source_status" not in payload
+
+    selected_simulation_ref = artifact_ref_for_manifest(store.get_manifest(simulation_ref))
+    selected_metrics_ref = artifact_ref_for_manifest(store.get_manifest(metrics_ref))
+    profileless_simulation_ref = type(simulation_ref)(artifact_id=simulation_ref.artifact_id)
+    profileless_metrics_ref = type(metrics_ref)(artifact_id=metrics_ref.artifact_id)
+
+    output = build_simulation_proof_bridge_artifacts(
+        _ensure_ir_artifact_store(store),
+        run_id="R_real_foundry_legacy_projection",
+        simulation_result_ref=selected_simulation_ref,
+        metrics_ref=selected_metrics_ref,
+    )
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
+
+    assert receipt.accepted is False
+    assert receipt.source == "default_unverified"
+    assert "simulation_truthfulness_producer_missing" in receipt.degradation_reasons
+
+    receipt_manifest = store.get_manifest(output.calibration_receipt_ref)
+    receipt_input_profiles = {
+        item.role: item.manifest_profile_sha256 for item in receipt_manifest.inputs
+    }
+    assert receipt_input_profiles["simulation_result"] == (
+        selected_simulation_ref.manifest_profile_sha256
+    )
+    assert receipt_input_profiles["metrics"] == selected_metrics_ref.manifest_profile_sha256
+
+    profileless_output = build_simulation_proof_bridge_artifacts(
+        _ensure_ir_artifact_store(store),
+        run_id="R_real_foundry_legacy_profileless_control",
+        simulation_result_ref=profileless_simulation_ref,
+        metrics_ref=profileless_metrics_ref,
+    )
+    profileless_manifest = store.get_manifest(profileless_output.calibration_receipt_ref)
+    profileless_input_profiles = {
+        item.role: item.manifest_profile_sha256 for item in profileless_manifest.inputs
+    }
+    assert profileless_input_profiles["simulation_result"] is None
+    assert profileless_input_profiles["metrics"] is None
+
+
+def test_simulation_proof_bridge_rejects_forged_new_status_in_legacy_bytes(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref, metrics_ref = _produce_real_foundry_simulation(store)
+    payload = dict(from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id)))
+    payload["execution_source_status"] = "single_step_basis"
+
+    forged_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="foundry.simulation_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+        ),
+    )
+    output = build_simulation_proof_bridge_artifacts(
+        _ensure_ir_artifact_store(store),
+        run_id="R_forged_legacy_basis_status",
+        simulation_result_ref=forged_ref,
+        metrics_ref=metrics_ref,
+    )
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
+
+    assert receipt.accepted is False
+    assert receipt.source == "default_unverified"
+    assert "simulation_owner_payload_invalid" in receipt.degradation_reasons
 
 
 def _authority_surface_payload(surface: str) -> dict[str, object]:

@@ -6,6 +6,8 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
+from polisyos.ir.artifacts.contracts import ArtifactSelector, ArtifactStore
+from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -143,10 +145,49 @@ def load_trinity_bundle(
     return TrinityBundle.model_validate(mapping)
 
 
+def _manifest_value(manifest: Any, field: str, *, model_attribute: str | None = None) -> Any:
+    if isinstance(manifest, Mapping):
+        if field in manifest:
+            return manifest[field]
+        if model_attribute is not None:
+            return manifest.get(model_attribute)
+        return None
+    return getattr(manifest, model_attribute or field, None)
+
+
+def load_trinity_bundle_artifact(store: ArtifactStore, selector: ArtifactSelector) -> TrinityBundle:
+    """Load a persisted Trinity bundle through its selected IR CAS view.
+
+    The IR JSON reader verifies the selected profile and byte conformance. This
+    boundary adds Trinity's manifest owner metadata and payload-version checks
+    before returning the typed bundle.
+    """
+    payload = get_json_artifact(store, selector)
+    manifest = store.get_manifest(selector)
+    schema = _manifest_value(manifest, "schema", model_attribute="artifact_schema")
+    schema_name = _manifest_value(schema, "name")
+    schema_version = _manifest_value(schema, "version")
+    if (
+        _manifest_value(manifest, "kind") != TrinityBundle.ARTIFACT_KIND
+        or _manifest_value(manifest, "media_type") != TrinityBundle.ARTIFACT_MEDIA_TYPE
+        or schema_name != TrinityBundle.ARTIFACT_SCHEMA_NAME
+        or schema_version != TrinityBundle.ARTIFACT_SCHEMA_VERSION
+    ):
+        raise TrinityLoadError("TrinityBundle artifact manifest does not match its IR owner")
+
+    bundle = load_trinity_bundle(payload)
+    if bundle.schema_version != schema_version:
+        raise TrinityLoadError(
+            "TrinityBundle payload schema_version does not match its selected artifact manifest"
+        )
+    return bundle
+
+
 __all__ = [
     "TrinityLoadError",
     "load_model_spec",
     "load_policy_spec",
     "load_problem_frame",
     "load_trinity_bundle",
+    "load_trinity_bundle_artifact",
 ]

@@ -3,14 +3,17 @@ from __future__ import annotations
 import ast
 from io import BytesIO
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 import yaml
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.foundry._quickstart import build_trivial_trinity_bundle
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -150,15 +153,23 @@ def test_release_acceptance_runs_compile_execute_replay_from_cas_only(
 
     runtime_agents_ref = store.put_bytes(
         _parquet_bytes(pd.DataFrame({"agent_id": ["a1", "a2"], "cell_id": ["c1", "c2"]})),
-        PutOptions(kind="data_forge.ukraine.release_bundle_file_snapshot", media_type="application/vnd.apache.parquet"),
+        PutOptions(
+            kind="data_forge.ukraine.release_bundle_file_snapshot",
+            media_type="application/vnd.apache.parquet",
+        ),
     )
     cell_registry_ref = store.put_bytes(
         _parquet_bytes(pd.DataFrame({"cell_id": ["c1", "c2"]})),
-        PutOptions(kind="data_forge.ukraine.release_bundle_file_snapshot", media_type="application/vnd.apache.parquet"),
+        PutOptions(
+            kind="data_forge.ukraine.release_bundle_file_snapshot",
+            media_type="application/vnd.apache.parquet",
+        ),
     )
     manifest_ref = store.put_bytes(
         b'{"artifact_name":"release_manifest_v1.json"}',
-        PutOptions(kind="data_forge.ukraine.release_manifest_snapshot", media_type="application/json"),
+        PutOptions(
+            kind="data_forge.ukraine.release_manifest_snapshot", media_type="application/json"
+        ),
     )
     trinity = build_trivial_trinity_bundle("sha256:" + "0" * 64)
     trinity_ref = store.put_json(
@@ -217,6 +228,96 @@ def test_release_acceptance_runs_compile_execute_replay_from_cas_only(
         report.technical_passed = False
 
 
+def test_release_acceptance_rejects_simulation_payload_manifest_version_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.foundry.validation.release_acceptance as release_acceptance
+
+    store = FileSystemCAS(tmp_path / "cas")
+
+    def _parquet_bytes(frame: pd.DataFrame) -> bytes:
+        buffer = BytesIO()
+        frame.to_parquet(buffer, index=False)
+        return buffer.getvalue()
+
+    runtime_agents_ref = store.put_bytes(
+        _parquet_bytes(pd.DataFrame({"agent_id": ["a1"], "cell_id": ["c1"]})),
+        PutOptions(
+            kind="data_forge.ukraine.release_bundle_file_snapshot",
+            media_type="application/vnd.apache.parquet",
+        ),
+    )
+    cell_registry_ref = store.put_bytes(
+        _parquet_bytes(pd.DataFrame({"cell_id": ["c1"]})),
+        PutOptions(
+            kind="data_forge.ukraine.release_bundle_file_snapshot",
+            media_type="application/vnd.apache.parquet",
+        ),
+    )
+    manifest_ref = store.put_bytes(
+        b'{"artifact_name":"release_manifest_v1.json"}',
+        PutOptions(
+            kind="data_forge.ukraine.release_manifest_snapshot", media_type="application/json"
+        ),
+    )
+    trinity = build_trivial_trinity_bundle("sha256:" + "0" * 64)
+    trinity_ref = store.put_json(
+        trinity,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name=trinity.ARTIFACT_SCHEMA_NAME, version=trinity.schema_version),
+        ),
+    )
+
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id="sha256:" + "a" * 64),
+        metrics_ref=MetricsRef(artifact_id="sha256:" + "b" * 64),
+    )
+    mismatched_simulation_ref = store.put_json(
+        simulation.to_artifact_payload(),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={}),
+        PutOptions(
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME, version=Metrics.ARTIFACT_SCHEMA_VERSION
+            ),
+        ),
+    )
+    result = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=mismatched_simulation_ref,
+        derived_refs=[SimpleNamespace(role="metrics", ref=metrics_ref)],
+        notes=[],
+    )
+    monkeypatch.setattr(release_acceptance, "execute_foundry", lambda *_args: result)
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        ReleaseAcceptanceRunner(store).run(
+            release_manifest_ref=manifest_ref,
+            runtime_agent_registry_ref=runtime_agents_ref,
+            cell_registry_ref=cell_registry_ref,
+            trinity_bundle_ref=trinity_ref,
+            manifest_path="producer/release_manifest_v1.json",
+            release_bundle_root="producer/d5",
+        )
+
+
 def test_release_acceptance_has_no_data_forge_or_scientist_imports() -> None:
     source = _REPO_ROOT / "src" / "polisyos" / "foundry" / "validation" / "release_acceptance.py"
     tree = ast.parse(source.read_text(encoding="utf-8"))
@@ -227,6 +328,5 @@ def test_release_acceptance_has_no_data_forge_or_scientist_imports() -> None:
     }
 
     assert not any(
-        module.startswith(("polisyos.data_forge", "polisyos.scientist"))
-        for module in imported
+        module.startswith(("polisyos.data_forge", "polisyos.scientist")) for module in imported
     )

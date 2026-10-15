@@ -8,6 +8,7 @@ import jax.numpy as jnp
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -118,6 +119,40 @@ def test_skip_when_simulation_result_invalid(
     outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("Unable to load SimulationResult" in e.message for e in outcome.events)
+
+
+def test_skip_when_simulation_payload_version_disagrees_with_manifest(
+    execution_context,
+    minimal_state,
+    cas_store,
+    artifact_ref_factory,
+) -> None:
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef.model_validate(
+            artifact_ref_factory(kind="foundry.exec_plan").model_dump(mode="python")
+        ),
+        metrics_ref=MetricsRef.model_validate(
+            artifact_ref_factory(kind="foundry.metrics").model_dump(mode="python")
+        ),
+    )
+    ref = cas_store.put_json(
+        simulation.model_dump(mode="json"),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = ref
+
+    outcome = RunDistributionalAnalysisNode().execute(execution_context, state)
+
+    assert outcome.status == "skip"
+    assert any("Unable to load SimulationResult" in event.message for event in outcome.events)
 
 
 def test_skip_when_no_state_snapshot_ref(execution_context, minimal_state, cas_store):

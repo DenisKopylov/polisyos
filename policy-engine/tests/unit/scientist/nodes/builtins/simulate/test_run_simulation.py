@@ -10,6 +10,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
 from polisyos.ir.analytics.simulation_proof_bridge import load_simulation_proof_bridge
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
@@ -31,6 +34,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROOF_BUNDLE_REF,
     ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
     ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
+    ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
     INPUT_INPUT_BINDINGS_REF,
@@ -421,6 +425,55 @@ def test_run_simulation_result_assertion_is_not_swallowed(
         pytest.raises(AssertionError, match="simulation payload invariant"),
     ):
         RunSimulationNode().execute(ctx, state)
+
+
+def test_run_simulation_downgrades_unmatched_simulation_schema_before_bridge(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    cas_store,
+) -> None:
+    mock_foundry = MagicMock()
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef.model_validate(
+            artifact_ref_factory(kind="foundry.exec_plan").model_dump(mode="python")
+        ),
+        metrics_ref=MetricsRef.model_validate(
+            artifact_ref_factory(kind="foundry.metrics").model_dump(mode="python")
+        ),
+    )
+    mismatched_ref = cas_store.put_json(
+        simulation.to_artifact_payload(),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=mismatched_ref,
+        derived_refs=[],
+        notes=[],
+    )
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = artifact_ref_factory(kind="foundry.exec_plan")
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = artifact_ref_factory(kind="foundry.input_bindings")
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert any(
+        event.code == "simulation_result_payload_invalid"
+        and "canon_profile_typed_artifact_schema_version_mismatch" in event.attrs["reason"]
+        for event in outcome.events
+    )
+    assert outcome.status == "ok"
+    assert ARTIFACT_STATE_SNAPSHOT_REF not in outcome.state.artifacts_index
 
 
 def _runtime_payoff_tables() -> dict[str, FiniteStrategicPayoffTable]:

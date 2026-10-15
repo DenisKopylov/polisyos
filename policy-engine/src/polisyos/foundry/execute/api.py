@@ -9,13 +9,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 import numpy as np
 from pydantic import BaseModel
 
-from polisyos.core.artifacts import RegistryBundlePayload, resolve_manifest_by_profile
+from polisyos.core.artifacts import (
+    RegistryBundlePayload,
+    ensure_ir_artifact_store,
+    resolve_manifest_by_profile,
+)
 from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
     ArtifactRef,
     InputRef,
     SchemaInfo,
@@ -62,6 +68,7 @@ from polisyos.core.registry import (
     load_registry_bundle_payload,
 )
 from polisyos.foundry._registry import MissingRuntimeMechanismSupportError
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
     extract_feedback_state,
@@ -91,6 +98,7 @@ from polisyos.foundry.feedback import (
     solve_fixed_point,
 )
 from polisyos.ir import TrinityBundle
+from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 
 
 @dataclass(frozen=True)
@@ -107,10 +115,10 @@ class _FeedbackExecutionEvaluation:
     """Internal one-shot execution result used by the outer feedback solver."""
 
     map_evaluation: MapEvaluation
-    final_state: object
+    final_state: GlobalState
 
 
-def _selected_manifest(store: FileSystemCAS, ref: ArtifactRef):
+def _selected_manifest(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactManifest:
     """Resolve one exact selected manifest and verify its payload bytes."""
     if ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_selected_profile_missing")
@@ -190,7 +198,7 @@ def _build_execution_input_basis(
     graph_ref = exec_plan.program_ref
     graph = _load_model(store, graph_ref, ProgramGraph)
     trinity_ref = graph.ir_ref
-    trinity = _load_model(store, trinity_ref, TrinityBundle)
+    trinity = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), trinity_ref)
     candidate_ref = _selected_ref_from_edge(
         store,
         trinity_ref,
@@ -535,17 +543,13 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
         )
     sim_result_ref = store.put_json(
-        sim_result,
+        sim_result.to_artifact_payload(),
         PutOptions(
             kind=SimulationResult.ARTIFACT_KIND,
             media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=SimulationResult.ARTIFACT_SCHEMA_NAME,
-                version=(
-                    SimulationResult.ARTIFACT_SCHEMA_VERSION
-                    if execution_input_basis_ref is not None
-                    else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
-                ),
+                version=sim_result.schema_version,
             ),
             inputs=sim_inputs,
         ),
@@ -595,10 +599,9 @@ def _load_model[ModelT: BaseModel](
     model_cls: type[ModelT],
 ) -> ModelT:
     """Deserialize a CAS JSON artifact into the requested Pydantic model."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
-    payload = load_core_json_artifact(store, ref)
-    return model_cls.model_validate(payload)
+    return validate_core_model_json_artifact(model_cls, store, ref)
 
 
 def _execute_with_feedback(
@@ -607,7 +610,7 @@ def _execute_with_feedback(
     request: ExecuteRequest,
     resolved_state: _ResolvedStateSource,
     registry_content: RegistryBundleContent,
-    base_state: object,
+    base_state: GlobalState,
     exec_plan: ExecPlan,
     posture: ResolvedExecutionPosture,
     current_step: int,
@@ -1043,17 +1046,13 @@ def _execute_with_feedback(
             )
         )
     sim_result_ref = store.put_json(
-        sim_result,
+        sim_result.to_artifact_payload(),
         PutOptions(
             kind=SimulationResult.ARTIFACT_KIND,
             media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=SimulationResult.ARTIFACT_SCHEMA_NAME,
-                version=(
-                    SimulationResult.ARTIFACT_SCHEMA_VERSION
-                    if request.return_selected_profile
-                    else SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
-                ),
+                version=sim_result.schema_version,
             ),
             inputs=sim_inputs,
         ),
@@ -1088,7 +1087,7 @@ def _run_feedback_iteration(
     registry_content: RegistryBundleContent,
     posture: ResolvedExecutionPosture,
     current_step: int,
-    base_state: object,
+    base_state: GlobalState,
     parameter_overrides: dict[str, dict[str, object]] | None,
     feedback_config: FeedbackConfig,
 ) -> _FeedbackExecutionEvaluation:
@@ -1151,7 +1150,7 @@ def _run_feedback_iteration(
 
 
 def _build_initial_feedback_state(
-    base_state: object,
+    base_state: GlobalState,
     feedback_config: FeedbackConfig,
 ) -> FeedbackStateSnapshot:
     values: list[float] = []
@@ -1544,7 +1543,7 @@ def _persist_feedback_result(
     exec_artifacts: ExecuteArtifacts | None,
     initial_feedback_state: FeedbackStateSnapshot,
     final_feedback_state: FeedbackStateSnapshot,
-    final_feedback_diagnostics: dict[str, object],
+    final_feedback_diagnostics: Mapping[str, object],
     final_override_bundle_ref: ParameterOverrideBundleRef | None,
     trace_ref: FeedbackTraceRef,
     jacobian_ref: FeedbackJacobianDiagnosticsRef | None,
@@ -1642,7 +1641,7 @@ def _persist_feedback_result(
     return FeedbackResultRef(artifact_id=ref.artifact_id)
 
 
-def _sanitize_diagnostics(values: dict[str, object]) -> dict[str, object]:
+def _sanitize_diagnostics(values: Mapping[str, object]) -> dict[str, object]:
     sanitized: dict[str, object] = {}
     for key, value in values.items():
         sanitized[key] = _sanitize_value(value)

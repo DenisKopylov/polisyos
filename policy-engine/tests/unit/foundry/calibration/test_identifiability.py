@@ -8,7 +8,6 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
-    IdentifiabilityDiagnosticRef,
     MetricsRef,
     SimulationResult,
     SimulationResultRef,
@@ -223,7 +222,7 @@ def test_aggregate_identifiability_gaussian_affine_sidecar_persists(tmp_path) ->
     attached_ref = attach_identifiability_diagnostic_ref(
         store,
         simulation_result_ref=simulation_ref,
-        diagnostic_ref=IdentifiabilityDiagnosticRef(artifact_id=result.diagnostic_ref.artifact_id),
+        diagnostic_ref=result.diagnostic_ref,
     )
     attached = SimulationResult.model_validate(
         from_canonical_bytes(store.get_bytes(attached_ref.artifact_id))

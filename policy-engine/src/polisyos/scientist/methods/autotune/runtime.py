@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.core.artifacts import ArtifactWriteOptions
+from polisyos.core.artifacts import ArtifactWriteOptions, validate_core_model_json_artifact
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -343,7 +343,7 @@ class MethodJobBenchmarkEvaluator:
                 snapshot_manifest = store.get_manifest(data_snapshot_ref)
                 if snapshot_manifest.kind != "fabric.data_snapshot":
                     raise ValueError("data_snapshot_manifest_kind_mismatch")
-                snapshot = load_model_artifact(store, data_snapshot_ref, DataSnapshot)
+                snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
                 if not isinstance(snapshot, DataSnapshot):
                     raise TypeError("data_snapshot_payload_unavailable")
                 data_ref = snapshot.data_ref
@@ -895,7 +895,7 @@ def read_method_job_execution_work_packet(
         ):
             raise ValueError("method_work_packet_search_parameter_binding_mismatch")
     snapshot_manifest = store.get_manifest(packet.data_snapshot_ref)
-    snapshot = load_model_artifact(store, packet.data_snapshot_ref, DataSnapshot)
+    snapshot = validate_core_model_json_artifact(DataSnapshot, store, packet.data_snapshot_ref)
     if (
         snapshot_manifest.kind != "fabric.data_snapshot"
         or not isinstance(snapshot, DataSnapshot)
@@ -1408,9 +1408,7 @@ def _build_search_method_run_profile(
             if data_snapshot_ref.manifest_profile_sha256 is None:
                 return None
             snapshot_manifest = store.get_manifest(data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(
-                load_core_json_artifact(store, data_snapshot_ref)
-            )
+            snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
             data_ref = ArtifactRef.model_validate(snapshot.data_ref)
             if data_ref.manifest_profile_sha256 is None:
                 return None
@@ -1732,9 +1730,7 @@ def _verify_search_source_profile_receipt(
             if data_snapshot_ref is None or data_ref is None:
                 return None
             snapshot_manifest = reader.get_manifest(data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(
-                load_core_json_artifact(reader, data_snapshot_ref)
-            )
+            snapshot = validate_core_model_json_artifact(DataSnapshot, reader, data_snapshot_ref)
             if (
                 snapshot_manifest.kind != "fabric.data_snapshot"
                 or snapshot.data_ref != data_ref
@@ -2017,7 +2013,7 @@ def _method_request_matches_search_run_profile(
         if data_snapshot_ref is None:
             return run_profile.data_sample_count is None
         snapshot_manifest = reader.get_manifest(data_snapshot_ref)
-        snapshot = DataSnapshot.model_validate(load_core_json_artifact(reader, data_snapshot_ref))
+        snapshot = validate_core_model_json_artifact(DataSnapshot, reader, data_snapshot_ref)
         if (
             snapshot_manifest.kind != "fabric.data_snapshot"
             or snapshot.data_ref != data_ref

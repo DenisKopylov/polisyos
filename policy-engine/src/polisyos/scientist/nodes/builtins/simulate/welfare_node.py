@@ -66,6 +66,7 @@ from .welfare_types import (
 class _PreparedWelfareRun:
     sim_result_ref: ArtifactRef
     sim_result: SimulationResult
+    return_selected_profile: bool
     collection: Any
     welfare_params: dict[str, Any]
     context: Any
@@ -172,12 +173,16 @@ def _prepare_welfare_run(
                 )
             ],
         )
+    return_selected_profile = (
+        sim_result_ref.manifest_profile_sha256 is not None
+        or sim_result.schema_version == SimulationResult.ARTIFACT_SCHEMA_VERSION
+    )
     context = _resolve_welfare_context(
         ctx,
         welfare_params=welfare_params,
         numeric_metrics=numeric_metrics,
         response_size_hint=len(numeric_metrics),
-        return_selected_profile=sim_result.execution_source_status != "not_recorded",
+        return_selected_profile=return_selected_profile,
     )
     simulation_fn, nominal_params, used_input_envelopes, pe_uncertainty_refs = build_simulation_fn(
         ctx,
@@ -206,6 +211,7 @@ def _prepare_welfare_run(
     return _PreparedWelfareRun(
         sim_result_ref=sim_result_ref,
         sim_result=sim_result,
+        return_selected_profile=return_selected_profile,
         collection=collection,
         welfare_params=welfare_params,
         context=context,
@@ -238,7 +244,7 @@ def _evaluate_welfare_run(
         input_envelope_refs=prepared.pe_uncertainty_refs,
         calibration_source=prepared.collection.calibration_source,
         execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
-        return_selected_profile=prepared.sim_result.execution_source_status != "not_recorded",
+        return_selected_profile=prepared.return_selected_profile,
     )
     robust_interval, robust_diagnostics = _build_robust_interval(
         context=prepared.context,
@@ -332,7 +338,7 @@ def _persist_welfare_run(
         input_envelopes=prepared.used_input_envelopes,
         robust_interval=evaluation.robust_interval,
         execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
-        return_selected_profile=prepared.sim_result.execution_source_status != "not_recorded",
+        return_selected_profile=prepared.return_selected_profile,
     )
     total_vector = _point_total_vector(context, nominal_params=prepared.nominal_params)
     subgroup_welfare = _resolve_subgroup_welfare(
@@ -416,7 +422,7 @@ def _persist_welfare_run(
         ),
         sensitivity_diagnostics_ref=sensitivity_ref,
     )
-    return_selected_profile = prepared.sim_result.execution_source_status != "not_recorded"
+    return_selected_profile = prepared.return_selected_profile
     bundle_ref = persist_welfare_bundle(
         _ensure_ir_artifact_store(ctx.store),
         bundle,
@@ -444,13 +450,13 @@ def _persist_welfare_run(
             )
         )
     updated_payload = ctx.store.put_json(
-        updated_result,
+        updated_result.to_artifact_payload(),
         PutOptions(
             kind="foundry.simulation_result",
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.core.SimulationResult",
-                version="1.4" if return_selected_profile else "1.2",
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=updated_result.schema_version,
             ),
             inputs=simulation_result_inputs,
         ),

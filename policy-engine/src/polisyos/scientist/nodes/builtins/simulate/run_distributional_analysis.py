@@ -273,7 +273,8 @@ class RunDistributionalAnalysisNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+
         sim_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if sim_result_ref is None:
             return NodeOutcome(
@@ -288,8 +289,9 @@ class RunDistributionalAnalysisNode:
             )
 
         try:
-            sim_payload = load_core_json_artifact(ctx.store, sim_result_ref)
-            sim_result = SimulationResult.model_validate(sim_payload)
+            sim_result = validate_core_model_json_artifact(
+                SimulationResult, ctx.store, sim_result_ref
+            )
         except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="skip",
@@ -585,7 +587,8 @@ def _resolve_baseline_snapshot_ref(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> StateSnapshotRef | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
     explicit = state.inputs.get(INPUT_STATE_SNAPSHOT_REF)
     if explicit is not None:
         try:
@@ -596,8 +599,9 @@ def _resolve_baseline_snapshot_ref(
     input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
     if input_bindings_ref is not None:
         try:
-            payload = load_core_json_artifact(ctx.store, input_bindings_ref)
-            bindings = FoundryInputBindings.model_validate(payload)
+            bindings = validate_core_model_json_artifact(
+                FoundryInputBindings, ctx.store, input_bindings_ref
+            )
             return bindings.bound_state_snapshot_ref
         except _DISTRIBUTIONAL_LOAD_ERRORS:
             return None
@@ -606,8 +610,7 @@ def _resolve_baseline_snapshot_ref(
     if data_snapshot_ref is None:
         return None
     try:
-        payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
-        snapshot = DataSnapshot.model_validate(payload)
+        snapshot = validate_core_model_json_artifact(DataSnapshot, ctx.store, data_snapshot_ref)
     except _DISTRIBUTIONAL_LOAD_ERRORS:
         return None
     if snapshot.data_ref.kind != "foundry.state_snapshot":

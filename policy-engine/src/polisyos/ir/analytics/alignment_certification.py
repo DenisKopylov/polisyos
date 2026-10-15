@@ -42,7 +42,7 @@ from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import AlignmentReportRef, VariableAlignmentCertificateRef
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Mapping, Sequence
 
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME = "ir.variable_alignment_certificate"
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION = "1.2"
@@ -158,6 +158,13 @@ class _LatentGovernanceInput(BaseModel):
     receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+def _default_known_unit_transforms() -> dict[str, str | None]:
+    return {
+        "percent->ratio": "artifact:transform:percent_to_ratio",
+        "ratio->percent": "artifact:transform:ratio_to_percent",
+    }
+
+
 class AlignmentVerificationConfig(BaseModel):
     """Deterministic verification rules for SCM fragment interface alignment."""
 
@@ -168,10 +175,7 @@ class AlignmentVerificationConfig(BaseModel):
     min_definition_overlap: float = Field(default=0.25, ge=0.0, le=1.0)
     min_exact_semantic_score: float = Field(default=0.85, ge=0.0, le=1.0)
     known_unit_transforms: dict[str, str | None] = Field(
-        default_factory=lambda: {
-            "percent->ratio": "artifact:transform:percent_to_ratio",
-            "ratio->percent": "artifact:transform:ratio_to_percent",
-        }
+        default_factory=_default_known_unit_transforms
     )
     explicit_latent_bridges: dict[str, Any] = Field(default_factory=dict)
     human_verified_pairs: list[str] = Field(default_factory=list)
@@ -860,14 +864,14 @@ def _normalize_metadata_value(value: Any) -> str:
     if isinstance(value, (int, float)):
         return str(value)
     if isinstance(value, dict):
-        normalized = {
+        normalized_mapping = {
             str(key).strip().lower(): _normalize_metadata_value(item)
             for key, item in sorted(value.items(), key=lambda item: str(item[0]))
         }
-        return json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+        return json.dumps(normalized_mapping, sort_keys=True, separators=(",", ":"))
     if isinstance(value, (list, tuple, set)):
-        normalized = [_normalize_metadata_value(item) for item in value]
-        return json.dumps(normalized, separators=(",", ":"))
+        normalized_items = [_normalize_metadata_value(item) for item in value]
+        return json.dumps(normalized_items, separators=(",", ":"))
     return str(value).strip().lower()
 
 
@@ -1548,32 +1552,42 @@ def _select_pair_certificates(
     uncovered_b = sorted(all_b - used_b)
 
     for variable_a in uncovered_a:
-        candidate = _best_coverage_candidate(
+        coverage_candidate = _best_coverage_candidate(
             by_a.get(variable_a, ()),
             selected_pairs=selected_pairs,
             preferred_uncovered={key for key in uncovered_b if key not in used_b},
             opposite_attr="variable_b",
         )
-        if candidate is None:
+        if coverage_candidate is None:
             continue
-        selected.append(candidate)
-        selected_pairs.add((candidate.variable_a.variable_name, candidate.variable_b.variable_name))
-        used_a.add(candidate.variable_a.variable_name)
-        used_b.add(candidate.variable_b.variable_name)
+        selected.append(coverage_candidate)
+        selected_pairs.add(
+            (
+                coverage_candidate.variable_a.variable_name,
+                coverage_candidate.variable_b.variable_name,
+            )
+        )
+        used_a.add(coverage_candidate.variable_a.variable_name)
+        used_b.add(coverage_candidate.variable_b.variable_name)
 
     for variable_b in sorted(all_b - used_b):
-        candidate = _best_coverage_candidate(
+        coverage_candidate = _best_coverage_candidate(
             by_b.get(variable_b, ()),
             selected_pairs=selected_pairs,
             preferred_uncovered=set(all_a - used_a),
             opposite_attr="variable_a",
         )
-        if candidate is None:
+        if coverage_candidate is None:
             continue
-        selected.append(candidate)
-        selected_pairs.add((candidate.variable_a.variable_name, candidate.variable_b.variable_name))
-        used_a.add(candidate.variable_a.variable_name)
-        used_b.add(candidate.variable_b.variable_name)
+        selected.append(coverage_candidate)
+        selected_pairs.add(
+            (
+                coverage_candidate.variable_a.variable_name,
+                coverage_candidate.variable_b.variable_name,
+            )
+        )
+        used_a.add(coverage_candidate.variable_a.variable_name)
+        used_b.add(coverage_candidate.variable_b.variable_name)
 
     certificates = [
         candidate.certificate
@@ -1695,13 +1709,13 @@ def _resolve_bundle_stitch_topology(
     topology_mode: Literal["auto", "direct"],
 ) -> tuple[list[tuple[str, str]], list[str], list[list[str]], str]:
     if topology_mode == "direct":
-        selected_pairs = _normalize_stitch_pairs(stitch_pairs or [], fragment_ids)
+        direct_pairs = _normalize_stitch_pairs(stitch_pairs or [], fragment_ids)
         disconnected_fragment_ids, disconnected_components = _disconnected_fragment_metadata(
             fragment_ids=fragment_ids,
-            selected_pairs=selected_pairs,
+            selected_pairs=direct_pairs,
             pair_summaries=pair_summaries,
         )
-        return selected_pairs, disconnected_fragment_ids, disconnected_components, topology_mode
+        return direct_pairs, disconnected_fragment_ids, disconnected_components, topology_mode
 
     explicit_pairs = _normalize_stitch_pairs(stitch_pairs or [], fragment_ids)
     if explicit_pairs:
@@ -1903,7 +1917,7 @@ def _coverage_incompatible_certificate(
 def _build_interface_mapping(
     *,
     fragment_ids: Sequence[str],
-    schemas: dict[str, Sequence[InterfaceVariableSchema]],
+    schemas: Mapping[str, Sequence[InterfaceVariableSchema]],
     certificates: Sequence[VariableAlignmentCertificate],
 ) -> InterfaceMapping:
     certs = [
@@ -2611,7 +2625,7 @@ def _dedupe_degraded_outcomes(
     seen: set[tuple[str, tuple[str, str], str]] = set()
     output: list[AlignmentDegradedOutcome] = []
     for value in values:
-        key = (value.code.value, tuple(value.fragment_pair), value.detail.strip())
+        key = (value.code.value, value.fragment_pair, value.detail.strip())
         if key in seen:
             continue
         seen.add(key)

@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
@@ -114,6 +115,39 @@ def test_registry_loader_refuses_foreign_selected_member_profile(tmp_path: Path)
 
     with pytest.raises(ArtifactOwnershipError):
         load_registry_bundle_content(owner_store, selected_bundle_ref)
+
+
+def test_compile_rejects_trinity_payload_version_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.foundry._quickstart import build_trivial_trinity_bundle
+    from polisyos.foundry.compile import trinity_compiler
+
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_trivial_trinity_bundle("sha256:" + "1" * 64)
+    payload = bundle.model_dump(mode="json")
+    payload["schema_version"] = "1.1"
+    policy_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=bundle.ARTIFACT_KIND,
+            media_type=bundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=bundle.ARTIFACT_SCHEMA_NAME,
+                version=bundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    request = _make_compile_request()
+    request.policy_ref = policy_ref
+    monkeypatch.setattr(trinity_compiler, "_resolve_registry_bundle_ref", lambda *_: None)
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        trinity_compiler.compile_trinity(store, request)
 
 
 def _make_compile_request(
@@ -275,9 +309,7 @@ class TestCompileTrinityLowering:
 
 
 class TestCompileTrinitySuccess:
-    def test_compile_trinity_success_all_derived_refs(
-        self, tmp_path: Path, monkeypatch
-    ) -> None:
+    def test_compile_trinity_success_all_derived_refs(self, tmp_path: Path, monkeypatch) -> None:
         compiler = importlib.import_module("polisyos.foundry.compile.trinity_compiler")
         mock_reg_bundle = MagicMock()
         mock_canon = MagicMock(return_value={})

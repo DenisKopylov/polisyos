@@ -6,7 +6,8 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -245,7 +246,9 @@ def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(
             return _IncomeReader()
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr(
+        "polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory
+    )
 
     writer_payload = _scheduled_payload(store)
     reader_payload = _scheduled_payload(store)
@@ -371,7 +374,9 @@ def test_independent_writers_keep_batched_merge_semantics(tmp_path, monkeypatch)
             return _DependentDelta(2.0)
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr(
+        "polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory
+    )
 
     left_payload = _scheduled_payload(store)
     right_payload = _scheduled_payload(store)
@@ -608,3 +613,216 @@ def test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps(tmp_path)
 
     assert blocked.ok is False
     assert any(note.startswith("max_steps_reached:") for note in blocked.notes)
+
+
+def test_execute_api_loader_rejects_selected_program_version_drift(tmp_path) -> None:
+    from polisyos.foundry.execute.api import _load_model
+
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = ProgramGraph(ir_ref=_dummy_ir_ref()).model_dump(mode="json")
+    payload["schema_version"] = "0.3"
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        _load_model(store, ref, ProgramGraph)
+
+
+def test_execute_selected_basis_loads_trinity_through_ir_owner_reader(tmp_path) -> None:
+    from polisyos.core.artifacts import ensure_ir_artifact_store, validate_core_model_json_artifact
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.contracts.foundry import FoundryExecutionInputBasis
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import KPISpec, ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.model_layer.types import OptimizationDirection
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    state_snapshot_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=2, n_firms=1),
+        step=0,
+        return_selected_profile=True,
+    )
+
+    def _input_ref(ref: ArtifactRef, role: str) -> InputRef:
+        assert ref.manifest_profile_sha256 is not None
+        return InputRef(
+            artifact_id=ref.artifact_id,
+            role=role,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
+        )
+
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=state_snapshot_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[_input_ref(state_snapshot_ref, "state_snapshot")],
+        ),
+        return_selected_profile=True,
+    )
+    candidate_ref = store.put_json(
+        {"candidate_id": "candidate_for_execution_basis"},
+        PutOptions(
+            kind="scientist.policy_design.candidate",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.policy_design.Candidate", version="1.0"),
+            inputs=[
+                _input_ref(data_snapshot_ref, "world_model_data_snapshot"),
+                _input_ref(registry.bundle_ref, "world_model_registry"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    trinity = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="selected_execution_basis",
+            domain=ProblemDomain.FISCAL,
+            kpis=[
+                KPISpec(
+                    kpi_id="selected_kpi",
+                    metric_id="selected_metric",
+                    direction=OptimizationDirection.MAXIMIZE,
+                )
+            ],
+        ),
+        policy_spec=PolicySpec(policy_id="selected_policy", interventions=[]),
+        model_spec=ModelSpec(
+            model_id="selected_model",
+            data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+        ),
+    )
+
+    def _persist_plan(schema_version: str) -> ExecPlanRef:
+        trinity_ref = store.put_json(
+            trinity,
+            PutOptions(
+                kind=TrinityBundle.ARTIFACT_KIND,
+                media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                    version=schema_version,
+                ),
+                inputs=[_input_ref(candidate_ref, "policy_candidate")],
+            ),
+            return_selected_profile=True,
+        )
+        lowered_ir_ref = store.put_json(
+            LoweredIR(ir_ref=trinity_ref),
+            PutOptions(kind="foundry.lowered_ir", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        graph_ref = store.put_json(
+            ProgramGraph(
+                ir_ref=trinity_ref,
+                lowered_ir_ref=LoweredIRRef.model_validate(
+                    lowered_ir_ref.model_dump(mode="python")
+                ),
+            ),
+            PutOptions(
+                kind=ProgramGraph.ARTIFACT_KIND,
+                media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                    version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=[
+                    _input_ref(trinity_ref, "trinity_bundle"),
+                    _input_ref(lowered_ir_ref, "lowered_ir"),
+                    _input_ref(registry.bundle_ref, "registry_bundle"),
+                ],
+            ),
+            return_selected_profile=True,
+        )
+        plan_ref = store.put_json(
+            ExecPlan(
+                program_ref=ProgramGraphRef.model_validate(graph_ref.model_dump(mode="python")),
+                order=[],
+            ),
+            PutOptions(
+                kind=ExecPlan.ARTIFACT_KIND,
+                media_type=ExecPlan.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+                    version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=[_input_ref(graph_ref, "program_graph")],
+            ),
+            return_selected_profile=True,
+        )
+        return ExecPlanRef.model_validate(plan_ref.model_dump(mode="python"))
+
+    bindings_ref = store.put_json(
+        FoundryInputBindings(
+            data_snapshot_ref=data_snapshot_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            rules=[],
+            bound_state_snapshot_ref=StateSnapshotRef.model_validate(
+                state_snapshot_ref.model_dump(mode="python")
+            ),
+        ),
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                _input_ref(data_snapshot_ref, "data_snapshot"),
+                _input_ref(state_snapshot_ref, "bound_state_snapshot"),
+                _input_ref(registry.bundle_ref, "registry_bundle"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    request = ExecuteRequest(
+        exec_plan_ref=_persist_plan(TrinityBundle.ARTIFACT_SCHEMA_VERSION),
+        input_bindings_ref=FoundryInputBindingsRef.model_validate(
+            bindings_ref.model_dump(mode="python")
+        ),
+        registry_bundle_ref=registry.bundle_ref,
+        return_selected_profile=True,
+    )
+
+    result = execute_foundry(store, request)
+
+    assert result.ok
+    assert result.simulation_result_ref is not None
+    simulation = validate_core_model_json_artifact(
+        SimulationResult, store, result.simulation_result_ref
+    )
+    assert simulation.execution_input_basis_ref is not None
+    basis = validate_core_model_json_artifact(
+        FoundryExecutionInputBasis, store, simulation.execution_input_basis_ref
+    )
+    assert basis.trinity_bundle_ref.manifest_profile_sha256 is not None
+    loaded = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), basis.trinity_bundle_ref)
+    assert loaded.problem_frame.kpis[0].direction is OptimizationDirection.MAXIMIZE
+
+    with pytest.raises(ValueError, match="manifest does not match its IR owner"):
+        execute_foundry(
+            store,
+            request.model_copy(update={"exec_plan_ref": _persist_plan("9.0")}),
+        )

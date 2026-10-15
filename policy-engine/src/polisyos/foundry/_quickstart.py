@@ -6,7 +6,9 @@ import os
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
+import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -37,7 +39,7 @@ os.environ.setdefault("JAX_PLATFORMS", "cpu")
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.contracts.state import AgentState, GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
@@ -70,6 +72,34 @@ class FeedbackQuickstartRunResult:
     feedback_result_artifact_id: str | None
     feedback_convergence_certificate_artifact_id: str | None
     equilibrium_multiplicity_report_artifact_id: str | None = None
+
+
+@runtime_checkable
+class _AgentIncomeUpdater(Protocol):
+    def replace(
+        self,
+        *,
+        income: jax.Array,
+        reported_income: jax.Array,
+    ) -> AgentState: ...
+
+
+@runtime_checkable
+class _GlobalAgentUpdater(Protocol):
+    def replace(self, *, agents: AgentState) -> GlobalState: ...
+
+
+def _feedback_result_without_exec_plan() -> FeedbackQuickstartRunResult:
+    """Report a failed feedback quickstart when compilation emits no plan."""
+    return FeedbackQuickstartRunResult(
+        compile_ok=False,
+        execute_ok=False,
+        exec_plan_artifact_id=None,
+        simulation_result_artifact_id=None,
+        feedback_result_artifact_id=None,
+        feedback_convergence_certificate_artifact_id=None,
+        equilibrium_multiplicity_report_artifact_id=None,
+    )
 
 
 def resolve_registry_bundle_ref(store: FileSystemCAS, bundle: TrinityBundle) -> ArtifactRef:
@@ -145,12 +175,14 @@ def prepare_trivial_input_bindings(
     state = GlobalState.empty(n_agents=n_agents, n_firms=n_firms)
     if agent_income != 0.0:
         income = jnp.full((n_agents,), float(agent_income), dtype=jnp.float32)
-        state = state.replace(
-            agents=state.agents.replace(
-                income=income,
-                reported_income=income,
-            )
-        )
+        agent_state: object = state.agents
+        if not isinstance(agent_state, _AgentIncomeUpdater):
+            raise TypeError("Foundry AgentState does not support immutable replacement")
+        updated_agents = agent_state.replace(income=income, reported_income=income)
+        global_state: object = state
+        if not isinstance(global_state, _GlobalAgentUpdater):
+            raise TypeError("Foundry GlobalState does not support immutable replacement")
+        state = global_state.replace(agents=updated_agents)
     state_ref = put_state_snapshot(
         store,
         state=state,
@@ -162,7 +194,12 @@ def prepare_trivial_input_bindings(
         PutOptions(
             kind=DataSnapshot.ARTIFACT_KIND,
             media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        return_selected_profile=True,
     )
     input_bindings_ref = store.put_json(
         FoundryInputBindings(
@@ -174,9 +211,14 @@ def prepare_trivial_input_bindings(
         PutOptions(
             kind=FoundryInputBindings.ARTIFACT_KIND,
             media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        return_selected_profile=True,
     )
-    return FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id)
+    return FoundryInputBindingsRef.model_validate(input_bindings_ref.model_dump(mode="python"))
 
 
 def prepare_trivial_feedback_config(
@@ -185,12 +227,10 @@ def prepare_trivial_feedback_config(
     exec_plan_ref: ArtifactRef,
 ) -> FeedbackConfigRef:
     """Persist a minimal feedback config that endogenizes the income-tax rate."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
-    exec_plan = ExecPlan.model_validate(load_core_json_artifact(store, exec_plan_ref))
-    program_graph = ProgramGraph.model_validate(
-        load_core_json_artifact(store, exec_plan.program_ref)
-    )
+    exec_plan = validate_core_model_json_artifact(ExecPlan, store, exec_plan_ref)
+    program_graph = validate_core_model_json_artifact(ProgramGraph, store, exec_plan.program_ref)
     income_tax_node = next(
         (node.node_id for node in program_graph.nodes if node.mechanism_type == "income_tax"),
         None,
@@ -255,10 +295,10 @@ def prepare_trivial_multiplicity_config(
     exec_plan_ref: ArtifactRef,
 ) -> FeedbackConfigRef:
     """Persist the quickstart feedback config with multiplicity discovery enabled."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     feedback_ref = prepare_trivial_feedback_config(store, exec_plan_ref=exec_plan_ref)
-    config = FeedbackConfig.model_validate(load_core_json_artifact(store, feedback_ref))
+    config = validate_core_model_json_artifact(FeedbackConfig, store, feedback_ref)
     multiplicity_config = config.model_copy(
         update={
             "solver": config.solver.model_copy(
@@ -331,10 +371,10 @@ def run_trivial_compile_execute(
         compile_ok=compiled.ok,
         execute_ok=executed.ok,
         exec_plan_artifact_id=(
-            compiled.exec_plan_ref.artifact_id if compiled.exec_plan_ref is not None else None
+            str(compiled.exec_plan_ref.artifact_id) if compiled.exec_plan_ref is not None else None
         ),
         simulation_result_artifact_id=(
-            executed.simulation_result_ref.artifact_id
+            str(executed.simulation_result_ref.artifact_id)
             if executed.simulation_result_ref is not None
             else None
         ),
@@ -364,6 +404,9 @@ def run_feedback_compile_execute(
             registry_bundle_ref=registry_bundle_ref,
         ),
     )
+    exec_plan_ref = compiled.exec_plan_ref
+    if exec_plan_ref is None:
+        return _feedback_result_without_exec_plan()
     input_bindings_ref = prepare_trivial_input_bindings(
         store,
         registry_bundle_ref,
@@ -371,12 +414,12 @@ def run_feedback_compile_execute(
     )
     feedback_config_ref = prepare_trivial_feedback_config(
         store,
-        exec_plan_ref=compiled.exec_plan_ref,
+        exec_plan_ref=exec_plan_ref,
     )
     executed = execute_foundry(
         store,
         ExecuteRequest(
-            exec_plan_ref=compiled.exec_plan_ref,
+            exec_plan_ref=exec_plan_ref,
             input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=registry_bundle_ref,
             feedback_config_ref=feedback_config_ref,
@@ -410,17 +453,21 @@ def run_feedback_compile_execute(
     return FeedbackQuickstartRunResult(
         compile_ok=compiled.ok,
         execute_ok=executed.ok,
-        exec_plan_artifact_id=(
-            compiled.exec_plan_ref.artifact_id if compiled.exec_plan_ref is not None else None
-        ),
+        exec_plan_artifact_id=str(exec_plan_ref.artifact_id),
         simulation_result_artifact_id=(
-            executed.simulation_result_ref.artifact_id
+            str(executed.simulation_result_ref.artifact_id)
             if executed.simulation_result_ref is not None
             else None
         ),
-        feedback_result_artifact_id=feedback_result_ref,
-        feedback_convergence_certificate_artifact_id=feedback_certificate_ref,
-        equilibrium_multiplicity_report_artifact_id=multiplicity_report_ref,
+        feedback_result_artifact_id=(
+            str(feedback_result_ref) if feedback_result_ref is not None else None
+        ),
+        feedback_convergence_certificate_artifact_id=(
+            str(feedback_certificate_ref) if feedback_certificate_ref is not None else None
+        ),
+        equilibrium_multiplicity_report_artifact_id=(
+            str(multiplicity_report_ref) if multiplicity_report_ref is not None else None
+        ),
     )
 
 
@@ -447,6 +494,9 @@ def run_feedback_multiplicity_demo(
             registry_bundle_ref=registry_bundle_ref,
         ),
     )
+    exec_plan_ref = compiled.exec_plan_ref
+    if exec_plan_ref is None:
+        return _feedback_result_without_exec_plan()
     input_bindings_ref = prepare_trivial_input_bindings(
         store,
         registry_bundle_ref,
@@ -454,12 +504,12 @@ def run_feedback_multiplicity_demo(
     )
     feedback_config_ref = prepare_trivial_multiplicity_config(
         store,
-        exec_plan_ref=compiled.exec_plan_ref,
+        exec_plan_ref=exec_plan_ref,
     )
     executed = execute_foundry(
         store,
         ExecuteRequest(
-            exec_plan_ref=compiled.exec_plan_ref,
+            exec_plan_ref=exec_plan_ref,
             input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=registry_bundle_ref,
             feedback_config_ref=feedback_config_ref,
@@ -492,17 +542,21 @@ def run_feedback_multiplicity_demo(
     return FeedbackQuickstartRunResult(
         compile_ok=compiled.ok,
         execute_ok=executed.ok,
-        exec_plan_artifact_id=(
-            compiled.exec_plan_ref.artifact_id if compiled.exec_plan_ref is not None else None
-        ),
+        exec_plan_artifact_id=str(exec_plan_ref.artifact_id),
         simulation_result_artifact_id=(
-            executed.simulation_result_ref.artifact_id
+            str(executed.simulation_result_ref.artifact_id)
             if executed.simulation_result_ref is not None
             else None
         ),
-        feedback_result_artifact_id=feedback_result_ref,
-        feedback_convergence_certificate_artifact_id=feedback_certificate_ref,
-        equilibrium_multiplicity_report_artifact_id=multiplicity_report_ref,
+        feedback_result_artifact_id=(
+            str(feedback_result_ref) if feedback_result_ref is not None else None
+        ),
+        feedback_convergence_certificate_artifact_id=(
+            str(feedback_certificate_ref) if feedback_certificate_ref is not None else None
+        ),
+        equilibrium_multiplicity_report_artifact_id=(
+            str(multiplicity_report_ref) if multiplicity_report_ref is not None else None
+        ),
     )
 
 

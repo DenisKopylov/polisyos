@@ -14,11 +14,13 @@ import polisyos.scientist.nodes.builtins.simulate.propagate_welfare as propagate
 import polisyos.scientist.nodes.builtins.simulate.welfare_draws as welfare_draws_module
 import polisyos.scientist.nodes.builtins.simulate.welfare_types as welfare_types_module
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
-)
-from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
     input_ref_from_artifact_ref,
     resolve_dependency_graph,
+    validate_core_model_json_artifact,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -35,6 +37,7 @@ from polisyos.core.contracts.foundry import (
     FeedbackResultRef,
     FeedbackSolveResult,
     FeedbackStateSnapshot,
+    FoundryExecutionInputBasisRef,
     Metrics,
     MetricsRef,
     ProgramGraph,
@@ -114,13 +117,35 @@ class _RecordingFileSystemCAS(FileSystemCAS):
     def __init__(self, root) -> None:
         super().__init__(root)
         self.read_selectors: list[ArtifactID | ArtifactRef | str] = []
+        self.simulation_result_profile_writes: list[bool] = []
 
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         self.read_selectors.append(artifact_id)
         return super().get_bytes(artifact_id)
 
+    def put_json(
+        self,
+        obj: object,
+        opts: PutOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        if opts.kind == SimulationResult.ARTIFACT_KIND:
+            self.simulation_result_profile_writes.append(return_selected_profile)
+        return super().put_json(
+            obj,
+            opts,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
-def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> None:
+
+@pytest.mark.parametrize("schema_version", ["1.3", "1.4"])
+def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(
+    tmp_path,
+    schema_version: str,
+) -> None:
     store = _RecordingFileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_welfare_partial")
@@ -167,23 +192,50 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
         PutOptions(kind="foundry.metrics", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    basis_ref = None
+    execution_source_status = "not_recorded"
+    if schema_version == SimulationResult.ARTIFACT_SCHEMA_VERSION:
+        basis_payload_ref = store.put_json(
+            {"schema_version": "1.0", "authority_purpose": "execution_input_identity_only"},
+            PutOptions(
+                kind="foundry.execution_input_basis",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.core.FoundryExecutionInputBasis",
+                    version="1.0",
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        basis_ref = FoundryExecutionInputBasisRef.model_validate(
+            basis_payload_ref.model_dump(mode="python")
+        )
+        execution_source_status = "single_step_basis"
     simulation_result = SimulationResult(
+        schema_version=schema_version,
         exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="python")),
         metrics_ref=MetricsRef.model_validate(metrics_ref.model_dump(mode="python")),
+        execution_input_basis_ref=basis_ref,
+        execution_source_status=execution_source_status,
     )
     simulation_result_options = PutOptions(
         kind="foundry.simulation_result",
         media_type="application/json",
+        schema=SchemaInfo(
+            name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+            version=simulation_result.schema_version,
+        ),
     )
     default_view = store.put_json(
-        simulation_result,
+        simulation_result.to_artifact_payload(),
         simulation_result_options,
         canon_spec=CanonSpec(forbid_floats=False, max_depth=128),
     )
     selected_view = store.put_json(
-        simulation_result,
+        simulation_result.to_artifact_payload(),
         simulation_result_options,
         canon_spec=CanonSpec(forbid_floats=False, max_depth=64),
+        return_selected_profile=True,
     )
     assert default_view.artifact_id == selected_view.artifact_id
     assert default_view.manifest_profile_sha256 != selected_view.manifest_profile_sha256
@@ -197,6 +249,20 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
         artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref},
         params={"welfare_weights": {"policy_value": 1.0}},
     )
+
+    wrong_profile_ref = sim_result_ref.model_copy(
+        update={"manifest_profile_sha256": f"sha256:{'f' * 64}"}
+    )
+    wrong_profile_state = state.model_copy(
+        update={
+            "artifacts_index": state.artifacts_index
+            | {ARTIFACT_SIMULATION_RESULT_REF: wrong_profile_ref}
+        }
+    )
+    wrong_profile_outcome = PropagateWelfareNode().execute(ctx, wrong_profile_state)
+    assert wrong_profile_outcome.status == "skip"
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in wrong_profile_outcome.state.artifacts_index
+    assert store.simulation_result_profile_writes == [False, True]
 
     outcome = PropagateWelfareNode().execute(ctx, state)
     assert outcome.status == "ok"
@@ -228,13 +294,24 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
     assert bundle_input_profiles["simulation_result"] == sim_result_ref.manifest_profile_sha256
     assert bundle_input_profiles["metrics"] == simulation_result.metrics_ref.manifest_profile_sha256
 
-    updated_payload = from_canonical_bytes(
-        store.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)
-    )
-    updated_sim = SimulationResult.model_validate(updated_payload)
-    assert updated_sim.welfare_bundle_ref is not None
     updated_sim_result_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    updated_sim = validate_core_model_json_artifact(SimulationResult, store, updated_sim_result_ref)
+    updated_payload = from_canonical_bytes(store.get_bytes(updated_sim_result_ref))
+    assert updated_sim.welfare_bundle_ref is not None
     updated_sim_manifest = store.get_manifest(updated_sim_result_ref)
+    assert updated_sim.schema_version == schema_version
+    assert updated_sim_manifest.artifact_schema.version == schema_version
+    assert store.simulation_result_profile_writes == [False, True, True]
+    assert updated_sim_result_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+        updated_sim_manifest
+    )
+    if basis_ref is not None:
+        assert updated_sim.execution_input_basis_ref == basis_ref
+        assert "execution_input_basis_ref" in updated_payload
+        assert "execution_source_status" in updated_payload
+    else:
+        assert "execution_input_basis_ref" not in updated_payload
+        assert "execution_source_status" not in updated_payload
     updated_input_profiles = {
         item.role: item.manifest_profile_sha256 for item in updated_sim_manifest.inputs
     }
@@ -242,6 +319,8 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
         updated_input_profiles["base_simulation_result"] == sim_result_ref.manifest_profile_sha256
     )
     assert updated_input_profiles["welfare_bundle"] == bundle_ref.manifest_profile_sha256
+    if basis_ref is not None:
+        assert updated_input_profiles["execution_input_basis"] == basis_ref.manifest_profile_sha256
 
 
 def test_propagate_welfare_node_skips_default_operational_metrics_without_welfare_inputs(
@@ -1241,9 +1320,7 @@ def _run_b197_tied_calibrator(
         assert default_config_manifest.inputs[0].role == "test_profile_collision_control"
     else:
         assert config_input.manifest_profile_sha256 is None
-    persisted_config_payload = from_canonical_bytes(
-        store.get_bytes(config_input.artifact_id)
-    )
+    persisted_config_payload = from_canonical_bytes(store.get_bytes(config_input.artifact_id))
     assert CalibrationConfig.model_validate(persisted_config_payload) == config_before_run
     if caller_configs is None:
         assert config == config_before_run
@@ -1335,10 +1412,7 @@ def test_calibrator_preserves_selected_config_profile_through_fresh_consumers(
         and node.role == "calibration_config"
     ]
     assert len(selected_config_nodes) == 1
-    assert (
-        selected_config_nodes[0].manifest_profile_sha256
-        == config_ref.manifest_profile_sha256
-    )
+    assert selected_config_nodes[0].manifest_profile_sha256 == config_ref.manifest_profile_sha256
 
     sim_ref = _b197_simulation_result(store)
     _, welfare_bundle = _run_b197_welfare(
@@ -1862,9 +1936,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         calibration_distribution = calibration_envelope.distribution_payload
         assert isinstance(calibration_distribution, ParametricFitCarrier)
         calibration_std = float(calibration_distribution.parameters["std"])
-        expected_pairs = [
-            ("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0), 1e-12)
-        ]
+        expected_pairs = [("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0), 1e-12)]
     else:
         normal = UncertaintyEnvelope(
             point_estimate=0.5,
@@ -2438,7 +2510,7 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
         del ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"C.rate"}
 
-        def simulation_fn(**params: float) -> dict[str, float]:
+        def simulation_fn(**params: float) -> dict[str, object]:
             rate = float(params["C.rate"])
             if rate < -0.75:
                 raise propagate_welfare_module.WelfareSampleDomainError(
@@ -2449,6 +2521,8 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
             return {
                 "welfare": value,
                 "welfare_pe": value,
+                "welfare_pe_components": (value,),
+                "welfare_total_components": (value,),
                 "welfare_ge": 0.0,
             }
 
@@ -2581,7 +2655,7 @@ def test_welfare_mc_retries_explicit_transient_on_same_draw_before_fresh_cas_rea
 ) -> None:
     calls: list[float] = []
 
-    def simulation_fn(**params: float) -> dict[str, float]:
+    def simulation_fn(**params: float) -> dict[str, object]:
         value = float(params["C.rate"])
         calls.append(value)
         if len(calls) == 2:
@@ -2594,7 +2668,13 @@ def test_welfare_mc_retries_explicit_transient_on_same_draw_before_fresh_cas_rea
             error.__cause__ = shared_context
             error.__context__ = shared_context
             raise error
-        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+        return {
+            "welfare": value,
+            "welfare_pe": value,
+            "welfare_pe_components": (value,),
+            "welfare_total_components": (value,),
+            "welfare_ge": 0.0,
+        }
 
     _store, outcome, bundle = _run_b194_draw_execution_case(
         tmp_path,
@@ -2640,7 +2720,7 @@ def test_welfare_mc_persistent_transient_is_bounded_and_withholds_interval(
 ) -> None:
     calls: list[float] = []
 
-    def simulation_fn(**params: float) -> dict[str, float]:
+    def simulation_fn(**params: float) -> dict[str, object]:
         value = float(params["C.rate"])
         calls.append(value)
         if len(calls) in {2, 3}:
@@ -2649,7 +2729,13 @@ def test_welfare_mc_persistent_transient_is_bounded_and_withholds_interval(
                 category=ErrorCategory.TRANSIENT,
                 code="evaluation.transient",
             )
-        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+        return {
+            "welfare": value,
+            "welfare_pe": value,
+            "welfare_pe_components": (value,),
+            "welfare_total_components": (value,),
+            "welfare_ge": 0.0,
+        }
 
     _store, outcome, bundle = _run_b194_draw_execution_case(
         tmp_path,
@@ -2698,7 +2784,7 @@ def test_welfare_mc_requires_explicit_sample_domain_signal_for_partial_draw(
     calls: list[float] = []
     domain_error = propagate_welfare_module.WelfareSampleDomainError
 
-    def simulation_fn(**params: float) -> dict[str, float]:
+    def simulation_fn(**params: float) -> dict[str, object]:
         value = float(params["C.rate"])
         calls.append(value)
         if len(calls) == 2:
@@ -2706,7 +2792,13 @@ def test_welfare_mc_requires_explicit_sample_domain_signal_for_partial_draw(
                 "sampled input is outside the evaluator's declared domain",
                 predicate_id="test.c_rate.evaluator_domain",
             )
-        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+        return {
+            "welfare": value,
+            "welfare_pe": value,
+            "welfare_pe_components": (value,),
+            "welfare_total_components": (value,),
+            "welfare_ge": 0.0,
+        }
 
     _store, outcome, bundle = _run_b194_draw_execution_case(
         tmp_path,
@@ -3022,9 +3114,15 @@ def test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer(
         del context, ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"C.rate"}
 
-        def simulation_fn(**params: float) -> dict[str, float]:
+        def simulation_fn(**params: float) -> dict[str, object]:
             value = float(params["C.rate"])
-            return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+            return {
+                "welfare": value,
+                "welfare_pe": value,
+                "welfare_pe_components": (value,),
+                "welfare_total_components": (value,),
+                "welfare_ge": 0.0,
+            }
 
         return (
             simulation_fn,
@@ -3129,11 +3227,17 @@ def test_welfare_preserves_only_declared_shared_empirical_rows(
         del context, ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"A.rate", "B.rate"}
 
-        def simulation_fn(**params: float) -> dict[str, float]:
+        def simulation_fn(**params: float) -> dict[str, object]:
             difference = float(params["A.rate"] - params["B.rate"])
+            component_values = (
+                1.0 + float(params["A.rate"]),
+                -float(params["B.rate"]),
+            )
             return {
                 "welfare": 1.0 + difference,
                 "welfare_pe": 1.0 + difference,
+                "welfare_pe_components": component_values,
+                "welfare_total_components": component_values,
                 "welfare_ge": 0.0,
             }
 

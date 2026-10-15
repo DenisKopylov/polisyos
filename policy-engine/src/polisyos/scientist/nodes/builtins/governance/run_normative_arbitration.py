@@ -9,6 +9,9 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
+from polisyos.core.artifacts import (
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import (
     Capability,
@@ -44,7 +47,7 @@ from polisyos.ir.governance.problem_frame import (
     UtilityDirection,
 )
 from polisyos.ir.registry.refs import DistributionalReportRef
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -166,8 +169,6 @@ class RunNormativeArbitrationNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
-
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         if trinity_ref is None:
             return NodeOutcome(
@@ -182,7 +183,9 @@ class RunNormativeArbitrationNode:
             )
 
         try:
-            trinity = TrinityBundle.model_validate(load_core_json_artifact(ctx.store, trinity_ref))
+            trinity = load_trinity_bundle_artifact(
+                _ensure_ir_artifact_store(ctx.store), trinity_ref
+            )
         except _NORMATIVE_ARTIFACT_ERRORS as exc:
             emit_degraded_path(
                 component="scientist.run_normative_arbitration",
@@ -407,13 +410,11 @@ class RunNormativeArbitrationNode:
 
 
 def _load_metrics(ctx: ExecutionContext, state: ExperimentState) -> Metrics | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-
     ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if ref is None:
         return None
     try:
-        return Metrics.model_validate(load_core_json_artifact(ctx.store, ref))
+        return validate_core_model_json_artifact(Metrics, ctx.store, ref)
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         raise
         emit_degraded_path(
@@ -432,13 +433,11 @@ def _load_simulation_result(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> SimulationResult | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-
     ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
     if ref is None:
         return None
     try:
-        return SimulationResult.model_validate(load_core_json_artifact(ctx.store, ref))
+        return validate_core_model_json_artifact(SimulationResult, ctx.store, ref)
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_normative_arbitration",

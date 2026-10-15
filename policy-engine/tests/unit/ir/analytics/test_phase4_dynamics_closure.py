@@ -8,7 +8,9 @@ from pydantic import ValidationError
 
 import polisyos.foundry.methods.catalog.simulation.dynamics as simulation_dynamics
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisResult,
     AttractorAnalysisResultRef,
@@ -23,7 +25,12 @@ from polisyos.foundry.analysis.attractors import (
     attach_abm_bifurcation_report_ref,
     persist_attractor_analysis_result,
 )
-from polisyos.foundry.calibration import attach_abm_identifiability_certificate_ref
+from polisyos.foundry.calibration import (
+    IdentifiabilityDiagnosticConfig,
+    IdentifiabilityDiagnosticStatus,
+    attach_abm_identifiability_certificate_ref,
+    identifiability_diagnostic,
+)
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_content_bound_abm_result,
 )
@@ -134,7 +141,7 @@ def test_phase4_gate_blocks_long_uncalibrated_or_red_horizons() -> None:
     assert verdict.red_horizons == (1, 2)
 
 
-def test_phase4_abm_result_exact_fields_wrap_existing_refs() -> None:
+def test_phase4_storeless_abm_conversion_does_not_promote_unresolved_refs() -> None:
     diagnostic_ref = IdentifiabilityDiagnosticRef(artifact_id=_artifact_id("c"))
     simulation = SimulationResult(
         exec_plan_ref=ExecPlanRef(artifact_id=_artifact_id("a")),
@@ -153,18 +160,27 @@ def test_phase4_abm_result_exact_fields_wrap_existing_refs() -> None:
 
     assert isinstance(result, ABMResult)
     assert result.identifiability_certificate is not None
-    assert result.identifiability_certificate.diagnostic_ref is not None
+    assert result.identifiability_certificate.status == "not_available"
+    assert result.identifiability_certificate.diagnostic_ref is None
     assert result.bifurcation_report is not None
-    assert result.bifurcation_report.bifurcation_count == 2
+    assert result.bifurcation_report.status == "not_available"
+    assert result.bifurcation_report.attractor_analysis_ref is None
+    assert result.bifurcation_report.bifurcation_count is None
+    assert result.identifiability_diagnostic_ref is None
     assert set(ABMResult.model_fields) == {
         *SimulationResult.model_fields,
         "identifiability_certificate",
         "bifurcation_report",
     }
-    assert result.model_dump(
-        mode="json",
-        exclude={"identifiability_certificate", "bifurcation_report"},
-    ) == simulation.model_dump(mode="json")
+    expected_wire = simulation.model_dump(mode="json")
+    expected_wire["identifiability_diagnostic_ref"] = None
+    assert (
+        result.model_dump(
+            mode="json",
+            exclude={"identifiability_certificate", "bifurcation_report"},
+        )
+        == expected_wire
+    )
 
 
 def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> None:
@@ -297,7 +313,7 @@ def test_phase4_abm_strangle_receipt_recomputes_payload_and_diagnostics() -> Non
         diagnostics=diagnostics,
     )
     assert result.identifiability_certificate is not None
-    assert result.identifiability_certificate.status == "diagnostic_attached"
+    assert result.identifiability_certificate.status == "not_available"
     assert "phase4_abm_result_stub" not in result.model_dump_json()
 
 
@@ -318,33 +334,233 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         {"values": {"welfare": 1}},
         PutOptions(kind="foundry.metrics", media_type="application/json"),
     )
-    sim_ref_payload = store.put_json(
-        SimulationResult(
-            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
-            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
-        ),
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+        metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
     )
-    sim_ref = SimulationResultRef(artifact_id=sim_ref_payload.artifact_id)
-
-    diagnostic_ref = IdentifiabilityDiagnosticRef(artifact_id=_artifact_id("b"))
+    sim_ref_payload = store.put_json(
+        simulation,
+        PutOptions(
+            kind="foundry.simulation_result",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=simulation.schema_version,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    sim_ref = SimulationResultRef.model_validate(sim_ref_payload.model_dump(mode="python"))
+    diagnostic = identifiability_diagnostic(
+        store,
+        simulation_result_ref=sim_ref,
+        observed_moment_bundle={"mean_y": 1.0, "q50_y": 2.0},
+        parameter_center={"alpha": 1.0},
+        summary_evaluator=lambda theta, _seed: {
+            "mean_y": float(theta["alpha"]),
+            "q50_y": float(2.0 * theta["alpha"]),
+        },
+        config=IdentifiabilityDiagnosticConfig(
+            simulation_reps=2,
+            bootstrap_reps=0,
+            profile_grid_size=0,
+            seed=3,
+        ),
+    )
+    assert diagnostic.status is IdentifiabilityDiagnosticStatus.IDENTIFIED
+    diagnostic_ref = diagnostic.diagnostic_ref
+    assert diagnostic_ref is not None
+    assert diagnostic_ref.manifest_profile_sha256 is not None
     ident_abm_ref = attach_abm_identifiability_certificate_ref(
         store,
         simulation_result_ref=sim_ref,
         diagnostic_ref=diagnostic_ref,
     )
-    ident_abm = load_abm_result(_ensure_ir_artifact_store(store), ident_abm_ref)
+    fresh_store = FileSystemCAS(tmp_path)
+    ident_abm = load_abm_result(_ensure_ir_artifact_store(fresh_store), ident_abm_ref)
     assert not isinstance(
         ident_abm.identifiability_diagnostic_ref,
         IdentifiabilityDiagnosticRef,
     )
-    assert ident_abm.identifiability_diagnostic_ref.model_dump(
-        mode="json"
-    ) == diagnostic_ref.model_dump(mode="json")
+    assert str(ident_abm.identifiability_diagnostic_ref.artifact_id) == str(
+        diagnostic_ref.artifact_id
+    )
+    assert (
+        ident_abm.identifiability_diagnostic_ref.manifest_profile_sha256
+        == diagnostic_ref.manifest_profile_sha256
+    )
     assert ident_abm.identifiability_certificate is not None
+    assert ident_abm.identifiability_certificate.status == "diagnostic_attached"
+    assert ident_abm.identifiability_certificate.identified is None
+    assert (
+        "diagnostic_verifier_provenance_not_admitted"
+        in (ident_abm.identifiability_certificate.metadata["limitation_codes"])
+    )
     assert str(ident_abm.identifiability_certificate.diagnostic_ref.artifact_id) == str(
         diagnostic_ref.artifact_id
     )
+
+    # A same-kind CAS payload can bind this simulation while contradicting the
+    # rank and conditioning fields; content binding does not prove verification.
+    forged_payload = diagnostic.model_dump(mode="json")
+    forged_payload.update(
+        {
+            "effective_dimension": 0,
+            "jacobian_rank": 0,
+            "fisher_eigenvalues": [0.0],
+            "min_eigenvalue": 0.0,
+            "condition_number": 1e30,
+            "blocking_reasons": ["forged_rank_deficient"],
+            "status": IdentifiabilityDiagnosticStatus.IDENTIFIED.value,
+        }
+    )
+    forged_ref = store.put_json(
+        forged_payload,
+        PutOptions(
+            kind="foundry.identifiability_diagnostic",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.IdentifiabilityDiagnosticResult",
+                version="1.0",
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=sim_ref.artifact_id,
+                    role="simulation_result",
+                    manifest_profile_sha256=sim_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    forged_abm_ref = attach_abm_identifiability_certificate_ref(
+        store,
+        simulation_result_ref=sim_ref,
+        diagnostic_ref=IdentifiabilityDiagnosticRef.model_validate(
+            forged_ref.model_dump(mode="python")
+        ),
+    )
+    fresh_forged_abm = load_abm_result(_ensure_ir_artifact_store(fresh_store), forged_abm_ref)
+    assert fresh_forged_abm.identifiability_certificate is not None
+    assert fresh_forged_abm.identifiability_certificate.status == "diagnostic_attached"
+    assert fresh_forged_abm.identifiability_certificate.identified is None
+    assert (
+        "diagnostic_verifier_provenance_not_admitted"
+        in (fresh_forged_abm.identifiability_certificate.metadata["limitation_codes"])
+    )
+    assert str(fresh_forged_abm.identifiability_certificate.diagnostic_ref.artifact_id) == str(
+        forged_ref.artifact_id
+    )
+
+    second_simulation = simulation.model_copy(update={"notes": ["different selected run"]})
+    second_sim_payload = store.put_json(
+        second_simulation,
+        PutOptions(
+            kind="foundry.simulation_result",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=second_simulation.schema_version,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="not bound to this selected simulation"):
+        attach_abm_identifiability_certificate_ref(
+            store,
+            simulation_result_ref=SimulationResultRef(artifact_id=second_sim_payload.artifact_id),
+            diagnostic_ref=diagnostic_ref,
+        )
+    with pytest.raises(FileNotFoundError):
+        attach_abm_identifiability_certificate_ref(
+            store,
+            simulation_result_ref=sim_ref,
+            diagnostic_ref=IdentifiabilityDiagnosticRef(artifact_id=_artifact_id("f")),
+        )
+
+    diagnostic_payload = diagnostic.model_dump(mode="json")
+    wrong_schema_ref = store.put_json(
+        diagnostic_payload,
+        PutOptions(
+            kind="foundry.identifiability_diagnostic",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.IdentifiabilityDiagnosticResult",
+                version="9.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(
+        ValueError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        attach_abm_identifiability_certificate_ref(
+            store,
+            simulation_result_ref=sim_ref,
+            diagnostic_ref=IdentifiabilityDiagnosticRef(
+                artifact_id=wrong_schema_ref.artifact_id,
+                manifest_profile_sha256=wrong_schema_ref.manifest_profile_sha256,
+            ),
+        )
+
+    # A matching manifest and payload version is still unsupported when the
+    # typed artifact owner has no contract for that version.
+    matched_unsupported_payload = diagnostic_payload | {"schema_version": "9.0"}
+    matched_unsupported_ref = store.put_json(
+        matched_unsupported_payload,
+        PutOptions(
+            kind="foundry.identifiability_diagnostic",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.IdentifiabilityDiagnosticResult",
+                version="9.0",
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=sim_ref.artifact_id,
+                    role="simulation_result",
+                    manifest_profile_sha256=sim_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(
+        ValueError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        attach_abm_identifiability_certificate_ref(
+            store,
+            simulation_result_ref=sim_ref,
+            diagnostic_ref=IdentifiabilityDiagnosticRef(
+                artifact_id=matched_unsupported_ref.artifact_id,
+                manifest_profile_sha256=matched_unsupported_ref.manifest_profile_sha256,
+            ),
+        )
+
+    wrong_kind_ref = store.put_json(
+        diagnostic_payload,
+        PutOptions(
+            kind="foundry.unrelated_diagnostic",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.IdentifiabilityDiagnosticResult", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError):
+        attach_abm_identifiability_certificate_ref(
+            store,
+            simulation_result_ref=sim_ref,
+            diagnostic_ref=IdentifiabilityDiagnosticRef(
+                artifact_id=wrong_kind_ref.artifact_id,
+                manifest_profile_sha256=wrong_kind_ref.manifest_profile_sha256,
+            ),
+        )
 
     attractor_ref = persist_attractor_analysis_result(
         store,
@@ -357,14 +573,24 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
             ),
         ),
     )
+    assert attractor_ref.manifest_profile_sha256 is not None
     bifurcation_abm_ref = attach_abm_bifurcation_report_ref(
         store,
         simulation_result_ref=sim_ref,
         attractor_analysis_ref=attractor_ref,
     )
-    bifurcation_abm = load_abm_result(_ensure_ir_artifact_store(store), bifurcation_abm_ref)
+    bifurcation_abm = load_abm_result(_ensure_ir_artifact_store(fresh_store), bifurcation_abm_ref)
     assert bifurcation_abm.bifurcation_report is not None
+    assert bifurcation_abm.bifurcation_report.status == "available"
     assert bifurcation_abm.bifurcation_report.attractor_analysis_ref is not None
+    assert bifurcation_abm.bifurcation_report.bifurcation_count == 0
+    assert bifurcation_abm.bifurcation_report.attractor_count == 0
+    with pytest.raises(ValueError, match="not bound to this selected simulation"):
+        attach_abm_bifurcation_report_ref(
+            store,
+            simulation_result_ref=SimulationResultRef(artifact_id=second_sim_payload.artifact_id),
+            attractor_analysis_ref=attractor_ref,
+        )
 
 
 def test_dynamic_microsim_validation_report_roundtrip_and_calibration_integration(tmp_path) -> None:

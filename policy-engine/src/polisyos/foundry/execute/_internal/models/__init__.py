@@ -5,11 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from io import BytesIO
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 from pydantic import BaseModel, Field
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -21,6 +22,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes as from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
+
+_ModelT = TypeVar("_ModelT", bound=BaseModel)
+
+_ARTIFACT_OWNER_FIELDS = (
+    "ARTIFACT_KIND",
+    "ARTIFACT_MEDIA_TYPE",
+    "ARTIFACT_SCHEMA_NAME",
+    "ARTIFACT_SCHEMA_VERSION",
+)
 
 __all__ = [
     "ApplyArtifacts",
@@ -139,9 +149,27 @@ def artifact_input_ref(
     return InputRef(artifact_id=artifact_id(value), role=role)
 
 
-def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
-    """Load model."""
-    from polisyos.core.artifacts import load_core_json_artifact
+def _has_complete_artifact_owner(model_cls: type[BaseModel]) -> bool:
+    """Return whether a model declares its complete Core artifact owner contract."""
+    owner_values = tuple(getattr(model_cls, field, None) for field in _ARTIFACT_OWNER_FIELDS)
+    if not any(value is not None for value in owner_values):
+        return False
+    if any(not isinstance(value, str) or not value for value in owner_values):
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+    return True
+
+
+def load_model(
+    store: FileSystemCAS,
+    ref: ArtifactRef | ArtifactID | str,
+    model_cls: type[_ModelT],
+) -> _ModelT:
+    """Load a typed artifact through its owner contract when one is declared."""
+    from polisyos.core.artifacts import load_core_json_artifact, validate_core_model_json_artifact
+
+    if _has_complete_artifact_owner(model_cls):
+        return validate_core_model_json_artifact(model_cls, store, ref)
+
     payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
@@ -149,6 +177,7 @@ def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_
 def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
     """Load payload."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     if isinstance(payload, BaseModel):
         return payload.model_dump()
@@ -172,7 +201,12 @@ def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
 def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
     """Load tensor."""
     data = store.get_bytes(ref)
-    return np.load(BytesIO(data), allow_pickle=False)
+    loaded = np.load(BytesIO(data), allow_pickle=False)
+    if isinstance(loaded, np.ndarray):
+        return loaded
+    if isinstance(loaded, np.lib.npyio.NpzFile):
+        loaded.close()
+    raise ValueError("Tensor artifact must contain a NumPy array")
 
 
 # ---------------------------------------------------------------------------

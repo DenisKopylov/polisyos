@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateDelta
 from polisyos.foundry.contracts.state import GlobalState
@@ -41,7 +42,14 @@ def test_merge_patch_records_matches_in_memory_sum_semantics(tmp_path) -> None:
     )
     state_delta_ref = store.put_json(
         StateDelta(base_ref=None, ops=ops),
-        PutOptions(kind="foundry.state_delta", media_type="application/json"),
+        PutOptions(
+            kind=StateDelta.ARTIFACT_KIND,
+            media_type=StateDelta.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=StateDelta.ARTIFACT_SCHEMA_NAME,
+                version=StateDelta.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     cas_state = apply_state_delta(
         store,

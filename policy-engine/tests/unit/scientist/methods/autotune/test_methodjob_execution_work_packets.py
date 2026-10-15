@@ -306,6 +306,43 @@ def _evaluate(
     )
 
 
+def test_methodjob_refuses_data_snapshot_with_foreign_owner_schema(
+    tmp_path,
+) -> None:
+    MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate_ref, suite_ref, valid_snapshot_ref = _persist_source_inputs(store)
+    snapshot = load_model_artifact(store, valid_snapshot_ref, DataSnapshot)
+    assert isinstance(snapshot, DataSnapshot)
+    foreign_schema_snapshot_ref = store.put_json(
+        snapshot,
+        ArtifactWriteOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=DataSnapshot.ARTIFACT_SCHEMA_NAME, version="9.0"),
+            inputs=[input_ref_from_artifact_ref(snapshot.data_ref, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    evaluation = _evaluate(
+        store=store,
+        candidate_ref=candidate_ref,
+        suite_ref=suite_ref,
+        snapshot_ref=foreign_schema_snapshot_ref,
+        draws=8,
+        attempt_id="wrong-snapshot-schema",
+        caller_context={"estimation_config": {"estimator": "dr_learner", "n_bootstrap": 80}},
+    )
+
+    assert evaluation.status == "data_snapshot_unavailable"
+    assert any(
+        "canon_profile_typed_artifact_schema_version_unsupported" in note
+        for note in evaluation.notes
+    ), evaluation.notes
+
+
 def _work(packet: MethodJobExecutionWorkPacket) -> BootstrapExecutionWork:
     return BootstrapExecutionWork.model_validate(packet.bootstrap_execution)
 

@@ -197,7 +197,11 @@ class RunSimulationNode:
         return replace(self, exec_config=config)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import (
+            load_core_json_artifact,
+            validate_core_model_json_artifact,
+        )
+
         injected_metrics = ctx.metrics if ctx.metrics is not None else None
         metrics = (
             injected_metrics
@@ -333,15 +337,26 @@ class RunSimulationNode:
             artifacts.append(result.simulation_result_ref)
 
             try:
-                payload = load_core_json_artifact(ctx.store, result.simulation_result_ref)
+                raw_payload = ctx.store.get_bytes(result.simulation_result_ref)
+                payload = load_core_json_artifact(
+                    ctx.store,
+                    result.simulation_result_ref,
+                    raw_payload_bytes=raw_payload,
+                )
                 if isinstance(payload, dict):
                     simulation_payload = dict(payload)
-                sim_result = SimulationResult.model_validate(payload)
+                sim_result = validate_core_model_json_artifact(
+                    SimulationResult,
+                    ctx.store,
+                    result.simulation_result_ref,
+                    raw_payload_bytes=raw_payload,
+                )
                 if sim_result.state_snapshot_ref is not None:
                     new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = (
                         sim_result.state_snapshot_ref
                     )
             except _SIMULATION_LOAD_ERRORS as exc:
+                simulation_payload = None
                 logger.debug(
                     "Failed to load simulation result payload for runtime bookkeeping: %s",
                     exc,

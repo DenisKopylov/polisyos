@@ -8,6 +8,7 @@ import pytest
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.distributional import (
@@ -42,10 +43,14 @@ from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
     RunNormativeArbitrationNode,
+    _load_metrics,
+    _load_simulation_result,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -111,6 +116,136 @@ def test_normative_arbitration_invalid_trinity_bundle_skips_with_warning(tmp_pat
     assert outcome.status == "skip"
     assert outcome.events
     assert outcome.events[0].level == "warn"
+
+
+def test_normative_arbitration_refuses_trinity_payload_under_foreign_schema(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_normative_schema"
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.normative.schema"),
+    )
+    trinity_ref = store.put_json(
+        TrinityBundle(
+            problem_frame=ProblemFrame(
+                problem_id="normative_problem",
+                domain=ProblemDomain.SOCIAL,
+                objectives=[
+                    ObjectiveSpec(
+                        objective_id="obj1",
+                        metric_id="net_welfare",
+                        direction=OptimizationDirection.MAXIMIZE,
+                    )
+                ],
+            ),
+            policy_spec=PolicySpec(policy_id="policy", interventions=[]),
+            model_spec=ModelSpec(
+                model_id="model",
+                data_snapshot_ref="sha256:" + "0" * 64,
+                fidelity_level=FidelityLevel.HYBRID,
+            ),
+        ),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=TrinityBundle.ARTIFACT_SCHEMA_NAME, version="9.0"),
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_normative_schema",
+        inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+    )
+
+    outcome = RunNormativeArbitrationNode().execute(ctx, state)
+
+    assert outcome.status == "skip"
+    assert outcome.events[0].level == "warn"
+    assert outcome.events[0].message == "Failed to parse trinity bundle for normative arbitration"
+
+
+def test_normative_arbitration_typed_foundry_reads_require_owner_schema(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_normative_refs")
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.normative.typed-refs"),
+    )
+    metrics = Metrics(values={"net_welfare": 4})
+    valid_metrics_ref = store.put_json(
+        metrics,
+        PutOptions(
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    invalid_metrics_ref = store.put_json(
+        metrics,
+        PutOptions(
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=Metrics.ARTIFACT_SCHEMA_NAME, version="9.0"),
+        ),
+    )
+    metrics_state = ExperimentState(
+        run_id="R_normative_refs",
+        artifacts_index={ARTIFACT_METRICS_REF: valid_metrics_ref},
+    )
+    assert _load_metrics(ctx, metrics_state) == metrics
+    with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_version_unsupported"):
+        _load_metrics(
+            ctx,
+            metrics_state.model_copy(
+                update={"artifacts_index": {ARTIFACT_METRICS_REF: invalid_metrics_ref}}
+            ),
+        )
+
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=f"sha256:{'a' * 64}"),
+        metrics_ref=MetricsRef(artifact_id=f"sha256:{'b' * 64}"),
+    )
+    valid_simulation_ref = store.put_json(
+        simulation,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    invalid_simulation_ref = store.put_json(
+        simulation,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=SimulationResult.ARTIFACT_SCHEMA_NAME, version="9.0"),
+        ),
+    )
+    simulation_state = ExperimentState(
+        run_id="R_normative_refs",
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: valid_simulation_ref},
+    )
+    assert _load_simulation_result(ctx, simulation_state) == simulation
+    assert (
+        _load_simulation_result(
+            ctx,
+            simulation_state.model_copy(
+                update={"artifacts_index": {ARTIFACT_SIMULATION_RESULT_REF: invalid_simulation_ref}}
+            ),
+        )
+        is None
+    )
 
 
 def test_normative_arbitration_uses_branch_state_for_artifact_output(tmp_path) -> None:

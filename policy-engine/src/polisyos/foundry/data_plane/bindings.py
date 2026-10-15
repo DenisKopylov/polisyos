@@ -829,10 +829,9 @@ def load_input_bindings(
     Returns:
         Parsed `FoundryInputBindings` model.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
-    payload = load_core_json_artifact(store, ref)
-    return FoundryInputBindings.model_validate(payload)
+    return validate_core_model_json_artifact(FoundryInputBindings, store, ref)
 
 
 def resolve_bound_state_snapshot_ref(
@@ -970,12 +969,11 @@ def inject_feedback_state(
 
 
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
     _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
-    payload = load_core_json_artifact(store, data_snapshot_ref)
-    return DataSnapshot.model_validate(payload)
+    return validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
 
 
 def _verify_selected_data_snapshot_schema(store: FileSystemCAS, ref: ArtifactRef) -> None:

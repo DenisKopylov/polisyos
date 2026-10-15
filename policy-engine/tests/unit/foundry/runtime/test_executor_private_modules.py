@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from io import BytesIO
 
 import jax.numpy as jnp
 import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import load_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlan,
@@ -31,6 +34,7 @@ from polisyos.foundry.execute._internal.graph import (
 )
 from polisyos.foundry.execute._internal.models import (
     get_state_path,
+    load_model,
     load_tensor,
     put_tensor,
     set_state_path,
@@ -114,6 +118,19 @@ def test_state_path_helpers_report_invalid_segment_context() -> None:
     assert exc_info.value.path == "agents..income"
     assert exc_info.value.segment == ""
     assert exc_info.value.segment_index == 1
+
+
+def test_load_tensor_rejects_numpy_archive_payload(tmp_path) -> None:
+    archive = BytesIO()
+    np.savez(archive, value=np.asarray([1.0], dtype=np.float32))
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_bytes(
+        archive.getvalue(),
+        PutOptions(kind="foundry.patch_value", media_type="application/x-npy"),
+    )
+
+    with pytest.raises(ValueError, match="NumPy array"):
+        load_tensor(store, ref)
 
 
 def test_apply_ops_for_slot_combines_multiple_add_ops_with_masks(tmp_path) -> None:
@@ -483,7 +500,14 @@ def test_apply_state_delta_and_snapshot_persists_snapshot_with_base_ref(tmp_path
                 )
             ]
         ),
-        PutOptions(kind="foundry.state_delta", media_type="application/json"),
+        PutOptions(
+            kind=StateDelta.ARTIFACT_KIND,
+            media_type=StateDelta.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=StateDelta.ARTIFACT_SCHEMA_NAME,
+                version=StateDelta.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     base_ref = ArtifactRef(
         artifact_id=ArtifactID.from_sha256_hex("d" * 64),
@@ -647,3 +671,27 @@ def test_build_state_delta_ops_uses_sum_diff_for_touched_slots(tmp_path) -> None
     assert ops[0].slot_id == "government.balance"
     assert ops[0].op == "add"
     assert float(np.asarray(load_tensor(store, ops[0].value_ref))) == pytest.approx(5.0)
+
+
+def test_load_model_rejects_owner_version_drift_for_typed_core_artifact(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = ProgramGraph(ir_ref=_ir_ref()).model_dump(mode="json")
+    payload["schema_version"] = "0.3"
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    assert load_core_json_artifact(store, ref)["schema_version"] == "0.3"
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_version_mismatch",
+    ):
+        load_model(store, ref, ProgramGraph)

@@ -117,7 +117,8 @@ def test_abm_stub_is_fixture_only_and_default_path_is_content_bound() -> None:
 
     assert first == second
     assert first.identifiability_certificate is not None
-    assert first.identifiability_certificate.status == "diagnostic_attached"
+    assert first.identifiability_certificate.status == "not_available"
+    assert first.identifiability_certificate.diagnostic_ref is None
     assert first.notes
     assert "phase4_abm_result_stub" not in first.model_dump_json()
     receipt_note = next(note for note in first.notes if note.startswith("strangle_receipt:"))
@@ -331,10 +332,15 @@ def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence
 
     assert SimulationResult not in ABMResult.__mro__
     assert loaded == result
-    assert result.model_dump(
-        mode="json",
-        exclude={"identifiability_certificate", "bifurcation_report"},
-    ) == simulation.model_dump(mode="json")
+    expected_wire = simulation.model_dump(mode="json")
+    expected_wire["identifiability_diagnostic_ref"] = None
+    assert (
+        result.model_dump(
+            mode="json",
+            exclude={"identifiability_certificate", "bifurcation_report"},
+        )
+        == expected_wire
+    )
     assert type(result.exec_plan_ref) is not type(simulation.exec_plan_ref)
     assert type(result.metrics_ref) is not type(simulation.metrics_ref)
     assert type(result.state_snapshot_ref) is not type(simulation.state_snapshot_ref)
@@ -357,9 +363,31 @@ def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence
             simulation.execution_input_basis_ref
         )
     assert result.identifiability_certificate is not None
-    assert result.identifiability_certificate.diagnostic_ref is not None
+    assert result.identifiability_certificate.status == "not_available"
+    assert result.identifiability_certificate.diagnostic_ref is None
     assert result.bifurcation_report is not None
-    assert result.bifurcation_report.attractor_analysis_ref is not None
+    assert result.bifurcation_report.status == "not_available"
+    assert result.bifurcation_report.attractor_analysis_ref is None
+    assert result.identifiability_diagnostic_ref is None
+
+
+def test_core_simulation_conversion_refuses_unsupported_schema_projection() -> None:
+    payload = _fully_populated_simulation_payload()
+    payload.update(
+        {
+            "schema_version": "1.2",
+            "execution_input_basis_ref": None,
+            "execution_source_status": "not_recorded",
+            "feedback_result_ref": None,
+        }
+    )
+    simulation = SimulationResult.model_validate(payload)
+
+    with pytest.raises(
+        ValueError,
+        match="unsupported_simulation_result_artifact_schema_version",
+    ):
+        build_abm_result_from_simulation(simulation)
 
 
 def test_foundry_producer_persists_for_ir_result_consumer(tmp_path) -> None:
@@ -380,7 +408,7 @@ def test_foundry_producer_persists_for_ir_result_consumer(tmp_path) -> None:
     assert not isinstance(result, SimulationResult)
     assert loaded == result
     assert loaded.identifiability_certificate is not None
-    assert loaded.identifiability_certificate.status == "diagnostic_attached"
+    assert loaded.identifiability_certificate.status == "not_available"
 
 
 def test_production_simulation_modules_have_zero_abm_stub_callers() -> None:

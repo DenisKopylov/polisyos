@@ -93,3 +93,58 @@ def test_core_simulation_result_preserves_legacy_status_and_profiled_api_roundtr
     assert received.execution_source_status == "single_step_basis"
     assert received.execution_input_basis_ref == result.execution_input_basis_ref
     assert received == result
+
+
+def test_core_simulation_result_projects_only_fields_declared_by_its_artifact_version() -> None:
+    legacy_payload = _simulation_result_payload(
+        None,
+        schema_version="1.3",
+        execution_source_status="not_recorded",
+    )
+    legacy_payload.pop("execution_input_basis_ref")
+    legacy_payload.pop("execution_source_status")
+    legacy = SimulationResult.model_validate(legacy_payload)
+
+    legacy_artifact = legacy.to_artifact_payload()
+
+    assert legacy_artifact["schema_version"] == "1.3"
+    assert set(legacy_artifact) == set(SimulationResult.model_fields) - {
+        "execution_input_basis_ref",
+        "execution_source_status",
+    }
+
+    selected = SimulationResult.model_validate(_simulation_result_payload(_basis_ref_payload()))
+    selected_artifact = selected.to_artifact_payload()
+
+    assert selected_artifact["schema_version"] == "1.4"
+    assert selected_artifact["execution_source_status"] == "single_step_basis"
+    assert selected_artifact["execution_input_basis_ref"] == _basis_ref_payload()
+
+
+@pytest.mark.parametrize(
+    ("schema_version", "basis_ref", "source_status"),
+    [
+        ("1.3", None, "single_step_basis"),
+        ("1.3", _basis_ref_payload(), "not_recorded"),
+        ("1.2", None, "not_recorded"),
+    ],
+)
+def test_core_simulation_result_refuses_unrepresentable_artifact_versions(
+    schema_version: str,
+    basis_ref: dict[str, str] | None,
+    source_status: str,
+) -> None:
+    payload = _simulation_result_payload(
+        basis_ref,
+        schema_version=schema_version,
+        execution_source_status=source_status,
+    )
+
+    if schema_version == "1.3" and (source_status != "not_recorded" or basis_ref is not None):
+        with pytest.raises(ValidationError):
+            SimulationResult.model_validate(payload)
+        return
+
+    result = SimulationResult.model_validate(payload)
+    with pytest.raises(ValueError, match="unsupported_simulation_result_artifact_schema_version"):
+        result.to_artifact_payload()

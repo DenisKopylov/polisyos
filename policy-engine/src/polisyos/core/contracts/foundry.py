@@ -17,6 +17,12 @@ from .distributional import DistributionalReportRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
+_AttractorAnalysisMode = Literal["attractors", "continuation", "basin_map", "lyapunov"]
+
+
+def _default_attractor_analysis_modes() -> list[_AttractorAnalysisMode]:
+    return ["attractors"]
+
 
 class FoundryExecutionInputBasisRef(ArtifactRef):
     """Selected CAS reference for the exact inputs passed to one Foundry step."""
@@ -328,6 +334,7 @@ class ProgramGraph(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.ProgramGraph"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {"0.2.0": "0.2"}
     ARTIFACT_KIND: ClassVar[Literal["foundry.program_graph"]] = "foundry.program_graph"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
@@ -1389,8 +1396,8 @@ class AttractorAnalysisRequest(BaseModel):
     trajectories: list[list[list[float]]] = Field(default_factory=list)
     initial_states: list[dict[str, float]] = Field(default_factory=list)
     seeds: list[int] = Field(default_factory=list)
-    analysis_modes: list[Literal["attractors", "continuation", "basin_map", "lyapunov"]] = Field(
-        default_factory=lambda: ["attractors"]
+    analysis_modes: list[_AttractorAnalysisMode] = Field(
+        default_factory=_default_attractor_analysis_modes
     )
     tolerance: float = Field(default=1.0e-6, ge=0.0)
     rtol: float = Field(default=1.0e-5, ge=0.0)
@@ -1859,6 +1866,26 @@ class SimulationResult(BaseModel):
                     raise ValueError("feedback_source_status_requires_feedback_without_basis")
             elif self.execution_input_basis_ref is not None:
                 raise ValueError("execution_basis_ref_requires_single_step_status")
-        elif self.execution_input_basis_ref is not None:
-            raise ValueError("execution_basis_ref_requires_simulation_result_schema_1_4")
+        else:
+            if self.execution_input_basis_ref is not None:
+                raise ValueError("execution_basis_ref_requires_simulation_result_schema_1_4")
+            if self.execution_source_status != "not_recorded":
+                raise ValueError("execution_source_status_requires_simulation_result_schema_1_4")
         return self
+
+    def to_artifact_payload(self) -> dict[str, Any]:
+        """Project only the fields supported by this result's declared artifact version.
+
+        Schema 1.3 is the frozen historical shape. The execution-basis fields belong
+        only to schema 1.4; they are omitted from legacy bytes and are never promoted
+        by relabeling a newer result. Unsupported historical versions must be migrated
+        through an explicit projection rather than serialized under a guessed schema.
+        """
+        if self.schema_version == self.LEGACY_ARTIFACT_SCHEMA_VERSION:
+            return self.model_dump(
+                mode="json",
+                exclude={"execution_input_basis_ref", "execution_source_status"},
+            )
+        if self.schema_version == self.ARTIFACT_SCHEMA_VERSION:
+            return self.model_dump(mode="json")
+        raise ValueError("unsupported_simulation_result_artifact_schema_version")

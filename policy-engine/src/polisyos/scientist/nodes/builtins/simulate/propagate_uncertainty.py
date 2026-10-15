@@ -9,7 +9,7 @@ from decimal import Decimal
 from numbers import Real
 from typing import Any, Literal, Protocol, cast
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
@@ -30,6 +30,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
+from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
@@ -228,12 +229,14 @@ class PropagateUncertaintyNode:
             )
         ]
 
-        envelope_refs: dict[str, ArtifactRef] = {}
+        envelope_refs: dict[str, UncertaintyEnvelopeRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), item.envelope)
-            envelope_refs[item.metric_id] = ref
-            artifacts.append(ref)
+            envelope_ref = persist_uncertainty_envelope(
+                _ensure_ir_artifact_store(ctx.store), item.envelope
+            )
+            envelope_refs[item.metric_id] = envelope_ref
+            artifacts.append(ArtifactRef.model_validate(envelope_ref.model_dump(mode="python")))
 
         config_ref = _persist_config(ctx, config)
         report_ref = _persist_report(
@@ -260,17 +263,39 @@ class PropagateUncertaintyNode:
             _input_ref(report_ref, role="propagation_report"),
             _input_ref(config_ref, role="propagation_config"),
         ]
-        for metric_id, ref in envelope_refs.items():
-            update_inputs.append(_input_ref(ref, role=f"metric_envelope.{metric_id}"))
+        if updated_sim.execution_input_basis_ref is not None:
+            update_inputs.append(
+                _input_ref(
+                    updated_sim.execution_input_basis_ref,
+                    role="execution_input_basis",
+                )
+            )
+        if updated_sim.feedback_result_ref is not None:
+            update_inputs.append(
+                _input_ref(
+                    updated_sim.feedback_result_ref,
+                    role="artifact.feedback_result_ref",
+                )
+            )
+        for metric_id, envelope_ref in envelope_refs.items():
+            update_inputs.append(_input_ref(envelope_ref, role=f"metric_envelope.{metric_id}"))
 
+        return_selected_profile = (
+            sim_result_ref.manifest_profile_sha256 is not None
+            or updated_sim.schema_version == SimulationResult.ARTIFACT_SCHEMA_VERSION
+        )
         updated_ref_payload = ctx.store.put_json(
-            updated_sim,
+            updated_sim.to_artifact_payload(),
             PutOptions(
                 kind="foundry.simulation_result",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
+                schema=SchemaInfo(
+                    name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                    version=updated_sim.schema_version,
+                ),
                 inputs=update_inputs,
             ),
+            return_selected_profile=return_selected_profile,
         )
         updated_ref = SimulationResultRef.model_validate(
             updated_ref_payload.model_dump(mode="python")
@@ -366,7 +391,11 @@ def _validate_sensitivity_mapping_shape(
     return normalized
 
 
-def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
+def _load_model[ModelT: BaseModel](
+    ctx: ExecutionContext,
+    ref: ArtifactRef | ArtifactRefModel,
+    model_cls: type[ModelT],
+) -> ModelT:
     payload = get_json_artifact(_ensure_ir_artifact_store(ctx.store), ref)
     return model_cls.model_validate(payload)
 

@@ -7,12 +7,17 @@ from enum import Enum
 from hashlib import sha256
 from math import isfinite
 from numbers import Real
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.artifacts import resolve_manifest_by_profile
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    read_core_manifest_profile,
+    resolve_manifest_by_profile,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -202,6 +207,13 @@ class IdentifiabilityDiagnosticResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    ARTIFACT_KIND: ClassVar[Literal["foundry.identifiability_diagnostic"]] = (
+        "foundry.identifiability_diagnostic"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.IdentifiabilityDiagnosticResult"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
     schema_version: str = "1.0"
     status: IdentifiabilityDiagnosticStatus
     moment_classes: tuple[IdentifiabilityMomentClass, ...]
@@ -248,14 +260,10 @@ def identifiability_diagnostic(
     real persisted replays; its Jacobian-only basis is local and non-gating.
     This profile requires inline moments/center and zero bootstrap/profile reps.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
-
     sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
-    simulation_result = (
-        SimulationResult.model_validate(load_core_json_artifact(store, sim_ref))
-        if response_slots is not None
-        else _load_model(store, sim_ref, SimulationResult)
-    )
+    selected_sim_ref = _selected_simulation_result_ref(store, sim_ref)
+    simulation_result = _load_model(store, selected_sim_ref, SimulationResult)
+    sim_ref = selected_sim_ref
     observed_ref = (
         observed_moment_bundle if isinstance(observed_moment_bundle, ArtifactRef) else None
     )
@@ -397,11 +405,55 @@ def load_identifiability_diagnostic_result(
     ref: IdentifiabilityDiagnosticRef,
 ) -> IdentifiabilityDiagnosticResult:
     """Load a persisted aggregate-moment identifiability sidecar from CAS."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected_ref = IdentifiabilityDiagnosticRef(
+        artifact_id=ref.artifact_id,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+    result = validate_core_model_json_artifact(
+        IdentifiabilityDiagnosticResult,
+        store,
+        selected_ref,
+    )
+    return result.model_copy(update={"diagnostic_ref": selected_ref})
 
-    payload = load_core_json_artifact(store, ref)
-    result = IdentifiabilityDiagnosticResult.model_validate(payload)
-    return result.model_copy(update={"diagnostic_ref": ref})
+
+def _selected_simulation_result_ref(
+    store: FileSystemCAS,
+    ref: SimulationResultRef,
+) -> SimulationResultRef:
+    """Resolve a typed simulation reference to its exact selected CAS manifest."""
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    if manifest.kind != "foundry.simulation_result" or manifest.media_type != "application/json":
+        raise ValueError("simulation result reference does not resolve to a Core simulation result")
+    return SimulationResultRef(
+        artifact_id=ref.artifact_id,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+
+
+def _require_diagnostic_simulation_lineage(
+    store: FileSystemCAS,
+    *,
+    diagnostic_ref: IdentifiabilityDiagnosticRef,
+    simulation_result_ref: SimulationResultRef,
+) -> IdentifiabilityDiagnosticResult:
+    """Resolve a sidecar and require its persisted input to be this exact simulation view."""
+    diagnostic = load_identifiability_diagnostic_result(store, diagnostic_ref)
+    selected_diagnostic_ref = diagnostic.diagnostic_ref
+    if selected_diagnostic_ref is None:
+        raise ValueError("persisted identifiability diagnostic has no selected CAS profile")
+    manifest, _declaration = read_core_manifest_profile(store, selected_diagnostic_ref)
+    matching_inputs = [item for item in manifest.inputs if item.role == "simulation_result"]
+    if len(matching_inputs) != 1:
+        raise ValueError("identifiability diagnostic must bind exactly one simulation result")
+    source = matching_inputs[0]
+    if (
+        source.artifact_id != simulation_result_ref.artifact_id
+        or source.manifest_profile_sha256 != simulation_result_ref.manifest_profile_sha256
+    ):
+        raise ValueError("identifiability diagnostic is not bound to this selected simulation")
+    return diagnostic
 
 
 def attach_identifiability_diagnostic_ref(
@@ -412,31 +464,57 @@ def attach_identifiability_diagnostic_ref(
 ) -> SimulationResultRef:
     """Persist a new `SimulationResult` artifact that points at a diagnostic sidecar."""
 
-    sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
+    sim_ref = _selected_simulation_result_ref(store, simulation_result_ref)
     simulation_result = _load_model(store, sim_ref, SimulationResult)
-    updated = simulation_result.model_copy(
-        update={"identifiability_diagnostic_ref": diagnostic_ref}
+    diagnostic = _require_diagnostic_simulation_lineage(
+        store,
+        diagnostic_ref=diagnostic_ref,
+        simulation_result_ref=sim_ref,
     )
+    selected_diagnostic_ref = diagnostic.diagnostic_ref
+    if selected_diagnostic_ref is None:
+        raise ValueError("identifiability diagnostic has no selected CAS profile")
+    updated = simulation_result.model_copy(
+        update={"identifiability_diagnostic_ref": selected_diagnostic_ref}
+    )
+    update_inputs = [
+        input_ref_from_artifact_ref(sim_ref, role="artifact.simulation_result_ref"),
+        input_ref_from_artifact_ref(
+            selected_diagnostic_ref,
+            role="artifact.identifiability_diagnostic_ref",
+        ),
+    ]
+    if updated.execution_input_basis_ref is not None:
+        update_inputs.append(
+            InputRef(
+                artifact_id=updated.execution_input_basis_ref.artifact_id,
+                role="execution_input_basis",
+                manifest_profile_sha256=updated.execution_input_basis_ref.manifest_profile_sha256,
+            )
+        )
+    if updated.feedback_result_ref is not None:
+        update_inputs.append(
+            InputRef(
+                artifact_id=updated.feedback_result_ref.artifact_id,
+                role="artifact.feedback_result_ref",
+                manifest_profile_sha256=updated.feedback_result_ref.manifest_profile_sha256,
+            )
+        )
     ref = store.put_json(
-        updated,
+        updated.to_artifact_payload(),
         PutOptions(
             kind="foundry.simulation_result",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
-            inputs=[
-                InputRef(
-                    artifact_id=sim_ref.artifact_id,
-                    role="artifact.simulation_result_ref",
-                ),
-                InputRef(
-                    artifact_id=diagnostic_ref.artifact_id,
-                    role="artifact.identifiability_diagnostic_ref",
-                ),
-            ],
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=updated.schema_version,
+            ),
+            inputs=update_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
     )
-    return SimulationResultRef(artifact_id=ref.artifact_id)
+    return SimulationResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def attach_abm_identifiability_certificate_ref(
@@ -447,12 +525,36 @@ def attach_abm_identifiability_certificate_ref(
 ) -> ABMResultRef:
     """Persist an exact Phase-4 ``ABMResult`` with identifiability certificate populated."""
 
-    sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
+    sim_ref = _selected_simulation_result_ref(store, simulation_result_ref)
     simulation_result = _load_model(store, sim_ref, SimulationResult)
-    abm_result = build_abm_result_from_simulation(
-        simulation_result,
-        identifiability_diagnostic_ref=diagnostic_ref,
+    diagnostic = _require_diagnostic_simulation_lineage(
+        store,
+        diagnostic_ref=diagnostic_ref,
+        simulation_result_ref=sim_ref,
     )
+    selected_diagnostic_ref = diagnostic.diagnostic_ref
+    if selected_diagnostic_ref is None:
+        raise ValueError("identifiability diagnostic has no selected CAS profile")
+    abm_result = build_abm_result_from_simulation(simulation_result)
+    result_payload = abm_result.model_dump(mode="python")
+    result_payload["identifiability_diagnostic_ref"] = selected_diagnostic_ref.model_dump(
+        mode="python"
+    )
+    result_payload["identifiability_certificate"] = {
+        "status": "diagnostic_attached",
+        "diagnostic_ref": selected_diagnostic_ref.model_dump(mode="python"),
+        "identified": None,
+        "summary": (
+            f"candidate aggregate-moment diagnostic status: {diagnostic.status.value}; "
+            "verifier provenance not admitted"
+        ),
+        "metadata": {
+            "evidence_grade": "candidate",
+            "limitation_codes": ["diagnostic_verifier_provenance_not_admitted"],
+            "reported_diagnostic_status": diagnostic.status.value,
+        },
+    }
+    abm_result = type(abm_result).model_validate(result_payload)
     ref = store.put_json(
         abm_result,
         PutOptions(
@@ -460,25 +562,17 @@ def attach_abm_identifiability_certificate_ref(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.ir.ABMResult", version="1.0"),
             inputs=[
-                InputRef(
-                    artifact_id=sim_ref.artifact_id,
-                    role="artifact.simulation_result_ref",
-                ),
-                InputRef(
-                    artifact_id=diagnostic_ref.artifact_id,
+                input_ref_from_artifact_ref(sim_ref, role="artifact.simulation_result_ref"),
+                input_ref_from_artifact_ref(
+                    selected_diagnostic_ref,
                     role="artifact.identifiability_diagnostic_ref",
                 ),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
     )
-    return ABMResultRef.model_validate(
-        {
-            "artifact_id": ref.artifact_id,
-            "kind": "ir.abm_result",
-            "media_type": "application/json",
-        }
-    )
+    return ABMResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def _compute_identifiability_diagnostic(
@@ -1102,22 +1196,23 @@ def _persist_diagnostic_result(
     observed_ref: ArtifactRef | None = None,
     parameter_ref: ArtifactRef | None = None,
 ) -> IdentifiabilityDiagnosticResult:
-    inputs = [InputRef(artifact_id=simulation_result_ref.artifact_id, role="simulation_result")]
+    selected_simulation_ref = _selected_simulation_result_ref(store, simulation_result_ref)
+    inputs = [input_ref_from_artifact_ref(selected_simulation_ref, role="simulation_result")]
     if observed_ref is not None:
-        inputs.append(InputRef(artifact_id=observed_ref.artifact_id, role="observed_moment_bundle"))
+        inputs.append(input_ref_from_artifact_ref(observed_ref, role="observed_moment_bundle"))
     if parameter_ref is not None:
-        inputs.append(InputRef(artifact_id=parameter_ref.artifact_id, role="parameter_center"))
+        inputs.append(input_ref_from_artifact_ref(parameter_ref, role="parameter_center"))
     if result.sensitivity_matrix_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=result.sensitivity_matrix_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                result.sensitivity_matrix_ref,
                 role="artifact.sensitivity_matrix_ref",
             )
         )
     if result.profile_trace_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=result.profile_trace_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                result.profile_trace_ref,
                 role="artifact.profile_trace_ref",
             )
         )
@@ -1125,18 +1220,23 @@ def _persist_diagnostic_result(
     ref = store.put_json(
         result,
         PutOptions(
-            kind="foundry.identifiability_diagnostic",
-            media_type="application/json",
+            kind=IdentifiabilityDiagnosticResult.ARTIFACT_KIND,
+            media_type=IdentifiabilityDiagnosticResult.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
-                name="polisyos.core.IdentifiabilityDiagnosticResult",
-                version=result.schema_version,
+                name=IdentifiabilityDiagnosticResult.ARTIFACT_SCHEMA_NAME,
+                version=IdentifiabilityDiagnosticResult.ARTIFACT_SCHEMA_VERSION,
             ),
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
     )
     return result.model_copy(
-        update={"diagnostic_ref": IdentifiabilityDiagnosticRef(artifact_id=ref.artifact_id)}
+        update={
+            "diagnostic_ref": IdentifiabilityDiagnosticRef.model_validate(
+                ref.model_dump(mode="python")
+            )
+        }
     )
 
 
@@ -1221,7 +1321,7 @@ def _resolve_parameter_center(
     if isinstance(parameter_center, ArtifactRef):
         payload = load_core_json_artifact(store, parameter_center)
         if isinstance(payload, Mapping) and "overrides" in payload:
-            bundle = ParameterOverrideBundle.model_validate(payload)
+            bundle = _load_model(store, parameter_center, ParameterOverrideBundle)
             return _flatten_parameter_overrides(bundle.overrides)
         return _resolve_float_mapping(store, parameter_center, label="parameter_center")
 
@@ -1334,10 +1434,7 @@ def _load_model[ModelT: BaseModel](
     ref: ArtifactRef,
     model_cls: type[ModelT],
 ) -> ModelT:
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    payload = load_core_json_artifact(store, ref)
-    return model_cls.model_validate(payload)
+    return validate_core_model_json_artifact(model_cls, store, ref)
 
 
 def _vector_to_mapping(names: Sequence[str], values: np.ndarray) -> dict[str, float]:
@@ -1461,7 +1558,7 @@ def _response_context(
         raise ValueError("response slots must match the unique ordered moment axis")
     if not center or len(set(center)) != len(center):
         raise ValueError("response parameter axis must be nonempty and unique")
-    source = SimulationResult.model_validate(load_core_json_artifact(store, source_ref))
+    source = _load_model(store, source_ref, SimulationResult)
     manifest = store.get_manifest(source_ref)
     roles = [item.role for item in manifest.inputs]
     if len(set(roles)) != len(roles):
@@ -1472,7 +1569,7 @@ def _response_context(
     bindings_ref = FoundryInputBindingsRef.model_validate(
         _response_input_ref(store, item).model_dump(mode="python")
     )
-    bindings = FoundryInputBindings.model_validate(load_core_json_artifact(store, bindings_ref))
+    bindings = _load_model(store, bindings_ref, FoundryInputBindings)
     feedback = _find_input(manifest.inputs, "input.feedback_config_ref")
     feedback_ref = (
         None
@@ -1481,8 +1578,8 @@ def _response_context(
             _response_input_ref(store, feedback).model_dump(mode="python")
         )
     )
-    plan = ExecPlan.model_validate(load_core_json_artifact(store, source.exec_plan_ref))
-    program = ProgramGraph.model_validate(load_core_json_artifact(store, plan.program_ref))
+    plan = _load_model(store, source.exec_plan_ref, ExecPlan)
+    program = _load_model(store, plan.program_ref, ProgramGraph)
     registry = core_registry.load_registry_bundle_content(store, bindings.registry_bundle_ref)
     registry_payload = core_registry.load_registry_bundle_payload(
         store, bindings.registry_bundle_ref
@@ -1523,14 +1620,16 @@ def _response_context(
     nodes = {node.node_id: node for node in program.nodes}
     for key in center:
         node_id, separator, parameter = key.rpartition(".")
-        node = nodes.get(node_id)
+        response_node = nodes.get(node_id)
         if (
             not separator
-            or node is None
-            or node.mechanism_type not in registry.mechanism_registry.mechanisms
+            or response_node is None
+            or response_node.mechanism_type not in registry.mechanism_registry.mechanisms
         ):
             raise ValueError(f"unknown response parameter: {key}")
-        spec = registry.mechanism_registry.mechanisms[node.mechanism_type].params.get(parameter)
+        spec = registry.mechanism_registry.mechanisms[response_node.mechanism_type].params.get(
+            parameter
+        )
         if spec is None or spec.unit_id not in registry.units_registry.units:
             raise ValueError(f"response parameter has no declared unit: {key}")
         parameter_units[key] = registry.units_registry.units[spec.unit_id].model_dump(mode="json")
@@ -1564,9 +1663,7 @@ def _response_context(
 
 
 def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult:
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    replay = SimulationResult.model_validate(load_core_json_artifact(store, ref))
+    replay = _load_model(store, ref, SimulationResult)
     manifest = store.get_manifest(ref)
     updates = {}
     # Legacy SimulationResult fields may carry bare refs even when its native
@@ -1592,7 +1689,10 @@ def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult
         resolved = _response_input_ref(store, matches[0])
         updates[field] = type(payload_ref).model_validate(resolved.model_dump(mode="python"))
     normalized = replay.model_copy(update=updates)
-    _response_snapshot_inputs(store, normalized.state_snapshot_ref)
+    normalized_state_ref = normalized.state_snapshot_ref
+    if normalized_state_ref is None:
+        raise ValueError("response replay has no persisted state")
+    _response_snapshot_inputs(store, normalized_state_ref)
     return normalized
 
 
@@ -1711,7 +1811,10 @@ def _load_execute_response_matrix(
     from polisyos.core.artifacts import load_core_json_artifact
 
     payload = load_core_json_artifact(store, matrix_ref)
-    basis = _ResponseBasis.model_validate(payload.get("response_basis"))
+    if not isinstance(payload, dict) or any(not isinstance(key, str) for key in payload):
+        raise ValueError("response matrix payload must be an object with string keys")
+    typed_payload: dict[str, object] = {key: value for key, value in payload.items()}
+    basis = _ResponseBasis.model_validate(typed_payload.get("response_basis"))
     expected, source, bindings_ref, feedback_ref = _response_context(
         store,
         source_ref,
@@ -1725,9 +1828,9 @@ def _load_execute_response_matrix(
         mode="json"
     ):
         raise ValueError("response basis differs from expected source/axes/units/config")
-    if payload["moment_names"] != list(expected.moment_names) or payload["parameter_names"] != list(
-        expected.parameter_names
-    ):
+    if typed_payload["moment_names"] != list(expected.moment_names) or typed_payload[
+        "parameter_names"
+    ] != list(expected.parameter_names):
         raise ValueError("response matrix axis order differs from its basis")
     expected_inputs = [item.model_dump(mode="json") for item in _response_basis_inputs(basis)]
     actual_inputs = [item.model_dump(mode="json") for item in store.get_manifest(matrix_ref).inputs]
@@ -1741,9 +1844,9 @@ def _load_execute_response_matrix(
     for index, name in enumerate(expected.parameter_names):
         step = config.finite_diff_rel_step * max(abs(parameter_center[name]), 1.0)
         steps[name] = step
-        plus, minus = dict(parameter_center), dict(parameter_center)
-        plus[name] += step
-        minus[name] -= step
+        plus_parameters, minus_parameters = dict(parameter_center), dict(parameter_center)
+        plus_parameters[name] += step
+        minus_parameters[name] -= step
         minus_seeds = (
             seeds
             if config.use_common_random_numbers
@@ -1751,9 +1854,9 @@ def _load_execute_response_matrix(
                 (config.seed or 0) + 100_000 * (index + 1) + offset for offset in range(len(seeds))
             )
         )
-        evaluations.extend((plus, seed) for seed in seeds)
-        evaluations.extend((minus, seed) for seed in minus_seeds)
-    if len(evaluations) != len(basis.replays) or payload["finite_diff_steps"] != steps:
+        evaluations.extend((plus_parameters, seed) for seed in seeds)
+        evaluations.extend((minus_parameters, seed) for seed in minus_seeds)
+    if len(evaluations) != len(basis.replays) or typed_payload["finite_diff_steps"] != steps:
         raise ValueError("response finite-difference evaluation roster mismatch")
     replay_sources = []
     for record, (theta, seed) in zip(basis.replays, evaluations, strict=True):
@@ -1782,9 +1885,7 @@ def _load_execute_response_matrix(
         )
         if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
             raise ValueError("response replay request/config differs from its declared basis")
-        override = ParameterOverrideBundle.model_validate(
-            load_core_json_artifact(store, record.override.ref)
-        )
+        override = _load_model(store, record.override.ref, ParameterOverrideBundle)
         if _flatten_parameter_overrides(override.overrides) != theta:
             raise ValueError("response replay override differs from finite-difference point")
         manifest = store.get_manifest(record.result.ref)
@@ -1806,12 +1907,12 @@ def _load_execute_response_matrix(
         replay = _response_replay(store, record.result.ref)
         if replay.exec_plan_ref != source.exec_plan_ref:
             raise ValueError("response replay has a different execution plan")
-        for role, ref in (
+        for role, output_ref in (
             ("metrics", replay.metrics_ref),
             ("state_snapshot", replay.state_snapshot_ref),
         ):
-            if ref is None or [item for item in manifest.inputs if item.role == role] != [
-                input_ref_from_artifact_ref(ref, role=role)
+            if output_ref is None or [item for item in manifest.inputs if item.role == role] != [
+                input_ref_from_artifact_ref(output_ref, role=role)
             ]:
                 raise ValueError(f"response replay lineage mismatch: {role}")
         if len([item for item in manifest.inputs if item.role == "state_delta"]) != 1:
@@ -1822,25 +1923,28 @@ def _load_execute_response_matrix(
     from polisyos.foundry.execute.executor import load_state_snapshot
 
     load_state_snapshot(store, snapshot_ref=expected.source_inputs["bound_state"].ref)
-    values = []
+    replay_values_by_record = []
     for replay in replay_sources:
-        replay_values = _response_state_values(store, replay, expected.state_paths)
-        values.append([replay_values[name] for name in expected.moment_names])
-    samples = np.asarray(values, dtype=float)
+        state_values = _response_state_values(store, replay, expected.state_paths)
+        replay_values_by_record.append([state_values[name] for name in expected.moment_names])
+    samples = np.asarray(replay_values_by_record, dtype=float)
     n = len(seeds)
     jacobian = np.empty((len(expected.moment_names), len(expected.parameter_names)))
     offset = n
     for index, name in enumerate(expected.parameter_names):
-        plus, minus = samples[offset : offset + n], samples[offset + n : offset + 2 * n]
-        jacobian[:, index] = (plus.mean(axis=0) - minus.mean(axis=0)) / (2 * steps[name])
+        plus_samples = samples[offset : offset + n]
+        minus_samples = samples[offset + n : offset + 2 * n]
+        jacobian[:, index] = (plus_samples.mean(axis=0) - minus_samples.mean(axis=0)) / (
+            2 * steps[name]
+        )
         offset += 2 * n
     weighting, _ = _weighting_matrix(samples[:n], config.ridge)
     fisher = jacobian.T @ weighting @ jacobian
     fisher = 0.5 * (fisher + fisher.T)
     if not np.array_equal(
-        np.asarray(payload["weighting_matrix"], dtype=float), weighting
-    ) or not np.array_equal(np.asarray(payload["fisher_information"], dtype=float), fisher):
+        np.asarray(typed_payload["weighting_matrix"], dtype=float), weighting
+    ) or not np.array_equal(np.asarray(typed_payload["fisher_information"], dtype=float), fisher):
         raise ValueError("response weighting/Fisher matrix differs from persisted states")
-    if not np.array_equal(np.asarray(payload["jacobian"], dtype=float), jacobian):
+    if not np.array_equal(np.asarray(typed_payload["jacobian"], dtype=float), jacobian):
         raise ValueError("response matrix differs from persisted-state finite differences")
-    return payload
+    return typed_payload

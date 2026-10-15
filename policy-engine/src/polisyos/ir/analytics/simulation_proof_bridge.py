@@ -48,11 +48,18 @@ from polisyos.ir.registry.refs import (
 )
 
 _SCHEMA_VERSION = "1.0"
-_UNSPECIFIED_ASSUMPTIONS = {
+
+_UNSPECIFIED_ASSUMPTIONS: dict[str, Literal["unspecified"]] = {
     "cost_model": "unspecified",
     "noise_model": "unspecified",
     "allowed_adaptive_designs": "unspecified",
 }
+
+
+def _default_unspecified_assumptions() -> dict[str, Literal["unspecified"]]:
+    return dict(_UNSPECIFIED_ASSUMPTIONS)
+
+
 # Frozen to the existing Foundry producer manifests. Contract drift degrades
 # calibration instead of silently widening which artifacts may authorize it.
 _OWNER_ARTIFACT_CONTRACTS = {
@@ -162,7 +169,7 @@ class SimulationProofBridge(BaseModel):
     composability_status: Literal["reusable", "revalidate", "rederive", "unknown"]
     degradation_reasons: tuple[str, ...] = ()
     unspecified_assumptions: dict[str, Literal["unspecified"]] = Field(
-        default_factory=lambda: dict(_UNSPECIFIED_ASSUMPTIONS)
+        default_factory=_default_unspecified_assumptions
     )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -565,7 +572,11 @@ def _coerce_typed_optional_ref(model: Any | None, ref_type: type[BaseModel]) -> 
 
 def _input_ref(ref: Any, role: str) -> InputRef:
     normalized = _coerce_ref(ref)
-    return InputRef(artifact_id=ArtifactID.model_validate(str(normalized.artifact_id)), role=role)
+    return InputRef(
+        artifact_id=ArtifactID.model_validate(str(normalized.artifact_id)),
+        role=role,
+        manifest_profile_sha256=normalized.manifest_profile_sha256,
+    )
 
 
 def _lineage_inputs(items: Sequence[tuple[str, Any | None]]) -> list[InputRef]:

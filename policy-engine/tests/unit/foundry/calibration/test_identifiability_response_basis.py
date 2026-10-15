@@ -224,6 +224,36 @@ def test_fresh_reader_recomputes_actual_native_response(tmp_path):
     np.testing.assert_allclose(payload["jacobian"], [[4.0]], rtol=2e-5)
 
 
+def test_actual_response_matrix_reader_refuses_non_object_payload(response_case):
+    _, store, source, parameter, original = response_case
+    manifest = store.get_manifest(original)
+    malformed = store.put_json(
+        ["not", "an", "object"],
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+    )
+
+    with pytest.raises(ValueError, match="response matrix payload must be an object"):
+        _load_execute_response_matrix(
+            store,
+            malformed,
+            source_ref=source,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+
 @pytest.fixture(scope="module")
 def response_case(tmp_path_factory):
     path = tmp_path_factory.mktemp("response_case")

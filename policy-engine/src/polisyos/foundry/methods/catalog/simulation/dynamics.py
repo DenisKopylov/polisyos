@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Callable, Mapping
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 
 import numpy as np
 
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
-    IdentifiabilityDiagnosticRef,
     MetricsRef,
     SimulationResult,
 )
@@ -35,6 +34,46 @@ from polisyos.ir.analytics.phase4_dynamics import (
     build_strangle_receipt,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
+
+if TYPE_CHECKING:
+    import jax
+
+    from polisyos.foundry.agent_sim.state import AgentState, GlobalState, PolicyState
+    from polisyos.foundry.execute.queue import QueueState as FoundryQueueState
+
+
+@runtime_checkable
+class _QueueStateFactory(Protocol):
+    def __call__(self, *, queue_length: jax.Array) -> FoundryQueueState: ...
+
+
+@runtime_checkable
+class _AgentStateUpdater(Protocol):
+    def replace(
+        self,
+        *,
+        wealth: jax.Array,
+        income: jax.Array,
+        consumption: jax.Array,
+        active: jax.Array,
+    ) -> AgentState: ...
+
+
+@runtime_checkable
+class _PolicyStateUpdater(Protocol):
+    def replace(
+        self,
+        *,
+        tax_rate: jax.Array,
+        transfer_rate: jax.Array,
+        interest_rate: jax.Array,
+        expected_interest_rate: jax.Array,
+    ) -> PolicyState: ...
+
+
+@runtime_checkable
+class _GlobalStateUpdater(Protocol):
+    def replace(self, *, agents: AgentState, policy: PolicyState) -> GlobalState: ...
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -90,25 +129,29 @@ def build_abm_result_from_simulation(
         supplied_diagnostic_ref = base.identifiability_diagnostic_ref
     diagnostic_ref = _artifact_ref_payload(supplied_diagnostic_ref)
     attractor_ref = _artifact_ref_payload(attractor_analysis_ref)
-    payload = base.model_dump(mode="python")
     if diagnostic_ref is not None:
-        payload["identifiability_diagnostic_ref"] = diagnostic_ref
+        # Validate the typed reference shape, but do not treat its presence as proof
+        # that the sidecar resolves to a persisted, content-bound diagnostic.
+        ABMIdentifiabilityCertificate(diagnostic_ref=diagnostic_ref)
+    if attractor_ref is not None:
+        # The same rule applies to attractor analysis: only the CAS-backed attach
+        # adapter may publish an available report.
+        ABMBifurcationReport(
+            attractor_analysis_ref=attractor_ref,
+            bifurcation_count=bifurcation_count,
+            attractor_count=attractor_count,
+        )
+    payload = base.to_artifact_payload()
+    # This mapper has no CAS boundary, so neither its input references nor the
+    # Core-side references can establish that a sidecar exists or matches this run.
+    payload.pop("identifiability_diagnostic_ref", None)
     payload["identifiability_certificate"] = ABMIdentifiabilityCertificate(
-        status="diagnostic_attached" if diagnostic_ref is not None else "not_available",
-        diagnostic_ref=diagnostic_ref,
-        identified=None if diagnostic_ref is None else True,
-        summary="aggregate moment identifiability diagnostic attached"
-        if diagnostic_ref is not None
-        else "aggregate moment identifiability diagnostic missing",
+        status="not_available",
+        summary="aggregate moment identifiability diagnostic was not resolved from CAS",
     )
     payload["bifurcation_report"] = ABMBifurcationReport(
-        status="available" if attractor_ref is not None else "not_available",
-        attractor_analysis_ref=attractor_ref,
-        bifurcation_count=bifurcation_count,
-        attractor_count=attractor_count,
-        summary="attractor/bifurcation analysis attached"
-        if attractor_ref is not None
-        else "attractor/bifurcation analysis missing",
+        status="not_available",
+        summary="attractor/bifurcation analysis was not resolved from CAS",
     )
     return ABMResult.model_validate(payload)
 
@@ -128,13 +171,9 @@ def build_content_bound_abm_result(
         payload=payload,
         diagnostics=diagnostics,
     )
-    diagnostic_ref = IdentifiabilityDiagnosticRef(
-        artifact_id=receipt.diagnostics_hash
-    )
     simulation = SimulationResult(
         exec_plan_ref=ExecPlanRef(artifact_id=receipt.payload_hash),
         metrics_ref=MetricsRef(artifact_id=receipt.metrics_hash),
-        identifiability_diagnostic_ref=diagnostic_ref,
         notes=[
             "content_bound_abm_result",
             f"trajectory_hash:{receipt.trajectory_hash}",
@@ -142,10 +181,7 @@ def build_content_bound_abm_result(
             f"strangle_receipt:{receipt.model_dump_json()}",
         ],
     )
-    return build_abm_result_from_simulation(
-        simulation,
-        identifiability_diagnostic_ref=diagnostic_ref,
-    )
+    return build_abm_result_from_simulation(simulation)
 
 
 def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
@@ -176,7 +212,7 @@ def _rk4_step(
     k2 = rhs(state + 0.5 * dt * k1)
     k3 = rhs(state + 0.5 * dt * k2)
     k4 = rhs(state + dt * k3)
-    return state + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
+    return np.asarray(state + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4))
 
 
 def _canonical_ode_rhs(
@@ -577,7 +613,13 @@ class QueueDiscreteEventEstimator:
         import jax
         import jax.numpy as jnp
 
-        from polisyos.foundry.execute.queue import QueueMechanism, QueueState, simulate_queue
+        from polisyos.foundry.execute.queue import (
+            QueueMechanism,
+            simulate_queue,
+        )
+        from polisyos.foundry.execute.queue import (
+            QueueState as FoundryQueueState,
+        )
 
         mechanism = QueueMechanism(
             service_rate=float(params.get("service_rate", 1.0)),
@@ -586,7 +628,12 @@ class QueueDiscreteEventEstimator:
             temperature=float(params.get("temperature", 1.0)),
             fidelity=_runtime_fidelity(params.get("fidelity")),
         )
-        queue_state = QueueState(queue_length=jnp.asarray(state["queue_length"], dtype=jnp.float32))
+        queue_state_factory = FoundryQueueState
+        if not isinstance(queue_state_factory, _QueueStateFactory):
+            raise TypeError("Foundry QueueState does not expose its typed constructor")
+        queue_state = queue_state_factory(
+            queue_length=jnp.asarray(state["queue_length"], dtype=jnp.float32)
+        )
         final_state = simulate_queue(
             mechanism,
             queue_state,
@@ -853,7 +900,10 @@ class AgentPopulationSimulationEstimator:
             seed=seed,
             simulation_horizon=n_steps,
         )
-        agents = initial_state.agents.replace(
+        initial_agents = initial_state.agents
+        if not isinstance(initial_agents, _AgentStateUpdater):
+            raise TypeError("Foundry AgentState does not expose its typed update method")
+        agents = initial_agents.replace(
             wealth=initial_wealth,
             income=initial_income,
             consumption=_agent_sim_vector(state, "initial_consumption", n_agents, default=5.0),
@@ -861,7 +911,10 @@ class AgentPopulationSimulationEstimator:
                 state.get("active_mask", jnp.ones(n_agents, dtype=jnp.bool_)), dtype=jnp.bool_
             ),
         )
-        policy = initial_state.policy.replace(
+        initial_policy = initial_state.policy
+        if not isinstance(initial_policy, _PolicyStateUpdater):
+            raise TypeError("Foundry PolicyState does not expose its typed update method")
+        policy = initial_policy.replace(
             tax_rate=jnp.asarray(_float(state.get("tax_rate"), 0.2), dtype=jnp.float32),
             transfer_rate=jnp.asarray(_float(state.get("transfer_rate"), 0.0), dtype=jnp.float32),
             interest_rate=jnp.asarray(_float(state.get("interest_rate"), 0.01), dtype=jnp.float32),
@@ -869,6 +922,8 @@ class AgentPopulationSimulationEstimator:
                 _float(state.get("expected_interest_rate"), 0.01), dtype=jnp.float32
             ),
         )
+        if not isinstance(initial_state, _GlobalStateUpdater):
+            raise TypeError("Foundry GlobalState does not expose its typed update method")
         initial_state = initial_state.replace(agents=agents, policy=policy)
 
         executor = PureExecutor(mechanisms, aggregate_every=1, compute_gini=True)
@@ -910,9 +965,7 @@ class AgentPopulationSimulationEstimator:
             diagnostics={
                 "method_id": "simulation.agent_based.population_dynamics",
                 "horizon": n_steps,
-                "diagnostic_source": (
-                    "AgentPopulationSimulationEstimator.postprocess_output"
-                ),
+                "diagnostic_source": ("AgentPopulationSimulationEstimator.postprocess_output"),
             },
         )
         result_payload["abm_result"] = abm_result.model_dump(mode="json")

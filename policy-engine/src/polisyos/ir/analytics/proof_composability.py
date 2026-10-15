@@ -202,7 +202,7 @@ class ProofComposabilityCertificate(BaseModel):
             right = str(item[1]).strip()
             if not left or not right:
                 raise ValueError("new_district_links pairs must be non-empty")
-            links.add(tuple(sorted((left, right))))
+            links.add((left, right) if left <= right else (right, left))
         return tuple(sorted(links))
 
     @model_validator(mode="after")

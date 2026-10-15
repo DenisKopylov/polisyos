@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal, InvalidOperation
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Protocol, TypeVar, cast
 
 from polisyos.ir.model_layer.types import SelectorOperator
 
@@ -21,6 +21,30 @@ K = TypeVar("K", str, int, float, bool, Decimal, tuple)
 
 MAX_SELECTOR_FIELD_DEPTH = 8
 MAX_SELECTOR_COLLECTION_ITEMS = 64
+
+
+class _SelectorStatsNode(Protocol):
+    """Expose the public selector discriminator consumed by the size walker."""
+
+    kind: str
+
+
+class _SelectorUnaryStatsNode(_SelectorStatsNode, Protocol):
+    """Expose the public child field on unary selector nodes."""
+
+    clause: _SelectorStatsNode
+
+
+class _SelectorAggregateStatsNode(_SelectorStatsNode, Protocol):
+    """Expose the optional public predicate nested in an aggregate selector."""
+
+    where: _SelectorStatsNode | None
+
+
+class _SelectorCompoundStatsNode(_SelectorStatsNode, Protocol):
+    """Expose the public branch sequence on all/any selector nodes."""
+
+    clauses: Sequence[_SelectorStatsNode]
 
 
 def ensure_unique_ids(
@@ -168,16 +192,19 @@ def selector_stats(node: object) -> tuple[int, int]:
     if kind == "predicate":
         return 1, 1
     if kind == "not":
-        depth, nodes = selector_stats(node.clause)
+        child = cast("_SelectorUnaryStatsNode", node).clause
+        depth, nodes = selector_stats(child)
         return depth + 1, nodes + 1
     if kind == "quantifier":
-        depth, nodes = selector_stats(node.clause)
+        child = cast("_SelectorUnaryStatsNode", node).clause
+        depth, nodes = selector_stats(child)
         return depth + 1, nodes + 1
     if kind == "temporal":
-        depth, nodes = selector_stats(node.clause)
+        child = cast("_SelectorUnaryStatsNode", node).clause
+        depth, nodes = selector_stats(child)
         return depth + 1, nodes + 1
     if kind == "aggregate":
-        where = node.where
+        where = cast("_SelectorAggregateStatsNode", node).where
         if where is None:
             return 1, 1
         depth, nodes = selector_stats(where)
@@ -185,7 +212,7 @@ def selector_stats(node: object) -> tuple[int, int]:
     if kind in {"all_of", "any_of"}:
         depths: list[int] = []
         total = 1
-        for clause in node.clauses:
+        for clause in cast("_SelectorCompoundStatsNode", node).clauses:
             depth, nodes = selector_stats(clause)
             depths.append(depth)
             total += nodes

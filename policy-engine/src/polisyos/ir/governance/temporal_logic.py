@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Literal, cast
 
 from pydantic import Field, model_validator
 
@@ -266,81 +266,93 @@ class TemporalPolicyConstraint(KernelModel):
         return self
 
 
-def _temporal_formula_stats(node: TemporalLogicExpr) -> tuple[int, int, int]:
+def _temporal_formula_stats(node: TemporalLogicExpr | None) -> tuple[int, int, int]:
     kind = getattr(node, "kind", None)
     if kind == "atom":
         return 1, 1, 0
     if kind == "not":
-        depth, nodes, paths = _temporal_formula_stats(node.clause)
+        formula = cast(TemporalNot, node)
+        depth, nodes, paths = _temporal_formula_stats(formula.clause)
         return depth + 1, nodes + 1, paths
     if kind in {"all_of", "any_of"}:
-        child_stats = [_temporal_formula_stats(clause) for clause in node.clauses]
+        formula = cast(TemporalAll | TemporalAny, node)
+        child_stats = [_temporal_formula_stats(clause) for clause in formula.clauses]
         depth = max(stat[0] for stat in child_stats) + 1
         nodes = sum(stat[1] for stat in child_stats) + 1
         paths = sum(stat[2] for stat in child_stats)
         return depth, nodes, paths
     if kind == "unary":
-        depth, nodes, paths = _temporal_formula_stats(node.clause)
+        formula = cast(TemporalUnaryFormula, node)
+        depth, nodes, paths = _temporal_formula_stats(formula.clause)
         return depth + 1, nodes + 1, paths
     if kind == "binary":
-        left_depth, left_nodes, left_paths = _temporal_formula_stats(node.left)
-        right_depth, right_nodes, right_paths = _temporal_formula_stats(node.right)
+        formula = cast(TemporalBinaryFormula, node)
+        left_depth, left_nodes, left_paths = _temporal_formula_stats(formula.left)
+        right_depth, right_nodes, right_paths = _temporal_formula_stats(formula.right)
         return (
             max(left_depth, right_depth) + 1,
             left_nodes + right_nodes + 1,
             left_paths + right_paths,
         )
     if kind == "bounded":
-        if node.operator == "until":
-            left_depth, left_nodes, left_paths = _temporal_formula_stats(node.left)
-            right_depth, right_nodes, right_paths = _temporal_formula_stats(node.right)
+        formula = cast(TemporalBoundedFormula, node)
+        if formula.operator == "until":
+            left_depth, left_nodes, left_paths = _temporal_formula_stats(formula.left)
+            right_depth, right_nodes, right_paths = _temporal_formula_stats(formula.right)
             return (
                 max(left_depth, right_depth) + 1,
                 left_nodes + right_nodes + 1,
                 left_paths + right_paths,
             )
-        depth, nodes, paths = _temporal_formula_stats(node.clause)
+        depth, nodes, paths = _temporal_formula_stats(formula.clause)
         return depth + 1, nodes + 1, paths
     if kind == "path":
-        depth, nodes, paths = _temporal_formula_stats(node.clause)
+        formula = cast(TemporalPathFormula, node)
+        depth, nodes, paths = _temporal_formula_stats(formula.clause)
         return depth + 1, nodes + 1, paths + 1
     return 1, 1, 0
 
 
 def _validate_formula_family(
-    node: TemporalLogicExpr,
+    node: TemporalLogicExpr | None,
     family: TemporalLogicFamily,
 ) -> None:
     kind = getattr(node, "kind", None)
     if kind == "atom":
         return
     if kind == "bounded":
+        formula = cast(TemporalBoundedFormula, node)
         if family is not TemporalLogicFamily.MTL:
             raise ValueError("bounded temporal operators are only allowed for MTL")
-        if node.operator == "until":
-            _validate_formula_family(node.left, family)
-            _validate_formula_family(node.right, family)
+        if formula.operator == "until":
+            _validate_formula_family(formula.left, family)
+            _validate_formula_family(formula.right, family)
         else:
-            _validate_formula_family(node.clause, family)
+            _validate_formula_family(formula.clause, family)
         return
     if kind == "path":
+        formula = cast(TemporalPathFormula, node)
         if family is not TemporalLogicFamily.CTL:
             raise ValueError("path quantifiers are only allowed for CTL")
-        _validate_formula_family(node.clause, family)
+        _validate_formula_family(formula.clause, family)
         return
     if kind == "not":
-        _validate_formula_family(node.clause, family)
+        formula = cast(TemporalNot, node)
+        _validate_formula_family(formula.clause, family)
         return
     if kind in {"all_of", "any_of"}:
-        for clause in node.clauses:
+        formula = cast(TemporalAll | TemporalAny, node)
+        for clause in formula.clauses:
             _validate_formula_family(clause, family)
         return
     if kind == "unary":
-        _validate_formula_family(node.clause, family)
+        formula = cast(TemporalUnaryFormula, node)
+        _validate_formula_family(formula.clause, family)
         return
     if kind == "binary":
-        _validate_formula_family(node.left, family)
-        _validate_formula_family(node.right, family)
+        formula = cast(TemporalBinaryFormula, node)
+        _validate_formula_family(formula.left, family)
+        _validate_formula_family(formula.right, family)
 
 
 __all__ = [

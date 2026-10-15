@@ -668,6 +668,9 @@ class ParetoRegistry:
                 continue
             try:
                 snapshot = self._load_snapshot(path)
+            except TransferScopeRefusedError as exc:
+                scope_refusals.extend(exc.refusals)
+                continue
             except (ValueError, ValidationError):
                 scope_refusals.append(
                     _scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)
@@ -1184,7 +1187,7 @@ class ParetoRegistry:
                 ensure_ascii=False,
             ).encode("utf-8")
         else:
-            payload = snapshot.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
+            payload = snapshot.model_dump_json(indent=2).encode("utf-8")
         with NamedTemporaryFile(
             mode="wb",
             delete=False,

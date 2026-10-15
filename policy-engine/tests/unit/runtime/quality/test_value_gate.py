@@ -6670,10 +6670,10 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     assert len(outer_sets) == baseline_outer_count
 
 
-def test_n8_source_profile_rejects_unprojected_query_row_set(
+def test_n8_source_profile_selects_exact_active_projection_before_row_cap(
     tmp_path: Path,
 ) -> None:
-    "An extra physical row cannot join a complete active owner projection."
+    """Read the exact selected member set and reject a malformed supplied projection."""
     from dataclasses import replace
 
     from polisyos.runtime.quality import generation_cycle as gc
@@ -6695,18 +6695,44 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
         }
         for index in range(200)
     ]
-    unprojected = {
-        "observation_id": "fixture-unprojected-avg-income-2400",
-        "dataset_id": "acquisition.local.avg_income",
-        "raw_variable": "avg_income",
-        "canonical_var": "avg_income",
-        "country_code": "UA",
-        "year": 2400,
-        "survey_year": None,
-        "wave": None,
-        "value": 1.0,
-        "condition_json": '{"unit":"binary"}',
-    }
+    unprojected = (
+        {
+            "observation_id": "fixture-unprojected-avg-income-same-dataset-2400",
+            "dataset_id": "acquisition.local.avg_income",
+            "raw_variable": "avg_income",
+            "canonical_var": "avg_income",
+            "country_code": "UA",
+            "year": 2400,
+            "survey_year": None,
+            "wave": None,
+            "value": 1.0,
+            "condition_json": '{"unit":"binary"}',
+        },
+        {
+            "observation_id": "fixture-unprojected-avg-income-other-dataset-2401",
+            "dataset_id": "aaa-unrelated-population",
+            "raw_variable": "avg_income",
+            "canonical_var": "avg_income",
+            "country_code": "UA",
+            "year": 2401,
+            "survey_year": None,
+            "wave": None,
+            "value": 1.0,
+            "condition_json": '{"unit":"binary"}',
+        },
+        {
+            "observation_id": "fixture-unprojected-avg-income-foreign-scope-2402",
+            "dataset_id": "acquisition.local.avg_income",
+            "raw_variable": "avg_income",
+            "canonical_var": "avg_income",
+            "country_code": "US",
+            "year": 2402,
+            "survey_year": None,
+            "wave": None,
+            "value": 1.0,
+            "condition_json": '{"unit":"binary"}',
+        },
+    )
     fixture = make_native_multivariable_active_projections(
         tmp_path / "native-owner-source-with-extra-baseline-row",
         source_rows=source_rows,
@@ -6730,13 +6756,13 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
                 "canonical_unit": "binary",
             },
         ),
-        unadmitted_baseline_observations=(unprojected,),
+        unadmitted_baseline_observations=unprojected,
     )
     projection = fixture.projections["avg_income"]
-    projected_ids = {row.observation.observation_id for row in projection.observations}
     assert projection.activation_state == "active"
     assert projection.predicate_provenance == "recomputed"
-    assert unprojected["observation_id"] not in projected_ids
+    projected_ids = {row.observation.observation_id for row in projection.observations}
+    assert all(row["observation_id"] not in projected_ids for row in unprojected)
 
     substrate_paths = replace(
         default_substrate_catalog_paths(fixture.repo_root),
@@ -6752,11 +6778,8 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
         selection_basis="explicit_path_candidate_only",
         substrate_paths=substrate_paths,
     )
-    with (
-        catalog_serving_source_scope(catalog_source),
-        pytest.raises(gc.ValueOwnerAccessError) as refusal,
-    ):
-        gc._load_value_data_profile_from_l1_dcat(
+    with catalog_serving_source_scope(catalog_source):
+        profile = gc._load_value_data_profile_from_l1_dcat(
             repo_root=fixture.repo_root,
             outcome="avg_income",
             owner_access_ref="fixture://n8-active-source-profile",
@@ -6765,4 +6788,129 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
             artifact_store=fixture.artifact_store,
             activated_observation_projection=projection,
         )
-    assert refusal.value.code == ("acquire_data:active_observation_projection_rowset_mismatch")
+    assert profile is not None
+    assert profile.owner_row_count == len(projection.observations) == 200
+    assert {row.period_id for row in profile.rows} == {1800 + index for index in range(200)}
+
+    malformed_projection = projection.model_copy(
+        update={"projection_content_sha256": "sha256:" + "0" * 64}
+    )
+    with (
+        catalog_serving_source_scope(catalog_source),
+        pytest.raises(gc.ValueOwnerAccessError) as refusal,
+    ):
+        gc._load_value_data_profile_from_l1_dcat(
+            repo_root=fixture.repo_root,
+            outcome="avg_income",
+            owner_access_ref="fixture://n8-malformed-active-source-profile",
+            overlay_path=fixture.overlay_path,
+            scope_region="UA",
+            artifact_store=fixture.artifact_store,
+            activated_observation_projection=malformed_projection,
+        )
+    assert refusal.value.code == "acquire_data:active_observation_projection_invalid"
+
+
+def test_n8_active_projection_rows_are_selected_before_large_owner_row_cap(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A large unrelated source population cannot starve a small active projection."""
+    from dataclasses import replace
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import data_state_substrate, substrate_registry
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    source_rows = [
+        {
+            "country_code": "UA",
+            "year": year,
+            "avg_income": value,
+            "condition_json": {"unit": "ratio", "population": "selected"},
+        }
+        for year, value in ((2021, 0.42), (2022, 0.51), (2023, 0.47), (2024, 0.56))
+    ]
+    unrelated_rows = [
+        {
+            "observation_id": f"fixture-unadmitted-avg-income-{index:05d}",
+            "dataset_id": "aaa-unrelated-population",
+            "raw_variable": "avg_income",
+            "canonical_var": "avg_income",
+            "country_code": "UA",
+            "year": 1900,
+            "survey_year": None,
+            "wave": None,
+            "value": float(index),
+            "condition_json": '{"unit":"ratio","population":"unrelated"}',
+        }
+        for index in range(20_001)
+    ]
+    fixture = make_native_multivariable_active_projections(
+        tmp_path / "native-owner-source-with-crowded-unadmitted-baseline",
+        source_rows=source_rows,
+        variable_specs=(
+            {
+                "target_variable": "avg_income",
+                "raw_field": "avg_income",
+                "raw_unit": "ratio",
+                "canonical_unit": "ratio",
+            },
+        ),
+        unadmitted_baseline_observations=unrelated_rows,
+    )
+    projection = fixture.projections["avg_income"]
+    selected_ids = {row.observation.observation_id for row in projection.observations}
+    assert len(selected_ids) == 4
+    local_paths = SimpleNamespace(l1_dcat_path=fixture.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _root: local_paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _root: local_paths,
+    )
+
+    substrate_paths = replace(
+        default_substrate_catalog_paths(fixture.repo_root),
+        l1_dcat_path=fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=fixture.repo_root,
+        snapshot_root=fixture.baseline_path.parent,
+        database_path=fixture.baseline_path,
+        index_dir=fixture.repo_root / "index",
+        overlay_path=fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    gateway = RealValueOwnerGateway(
+        repo_root=fixture.repo_root,
+        catalog_overlay_path=fixture.overlay_path,
+        artifact_store=fixture.artifact_store,
+        activated_observation_projection=projection,
+    )
+    candidate = SimpleNamespace(atom=SimpleNamespace(target_world_slots=("avg_income",)))
+    problem = SimpleNamespace(
+        outcome_of_interest=SimpleNamespace(target_variable="avg_income"),
+        jurisdiction_time=SimpleNamespace(region="UA"),
+    )
+    with catalog_serving_source_scope(catalog_source):
+        profile = gateway.load_value_data_profile(
+            candidate=candidate,
+            problem=problem,
+            world_record=object(),
+        )
+    assert profile is not None
+    assert profile.owner_row_count == len(selected_ids) == 4
+    assert {row.period_id for row in profile.rows} == {2021, 2022, 2023, 2024}

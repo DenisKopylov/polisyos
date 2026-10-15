@@ -12229,6 +12229,7 @@ def _load_value_data_profile_from_l1_dcat(
     registered_dataset_id: str | None = None
     registered_canonical_unit: str | None = None
     selected_wdi_observation_ids: tuple[str, ...] = ()
+    projected_observation_ids: tuple[str, ...] | None = None
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
         projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
@@ -12344,11 +12345,22 @@ def _load_value_data_profile_from_l1_dcat(
                     owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                 )
             selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+        projected_observation_ids = tuple(
+            row.observation.observation_id
+            for row in observation_projection.observations
+            if (
+                not normalized_scope_region
+                or row.observation.country_code == normalized_scope_region
+                or row.observation.observation_id in selected_wdi_observation_ids
+            )
+        )
     parameters.extend(
         (
             normalized_scope_region,
             normalized_scope_region,
             list(selected_wdi_observation_ids),
+            (None if projected_observation_ids is None else list(projected_observation_ids)),
+            (None if projected_observation_ids is None else list(projected_observation_ids)),
             owner_row_limit + 1,
         )
     )
@@ -12403,6 +12415,12 @@ def _load_value_data_profile_from_l1_dcat(
                     SELECT UNNEST(CAST(? AS VARCHAR[]))
                 )
               )
+              AND (
+                CAST(? AS VARCHAR[]) IS NULL
+                OR observation_id IN (
+                    SELECT UNNEST(CAST(? AS VARCHAR[]))
+                )
+              )
             ORDER BY unit_id, period_id, dataset_id, observation_id, value
             LIMIT ?
             """,
@@ -12421,15 +12439,8 @@ def _load_value_data_profile_from_l1_dcat(
         )
     projected_rows_by_id: dict[str, tuple[object, ...]] = {}
     if observation_projection is not None:
-        projected_observation_ids = tuple(
-            projected.observation.observation_id
-            for projected in observation_projection.observations
-            if (
-                not normalized_scope_region
-                or projected.observation.country_code == normalized_scope_region
-                or projected.observation.observation_id in selected_wdi_observation_ids
-            )
-        )
+        if projected_observation_ids is None:
+            raise ValueError("value_owner_active_projection_ids_unresolved")
         physical_observation_ids = tuple(str(row[4]) for row in raw_rows)
         if (
             len(projected_observation_ids) != len(set(projected_observation_ids))

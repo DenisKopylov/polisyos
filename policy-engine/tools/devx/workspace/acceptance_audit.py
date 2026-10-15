@@ -10,6 +10,7 @@ import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import ensure_repo_import_roots
 
 PRODUCT_ROOT, _SRC_ROOT = ensure_repo_import_roots(
@@ -808,8 +809,7 @@ def write_summary(path: Path, report: AuditReport) -> None:
             ["## Gap List", "", "- No blockers remain in the current acceptance audit.", ""]
         )
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines), encoding="utf-8")
+    write_scoped_report_text(path, "\n".join(lines), encoding="utf-8", atomic=False)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -828,7 +828,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.summary:
         write_summary(args.summary.resolve(), report)
     if args.json_output:
-        args.json_output.resolve().write_text(
+        write_scoped_report_text(
+            args.json_output.resolve(),
             json.dumps(
                 {
                     "checks": [asdict(check) for check in report.checks],
@@ -840,6 +841,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             + "\n",
             encoding="utf-8",
+            atomic=False,
         )
 
     for check in report.checks:

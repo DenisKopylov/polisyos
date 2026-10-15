@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import repo_root_from
 from tools.quality.lint import lint_imports
 
@@ -105,9 +106,7 @@ def build_report(
         contract_errors.extend(
             finding for finding in module_size_findings if finding.severity == "error"
         )
-        findings.extend(
-            finding for finding in module_size_findings if finding.severity != "error"
-        )
+        findings.extend(finding for finding in module_size_findings if finding.severity != "error")
     if selected("generated-artifacts"):
         contract_errors.extend(_validate_generated_artifact_contracts(repo_root))
     if selected("extension-points"):
@@ -232,8 +231,10 @@ def build_report(
         summary["package_layout"] = _structure_gate_summary(repo_root, gate="loose_files")
     if selected_any("name-collisions", "phase6-1"):
         summary["name_collisions"] = _structure_gate_summary(repo_root, gate="name_collision")
-    if selected("dependency-graph") or selected("package-mirrors") or selected_any(
-        "shim-expiry", "phase6-1"
+    if (
+        selected("dependency-graph")
+        or selected("package-mirrors")
+        or selected_any("shim-expiry", "phase6-1")
     ):
         summary["shim_debt"] = _shim_debt_summary(repo_root)
     if selected("phase6-1"):
@@ -457,9 +458,9 @@ def _validate_package_contracts(repo_root: Path) -> list[Finding]:
                             "error",
                             subject,
                             f"{section} has invalid or expired date",
-                        str(raw_date),
+                            str(raw_date),
+                        )
                     )
-                )
     for module in expected_modules:
         subjects = primary_contracts_by_module.get(module, [])
         if not subjects:
@@ -713,9 +714,7 @@ def _validate_package_mirrors(repo_root: Path) -> list[Finding]:
                 subject,
                 "test_topology.integration.path",
                 expected=expected_tests.get("integration_roots", []),
-                observed=[topology_integration.get("path", "")]
-                if integration_required
-                else [],
+                observed=[topology_integration.get("path", "")] if integration_required else [],
             )
             topology_property = topology_entry.get("property", {})
             property_required = bool(topology_property.get("required", False))
@@ -731,9 +730,7 @@ def _validate_package_mirrors(repo_root: Path) -> list[Finding]:
                 subject,
                 "test_topology.property.path",
                 expected=expected_tests.get("property_roots", []),
-                observed=[topology_property.get("path", "")]
-                if property_required
-                else [],
+                observed=[topology_property.get("path", "")] if property_required else [],
             )
     return errors
 
@@ -851,9 +848,7 @@ def _validate_module_size_budget(repo_root: Path) -> list[Finding]:
 
     budgets = data.get("budget", [])
     validation_scope = [
-        str(item)
-        for item in validation_header.get("scope", [])
-        if str(item).strip()
+        str(item) for item in validation_header.get("scope", []) if str(item).strip()
     ]
     budget_by_path = {
         str(budget.get("path", "")): budget
@@ -1207,11 +1202,7 @@ def _matches_validation_scope(relative: str, pattern: str) -> bool:
 
 def _count_lines(path: Path) -> int:
     with path.open(encoding="utf-8") as handle:
-        return sum(
-            1
-            for line in handle
-            if line.strip() and not line.lstrip().startswith("#")
-        )
+        return sum(1 for line in handle if line.strip() and not line.lstrip().startswith("#"))
 
 
 def _validate_generated_artifact_contracts(repo_root: Path) -> list[Finding]:
@@ -2102,9 +2093,7 @@ def _validate_import_exception_metadata(repo_root: Path) -> list[Finding]:
         subject = str(exception.get("id", "deep_import"))
         for field in ("id", "owner", "reason", "expires"):
             if not str(exception.get(field, "")).strip():
-                errors.append(
-                    Finding("import-exceptions", "error", subject, f"missing `{field}`")
-                )
+                errors.append(Finding("import-exceptions", "error", subject, f"missing `{field}`"))
         try:
             expires = dt.date.fromisoformat(str(exception.get("expires", "")))
         except ValueError:
@@ -2185,10 +2174,7 @@ def _registered_import_exception_id(
 
 
 def _import_boundary_rule() -> str:
-    return (
-        "first-party cross-package imports target supported public entrypoints "
-        "unless registered"
-    )
+    return "first-party cross-package imports target supported public entrypoints unless registered"
 
 
 def _collect_hidden_import_edges(repo_root: Path) -> dict[str, dict[str, Any]]:
@@ -3067,8 +3053,12 @@ def run_cli(argv: list[str] | None = None) -> int:
         output = (
             args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
         )
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        write_scoped_report_text(
+            output,
+            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            atomic=False,
+        )
     else:
         print(json.dumps(payload, indent=2, sort_keys=True))
     if args.fail_on_contract_errors and payload["contract_error_count"]:

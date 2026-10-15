@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from tools.lib.document_references import reference_scan_text
+from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
@@ -26,9 +27,7 @@ SCHEMA_VERSION = "repository.last_mile_inventory.v1"
 PHASE = "0.1"
 GENERATED_AT = "2026-05-07T00:00:00Z"
 LAST_REVIEWED = "2026-05-07"
-DEFAULT_BASELINE_DIR = (
-    Path("architecture") / "baselines" / "repository_best_in_class_last_mile"
-)
+DEFAULT_BASELINE_DIR = Path("architecture") / "baselines" / "repository_best_in_class_last_mile"
 DEFAULT_INVENTORY = DEFAULT_BASELINE_DIR / "inventory.json"
 PLAN_PATH = Path("docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md")
 
@@ -97,10 +96,22 @@ SEMANTIC_DUPLICATE_PAIRS = (
 )
 SCIENTIST_PARALLEL_FAMILIES = SEMANTIC_DUPLICATE_PAIRS + (
     ("src/polisyos/scientist/orchestration", "src/polisyos/scientist/orchestrator"),
-    ("src/polisyos/scientist/engine/error_semantics.py", "src/polisyos/scientist/error_semantics.py"),
-    ("src/polisyos/scientist/engine/frontier_runtime.py", "src/polisyos/scientist/frontier_runtime.py"),
-    ("src/polisyos/scientist/governance/remediation_status.py", "src/polisyos/scientist/remediation_status.py"),
-    ("src/polisyos/scientist/causal/latent_separation.py", "src/polisyos/scientist/latent_separation.py"),
+    (
+        "src/polisyos/scientist/engine/error_semantics.py",
+        "src/polisyos/scientist/error_semantics.py",
+    ),
+    (
+        "src/polisyos/scientist/engine/frontier_runtime.py",
+        "src/polisyos/scientist/frontier_runtime.py",
+    ),
+    (
+        "src/polisyos/scientist/governance/remediation_status.py",
+        "src/polisyos/scientist/remediation_status.py",
+    ),
+    (
+        "src/polisyos/scientist/causal/latent_separation.py",
+        "src/polisyos/scientist/latent_separation.py",
+    ),
 )
 CROSS_CUTTING_NAMES = {
     "adapters",
@@ -175,9 +186,7 @@ PHASE0_4_REQUIRED_SCIENTIST_FAMILIES = {
     "governance_validation_verification_policy_verified",
 }
 REMOVED_ARCHITECTURE_TEST_ROOT = "/".join(("tests", "architecture"))
-CANONICAL_ARCHITECTURE_TEST_ROOT = "/".join(
-    ("tests", "repo_quality", "architecture")
-)
+CANONICAL_ARCHITECTURE_TEST_ROOT = "/".join(("tests", "repo_quality", "architecture"))
 
 
 @dataclass(frozen=True)
@@ -199,9 +208,12 @@ class _RepositoryCensus:
         for path in files | directories:
             if path != root:
                 children[path.parent].append(path)
-        return cls(root, files, frozenset(directories), {
-            parent: tuple(sorted(paths)) for parent, paths in children.items()
-        })
+        return cls(
+            root,
+            files,
+            frozenset(directories),
+            {parent: tuple(sorted(paths)) for parent, paths in children.items()},
+        )
 
 
 _ACTIVE_CENSUS: ContextVar[_RepositoryCensus | None] = ContextVar(
@@ -216,8 +228,10 @@ def _is_tracked(path: Path) -> bool:
 
 def _exists(path: Path) -> bool:
     census = _ACTIVE_CENSUS.get()
-    return path.exists() if census is None else (
-        path.absolute() in census.files or path.absolute() in census.directories
+    return (
+        path.exists()
+        if census is None
+        else (path.absolute() in census.files or path.absolute() in census.directories)
     )
 
 
@@ -336,9 +350,7 @@ def _source_package_dirs(repo_root: Path) -> list[Path]:
     return sorted(
         child
         for child in _iterdir(source_root)
-        if _is_dir(child)
-        and child.name not in IGNORED_DIR_NAMES
-        and _exists(child / "__init__.py")
+        if _is_dir(child) and child.name not in IGNORED_DIR_NAMES and _exists(child / "__init__.py")
     )
 
 
@@ -404,7 +416,10 @@ def _collect_single_file_shell_packages(repo_root: Path) -> dict[str, Any]:
         root = repo_root / str(scope)
         if not _exists(root):
             continue
-        candidates = [root, *sorted(path for path in _glob(root, "*", recursive=True) if _is_dir(path))]
+        candidates = [
+            root,
+            *sorted(path for path in _glob(root, "*", recursive=True) if _is_dir(path)),
+        ]
         for directory in candidates:
             if not _is_single_file_shell_package(
                 directory,
@@ -493,7 +508,9 @@ def _package_from_location(location: str) -> str | None:
     return package or None
 
 
-def _phase0_4_name_decisions(repo_root: Path) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+def _phase0_4_name_decisions(
+    repo_root: Path,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     payload = _load_toml(repo_root / "architecture" / "name_registry.toml")
     decisions: dict[str, dict[str, Any]] = {}
     findings: list[dict[str, Any]] = []
@@ -649,9 +666,7 @@ def _walk_source_paths(repo_root: Path) -> tuple[list[Path], list[Path]]:
         return dirs, files
     for current, dirnames, filenames in _walk(source_root):
         dirnames[:] = [
-            name
-            for name in dirnames
-            if name not in IGNORED_DIR_NAMES and not name.startswith(".")
+            name for name in dirnames if name not in IGNORED_DIR_NAMES and not name.startswith(".")
         ]
         current_path = Path(current)
         dirs.append(current_path)
@@ -1005,7 +1020,9 @@ def _collect_architecture_gate_split(repo_root: Path) -> list[str]:
 def _collect_entry_point_example_gaps(repo_root: Path) -> dict[str, Any]:
     pyproject = _load_toml(repo_root / "pyproject.toml")
     project = pyproject.get("project", {}) if isinstance(pyproject.get("project"), Mapping) else {}
-    groups = project.get("entry-points", {}) if isinstance(project.get("entry-points"), Mapping) else {}
+    groups = (
+        project.get("entry-points", {}) if isinstance(project.get("entry-points"), Mapping) else {}
+    )
     group_name = "polisyos.scientist_governance_passes"
     entries = groups.get(group_name, {}) if isinstance(groups.get(group_name), Mapping) else {}
     example_paths = [
@@ -1036,8 +1053,16 @@ def _collect_operability_bundle_paths(repo_root: Path) -> list[str]:
     component_root = repo_root / "ops" / "components"
     if not _exists(component_root):
         return []
-    required = ("alerts.yml", "dashboard.json", "retention-policy.toml", "runtime-contract.toml", "slo.yaml")
-    paths: list[str] = ["ops/components/index.toml"] if _exists(component_root / "index.toml") else []
+    required = (
+        "alerts.yml",
+        "dashboard.json",
+        "retention-policy.toml",
+        "runtime-contract.toml",
+        "slo.yaml",
+    )
+    paths: list[str] = (
+        ["ops/components/index.toml"] if _exists(component_root / "index.toml") else []
+    )
     for child in sorted(_iterdir(component_root)):
         if not _is_dir(child):
             continue
@@ -1053,7 +1078,8 @@ def _collect_tool_budget_paths(repo_root: Path) -> dict[str, Any]:
     budget_paths = {
         str(item.get("path"))
         for item in budgets
-        if isinstance(item, Mapping) and str(item.get("path", "")).startswith("tools/quality/validation/")
+        if isinstance(item, Mapping)
+        and str(item.get("path", "")).startswith("tools/quality/validation/")
     }
     new_tool = "tools/quality/validation/repository_last_mile_inventory.py"
     return {
@@ -1136,14 +1162,14 @@ def collect_inventory(
     repo_root = repo_root.resolve()
     token = _ACTIVE_CENSUS.set(_RepositoryCensus.read(repo_root))
     try:
-        return _collect_inventory(repo_root, include_local_ignored_residue=include_local_ignored_residue)
+        return _collect_inventory(
+            repo_root, include_local_ignored_residue=include_local_ignored_residue
+        )
     finally:
         _ACTIVE_CENSUS.reset(token)
 
 
-def _collect_inventory(
-    repo_root: Path, *, include_local_ignored_residue: bool
-) -> dict[str, Any]:
+def _collect_inventory(repo_root: Path, *, include_local_ignored_residue: bool) -> dict[str, Any]:
     loose = _collect_loose_root_modules(repo_root)
     shells = _collect_single_file_shell_packages(repo_root)
     semantic_pairs = _collect_semantic_pairs(repo_root)
@@ -1183,7 +1209,9 @@ def _collect_inventory(
             kind="near_duplicate_sibling_package",
             owner="team-ir",
             package="ir",
-            paths=_existing_paths(repo_root, ("src/polisyos/ir/references", "src/polisyos/ir/refs")),
+            paths=_existing_paths(
+                repo_root, ("src/polisyos/ir/references", "src/polisyos/ir/refs")
+            ),
             suggested_target="src/polisyos/ir/references",
         ),
         _finding(
@@ -1419,7 +1447,9 @@ def _collect_inventory(
         "findings": findings,
         "summary": {
             "finding_count": len(findings),
-            "observed_count": sum(1 for finding in findings if finding["current_status"] == "observed"),
+            "observed_count": sum(
+                1 for finding in findings if finding["current_status"] == "observed"
+            ),
             "needs_review_count": sum(
                 1 for finding in findings if finding["current_status"] == "needs_review"
             ),
@@ -1445,9 +1475,7 @@ def validate_inventory(inventory: Mapping[str, Any]) -> list[str]:
     if isinstance(name_collisions, Mapping):
         for finding in name_collisions.get("findings", []):
             if isinstance(finding, Mapping):
-                errors.append(
-                    f"name collision: {finding.get('name')}: {finding.get('message')}"
-                )
+                errors.append(f"name collision: {finding.get('name')}: {finding.get('message')}")
 
     concerns_payload = inventory.get("cross_cutting_concerns")
     if isinstance(concerns_payload, Mapping):
@@ -1467,9 +1495,7 @@ def validate_inventory(inventory: Mapping[str, Any]) -> list[str]:
     if isinstance(scientist_payload, Mapping):
         for finding in scientist_payload.get("findings", []):
             if isinstance(finding, Mapping):
-                errors.append(
-                    f"scientist: {finding.get('family_id')}: {finding.get('message')}"
-                )
+                errors.append(f"scientist: {finding.get('family_id')}: {finding.get('message')}")
         family_ids = {
             row.get("family_id")
             for row in scientist_payload.get("families", [])
@@ -1479,18 +1505,20 @@ def validate_inventory(inventory: Mapping[str, Any]) -> list[str]:
         if missing_families:
             errors.append(f"missing Scientist families: {', '.join(missing_families)}")
         for row in scientist_payload.get("families", []):
-            if isinstance(row, Mapping) and row.get("action") not in PHASE0_4_ALLOWED_SCIENTIST_ACTIONS:
+            if (
+                isinstance(row, Mapping)
+                and row.get("action") not in PHASE0_4_ALLOWED_SCIENTIST_ACTIONS
+            ):
                 errors.append(f"unsupported Scientist action: {row.get('family_id')}")
 
     findings = inventory.get("findings")
     if not isinstance(findings, list):
         return ["inventory.findings must be a list"]
-    observed_ids = [finding.get("finding_id") for finding in findings if isinstance(finding, Mapping)]
+    observed_ids = [
+        finding.get("finding_id") for finding in findings if isinstance(finding, Mapping)
+    ]
     if set(observed_ids) != set(EXPECTED_FINDING_IDS):
-        errors.append(
-            "inventory findings must report exactly "
-            f"{', '.join(EXPECTED_FINDING_IDS)}"
-        )
+        errors.append(f"inventory findings must report exactly {', '.join(EXPECTED_FINDING_IDS)}")
     if len(observed_ids) != len(set(observed_ids)):
         errors.append("inventory findings must not contain duplicate finding_id values")
     for finding in findings:
@@ -1526,9 +1554,7 @@ def write_phase0_4_baselines(
     snapshots = {
         "name_collisions.json": inventory["name_collisions"],
         "cross_cutting_concerns.json": inventory["cross_cutting_concerns"],
-        "scientist_parallel_implementations.json": inventory[
-            "scientist_parallel_implementations"
-        ],
+        "scientist_parallel_implementations.json": inventory["scientist_parallel_implementations"],
     }
     for filename, payload in snapshots.items():
         (baseline_dir / filename).write_text(
@@ -1579,7 +1605,9 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Refresh committed Phase 0.4 section baseline JSON files.",
     )
-    parser.add_argument("--check", action="store_true", help="Fail if the committed baseline drifts")
+    parser.add_argument(
+        "--check", action="store_true", help="Fail if the committed baseline drifts"
+    )
     return parser.parse_args(argv)
 
 
@@ -1612,9 +1640,10 @@ def _run(args: argparse.Namespace) -> int:
             f"{_rel(repo_root / DEFAULT_BASELINE_DIR, repo_root)}"
         )
     if args.json_output:
-        output = args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(payload, encoding="utf-8")
+        output = (
+            args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
+        )
+        write_scoped_report_text(output, payload, encoding="utf-8", atomic=False)
         print(f"Wrote last-mile inventory JSON: {_rel(output, repo_root)}")
     else:
         print(payload, end="")

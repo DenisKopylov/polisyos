@@ -36,16 +36,21 @@ Last-mile fail-fast gates:
 """
 SCHEMA_PURITY_SNIPPET = """
 from pathlib import Path
+from tools.lib.fs import scoped_report_path, write_scoped_report_text
 
 root = Path("schemas")
-output = Path("_build/.tmp/last-mile/schemas-python-residue.txt")
-output.parent.mkdir(parents=True, exist_ok=True)
+output = scoped_report_path(
+    "workspace-verify-schema-purity",
+    Path("_build/.tmp/last-mile/schemas-python-residue.txt"),
+)
 matches = []
 if root.exists():
     for path in sorted(root.rglob("*")):
         if path.name == "__pycache__" or path.suffix == ".py":
             matches.append(path.as_posix())
-output.write_text("\\n".join(matches) + ("\\n" if matches else ""), encoding="utf-8")
+write_scoped_report_text(
+    output, "\\n".join(matches) + ("\\n" if matches else ""), atomic=False
+)
 if matches:
     print("\\n".join(matches))
     raise SystemExit(1)

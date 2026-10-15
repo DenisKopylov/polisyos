@@ -580,17 +580,51 @@ def active_secure_output_root(root: Path | None = None) -> SecureOutputRoot | No
     return output_root
 
 
-def write_scoped_report_text(path: Path, data: str, *, encoding: str = "utf-8") -> None:
-    """Write one report through the active native root or preserve ordinary atomic writes.
+def scoped_report_path(consumer: str, path: Path) -> Path:
+    """Route a delegated report beneath its consumer directory when scoped.
 
-    An active recorder scope creates a new leaf through its pinned descriptor. Calls
-    outside that explicit scope retain atomic_write_text replacement semantics.
+    Outside an explicit native output scope, return the caller's path unchanged.
+    Inside one, retain only the supplied leaf name and let ``SecureOutputRoot``
+    enforce directory and leaf ownership through its pinned descriptor.
     """
+    if active_secure_output_root() is None:
+        return path
+    if (
+        not consumer
+        or Path(consumer).name != consumer
+        or consumer in {".", ".."}
+        or "\x00" in consumer
+        or not path.name
+        or path.name in {".", ".."}
+    ):
+        raise ValueError("scoped report routing requires one safe consumer and leaf name")
     output_root = active_secure_output_root()
     if output_root is None:
+        raise RuntimeError("secure output scope disappeared during report routing")
+    return output_root.root / "children" / consumer / "reports" / path.name
+
+
+def write_scoped_report_text(
+    path: Path,
+    data: str,
+    *,
+    encoding: str = "utf-8",
+    atomic: bool = True,
+) -> None:
+    """Write a report through the active output root and preserve ordinary semantics.
+
+    Scoped calls create or update only a lifecycle-owned leaf. Unscoped callers retain
+    atomic replacement by default; direct writers can pass ``atomic=False`` to preserve
+    their prior ``Path.write_text`` replacement semantics.
+    """
+    output_root = active_secure_output_root()
+    if output_root is not None:
+        output_root.write_text(path, data, encoding=encoding)
+    elif atomic:
         atomic_write_text(path, data, encoding=encoding)
     else:
-        output_root.write_text(path, data, encoding=encoding)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(data, encoding=encoding)
 
 
 def _absolute_output_path(path: Path, *, kind: str) -> Path:

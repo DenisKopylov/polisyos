@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -689,8 +690,7 @@ def run_cli(argv: list[str] | None = None) -> int:
             output = (
                 args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
             )
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(text, encoding="utf-8")
+            write_scoped_report_text(output, text, encoding="utf-8", atomic=False)
         else:
             print(text, end="")
         print(payload["error"], file=sys.stderr)
@@ -700,8 +700,7 @@ def run_cli(argv: list[str] | None = None) -> int:
         output = (
             args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
         )
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(text, encoding="utf-8")
+        write_scoped_report_text(output, text, encoding="utf-8", atomic=False)
     else:
         print(text, end="")
     return 0

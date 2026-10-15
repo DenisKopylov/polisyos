@@ -21,7 +21,12 @@ from tools.lib.docs_freshness import (
     extract_docs_freshness_violation_count,
     validate_docs_freshness_baseline,
 )
-from tools.lib.fs import atomic_write_bytes, atomic_write_json
+from tools.lib.fs import (
+    active_secure_output_root,
+    atomic_write_bytes,
+    atomic_write_json,
+    scoped_report_path,
+)
 from tools.lib.imports import repo_root_from
 from tools.lib.runner import run_command
 
@@ -46,16 +51,20 @@ FORBIDDEN_TOOL_ROOTS = {
 }
 SCHEMA_PURITY_SNIPPET = """
 from pathlib import Path
+from tools.lib.fs import scoped_report_path, write_scoped_report_text
 
 root = Path("schemas")
-output = Path("_build/.tmp/last-mile/schemas-python-residue.txt")
-output.parent.mkdir(parents=True, exist_ok=True)
+output = scoped_report_path(
+    "schema-purity", Path("_build/.tmp/last-mile/schemas-python-residue.txt")
+)
 matches = []
 if root.exists():
     for path in sorted(root.rglob("*")):
         if path.name == "__pycache__" or path.suffix == ".py":
             matches.append(path.as_posix())
-output.write_text("\\n".join(matches) + ("\\n" if matches else ""), encoding="utf-8")
+write_scoped_report_text(
+    output, "\\n".join(matches) + ("\\n" if matches else ""), atomic=False
+)
 if matches:
     print("\\n".join(matches))
     raise SystemExit(1)
@@ -283,7 +292,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         ],
     }
     if args.output_json is not None:
-        atomic_write_json(args.output_json, payload)
+        output_json = scoped_report_path("repository-sota-closeout", args.output_json)
+        atomic_write_json(output_json, payload)
 
     if findings:
         print("Repository SOTA Phase 5 closeout gate FAILED:")
@@ -1756,16 +1766,54 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
     return findings
 
 
+_CHILD_REPORT_OUTPUT_OPTIONS = frozenset(
+    {"--json-output", "--markdown-output", "--output", "--summary"}
+)
+
+
+def _route_native_child_report_outputs(gate: str, command: Sequence[str]) -> tuple[str, ...]:
+    """Route every declared child report flag beneath its gate's owned directory.
+
+    Only an explicit secure-output scope changes argv. The command-registry
+    ``--output ... --check`` option is a comparison input, not a write sink.
+    """
+    if active_secure_output_root() is None:
+        return tuple(command)
+    routed = [str(part) for part in command]
+    for index, token in enumerate(tuple(routed)):
+        option, separator, value = token.partition("=")
+        if option not in _CHILD_REPORT_OUTPUT_OPTIONS:
+            continue
+        if option == "--output" and "--check" in routed:
+            continue
+        value_index = index + 1 if not separator else None
+        if value_index is not None:
+            if value_index >= len(routed):
+                raise ValueError(f"{gate}: {option} requires a report path")
+            requested = Path(routed[value_index])
+        else:
+            requested = Path(value)
+        if not requested.name or requested.name in {".", ".."}:
+            raise ValueError(f"{gate}: {option} requires one report leaf name")
+        output_path = scoped_report_path(gate, requested)
+        if value_index is None:
+            routed[index] = f"{option}={output_path}"
+        else:
+            routed[value_index] = str(output_path)
+    return tuple(routed)
+
+
 def _run_subprocess_with_receipt(
     gate: str,
     command: Sequence[str],
     *,
     receipt_dir: Path | None,
 ) -> subprocess.CompletedProcess[str]:
-    """Run one closeout child, optionally retaining its raw output before decoding it."""
+    """Run one child with its report outputs and captured receipts in the active scope."""
+    routed_command = _route_native_child_report_outputs(gate, command)
     if receipt_dir is None:
         return run_command(
-            command,
+            routed_command,
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -1773,7 +1821,7 @@ def _run_subprocess_with_receipt(
         )
 
     raw_completed = run_command(
-        command,
+        routed_command,
         cwd=REPO_ROOT,
         capture_output=True,
         check=False,
@@ -1781,7 +1829,7 @@ def _run_subprocess_with_receipt(
     _write_subprocess_receipt(
         receipt_dir,
         gate=gate,
-        command=command,
+        command=routed_command,
         completed=raw_completed,
     )
     return subprocess.CompletedProcess(

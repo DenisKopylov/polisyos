@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import repo_root_from
 from tools.ops_runners.release import check_compatibility_release_gates
 from tools.quality.validation import control_plane_supply_chain_contracts
@@ -603,8 +604,10 @@ def _check_exception_record(
     action_due = _parse_date(record.get(f"{prefix}_action_due"))
     plan_window_start = policy["plan_window_start"]
     plan_completion_target = policy["plan_completion_target"]
-    if not action_plan or action_due is None or not (
-        plan_window_start <= action_due <= plan_completion_target
+    if (
+        not action_plan
+        or action_due is None
+        or not (plan_window_start <= action_due <= plan_completion_target)
     ):
         findings.append(
             Finding(
@@ -955,9 +958,7 @@ def _relative(path: Path, repo_root: Path) -> str:
 def _path_or_glob_exists(repo_root: Path, path: str) -> bool:
     if not path:
         return False
-    base = (
-        WORKSPACE_ROOT if path.startswith((".github/", "policy-engine/")) else repo_root
-    )
+    base = WORKSPACE_ROOT if path.startswith((".github/", "policy-engine/")) else repo_root
     normalized = path
     if path.startswith("../"):
         base = repo_root
@@ -1027,8 +1028,7 @@ def main(argv: list[str] | None = None) -> int:
     output = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.json_output is not None:
         output_path = _resolve(repo_root, args.json_output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(output, encoding="utf-8")
+        write_scoped_report_text(output_path, output, encoding="utf-8", atomic=False)
     else:
         sys.stdout.write(output)
     if args.fail_closed and payload["finding_count"]:

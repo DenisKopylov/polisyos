@@ -12,7 +12,11 @@ from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Union, get_args, get_origin, get_type_hints
 
-from tools.lib.fs import measure_file_reads, measured_read_bytes
+from tools.lib.fs import (
+    measure_file_reads,
+    measured_read_bytes,
+    write_scoped_report_text,
+)
 from tools.lib.imports import repo_root_from
 from tools.ops_runners.release.build_release_notes import (
     SECTION_TITLES,
@@ -228,25 +232,18 @@ def _matches_declared_value(value: object, annotation: object) -> bool:
     origin = get_origin(annotation)
     arguments = get_args(annotation)
     if origin in (types.UnionType, Union):
-        return any(
-            _matches_declared_value(value, option)
-            for option in arguments
-        )
+        return any(_matches_declared_value(value, option) for option in arguments)
     if origin in (tuple, list):
         if not isinstance(value, list):
             return False
         item_type = arguments[0] if arguments else TypingAny
-        return all(
-            _matches_declared_value(item, item_type)
-            for item in value
-        )
+        return all(_matches_declared_value(item, item_type) for item in value)
     if origin is dict:
         if not isinstance(value, dict):
             return False
         key_type, value_type = arguments if len(arguments) == 2 else (TypingAny, TypingAny)
         return all(
-            _matches_declared_value(key, key_type)
-            and _matches_declared_value(item, value_type)
+            _matches_declared_value(key, key_type) and _matches_declared_value(item, value_type)
             for key, item in value.items()
         )
     if annotation is bool:
@@ -262,15 +259,16 @@ def _matches_declared_value(value: object, annotation: object) -> bool:
     return isinstance(annotation, type) and isinstance(value, annotation)
 
 
-def _matches_model_json(value: object, model: type[object], *, aliases: dict[str, str] | None = None) -> bool:
+def _matches_model_json(
+    value: object, model: type[object], *, aliases: dict[str, str] | None = None
+) -> bool:
     """Validate serialized fields against the actual canonical dataclass schema."""
     if not isinstance(value, dict) or not dataclasses.is_dataclass(model):
         return False
     aliases = aliases or {}
     hints = get_type_hints(model)
     wire_names = {
-        aliases.get(field.name, field.name): field.name
-        for field in dataclasses.fields(model)
+        aliases.get(field.name, field.name): field.name for field in dataclasses.fields(model)
     }
     if set(value) != set(wire_names):
         return False
@@ -289,13 +287,9 @@ def _canonical_public_surface_context() -> tuple[object, dict[str, str], dict[st
     inventory_fields = {field.name for field in fields(inventory_model)}
     field_map: dict[str, str] = {}
     for field in fields(policy_model):
-        inventory_field = (
-            "facade_mode_expected" if field.name == "facade_mode" else field.name
-        )
+        inventory_field = "facade_mode_expected" if field.name == "facade_mode" else field.name
         if inventory_field not in inventory_fields:
-            raise TypeError(
-                f"canonical package field has no inventory projection: {field.name}"
-            )
+            raise TypeError(f"canonical package field has no inventory projection: {field.name}")
         field_map[field.name] = inventory_field
 
     policy_hints = get_type_hints(policy_model)
@@ -357,7 +351,9 @@ def _validate_public_surface(
                 measured_read_bytes(source_path)
             except OSError as error:
                 mark_unestablished(
-                    str(source_path), "canonical public-surface source is unreadable", type(error).__name__
+                    str(source_path),
+                    "canonical public-surface source is unreadable",
+                    type(error).__name__,
                 )
 
         if not contract_rel:
@@ -416,8 +412,8 @@ def _validate_public_surface(
                         or surface.get("version_owner")
                         or package.get("owner")
                     )
-                    deprecation_window = (
-                        package.get("deprecation_window") or surface.get("deprecation_window")
+                    deprecation_window = package.get("deprecation_window") or surface.get(
+                        "deprecation_window"
                     )
                     module = str(package.get("module", ""))
                     if not str(version_owner or "").strip():
@@ -528,7 +524,10 @@ def _validate_public_surface(
     _, contract_packages = rows_for(contract, "package", contract_subject, "contract package")
     _, inventory_packages = rows_for(inventory, "packages", inventory_subject, "inventory package")
     _, contract_families = rows_for(
-        contract, "generated_artifact_family", contract_subject, "contract generated-artifact family"
+        contract,
+        "generated_artifact_family",
+        contract_subject,
+        "contract generated-artifact family",
     )
     _, inventory_families = rows_for(
         inventory,
@@ -557,9 +556,7 @@ def _validate_public_surface(
         for row in contract_families:
             for field_name, annotation in family_hints.items():
                 raw_name = "id" if field_name == "family_id" else field_name
-                if raw_name in row and not _matches_declared_value(
-                    row[raw_name], annotation
-                ):
+                if raw_name in row and not _matches_declared_value(row[raw_name], annotation):
                     mark_unestablished(
                         str(row.get("id", contract_subject)),
                         "contract generated-artifact field has a value outside the canonical declaration type",
@@ -648,9 +645,8 @@ def _validate_public_surface(
         add_error(inventory_subject, "inventory internal rule differs from canonical renderer")
 
     for module, inventory_package in inventory_package_by_module.items():
-        inventory_package_schema_valid = (
-            public_surface_source is not None
-            and _matches_model_json(inventory_package, public_surface_source.PackageInventory)
+        inventory_package_schema_valid = public_surface_source is not None and _matches_model_json(
+            inventory_package, public_surface_source.PackageInventory
         )
         if not inventory_package_schema_valid:
             mark_unestablished(
@@ -698,10 +694,7 @@ def _validate_public_surface(
                     entrypoint_modules.append(row["module"])
         if len(contract_entries) != len(set(contract_entries)):
             mark_unestablished(module, "contract supported_entrypoints contains duplicates")
-        if (
-            contract_entries != inventory_entries
-            or contract_entries != entrypoint_modules
-        ):
+        if contract_entries != inventory_entries or contract_entries != entrypoint_modules:
             add_error(
                 module,
                 "supported entrypoint inventory differs from contract",
@@ -765,16 +758,10 @@ def _validate_public_surface(
     inventory_entrypoint_schema_field_count = len(entrypoint_schema)
     family_schema_field_count = len(family_schema)
     contract_package_field_present = sum(
-        1
-        for row in contract_packages
-        for field_name in field_map
-        if field_name in row
+        1 for row in contract_packages for field_name in field_map if field_name in row
     )
     inventory_package_field_present = sum(
-        1
-        for row in inventory_packages
-        for field_name in package_schema
-        if field_name in row
+        1 for row in inventory_packages for field_name in package_schema if field_name in row
     )
     inventory_entrypoint_rows = [
         child
@@ -819,11 +806,7 @@ def _validate_public_surface(
             "declared and materialized route rows, and generated-artifact-family content"
         ),
         "predicate_status": (
-            "not_established"
-            if quality["uncertain"]
-            else "mismatch"
-            if errors
-            else "consistent"
+            "not_established" if quality["uncertain"] else "mismatch" if errors else "consistent"
         ),
         "predicate_basis": {
             "package_metadata_and_set_parity": "recomputed",
@@ -856,7 +839,9 @@ def _validate_public_surface(
             "inventory_generated_artifact_families": len(inventory_families),
             "generated_artifact_family_schema_fields_per_row": family_schema_field_count,
             "inventory_generated_artifact_family_schema_field_slots_present": inventory_family_field_present,
-            "inventory_generated_artifact_family_schema_field_slots_expected": len(inventory_families)
+            "inventory_generated_artifact_family_schema_field_slots_expected": len(
+                inventory_families
+            )
             * family_schema_field_count,
         },
         "canonical_schema_source": canonical_source_path,
@@ -1143,9 +1128,7 @@ def _validate_fragments(
     required = tuple(str(field) for field in header.get("required_structured_fields", []))
     errors: list[Finding] = []
     findings: list[Finding] = []
-    fragment_policy_path = _resolve(
-        repo_root, str(header.get("release_fragment_policy", ""))
-    )
+    fragment_policy_path = _resolve(repo_root, str(header.get("release_fragment_policy", "")))
     fragment_policy = (
         _read_toml(fragment_policy_path).get("release_fragments", {})
         if fragment_policy_path.is_file()
@@ -1219,9 +1202,7 @@ def _validate_fragments(
                 )
         fragment_type_value = fragment.get("type")
         fragment_type = (
-            fragment_type_value.strip().lower()
-            if isinstance(fragment_type_value, str)
-            else ""
+            fragment_type_value.strip().lower() if isinstance(fragment_type_value, str) else ""
         )
         if fragment_type not in allowed_fragment_types:
             errors.append(
@@ -1234,9 +1215,7 @@ def _validate_fragments(
                 )
             )
 
-        for field_path, value in _field_values(
-            fragment, "generated_client_compatibility"
-        ):
+        for field_path, value in _field_values(fragment, "generated_client_compatibility"):
             if not isinstance(value, str) or value not in allowed_generated_client_values:
                 errors.append(
                     Finding(
@@ -1442,8 +1421,7 @@ def main(argv: list[str] | None = None) -> int:
     output = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.json_output is not None:
         output_path = _resolve(repo_root, args.json_output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(output, encoding="utf-8")
+        write_scoped_report_text(output_path, output, encoding="utf-8", atomic=False)
     else:
         sys.stdout.write(output)
     if args.fail_on_contract_errors and payload["contract_error_count"]:

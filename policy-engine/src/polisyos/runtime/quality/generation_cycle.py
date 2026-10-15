@@ -16928,8 +16928,6 @@ def _value_owner_source_projection_intent(
         owner_access_ref=outcome_profile.owner_access_ref,
     )
     ir_store = ensure_ir_artifact_store(gateway.artifact_store)
-    from polisyos import data_forge_read_api
-
     projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
     role_profiles: list[ValueOwnerSourceRoleProfileV1] = []
     selected_profile_refs: dict[str, ValueArtifactBindingRefV1] = {}
@@ -17099,8 +17097,6 @@ def _value_source_profiles_from_store(
             _value_load_ref_payload(ir_store, binding.profile_ref)
         )
         projection_payload = _value_load_ref_payload(ir_store, binding.projection_ref)
-        from polisyos import data_forge_read_api
-
         projection = (
             data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection.model_validate(
                 projection_payload
@@ -17264,7 +17260,6 @@ def _value_owner_reloaded_source_profiles(
     world_record: object,
 ) -> dict[str, ValueDataProfile]:
     """Re-resolve the selected projection profiles from the live L1 owner."""
-    from polisyos import data_forge_read_api
     from polisyos.runtime.quality.data_state_substrate import (
         l1_dcat_variable_availability,
     )
@@ -17996,7 +17991,7 @@ def _value_outer_set_from_owner_method_run_basis(
             raise ValueError("value_owner_source_report_recomputation_mismatch")
         fresh_repro = getattr(fresh_result, "reproducibility", None)
         if (
-            getattr(fresh_repro, "seed", None) != basis.runner_seed
+            getattr(fresh_repro, "seed", None) != execution_receipt.runner_seed
             or getattr(getattr(fresh_repro, "backend", None), "value", None)
             != execution_receipt.runner_backend
             or getattr(fresh_repro, "fingerprint", None) != execution_receipt.runner_fingerprint

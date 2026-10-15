@@ -6322,7 +6322,11 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     method_fqn = {"aipw": AIPWEstimator.signature.fqn, "tmle": TMLEEstimator.signature.fqn}[
         method_name
     ]
-    candidate, problem, world = _avg_income_candidate(), _avg_income_problem(), _world_record()
+    candidate = replace(
+        _avg_income_candidate(),
+        diversity_key=("grant", "country", "avg_income", "selected_owner_rows"),
+    )
+    problem, world = _avg_income_problem(), _world_record()
     source_rows: list[dict[str, object]] = []
     for index in range(200):
         treatment = float(index % 2)
@@ -6449,20 +6453,32 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     monkeypatch.setattr(gc, "_value_outer_set_from_owner_method_run_basis", capture_consumer)
     simulation = _simulation(world, candidate_id=candidate.candidate_id)
 
-    def run(selected_gateway: RealValueOwnerGateway) -> ValuePortObservation:
+    def run(
+        selected_gateway: RealValueOwnerGateway,
+        *,
+        candidate_override: Any | None = None,
+    ) -> ValuePortObservation:
+        selected_candidate = candidate if candidate_override is None else candidate_override
         with catalog_serving_source_scope(catalog_source):
             return FoundryValuePort(
                 evaluation_context=_simulation_execution_context(
-                    candidate=candidate, simulation=simulation, problem=problem
+                    candidate=selected_candidate, simulation=simulation, problem=problem
                 ),
                 owner_gateway=selected_gateway,
                 requested_method_fqn=method_fqn,
                 artifact_store=core_store,
-            )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+            )(
+                candidate=selected_candidate,
+                simulation=simulation,
+                problem=problem,
+                cycle_index=0,
+            )
 
     observation = run(gateway)
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",)
+    assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",), (
+        observation.reason
+    )
     assert observation.value_ref is not None and observation.selected_method_fqn == method_fqn
     assert len(basis_refs) == len(outer_sets) == 1
     basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
@@ -6480,6 +6496,19 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     bounds = BoundsBundle.model_validate(gc._value_load_ref_payload(ir_store, bounds_ref))
     manski = next(item for item in bounds.method_summaries if item.method is BoundMethod.MANSKI)
     outer_set = outer_sets[0]
+    stored_intent = gc.ValueOwnerMethodRunIntentV1.model_validate(
+        gc._value_load_ref_payload(ir_store, basis.intent_ref)
+    )
+    stored_runner_request = gc.ValueOwnerMethodRunnerRequestV1.model_validate(
+        gc._value_load_ref_payload(ir_store, basis.runner_request_ref)
+    )
+    projected_interval = report.to_value_uncertainty(
+        estimand=gc._value_estimand_spec_from_json(stored_intent.estimand_spec_json),
+        projection_binding=NativeValueEstimandBinding.model_validate(
+            stored_runner_request.native_estimand_binding
+        ),
+    )
+    assert projected_interval is not None and projected_interval.gate_eligible is False
     assert basis.selected_method_fqn == method_fqn
     assert (
         assignment.assignment_provenance == "consumer_asserted"
@@ -6502,16 +6531,32 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     assert report.metadata["gate_eligible"] is False
     assert bounds.estimand_type == "ate" and manski.lower_bound < manski.upper_bound
-    assert outer_set.identification_mode == "partial"
+    assert outer_set.identification_status == "partial"
     assert outer_set.lower == (manski.lower_bound,) and outer_set.upper == (manski.upper_bound,)
     assert outer_set.statistical_lower == (
-        report.confidence_interval[0],
-    ) and outer_set.statistical_upper == (report.confidence_interval[1],)
+        projected_interval.numeric_policy.canonicalize(report.confidence_interval[0]),
+    ) and outer_set.statistical_upper == (
+        projected_interval.numeric_policy.canonicalize(report.confidence_interval[1]),
+    )
     assert (
         outer_set.assumption_status == "declared"
         and outer_set.representation_status == "search_only"
     )
     assert "consumer_asserted_treatment_role" in outer_set.assumptions
+
+    panel_candidate = replace(
+        candidate,
+        diversity_key=("grant", "country", "avg_income", "real_panel"),
+    )
+    panel_basis_count, panel_outer_count = len(basis_refs), len(outer_sets)
+    panel_observation = run(gateway, candidate_override=panel_candidate)
+    assert panel_observation.status == "value_blocked"
+    assert panel_observation.authority_blockers == (
+        "value_method_required_data_modality_unavailable",
+    )
+    assert panel_observation.value_ref is None
+    assert len(basis_refs) == panel_basis_count
+    assert len(outer_sets) == panel_outer_count
 
     genuine = projections["observed_treatment"]
     forged = ActivatedAcquisitionObservationProjection.issue(

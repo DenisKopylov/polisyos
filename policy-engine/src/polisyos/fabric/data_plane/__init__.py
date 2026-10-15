@@ -168,6 +168,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.fabric.data_plane.benchmarks",
         "benchmark_query_execution",
     ),
+    "query_world_table": ("polisyos.fabric.world.query", "query_world_table"),
     "benchmark_stream_processing": (
         "polisyos.fabric.data_plane.benchmarks",
         "benchmark_stream_processing",

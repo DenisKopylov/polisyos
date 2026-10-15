@@ -46,6 +46,14 @@ def test_data_plane_facade_exports_orchestrated_ingestion() -> None:
     assert data_plane.run_orchestrated_ingestion is run_orchestrated_ingestion
 
 
+def test_data_plane_facade_exports_canonical_world_table_query() -> None:
+    from polisyos.fabric import data_plane
+    from polisyos.fabric.world.query import query_world_table
+
+    assert "query_world_table" in data_plane.__all__
+    assert data_plane.query_world_table is query_world_table
+
+
 def test_orchestrator_forwards_sink_identity_to_ingestion(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -53,9 +61,7 @@ def test_orchestrator_forwards_sink_identity_to_ingestion(
     seen_callbacks: list[tuple[object, object]] = []
 
     def _fake_ingestion(**kwargs: object) -> None:
-        seen_callbacks.append(
-            (kwargs["raw_result_sink"], kwargs["raw_http_response_observer"])
-        )
+        seen_callbacks.append((kwargs["raw_result_sink"], kwargs["raw_http_response_observer"]))
         return None
 
     def _sink(*args: object) -> None:

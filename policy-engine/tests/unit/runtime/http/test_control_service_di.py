@@ -3243,6 +3243,10 @@ def test_n5_run_projection_preserves_actual_shared_seed_pair_and_residual_sample
         "cycle_index": 0,
         "candidate_id": "candidate",
         "simulation_result_ref": simulation_ref,
+        "simulation_result_body_status": "not_established",
+        "simulation_result_body_limitation_code": (
+            "generic_n5_result_body_selected_manifest_view_not_established"
+        ),
         "n4_source_ref": artifact_ref("runtime.generation_source_handoff", "1"),
         "context_job_ref": artifact_ref("runtime.quality.cycle_substrate_context_job", "2"),
         "profile_ref": artifact_ref("runtime.quality.generic_cycle_simulation_profile", "3"),
@@ -3371,15 +3375,28 @@ def test_four_atom_n5_scope_composes_complete_pairs_under_permutation(
         with pytest.raises(ValidationError, match="run_n5_interaction_scope_pair_set_incomplete"):
             RunCandidateSimulationN5Observation.model_validate(removed_pair)
 
-        removed_residual = deepcopy(observation)
-        removed_residual["n5_interaction_evidence"]["higher_order_residual_sampling"].pop(
+        removed_residual_summary = deepcopy(observation)
+        removed_residual_summary["n5_interaction_evidence"]["higher_order_residual_sampling"].pop(
+            "firm_survival"
+        )
+        with pytest.raises(
+            ValidationError,
+            match="run_n5_residual_summary_step_missing",
+        ):
+            RunCandidateSimulationN5Observation.model_validate(removed_residual_summary)
+
+        removed_residual_basis = deepcopy(observation)
+        removed_residual_basis["n5_interaction_evidence"]["higher_order_residuals"].pop(
+            "firm_survival"
+        )
+        removed_residual_basis["n5_interaction_evidence"]["higher_order_residual_sampling"].pop(
             "firm_survival"
         )
         with pytest.raises(
             ValidationError,
             match="run_n5_interaction_scope_residual_basis_incomplete",
         ):
-            RunCandidateSimulationN5Observation.model_validate(removed_residual)
+            RunCandidateSimulationN5Observation.model_validate(removed_residual_basis)
 
 
 def test_run_n5_observation_rejects_removed_pair_with_status_markers() -> None:
@@ -3666,7 +3683,7 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         local_sibling_mechanism_witness=True,
     )
     core_run_id = str(fixture.job.progress["core_run_id"])
-    compiled_payload = json.loads(fixture.compiled_payload)
+    compiled_payload = canon.from_canonical_bytes(fixture.compiled_payload)
     recursive_payload = compiled_payload["recursive_run"]
     successful_node = next(
         node
@@ -3704,9 +3721,15 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         validate_generation_cycle_run_history,
     )
 
-    missing_lineage = json.loads(json.dumps(successful_cycle))
+    missing_lineage = canon.from_canonical_bytes(
+        canon.to_canonical_bytes(successful_cycle, canon.CanonSpec(forbid_floats=False))
+    )
     del missing_lineage["cycles"][0]["simulation"]["candidate_simulation_context_job_ref"]
-    assert validate_generation_cycle_run_history(missing_lineage)
+    missing_lineage_issues = validate_generation_cycle_run_history(missing_lineage)
+    assert [issue["code"] for issue in missing_lineage_issues] == [
+        "generation_cycle_historical_projection_invalid"
+    ]
+    assert "candidate_simulation_cycle_binding_incomplete" in missing_lineage_issues[0]["error"]
 
     monkeypatch.setattr(
         dev_identity_middleware,

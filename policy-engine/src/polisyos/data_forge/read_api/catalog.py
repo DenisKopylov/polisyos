@@ -15,6 +15,9 @@ from ._lazy import lazy_dir, load_lazy_export
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
+    from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+        confidence_layer_vintage_for_snapshot_digest as confidence_layer_vintage_for_snapshot_digest,  # noqa: E501
+    )
     from polisyos.data_forge.domains.catalog import (
         CATALOG_ASSET_GROUP as CATALOG_ASSET_GROUP,
     )
@@ -458,6 +461,9 @@ _EXPORTS = {
     "validate_catalog_run_profile": "polisyos.data_forge.domains.catalog.selection",
     "parse_profile_input_coverage": "polisyos.data_forge.domains.catalog.batch.config",
     "profile_input_coverage_currentness": "polisyos.data_forge.domains.catalog.batch.config",
+    "confidence_layer_vintage_for_snapshot_digest": (
+        "polisyos.data_forge.domains.academic.knowledge.skg_versioning"
+    ),
     "GENERATION_SELECTOR_FILENAME": "polisyos.data_forge.kernel.embeddings",
     "embedding_generation_manifest": "polisyos.data_forge.kernel.embeddings",
     "LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION": (

@@ -622,15 +622,23 @@ def test_public_read_and_fabric_consumers_use_the_canonical_registry_projection(
 def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
+    import json
     import os
 
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
     from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_catalog_publish_receipt,
+        run_content_stage_with_receipt,
+    )
     from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
     from polisyos.data_forge.domains.catalog.knowledge.types import (
         DatasetRecord,
         DistributionRecord,
     )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 
     registry_path = tmp_path / "registry.yaml"
 
@@ -657,7 +665,22 @@ def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
         lambda: load_catalog_source_registry(registry_path),
     )
     monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
-    db_path = tmp_path / "catalog.duckdb"
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="fixture_profile",
+            display_name="Fixture source profile",
+            connector_family="fixture",
+            base_url="https://example.test/source",
+            headers={},
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        run_profile="prod_core_blocking",
+    )
     build_graph(
         records=iter(
             [
@@ -683,9 +706,66 @@ def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
                 )
             ]
         ),
-        db_path=db_path,
+        db_path=config.db_path,
     )
-    catalog = DatasetCatalogGraph(db_path=db_path, index_dir=tmp_path / "index")
+
+    # Publish through the real producer so retrieval is admitted only against
+    # a current receipt for this exact graph, source registry, and profile set.
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text('{"title":"Fixture policy metric"}\n', encoding="utf-8")
+    config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
+    config.qc_report_path.write_text(
+        json.dumps(
+            {
+                "scope": "datasets",
+                "passed": True,
+                "metrics": {
+                    "machine_readable_distribution_pct": 100.0,
+                    "parser_supported_distribution_pct": 100.0,
+                    "datasets_with_metric_binding_pct": 100.0,
+                    "datasets_with_schema_profile_pct": 100.0,
+                    "transport_ready_var_coverage_pct": 100.0,
+                    "execution_readiness_score_avg": 0.9,
+                },
+                "checks": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config.benchmark_report_path.write_text(
+        json.dumps(
+            {
+                "kind": "datasets_benchmark",
+                "evaluation_mode": "full-ready",
+                "metrics": {
+                    "benchmark_search_top5_relevance_pct": 100.0,
+                    "benchmark_retrieval_ready_pct": 100.0,
+                    "benchmark_transport_ready_pct": 100.0,
+                    "benchmark_foundry_fitness_pct": 100.0,
+                    "benchmark_source_preflight_ready_pct": 100.0,
+                    "benchmark_bulk_equivalence_mismatch_rate": 0.0,
+                    "benchmark_bulk_equivalence_blocking_sources_total": 0,
+                },
+                "source_preflight": {
+                    "sources": [{"source": "fixture_source", "status": "complete", "ready": True}]
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def publish_receipt() -> None:
+        run_content_stage_with_receipt(config, "publish")
+        receipt = current_catalog_publish_receipt(config.db_path, run_profile="prod_core_blocking")
+        assert receipt["state"] == "current"
+        assert receipt["profile_input_coverage_state"] == "established"
+        assert receipt["profile_input_coverage"] == {
+            "schema_version": "policyos.catalog.profile_input_coverage.v1",
+            "profiles": {"fixture_profile": "none"},
+        }
+
+    publish_receipt()
+    catalog = DatasetCatalogGraph(db_path=config.db_path, index_dir=config.index_dir)
     warm = RetrievalService(curated_dir=tmp_path / "curated", dataset_catalog=catalog)
     request = DataResolveRequest(
         data_needs=[DataNeed(metric="fixture_metric")],
@@ -717,14 +797,36 @@ def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
             )
             == ()
         )
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_core_blocking")[
+                "state"
+            ]
+            != "current"
+        )
+        assert plan_ids(warm) == []
+        assert plan_ids(fresh) == []
+        publish_receipt()
         assert plan_ids(warm) == []
         assert plan_ids(fresh) == []
 
         write_policy(True)
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_core_blocking")[
+                "state"
+            ]
+            != "current"
+        )
+        publish_receipt()
         assert plan_ids(warm) == ["fixture_request"]
         assert plan_ids(fresh) == ["fixture_request"]
 
         registry_path.write_text("version: 1\nsources: invalid\n", encoding="utf-8")
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_core_blocking")[
+                "state"
+            ]
+            != "current"
+        )
         with pytest.raises(ValueError):
             plan_ids(warm)
         with pytest.raises(ValueError):

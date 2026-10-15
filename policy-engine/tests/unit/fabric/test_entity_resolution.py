@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.fabric.entity_resolution import (
     EntityMatchStore,
     EntityRecord,
@@ -73,7 +76,8 @@ def test_probabilistic_entity_resolution_is_explainable_and_reversible(tmp_path:
     batch_ref = store.persist_candidates(
         matches, method=resolver.method, metadata={"fixture": "true"}
     )
-    loaded = store.load_candidates(batch_ref.artifact_id)
+    assert batch_ref.manifest_profile_sha256 is not None
+    loaded = store.load_candidates(batch_ref)
     assert loaded.candidates[0].match_id == candidate.match_id
 
     override_ref = store.persist_override(
@@ -84,15 +88,91 @@ def test_probabilistic_entity_resolution_is_explainable_and_reversible(tmp_path:
         provenance_ref="sha256:" + ("a" * 64),
         merge_governance_ref="merge-review:entity:usa:1",
     )
-    override = store.load_override(override_ref.artifact_id)
+    assert override_ref.manifest_profile_sha256 is not None
+    override = store.load_override(override_ref)
     audit = store.list_override_audit()
-    override_payload = store.load_candidates(batch_ref.artifact_id)
+    override_payload = store.load_candidates(batch_ref)
     assert override_ref.kind == "fabric.entity_resolution.override"
     assert override.candidate.override_status == "accepted"
     assert override.candidate.merge_governance_ref == "merge-review:entity:usa:1"
     assert override.audit.actor == "fabric.test.reviewer"
     assert audit[0][1].match_id == candidate.match_id
     assert override_payload.candidates[0].override_status == "candidate"
+
+    history_path = tmp_path / "cas" / "entity_resolution" / "entity_resolution_overrides.jsonl"
+    history_before = history_path.read_bytes()
+    history_row = json.loads(history_before)
+    assert history_row["kind"] == override_ref.kind
+    assert history_row["media_type"] == override_ref.media_type
+    assert history_row["manifest_profile_sha256"] == override_ref.manifest_profile_sha256
+    assert store.list_override_audit() == audit
+    assert history_path.read_bytes() == history_before
+
+
+def test_entity_store_rejects_same_bytes_foreign_kind_and_schema_views(tmp_path: Path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    store = EntityMatchStore(cas)
+    candidate = ProbabilisticEntityResolver().resolve(
+        [
+            EntityRecord(
+                entity_id="wb:usa",
+                canonical_name="United States",
+                source="worldbank",
+                identifiers={"iso3": "USA"},
+            ),
+            EntityRecord(
+                entity_id="who:us",
+                canonical_name="United States of America",
+                source="who",
+                identifiers={"iso3": "USA"},
+            ),
+        ],
+        min_confidence=0.5,
+    )[0]
+
+    batch_ref = store.persist_candidates([candidate], method=candidate.method)
+    batch_payload = json.loads(cas.get_bytes(batch_ref).decode("utf-8"))
+    foreign_kind_ref = cas.put_json(
+        batch_payload,
+        opts=PutOptions(
+            kind="fabric.foreign_entity_batch",
+            media_type="application/json",
+            schema=SchemaInfo(name="fabric.foreign_entity_batch", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert foreign_kind_ref.artifact_id == batch_ref.artifact_id
+    assert foreign_kind_ref.manifest_profile_sha256 != batch_ref.manifest_profile_sha256
+    with pytest.raises(ValueError, match="incompatible"):
+        store.load_candidates(foreign_kind_ref)
+
+    override_ref = store.persist_override(
+        candidate,
+        status="rejected",
+        actor="fabric.test.reviewer",
+        reason="same-byte schema-view test",
+    )
+    override_payload = json.loads(cas.get_bytes(override_ref).decode("utf-8"))
+    wrong_schema_ref = cas.put_json(
+        override_payload,
+        opts=PutOptions(
+            kind=override_ref.kind,
+            media_type=override_ref.media_type,
+            schema=SchemaInfo(name="polisyos.fabric.EntityMatchOverride", version="2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert wrong_schema_ref.artifact_id == override_ref.artifact_id
+    assert wrong_schema_ref.manifest_profile_sha256 != override_ref.manifest_profile_sha256
+    with pytest.raises(ValueError, match="incompatible"):
+        store.load_override(wrong_schema_ref)
+
+    history_path = tmp_path / "cas" / "entity_resolution" / "entity_resolution_overrides.jsonl"
+    history_before = history_path.read_bytes()
+    assert store.list_override_audit()[0][1].match_id == candidate.match_id
+    assert history_path.read_bytes() == history_before
 
 
 def test_entity_override_cannot_accept_without_merge_governance(tmp_path: Path) -> None:

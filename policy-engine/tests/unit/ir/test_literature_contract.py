@@ -4,7 +4,9 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
@@ -152,12 +154,47 @@ def test_article_extraction_artifact_persist_load(tmp_path) -> None:
     )
 
     ref = persist_article_extraction_result(_ensure_ir_artifact_store(store), result)
-    loaded = load_article_extraction_result(_ensure_ir_artifact_store(store), ref["artifact_id"])
+    loaded = load_article_extraction_result(_ensure_ir_artifact_store(store), ref)
 
+    assert ref["kind"] == "ir.article_extraction_result"
+    assert ref["media_type"] == "application/json"
+    assert ref["manifest_profile_sha256"].startswith("sha256:")
     assert loaded.openalex_id == result.openalex_id
     assert loaded.year == 2024
     assert loaded.publication_year == 2024
     assert loaded.empirical_parameters[0].name == "gdp_growth"
+
+
+def test_article_extraction_loader_rejects_same_bytes_foreign_selected_view(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    store = _ensure_ir_artifact_store(cas)
+    result = ArticleExtractionResult(
+        openalex_id="https://openalex.org/W3",
+        title="Persisted article",
+        year=2024,
+        cited_by_count=40,
+        empirical_parameters=[_minimal_parameter()],
+        extraction_model="demo-model",
+        extraction_timestamp="2026-02-28T00:00:00Z",
+        extraction_confidence=0.88,
+    )
+    expected_ref = persist_article_extraction_result(store, result)
+    payload = result.model_dump(mode="json")
+    foreign_ref = cas.put_json(
+        payload,
+        opts=PutOptions(
+            kind="ir.foreign_article_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.foreign_article_result", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    assert str(foreign_ref.artifact_id) == expected_ref["artifact_id"]
+    assert foreign_ref.manifest_profile_sha256 != expected_ref["manifest_profile_sha256"]
+    with pytest.raises(ValueError, match="incompatible"):
+        load_article_extraction_result(store, foreign_ref)
 
 
 def test_causal_claim_normalizes_derived_fields_consistently() -> None:
@@ -323,9 +360,43 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
 
     ref = persist_literature_causal_prior(_ensure_ir_artifact_store(store), prior)
     loaded = load_literature_causal_prior(_ensure_ir_artifact_store(store), ref)
+    assert ref.manifest_profile_sha256 is not None
     assert loaded == prior
     assert loaded.edges[0].src == "x"
     assert loaded.metadata["topic"] == "labor"
+
+
+def test_literature_prior_loader_rejects_same_bytes_foreign_selected_view(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    store = _ensure_ir_artifact_store(cas)
+    prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="x",
+                dst="y",
+                confidence=0.66,
+                evidence_strength=EvidenceStrength.OBSERVATIONAL,
+                article_refs=["W42"],
+            )
+        ],
+        metadata={"topic": "labor"},
+    )
+    expected_ref = persist_literature_causal_prior(store, prior)
+    foreign_ref = cas.put_json(
+        prior.model_dump(mode="json"),
+        opts=PutOptions(
+            kind="ir.foreign_literature_prior",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.foreign_literature_prior", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    assert str(foreign_ref.artifact_id) == str(expected_ref.artifact_id)
+    assert foreign_ref.manifest_profile_sha256 != expected_ref.manifest_profile_sha256
+    with pytest.raises(ValueError, match="incompatible"):
+        load_literature_causal_prior(store, foreign_ref)
 
 
 def test_literature_prior_roundtrips_declared_absence_without_value_token(tmp_path) -> None:

@@ -2106,6 +2106,39 @@ _LITERATURE_PRIOR_SCHEMA_NAME = "ir.literature_causal_prior"
 _LITERATURE_PRIOR_SCHEMA_VERSION = "1.0"
 
 
+def _literature_artifact_selector(ref: object) -> object:
+    """Keep a complete artifact view intact while accepting legacy ID-only callers."""
+    if isinstance(ref, Mapping):
+        if {"artifact_id", "kind", "media_type"} <= set(ref):
+            return ref
+    elif all(hasattr(ref, field) for field in ("artifact_id", "kind", "media_type")):
+        return ref
+
+    artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
+    return artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
+
+
+def _require_literature_artifact_abi(
+    store: ArtifactStore,
+    selector: object,
+    *,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+) -> None:
+    """Require the selected manifest to match the producer's declared artifact ABI."""
+    manifest = store.get_manifest(selector)
+    schema = getattr(manifest, "artifact_schema", None)
+    if (
+        getattr(manifest, "kind", None) != kind
+        or getattr(manifest, "media_type", None) != "application/json"
+        or schema is None
+        or getattr(schema, "name", None) != schema_name
+        or str(getattr(schema, "version", "")) != schema_version
+    ):
+        raise ValueError("Literature artifact manifest is incompatible")
+
+
 def persist_article_extraction_result(
     store: ArtifactStore,
     result: ArticleExtractionResult,
@@ -2121,14 +2154,21 @@ def persist_article_extraction_result(
         schema_version=_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
 def load_article_extraction_result(store: ArtifactStore, ref: object) -> ArticleExtractionResult:
     """Load article extraction result."""
-    artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
-    artifact = artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
-    payload = get_json_artifact(store, artifact)
+    selector = _literature_artifact_selector(ref)
+    _require_literature_artifact_abi(
+        store,
+        selector,
+        kind=_SCHEMA_NAME,
+        schema_name=_SCHEMA_NAME,
+        schema_version=_SCHEMA_VERSION,
+    )
+    payload = get_json_artifact(store, selector)
     return ArticleExtractionResult.model_validate(payload)
 
 
@@ -2147,6 +2187,7 @@ def persist_literature_causal_prior(
         schema_version=_LITERATURE_PRIOR_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return LiteratureCausalPriorRef.model_validate(ref)
 
@@ -2156,9 +2197,15 @@ def load_literature_causal_prior(
     ref: LiteratureCausalPriorRef | object,
 ) -> LiteratureCausalPrior:
     """Load literature causal prior."""
-    artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
-    artifact = artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
-    payload = get_json_artifact(store, artifact)
+    selector = _literature_artifact_selector(ref)
+    _require_literature_artifact_abi(
+        store,
+        selector,
+        kind=_LITERATURE_PRIOR_SCHEMA_NAME,
+        schema_name=_LITERATURE_PRIOR_SCHEMA_NAME,
+        schema_version=_LITERATURE_PRIOR_SCHEMA_VERSION,
+    )
+    payload = get_json_artifact(store, selector)
     return LiteratureCausalPrior.model_validate(payload)
 
 

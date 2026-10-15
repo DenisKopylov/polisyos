@@ -29,6 +29,45 @@ _OVERRIDE_INDEX_NAME = "entity_resolution_overrides.jsonl"
 _OVERRIDE_LOCK_NAME = "entity_resolution_overrides.lock"
 
 
+def _require_entity_resolution_manifest(
+    store: FileSystemCAS,
+    selector: object,
+    *,
+    kind: str,
+    schema: SchemaInfo,
+) -> None:
+    """Require a selected CAS view to match the entity-resolution producer ABI."""
+    ir_store = _ensure_ir_artifact_store(store)
+    manifest = ir_store.get_manifest(selector)
+    actual_schema = getattr(manifest, "artifact_schema", None)
+    if (
+        getattr(manifest, "kind", None) != kind
+        or getattr(manifest, "media_type", None) != "application/json"
+        or actual_schema is None
+        or getattr(actual_schema, "name", None) != schema.name
+        or str(getattr(actual_schema, "version", "")) != schema.version
+    ):
+        raise ValueError("Entity resolution artifact manifest is incompatible")
+
+
+def _selected_ref_fields(ref: object) -> dict[str, str]:
+    """Project the exact selected artifact view into the append-only audit index."""
+    artifact_id = getattr(ref, "artifact_id", None)
+    kind = getattr(ref, "kind", None)
+    media_type = getattr(ref, "media_type", None)
+    profile = getattr(ref, "manifest_profile_sha256", None)
+    if artifact_id is None or not all(
+        isinstance(value, str) and value for value in (kind, media_type, profile)
+    ):
+        raise ValueError("Entity resolution write did not return a complete selected artifact view")
+    return {
+        "artifact_id": str(artifact_id),
+        "kind": kind,
+        "media_type": media_type,
+        "manifest_profile_sha256": profile,
+    }
+
+
 class EntityMatchStore:
     """Persist candidate matches and operator overrides through CAS."""
 
@@ -55,9 +94,16 @@ class EntityMatchStore:
                 schema=_MATCH_BATCH_SCHEMA,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
     def load_candidates(self, artifact_id) -> EntityMatchBatch:
+        _require_entity_resolution_manifest(
+            self._store,
+            artifact_id,
+            kind=_MATCH_BATCH_KIND,
+            schema=_MATCH_BATCH_SCHEMA,
+        )
         payload = get_json_artifact(_ensure_ir_artifact_store(self._store), artifact_id)
         return EntityMatchBatch.model_validate(payload)
 
@@ -115,12 +161,13 @@ class EntityMatchStore:
                 schema=_MATCH_OVERRIDE_SCHEMA,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         append_text_locked(
             _override_index_path(self._store),
             json.dumps(
                 {
-                    "artifact_id": str(ref.artifact_id),
+                    **_selected_ref_fields(ref),
                     "override_id": audit.override_id,
                     "match_id": audit.match_id,
                     "status": audit.status,
@@ -135,6 +182,12 @@ class EntityMatchStore:
         return ref
 
     def load_override(self, artifact_id) -> EntityOverrideEnvelope:
+        _require_entity_resolution_manifest(
+            self._store,
+            artifact_id,
+            kind=_MATCH_OVERRIDE_KIND,
+            schema=_MATCH_OVERRIDE_SCHEMA,
+        )
         payload = get_json_artifact(_ensure_ir_artifact_store(self._store), artifact_id)
         return EntityOverrideEnvelope.model_validate(payload)
 
@@ -154,8 +207,23 @@ class EntityMatchStore:
                 raw = line.strip()
                 if not raw:
                     continue
-                artifact_id = str(json.loads(raw)["artifact_id"])
-                rows.append((artifact_id, self.load_override(artifact_id).audit))
+                record = json.loads(raw)
+                artifact_id = str(record["artifact_id"])
+                view_fields = {"kind", "media_type", "manifest_profile_sha256"}
+                present_view_fields = view_fields & set(record)
+                if present_view_fields and present_view_fields != view_fields:
+                    raise ValueError("Entity override history contains an incomplete artifact view")
+                selector = (
+                    {
+                        "artifact_id": artifact_id,
+                        "kind": record["kind"],
+                        "media_type": record["media_type"],
+                        "manifest_profile_sha256": record["manifest_profile_sha256"],
+                    }
+                    if present_view_fields
+                    else artifact_id
+                )
+                rows.append((artifact_id, self.load_override(selector).audit))
         rows.sort(key=lambda item: (item[1].created_at, item[0]))
         return rows
 

@@ -124,6 +124,11 @@ if TYPE_CHECKING:
         validate_core_model_json_artifact,
     )
     from .ir_adapter import ensure_ir_artifact_store as ensure_ir_artifact_store
+    from .owned_json import (
+        CoreArtifactOwnerProfile,
+        CoreOwnedModelRead,
+        validate_owned_core_model_json_artifact,
+    )
 
 
 def __getattr__(name: str) -> Any:
@@ -144,6 +149,13 @@ def __getattr__(name: str) -> Any:
     }:
         canonical_profile = import_module(".canonical_profile", __name__)
         return getattr(canonical_profile, name)
+    if name in {
+        "CoreArtifactOwnerProfile",
+        "CoreOwnedModelRead",
+        "validate_owned_core_model_json_artifact",
+    }:
+        owned_json = import_module(".owned_json", __name__)
+        return getattr(owned_json, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -220,7 +232,9 @@ __all__ = [
     "BulkVerificationReport",
     "CASIntegrityReport",
     "CanonInfo",
+    "CoreArtifactOwnerProfile",
     "CoreJSONArtifactStore",
+    "CoreOwnedModelRead",
     "DependencyEdge",
     "DependencyGraph",
     "DependencyNode",
@@ -275,4 +289,5 @@ __all__ = [
     "resolve_dependency_graph",
     "resolve_manifest_by_profile",
     "validate_core_model_json_artifact",
+    "validate_owned_core_model_json_artifact",
 ]

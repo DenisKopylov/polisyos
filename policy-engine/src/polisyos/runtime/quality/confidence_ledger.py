@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import ast
 import builtins as _builtins
+import contextvars
 import functools
 import hashlib
 import importlib
@@ -121,6 +122,113 @@ class _LoaderOwnedCallableSlot:
         """Return the loader qualname for the declared binding."""
 
         return ".".join((*self.owner_path, self.binding_name))
+
+
+class _CodeNormalizationCache:
+    """Memoize immutable code-object normalization for one integrity pass."""
+
+    def __init__(self) -> None:
+        self._normalized_by_identity: dict[int, tuple[types.CodeType, dict[str, object]]] = {}
+
+    def get(self, code: types.CodeType) -> dict[str, object] | None:
+        """Return a normalized value only when the retained object is identical."""
+        entry = self._normalized_by_identity.get(id(code))
+        if entry is None or entry[0] is not code:
+            return None
+        return entry[1]
+
+    def put(self, code: types.CodeType, value: dict[str, object]) -> None:
+        """Retain the immutable code object beside its derived value."""
+        self._normalized_by_identity[id(code)] = (code, value)
+
+
+class _IntegrityAnalysisContext:
+    """Hold source and code derivations for exactly one integrity pass."""
+
+    def __init__(self) -> None:
+        self.code_cache = _CodeNormalizationCache()
+        self._source_bytes_by_path: dict[Path, bytes] = {}
+        self._source_trees_by_bytes: dict[tuple[bytes, bool], ast.Module] = {}
+
+    def remember_source(self, source_path: Path, source_bytes: bytes) -> bytes:
+        """Bind exact source bytes to a resolved path for this pass."""
+        resolved = source_path.resolve()
+        previous = self._source_bytes_by_path.get(resolved)
+        if previous is not None and previous != source_bytes:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"repository source changed during integrity analysis: {resolved.name}",
+            )
+        self._source_bytes_by_path[resolved] = source_bytes
+        return source_bytes
+
+    def source_bytes(self, source_path: Path) -> bytes:
+        """Read a source file once and retain its exact bytes for final comparison."""
+        resolved = source_path.resolve()
+        previous = self._source_bytes_by_path.get(resolved)
+        if previous is not None:
+            return previous
+        try:
+            source_bytes = resolved.read_bytes()
+        except OSError as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository source unavailable: {resolved.name}",
+            ) from exc
+        return self.remember_source(resolved, source_bytes)
+
+    def source_tree(self, source_path: Path) -> ast.Module:
+        """Return the AST derived from the exact bytes observed in this pass."""
+        return self.tree_for_bytes(
+            self.source_bytes(source_path),
+            filename=str(source_path),
+            decode_utf8=True,
+        )
+
+    def tree_for_bytes(
+        self,
+        source_bytes: bytes,
+        *,
+        filename: str,
+        decode_utf8: bool = False,
+    ) -> ast.Module:
+        """Parse each distinct exact source byte string once in this pass."""
+        key = (source_bytes, decode_utf8)
+        tree = self._source_trees_by_bytes.get(key)
+        if tree is None:
+            source: str | bytes = source_bytes.decode("utf-8") if decode_utf8 else source_bytes
+            tree = ast.parse(source, filename=filename)
+            self._source_trees_by_bytes[key] = tree
+        return tree
+
+    def assert_sources_unchanged(self) -> None:
+        """Reject source drift between derivation and the end of this pass."""
+        for source_path, expected_bytes in sorted(
+            self._source_bytes_by_path.items(), key=lambda item: item[0].as_posix()
+        ):
+            try:
+                current_bytes = source_path.read_bytes()
+            except OSError as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    "loaded repository source unavailable at end of integrity analysis: "
+                    f"{source_path.name}",
+                ) from exc
+            if current_bytes != expected_bytes:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"repository source changed during integrity analysis: {source_path.name}",
+                )
+
+
+_ACTIVE_INTEGRITY_ANALYSIS: contextvars.ContextVar[_IntegrityAnalysisContext | None] = (
+    contextvars.ContextVar("polisyos_confidence_ledger_integrity_analysis", default=None)
+)
+
+
+def _active_integrity_analysis() -> _IntegrityAnalysisContext | None:
+    """Return this context's currently active integrity-pass derivations."""
+    return _ACTIVE_INTEGRITY_ANALYSIS.get()
 
 
 type ExecutionStatus = Literal["prepared", "started", "executed", "refused", "unexecuted"]
@@ -3525,46 +3633,108 @@ class ConfidenceLedgerSession:
     def _assert_deployment_identity_locked(self) -> None:
         """Fence runtime contracts and canonical source against in-session drift."""
 
+        if self._authority_provenance == "canonical_repo":
+            root = self._authority_repo_root
+            observed: str | None = None
+            if root is not None and root == _loaded_policy_engine_root():
+                try:
+                    quick_fence = _deployment_quick_fence(root)
+                except ConfidenceLedgerError:
+                    quick_fence = None
+                if quick_fence != self._deployment_quick_fence:
+                    try:
+                        deployment_baseline, stable_fence = _stable_deployment_snapshot(root)
+                        observed = _deployment_identity_from_baseline(deployment_baseline)
+                    except ConfidenceLedgerError:
+                        observed = None
+                    if observed == self._deployment_identity:
+                        self._deployment_quick_fence = stable_fence
+                    else:
+                        # Unavailable bytes fail this operation closed, but do not
+                        # become a durable claim that deployment identity changed.
+                        if observed is not None and self._journal_path.exists():
+                            self._persist_deployment_drift_poison_locked(observed)
+                        raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
         _assert_ledger_artifact_contracts_current()
-        if self._authority_provenance != "canonical_repo":
-            return
-        root = self._authority_repo_root
-        observed: str | None = None
-        if root is not None and root == _loaded_policy_engine_root():
-            try:
-                quick_fence = _deployment_quick_fence(root)
-            except ConfidenceLedgerError:
-                quick_fence = None
-            if quick_fence == self._deployment_quick_fence:
-                return
-            try:
-                deployment_baseline, stable_fence = _stable_deployment_snapshot(root)
-                observed = _deployment_identity_from_baseline(deployment_baseline)
-            except ConfidenceLedgerError:
-                observed = None
-            if observed == self._deployment_identity:
-                self._deployment_quick_fence = stable_fence
-                return
-        if observed != self._deployment_identity:
-            if self._journal_path.exists():
-                self._persist_deployment_drift_poison_locked(observed)
-            raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
 
-    def _persist_deployment_drift_poison_locked(self, observed: str | None) -> None:
+    def _read_pinned_cas_json_for_drift_poison_locked(
+        self,
+        artifact_ref: str,
+        *,
+        contract_id: str,
+    ) -> object:
+        """Read a poison prerequisite against import-pinned CAS contracts only."""
+
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        contract = _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS.get(contract_id)
+        if contract is None:
+            raise ConfidenceLedgerError("ledger_cas_manifest_invalid")
+        report = self._artifact_store.verify(artifact_ref)
+        if not report.ok:
+            raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
+        manifest = self._artifact_store.get_manifest(artifact_ref)
+        if (
+            manifest.kind != contract.kind
+            or manifest.artifact_schema != contract.schema
+            or manifest.producer != contract.producer
+            or manifest.media_type != contract.media_type
+        ):
+            raise ConfidenceLedgerError("ledger_cas_manifest_invalid")
+        try:
+            return load_core_json_artifact(self._artifact_store, artifact_ref)
+        except (OSError, ValueError, TypeError) as exc:
+            raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
+
+    def _journaled_put_drift_poison_locked(self, payload: dict[str, Any]) -> None:
+        """Persist only the fail-closed poison record using its pinned contract."""
+
+        contract = _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS.get("deployment_drift_poison")
+        if contract is None:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid")
+        artifact_ref = _cas_json_artifact_ref(payload)
+        self._append_scope_journal_intent(
+            artifact_kind="deployment_drift_poison",
+            artifact_ref=artifact_ref,
+            payload=payload,
+        )
+        ref = self._artifact_store.put_json(
+            _jsonable(payload),
+            artifacts.PutOptions(
+                kind=contract.kind,
+                media_type=contract.media_type,
+                schema=contract.schema,
+                producer=contract.producer,
+            ),
+            canon_spec=_IMPORT_TIME_LEDGER_CANON_SPEC,
+        )
+        if str(ref.artifact_id) != artifact_ref:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        stored_payload = self._read_pinned_cas_json_for_drift_poison_locked(
+            artifact_ref,
+            contract_id="deployment_drift_poison",
+        )
+        if stored_payload != payload:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        self._append_scope_journal_commit(
+            artifact_kind="deployment_drift_poison",
+            artifact_ref=artifact_ref,
+        )
+
+    def _persist_deployment_drift_poison_locked(self, observed: str) -> None:
         """Persist an irreversible denial before reporting canonical source drift."""
 
-        observed_identity = observed or _identity(
-            "policy-engine-deployment",
-            {"status": "unavailable"},
-        )
-        if observed_identity == self._deployment_identity:
+        if not isinstance(observed, str) or observed == self._deployment_identity:
             raise ConfidenceLedgerError("deployment_drift_poison_invalid")
         registry_ref = _cas_json_artifact_ref(self._registry.source_payload())
         root = self._expected_root_binding(registry_ref)
         root_ref = _cas_json_artifact_ref(root)
         try:
             stored_root = ConfidenceLedgerRoot.model_validate(
-                self._read_cas_json(root_ref, _ROOT_SCHEMA)
+                self._read_pinned_cas_json_for_drift_poison_locked(
+                    root_ref,
+                    contract_id="root",
+                )
             )
         except (ConfidenceLedgerError, ValueError) as exc:
             raise ConfidenceLedgerError("deployment_drift_poison_invalid", str(exc)) from exc
@@ -3577,17 +3747,14 @@ class ConfidenceLedgerSession:
             "ledger_root_ref": root_ref,
             "authority_provenance": "canonical_repo",
             "expected_deployment_identity": self._deployment_identity,
-            "observed_deployment_identity": observed_identity,
+            "observed_deployment_identity": observed,
             "reason": "canonical_deployment_identity_changed",
         }
         payload["poison_id"] = _identity(
             "confidence-deployment-drift-poison",
             payload,
         )
-        self._journaled_put_json_locked(
-            payload,
-            artifact_kind="deployment_drift_poison",
-        )
+        self._journaled_put_drift_poison_locked(payload)
 
     def _assert_no_deployment_drift_poison_locked(self) -> None:
         """Treat every valid same-scope deployment poison as terminal."""
@@ -4892,7 +5059,16 @@ def _source_producer_projection(bindings: Mapping[str, ast.AST]) -> dict[str, ob
 
 def _source_ledger_contract_projection(source_bytes: bytes) -> str:
     """Derive the complete ledger artifact table from source-owned literals."""
-    tree = ast.parse(source_bytes, filename="confidence_ledger.py")
+    analysis = _active_integrity_analysis()
+    tree = (
+        analysis.tree_for_bytes(
+            source_bytes,
+            filename="confidence_ledger.py",
+            decode_utf8=False,
+        )
+        if analysis is not None
+        else ast.parse(source_bytes, filename="confidence_ledger.py")
+    )
     bindings = _source_module_bindings(tree)
     table_expression = bindings.get("_LEDGER_ARTIFACT_CONTRACTS")
     if not isinstance(table_expression, ast.Call) or not (
@@ -6400,7 +6576,12 @@ def _loader_owned_callable_slots(source_path: Path) -> tuple[_LoaderOwnedCallabl
     """Enumerate direct module and loader-local class callable slots."""
 
     try:
-        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        analysis = _active_integrity_analysis()
+        tree = (
+            analysis.source_tree(source_path)
+            if analysis is not None
+            else ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        )
     except (OSError, SyntaxError, UnicodeError) as exc:
         raise ConfidenceLedgerError(
             "canonical_loaded_runtime_mismatch",
@@ -7853,8 +8034,13 @@ def _local_decorator_wrapper_matches(
     ):
         return False
     try:
-        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
-    except (OSError, SyntaxError, UnicodeError):
+        analysis = _active_integrity_analysis()
+        tree = (
+            analysis.source_tree(source_path)
+            if analysis is not None
+            else ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        )
+    except (OSError, SyntaxError, UnicodeError, ConfidenceLedgerError):
         return False
     factory_node = next(
         (
@@ -8139,7 +8325,7 @@ def _loader_owned_slot_binding(
     )
 
 
-def _loaded_code_manifest(
+def _loaded_code_manifest_body(
     repo_root: Path,
     closure: tuple[tuple[str, str], ...],
 ) -> tuple[str, bool]:
@@ -8177,6 +8363,10 @@ def _loaded_code_manifest(
                 f"loaded repository module provenance invalid: {module_name}",
             )
         source_path = (repo_root / relative_path).resolve()
+        analysis = _active_integrity_analysis()
+        if analysis is None:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        source_bytes = analysis.source_bytes(source_path)
         live_defined_code = _live_defined_code_manifest(
             module,
             module_name,
@@ -8239,22 +8429,36 @@ def _loaded_code_manifest(
             binding["matches_loader"] = binding_matches
             module_consistent = module_consistent and binding_matches
         all_consistent = all_consistent and module_consistent
-        try:
-            source_hash = _bytes_hash((repo_root / relative_path).read_bytes())
-        except OSError as exc:
-            raise ConfidenceLedgerError(
-                "canonical_loaded_runtime_mismatch",
-                f"loaded repository source unavailable: {module_name}",
-            ) from exc
         manifest[module_name] = {
             "relative_path": relative_path,
-            "source_hash": source_hash,
+            "source_hash": _bytes_hash(source_bytes),
             "loader_module_code_hash": _content_hash(_normalize_code_object(code)),
             "live_defined_code": live_loader_bindings,
             "loader_owned_callable_slots": loader_owned_slots,
             "live_loader_consistent": module_consistent,
         }
     return _canonical_json(manifest), all_consistent
+
+
+def _loaded_code_manifest(
+    repo_root: Path,
+    closure: tuple[tuple[str, str], ...],
+) -> tuple[str, bool]:
+    """Capture loaded code with fresh inputs and pass-local source derivations."""
+    analysis = _active_integrity_analysis()
+    owns_analysis = analysis is None
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        result = _loaded_code_manifest_body(repo_root, closure)
+        if owns_analysis:
+            analysis.assert_sources_unchanged()
+        return result
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
 def _loaded_code_evidence_projection(manifest: str) -> str:
@@ -8483,10 +8687,23 @@ def _loader_code_hashes_by_qualname(code: types.CodeType) -> dict[str, tuple[str
     return {qualname: tuple(sorted(values)) for qualname, values in sorted(hashes.items())}
 
 
-def _normalize_code_object(code: types.CodeType) -> dict[str, object]:
+def _normalize_code_object(
+    code: types.CodeType,
+    *,
+    code_cache: _CodeNormalizationCache | None = None,
+) -> dict[str, object]:
     """Normalize executable code while excluding machine-local filenames."""
-
-    return {
+    analysis = _active_integrity_analysis()
+    active_cache = (
+        code_cache
+        if code_cache is not None
+        else (analysis.code_cache if analysis is not None else None)
+    )
+    if active_cache is not None:
+        cached = active_cache.get(code)
+        if cached is not None:
+            return cached
+    normalized = {
         "argcount": code.co_argcount,
         "posonlyargcount": code.co_posonlyargcount,
         "kwonlyargcount": code.co_kwonlyargcount,
@@ -8494,7 +8711,9 @@ def _normalize_code_object(code: types.CodeType) -> dict[str, object]:
         "stacksize": code.co_stacksize,
         "flags": code.co_flags,
         "code_hash": _bytes_hash(code.co_code),
-        "consts": [_normalize_code_constant(value) for value in code.co_consts],
+        "consts": [
+            _normalize_code_constant(value, code_cache=active_cache) for value in code.co_consts
+        ],
         "names": list(code.co_names),
         "varnames": list(code.co_varnames),
         "freevars": list(code.co_freevars),
@@ -8505,27 +8724,34 @@ def _normalize_code_object(code: types.CodeType) -> dict[str, object]:
         "linetable_hash": _bytes_hash(code.co_linetable),
         "exceptiontable_hash": _bytes_hash(code.co_exceptiontable),
     }
+    if active_cache is not None:
+        active_cache.put(code, normalized)
+    return normalized
 
 
-def _normalize_code_constant(value: object) -> object:
+def _normalize_code_constant(
+    value: object,
+    *,
+    code_cache: _CodeNormalizationCache | None = None,
+) -> object:
     """Return a canonical representation of a code-object constant."""
 
     if isinstance(value, types.CodeType):
-        return {"code": _normalize_code_object(value)}
+        return {"code": _normalize_code_object(value, code_cache=code_cache)}
     if isinstance(value, bytes):
         return {"bytes_hash": _bytes_hash(value)}
     if isinstance(value, tuple):
-        return {"tuple": [_normalize_code_constant(item) for item in value]}
+        return {"tuple": [_normalize_code_constant(item, code_cache=code_cache) for item in value]}
     if isinstance(value, slice):
         return {
             "slice": [
-                _normalize_code_constant(value.start),
-                _normalize_code_constant(value.stop),
-                _normalize_code_constant(value.step),
+                _normalize_code_constant(value.start, code_cache=code_cache),
+                _normalize_code_constant(value.stop, code_cache=code_cache),
+                _normalize_code_constant(value.step, code_cache=code_cache),
             ]
         }
     if isinstance(value, frozenset):
-        items = [_normalize_code_constant(item) for item in value]
+        items = [_normalize_code_constant(item, code_cache=code_cache) for item in value]
         return {"frozenset": sorted(items, key=_canonical_json)}
     if isinstance(value, float):
         return {"float_hex": value.hex()}
@@ -8705,6 +8931,8 @@ def _assert_ledger_artifact_contracts_current(
     loaded_code_evidence_projection_fn: Callable[[str], str] = _loaded_code_evidence_projection,
 ) -> None:
     """Fail closed when source, contracts, snapshots, or loaded code drift."""
+    analysis = _IntegrityAnalysisContext()
+    analysis_token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
     try:
         runtime = globals()
         expected_strings = {
@@ -8721,6 +8949,7 @@ def _assert_ledger_artifact_contracts_current(
         if runtime.get("_IMPORT_TIME_LEDGER_CANON_SPEC") is not expected_canon_spec:
             raise ValueError("pinned ledger canonical specification was rebound")
         source_bytes = source_path.read_bytes()
+        analysis.remember_source(source_path, source_bytes)
         source_hash = _bytes_hash(source_bytes)
         source_contract_projection = _source_ledger_contract_projection(source_bytes)
         contract_projection = _runtime_ledger_contract_projection()
@@ -8761,10 +8990,13 @@ def _assert_ledger_artifact_contracts_current(
             or _IMPORT_TIME_LOADED_CODE_CONSISTENT is not False
         ):
             raise ValueError("loaded authority identity snapshot is incomplete")
+        analysis.assert_sources_unchanged()
     except (OSError, TypeError, ValueError, AttributeError, SyntaxError) as exc:
         if isinstance(exc, ConfidenceLedgerError):
             raise
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", str(exc)) from exc
+    finally:
+        _ACTIVE_INTEGRITY_ANALYSIS.reset(analysis_token)
 
 
 _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "canonical_loaded_runtime_mismatch"

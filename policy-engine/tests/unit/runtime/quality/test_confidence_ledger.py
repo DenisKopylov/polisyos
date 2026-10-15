@@ -4,6 +4,7 @@ import ast
 import copy
 import dataclasses
 import hashlib
+import importlib.util
 import inspect
 import json
 import os
@@ -16,6 +17,7 @@ import time
 import types
 from collections.abc import Callable
 from fractions import Fraction
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import Any
 
@@ -136,23 +138,166 @@ def _install_canonical_registry(repo_root: Path) -> None:
     )
 
 
-def _install_loaded_deployment(repo_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def _install_loaded_deployment(
+    repo_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    drift_after_state_load: bool = False,
+) -> None:
     """Install all bytes used to identify a test-loaded policy-engine checkout."""
 
-    loaded_code_manifest = ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST
-    loaded_code_consistent = ledger_module._IMPORT_TIME_LOADED_CODE_CONSISTENT
     _install_canonical_registry(repo_root)
-    shutil.copytree(REPO_ROOT / "src", repo_root / "src")
+    shutil.copytree(
+        REPO_ROOT / "src",
+        repo_root / "src",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    if drift_after_state_load:
+        ledger_source = repo_root / "src/polisyos/runtime/quality/confidence_ledger.py"
+        source = ledger_source.read_text(encoding="utf-8")
+        anchor = "        return derived_head, root, events\n\n    def _scope_artifact_refs_locked("
+        injected = (
+            '        drift_marker = self._state_root / "inject-deployment-drift-on-load"\n'
+            "        if drift_marker.is_file():\n"
+            "            drift_source = (\n"
+            "                self._authority_repo_root\n"
+            '                / "src/polisyos/core/canon/canon_json.py"\n'
+            "            )\n"
+            "            drift_source.write_bytes(\n"
+            '                drift_source.read_bytes() + b"\\n# source-bound mid-operation drift\\n"\n'
+            "            )\n"
+            "            drift_marker.unlink()\n" + anchor
+        )
+        assert source.count(anchor) == 1
+        ledger_source.write_text(source.replace(anchor, injected), encoding="utf-8")
     for relative in (Path("pyproject.toml"), Path("uv.lock")):
         target = repo_root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((REPO_ROOT / relative).read_bytes())
-    monkeypatch.setattr(ledger_module, "_loaded_policy_engine_root", lambda: repo_root)
-    monkeypatch.setattr(
-        ledger_module,
-        "_loaded_code_manifest",
-        lambda _repo_root, _closure: (loaded_code_manifest, loaded_code_consistent),
+
+    original_root = REPO_ROOT.resolve()
+    code_by_module: dict[str, dict[str, types.CodeType]] = {}
+    original_source_by_module: dict[str, Path] = {}
+    for module_name, relative_path in ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE:
+        source_path = (repo_root / relative_path).resolve()
+        loader = SourceFileLoader(module_name, str(source_path))
+        spec = importlib.util.spec_from_loader(module_name, loader, origin=str(source_path))
+        module = sys.modules[module_name]
+        original_source_by_module[module_name] = (original_root / relative_path).resolve()
+        assert spec is not None
+        monkeypatch.setattr(module, "__spec__", spec)
+        monkeypatch.setattr(module, "__loader__", loader)
+        if module_name == ledger_module.__name__:
+            monkeypatch.setattr(module, "__file__", str(source_path))
+        module_code = loader.get_code(module_name)
+        assert isinstance(module_code, types.CodeType)
+        compiled_by_digest: dict[str, types.CodeType] = {}
+
+        def index_code(
+            code: types.CodeType,
+            compiled_by_digest: dict[str, types.CodeType],
+        ) -> None:
+            digest = ledger_module._content_hash(ledger_module._normalize_code_object(code))
+            compiled_by_digest.setdefault(digest, code)
+            for constant in code.co_consts:
+                if isinstance(constant, types.CodeType):
+                    index_code(constant, compiled_by_digest)
+
+        index_code(module_code, compiled_by_digest)
+        code_by_module[module_name] = compiled_by_digest
+
+    seen_functions: set[int] = set()
+    seen_classes: set[int] = set()
+
+    def relocate_function(function: object, *, module_name: str) -> None:
+        if not isinstance(function, types.FunctionType):
+            return
+        if function.__module__ == module_name and id(function) not in seen_functions:
+            seen_functions.add(id(function))
+            current_path = Path(function.__code__.co_filename).resolve()
+            if current_path == original_source_by_module[module_name]:
+                digest = ledger_module._content_hash(
+                    ledger_module._normalize_code_object(function.__code__)
+                )
+                relocated_code = code_by_module[module_name].get(digest)
+                if drift_after_state_load and module_name == ledger_module.__name__:
+                    relocated_code = next(
+                        (
+                            code
+                            for code in code_by_module[module_name].values()
+                            if code.co_qualname == function.__qualname__
+                        ),
+                        None,
+                    )
+                assert relocated_code is not None, (module_name, function.__qualname__)
+                assert function.__code__.co_freevars == relocated_code.co_freevars
+                monkeypatch.setattr(function, "__code__", relocated_code)
+        relocate_function(getattr(function, "__wrapped__", None), module_name=module_name)
+
+    def relocate_class(cls: type[object], *, module_name: str) -> None:
+        if id(cls) in seen_classes or cls.__module__ != module_name:
+            return
+        seen_classes.add(id(cls))
+        for value in vars(cls).values():
+            if isinstance(value, (classmethod, staticmethod)):
+                relocate_function(value.__func__, module_name=module_name)
+            elif isinstance(value, property):
+                for accessor in (value.fget, value.fset, value.fdel):
+                    relocate_function(accessor, module_name=module_name)
+            elif isinstance(value, types.FunctionType):
+                relocate_function(value, module_name=module_name)
+            elif isinstance(value, type):
+                relocate_class(value, module_name=module_name)
+
+    for module_name, _relative_path in ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE:
+        module = sys.modules[module_name]
+        for value in vars(module).values():
+            if isinstance(value, types.FunctionType):
+                relocate_function(value, module_name=module_name)
+            elif isinstance(value, type):
+                relocate_class(value, module_name=module_name)
+
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_OWNER_ROOT", repo_root.resolve())
+    relocated_manifest, relocated_consistent = ledger_module._loaded_code_manifest(
+        repo_root.resolve(), ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
     )
+    assert relocated_consistent is True
+
+    def remap_source_root(value: object) -> object:
+        if isinstance(value, str) and (
+            value == original_root.as_posix() or value.startswith(original_root.as_posix() + "/")
+        ):
+            return repo_root.resolve().as_posix() + value[len(original_root.as_posix()) :]
+        if isinstance(value, list):
+            return [remap_source_root(item) for item in value]
+        if isinstance(value, dict):
+            return {key: remap_source_root(item) for key, item in value.items()}
+        return value
+
+    original_projection = json.loads(
+        ledger_module._loaded_code_evidence_projection(
+            ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST
+        )
+    )
+    expected_relocated_projection = remap_source_root(original_projection)
+    actual_projection = json.loads(
+        ledger_module._loaded_code_evidence_projection(relocated_manifest)
+    )
+    if not drift_after_state_load:
+        assert actual_projection == expected_relocated_projection
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_MANIFEST", relocated_manifest)
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_CONSISTENT", True)
+    if drift_after_state_load:
+        monkeypatch.setattr(
+            ledger_module,
+            "_IMPORT_TIME_DEPLOYMENT_BASELINE",
+            ledger_module._deployment_baseline(repo_root.resolve()),
+        )
+        monkeypatch.setattr(
+            ledger_module,
+            "_IMPORT_TIME_DEPLOYMENT_QUICK_FENCE",
+            ledger_module._deployment_quick_fence(repo_root.resolve()),
+        )
 
 
 def _prepare(
@@ -802,7 +947,7 @@ def test_steady_state_lock_keeps_deployment_fence_and_replays_loaded_code_identi
     session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
     deployment_source_reads: list[Path] = []
     imported_source_reads: list[Path] = []
-    import_root = ledger_module._IMPORT_TIME_OWNER_ROOT
+    import_root = REPO_ROOT
     read_bytes = Path.read_bytes
 
     def track_source_reads(path: Path) -> bytes:
@@ -817,12 +962,15 @@ def test_steady_state_lock_keeps_deployment_fence_and_replays_loaded_code_identi
     session.observe_history()
     session.receipt()
 
-    expected_imported_sources = {
-        (import_root / relative_path).resolve()
+    expected_deployment_sources = {
+        (repo_root / relative_path).resolve()
         for _module_name, relative_path in ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
     }
-    assert deployment_source_reads == []
-    assert expected_imported_sources <= set(imported_source_reads)
+    expected_imported_sources = {
+        (import_root / "src/polisyos/runtime/quality/confidence_ledger.py").resolve()
+    }
+    assert set(deployment_source_reads) == expected_deployment_sources
+    assert set(imported_source_reads) == expected_imported_sources
 
 
 def test_deployment_quick_fence_rehashes_once_then_poisons_changed_content(
@@ -2377,6 +2525,208 @@ def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
         )
 
 
+def test_code_normalization_cache_reuses_only_code_objects_within_one_context() -> None:
+    """Memoize immutable nested code trees without memoizing function bindings."""
+
+    module_code = compile(
+        "def outer(flag):\n"
+        "    def inner(value=3):\n"
+        "        return value + 1 if flag else value\n"
+        "    return inner\n",
+        "<code-normalization-cache-test>",
+        "exec",
+    )
+    code_objects: list[types.CodeType] = []
+
+    def collect(code: types.CodeType) -> None:
+        code_objects.append(code)
+        for constant in code.co_consts:
+            if isinstance(constant, types.CodeType):
+                collect(constant)
+
+    collect(module_code)
+    expected = ledger_module._normalize_code_object(module_code)
+    cache = ledger_module._CodeNormalizationCache()
+
+    cached = ledger_module._normalize_code_object(module_code, code_cache=cache)
+    count_after_first = len(cache._normalized_by_identity)
+    repeated = ledger_module._normalize_code_object(module_code, code_cache=cache)
+    independent = ledger_module._CodeNormalizationCache()
+    separate_pass = ledger_module._normalize_code_object(module_code, code_cache=independent)
+
+    assert cached == expected
+    assert repeated is cached
+    assert count_after_first == len(code_objects)
+    assert len(cache._normalized_by_identity) == count_after_first
+    assert separate_pass == expected
+    assert separate_pass is not cached
+
+
+def test_loaded_code_integrity_parses_each_source_content_once_per_assertion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The full check shares ASTs without merging distinct UTF-8 parsing contracts."""
+
+    expected_contents = {
+        ledger_module._bytes_hash((REPO_ROOT / relative_path).read_bytes())
+        for _module_name, relative_path in ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+    }
+    parse_counts: dict[str, int] = {}
+    original_parse = ledger_module.ast.parse
+
+    def counted_parse(source: str | bytes, *args: object, **kwargs: object) -> ast.AST:
+        source_bytes = source if isinstance(source, bytes) else source.encode("utf-8")
+        digest = ledger_module._bytes_hash(source_bytes)
+        parse_counts[digest] = parse_counts.get(digest, 0) + 1
+        return original_parse(source, *args, **kwargs)
+
+    monkeypatch.setattr(ledger_module.ast, "parse", counted_parse)
+
+    ledger_module._assert_ledger_artifact_contracts_current()
+
+    assert set(parse_counts) == expected_contents
+    ledger_hash = ledger_module._bytes_hash(
+        (REPO_ROOT / "src/polisyos/runtime/quality/confidence_ledger.py").read_bytes()
+    )
+    assert parse_counts[ledger_hash] == 2
+    assert {digest: count for digest, count in parse_counts.items() if digest != ledger_hash} == {
+        digest: 1 for digest in expected_contents if digest != ledger_hash
+    }
+
+
+def test_loaded_code_manifest_rejects_source_changes_during_analysis(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Source-derived AST evidence cannot be paired with different ending bytes."""
+
+    source_path = ledger_module._LEDGER_MODULE_SOURCE_PATH
+    original_read_bytes = Path.read_bytes
+    source_reads = 0
+
+    def changed_on_second_read(path: Path) -> bytes:
+        nonlocal source_reads
+        content = original_read_bytes(path)
+        if path.resolve() == source_path:
+            source_reads += 1
+            if source_reads == 2:
+                return content + b"\n# changed while loaded-code analysis was running\n"
+        return content
+
+    monkeypatch.setattr(Path, "read_bytes", changed_on_second_read)
+
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger_module._loaded_code_manifest(
+            REPO_ROOT,
+            ((ledger_module.__name__, "src/polisyos/runtime/quality/confidence_ledger.py"),),
+        )
+
+    assert source_reads == 2
+
+
+def test_loaded_code_manifest_rechecks_live_loader_and_callable_slot_after_prior_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A prior passing manifest does not authorize a later loader or slot mutation."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    relative_path = "src/polisyos/core/artifacts/store.py"
+    closure = ((store_module.__name__, relative_path),)
+    original_manifest, original_consistent = ledger_module._loaded_code_manifest(
+        REPO_ROOT,
+        closure,
+    )
+    assert original_consistent is True
+    slots = json.loads(original_manifest)[store_module.__name__]["loader_owned_callable_slots"]
+    target_qualname, target_row = next(
+        (qualname, row)
+        for qualname, row in sorted(slots.items())
+        if row["owner_path"] and row["matches_loader_slot"] is True
+    )
+    owner: object = store_module
+    for component in target_row["owner_path"]:
+        owner = getattr(owner, component)
+    binding_name = target_qualname.rsplit(".", 1)[-1]
+
+    monkeypatch.delattr(owner, binding_name)
+    _changed_manifest, changed_consistent = ledger_module._loaded_code_manifest(
+        REPO_ROOT,
+        closure,
+    )
+
+    assert changed_consistent is False
+
+
+def test_loaded_code_manifest_rejects_live_code_patch_after_prior_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A fresh manifest compares live code even when the slot itself remains present."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    relative_path = "src/polisyos/core/artifacts/store.py"
+    closure = ((store_module.__name__, relative_path),)
+    _manifest, original_consistent = ledger_module._loaded_code_manifest(REPO_ROOT, closure)
+    assert original_consistent is True
+
+    target = store_module.FileSystemCAS.put_bytes
+    original_code = target.__code__
+    replacement_module_code = compile(
+        "def put_bytes(self, data, opts, *, return_selected_profile=False):\n    return None\n",
+        original_code.co_filename,
+        "exec",
+    )
+    replacement_code = next(
+        constant
+        for constant in replacement_module_code.co_consts
+        if isinstance(constant, types.CodeType) and constant.co_name == "put_bytes"
+    ).replace(
+        co_name=original_code.co_name,
+        co_qualname=original_code.co_qualname,
+        co_filename=original_code.co_filename,
+        co_firstlineno=original_code.co_firstlineno,
+    )
+    monkeypatch.setattr(target, "__code__", replacement_code)
+
+    _changed_manifest, changed_consistent = ledger_module._loaded_code_manifest(REPO_ROOT, closure)
+
+    assert changed_consistent is False
+
+
+def test_loaded_code_manifest_rejects_removed_live_loader_after_prior_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A previous positive does not survive loss of the module's real loader."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    relative_path = "src/polisyos/core/artifacts/store.py"
+    closure = ((store_module.__name__, relative_path),)
+    _manifest, original_consistent = ledger_module._loaded_code_manifest(REPO_ROOT, closure)
+    assert original_consistent is True
+    assert store_module.__spec__ is not None
+    monkeypatch.setattr(store_module.__spec__, "loader", object())
+
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger_module._loaded_code_manifest(REPO_ROOT, closure)
+
+
+def test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only code objects are memoized; live function defaults are observed again."""
+
+    ledger_module._assert_ledger_artifact_contracts_current()
+    function = ledger_module._normalize_function_binding
+    changed_kwdefaults = dict(function.__kwdefaults__ or {})
+    assert "seen" in changed_kwdefaults
+    changed_kwdefaults["seen"] = frozenset()
+    monkeypatch.setattr(function, "__kwdefaults__", changed_kwdefaults)
+
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger_module._assert_ledger_artifact_contracts_current()
+
+
 def test_source_derived_transactional_closures_cover_live_cas_and_every_declared_method(
     tmp_path: Path,
 ) -> None:
@@ -2566,25 +2916,13 @@ def test_mid_operation_deployment_drift_poison_is_irreversible(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo_root = tmp_path / "authority-repo"
-    _install_loaded_deployment(repo_root, monkeypatch)
+    _install_loaded_deployment(repo_root, monkeypatch, drift_after_state_load=True)
     session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
     history = session.observe_history()
     kernel = repo_root / "src/polisyos/core/canon/canon_json.py"
     kernel_bytes = kernel.read_bytes()
-    real_load = ConfidenceLedgerSession._load_state_locked
-    injected = False
-
-    def load_then_drift(
-        current: ConfidenceLedgerSession,
-    ) -> tuple[object, object, object]:
-        nonlocal injected
-        loaded = real_load(current)
-        if current is session and not injected:
-            kernel.write_bytes(kernel_bytes + b"\n# drift after lock entry\n")
-            injected = True
-        return loaded
-
-    monkeypatch.setattr(ConfidenceLedgerSession, "_load_state_locked", load_then_drift)
+    drift_marker = session._state_root / "inject-deployment-drift-on-load"
+    drift_marker.touch()
     try:
         with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
             session.prepare_check(
@@ -2600,6 +2938,59 @@ def test_mid_operation_deployment_drift_poison_is_irreversible(
 
     with pytest.raises(ConfidenceLedgerError, match="deployment_drift_poisoned"):
         ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+
+
+def test_unavailable_mid_operation_deployment_identity_does_not_poison_recovered_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fail closed on an unreadable snapshot without recording unobserved drift."""
+
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch, drift_after_state_load=True)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    history = session.observe_history()
+    kernel = repo_root / "src/polisyos/core/canon/canon_json.py"
+    kernel_bytes = kernel.read_bytes()
+    drift_marker = session._state_root / "inject-deployment-drift-on-load"
+    drift_marker.touch()
+    original_read_bytes = Path.read_bytes
+    snapshot_read_failures = 0
+
+    def fail_once_for_changed_kernel(path: Path) -> bytes:
+        nonlocal snapshot_read_failures
+        if (
+            path.resolve() == kernel.resolve()
+            and snapshot_read_failures == 0
+            and path.stat().st_size > len(kernel_bytes)
+        ):
+            snapshot_read_failures += 1
+            # Model an atomic repair/replacement winning the race before the
+            # enclosing operation performs its final integrity check.
+            path.write_bytes(kernel_bytes)
+            raise OSError("transient source snapshot read failure")
+        return original_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", fail_once_for_changed_kernel)
+    try:
+        with pytest.raises(
+            ConfidenceLedgerError,
+            match="canonical_deployment_identity_invalid",
+        ):
+            session.prepare_check(
+                history_token=history,
+                request_key="request://unit/unavailable-mid-operation-snapshot",
+                obligation_class=PromotionObligationClass.CALIBRATION,
+                instrument_id="constant_unit_e_process",
+                certificate_ref="construction://constant-unit-e-process/unavailable",
+                claim=_claim(),
+            )
+    finally:
+        kernel.write_bytes(kernel_bytes)
+
+    assert snapshot_read_failures == 1
+    recovered = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    recovered.observe_history()
 
 
 def test_deployment_drift_poison_rejects_equal_expected_and_observed_identity(

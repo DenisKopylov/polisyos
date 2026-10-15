@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-12
+- Last updated: 2026-10-14
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -908,3 +908,41 @@ partial streams with `capture_complete=false`, not as a completed probe.
 `--source-flip-output-root` or `POLISYOS_VALUE_GATE_SOURCE_FLIP_OUTPUT_ROOT` can
 select a different directory only beneath that same ignored `LOCAL/raw` tree.
 Runs use unique directories and are never removed automatically.
+
+Semantic epoch acquisition finalization now treats its selected `ArtifactRef` graph as a
+CAS selection, not as a matching ID or a manifest-profile string. The finalizer resolves every
+reference in the typed admitted evidence through the selected manifest, checks the raw digest,
+expected producer canon, and manifest-profile digest, then reconciles nested owner references
+against that graph. Profileless owner projections remain owner-record facts and never select a
+CAS view. Unsupported or unresolved selected artifact kinds leave acquisition finalization
+`not_established`; this does not supply the missing policy-admission authority or promote an
+acquisition candidate.
+
+The codec registry now covers existing L5 and Lex owner payloads. Canonical owner snapshots and
+member rows use the epoch canon; exact L5 registry files retain their raw source bytes. Lex document
+refs are checked against their amendment row as identity tokens and are never document evidence.
+L5 scope-relation provenance without a current byte resolver remains unresolved; historical
+profileless outputs are not rewritten.
+
+Owner codec dispatch is bound to the adapter's expected source role before persistence. The bridge
+checks snapshot/member refs against source rows, exact media, and the registered codec; L5 registry
+files retain exact raw bytes, while identity and unresolved refs remain non-content. A ref's own
+kind cannot switch an L5 row to the compatible Lex codec or the reverse. Every owner role is
+validated before the first CAS write, then the selected profile and byte readback are verified.
+
+The owner bridge validates the complete `ArtifactRef` schema of each L5, Lex, and Catalog receipt;
+new ref leaves fail closed until their source role is registered. It also walks every ref-shaped
+object in the source snapshot and reconciles receipt refs with the exact row/passport projection
+before CAS admission. Catalog passport and candidate refs are checked against their frozen owner
+row, and candidate bytes are reread through the registered CAS codec. L5 scope-relation provenance
+has no byte resolver and remains unresolved; Lex document identifiers remain identity tokens.
+
+
+Owner snapshot admission is schema-bound before CAS writes. Registered ArtifactRef slots are
+collected from strict owner row and receipt models, and added or malformed reference fields fail
+closed. Catalog passport content hashes are recomputed from the frozen JSON before any owner
+snapshot/member bytes are admitted. For a bound current-v2 row, both producer row-presence facts
+must be true, activation must be pending or active, and the receipt operational epoch must equal the
+owner-row epoch; duplicate stamp and passport carriers are also reconciled before the first CAS write.
+This establishes source-projection consistency only; external authority, causal identification,
+assignment, units, calibration, and publication remain not established.

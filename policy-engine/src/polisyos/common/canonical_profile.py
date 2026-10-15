@@ -153,6 +153,19 @@ def _reject_json_constant(value: str) -> NoReturn:
     raise ValueError(f"invalid JSON numeric constant: {value}")
 
 
+def _normalize_canonical_profile_mapping(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Normalize the one JSON-mode sequence form accepted for profile separators."""
+    normalized = dict(payload)
+    separators = normalized.get("separators")
+    if (
+        type(separators) is list
+        and len(separators) == 2
+        and all(type(separator) is str for separator in separators)
+    ):
+        normalized["separators"] = tuple(separators)
+    return normalized
+
+
 def parse_canonical_profile(
     raw_manifest_bytes: bytes,
     *,
@@ -183,13 +196,7 @@ def parse_canonical_profile(
     payload = dict(raw_canon)
     if set(profile_model.model_fields) - set(payload):
         raise CanonicalProfileRefusalError("canon_profile_incomplete")
-    separators = payload.get("separators")
-    if (
-        type(separators) is list
-        and len(separators) == 2
-        and all(type(separator) is str for separator in separators)
-    ):
-        payload["separators"] = tuple(separators)
+    payload = _normalize_canonical_profile_mapping(payload)
     try:
         parsed_profile = profile_model.model_validate(payload, strict=True)
         profile = _profile_fields(parsed_profile)

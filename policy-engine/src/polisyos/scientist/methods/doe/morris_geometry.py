@@ -25,6 +25,16 @@ class _MorrisPlan(Protocol):
     def parameter_specs(self) -> Sequence[_MorrisParameterSpec]: ...
 
 
+def _declared_morris_num_levels(plan: _MorrisPlan) -> int:
+    """Return the single backend grid after admitting every parameter's declaration."""
+    if not plan.parameter_specs:
+        raise ValueError("Morris requires at least one declared parameter")
+    num_levels = plan.parameter_specs[0].num_levels
+    if any(spec.num_levels != num_levels for spec in plan.parameter_specs):
+        raise ValueError("Morris parameters must declare the same num_levels")
+    return num_levels
+
+
 def _validate_morris_plan_samples(
     plan: _MorrisPlan,
     samples: np.ndarray,
@@ -33,9 +43,7 @@ def _validate_morris_plan_samples(
     """Admit a plan's complete design before consumers may resample its blocks."""
     if samples.ndim != 2 or samples.shape[1] != plan.num_parameters:
         raise ValueError("Morris samples must have one column per declared parameter")
-    num_levels = plan.parameter_specs[0].num_levels
-    if any(spec.num_levels != num_levels for spec in plan.parameter_specs):
-        raise ValueError("Morris parameters must declare the same num_levels")
+    num_levels = _declared_morris_num_levels(plan)
     _validate_morris_trajectories(
         samples,
         num_parameters=plan.num_parameters,

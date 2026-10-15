@@ -561,6 +561,49 @@ def _type_identity(class_type):
     return {"module": module_name, "qualname": qualname, "name": name}
 
 
+def _plugin_module_identity(plugin):
+    # Bind module/class/instance plugin objects to one actual loaded module.
+    if _is_module_instance(plugin):
+        module_name = _module_namespace(plugin).get("__name__")
+        if (
+            type(module_name) is not str
+            or not module_name
+            or sys.modules.get(module_name) is not plugin
+        ):
+            raise RuntimeError("pytest module plugin is not bound under its claimed module name")
+        return module_name
+
+    plugin_type = plugin if isinstance(plugin, type) else type(plugin)
+    try:
+        module_name = type.__getattribute__(plugin_type, "__module__")
+        qualname = type.__getattribute__(plugin_type, "__qualname__")
+    except (AttributeError, TypeError) as error:
+        raise RuntimeError("pytest plugin type has no readable module identity") from error
+    if (
+        type(module_name) is not str
+        or not module_name
+        or type(qualname) is not str
+        or not qualname
+    ):
+        raise RuntimeError("pytest plugin type has a malformed module identity")
+    module = sys.modules.get(module_name)
+    if not _is_module_instance(module):
+        raise RuntimeError("pytest plugin type module is absent from sys.modules")
+    resolved = _module_namespace(module)
+    for part in qualname.split("."):
+        if not part or part == "<locals>":
+            raise RuntimeError("pytest plugin type has no stable module namespace path")
+        if type(resolved) is dict:
+            resolved = resolved.get(part)
+        elif isinstance(resolved, type):
+            resolved = type.__getattribute__(resolved, "__dict__").get(part)
+        else:
+            raise RuntimeError("pytest plugin type namespace path is not resolvable")
+    if resolved is not plugin_type:
+        raise RuntimeError("pytest plugin type is not bound by its claimed module")
+    return module_name
+
+
 def _module_class_provenance(module):
     # Capture actual type ancestry and source-associated class shape.
     actual_type = type(module)
@@ -768,7 +811,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     config = session.config
     plugins = []
     for plugin in config.pluginmanager.get_plugins():
-        module_name = getattr(plugin, "__name__", None) or type(plugin).__module__
+        module_name = _plugin_module_identity(plugin)
         plugins.append(
             {
                 "name": config.pluginmanager.get_name(plugin),
@@ -4679,6 +4722,7 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
     distribution_for = plugin_namespace["_distribution_for"]
     namespace_distributions = plugin_namespace["_namespace_distributions"]
     module_data_digest = plugin_namespace["_module_data_digest"]
+    plugin_module_identity = plugin_namespace["_plugin_module_identity"]
 
     def capture_for(site_root: Path) -> object:
         previous = sys.path[:]
@@ -4732,6 +4776,51 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
         return record_path, metadata_path, record_bytes, metadata_bytes
 
     cases: dict[str, bool] = {}
+    plugin_module_name = "q2_plugin_class_origin_control"
+    prior_plugin_module = sys.modules.get(plugin_module_name)
+    plugin_module = types.ModuleType(plugin_module_name)
+    plugin_class = type("Plugin", (), {})
+    plugin_class.__module__ = plugin_module_name
+    plugin_class.__qualname__ = "Plugin"
+    plugin_class.__name__ = "LegacyTmpdirPlugin"
+    plugin_module.Plugin = plugin_class
+    sys.modules[plugin_module_name] = plugin_module
+
+    def plugin_rejected(plugin: object) -> bool:
+        try:
+            plugin_module_identity(plugin)
+        except RuntimeError:
+            return True
+        return False
+
+    try:
+        cases["plugin-class-object-uses-bound-class-module-not-class-name"] = (
+            plugin_module_identity(plugin_class) == plugin_module_name
+        )
+        cases["plugin-instance-uses-bound-runtime-type-module"] = (
+            plugin_module_identity(plugin_class()) == plugin_module_name
+        )
+        cases["plugin-module-object-reconciles-sysmodules-identity"] = (
+            plugin_module_identity(plugin_module) == plugin_module_name
+        )
+        unbound_class = type("UnboundPlugin", (), {})
+        unbound_class.__module__ = plugin_module_name
+        unbound_class.__qualname__ = "UnboundPlugin"
+        cases["plugin-class-self-label-without-module-object-binding-rejected"] = plugin_rejected(
+            unbound_class
+        )
+        spoof_module = types.ModuleType("q2_plugin_module_spoof")
+        spoof_module.__name__ = plugin_module_name
+        sys.modules["q2_plugin_module_spoof"] = spoof_module
+        cases["plugin-module-self-name-without-sysmodules-identity-rejected"] = plugin_rejected(
+            spoof_module
+        )
+    finally:
+        sys.modules.pop("q2_plugin_module_spoof", None)
+        sys.modules.pop(plugin_module_name, None)
+        if prior_plugin_module is not None:
+            sys.modules[plugin_module_name] = prior_plugin_module
+
     typed_module = types.ModuleType("q2.runtime.data.control")
     typed_module.payload = {1: "integer-key", "1": "string-key", b"1": "bytes-key"}
     typed_digest = module_data_digest(typed_module)

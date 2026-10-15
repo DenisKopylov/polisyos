@@ -40,7 +40,6 @@ DEFAULT_ACQUISITION_OVERLAY_PATH = Path(
     "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
 )
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
-_OVERLAY_EXTERNAL_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _BASELINE_UNION_TABLES = (
     "ds_datasets",
     "ds_distributions",
@@ -722,7 +721,7 @@ class _SemanticEpochProductionReceipt(Protocol):
 def _overlay_statement_payload(value: BaseModel | dict[str, object]) -> bytes:
     """Frame new external statements with their declared Core JSON codec."""
     mapping = _model_json(value) if isinstance(value, BaseModel) else value
-    canonical = canon.to_canonical_bytes(mapping, _OVERLAY_EXTERNAL_CANON)
+    canonical = epoch_contract.canonical_external_epoch_statement_bytes(mapping)
     return len(canonical).to_bytes(8, "big") + canonical
 
 
@@ -768,7 +767,7 @@ def _persist_external_statement(
 ) -> tuple[ArtifactRef, str]:
     mapping = _model_json(value) if isinstance(value, BaseModel) else value
     payload = _overlay_statement_payload(mapping)
-    expected_canon = artifacts.CanonInfo.from_spec(_OVERLAY_EXTERNAL_CANON)
+    expected_canon = epoch_contract.external_epoch_statement_canon_info()
     ref = artifact_store.put_bytes(
         payload,
         artifacts.PutOptions(
@@ -954,8 +953,7 @@ def _load_external_statement(
         or getattr(manifest, "kind", None) != expected_kind
         or (getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json")
         or (
-            getattr(manifest, "canon", None)
-            != artifacts.CanonInfo.from_spec(_OVERLAY_EXTERNAL_CANON)
+            getattr(manifest, "canon", None) != epoch_contract.external_epoch_statement_canon_info()
         )
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed")
@@ -2217,7 +2215,7 @@ class CatalogAcquisitionOverlay:
                 if observed_passport_json is not None:
                     try:
                         decoded_passport = json.loads(observed_passport_json)
-                    except (TypeError, json.JSONDecodeError):
+                    except TypeError, json.JSONDecodeError:
                         pass
                     else:
                         if isinstance(decoded_passport, dict):
@@ -2345,7 +2343,7 @@ class CatalogAcquisitionOverlay:
                             )
                             if stored_hash != bound.candidate_content_hash:
                                 raise ValueError("candidate semantic hash changed")
-                        except (TypeError, ValueError, OverlayAdmissionError):
+                        except TypeError, ValueError, OverlayAdmissionError:
                             binding_status = "invalid"
                             query_disposition = "unresolved"
                             failure_code = "acquisition_candidate_binding_mismatch"

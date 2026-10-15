@@ -1,0 +1,54 @@
+id = "2026-10-14-b31-selected-reference-graph"
+title = "Reconcile complete owner reference graphs before CAS admission"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Owner adapters derive typed ArtifactRef coverage from strict source schemas, reject malformed values at registered paths, reconcile current bound-v2 Catalog producer presence and activation facts, operational epoch identity, and passport carriers before CAS writes, recompute passport content hashes from frozen JSON, and resolve Catalog candidates through their registered CAS codec before semantic projection. Historical v1 rows remain legacy-unresolved; identity and unresolved refs remain non-content."
+evidence = [
+  "src/polisyos/core/contracts/epoch.py",
+  "src/polisyos/runtime/quality/semantic_epoch.py",
+  "src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+  "tests/unit/runtime/quality/test_semantic_epoch.py",
+  "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+]
+compatibility = "Additive Core contracts helpers expose the existing epoch and external acquisition-statement writer profiles. Candidate preparation now returns selected CAS views for the manifest, denominator receipts, and prepared statement carried by the epoch stamp; owner-record projections retain their existing profileless wire form."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts.epoch"
+api = "The Core contracts facade must export AcquisitionArtifactCodec, acquisition_artifact_codec, acquisition_artifact_canon_info, external_epoch_statement_canon_info, canonical_external_epoch_statement_bytes, and scoped_schema_regime_projection_content_hash. Existing DTO schemas and admission statuses remain unchanged."
+limitations = "This resolves storage and selected-view provenance only. Appointed policy-admission authority, external source authority, causal identification, and publication eligibility remain not_established; unknown selected artifact kinds fail closed. B31 remains open."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-contracts-selected-acquisition-reference-graph"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts.epoch"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "The acquisition finalizer verifies selected CAS profiles and producer canons across the complete transitive reference graph. Profileless owner projections resolve only through an actual verified default manifest and remain non-selector owner facts."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
+runbook_docs = []
+
+[status]
+production_authority = "not_established"
+value_promotion = "not_established"
+open_findings = ["B31"]
+
+
+[owner_codec_boundary]
+formats = ["epoch_frame", "canonical_json", "raw_json", "identity_token", "unresolved_reference"]
+source_rows = ["catalog acquisition members", "L5 schema regimes", "Lex amendments"]
+limitations = ["L5 scope-relation provenance has no current content resolver", "historical profileless output is not rewritten", "policy admission, source authority, causal identification, and publication remain not_established"]
+
+[owner_role_binding]
+roles = ["l5.schema_regime_owner_snapshot", "l5.schema_regime", "l5.schema_regime_registry", "l5.schema_regime_scope_registry", "l5.schema_regime_scope_relation", "lex.amendment_owner_snapshot", "lex.amendment", "lex.document", "epoch.acquisition_owner_snapshot", "epoch.acquisition_native_member"]
+controls = ["same-ID L5-to-Lex row-kind refusal", "same-ID Lex-to-L5 row-kind refusal"]
+
+[owner_reference_graph]
+receipt_models = ["L5SchemaRegimeDenominatorReceipt", "ScopedSchemaRegimeProjection", "LegalAmendmentWindowDenominatorReceipt", "AcquisitionNativeMembershipReceipt", "AcquisitionSemanticCandidateDenominatorReceipt", "AcquisitionSemanticProjectionVerificationReceipt"]
+fail_closed = ["unregistered typed ArtifactRef schema path", "unregistered or malformed owner snapshot reference path", "same-ID passport or semantic-candidate role retag", "passport/receipt ref disagreement", "bound-v2 Catalog producer presence, activation, or operational identity mismatch", "duplicate Catalog row/passport stamp mismatch", "passport hash differs from recomputed frozen JSON", "candidate bytes or semantic hash mismatch", "selected projection ref mismatch"]

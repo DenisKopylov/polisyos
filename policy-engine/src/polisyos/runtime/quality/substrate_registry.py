@@ -481,6 +481,34 @@ class L5CatalogAuthority:
     epoch_schema_regime_registry_content_hash: epoch_contract.Digest
     epoch_schema_regime_scope_registry_ref: ArtifactRef
     epoch_schema_regime_scope_registry_content_hash: epoch_contract.Digest
+    epoch_schema_regime_registry_source_bytes: bytes = b""
+    epoch_schema_regime_scope_registry_source_bytes: bytes = b""
+
+    def load_schema_regime_source_artifact_bytes(self, *, ref: ArtifactRef) -> bytes:
+        """Return exact registry bytes only for the matching owner-issued file ref."""
+        sources = (
+            (
+                self.epoch_schema_regime_registry_ref,
+                self.epoch_schema_regime_registry_content_hash,
+                self.epoch_schema_regime_registry_source_bytes,
+            ),
+            (
+                self.epoch_schema_regime_scope_registry_ref,
+                self.epoch_schema_regime_scope_registry_content_hash,
+                self.epoch_schema_regime_scope_registry_source_bytes,
+            ),
+        )
+        for expected_ref, expected_hash, payload in sources:
+            if ref == expected_ref:
+                actual_hash = f"sha256:{hashlib.sha256(payload).hexdigest()}"
+                if (
+                    not payload
+                    or actual_hash != expected_hash
+                    or str(ref.artifact_id) != expected_hash
+                ):
+                    raise SubstrateRegistryError("l5_registry_source_bytes_not_established")
+                return payload
+        raise SubstrateRegistryError("l5_registry_source_ref_not_owned")
 
     def _schema_regime_owner_snapshot_bytes(self) -> bytes:
         return epoch_contract.canonical_epoch_bytes(
@@ -960,8 +988,10 @@ def default_substrate_catalog_paths(repo_root: Path) -> SubstrateCatalogPaths:
     )
 
 
-def _file_artifact_ref(path: Path, *, kind: str) -> tuple[ArtifactRef, epoch_contract.Digest]:
-    raw = path.read_bytes()
+def _file_artifact_ref(
+    path: Path, *, kind: str, payload: bytes | None = None
+) -> tuple[ArtifactRef, epoch_contract.Digest]:
+    raw = path.read_bytes() if payload is None else payload
     digest = f"sha256:{hashlib.sha256(raw).hexdigest()}"
     return (
         ArtifactRef(
@@ -983,8 +1013,8 @@ def load_l5_catalog_authority(paths: SubstrateCatalogPaths) -> L5CatalogAuthorit
     epoch_scope_path = paths.epoch_schema_regime_scope_registry_path
     if epoch_regime_path is None or epoch_scope_path is None:
         raise SubstrateRegistryError("l5_epoch_registry_paths_not_established")
-    epoch_regime = _load_json(epoch_regime_path)
-    epoch_scope = _load_json(epoch_scope_path)
+    epoch_regime, epoch_regime_source_bytes = _load_json_source_bytes(epoch_regime_path)
+    epoch_scope, epoch_scope_source_bytes = _load_json_source_bytes(epoch_scope_path)
     measurement_ref = _repo_ref(paths.measurement_registry_path, marker="measurement_registry")
     identification_ref = _repo_ref(
         paths.identification_mode_registry_path,
@@ -1031,10 +1061,12 @@ def load_l5_catalog_authority(paths: SubstrateCatalogPaths) -> L5CatalogAuthorit
     epoch_regime_ref, epoch_regime_hash = _file_artifact_ref(
         epoch_regime_path,
         kind="l5.schema_regime_registry",
+        payload=epoch_regime_source_bytes,
     )
     epoch_scope_ref, epoch_scope_hash = _file_artifact_ref(
         epoch_scope_path,
         kind="l5.schema_regime_scope_registry",
+        payload=epoch_scope_source_bytes,
     )
     return L5CatalogAuthority(
         measurement_registry_ref=measurement_ref,
@@ -1065,6 +1097,8 @@ def load_l5_catalog_authority(paths: SubstrateCatalogPaths) -> L5CatalogAuthorit
         epoch_schema_regime_registry_content_hash=epoch_regime_hash,
         epoch_schema_regime_scope_registry_ref=epoch_scope_ref,
         epoch_schema_regime_scope_registry_content_hash=epoch_scope_hash,
+        epoch_schema_regime_registry_source_bytes=epoch_regime_source_bytes,
+        epoch_schema_regime_scope_registry_source_bytes=epoch_scope_source_bytes,
     )
 
 
@@ -2071,6 +2105,20 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise SubstrateRegistryError("substrate_catalog_invalid", path.as_posix())
     return payload
+
+
+def _load_json_source_bytes(path: Path) -> tuple[dict[str, Any], bytes]:
+    """Parse one owner JSON file while retaining the exact bytes behind its ref."""
+    try:
+        raw = path.read_bytes()
+        value = json.loads(raw)
+    except FileNotFoundError as exc:
+        raise SubstrateRegistryError("substrate_catalog_missing", path.as_posix()) from exc
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise SubstrateRegistryError("substrate_catalog_invalid", path.as_posix()) from exc
+    if not isinstance(value, dict):
+        raise SubstrateRegistryError("substrate_catalog_invalid", path.as_posix())
+    return value, raw
 
 
 def _mapping(value: object) -> Mapping[str, Any]:

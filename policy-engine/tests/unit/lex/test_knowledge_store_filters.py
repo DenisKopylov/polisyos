@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
 from polisyos.runtime.quality import semantic_epoch
@@ -299,17 +301,16 @@ def test_retroactive_row_differs_before_and_after_knowledge_cutoff(
         con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        before = store.resolve_amendment_window_denominator(
-            query=_amendment_query(knowledge_cutoff=b"2025-01-31T23:59:59Z")
-        )
-        after = store.resolve_amendment_window_denominator(
-            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
-        )
-        after_snapshot = store.load_amendment_owner_snapshot(
-            ref=after.owner_source_snapshot_ref
-        )
+        before_query = _amendment_query(knowledge_cutoff=b"2025-01-31T23:59:59Z")
+        before = store.resolve_amendment_window_denominator(query=before_query)
+        after_query = _amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        after = store.resolve_amendment_window_denominator(query=after_query)
+        after_snapshot = store.load_amendment_owner_snapshot(ref=after.owner_source_snapshot_ref)
         semantic_epoch._verify_lex_snapshot(
-            owner=store, payload=after_snapshot, receipt=after
+            owner=store,
+            payload=after_snapshot,
+            receipt=after,
+            expected_query=after_query,
         )
     finally:
         store.close()
@@ -355,11 +356,12 @@ def test_missing_amendment_effective_window_stays_in_complete_denominator(
         con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        receipt = store.resolve_amendment_window_denominator(
-            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
-        )
+        query = _amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        receipt = store.resolve_amendment_window_denominator(query=query)
         snapshot = store.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
-        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=receipt)
+        semantic_epoch._verify_lex_snapshot(
+            owner=store, payload=snapshot, receipt=receipt, expected_query=query
+        )
     finally:
         store.close()
 
@@ -415,19 +417,22 @@ def test_unresolved_lex_window_partition_is_typed_and_verified(tmp_path: Path) -
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        receipt = store.resolve_amendment_window_denominator(
-            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
-        )
+        query = _amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        receipt = store.resolve_amendment_window_denominator(query=query)
         snapshot = store.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
-        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=receipt)
-        invalid_time_receipt = store.resolve_amendment_window_denominator(
-            query=_amendment_query(
-                knowledge_cutoff=b"not-a-cutoff",
-                admission_cutoff=b"not-an-admission-cutoff",
-            )
-        )
         semantic_epoch._verify_lex_snapshot(
-            owner=store, payload=snapshot, receipt=invalid_time_receipt
+            owner=store, payload=snapshot, receipt=receipt, expected_query=query
+        )
+        invalid_time_query = _amendment_query(
+            knowledge_cutoff=b"not-a-cutoff",
+            admission_cutoff=b"not-an-admission-cutoff",
+        )
+        invalid_time_receipt = store.resolve_amendment_window_denominator(query=invalid_time_query)
+        semantic_epoch._verify_lex_snapshot(
+            owner=store,
+            payload=snapshot,
+            receipt=invalid_time_receipt,
+            expected_query=invalid_time_query,
         )
     finally:
         store.close()
@@ -461,9 +466,7 @@ def test_unresolved_lex_window_partition_is_typed_and_verified(tmp_path: Path) -
     assert receipt.assessments[7].effective_from is None
     assert receipt.assessments[7].effective_to is None
     assert receipt.assessments[7].failure_code == "amendment_valid_effect_window_unresolved"
-    assert all(
-        receipt.assessments[index].disposition == "unresolved" for index in (0, 1, 2, 6, 7)
-    )
+    assert all(receipt.assessments[index].disposition == "unresolved" for index in (0, 1, 2, 6, 7))
     assert invalid_time_receipt.owner_source_snapshot_ref == receipt.owner_source_snapshot_ref
     assert invalid_time_receipt.assessments[0].failure_code == (
         "amendment_valid_effect_window_unresolved"
@@ -524,7 +527,12 @@ def test_unresolved_lex_window_partition_is_typed_and_verified(tmp_path: Path) -
     )
     assert forged_receipt.denominator_hash != receipt.denominator_hash
     with pytest.raises(ValueError, match="Lex assessment window differs from frozen owner bytes"):
-        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=forged_receipt)
+        semantic_epoch._verify_lex_snapshot(
+            owner=store,
+            payload=snapshot,
+            receipt=forged_receipt,
+            expected_query=query,
+        )
 
 
 def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters(tmp_path) -> None:
@@ -684,3 +692,149 @@ def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -
         assert norms[0].temporal_resolution_status == "resolved"
     finally:
         store.close()
+
+
+def test_lex_owner_rows_are_selected_and_document_ids_are_not_content(tmp_path: Path) -> None:
+    db_path = tmp_path / "lex-owner-rows.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "CREATE TABLE lex_amendments (amendment_id VARCHAR, amended_doc_id VARCHAR, target_anchor VARCHAR, effective_from TIMESTAMP, created_at TIMESTAMP)"
+        )
+        con.execute(
+            "CREATE TABLE lex_facts (doc_id VARCHAR, jurisdiction VARCHAR, top_domain VARCHAR)"
+        )
+        con.execute(
+            "INSERT INTO lex_amendments VALUES ('a-1', 'doc-1', 'article-1', '2025-01-01', '2025-02-01')"
+        )
+        con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
+    owner = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    artifacts = FileSystemCAS(tmp_path / "cas")
+    adapter = semantic_epoch.LexEpochBoundaryOwnerAdapter(owner=owner, artifacts=artifacts)
+    registration = semantic_epoch.EpochBoundarySourceRegistration(
+        registration_id="all-lex-rows",
+        owner_kind="lex_amendment_window",
+        owner_source_ref="sha256:" + "2" * 64,
+        opaque_scope_binding_ref="sha256:" + "3" * 64,
+    )
+    try:
+        owner_query = _amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        receipt = owner.resolve_amendment_window_denominator(query=owner_query)
+        batch = adapter.resolve_complete_batch(registration=registration, owner_query=owner_query)
+        snapshot_ref, snapshot = semantic_epoch._load_owner_projection_mapping(
+            artifacts, receipt.owner_source_snapshot_ref
+        )
+        row_ref, row = semantic_epoch._load_owner_projection_mapping(
+            artifacts, receipt.assessments[0].amendment_ref
+        )
+        doc_ref = receipt.assessments[0].amended_doc_ref
+        assert snapshot_ref.manifest_profile_sha256 is not None
+        assert artifacts.get_manifest(snapshot_ref).canon == epoch_contract.epoch_canon_info()
+        assert row_ref.manifest_profile_sha256 is not None
+        assert artifacts.get_manifest(row_ref).canon == epoch_contract.epoch_canon_info()
+        assert row == snapshot["rows"][0]
+        assert batch.assessments[0].native_member_ref == receipt.assessments[0].amendment_ref
+        assert doc_ref.kind == "lex.document" and doc_ref.manifest_profile_sha256 is None
+        assert not artifacts.has(doc_ref.artifact_id)
+        altered_assessment = receipt.assessments[0].model_copy(
+            update={
+                "amended_doc_ref": ArtifactRef(
+                    artifact_id=epoch_contract.ArtifactID.model_validate(
+                        semantic_epoch._raw_cas_hash(b"wrong-document-id")
+                    ),
+                    kind="lex.document",
+                    media_type="text/plain",
+                )
+            }
+        )
+        altered_receipt = receipt.model_copy(update={"assessments": (altered_assessment,)})
+        with pytest.raises(ValueError, match="document identity differs"):
+            semantic_epoch._verify_lex_snapshot(
+                owner=owner,
+                payload=owner.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref),
+                receipt=altered_receipt,
+                expected_query=owner_query,
+            )
+        assert semantic_epoch._resolve_selected_reference_graph(
+            artifacts, {"amendment": row_ref, "document_identity": doc_ref}
+        ) == {semantic_epoch._selected_ref_identity(row_ref): row_ref.manifest_profile_sha256}
+    finally:
+        owner.close()
+
+
+def test_lex_owner_row_role_is_checked_before_cas_or_snapshot_verifier(tmp_path: Path) -> None:
+    db_path = tmp_path / "retagged-lex-owner.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "CREATE TABLE lex_amendments (amendment_id VARCHAR, amended_doc_id VARCHAR, target_anchor VARCHAR, effective_from TIMESTAMP, created_at TIMESTAMP)"
+        )
+        con.execute(
+            "CREATE TABLE lex_facts (doc_id VARCHAR, jurisdiction VARCHAR, top_domain VARCHAR)"
+        )
+        con.execute(
+            "INSERT INTO lex_amendments VALUES ('a-1', 'doc-1', 'article-1', '2025-01-01', '2025-02-01')"
+        )
+        con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
+    owner = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    store = FileSystemCAS(tmp_path / "cas")
+    query = _amendment_query(knowledge_cutoff=b"2025-03-01T00:00:00Z")
+
+    class RetaggedLexOwner:
+        def __init__(self, source: LegalKnowledgeStore) -> None:
+            self.source = source
+            self.receipt = None
+            self.snapshot_verify_calls = 0
+
+        def resolve_amendment_window_denominator(self, *, query: Any) -> Any:
+            receipt = self.source.resolve_amendment_window_denominator(query=query)
+            first = receipt.assessments[0]
+            wrong_ref = first.amendment_ref.model_copy(update={"kind": "l5.schema_regime"})
+            changed = list(receipt.assessments)
+            changed[0] = first.model_copy(update={"amendment_ref": wrong_ref})
+            values = receipt.model_dump(mode="python")
+            values["assessments"] = tuple(changed)
+            denominator = epoch_contract.canonical_epoch_bytes(
+                {
+                    "query": receipt.query.model_dump(mode="json"),
+                    "snapshot_hash": receipt.owner_source_snapshot_content_hash,
+                    "assessments": [row.model_dump(mode="json") for row in changed],
+                }
+            )
+            values["denominator_hash"] = semantic_epoch._raw_cas_hash(denominator)
+            self.receipt = epoch_contract.LegalAmendmentWindowDenominatorReceipt.model_validate(
+                values
+            )
+            return self.receipt
+
+        def load_amendment_owner_snapshot(self, *, ref: Any) -> bytes:
+            return self.source.load_amendment_owner_snapshot(ref=ref)
+
+        def verify_amendment_window_snapshot(
+            self, *, source_rows: list[dict[str, object]], receipt: Any
+        ) -> None:
+            self.snapshot_verify_calls += 1
+            self.source.verify_amendment_window_snapshot(source_rows=source_rows, receipt=receipt)
+
+    retagged = RetaggedLexOwner(owner)
+    adapter = semantic_epoch.LexEpochBoundaryOwnerAdapter(owner=retagged, artifacts=store)
+    registration = semantic_epoch.EpochBoundarySourceRegistration(
+        registration_id="retagged-lex-owner",
+        owner_kind="lex_amendment_window",
+        owner_source_ref="sha256:" + "2" * 64,
+        opaque_scope_binding_ref="sha256:" + "3" * 64,
+    )
+    try:
+        with pytest.raises(ValueError, match="owner artifact role mismatch"):
+            adapter.resolve_complete_batch(registration=registration, owner_query=query)
+        assert retagged.receipt is not None
+        owner_receipt = owner.resolve_amendment_window_denominator(query=query)
+        original_ref = owner_receipt.assessments[0].amendment_ref
+        wrong_ref = retagged.receipt.assessments[0].amendment_ref
+        assert wrong_ref.artifact_id == original_ref.artifact_id
+        assert wrong_ref.media_type == original_ref.media_type
+        assert wrong_ref.manifest_profile_sha256 == original_ref.manifest_profile_sha256
+        assert wrong_ref.kind == "l5.schema_regime"
+        assert retagged.snapshot_verify_calls == 0
+        assert not store.has(retagged.receipt.owner_source_snapshot_ref.artifact_id)
+        assert not store.has(wrong_ref.artifact_id)
+    finally:
+        owner.close()

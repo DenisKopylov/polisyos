@@ -949,8 +949,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 64461,
-                "sha256": "4c9cc32bca2902d421a6798948a30c0d7e5af6bbdd57e30083bd9d0e75164034"
+                "bytes": 65248,
+                "sha256": "7f8988ee5bc097cd58f3329a09bb199170e298fbff636c78b6816de3e1d61712"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -1125,6 +1125,7 @@
               "VerifiedPredicatePolicyOwnerRelation",
               "VerifiedRetentionOutcome",
               "chronology_bundle_content_hash",
+              "AcquisitionArtifactCodec",
               "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
               "C4_PERSISTED_PROFILE_SPECS",
               "CAPABILITY_DISCOVERY_SCHEMA_VERSION",
@@ -1625,6 +1626,8 @@
               "WarningsBundle",
               "WarningsRef",
               "WorkflowRunRequest",
+              "acquisition_artifact_canon_info",
+              "acquisition_artifact_codec",
               "bounded_liveness_config_from_mapping",
               "build_producer_spine_binding_fields",
               "build_scope_adjudication_candidate",
@@ -1634,6 +1637,7 @@
               "c4_profile",
               "c4_profile_manifest_is_exact",
               "c4_semantic_digest",
+              "canonical_external_epoch_statement_bytes",
               "chronology",
               "classify_optional_analytic_node",
               "construct_for_legacy_family",
@@ -1641,9 +1645,11 @@
               "epoch",
               "epoch_staleness_semantic_hash",
               "evaluate_skip_blocker_policy",
+              "external_epoch_statement_canon_info",
               "legacy_family_for_construct",
               "require_production_approval_currentness_receipt",
               "scope_adjudication_candidate_digest",
+              "scoped_schema_regime_projection_content_hash",
               "serialize_skip_blocker_record",
               "verify_scope_adjudication_candidate"
             ],

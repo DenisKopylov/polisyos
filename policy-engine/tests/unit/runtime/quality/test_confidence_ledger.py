@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import ast
 import copy
+import dataclasses
+import hashlib
 import inspect
 import json
 import os
@@ -15,10 +17,16 @@ import types
 from collections.abc import Callable
 from fractions import Fraction
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactID, FileSystemCAS, PutOptions
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactIntegrityError,
+    FileSystemCAS,
+    PutOptions,
+)
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality import confidence_ledger as ledger_module
@@ -194,10 +202,9 @@ def _replace_canonical_head_check(
     revised = forged_check.model_copy(update=updates)
     revised = revised.model_copy(update={"check_id": ledger_module._recompute_check_id(revised)})
     stored = stored.model_copy(update={"event_id": event_id, "check": revised})
-    ref = session._put_json(
+    ref = session._put_ledger_json(
         stored.model_dump(mode="json"),
-        kind="runtime.quality.confidence_ledger.event",
-        schema=ledger_module._EVENT_SCHEMA,
+        contract_id="event",
     )
     head = ledger_module._LedgerHead(
         schema_version=receipt.schema_version,
@@ -784,19 +791,25 @@ def test_deployment_identity_binds_uv_lock_and_python_runtime_manifest(
     assert ledger_module._policy_engine_deployment_identity(repo_root) != original
 
 
-def test_steady_state_canonical_locks_do_not_rehash_source_tree(
+def test_steady_state_lock_keeps_deployment_fence_and_replays_loaded_code_identity(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Loaded code is replayed while unrelated deployment-root hashing stays lazy."""
+
     repo_root = tmp_path / "authority-repo"
     _install_loaded_deployment(repo_root, monkeypatch)
     session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
-    source_reads: list[Path] = []
+    deployment_source_reads: list[Path] = []
+    imported_source_reads: list[Path] = []
+    import_root = ledger_module._IMPORT_TIME_OWNER_ROOT
     read_bytes = Path.read_bytes
 
     def track_source_reads(path: Path) -> bytes:
         if path.is_relative_to(repo_root / "src/polisyos"):
-            source_reads.append(path)
+            deployment_source_reads.append(path)
+        if path.is_relative_to(import_root / "src/polisyos"):
+            imported_source_reads.append(path)
         return read_bytes(path)
 
     monkeypatch.setattr(Path, "read_bytes", track_source_reads)
@@ -804,7 +817,12 @@ def test_steady_state_canonical_locks_do_not_rehash_source_tree(
     session.observe_history()
     session.receipt()
 
-    assert source_reads == []
+    expected_imported_sources = {
+        (import_root / relative_path).resolve()
+        for _module_name, relative_path in ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+    }
+    assert deployment_source_reads == []
+    assert expected_imported_sources <= set(imported_source_reads)
 
 
 def test_deployment_quick_fence_rehashes_once_then_poisons_changed_content(
@@ -974,6 +992,7 @@ def test_from_repo_rejects_dependency_loaded_before_its_source_changes(
         target = repo_root / relative
         target.write_bytes((REPO_ROOT / relative).read_bytes())
     script = """
+import ast
 import sys
 from pathlib import Path
 
@@ -982,7 +1001,23 @@ import polisyos.core.canon.canon_json
 repo_root = Path(sys.argv[1]).resolve()
 dependency = repo_root / "src/polisyos/core/canon/canon_json.py"
 source = dependency.read_text(encoding="utf-8")
-changed = source.replace('return "0"', 'return "changed-after-import"', 1)
+tree = ast.parse(source, filename=str(dependency))
+provider = next(
+    node
+    for node in tree.body
+    if isinstance(node, ast.FunctionDef) and node.name == "to_canonical_bytes"
+)
+returned = next(node for node in provider.body if isinstance(node, ast.Return))
+source_bytes = source.encode("utf-8")
+lines = source_bytes.splitlines(keepends=True)
+assert returned.end_lineno is not None and returned.end_col_offset is not None
+start = sum(map(len, lines[: returned.lineno - 1])) + returned.col_offset
+end = sum(map(len, lines[: returned.end_lineno - 1])) + returned.end_col_offset
+changed = (
+    source_bytes[:start]
+    + b"return None  # source changed after dependency import"
+    + source_bytes[end:]
+).decode("utf-8")
 assert changed != source
 dependency.write_text(changed, encoding="utf-8")
 
@@ -1951,7 +1986,8 @@ def _core_profile_dispatch_source() -> str:
         node
         for node in getattr_function.body
         if isinstance(node, ast.If)
-        and ledger_module._literal_getattr_dispatch_names(node.test, parameter_name)
+        and "load_core_json_artifact"
+        in ledger_module._literal_getattr_dispatch_names(node.test, parameter_name)
     )
     segment = ast.get_source_segment(source, dispatch)
     assert segment is not None
@@ -2670,6 +2706,720 @@ def test_surviving_spend_event_prevents_reset_after_pointer_artifacts_are_delete
         )
 
     assert spent.spend.fraction > 0
+
+
+def test_prior_scope_inventory_failure_is_not_treated_as_absence(
+    tmp_path: Path,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    primer = factory(scope=_scope(owner_scope_key="design-problem:inventory-primer"))
+    anchor_ref = ledger_module._cas_json_artifact_ref(primer._scope_anchor_payload())
+    blob, manifest = factory.store._paths(ArtifactID.model_validate(anchor_ref))
+    blob.unlink()
+    manifest.unlink()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=_scope(owner_scope_key="design-problem:inventory-unknown-target"))
+
+    assert exc_info.value.code == "prior_scope_membership_not_established"
+    assert "cas_inventory_blob_missing" in exc_info.value.detail
+    assert isinstance(exc_info.value.__cause__, ArtifactIntegrityError)
+
+
+_SCOPE_BOUND_LEDGER_CONTRACTS = tuple(
+    contract_id
+    for contract_id, contract in ledger_module._LEDGER_ARTIFACT_CONTRACTS.items()
+    if contract.scope_bound
+)
+
+
+@pytest.mark.parametrize("contract_id", _SCOPE_BOUND_LEDGER_CONTRACTS)
+def test_prior_scope_inventory_rejects_minimal_rehashed_payload_for_every_scope_contract(
+    tmp_path: Path,
+    contract_id: str,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key=f"design-problem:minimal-{contract_id}")
+    target = factory(scope=target_scope)
+    _remove_scope_bootstrap_artifacts(target)
+
+    contract = ledger_module._ledger_artifact_contract(contract_id)
+    assert contract.scope_bound
+    forged = {"scope_id": target_scope.scope_id}
+    forged_ref = target._put_ledger_json(forged, contract_id=contract_id)
+    artifact_ref = str(forged_ref.artifact_id)
+    manifest = target._artifact_store.get_manifest(artifact_ref)
+    assert artifact_ref == ledger_module._cas_json_artifact_ref(forged)
+    assert manifest.kind == contract.kind
+    assert manifest.artifact_schema == contract.schema
+    assert manifest.producer == contract.producer
+    assert manifest.media_type == contract.media_type
+
+    changed_projection = target_scope.model_copy(update={"owner_projection_hash": _HASH_2})
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=changed_projection)
+
+    assert exc_info.value.code == "prior_scope_membership_not_established"
+    assert not target._head_path.exists()
+    assert not target._scope_tombstone_path.exists()
+
+
+_LEDGER_CONTRACT_MUTATION_FIELDS = (
+    "kind",
+    "schema",
+    "producer",
+    "media_type",
+    "scope_bound",
+    "payload_model",
+)
+
+
+def _changed_ledger_contract(
+    contract: ledger_module._LedgerArtifactContract, field_name: str
+) -> ledger_module._LedgerArtifactContract:
+    if field_name == "kind":
+        return dataclasses.replace(contract, kind=contract.kind + ".forged")
+    if field_name == "schema":
+        return dataclasses.replace(
+            contract,
+            schema=ledger_module.artifacts.SchemaInfo(
+                name=contract.schema.name + ".forged",
+                version=contract.schema.version,
+            ),
+        )
+    if field_name == "producer":
+        return dataclasses.replace(
+            contract,
+            producer=ledger_module.artifacts.ProducerInfo(
+                component="forged.confidence.ledger",
+                version=contract.producer.version,
+            ),
+        )
+    if field_name == "media_type":
+        return dataclasses.replace(contract, media_type="text/plain")
+    if field_name == "scope_bound":
+        return dataclasses.replace(contract, scope_bound=not contract.scope_bound)
+    replacement_model = (
+        ledger_module.ConfidenceLedgerRoot if contract.payload_model is None else None
+    )
+    if replacement_model is contract.payload_model:
+        replacement_model = ledger_module.ConfidenceLedgerRegistry
+    return dataclasses.replace(contract, payload_model=replacement_model)
+
+
+@pytest.mark.parametrize("contract_id", tuple(ledger_module._LEDGER_ARTIFACT_CONTRACTS))
+@pytest.mark.parametrize("field_name", _LEDGER_CONTRACT_MUTATION_FIELDS)
+def test_import_pinned_contract_rejects_each_registry_derived_mutation(
+    tmp_path: Path,
+    contract_id: str,
+    field_name: str,
+) -> None:
+    original = ledger_module._LEDGER_ARTIFACT_CONTRACTS
+    changed = dict(original)
+    changed[contract_id] = _changed_ledger_contract(changed[contract_id], field_name)
+    ledger_module._LEDGER_ARTIFACT_CONTRACTS = types.MappingProxyType(changed)
+    factory = _SessionFactory(tmp_path)
+    scope = _scope(owner_scope_key=f"design-problem:contract-{contract_id}-{field_name}")
+    try:
+        with pytest.raises(ConfidenceLedgerError) as exc_info:
+            ledger_module._assert_ledger_artifact_contracts_current()
+        assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+        with pytest.raises(ConfidenceLedgerError) as admission_info:
+            factory(scope=scope)
+        assert admission_info.value.code == "canonical_loaded_runtime_mismatch"
+        assert not factory.state_root.exists()
+    finally:
+        ledger_module._LEDGER_ARTIFACT_CONTRACTS = original
+
+
+@pytest.mark.parametrize(
+    "binding_name",
+    [
+        "_LEDGER_PRODUCER",
+        "_LEDGER_ARTIFACT_MEDIA_TYPE",
+        "_SCOPE_ANCHOR_SCHEMA",
+        "_CAS_CANON_SPEC",
+        "CONFIDENCE_LEDGER_SCHEMA_VERSION",
+        "CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION",
+    ],
+)
+def test_import_pinned_global_dependency_rejects_runtime_rebinding(
+    binding_name: str,
+) -> None:
+    original = getattr(ledger_module, binding_name)
+    replacements: dict[str, object] = {
+        "_LEDGER_PRODUCER": ledger_module.artifacts.ProducerInfo(
+            component="forged.confidence.ledger", version="1.0.0"
+        ),
+        "_LEDGER_ARTIFACT_MEDIA_TYPE": "text/plain",
+        "_SCOPE_ANCHOR_SCHEMA": ledger_module.artifacts.SchemaInfo(
+            name="forged.scope-anchor", version="9.9.9"
+        ),
+        "_CAS_CANON_SPEC": ledger_module.canon.CanonSpec(exclude_none=True),
+        "CONFIDENCE_LEDGER_SCHEMA_VERSION": "policyos.runtime.confidence_ledger.forged",
+        "CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION": "policyos.runtime.confidence_ledger.registry.forged",
+    }
+    setattr(ledger_module, binding_name, replacements[binding_name])
+    try:
+        with pytest.raises(ConfidenceLedgerError) as exc_info:
+            ledger_module._assert_ledger_artifact_contracts_current()
+        assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    finally:
+        setattr(ledger_module, binding_name, original)
+
+
+@pytest.mark.parametrize("contract_id", tuple(ledger_module._LEDGER_ARTIFACT_CONTRACTS))
+@pytest.mark.parametrize("field_name", _LEDGER_CONTRACT_MUTATION_FIELDS)
+def test_registry_mutation_after_admission_fails_before_any_new_head_or_tombstone(
+    tmp_path: Path,
+    contract_id: str,
+    field_name: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    scope = _scope(owner_scope_key=f"design-problem:after-admission-{contract_id}-{field_name}")
+    session = factory(scope=scope)
+    previous_head = session._head_path.read_bytes()
+    previous_tombstone = session._scope_tombstone_path.read_bytes()
+    changed = dict(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+    changed[contract_id] = _changed_ledger_contract(changed[contract_id], field_name)
+    monkeypatch.setattr(
+        ledger_module, "_LEDGER_ARTIFACT_CONTRACTS", types.MappingProxyType(changed)
+    )
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        session.receipt()
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert session._head_path.read_bytes() == previous_head
+    assert session._scope_tombstone_path.read_bytes() == previous_tombstone
+
+
+def test_transitive_registered_model_field_mutation_fails_before_receipt_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    session = factory(scope=_scope(owner_scope_key="design-problem:model-field-currentness"))
+    previous_head = session._head_path.read_bytes()
+    previous_tombstone = session._scope_tombstone_path.read_bytes()
+    models = ledger_module._ledger_model_dependencies(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+    model = next(item for item in models if item.model_fields)
+    field_name = next(iter(model.model_fields))
+    monkeypatch.delitem(model.model_fields, field_name)
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        session.receipt()
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert session._head_path.read_bytes() == previous_head
+    assert session._scope_tombstone_path.read_bytes() == previous_tombstone
+
+
+@pytest.mark.parametrize(
+    "binding_name",
+    [
+        "_IMPORT_TIME_LEDGER_CONTRACT_SOURCE_HASH",
+        "_IMPORT_TIME_LEDGER_CONTRACT_PROJECTION",
+        "_IMPORT_TIME_LEDGER_MODEL_PROJECTION",
+        "_IMPORT_TIME_LEDGER_CANON_PROJECTION",
+        "_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION",
+        "_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS",
+        "_IMPORT_TIME_LEDGER_CANON_SPEC",
+    ],
+)
+def test_import_time_contract_snapshot_rebinding_fails_before_admission(
+    tmp_path: Path,
+    binding_name: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    replacement: object = {
+        "_IMPORT_TIME_LEDGER_CONTRACT_SOURCE_HASH": "sha256:" + "0" * 64,
+        "_IMPORT_TIME_LEDGER_CONTRACT_PROJECTION": "{}",
+        "_IMPORT_TIME_LEDGER_MODEL_PROJECTION": "{}",
+        "_IMPORT_TIME_LEDGER_CANON_PROJECTION": "{}",
+        "_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION": "{}",
+        "_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS": types.MappingProxyType({}),
+        "_IMPORT_TIME_LEDGER_CANON_SPEC": ledger_module.canon.CanonSpec(exclude_none=True),
+    }[binding_name]
+    monkeypatch.setattr(ledger_module, binding_name, replacement)
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=_scope(owner_scope_key=f"design-problem:rebound-{binding_name}"))
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert not factory.state_root.exists()
+
+
+@pytest.mark.parametrize("nested_binding", ["schema.name", "producer.component"])
+def test_mutated_import_pinned_contract_fields_fail_before_receipt_replay(
+    tmp_path: Path,
+    nested_binding: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    session = factory(scope=_scope(owner_scope_key=f"design-problem:pinned-{nested_binding}"))
+    previous_head = session._head_path.read_bytes()
+    previous_tombstone = session._scope_tombstone_path.read_bytes()
+    pinned_event = ledger_module._IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS["event"]
+    owner, attribute = nested_binding.split(".", maxsplit=1)
+    monkeypatch.setattr(getattr(pinned_event, owner), attribute, "forged.contract.value")
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        session.receipt()
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert session._head_path.read_bytes() == previous_head
+    assert session._scope_tombstone_path.read_bytes() == previous_tombstone
+
+
+def test_transitive_registered_model_config_mutation_fails_before_receipt_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    session = factory(scope=_scope(owner_scope_key="design-problem:model-config-currentness"))
+    previous_head = session._head_path.read_bytes()
+    previous_tombstone = session._scope_tombstone_path.read_bytes()
+    model = next(
+        item
+        for item in ledger_module._ledger_model_dependencies(
+            ledger_module._LEDGER_ARTIFACT_CONTRACTS
+        )
+        if item.model_config.get("extra") != "allow"
+    )
+    original_extra = model.model_config.get("extra")
+    assert original_extra != "allow"
+    monkeypatch.setitem(model.model_config, "extra", "allow")
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        session.receipt()
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert session._head_path.read_bytes() == previous_head
+    assert session._scope_tombstone_path.read_bytes() == previous_tombstone
+    assert model.model_config["extra"] == "allow"
+
+
+def test_post_admission_rebased_contract_baseline_fails_before_prior_membership(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Rebinding both contract snapshots cannot make a genuine orphan disappear."""
+
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key="design-problem:rebased-contract-baseline")
+    target = factory(scope=target_scope)
+    target.execute_check(_prepare(target))
+    event_witnesses = _scope_event_cas_witnesses(target)
+    _remove_scope_bootstrap_artifacts(target)
+    target._journal_path.unlink(missing_ok=True)
+    _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
+
+    changed = dict(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+    changed["event"] = dataclasses.replace(changed["event"], scope_bound=False)
+    rebound_contracts = types.MappingProxyType(changed)
+    rebound_snapshot = ledger_module._snapshot_ledger_contracts(rebound_contracts)
+    monkeypatch.setattr(ledger_module, "_LEDGER_ARTIFACT_CONTRACTS", rebound_contracts)
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS",
+        rebound_snapshot,
+    )
+
+    contract_projection = ledger_module._runtime_ledger_contract_projection()
+    model_projection = ledger_module._ledger_model_projection(rebound_contracts)
+    snapshot_projection = ledger_module._runtime_ledger_snapshot_projection(rebound_snapshot)
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_CONTRACT_PROJECTION",
+        contract_projection,
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_MODEL_PROJECTION",
+        model_projection,
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION",
+        snapshot_projection,
+    )
+
+    guard = ledger_module._assert_ledger_artifact_contracts_current
+    defaults = list(guard.__defaults__ or ())
+    assert len(defaults) >= 7
+    defaults[2] = contract_projection
+    defaults[3] = model_projection
+    defaults[5] = rebound_snapshot
+    defaults[6] = snapshot_projection
+    monkeypatch.setattr(guard, "__defaults__", tuple(defaults))
+
+    # A fresh caller exercises constructor/admission with the old manifest still
+    # pinned; the same session would fail earlier at its stale in-memory WAL offset.
+    changed_scope = target_scope.model_copy(update={"owner_projection_hash": _HASH_2})
+    assert changed_scope.scope_id == target_scope.scope_id
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=changed_scope)
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert exc_info.value.detail == "loaded authority code differs from its import-time identity"
+    assert not target._head_path.exists()
+    assert not target._scope_tombstone_path.exists()
+    _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
+
+
+def test_pinned_contract_survives_guard_removal_for_genuine_orphan_event(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key="design-problem:contract-orphan-event")
+    target = factory(scope=target_scope)
+    target.execute_check(_prepare(target))
+    _remove_scope_bootstrap_artifacts(target)
+    target._journal_path.unlink(missing_ok=True)
+    original = ledger_module._LEDGER_ARTIFACT_CONTRACTS
+    changed = dict(original)
+    changed["event"] = dataclasses.replace(changed["event"], scope_bound=False)
+    monkeypatch.setattr(
+        ledger_module, "_LEDGER_ARTIFACT_CONTRACTS", types.MappingProxyType(changed)
+    )
+    monkeypatch.setattr(ledger_module, "_assert_ledger_artifact_contracts_current", lambda: None)
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=target_scope.model_copy(update={"owner_projection_hash": _HASH_2}))
+
+    assert exc_info.value.code == "ledger_head_reset_detected"
+    assert not target._head_path.exists()
+    assert not target._scope_tombstone_path.exists()
+    assert any(
+        manifest.kind == original["event"].kind
+        for _artifact_id, manifest in (
+            (artifact_id, target._artifact_store.get_manifest(artifact_id))
+            for artifact_id in target._artifact_store.iter_artifact_ids()
+        )
+    )
+
+
+def _journal_payload_for_scope_test(
+    session: ConfidenceLedgerSession,
+    artifact_kind: str,
+) -> tuple[str, dict[str, Any]]:
+    if artifact_kind == "event":
+        session.execute_check(_prepare(session))
+    elif artifact_kind == "receipt":
+        session.persist_receipt(session.receipt())
+    elif artifact_kind == "deployment_drift_poison":
+        observed = ledger_module._identity(
+            "policy-engine-deployment",
+            {"scope_wal_test": session.risk_scope.owner_scope_key},
+        )
+        if observed == session._deployment_identity:
+            observed = ledger_module._identity(
+                "policy-engine-deployment",
+                {"scope_wal_test": session.risk_scope.owner_scope_key, "retry": True},
+            )
+        with session._exclusive_lock():
+            session._persist_deployment_drift_poison_locked(observed)
+    else:
+        raise AssertionError(f"unexpected artifact kind: {artifact_kind}")
+    intent = next(
+        record
+        for record in session._journal_records
+        if record.record_type == "intent" and record.artifact_kind == artifact_kind
+    )
+    assert intent.payload is not None
+    return intent.artifact_ref, intent.payload
+
+
+def _scope_event_cas_witnesses(
+    session: ConfidenceLedgerSession,
+) -> dict[str, tuple[dict[str, Any], tuple[tuple[str | None, str, str], ...]]]:
+    """Bind genuine in-memory event intents to every visible owner-CAS view."""
+
+    store = session._artifact_store
+    inventory = store.inventory_snapshot()
+    assert inventory.verdict == "pass", inventory.reason
+
+    event_contract = ledger_module._IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS["event"]
+    journal_payloads: dict[str, dict[str, Any]] = {}
+    for record in session._journal_records:
+        if record.record_type != "intent" or record.artifact_kind != "event":
+            continue
+        assert record.payload is not None
+        artifact_id = ArtifactID.model_validate(record.artifact_ref)
+        artifact_ref = str(artifact_id)
+        previous = journal_payloads.setdefault(artifact_ref, dict(record.payload))
+        assert previous == record.payload
+    assert journal_payloads
+
+    witnesses: dict[str, tuple[dict[str, Any], tuple[tuple[str | None, str, str], ...]]] = {}
+    for artifact_ref, journal_payload in journal_payloads.items():
+        payload, scope_id = session._validate_ledger_artifact_payload(
+            contract_id="event",
+            artifact_ref=artifact_ref,
+            payload=journal_payload,
+            require_cas=True,
+            expected_scope_id=session._risk_scope.scope_id,
+        )
+        assert payload == journal_payload
+        assert scope_id == session._risk_scope.scope_id
+
+        artifact_id = ArtifactID.model_validate(artifact_ref)
+        event_entries = tuple(
+            entry
+            for entry in inventory.entries
+            if ArtifactID.model_validate(
+                getattr(entry.artifact_ref, "artifact_id", entry.artifact_ref)
+            )
+            == artifact_id
+            and entry.manifest.kind == event_contract.kind
+        )
+        assert event_entries
+        assert any(
+            getattr(entry.artifact_ref, "manifest_profile_sha256", None) is None
+            for entry in event_entries
+        )
+        assert any(
+            getattr(entry.artifact_ref, "manifest_profile_sha256", None) is not None
+            for entry in event_entries
+        )
+
+        default_bytes = store.get_bytes(artifact_id)
+        assert hashlib.sha256(default_bytes).hexdigest() == artifact_id.hex
+        assert json.loads(default_bytes) == payload
+        view_receipts: list[tuple[str | None, str, str]] = []
+        for entry in event_entries:
+            profile = getattr(entry.artifact_ref, "manifest_profile_sha256", None)
+            view_bytes = store.get_bytes(entry.artifact_ref)
+            assert view_bytes == default_bytes
+            assert hashlib.sha256(view_bytes).hexdigest() == artifact_id.hex
+            assert json.loads(view_bytes) == payload
+            assert entry.blob_sha256 == "sha256:" + artifact_id.hex
+            view_receipts.append((profile, entry.manifest_sha256, entry.blob_sha256))
+        witnesses[artifact_ref] = (
+            payload,
+            tuple(sorted(view_receipts, key=lambda view: view[0] or "")),
+        )
+    return witnesses
+
+
+def _assert_scope_event_cas_witnesses_unchanged(
+    session: ConfidenceLedgerSession,
+    witnesses: dict[str, tuple[dict[str, Any], tuple[tuple[str | None, str, str], ...]]],
+) -> None:
+    """Re-read captured event bytes and all views without consulting mutable ledger guards."""
+
+    store = session._artifact_store
+    inventory = store.inventory_snapshot()
+    assert inventory.verdict == "pass", inventory.reason
+    event_contract = ledger_module._IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS["event"]
+
+    for artifact_ref, (payload, expected_views) in witnesses.items():
+        artifact_id = ArtifactID.model_validate(artifact_ref)
+        event_entries = tuple(
+            entry
+            for entry in inventory.entries
+            if ArtifactID.model_validate(
+                getattr(entry.artifact_ref, "artifact_id", entry.artifact_ref)
+            )
+            == artifact_id
+            and entry.manifest.kind == event_contract.kind
+        )
+        actual_views = tuple(
+            sorted(
+                (
+                    (
+                        getattr(entry.artifact_ref, "manifest_profile_sha256", None),
+                        entry.manifest_sha256,
+                        entry.blob_sha256,
+                    )
+                    for entry in event_entries
+                ),
+                key=lambda view: view[0] or "",
+            )
+        )
+        assert actual_views == expected_views
+
+        default_bytes = store.get_bytes(artifact_id)
+        assert hashlib.sha256(default_bytes).hexdigest() == artifact_id.hex
+        assert json.loads(default_bytes) == payload
+        for entry in event_entries:
+            view_bytes = store.get_bytes(entry.artifact_ref)
+            assert view_bytes == default_bytes
+            assert json.loads(view_bytes) == payload
+
+
+def _remove_scope_bootstrap_artifacts(session: ConfidenceLedgerSession) -> None:
+    registry_ref = ledger_module._cas_json_artifact_ref(session._registry.source_payload())
+    root_ref = ledger_module._cas_json_artifact_ref(session._expected_root_binding(registry_ref))
+    anchor_ref = ledger_module._cas_json_artifact_ref(session._scope_anchor_payload())
+    store = session._artifact_store
+    bootstrap_refs = (
+        (
+            anchor_ref,
+            ledger_module._IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS["scope_anchor"],
+        ),
+        (root_ref, ledger_module._IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS["root"]),
+    )
+    for artifact_ref, contract in bootstrap_refs:
+        artifact_id = ArtifactID.model_validate(artifact_ref)
+        inventory = store.inventory_snapshot(artifact_id)
+        assert inventory.verdict == "pass", inventory.reason
+        views = tuple(
+            entry
+            for entry in inventory.entries
+            if ArtifactID.model_validate(
+                getattr(entry.artifact_ref, "artifact_id", entry.artifact_ref)
+            )
+            == artifact_id
+        )
+        assert views
+        assert all(
+            entry.manifest.kind == contract.kind
+            and entry.manifest.artifact_schema == contract.schema
+            and entry.manifest.producer == contract.producer
+            and entry.manifest.media_type == contract.media_type
+            for entry in views
+        )
+        profiles = {getattr(entry.artifact_ref, "manifest_profile_sha256", None) for entry in views}
+        assert None in profiles
+        for profile in profiles:
+            store._member_path(artifact_id, "manifest", profile).unlink(missing_ok=True)
+            store._member_path(artifact_id, "signature", profile).unlink(missing_ok=True)
+        store._member_path(artifact_id, "blob", None).unlink(missing_ok=True)
+    session._head_path.unlink(missing_ok=True)
+    session._scope_tombstone_path.unlink(missing_ok=True)
+
+
+def _same_scope_valid_variant(artifact_kind: str, payload: dict[str, Any]) -> dict[str, Any]:
+    if artifact_kind == "event":
+        stored = ledger_module._StoredLedgerEvent.model_validate(payload)
+        check = stored.check.model_copy(
+            update={"proof_detail": stored.check.proof_detail + " forged-but-rehashed"}
+        )
+        check = check.model_copy(update={"check_id": ledger_module._recompute_check_id(check)})
+        stored = stored.model_copy(update={"check": check})
+        stored = stored.model_copy(update={"event_id": ledger_module._recompute_event_id(stored)})
+        return stored.model_dump(mode="json")
+    if artifact_kind == "receipt":
+        receipt = ledger_module.ConfidenceLedgerReceipt.model_validate(payload)
+        deployment = ledger_module._identity(
+            "policy-engine-deployment",
+            {"same_scope_wal_test": "receipt-variant"},
+        )
+        if deployment == receipt.deployment_identity:
+            deployment = ledger_module._identity(
+                "policy-engine-deployment",
+                {"same_scope_wal_test": "receipt-variant", "retry": True},
+            )
+        receipt = receipt.model_copy(update={"deployment_identity": deployment})
+        receipt = receipt.model_copy(
+            update={
+                "receipt_id": ledger_module._identity(
+                    "confidence-ledger",
+                    receipt.model_dump(mode="json", exclude={"receipt_id"}),
+                )
+            }
+        )
+        return receipt.model_dump(mode="json")
+    poison = ledger_module._DeploymentDriftPoison.model_validate(payload)
+    observed = ledger_module._identity(
+        "policy-engine-deployment",
+        {"same_scope_wal_test": "poison-variant"},
+    )
+    if observed == poison.expected_deployment_identity:
+        observed = ledger_module._identity(
+            "policy-engine-deployment",
+            {"same_scope_wal_test": "poison-variant", "retry": True},
+        )
+    poison = poison.model_copy(update={"observed_deployment_identity": observed})
+    poison = poison.model_copy(
+        update={
+            "poison_id": ledger_module._identity(
+                "confidence-deployment-drift-poison",
+                poison.model_dump(mode="json", exclude={"poison_id"}),
+            )
+        }
+    )
+    return poison.model_dump(mode="json")
+
+
+@pytest.mark.parametrize(
+    "artifact_kind",
+    ["event", "receipt", "deployment_drift_poison"],
+)
+def test_scope_wal_rejects_foreign_scope_artifacts_for_every_contract(
+    tmp_path: Path,
+    artifact_kind: str,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key="design-problem:wal-target")
+    target = factory(scope=target_scope)
+    foreign = factory(scope=_scope(owner_scope_key="design-problem:wal-foreign"))
+    artifact_ref, payload = _journal_payload_for_scope_test(foreign, artifact_kind)
+    _remove_scope_bootstrap_artifacts(target)
+    with target._exclusive_lock():
+        target._append_scope_journal_intent(
+            artifact_kind=artifact_kind, artifact_ref=artifact_ref, payload=payload
+        )
+        target._append_scope_journal_commit(artifact_kind=artifact_kind, artifact_ref=artifact_ref)
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=target_scope)
+
+    assert exc_info.value.code == "ledger_scope_journal_invalid"
+
+
+@pytest.mark.parametrize(
+    "artifact_kind",
+    ["event", "receipt", "deployment_drift_poison"],
+)
+def test_scope_wal_rejects_wrong_manifest_kind_for_every_contract(
+    tmp_path: Path,
+    artifact_kind: str,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key="design-problem:wal-kind-target")
+    target = factory(scope=target_scope)
+    artifact_ref, payload = _journal_payload_for_scope_test(target, artifact_kind)
+    variant = _same_scope_valid_variant(artifact_kind, payload)
+    expected_kind, schema = ledger_module._journal_artifact_contract(artifact_kind)
+    wrong_kind = expected_kind + ".untrusted"
+    wrong_ref = target._artifact_store.put_json(
+        variant,
+        ledger_module.artifacts.PutOptions(
+            kind=wrong_kind,
+            media_type="application/json",
+            schema=schema,
+            producer=ledger_module._LEDGER_PRODUCER,
+        ),
+        canon_spec=ledger_module._CAS_CANON_SPEC,
+    )
+    wrong_artifact_ref = str(wrong_ref.artifact_id)
+    manifest = target._artifact_store.get_manifest(wrong_artifact_ref)
+    assert manifest.kind == wrong_kind
+    assert manifest.artifact_schema == schema
+    assert manifest.producer == ledger_module._LEDGER_PRODUCER
+    assert wrong_artifact_ref != artifact_ref
+    with target._exclusive_lock():
+        target._append_scope_journal_intent(
+            artifact_kind=artifact_kind,
+            artifact_ref=wrong_artifact_ref,
+            payload=variant,
+        )
+        target._append_scope_journal_commit(
+            artifact_kind=artifact_kind,
+            artifact_ref=wrong_artifact_ref,
+        )
+    _remove_scope_bootstrap_artifacts(target)
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        factory(scope=target_scope)
+
+    assert exc_info.value.code == "ledger_scope_journal_invalid"
 
 
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork semantics")
@@ -4700,3 +5450,169 @@ def test_loaded_deployment_identity_absence_is_a_typed_verdict(
     assert observation.status == "not_established"
     assert observation.deployment_identity is None
     assert observation.reason_code == "canonical_loaded_runtime_mismatch"
+
+
+def test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Any,
+) -> None:
+    """A fresh caller cannot reset after same-scope events outlive local pointers and WAL."""
+
+    factory = _SessionFactory(tmp_path)
+    target_scope = _scope(owner_scope_key="design-problem:manifest-root-orphan-event")
+    target = factory(scope=target_scope)
+    target.execute_check(_prepare(target))
+    event_witnesses = _scope_event_cas_witnesses(target)
+    _remove_scope_bootstrap_artifacts(target)
+    target._journal_path.unlink(missing_ok=True)
+    _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
+
+    original_manifest = ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST
+    original_closure = ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+    original_consistency = ledger_module._IMPORT_TIME_LOADED_CODE_CONSISTENT
+    assert original_manifest
+    assert original_consistency is True
+
+    changed = dict(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+    original_event_contract = changed["event"]
+    changed["event"] = dataclasses.replace(original_event_contract, scope_bound=False)
+    rebound_contracts = types.MappingProxyType(changed)
+    rebound_snapshot = ledger_module._snapshot_ledger_contracts(rebound_contracts)
+    monkeypatch.setattr(ledger_module, "_LEDGER_ARTIFACT_CONTRACTS", rebound_contracts)
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS",
+        rebound_snapshot,
+    )
+
+    contract_projection = ledger_module._runtime_ledger_contract_projection()
+    model_projection = ledger_module._ledger_model_projection(rebound_contracts)
+    snapshot_projection = ledger_module._runtime_ledger_snapshot_projection(rebound_snapshot)
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_CONTRACT_PROJECTION",
+        contract_projection,
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_MODEL_PROJECTION",
+        model_projection,
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION",
+        snapshot_projection,
+    )
+
+    guard = ledger_module._assert_ledger_artifact_contracts_current
+    defaults = list(guard.__defaults__ or ())
+    assert len(defaults) >= 10
+    defaults[2] = contract_projection
+    defaults[3] = model_projection
+    defaults[5] = rebound_snapshot
+    defaults[6] = snapshot_projection
+    monkeypatch.setattr(guard, "__defaults__", tuple(defaults))
+
+    # This is the minimum remaining rebind: preserve the import-time closure and
+    # consistency fact, but replace the mutable expected code manifest with the
+    # exact current output from the guard's already-captured source-owned helper.
+    loaded_code_manifest_fn = defaults[8]
+    assert callable(loaded_code_manifest_fn)
+    current_manifest, current_consistency = loaded_code_manifest_fn(
+        ledger_module._IMPORT_TIME_OWNER_ROOT,
+        original_closure,
+    )
+    assert current_consistency is True
+    assert current_manifest != original_manifest
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_MANIFEST", current_manifest)
+    assert ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE is original_closure
+    assert ledger_module._IMPORT_TIME_LOADED_CODE_CONSISTENT is original_consistency
+
+    # Exercise fresh production admission only after every profile view is coherent,
+    # the global owner inventory passes, and genuine target-scope event bytes are
+    # independently read and bound to the retained content-addressed refs.
+    changed_scope = target_scope.model_copy(update={"owner_projection_hash": _HASH_2})
+    assert changed_scope.scope_id == target_scope.scope_id
+    assert not target._head_path.exists()
+    assert not target._scope_tombstone_path.exists()
+    assert not target._journal_path.exists()
+    record_property(
+        "fresh_manifest_rebind_boundary",
+        "fresh factory after pointer/WAL absence; global owner CAS inventory passes; "
+        "all typed target-scope event refs, default/profile reads, blob hashes, and "
+        "manifest-view hashes are preserved",
+    )
+    record_property(
+        "fresh_manifest_rebind_event_refs",
+        ",".join(sorted(event_witnesses)),
+    )
+
+    admission_error: Exception | None = None
+    try:
+        factory(scope=changed_scope)
+    except Exception as exc:
+        admission_error = exc
+
+    if admission_error is None:
+        record_property("fresh_manifest_rebind_refusal_code", "returned_without_refusal")
+        record_property("fresh_manifest_rebind_refusal_detail", "fresh factory returned")
+        _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
+        pytest.fail("fresh admission returned despite retained orphan events")
+    if isinstance(admission_error, ConfidenceLedgerError):
+        record_property("fresh_manifest_rebind_refusal_code", str(admission_error.code))
+        record_property("fresh_manifest_rebind_refusal_detail", str(admission_error.detail))
+    else:
+        record_property("fresh_manifest_rebind_refusal_code", "untyped_exception")
+        record_property(
+            "fresh_manifest_rebind_refusal_detail",
+            f"{type(admission_error).__name__}: {admission_error}",
+        )
+    _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
+    if not isinstance(admission_error, ConfidenceLedgerError):
+        raise admission_error
+
+    assert not target._head_path.exists()
+    assert not target._scope_tombstone_path.exists()
+    assert admission_error.code in {
+        "canonical_loaded_runtime_mismatch",
+        "ledger_head_reset_detected",
+    }
+
+
+def test_source_literal_contract_mode_and_existing_unknown_mode_are_distinct() -> None:
+    """Exercise the real source projection and preserve fail-closed AST parsing."""
+
+    source_path = ledger_module._LEDGER_MODULE_SOURCE_PATH
+    source_bytes = source_path.read_bytes()
+    tree = ast.parse(source_bytes, filename=str(source_path))
+
+    class _ModuleFunctionCollector(ast.NodeVisitor):
+        def __init__(self) -> None:
+            self.names: list[str] = []
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            self.names.append(node.name)
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            self.names.append(node.name)
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> None:
+            del node
+
+    collector = _ModuleFunctionCollector()
+    collector.visit(tree)
+    assert len(collector.names) == len(set(collector.names))
+
+    literal = ast.parse("'typed source value'", mode="eval").body
+    assert ledger_module._source_literal(literal, expected_type=str) == "typed source value"
+    with pytest.raises(ValueError, match="required literal"):
+        ledger_module._source_literal(literal, expected_type=bool)
+
+    unknown = ast.parse("runtime_name", mode="eval").body
+    assert ledger_module._source_literal(unknown) is ledger_module._UNSUPPORTED_SOURCE_LITERAL
+    with pytest.raises(ValueError, match="required literal"):
+        ledger_module._source_literal(unknown, expected_type=str)
+
+    declared = ledger_module._source_ledger_contract_projection(source_bytes)
+    assert declared == ledger_module._runtime_ledger_contract_projection()

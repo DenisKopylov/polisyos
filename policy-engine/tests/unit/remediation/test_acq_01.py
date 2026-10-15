@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -18,7 +19,9 @@ from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import ArtifactStore, FileSystemCAS
 from polisyos.core.artifacts import InputRef as CASInputRef
 from polisyos.data_requirement import (
+    CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
     DataQualityMinimums,
+    DataRequirementCompilationReport,
     DataRequirementScope,
     DataRequirementSpec,
 )
@@ -33,6 +36,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
 from polisyos.runtime.quality.design_problem import (
     CandidateLever,
     CandidateLeverSpace,
@@ -65,6 +69,47 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
+
+
+def _contract_testing_measurement_root_binding(
+    tmp_path: Path,
+) -> MeasurementRootExecutionBinding:
+    """Build a test-only binding from a persisted, selected execution scope."""
+
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+
+    return measurement_execution_binding(tmp_path)
+
+
+def _empty_data_requirement_compilation_report(
+    *,
+    run_id: str,
+    scenario_id: str | None = None,
+) -> DataRequirementCompilationReport:
+    """Return the compiler's versioned report shape for an empty basis."""
+
+    return DataRequirementCompilationReport(
+        run_id=run_id,
+        scenario_id=scenario_id,
+        specs=(),
+        capability_resolution_schema_version=(CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION),
+        capability_requirement_resolutions=(),
+    )
+
+
+def _assert_n7_has_no_grounding_result(
+    receipt: Mapping[str, Any],
+    *,
+    cycle: Any,
+) -> None:
+    """Keep owner writes distinct from both receipt and re-entry grounding."""
+
+    assert receipt["status"] == "completed_no_results"
+    rows = receipt["grounding_rederivations"]
+    assert len(rows) == 1
+    assert tuple(rows[0]["issue_codes"]) == ("generation_result_problem_scope_unestablished",)
+    assert cycle.grounding.status == "grounding_unavailable"
+    assert tuple(cycle.grounding.issue_codes) == ("generation_result_problem_scope_unestablished",)
 
 
 def _problem(
@@ -196,10 +241,15 @@ def test_n7_fallback_handoff_preserves_statement_domain_scope_and_resolver(
         def __init__(self, *, capability_resolver: object | None = None) -> None:
             captured.append((capability_resolver, {}))
 
-        def compile_for_scenario(self, scenario: dict[str, Any]) -> SimpleNamespace:
+        def compile_for_scenario(
+            self, scenario: dict[str, Any]
+        ) -> DataRequirementCompilationReport:
             resolver_arg, _ = captured[-1]
             captured[-1] = (resolver_arg, scenario)
-            return SimpleNamespace(specs=())
+            return _empty_data_requirement_compilation_report(
+                run_id="acq01-fallback-report",
+                scenario_id=str(scenario["scenario_id"]),
+            )
 
     monkeypatch.setattr(generation_cycle_module, "DataRequirementCompiler", _RecordingCompiler)
     controller = GenerationCycleController(capability_resolver=resolver)
@@ -240,34 +290,84 @@ def test_n7_fallback_handoff_preserves_statement_domain_scope_and_resolver(
     first, second = (item[1] for item in captured)
     assert first["text"] != second["text"]
     assert first["domain"] != second["domain"]
-    assert first["scenario_profile"] == scope_a
-    assert second["scenario_profile"] == scope_b
+    assert first["scope_profile"] == scope_a
+    assert second["scope_profile"] == scope_b
 
 
-def test_n7_missing_resolver_or_empty_specs_does_not_call_closed_loop(
+def test_n7_empty_report_short_circuits_after_real_family_compile(
     monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Any,
+    tmp_path: Path,
 ) -> None:
-    compiler_args: list[object | None] = []
+    actual_reports: list[DataRequirementCompilationReport] = []
+    actual_compiler_resolvers: list[object | None] = []
+    real_compiler = generation_cycle_module.DataRequirementCompiler
+
+    class _ObservedRealCompiler:
+        def __init__(self, *, capability_resolver: object | None = None) -> None:
+            actual_compiler_resolvers.append(capability_resolver)
+            self._delegate = real_compiler(capability_resolver=capability_resolver)
+
+        def compile_for_scenario(
+            self, scenario: Mapping[str, Any]
+        ) -> DataRequirementCompilationReport:
+            report = self._delegate.compile_for_scenario(scenario)
+            actual_reports.append(report)
+            return report
+
+    monkeypatch.setattr(generation_cycle_module, "DataRequirementCompiler", _ObservedRealCompiler)
+    selected_binding = _contract_testing_measurement_root_binding(tmp_path)
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        measurement_root_execution_binding=selected_binding,
+        authority_scope="contract_testing",
+    )
+    problem = _problem()
+    acquisition_request = {"required_data_families": ("unresolved_family",)}
+
+    # The actual compiler keeps this requested family as a data requirement.
+    # The empty result below is a separate, explicit short-circuit fixture.
+    actual_specs, actual_resolutions = controller._n7_data_requirement_basis(
+        problem,
+        acquisition_request=acquisition_request,
+    )
+    assert actual_compiler_resolvers == [None]
+    assert len(actual_reports) == 1
+    actual_report = actual_reports[0]
+    assert actual_report.capability_resolution_schema_version == (
+        CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION
+    )
+    assert actual_report.capability_requirement_resolutions == ()
+    assert len(actual_specs) == 1
+    assert actual_specs[0].required_data_families == ("unresolved_family",)
+    assert actual_resolutions == ()
+
+    empty_compiler_resolvers: list[object | None] = []
+    empty_reports: list[DataRequirementCompilationReport] = []
 
     class _EmptyCompiler:
         def __init__(self, *, capability_resolver: object | None = None) -> None:
-            compiler_args.append(capability_resolver)
+            empty_compiler_resolvers.append(capability_resolver)
 
-        def compile_for_scenario(self, _scenario: dict[str, Any]) -> SimpleNamespace:
-            return SimpleNamespace(specs=())
+        def compile_for_scenario(
+            self, _scenario: Mapping[str, Any]
+        ) -> DataRequirementCompilationReport:
+            report = _empty_data_requirement_compilation_report(run_id="acq01-empty-report")
+            empty_reports.append(report)
+            return report
 
     monkeypatch.setattr(generation_cycle_module, "DataRequirementCompiler", _EmptyCompiler)
-    controller = GenerationCycleController(repo_root=tmp_path)
-    problem = _problem()
-    assert (
-        controller._n7_data_requirement_specs(
-            problem,
-            acquisition_request={"required_data_families": ("unresolved_family",)},
-        )
-        == ()
+    empty_specs, empty_resolutions = controller._n7_data_requirement_basis(
+        problem,
+        acquisition_request=acquisition_request,
     )
-    assert compiler_args == [None]
+    assert empty_compiler_resolvers == [None]
+    assert len(empty_reports) == 1
+    assert empty_reports[0].capability_resolution_schema_version == (
+        CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION
+    )
+    assert empty_reports[0].capability_requirement_resolutions == ()
+    assert empty_specs == ()
+    assert empty_resolutions == ()
 
     monkeypatch.setattr(
         controller,
@@ -277,7 +377,7 @@ def test_n7_missing_resolver_or_empty_specs_does_not_call_closed_loop(
     monkeypatch.setattr(controller, "_n7_owner_gateway", lambda *_args: object())
 
     def _unexpected_closed_loop(**_kwargs: object) -> object:
-        raise AssertionError("empty specs must not mint an acquisition receipt")
+        raise AssertionError("empty specs and resolutions must not mint an acquisition receipt")
 
     monkeypatch.setattr(
         generation_cycle_module,
@@ -288,15 +388,13 @@ def test_n7_missing_resolver_or_empty_specs_does_not_call_closed_loop(
         terminal_kind="acquisition_required",
         cycle_index=0,
         revision_request=SimpleNamespace(
-            strategy_payload={
-                "acquisition_request": {
-                    "required_data_families": ("unresolved_family",),
-                }
-            }
+            strategy_payload={"acquisition_request": acquisition_request}
         ),
     )
 
     assert controller._run_n7_acquisition_if_requested(problem, cycle=cycle) is None
+    assert empty_compiler_resolvers == [None, None]
+    assert len(empty_reports) == 2
 
 
 class _FixtureGenerationPort:
@@ -1096,6 +1194,56 @@ def _receipt_with_route_measurement_profile(
     return AcquisitionReceipt.model_validate(receipt_data)
 
 
+def _receipt_with_acq01_route_value(
+    receipt: AcquisitionReceipt,
+    route_value: object,
+) -> AcquisitionReceipt:
+    """Rebind the persisted route fixture after changing its typed route value."""
+
+    route_artifacts = tuple(
+        artifact
+        for artifact in receipt.owner_artifacts
+        if isinstance(artifact.payload, Mapping) and "acq01_route" in artifact.payload
+    )
+    if len(route_artifacts) != 1:
+        raise AssertionError("expected exactly one captured ACQ-01 route")
+    route_artifact = route_artifacts[0]
+    changed_payload = dict(route_artifact.payload)
+    changed_payload["acq01_route"] = route_value
+    capture = route_artifact.capture_provenance
+    if capture is None:
+        raise AssertionError("route fixture must retain capture provenance")
+    changed_capture = AcquisitionCaptureProvenance.from_owner_response(
+        owner_component=capture.owner_component,
+        owner_endpoint=capture.owner_endpoint,
+        owner_request={"requirement_ref": route_artifact.requirement_ref},
+        owner_response=changed_payload,
+        captured_at=capture.captured_at,
+        capture_mode=capture.capture_mode,
+        network_call=capture.network_call,
+    )
+    changed_artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component=route_artifact.owner_component,
+        requirement_ref=route_artifact.requirement_ref,
+        artifact_ref=route_artifact.artifact_ref,
+        payload=changed_payload,
+        cost_usd=route_artifact.cost_usd,
+        quality=route_artifact.quality,
+        rights=route_artifact.rights,
+        binding_refs=route_artifact.binding_refs,
+        journal_ref=route_artifact.journal_ref,
+        ingested=route_artifact.ingested,
+        capture_provenance=changed_capture,
+    )
+    receipt_data = receipt.model_dump(mode="python")
+    receipt_data["owner_artifacts"] = tuple(
+        changed_artifact if item.artifact_ref == route_artifact.artifact_ref else item
+        for item in receipt.owner_artifacts
+    )
+    receipt_data["content_hash"] = ""
+    return AcquisitionReceipt.model_validate(receipt_data)
+
+
 def _assert_n7_world_model_record_semantics(actual: Any, expected: Any) -> None:
     """Compare every stable WMR field while allowing reconstruction time to advance."""
 
@@ -1109,19 +1257,8 @@ def _assert_n7_world_model_record_semantics(actual: Any, expected: Any) -> None:
     assert actual_created_at >= expected_created_at
 
 
-def test_acq01_route_fence_ignores_present_nonroute_payload_values() -> None:
-    """A key marker alone is not an ACQ-01 route consumed by the legacy reader."""
-
-    from polisyos.runtime.quality.generation_cycle import _has_n7_acq01_route_payload
-
-    assert not _has_n7_acq01_route_payload({"acq01_route": None})
-    assert not _has_n7_acq01_route_payload({"acq01_route": "route-marker"})
-    assert not _has_n7_acq01_route_payload({"acq01_route": ["not", "a", "route"]})
-    assert _has_n7_acq01_route_payload({"acq01_route": {}})
-
-
 @pytest.mark.asyncio
-async def test_production_n7_acq01_route_is_limited_before_route_cas_and_n5(
+async def test_production_n7_acq01_route_requires_scope_before_route_cas_and_n5(
     tmp_path: Path,
 ) -> None:
     """A legacy local route receipt cannot select a production world or re-enter N5."""
@@ -1157,7 +1294,7 @@ async def test_production_n7_acq01_route_is_limited_before_route_cas_and_n5(
         cycle = run.cycles[0]
         assert cycle.acquisition_receipt is None
         assert cycle.counterexample.diagnostic.code == (
-            "n6.acquisition.n7_acq01_route_not_admitted"
+            "n6.acquisition.n7_execution_scope_not_established"
         )
         assert cycle.terminal_kind == "acquisition_required"
 
@@ -1229,6 +1366,30 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
             target_world_slots=tuple(case.candidate.atom.target_world_slots),
         )
         assert contract_context is not None
+
+        # Exercise the actual receipt consumer, not a removed private marker helper.
+        for nonroute_value in (None, "route-marker", ["not", "a", "route"]):
+            nonroute_receipt = _receipt_with_acq01_route_value(receipt, nonroute_value)
+            assert (
+                replay_controller._rebuild_n7_acq01_route_context(
+                    case.problem,
+                    acquisition_receipt=nonroute_receipt,
+                    candidate_id=case.candidate.candidate_id,
+                    candidate_content_hash=case.candidate.atom.content_hash,
+                    target_world_slots=tuple(case.candidate.atom.target_world_slots),
+                )
+                is None
+            )
+        empty_mapping_receipt = _receipt_with_acq01_route_value(receipt, {})
+        with pytest.raises(generation_cycle_module.GenerationCycleError) as empty_route:
+            replay_controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=empty_mapping_receipt,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+        assert empty_route.value.code == "n7_acq01_route_schema_mismatch"
         selected_profile = route.measurement_root.payload_manifest_profile_sha256
         assert selected_profile is not None
         assert route.evidence.measurement_root_ref.manifest_profile_sha256 == selected_profile
@@ -1319,7 +1480,7 @@ async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
 
         receipt = run.acquisition_receipts[0]
         assert run.synthetic is True
-        assert receipt["status"] == "completed"
+        _assert_n7_has_no_grounding_result(receipt, cycle=run.cycles[0])
         assert route.world_build.data_snapshot_ref == route.data_snapshot_ref
         assert route.world_build.record.simulation_model_ref.data_snapshot_ref == str(
             route.data_snapshot_ref.artifact_id
@@ -1855,7 +2016,7 @@ async def test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo(
         )
 
         assert invoked is False
-        assert run.acquisition_receipts[0]["status"] == "completed"
+        _assert_n7_has_no_grounding_result(run.acquisition_receipts[0], cycle=run.cycles[0])
 
 
 def test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement(
@@ -1935,7 +2096,9 @@ def test_n7_grounding_fails_closed_without_structural_dependency_membership() ->
 
 
 @pytest.mark.asyncio
-async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_write() -> None:
+async def test_n7_owner_write_reinvokes_simulation_port_without_claiming_grounding(
+    tmp_path: Path,
+) -> None:
     data_spec = _fixture_data_requirement_spec()
     registry = _fixture_world_registry()
     world = AcquisitionWorldSnapshot(
@@ -1974,6 +2137,8 @@ async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_wri
                 )
             }
         ),
+        measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(
@@ -1983,11 +2148,11 @@ async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_wri
     )
 
     assert len(run.acquisition_receipts) == 1
+    cycle = run.cycles[0]
     receipt = run.acquisition_receipts[0]
-    assert receipt["status"] == "completed"
+    _assert_n7_has_no_grounding_result(receipt, cycle=cycle)
     assert receipt["grown_world_after_ref"] != world.world_ref
     assert receipt["world_write_outcomes"][0]["status"] == "written"
-    assert run.cycles[0].grounding.status == "grounded_shadow"
     assert simulation.world_refs == [world.world_ref, receipt["grown_world_after_ref"]]
     assert run.cycles[0].selected_candidate_content_hash == run.candidate_summaries[0].content_hash
     assert run.cycles[0].selected_candidate_content_hash != candidate.atom.content_hash
@@ -2017,6 +2182,7 @@ async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_wri
     ],
 )
 async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
+    tmp_path: Path,
     binding_mode: str,
 ) -> None:
     """A same-ID owner artifact cannot rebind a foreign candidate occurrence."""
@@ -2077,6 +2243,8 @@ async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
                 )
             }
         ),
+        measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
+        authority_scope="contract_testing",
     )
 
     with pytest.raises(
@@ -2173,6 +2341,7 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
             controller=n5,
             repo_root=tmp_path,
             cycle_substrate_context=context,
+            artifact_store=FileSystemCAS(tmp_path / "n5-result-store"),
         ),
         value_port=_PendingFixtureValue(),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
@@ -2188,6 +2357,8 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
         ),
         repo_root=tmp_path,
         cycle_substrate_context=context,
+        measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(
@@ -2200,12 +2371,16 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
     cycle = run.cycles[0]
     receipt = cycle.acquisition_receipt
     assert receipt is not None
-    assert receipt["status"] == "completed"
+    _assert_n7_has_no_grounding_result(receipt, cycle=cycle)
     grown_world_ref = receipt["grown_world_after_ref"]
     assert grown_world_ref.startswith("s0://substrate-registry/")
     assert grown_world_ref != context.world_model_record_content_hash
     assert grown_world_ref != context.world_model_record.world_model_record_id
+    # The initial N5 request has the selected content-bound context. The
+    # post-write registry URI is refused before the numerical controller.
     assert len(n5.requests) == 1
+    assert n5.requests[0].world_model_record_ref == context.world_model_record.world_model_record_id
+    assert n5.requests[0].world_model_record.content_hash == context.world_model_record.content_hash
     assert cycle.simulation.status == "simulation_blocked"
     assert "world_identity_unresolved" in cycle.simulation.authority_blockers
     assert cycle.simulation.simulation_ref is None

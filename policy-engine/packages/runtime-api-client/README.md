@@ -11,9 +11,12 @@ This package is the canonical generated-client home selected by Atlas DS3.
 Do not edit `types.ts`, `canonicalRuntimeApiClient.ts`, or
 `canonicalRuntimeApiClient.js` by hand. Their
 shared source of truth is the runtime OpenAPI schema. The package-root export is
-the canonical twin: its DTO aliases point directly at the discriminated schema
-types in `types.ts`. The low-level `runtimeApiClient.*` pair is generated only
-in a private scratch directory and handed to the canonicalizer; it is not a
+the canonical twin: its generated DTO aliases normally point directly at the
+discriminated schema types in `types.ts`. If a schema's generated name collides
+with an established package-root support alias, the root alias keeps its existing
+contract; the schema remains available through the package's `types.ts`
+`components` export. The low-level `runtimeApiClient.*` pair is generated only in
+a private scratch directory and handed to the canonicalizer; it is not a
 committed or public package surface. The dashboard-local generated type file is
 a downstream compatibility surface, not a second owner.
 
@@ -184,4 +187,3 @@ generated types by hand.
 Last updated: 2026-10-10
 
 The generated runs operation group also includes POST and GET for the run-bound predictive-calibration candidate diagnostic. Regenerate both client surfaces from the OpenAPI schema after changing its request or response contract; the client is transport only and carries no predictive or causal authority.
-

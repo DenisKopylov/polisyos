@@ -66,8 +66,35 @@ transportability layer over the dataset catalog built by the batch pipeline.
 
 ## Current State
 
-- Last updated: 2026-04-03
+- Last updated: 2026-10-14
 - Data Forge Phase 8 physically removed the old `polisyos.datasets` namespace;
   this package is now the canonical implementation owner.
 - `variable_alignment.py` now normalizes against both the academic canonical seed and the runtime canonical registry.
 - The read-only store still opens DuckDB in `read_only=True` mode and falls back to text-only search if the vector index is unavailable.
+
+
+Semantic epoch statements use the Core epoch contract's declared codec registry. Acquisition
+owner snapshots and member rows retain framed epoch bytes; L5 and Lex owner rows use canonical
+JSON, while L5 registry files retain exact raw JSON bytes. Fresh finalization resolves supported
+content refs through selected manifest profiles. Profileless owner references remain typed
+owner projection; it is not silently reselected from CAS or upgraded to authority.
+
+Catalog acquisition uses the same expected-role boundary for its framed owner snapshot and native
+member rows. The adapter validates source kind/media and exact row bytes before selected CAS writes,
+then rereads the frame, canon, and selected manifest profile.
+
+The native membership snapshot binds every receipt ref to its frozen passport row. Candidate refs
+must match the passport's exact ref and content hash, then resolve to the registered candidate
+statement in CAS before the semantic denominator can be emitted. Profileless owner projections are
+not promoted to authority, and unresolved or legacy passport state remains unresolved.
+
+
+The runtime validates the complete Catalog acquisition snapshot against strict row, passport, and
+stamp schemas before copying it into the task CAS. Passport content hashes are recomputed from the
+frozen passport mapping; matching owner-supplied hash fields alone are insufficient. For a bound
+current-v2 passport, the owner row must also carry and match its epoch and passport identity, epoch
+ref, stamp hash, full stamp, and prepared ref before snapshot or member CAS writes. The producer's
+source facts are part of that same prewrite decision: both row-presence flags must be true, activation
+must be pending or active, and the receipt operational epoch must equal the owner-row epoch. Historical
+v1 rows remain explicitly legacy-unresolved; the adapter does not fabricate missing carriers or
+promote them. A historical or unresolved passport remains limited and is never upgraded by this check.

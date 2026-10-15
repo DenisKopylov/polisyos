@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
+    _normalize_canonical_profile_mapping,
     decode_profiled_canonical_bytes,
     parse_canonical_profile,
 )
@@ -127,13 +128,7 @@ def _validated_ir_canon_info(value: Any) -> CanonInfo:
     payload = dict(value)
     if set(CanonInfo.model_fields) - set(payload):
         raise CanonViolation("unsupported_ir_canon_profile")
-    separators = payload.get("separators")
-    if (
-        type(separators) is list
-        and len(separators) == 2
-        and all(type(separator) is str for separator in separators)
-    ):
-        payload["separators"] = tuple(separators)
+    payload = _normalize_canonical_profile_mapping(payload)
     try:
         profile = CanonInfo.model_validate(payload, strict=True)
     except (TypeError, ValueError) as exc:
@@ -148,6 +143,7 @@ def _validated_ir_canon_info(value: Any) -> CanonInfo:
         raise CanonViolation("unsupported_ir_canon_profile")
     return profile
 
+
 def _artifact_selector(value: ArtifactSelector) -> ArtifactSelector:
     """Validate an artifact ID or typed selected-view ref without dropping its selector."""
     if isinstance(value, (ArtifactID, str)) or _is_string_root_model(value):
@@ -161,7 +157,9 @@ def _artifact_selector(value: ArtifactSelector) -> ArtifactSelector:
         raise CanonViolation("ir_artifact_view_selector_invalid") from exc
 
 
-def _get_json_artifact_with_bytes(store: _ProfiledJSONReader, artifact_id: ArtifactSelector) -> tuple[Any, bytes]:
+def _get_json_artifact_with_bytes(
+    store: _ProfiledJSONReader, artifact_id: ArtifactSelector
+) -> tuple[Any, bytes]:
     """Read JSON after raw profile completeness and byte conformance checks.
 
     The stored profile is a declaration used to select the IR decoder and encoder
@@ -227,13 +225,15 @@ def _get_json_artifact_with_bytes(store: _ProfiledJSONReader, artifact_id: Artif
         if dict(raw_manifest) != typed_manifest:
             raise CanonViolation("ir_artifact_selected_manifest_changed")
         typed_id = (
-            manifest.get("artifact_id") if isinstance(manifest, Mapping)
+            manifest.get("artifact_id")
+            if isinstance(manifest, Mapping)
             else getattr(manifest, "artifact_id", None)
         )
         if typed_id is None or str(typed_id) != str(selected_id):
             raise CanonViolation("ir_artifact_selected_manifest_mismatch")
         typed_canon = (
-            manifest.get("canon") if isinstance(manifest, Mapping)
+            manifest.get("canon")
+            if isinstance(manifest, Mapping)
             else getattr(manifest, "canon", None)
         )
         typed_canon_dump = getattr(typed_canon, "model_dump", None)

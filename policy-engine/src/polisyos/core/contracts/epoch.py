@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import hashlib
 from datetime import date, datetime
-from typing import Annotated, Any, Literal, Protocol, Self
+from typing import Annotated, Any, Literal, NamedTuple, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -30,6 +30,59 @@ _CANON = CanonSpec(
     separators=(",", ":"),
     ensure_ascii=False,
 )
+_EXTERNAL_STATEMENT_CANON = CanonSpec(forbid_floats=False, exclude_none=False)
+_EXTERNAL_ACQUISITION_STATEMENT_KINDS = frozenset(
+    {
+        "epoch.acquisition_passport_snapshot",
+        "epoch.pending_overlay_admission_receipt",
+        "epoch.activated_overlay_admission_receipt",
+    }
+)
+_EPOCH_ACQUISITION_ARTIFACT_KINDS = frozenset(
+    {
+        "epoch.prepared",
+        "epoch.admitted_acquisition_boundary_evidence",
+        "epoch.acquisition_semantic_boundary_candidate",
+        "epoch.acquisition_native_member",
+        "epoch.acquisition_owner_snapshot",
+        "epoch.acquisition_native_membership",
+        "epoch.acquisition_native_membership_receipt",
+        "epoch.acquisition_semantic_denominator_receipt",
+        "epoch.acquisition_semantic_projection_verification_receipt",
+        "epoch.acquisition_projection_verifier_provenance",
+        "epoch.semantic_manifest",
+        "epoch.boundary_denominator_receipt",
+        "epoch.facet_denominator_receipt",
+        "epoch.scope_history",
+        "epoch.chronology_query_context",
+        "epoch.l5_scoped_schema_regime_projection",
+        "epoch.lex_amendment_window_denominator",
+        "l5.schema_regime_denominator_receipt",
+    }
+)
+_CANONICAL_OWNER_ROW_KINDS = frozenset(
+    {
+        "l5.schema_regime_owner_snapshot",
+        "l5.schema_regime",
+        "lex.amendment_owner_snapshot",
+        "lex.amendment",
+    }
+)
+_RAW_OWNER_SOURCE_KINDS = frozenset(
+    {"l5.schema_regime_registry", "l5.schema_regime_scope_registry"}
+)
+
+
+class AcquisitionArtifactCodec(NamedTuple):
+    """Declared byte and manifest codec for one existing acquisition ref kind."""
+
+    media_type: str
+    payload_format: Literal[
+        "epoch_frame", "canonical_json", "raw_json", "identity_token", "unresolved_reference"
+    ]
+    canon: CanonInfo | None
+
+
 _COORDINATE_PREFIX = b"polisyos.native-coordinate.v1\0"
 _QUERY_CONTEXT_PREFIX = b"polisyos.epoch.query-context.v1\0"
 _ACQUISITION_CANDIDATE_PREFIX = b"polisyos.epoch.acquisition-semantic-boundary-candidate.v1\0"
@@ -84,6 +137,57 @@ def _raw(value: Any) -> Any:
 def epoch_canon_info() -> CanonInfo:
     """Return manifest metadata for the canonical epoch codec."""
     return CanonInfo.from_spec(_CANON)
+
+
+def external_epoch_statement_canon_info() -> CanonInfo:
+    """Return the declared codec for acquisition-owner JSON statements."""
+    return CanonInfo.from_spec(_EXTERNAL_STATEMENT_CANON)
+
+
+def canonical_external_epoch_statement_bytes(
+    value: BaseModel | dict[str, Any],
+) -> bytes:
+    """Canonicalize one acquisition-owner statement with its declared codec."""
+    mapping = _raw(value)
+    if not isinstance(mapping, dict):
+        raise TypeError("external epoch statement canonicalization requires a mapping")
+    return to_canonical_bytes(mapping, _EXTERNAL_STATEMENT_CANON)
+
+
+def acquisition_artifact_codec(kind: str) -> AcquisitionArtifactCodec | None:
+    """Return the registered source codec for an existing acquisition ref kind.
+
+    Identity tokens are not evidence bytes. Unresolved references have no owner
+    byte resolver and therefore cannot satisfy a selected-evidence read.
+    """
+    epoch_media = "application/vnd.polisyos.epoch+json"
+    if kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS:
+        return AcquisitionArtifactCodec(
+            epoch_media, "epoch_frame", external_epoch_statement_canon_info()
+        )
+    if kind == "epoch.production_receipt":
+        return AcquisitionArtifactCodec(
+            "application/vnd.polisyos.epoch-production-receipt+json",
+            "epoch_frame",
+            epoch_canon_info(),
+        )
+    if kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS:
+        return AcquisitionArtifactCodec(epoch_media, "epoch_frame", epoch_canon_info())
+    if kind in _CANONICAL_OWNER_ROW_KINDS:
+        return AcquisitionArtifactCodec("application/json", "canonical_json", epoch_canon_info())
+    if kind in _RAW_OWNER_SOURCE_KINDS:
+        return AcquisitionArtifactCodec("application/json", "raw_json", None)
+    if kind == "lex.document":
+        return AcquisitionArtifactCodec("text/plain", "identity_token", None)
+    if kind == "l5.schema_regime_scope_relation":
+        return AcquisitionArtifactCodec("application/json", "unresolved_reference", None)
+    return None
+
+
+def acquisition_artifact_canon_info(kind: str) -> CanonInfo | None:
+    """Return a registered canon, or ``None`` for raw, identity, or unresolved refs."""
+    codec = acquisition_artifact_codec(kind)
+    return None if codec is None else codec.canon
 
 
 def canonical_epoch_bytes(value: BaseModel | dict[str, Any]) -> bytes:
@@ -968,6 +1072,7 @@ class SemanticEpochProductionReceiptStatement(_EpochModel):
 
 
 __all__ = [
+    "AcquisitionArtifactCodec",
     "AcquisitionBoundaryResolutionQuery",
     "AcquisitionNativeMemberAssessment",
     "AcquisitionNativeMembershipReceipt",
@@ -992,12 +1097,16 @@ __all__ = [
     "ScopedSchemaRegimeProjection",
     "SemanticEpochProductionReceiptStatement",
     "SemanticEpochStamp",
+    "acquisition_artifact_canon_info",
+    "acquisition_artifact_codec",
     "acquisition_semantic_candidate_bytes",
     "acquisition_semantic_candidate_content_hash",
     "canonical_epoch_bytes",
+    "canonical_external_epoch_statement_bytes",
     "epoch_canon_info",
     "epoch_query_context_ref",
     "epoch_semantic_content_hash",
+    "external_epoch_statement_canon_info",
     "load_verified_epoch_statement",
     "native_coordinate_ref",
     "scoped_schema_regime_projection_content_hash",

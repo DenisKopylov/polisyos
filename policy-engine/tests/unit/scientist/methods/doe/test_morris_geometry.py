@@ -216,3 +216,23 @@ def test_wrong_declared_grid_cannot_authorize_existing_sample_matrix() -> None:
     plan.parameter_specs[1].num_levels = 6
     with pytest.raises(ValueError, match="grid"):
         analyze_sensitivity(plan, samples, outputs)
+
+
+def test_mixed_morris_level_plan_refuses_before_salib_sampling(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A global-backend grid mismatch is rejected before any sample matrix is emitted."""
+    from SALib.sample import morris as morris_sampler
+
+    plan = _plan()
+    plan.parameter_specs[1].num_levels = 6
+    backend_calls: list[bool] = []
+
+    def backend_sample(*args: object, **kwargs: object) -> np.ndarray:
+        backend_calls.append(True)
+        raise AssertionError("SALib sampling must not run for mixed declared levels")
+
+    monkeypatch.setattr(morris_sampler, "sample", backend_sample)
+    with pytest.raises(ValueError, match="Morris parameters must declare the same num_levels"):
+        generate_sensitivity_samples(plan)
+    assert backend_calls == []

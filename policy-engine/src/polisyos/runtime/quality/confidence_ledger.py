@@ -25,6 +25,7 @@ import sysconfig
 import threading
 import tomllib
 import types
+import typing
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -40,6 +41,8 @@ from polisyos.core import artifacts, canon
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.fabric import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
+
+_LEDGER_MODULE_SOURCE_PATH = Path(__file__).resolve()
 
 CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.registry.v1"
 CONFIDENCE_LEDGER_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.v1"
@@ -146,6 +149,7 @@ _LEDGER_PRODUCER = artifacts.ProducerInfo(
     component="polisyos.runtime.quality.confidence_ledger",
     version="1.0.0",
 )
+_LEDGER_ARTIFACT_MEDIA_TYPE = "application/json"
 _REGISTRY_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.confidence-ledger-registry", version="1.0.0"
 )
@@ -163,7 +167,6 @@ _DEPLOYMENT_DRIFT_POISON_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.confidence-ledger-deployment-drift-poison",
     version="1.0.0",
 )
-
 try:  # pragma: no cover - POSIX is the authority-bearing backend.
     import fcntl as _fcntl
 except ImportError:  # pragma: no cover
@@ -918,6 +921,72 @@ class ConfidenceLedgerReceipt(_StrictModel):
     receipt_id: str = Field(pattern=r"^confidence-ledger:sha256:[0-9a-f]{64}$")
 
 
+@dataclass(frozen=True)
+class _LedgerArtifactContract:
+    """Typed producer, payload-model, and CAS identity for one ledger artifact."""
+
+    kind: str
+    schema: artifacts.SchemaInfo
+    producer: artifacts.ProducerInfo
+    media_type: str
+    scope_bound: bool
+    payload_model: type[BaseModel] | None
+
+
+_LEDGER_ARTIFACT_CONTRACTS: Mapping[str, _LedgerArtifactContract] = types.MappingProxyType(
+    {
+        "scope_anchor": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.scope_anchor",
+            schema=_SCOPE_ANCHOR_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=True,
+            payload_model=None,
+        ),
+        "registry": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.registry",
+            schema=_REGISTRY_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=False,
+            payload_model=ConfidenceLedgerRegistry,
+        ),
+        "root": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.root",
+            schema=_ROOT_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=True,
+            payload_model=ConfidenceLedgerRoot,
+        ),
+        "event": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.event",
+            schema=_EVENT_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=True,
+            payload_model=_StoredLedgerEvent,
+        ),
+        "receipt": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.receipt",
+            schema=_RECEIPT_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=True,
+            payload_model=ConfidenceLedgerReceipt,
+        ),
+        "deployment_drift_poison": _LedgerArtifactContract(
+            kind="runtime.quality.confidence_ledger.deployment_drift_poison",
+            schema=_DEPLOYMENT_DRIFT_POISON_SCHEMA,
+            producer=_LEDGER_PRODUCER,
+            media_type=_LEDGER_ARTIFACT_MEDIA_TYPE,
+            scope_bound=True,
+            payload_model=_DeploymentDriftPoison,
+        ),
+    }
+)
+
+
 class ConfidenceLedgerSemanticOwnerBinding(_StrictModel):
     """Stable owner/verifier identity from a fully verified live binding."""
 
@@ -1315,6 +1384,7 @@ class ConfidenceLedgerSession:
         deployment_identity: str,
         deployment_quick_fence: _DeploymentQuickFence | None,
     ) -> None:
+        _assert_ledger_artifact_contracts_current()
         object.__setattr__(self, "_session_sealed", False)
         self._registry = registry
         self._risk_scope = risk_scope
@@ -1886,27 +1956,21 @@ class ConfidenceLedgerSession:
                     raise ConfidenceLedgerError("ledger_head_reset_detected")
                 self._load_state_locked()
                 return
-            anchor_ref = self._put_json(
-                anchor_payload,
-                kind="runtime.quality.confidence_ledger.scope_anchor",
-                schema=_SCOPE_ANCHOR_SCHEMA,
-            )
+            anchor_ref = self._put_ledger_json(anchor_payload, contract_id="scope_anchor")
             if str(anchor_ref.artifact_id) != expected_anchor_ref:
                 raise ConfidenceLedgerError("ledger_scope_anchor_identity_invalid")
-            registry_ref = self._put_json(
+            registry_ref = self._put_ledger_json(
                 self._registry.source_payload(),
-                kind="runtime.quality.confidence_ledger.registry",
-                schema=_REGISTRY_SCHEMA,
+                contract_id="registry",
             )
             if str(registry_ref.artifact_id) != expected_registry_ref:
                 raise ConfidenceLedgerError("registry_artifact_identity_invalid")
             root = self._expected_root_binding(str(registry_ref.artifact_id))
             if self._artifact_store.has(expected_root_ref):
                 raise ConfidenceLedgerError("ledger_head_reset_detected")
-            root_ref = self._put_json(
+            root_ref = self._put_ledger_json(
                 root.model_dump(mode="json"),
-                kind="runtime.quality.confidence_ledger.root",
-                schema=_ROOT_SCHEMA,
+                contract_id="root",
             )
             if str(root_ref.artifact_id) != expected_root_ref:
                 raise ConfidenceLedgerError("ledger_root_artifact_identity_invalid")
@@ -2031,12 +2095,13 @@ class ConfidenceLedgerSession:
             except (OSError, ValueError):
                 continue
             artifact_ref = str(artifact_id)
-            if manifest.kind == "runtime.quality.confidence_ledger.root":
+            if manifest.kind == _ledger_artifact_contract("root").kind:
+                root_contract = _ledger_artifact_contract("root")
                 if (
-                    manifest.producer == _LEDGER_PRODUCER
-                    and manifest.artifact_schema == _ROOT_SCHEMA
+                    manifest.producer == root_contract.producer
+                    and manifest.artifact_schema == root_contract.schema
                 ):
-                    payload = self._read_cas_json(artifact_ref, _ROOT_SCHEMA)
+                    payload = self._read_cas_json(artifact_ref, root_contract.schema)
                     if (
                         isinstance(payload, Mapping)
                         and payload.get("scope_id") == root.scope_id
@@ -2056,8 +2121,12 @@ class ConfidenceLedgerSession:
                 raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
             if not isinstance(payload, Mapping) or payload.get("scope_id") != root.scope_id:
                 continue
-            _, expected_schema = _journal_artifact_contract(artifact_kind)
-            if manifest.producer != _LEDGER_PRODUCER or manifest.artifact_schema != expected_schema:
+            artifact_contract = _ledger_artifact_contract(artifact_kind)
+            if (
+                manifest.producer != artifact_contract.producer
+                or manifest.artifact_schema != artifact_contract.schema
+                or manifest.media_type != artifact_contract.media_type
+            ):
                 code = (
                     "ledger_receipt_witness_invalid"
                     if artifact_kind == "receipt"
@@ -2079,8 +2148,192 @@ class ConfidenceLedgerSession:
         self._cas_reconciled = True
         return refs
 
+    def _validate_ledger_artifact_payload(
+        self,
+        *,
+        contract_id: str,
+        artifact_ref: str,
+        payload: object | None,
+        require_cas: bool,
+        expected_scope_id: str | None = None,
+    ) -> tuple[dict[str, Any], str | None]:
+        """Resolve one source-owned CAS contract and recompute its domain semantics."""
+        try:
+            from polisyos.core.artifacts import load_core_json_artifact
+
+            contract = _ledger_artifact_contract(contract_id)
+            manifest = self._artifact_store.get_manifest(artifact_ref) if require_cas else None
+            if require_cas:
+                if (
+                    manifest is None
+                    or manifest.kind != contract.kind
+                    or manifest.artifact_schema != contract.schema
+                    or manifest.producer != contract.producer
+                    or manifest.media_type != contract.media_type
+                ):
+                    raise ValueError("ledger_artifact_manifest_kind_schema_or_media_mismatch")
+                stored_payload = load_core_json_artifact(self._artifact_store, artifact_ref)
+                if payload is not None and stored_payload != payload:
+                    raise ValueError("ledger_artifact_payload_mismatch")
+                payload = stored_payload
+            if not isinstance(payload, Mapping):
+                raise ValueError("ledger_artifact_payload_not_mapping")
+            payload_dict = dict(payload)
+            if _cas_json_artifact_ref(payload_dict) != artifact_ref:
+                raise ValueError("ledger_artifact_content_reference_mismatch")
+
+            scope_id: str | None
+            if contract_id == "scope_anchor":
+                expected_keys = {
+                    "schema_version",
+                    "scope_id",
+                    "scope_owner_ref",
+                    "authority_purpose",
+                    "owner_scope_key",
+                    "epoch_ref",
+                }
+                if set(payload_dict) != expected_keys:
+                    raise ValueError("ledger_scope_anchor_shape_invalid")
+                if payload_dict.get("schema_version") != CONFIDENCE_LEDGER_SCHEMA_VERSION:
+                    raise ValueError("ledger_scope_anchor_schema_invalid")
+                owner_ref = payload_dict.get("scope_owner_ref")
+                purpose = payload_dict.get("authority_purpose")
+                owner_key = payload_dict.get("owner_scope_key")
+                epoch_ref = payload_dict.get("epoch_ref")
+                if not all(
+                    isinstance(value, str) and value for value in (owner_ref, purpose, owner_key)
+                ):
+                    raise ValueError("ledger_scope_anchor_identity_invalid")
+                if epoch_ref is not None and not isinstance(epoch_ref, str):
+                    raise ValueError("ledger_scope_anchor_epoch_invalid")
+                scope_id = _identity(
+                    "confidence-risk-scope",
+                    {
+                        "scope_owner_ref": owner_ref,
+                        "authority_purpose": purpose,
+                        "owner_scope_key": owner_key,
+                        "epoch_ref": epoch_ref,
+                    },
+                )
+                if payload_dict.get("scope_id") != scope_id:
+                    raise ValueError("ledger_scope_anchor_scope_mismatch")
+            elif contract_id == "registry":
+                registry = _ledger_payload_model(contract_id).model_validate(payload_dict)
+                if registry.model_dump(mode="json") != payload_dict:
+                    raise ValueError("ledger_registry_payload_not_canonical")
+                scope_id = None
+            elif contract_id == "root":
+                root = _ledger_payload_model(contract_id).model_validate(payload_dict)
+                if root.model_dump(mode="json") != payload_dict:
+                    raise ValueError("ledger_root_payload_not_canonical")
+                if (
+                    root.scope_id != root.risk_scope.scope_id
+                    or root.scope_anchor_ref
+                    != _cas_json_artifact_ref(_confidence_scope_anchor_payload(root.risk_scope))
+                    or root.ledger_root_id
+                    != _identity(
+                        "confidence-ledger-root",
+                        root.model_dump(mode="json", exclude={"ledger_root_id"}),
+                    )
+                ):
+                    raise ValueError("ledger_root_scope_or_identity_invalid")
+                if not self._artifact_store.has(root.registry_artifact_ref):
+                    raise ValueError("ledger_root_registry_reference_unresolved")
+                registry_payload, _ = self._validate_ledger_artifact_payload(
+                    contract_id="registry",
+                    artifact_ref=root.registry_artifact_ref,
+                    payload=None,
+                    require_cas=True,
+                )
+                registry = _ledger_payload_model("registry").model_validate(registry_payload)
+                if root.registry_content_hash != registry.content_hash:
+                    raise ValueError("ledger_root_registry_binding_invalid")
+                scope_id = root.scope_id
+            elif contract_id == "event":
+                event = _ledger_payload_model(contract_id).model_validate(payload_dict)
+                if (
+                    event.model_dump(mode="json") != payload_dict
+                    or event.scope_id != event.check.scope_id
+                    or event.event_id != _recompute_event_id(event)
+                    or event.check.event_id != event.event_id
+                    or event.check.check_id != _recompute_check_id(event.check)
+                ):
+                    raise ValueError("ledger_event_scope_or_identity_invalid")
+                _validate_check_registry_binding(event.check, registry=self._registry)
+                _validate_request_fingerprint(event.check)
+                _validate_claim_execution_binding(event.check)
+                scope_id = event.scope_id
+            elif contract_id == "receipt":
+                _ledger_payload_model(contract_id).model_validate(payload_dict)
+                receipt = validate_confidence_ledger_receipt_structure(
+                    payload_dict,
+                    registry=self._registry,
+                )
+                if receipt.model_dump(mode="json") != payload_dict:
+                    raise ValueError("ledger_receipt_payload_not_canonical")
+                scope_id = receipt.scope_id
+            elif contract_id == "deployment_drift_poison":
+                poison = _ledger_payload_model(contract_id).model_validate(payload_dict)
+                if (
+                    poison.model_dump(mode="json") != payload_dict
+                    or poison.poison_id
+                    != _identity(
+                        "confidence-deployment-drift-poison",
+                        poison.model_dump(mode="json", exclude={"poison_id"}),
+                    )
+                    or not self._artifact_store.has(poison.ledger_root_ref)
+                ):
+                    raise ValueError("ledger_poison_scope_or_identity_invalid")
+                root_payload, root_scope_id = self._validate_ledger_artifact_payload(
+                    contract_id="root",
+                    artifact_ref=poison.ledger_root_ref,
+                    payload=None,
+                    require_cas=True,
+                )
+                root = _ledger_payload_model("root").model_validate(root_payload)
+                if (
+                    root_scope_id != poison.scope_id
+                    or root.scope_id != poison.scope_id
+                    or root.ledger_root_id != poison.ledger_root_id
+                    or root.authority_provenance != "canonical_repo"
+                    or root.deployment_identity != poison.expected_deployment_identity
+                ):
+                    raise ValueError("ledger_poison_root_binding_invalid")
+                scope_id = poison.scope_id
+            else:  # pragma: no cover - closed by the source contract registry.
+                raise ValueError("unknown_ledger_artifact_contract")
+
+            if contract.scope_bound and scope_id is None:
+                raise ValueError("ledger_artifact_scope_not_established")
+            if expected_scope_id is not None and scope_id != expected_scope_id:
+                raise ValueError("ledger_artifact_scope_mismatch")
+            return payload_dict, scope_id
+        except (ConfidenceLedgerError, OSError, TypeError, ValueError) as exc:
+            raise ValueError(f"{contract_id}:{exc}") from exc
+
+    def _resolve_scope_journal_artifact(
+        self,
+        *,
+        artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+        artifact_ref: str,
+        payload: object,
+        require_cas: bool,
+    ) -> dict[str, Any]:
+        """Resolve one WAL claim through the shared typed CAS artifact boundary."""
+        try:
+            validated, _scope_id = self._validate_ledger_artifact_payload(
+                contract_id=artifact_kind,
+                artifact_ref=artifact_ref,
+                payload=payload,
+                require_cas=require_cas,
+                expected_scope_id=self._risk_scope.scope_id,
+            )
+        except (ConfidenceLedgerError, OSError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        return validated
+
     def _replay_scope_journal_locked(self) -> dict[str, set[str]]:
-        """Complete WAL intents and return committed scope artifact refs."""
+        """Complete only source-valid, scope-bound WAL intents."""
 
         records = self._read_new_scope_journal_records_locked()
         intents: dict[str, _ScopeJournalRecord] = {}
@@ -2108,23 +2361,30 @@ class ConfidenceLedgerSession:
             payload = intent.payload
             if payload is None:
                 raise ConfidenceLedgerError("ledger_scope_journal_invalid")
-            if _cas_json_artifact_ref(payload) != artifact_ref:
-                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
-            kind, schema = _journal_artifact_contract(intent.artifact_kind)
-            if self._artifact_store.has(artifact_ref):
-                if self._read_cas_json(artifact_ref, schema) != payload:
-                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
-            elif artifact_ref in commits:
+            present = self._artifact_store.has(artifact_ref)
+            if not present and artifact_ref in commits:
                 code = (
                     "ledger_receipt_witness_invalid"
                     if intent.artifact_kind == "event"
                     else "ledger_scope_journal_invalid"
                 )
                 raise ConfidenceLedgerError(code)
-            else:
-                ref = self._put_json(payload, kind=kind, schema=schema)
+            payload = self._resolve_scope_journal_artifact(
+                artifact_kind=intent.artifact_kind,
+                artifact_ref=artifact_ref,
+                payload=payload,
+                require_cas=present,
+            )
+            if not present:
+                ref = self._put_ledger_json(payload, contract_id=intent.artifact_kind)
                 if str(ref.artifact_id) != artifact_ref:
                     raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+                self._resolve_scope_journal_artifact(
+                    artifact_kind=intent.artifact_kind,
+                    artifact_ref=artifact_ref,
+                    payload=payload,
+                    require_cas=True,
+                )
             if artifact_ref not in commits:
                 self._append_scope_journal_commit(
                     artifact_kind=intent.artifact_kind,
@@ -2521,14 +2781,14 @@ class ConfidenceLedgerSession:
     ) -> artifacts.ArtifactRef:
         """Write one artifact through WAL intent, CAS verification, and commit."""
 
-        kind, schema = _journal_artifact_contract(artifact_kind)
+        _, schema = _journal_artifact_contract(artifact_kind)
         artifact_ref = _cas_json_artifact_ref(payload)
         self._append_scope_journal_intent(
             artifact_kind=artifact_kind,
             artifact_ref=artifact_ref,
             payload=payload,
         )
-        ref = self._put_json(payload, kind=kind, schema=schema)
+        ref = self._put_ledger_json(payload, contract_id=artifact_kind)
         if str(ref.artifact_id) != artifact_ref:
             raise ConfidenceLedgerError("ledger_scope_journal_invalid")
         self._read_cas_json(artifact_ref, schema)
@@ -2695,62 +2955,89 @@ class ConfidenceLedgerSession:
                 os.close(fd)
             thread_lock.release()
 
-    def _prior_scope_artifact_exists(self) -> bool:
-        """Find an older chain even when mutable pointers and anchors were removed."""
-        from polisyos.core.artifacts import load_core_json_artifact
+    def _prior_scope_artifact_payloads(
+        self,
+    ) -> tuple[tuple[str, artifacts.ArtifactID, Mapping[str, Any]], ...]:
+        """Read all typed, content-bound artifacts that can evidence ledger history."""
+        _assert_ledger_artifact_contracts_current()
+        contracts_by_kind = {
+            contract.kind: (contract_id, contract)
+            for contract_id, contract in _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS.items()
+        }
+        try:
+            # Materialize while guarded: a lazy inventory failure after partial
+            # iteration is still unknown membership, never a negative result.
+            artifact_ids = tuple(self._artifact_store.iter_artifact_ids())
+        except (OSError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "prior_scope_membership_not_established",
+                str(exc),
+            ) from exc
 
-        for artifact_id in self._artifact_store.iter_artifact_ids():
+        payloads: list[tuple[str, artifacts.ArtifactID, Mapping[str, Any]]] = []
+        for artifact_id in artifact_ids:
             try:
                 manifest = self._artifact_store.get_manifest(artifact_id)
-            except (OSError, ValueError):
-                continue
-            recognized = {
-                "runtime.quality.confidence_ledger.root": _ROOT_SCHEMA,
-                "runtime.quality.confidence_ledger.event": _EVENT_SCHEMA,
-                "runtime.quality.confidence_ledger.receipt": _RECEIPT_SCHEMA,
-            }
-            expected_schema = recognized.get(manifest.kind)
-            if (
-                expected_schema is None
-                or manifest.artifact_schema != expected_schema
-                or manifest.producer != _LEDGER_PRODUCER
-            ):
-                continue
-            try:
-                payload = load_core_json_artifact(self._artifact_store, artifact_id)
-            except (OSError, ValueError, TypeError):
-                continue
-            if isinstance(payload, Mapping) and payload.get("scope_id") == (
-                self._risk_scope.scope_id
-            ):
-                return True
-        return False
+                contract_row = contracts_by_kind.get(manifest.kind)
+                if contract_row is None:
+                    if manifest.kind.startswith("runtime.quality.confidence_ledger."):
+                        raise ValueError(
+                            f"unrecognized confidence-ledger artifact kind: {manifest.kind}"
+                        )
+                    continue
+                contract_id, contract = contract_row
+                if (
+                    manifest.artifact_schema != contract.schema
+                    or manifest.producer != contract.producer
+                    or manifest.media_type != contract.media_type
+                ):
+                    raise ValueError(f"unverified {manifest.kind} metadata")
+                payload, scope_id = self._validate_ledger_artifact_payload(
+                    contract_id=contract_id,
+                    artifact_ref=str(artifact_id),
+                    payload=None,
+                    require_cas=True,
+                )
+                if contract.scope_bound:
+                    if scope_id is None:
+                        raise ValueError(f"missing typed scope for {manifest.kind}")
+                    payloads.append((manifest.kind, artifact_id, payload))
+            except (ConfidenceLedgerError, OSError, TypeError, ValueError) as exc:
+                cause = exc
+                while cause.__cause__ is not None:
+                    cause = cause.__cause__
+                raise ConfidenceLedgerError(
+                    "prior_scope_membership_not_established",
+                    str(exc),
+                ) from cause
+        return tuple(payloads)
+
+    def _prior_scope_artifact_exists(self) -> bool:
+        """Find prior scope use through one typed boundary for WAL and CAS evidence."""
+        try:
+            journal_refs = self._replay_scope_journal_locked()
+        except ConfidenceLedgerError as exc:
+            if exc.code == "prior_scope_membership_not_established":
+                raise
+            raise ConfidenceLedgerError(
+                "prior_scope_membership_not_established",
+                exc.code,
+            ) from exc
+        if any(journal_refs.values()):
+            return True
+
+        return any(
+            payload["scope_id"] == self._risk_scope.scope_id
+            for _kind, _artifact_id, payload in self._prior_scope_artifact_payloads()
+        )
 
     def _scope_root_artifact_exists(self) -> bool:
-        """Return whether immutable CAS contains any root for this scope."""
-        from polisyos.core.artifacts import load_core_json_artifact
-
-        for artifact_id in self._artifact_store.iter_artifact_ids():
-            try:
-                manifest = self._artifact_store.get_manifest(artifact_id)
-            except (OSError, ValueError):
-                continue
-            if (
-                manifest.kind != "runtime.quality.confidence_ledger.root"
-                or manifest.artifact_schema != _ROOT_SCHEMA
-                or manifest.producer != _LEDGER_PRODUCER
-            ):
-                continue
-            try:
-                payload = load_core_json_artifact(self._artifact_store, artifact_id)
-            except (OSError, ValueError, TypeError):
-                continue
-            if (
-                isinstance(payload, Mapping)
-                and payload.get("scope_id") == self._risk_scope.scope_id
-            ):
-                return True
-        return False
+        """Return whether a fully validated immutable root exists for this scope."""
+        return any(
+            kind == "runtime.quality.confidence_ledger.root"
+            and payload["scope_id"] == self._risk_scope.scope_id
+            for kind, _artifact_id, payload in self._prior_scope_artifact_payloads()
+        )
 
     def _expected_root_binding(self, registry_ref: str) -> ConfidenceLedgerRoot:
         payload: dict[str, Any] = {
@@ -3152,32 +3439,50 @@ class ConfidenceLedgerSession:
         payload["receipt_id"] = _identity("confidence-ledger", payload)
         return ConfidenceLedgerReceipt.model_validate(payload)
 
+    def _put_ledger_json(self, payload: object, *, contract_id: str) -> artifacts.ArtifactRef:
+        """Persist a source-owned ledger artifact using its registered contract."""
+        return self._put_json(payload, contract_id=contract_id)
+
     def _read_cas_json(self, artifact_ref: str, schema: artifacts.SchemaInfo) -> object:
         from polisyos.core.artifacts import load_core_json_artifact
 
+        _assert_ledger_artifact_contracts_current()
+        matching = tuple(
+            contract
+            for contract in _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS.values()
+            if contract.schema == schema
+        )
+        if len(matching) != 1:
+            raise ConfidenceLedgerError("ledger_cas_manifest_invalid")
+        contract = matching[0]
         report = self._artifact_store.verify(artifact_ref)
         if not report.ok:
             raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
         manifest = self._artifact_store.get_manifest(artifact_ref)
-        if manifest.artifact_schema != schema or manifest.producer != _LEDGER_PRODUCER:
+        if (
+            manifest.kind != contract.kind
+            or manifest.artifact_schema != contract.schema
+            or manifest.producer != contract.producer
+            or manifest.media_type != contract.media_type
+        ):
             raise ConfidenceLedgerError("ledger_cas_manifest_invalid")
         try:
             return load_core_json_artifact(self._artifact_store, artifact_ref)
         except (OSError, ValueError, TypeError) as exc:
             raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
 
-    def _put_json(
-        self, payload: object, *, kind: str, schema: artifacts.SchemaInfo
-    ) -> artifacts.ArtifactRef:
+    def _put_json(self, payload: object, *, contract_id: str) -> artifacts.ArtifactRef:
+        contract = _ledger_artifact_contract(contract_id)
+        _assert_ledger_artifact_contracts_current()
         return self._artifact_store.put_json(
             _jsonable(payload),
             artifacts.PutOptions(
-                kind=kind,
-                media_type="application/json",
-                schema=schema,
-                producer=_LEDGER_PRODUCER,
+                kind=contract.kind,
+                media_type=contract.media_type,
+                schema=contract.schema,
+                producer=contract.producer,
             ),
-            canon_spec=_CAS_CANON_SPEC,
+            canon_spec=_IMPORT_TIME_LEDGER_CANON_SPEC,
         )
 
     @contextmanager
@@ -3218,8 +3523,9 @@ class ConfidenceLedgerSession:
                 os.close(fd)
 
     def _assert_deployment_identity_locked(self) -> None:
-        """Fence canonical authority against a checkout change during a session."""
+        """Fence runtime contracts and canonical source against in-session drift."""
 
+        _assert_ledger_artifact_contracts_current()
         if self._authority_provenance != "canonical_repo":
             return
         root = self._authority_repo_root
@@ -4483,17 +4789,503 @@ def _fsync_directory(path: Path) -> None:
         os.close(fd)
 
 
+def _ledger_artifact_contract(contract_id: str) -> _LedgerArtifactContract:
+    """Return the import-pinned, source-checked CAS contract."""
+    try:
+        return _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS[contract_id]
+    except KeyError as exc:
+        raise ConfidenceLedgerError("unknown_ledger_artifact_contract", contract_id) from exc
+
+
+def _ledger_payload_model(contract_id: str) -> type[BaseModel]:
+    """Resolve the payload model bound to a registered artifact contract."""
+    model = _ledger_artifact_contract(contract_id).payload_model
+    if model is None:
+        raise ConfidenceLedgerError("ledger_artifact_payload_model_unavailable", contract_id)
+    return model
+
+
 def _journal_artifact_contract(
     artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
 ) -> tuple[str, artifacts.SchemaInfo]:
+    contract = _ledger_artifact_contract(artifact_kind)
+    return contract.kind, contract.schema
+
+
+def _source_module_bindings(tree: ast.Module) -> dict[str, ast.AST]:
+    """Index unique top-level source bindings without evaluating source code."""
+    bindings: dict[str, ast.AST] = {}
+    for node in tree.body:
+        targets: tuple[ast.expr, ...] = ()
+        value: ast.AST | None = None
+        if isinstance(node, ast.Assign):
+            targets = tuple(node.targets)
+            value = node.value
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+            value = node.value
+        if value is None:
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                if target.id in bindings:
+                    raise ValueError(f"duplicate source binding: {target.id}")
+                bindings[target.id] = value
+    return bindings
+
+
+def _source_keyword_values(call: ast.Call) -> dict[str, ast.AST]:
+    """Return explicit keyword values, rejecting dynamic expansion."""
+    if any(keyword.arg is None for keyword in call.keywords):
+        raise ValueError("dynamic source keyword expansion")
+    result = {str(keyword.arg): keyword.value for keyword in call.keywords}
+    if len(result) != len(call.keywords):
+        raise ValueError("duplicate source keyword")
+    return result
+
+
+def _source_string(node: ast.AST) -> str:
+    """Read a literal string from an AST node."""
+    value = _source_literal(node, expected_type=str)
+    if not isinstance(value, str):
+        raise ValueError("source value is not a string")
+    return value
+
+
+def _source_schema_projection(bindings: Mapping[str, ast.AST], name: str) -> dict[str, str]:
+    """Read a source-declared SchemaInfo pair from literal constructor arguments."""
+    expression = bindings.get(name)
+    if not isinstance(expression, ast.Call) or not (
+        isinstance(expression.func, ast.Attribute)
+        and isinstance(expression.func.value, ast.Name)
+        and expression.func.value.id == "artifacts"
+        and expression.func.attr == "SchemaInfo"
+    ):
+        raise ValueError(f"source schema binding is not SchemaInfo: {name}")
+    values = _source_keyword_values(expression)
+    if set(values) != {"name", "version"}:
+        raise ValueError(f"source schema fields differ: {name}")
+    schema_name = _source_string(values["name"])
+    version = _source_string(values["version"])
+    return {"name": schema_name, "version": version}
+
+
+def _source_producer_projection(bindings: Mapping[str, ast.AST]) -> dict[str, object]:
+    """Read the source-owned producer identity using literal constructor values."""
+    expression = bindings.get("_LEDGER_PRODUCER")
+    if not isinstance(expression, ast.Call) or not (
+        isinstance(expression.func, ast.Attribute)
+        and isinstance(expression.func.value, ast.Name)
+        and expression.func.value.id == "artifacts"
+        and expression.func.attr == "ProducerInfo"
+    ):
+        raise ValueError("source producer binding is not ProducerInfo")
+    values = _source_keyword_values(expression)
+    if set(values) != {"component", "version"}:
+        raise ValueError("source producer fields differ")
     return {
-        "event": ("runtime.quality.confidence_ledger.event", _EVENT_SCHEMA),
-        "receipt": ("runtime.quality.confidence_ledger.receipt", _RECEIPT_SCHEMA),
-        "deployment_drift_poison": (
-            "runtime.quality.confidence_ledger.deployment_drift_poison",
-            _DEPLOYMENT_DRIFT_POISON_SCHEMA,
-        ),
-    }[artifact_kind]
+        "component": _source_literal(values["component"], expected_type=str),
+        "version": _source_literal(values["version"], expected_type=str),
+        "git": None,
+    }
+
+
+def _source_ledger_contract_projection(source_bytes: bytes) -> str:
+    """Derive the complete ledger artifact table from source-owned literals."""
+    tree = ast.parse(source_bytes, filename="confidence_ledger.py")
+    bindings = _source_module_bindings(tree)
+    table_expression = bindings.get("_LEDGER_ARTIFACT_CONTRACTS")
+    if not isinstance(table_expression, ast.Call) or not (
+        isinstance(table_expression.func, ast.Attribute)
+        and isinstance(table_expression.func.value, ast.Name)
+        and table_expression.func.value.id == "types"
+        and table_expression.func.attr == "MappingProxyType"
+        and not table_expression.keywords
+        and len(table_expression.args) == 1
+        and isinstance(table_expression.args[0], ast.Dict)
+    ):
+        raise ValueError("ledger contract table is not a source-owned immutable mapping")
+    table_literal = table_expression.args[0]
+    producer = _source_producer_projection(bindings)
+    media_expression = bindings.get("_LEDGER_ARTIFACT_MEDIA_TYPE")
+    media_type = _source_literal(media_expression, expected_type=str) if media_expression else None
+    if not isinstance(media_type, str) or not media_type:
+        raise ValueError("source media type is missing")
+    schema_names: set[str] = set()
+    model_names: set[str] = set()
+    contract_rows: dict[str, dict[str, object]] = {}
+    for key_node, value_node in zip(table_literal.keys, table_literal.values, strict=True):
+        if (
+            key_node is None
+            or not isinstance(value_node, ast.Call)
+            or not (
+                isinstance(value_node.func, ast.Name)
+                and value_node.func.id == "_LedgerArtifactContract"
+            )
+        ):
+            raise ValueError("source ledger contract row is not a literal contract")
+        contract_id = _source_literal(key_node, expected_type=str)
+        values = _source_keyword_values(value_node)
+        if set(values) != {
+            "kind",
+            "schema",
+            "producer",
+            "media_type",
+            "scope_bound",
+            "payload_model",
+        }:
+            raise ValueError(f"source ledger contract fields differ: {contract_id}")
+        kind = _source_literal(values["kind"], expected_type=str)
+        schema_node = values["schema"]
+        producer_node = values["producer"]
+        media_node = values["media_type"]
+        scope_bound = _source_literal(values["scope_bound"], expected_type=bool)
+        if not isinstance(schema_node, ast.Name) or schema_node.id not in bindings:
+            raise ValueError(f"source schema reference is invalid: {contract_id}")
+        if not isinstance(producer_node, ast.Name) or producer_node.id != "_LEDGER_PRODUCER":
+            raise ValueError(f"source producer reference is invalid: {contract_id}")
+        if not isinstance(media_node, ast.Name) or media_node.id != "_LEDGER_ARTIFACT_MEDIA_TYPE":
+            raise ValueError(f"source media reference is invalid: {contract_id}")
+        model_node = values["payload_model"]
+        if isinstance(model_node, ast.Constant) and model_node.value is None:
+            model_name: str | None = None
+        elif isinstance(model_node, ast.Name):
+            model_name = model_node.id
+            model_names.add(model_name)
+        else:
+            raise ValueError(f"source payload model reference is invalid: {contract_id}")
+        if contract_id in contract_rows:
+            raise ValueError(f"duplicate source contract id: {contract_id}")
+        schema_name = schema_node.id
+        schema_names.add(schema_name)
+        schema = _source_schema_projection(bindings, schema_name)
+        contract_rows[contract_id] = {
+            "kind": kind,
+            "schema_binding": schema_name,
+            "schema": schema,
+            "producer_binding": "_LEDGER_PRODUCER",
+            "producer": producer,
+            "media_type_binding": "_LEDGER_ARTIFACT_MEDIA_TYPE",
+            "media_type": media_type,
+            "scope_bound": scope_bound,
+            "payload_model": model_name,
+        }
+    class_names = {node.name for node in tree.body if isinstance(node, ast.ClassDef)}
+    if not model_names.issubset(class_names):
+        raise ValueError("source contract names an absent payload model")
+    schema_bindings = {
+        name: _source_schema_projection(bindings, name) for name in sorted(schema_names)
+    }
+    version_bindings = {}
+    for name in (
+        "CONFIDENCE_LEDGER_SCHEMA_VERSION",
+        "CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION",
+    ):
+        value = bindings.get(name)
+        if value is None:
+            raise ValueError(f"source semantic version is missing: {name}")
+        version_bindings[name] = _source_literal(value, expected_type=str)
+    return _canonical_json(
+        {
+            "contracts": contract_rows,
+            "producer_binding": producer,
+            "schema_bindings": schema_bindings,
+            "media_type_binding": media_type,
+            "version_bindings": version_bindings,
+        }
+    )
+
+
+def _runtime_producer_projection(value: object) -> dict[str, object]:
+    """Normalize the producer fields that determine a persisted manifest claim."""
+    if type(value) is not artifacts.ProducerInfo:
+        raise ValueError("ledger producer runtime type changed")
+    producer_value = typing.cast("artifacts.ProducerInfo", value)
+    git = producer_value.git
+    git_projection = None
+    if git is not None:
+        git_projection = {"commit": git.commit, "dirty": git.dirty}
+    component = str(producer_value.component)
+    if not component or not isinstance(producer_value.version, str) or not producer_value.version:
+        raise ValueError("ledger producer runtime value is invalid")
+    return {
+        "component": component,
+        "version": producer_value.version,
+        "git": git_projection,
+    }
+
+
+def _runtime_schema_projection(value: object) -> dict[str, str]:
+    """Normalize the schema name/version fields that identify a CAS payload."""
+    if type(value) is not artifacts.SchemaInfo:
+        raise ValueError("ledger schema runtime type changed")
+    schema_value = typing.cast("artifacts.SchemaInfo", value)
+    if not isinstance(schema_value.name, str) or not schema_value.name:
+        raise ValueError("ledger schema name is invalid")
+    if not isinstance(schema_value.version, str) or not schema_value.version:
+        raise ValueError("ledger schema version is invalid")
+    return {"name": schema_value.name, "version": schema_value.version}
+
+
+def _runtime_ledger_contract_projection() -> str:
+    """Capture every effective table/global value used by CAS admission and replay."""
+    table = _LEDGER_ARTIFACT_CONTRACTS
+    if type(table) is not types.MappingProxyType:
+        raise ValueError("ledger contract registry is no longer immutable")
+    producer = _runtime_producer_projection(_LEDGER_PRODUCER)
+    media_type = _LEDGER_ARTIFACT_MEDIA_TYPE
+    if not isinstance(media_type, str) or not media_type:
+        raise ValueError("ledger media type is invalid")
+    schema_bindings: dict[str, dict[str, str]] = {}
+    contracts: dict[str, dict[str, object]] = {}
+    for contract_id, contract in sorted(table.items()):
+        if not isinstance(contract_id, str) or not contract_id:
+            raise ValueError("ledger contract id is invalid")
+        if type(contract) is not _LedgerArtifactContract:
+            raise ValueError(f"ledger contract runtime model changed: {contract_id}")
+        schema = _runtime_schema_projection(contract.schema)
+        row_producer = _runtime_producer_projection(contract.producer)
+        row_media_type = contract.media_type
+        if not isinstance(row_media_type, str) or not row_media_type:
+            raise ValueError(f"ledger contract media type is invalid: {contract_id}")
+        if type(contract.scope_bound) is not bool:
+            raise ValueError(f"ledger contract scope binding is invalid: {contract_id}")
+        if contract.payload_model is not None and not (
+            isinstance(contract.payload_model, type)
+            and issubclass(contract.payload_model, BaseModel)
+        ):
+            raise ValueError(f"ledger contract payload model is invalid: {contract_id}")
+        schema_name = next(
+            (
+                name
+                for name, candidate in globals().items()
+                if name.endswith("_SCHEMA") and candidate is contract.schema
+            ),
+            None,
+        )
+        if not isinstance(schema_name, str):
+            raise ValueError(f"ledger schema has no source-owned binding: {contract_id}")
+        schema_bindings[schema_name] = schema
+        model_name = contract.payload_model.__name__ if contract.payload_model is not None else None
+        if model_name is not None and globals().get(model_name) is not contract.payload_model:
+            raise ValueError(f"ledger payload model binding changed: {contract_id}")
+        if contract.kind != contract.kind.strip() or not contract.kind:
+            raise ValueError(f"ledger artifact kind is invalid: {contract_id}")
+        contracts[contract_id] = {
+            "kind": contract.kind,
+            "schema_binding": schema_name,
+            "schema": schema,
+            "producer_binding": "_LEDGER_PRODUCER",
+            "producer": row_producer,
+            "media_type_binding": "_LEDGER_ARTIFACT_MEDIA_TYPE",
+            "media_type": row_media_type,
+            "scope_bound": contract.scope_bound,
+            "payload_model": model_name,
+        }
+    if not contracts:
+        raise ValueError("ledger contract registry is empty")
+    for contract_id, contract in table.items():
+        if contract.producer != _LEDGER_PRODUCER or contract.media_type != media_type:
+            raise ValueError(f"ledger contract global binding changed: {contract_id}")
+    versions = {
+        "CONFIDENCE_LEDGER_SCHEMA_VERSION": CONFIDENCE_LEDGER_SCHEMA_VERSION,
+        "CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION": CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION,
+    }
+    if any(not isinstance(value, str) or not value for value in versions.values()):
+        raise ValueError("ledger semantic version binding is invalid")
+    return _canonical_json(
+        {
+            "contracts": contracts,
+            "producer_binding": producer,
+            "schema_bindings": dict(sorted(schema_bindings.items())),
+            "media_type_binding": media_type,
+            "version_bindings": versions,
+        }
+    )
+
+
+def _snapshot_ledger_contracts(
+    contracts: Mapping[str, _LedgerArtifactContract],
+) -> Mapping[str, _LedgerArtifactContract]:
+    """Copy mutable Pydantic metadata into a private immutable import-time table."""
+    snapshot: dict[str, _LedgerArtifactContract] = {}
+    for contract_id, contract in contracts.items():
+        if contract.producer.git is not None:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        snapshot[contract_id] = _LedgerArtifactContract(
+            kind=contract.kind,
+            schema=artifacts.SchemaInfo(
+                name=contract.schema.name,
+                version=contract.schema.version,
+            ),
+            producer=artifacts.ProducerInfo(
+                component=str(contract.producer.component),
+                version=contract.producer.version,
+            ),
+            media_type=contract.media_type,
+            scope_bound=contract.scope_bound,
+            payload_model=contract.payload_model,
+        )
+    return types.MappingProxyType(snapshot)
+
+
+def _ledger_model_dependencies(
+    contracts: Mapping[str, _LedgerArtifactContract],
+) -> tuple[type[BaseModel], ...]:
+    """Derive the full transitive payload model set from registered contracts."""
+    pending = [
+        contract.payload_model
+        for contract in contracts.values()
+        if contract.payload_model is not None
+    ]
+    discovered: dict[str, type[BaseModel]] = {}
+    while pending:
+        model = pending.pop()
+        if not isinstance(model, type) or not issubclass(model, BaseModel):
+            raise ValueError("ledger payload model is not a Pydantic model")
+        identity = _runtime_type_ref(model)
+        if identity in discovered:
+            continue
+        if globals().get(model.__name__) is not model:
+            raise ValueError(f"ledger payload model global changed: {identity}")
+        discovered[identity] = model
+        fields = getattr(model, "model_fields", None)
+        if not isinstance(fields, dict):
+            raise ValueError(f"ledger payload model fields are unavailable: {identity}")
+        for field in fields.values():
+            pending.extend(
+                candidate
+                for candidate in _annotation_model_types(field.annotation)
+                if candidate not in discovered.values()
+            )
+    return tuple(discovered[name] for name in sorted(discovered))
+
+
+def _annotation_model_types(annotation: object) -> tuple[type[BaseModel], ...]:
+    """Collect model classes nested in a resolved Pydantic field annotation."""
+    found: dict[str, type[BaseModel]] = {}
+    pending = [annotation]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, type) and issubclass(current, BaseModel):
+            found[_runtime_type_ref(current)] = current
+            continue
+        pending.extend(typing.get_args(current))
+    return tuple(found[name] for name in sorted(found))
+
+
+def _ledger_model_projection(
+    contracts: Mapping[str, _LedgerArtifactContract],
+) -> str:
+    """Bind runtime field state for every registered payload model and dependency."""
+    result: dict[str, object] = {}
+    for model in _ledger_model_dependencies(contracts):
+        identity = _runtime_type_ref(model)
+        fields = model.model_fields
+        rows: dict[str, object] = {}
+        for field_name, field in sorted(fields.items()):
+            if not isinstance(field_name, str) or not field_name:
+                raise ValueError(f"ledger model field name is invalid: {identity}")
+            annotation = field.annotation
+            annotation_name = (
+                _runtime_type_ref(annotation) if isinstance(annotation, type) else str(annotation)
+            )
+            field_binding: dict[str, object] = {}
+            field_state = getattr(field, "__dict__", None)
+            if isinstance(field_state, dict):
+                field_binding["dict"] = _normalize_runtime_binding_value(field_state, seen=set())
+            for owner in type(field).__mro__:
+                slots = getattr(owner, "__slots__", ())
+                if isinstance(slots, str):
+                    slots = (slots,)
+                for slot in slots:
+                    if (
+                        not isinstance(slot, str)
+                        or slot in field_binding
+                        or not hasattr(field, slot)
+                    ):
+                        continue
+                    field_binding[slot] = _normalize_runtime_binding_value(
+                        getattr(field, slot),
+                        seen=set(),
+                    )
+            if not field_binding:
+                raise ValueError(
+                    f"ledger model field state is unavailable: {identity}.{field_name}"
+                )
+            rows[field_name] = {
+                "annotation": annotation_name,
+                "required": field.is_required(),
+                "field_binding": field_binding,
+            }
+        model_config = getattr(model, "model_config", None)
+        if type(model_config) is not dict:
+            raise ValueError(f"ledger model config is unavailable: {identity}")
+        decorators = getattr(model, "__pydantic_decorators__", None)
+        result[identity] = {
+            "model_config": _normalize_runtime_binding_value(model_config, seen=set()),
+            "decorators": _normalize_runtime_binding_value(decorators, seen=set()),
+            "fields": rows,
+        }
+    return _canonical_json(result)
+
+
+def _runtime_ledger_snapshot_projection(
+    contracts: Mapping[str, _LedgerArtifactContract],
+) -> str:
+    """Bind every effective field in the pinned import-time contract snapshot."""
+    if type(contracts) is not types.MappingProxyType:
+        raise ValueError("pinned ledger contract snapshot is no longer immutable")
+    rows: dict[str, dict[str, object]] = {}
+    for contract_id, contract in sorted(contracts.items()):
+        if not isinstance(contract_id, str) or not contract_id:
+            raise ValueError("pinned ledger contract id is invalid")
+        if type(contract) is not _LedgerArtifactContract:
+            raise ValueError(f"pinned ledger contract model changed: {contract_id}")
+        schema = _runtime_schema_projection(contract.schema)
+        producer = _runtime_producer_projection(contract.producer)
+        if not isinstance(contract.media_type, str) or not contract.media_type:
+            raise ValueError(f"pinned ledger media type is invalid: {contract_id}")
+        if type(contract.scope_bound) is not bool:
+            raise ValueError(f"pinned ledger scope binding is invalid: {contract_id}")
+        model = contract.payload_model
+        model_name = model.__name__ if model is not None else None
+        if model is not None and (
+            not isinstance(model, type)
+            or not issubclass(model, BaseModel)
+            or globals().get(model_name) is not model
+        ):
+            raise ValueError(f"pinned ledger payload model changed: {contract_id}")
+        if not isinstance(contract.kind, str) or not contract.kind:
+            raise ValueError(f"pinned ledger artifact kind is invalid: {contract_id}")
+        rows[contract_id] = {
+            "kind": contract.kind,
+            "schema": schema,
+            "producer": producer,
+            "media_type": contract.media_type,
+            "scope_bound": contract.scope_bound,
+            "payload_model": model_name,
+        }
+    if not rows:
+        raise ValueError("pinned ledger contract snapshot is empty")
+    return _canonical_json(rows)
+
+
+def _capture_import_ledger_contract_state(
+    source_path: Path = _LEDGER_MODULE_SOURCE_PATH,
+) -> tuple[str, str, str, str]:
+    """Reconcile source declarations, then freeze effective table/model dependencies."""
+    try:
+        source_bytes = source_path.read_bytes()
+        declared = _source_ledger_contract_projection(source_bytes)
+        effective = _runtime_ledger_contract_projection()
+        models = _ledger_model_projection(_LEDGER_ARTIFACT_CONTRACTS)
+        canon = _canonical_json(_normalize_runtime_binding_value(_CAS_CANON_SPEC, seen=set()))
+        if declared != effective:
+            raise ValueError("source ledger declarations differ from the loaded contract table")
+        return _bytes_hash(source_bytes), effective, models, canon
+    except (OSError, TypeError, ValueError, AttributeError) as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", str(exc)) from exc
 
 
 def _rational_spec(value: Fraction) -> RationalSpec:
@@ -4683,6 +5475,7 @@ def _assert_loaded_runtime_matches_import_baseline(
 ) -> None:
     """Reject authority if disk or runtime differs from the importing process."""
 
+    _assert_ledger_artifact_contracts_current()
     loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
         repo_root,
         _derived_authority_import_closure(repo_root),
@@ -5824,9 +6617,17 @@ def _exact_literal_equal(actual: object, expected: object) -> bool:
 _UNSUPPORTED_SOURCE_LITERAL = object()
 
 
-def _source_literal(node: ast.expr) -> object:
-    """Read an immutable literal from decorator syntax or a factory default."""
+def _source_literal(
+    node: ast.AST,
+    *,
+    expected_type: type[object] | None = None,
+) -> object:
+    """Read a supported literal, optionally requiring an exact constant type."""
 
+    if expected_type is not None:
+        if not isinstance(node, ast.Constant) or type(node.value) is not expected_type:
+            raise ValueError("source value is not the required literal")
+        return node.value
     try:
         value = ast.literal_eval(node)
     except (ValueError, TypeError, SyntaxError, MemoryError):
@@ -7798,7 +8599,7 @@ def _content_hash(payload: object) -> str:
 
 
 def _cas_json_artifact_ref(payload: object) -> str:
-    data = canon.to_canonical_bytes(_jsonable(payload), _CAS_CANON_SPEC)
+    data = canon.to_canonical_bytes(_jsonable(payload), _IMPORT_TIME_LEDGER_CANON_SPEC)
     return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
@@ -7871,6 +8672,96 @@ __all__ = [
     "validate_confidence_ledger_receipt",
     "validate_confidence_ledger_receipt_structure",
 ]
+
+(
+    _IMPORT_TIME_LEDGER_CONTRACT_SOURCE_HASH,
+    _IMPORT_TIME_LEDGER_CONTRACT_PROJECTION,
+    _IMPORT_TIME_LEDGER_MODEL_PROJECTION,
+    _IMPORT_TIME_LEDGER_CANON_PROJECTION,
+) = _capture_import_ledger_contract_state()
+_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS: Mapping[str, _LedgerArtifactContract] = (
+    _snapshot_ledger_contracts(_LEDGER_ARTIFACT_CONTRACTS)
+)
+_IMPORT_TIME_LEDGER_CANON_SPEC = _CAS_CANON_SPEC
+_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION = _runtime_ledger_snapshot_projection(
+    _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS
+)
+
+
+def _assert_ledger_artifact_contracts_current(
+    source_path: Path = _LEDGER_MODULE_SOURCE_PATH,
+    expected_source_hash: str = _IMPORT_TIME_LEDGER_CONTRACT_SOURCE_HASH,
+    expected_contract_projection: str = _IMPORT_TIME_LEDGER_CONTRACT_PROJECTION,
+    expected_model_projection: str = _IMPORT_TIME_LEDGER_MODEL_PROJECTION,
+    expected_canon_projection: str = _IMPORT_TIME_LEDGER_CANON_PROJECTION,
+    expected_contracts: Mapping[str, _LedgerArtifactContract] = (
+        _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS
+    ),
+    expected_snapshot_projection: str = _IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION,
+    expected_canon_spec: canon.CanonSpec = _IMPORT_TIME_LEDGER_CANON_SPEC,
+    loaded_code_manifest_fn: Callable[
+        [Path, tuple[tuple[str, str], ...]], tuple[str, bool]
+    ] = _loaded_code_manifest,
+    loaded_code_evidence_projection_fn: Callable[[str], str] = _loaded_code_evidence_projection,
+) -> None:
+    """Fail closed when source, contracts, snapshots, or loaded code drift."""
+    try:
+        runtime = globals()
+        expected_strings = {
+            "_IMPORT_TIME_LEDGER_CONTRACT_SOURCE_HASH": expected_source_hash,
+            "_IMPORT_TIME_LEDGER_CONTRACT_PROJECTION": expected_contract_projection,
+            "_IMPORT_TIME_LEDGER_MODEL_PROJECTION": expected_model_projection,
+            "_IMPORT_TIME_LEDGER_CANON_PROJECTION": expected_canon_projection,
+            "_IMPORT_TIME_LEDGER_SNAPSHOT_PROJECTION": expected_snapshot_projection,
+        }
+        if any(runtime.get(name) != value for name, value in expected_strings.items()):
+            raise ValueError("pinned ledger identity binding was rebound")
+        if runtime.get("_IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS") is not expected_contracts:
+            raise ValueError("pinned ledger contract snapshot was rebound")
+        if runtime.get("_IMPORT_TIME_LEDGER_CANON_SPEC") is not expected_canon_spec:
+            raise ValueError("pinned ledger canonical specification was rebound")
+        source_hash = _bytes_hash(source_path.read_bytes())
+        contract_projection = _runtime_ledger_contract_projection()
+        model_projection = _ledger_model_projection(_LEDGER_ARTIFACT_CONTRACTS)
+        snapshot_projection = _runtime_ledger_snapshot_projection(
+            _IMPORT_TIME_LEDGER_ARTIFACT_CONTRACTS
+        )
+        canon_projection = _canonical_json(
+            _normalize_runtime_binding_value(_CAS_CANON_SPEC, seen=set())
+        )
+        pinned_canon_projection = _canonical_json(
+            _normalize_runtime_binding_value(_IMPORT_TIME_LEDGER_CANON_SPEC, seen=set())
+        )
+        if (
+            source_hash != expected_source_hash
+            or contract_projection != expected_contract_projection
+            or model_projection != expected_model_projection
+            or snapshot_projection != expected_snapshot_projection
+            or canon_projection != expected_canon_projection
+            or pinned_canon_projection != expected_canon_projection
+        ):
+            raise ValueError("runtime ledger contract differs from its import-time source")
+        if _IMPORT_TIME_LOADED_CODE_MANIFEST:
+            if _IMPORT_TIME_LOADED_CODE_CONSISTENT is not True:
+                raise ValueError("loaded authority code was not consistent at import")
+            loaded_code_manifest, loaded_code_consistent = loaded_code_manifest_fn(
+                _IMPORT_TIME_OWNER_ROOT,
+                _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+            )
+            if not loaded_code_consistent or loaded_code_evidence_projection_fn(
+                loaded_code_manifest
+            ) != loaded_code_evidence_projection_fn(_IMPORT_TIME_LOADED_CODE_MANIFEST):
+                raise ValueError("loaded authority code differs from its import-time identity")
+        elif (
+            _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+            or _IMPORT_TIME_LOADED_CODE_CONSISTENT is not False
+        ):
+            raise ValueError("loaded authority identity snapshot is incomplete")
+    except (OSError, TypeError, ValueError, AttributeError) as exc:
+        if isinstance(exc, ConfidenceLedgerError):
+            raise
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", str(exc)) from exc
+
 
 _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "canonical_loaded_runtime_mismatch"
 _IMPORT_TIME_OWNER_ROOT = _loaded_policy_engine_root()

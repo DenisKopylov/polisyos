@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,6 +21,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     OverlayAdmissionError,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
 from polisyos.runtime.quality.acquisition_executor import (
     AdmissionStatus,
     ObservationProvenanceClass,
@@ -1642,9 +1644,7 @@ def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless
         value=external_value,
         kind=external_kind,
     )
-    external_profile = CanonInfo.from_spec(
-        overlay_module.canon.CanonSpec(forbid_floats=False, exclude_none=False)
-    )
+    external_profile = contracts.epoch.external_epoch_statement_canon_info()
     assert external_ref.manifest_profile_sha256 is not None
     assert store.get_manifest(external_ref).canon == external_profile
     assert (
@@ -1766,6 +1766,66 @@ def test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views
         value=provenance,
     )
 
+    selected_profiles = semantic_epoch_runtime._resolve_selected_reference_graph(
+        scenario.store, admitted
+    )
+    assert selected_profiles is not None
+    passport_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.passport_ref,
+        expected_kind="epoch.acquisition_passport_snapshot",
+    )
+    native_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.native_member_ref,
+        expected_kind="epoch.acquisition_native_member",
+    )
+    pending_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.pending_overlay_receipt_ref,
+        expected_kind="epoch.pending_overlay_admission_receipt",
+    )
+    native_receipt_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.native_membership_receipt_ref,
+        expected_kind="epoch.acquisition_native_membership",
+    )
+    semantic_receipt_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.semantic_denominator_receipt_ref,
+        expected_kind="epoch.acquisition_semantic_denominator_receipt",
+    )
+    projection_owner = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.semantic_projection_verification_receipt_ref,
+        expected_kind="epoch.acquisition_semantic_projection_verification_receipt",
+    )
+    for owner_projection in (
+        passport_owner,
+        native_owner,
+        pending_owner,
+        native_receipt_owner,
+        semantic_receipt_owner,
+        projection_owner,
+        provenance,
+    ):
+        assert semantic_epoch_runtime._owner_reference_graph_matches_selected(
+            selected_profiles, owner_projection, store=scenario.store
+        )
+    assert semantic_epoch_runtime._selected_ref_graph_matches_owner_projection(
+        admitted.semantic_epoch_stamp, passport_owner["semantic_epoch_stamp"]
+    )
+    forged_stamp = dict(passport_owner["semantic_epoch_stamp"])
+    forged_manifest_ref = dict(forged_stamp["semantic_manifest_ref"])
+    forged_manifest_ref["manifest_profile_sha256"] = "sha256:" + "0" * 64
+    forged_stamp["semantic_manifest_ref"] = forged_manifest_ref
+    assert not semantic_epoch_runtime._selected_ref_graph_matches_owner_projection(
+        admitted.semantic_epoch_stamp, forged_stamp
+    )
+    assert not semantic_epoch_runtime._owner_reference_graph_matches_selected(
+        selected_profiles, {"semantic_epoch_stamp": forged_stamp}, store=scenario.store
+    )
+
     production = scenario.service.finalize_admitted_epoch(
         prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
         admitted_boundary_evidence_ref=admitted_ref,
@@ -1818,6 +1878,41 @@ def test_fresh_admission_consumer_refuses_same_bytes_under_wrong_provenance_prof
         contracts.epoch.epoch_canon_info()
     )
 
+    # Keep the admitted artifact, IDs, and content intact while selecting the same
+    # semantic-manifest bytes through a canon that its producer did not declare.
+    selected_manifest_ref = admitted.semantic_epoch_stamp.semantic_manifest_ref
+    manifest_bytes = scenario.store.get_bytes(selected_manifest_ref)
+    alternate_manifest_ref = scenario.store.put_bytes(
+        manifest_bytes,
+        ArtifactWriteOptions(
+            kind=selected_manifest_ref.kind,
+            media_type=selected_manifest_ref.media_type,
+            canon=contracts.epoch.external_epoch_statement_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate_manifest_ref.artifact_id == selected_manifest_ref.artifact_id
+    assert alternate_manifest_ref.manifest_profile_sha256 != (
+        selected_manifest_ref.manifest_profile_sha256
+    )
+    alternate_stamp = admitted.semantic_epoch_stamp.model_copy(
+        update={"semantic_manifest_ref": alternate_manifest_ref}
+    )
+    alternate_evidence = admitted.model_copy(update={"semantic_epoch_stamp": alternate_stamp})
+    alternate_evidence_ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=scenario.store,
+        value=alternate_evidence,
+        kind="epoch.admitted_acquisition_boundary_evidence",
+        domain="polisyos.epoch.admitted-acquisition-boundary-evidence.v1",
+    )
+    nested_profile_production = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=alternate_evidence_ref,
+    )
+    assert nested_profile_production.status == "not_established"
+    assert nested_profile_production.failure_codes == ("epoch_scope_unresolved",)
+    assert scenario.store.get_bytes(selected_manifest_ref) == manifest_bytes
+
 
 def test_owner_to_cas_emission_rejects_forged_profile_while_markers_and_bytes_remain(
     tmp_path: Path,
@@ -1866,4 +1961,322 @@ def test_owner_to_cas_emission_rejects_forged_profile_while_markers_and_bytes_re
     assert owner_ref.manifest_profile_sha256 is not None
     assert scenario.store.get_manifest(owner_ref).canon == CanonInfo.from_spec(
         overlay_module.canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "wrong_kind"),
+    [
+        ("passport_ref", "epoch.acquisition_native_member"),
+        ("semantic_candidate_ref", "epoch.acquisition_passport_snapshot"),
+    ],
+)
+def test_catalog_owner_reference_graph_rejects_retagged_receipt_refs_before_cas(
+    tmp_path: Path, field: str, wrong_kind: str
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    _second_real_epoch_scenario(scenario, epoch_id=2)
+    owner_query = scenario.service.acquisition_owner_query(query=scenario.query)
+    genuine = scenario.overlay.resolve_native_membership(query=owner_query)
+    first = genuine.assessments[0]
+    original_ref = getattr(first, field)
+    assert original_ref is not None
+    wrong_ref = original_ref.model_copy(update={"kind": wrong_kind})
+    changed_assessments = list(genuine.assessments)
+    changed_assessments[0] = first.model_copy(update={field: wrong_ref})
+    receipt_values = genuine.model_dump(mode="python")
+    receipt_values["assessments"] = tuple(changed_assessments)
+    receipt_values["native_membership_hash"] = semantic_epoch_native_helper.epoch._model_hash(
+        b"polisyos.epoch.acquisition-native-membership.v1\0",
+        {
+            "query": genuine.query.model_dump(mode="json"),
+            "owner_source_snapshot_content_hash": genuine.owner_source_snapshot_content_hash,
+            "assessments": [row.model_dump(mode="json") for row in changed_assessments],
+        },
+    )
+    forged_receipt = contracts.epoch.AcquisitionNativeMembershipReceipt.model_validate(
+        receipt_values
+    )
+
+    class RetaggedOwner:
+        def __init__(self) -> None:
+            self.semantic_calls = 0
+            self.projection_calls = 0
+
+        def resolve_native_membership(self, *, query, candidate=None):
+            assert query == owner_query
+            return forged_receipt
+
+        def load_acquisition_owner_snapshot(self, *, ref):
+            return scenario.overlay.load_acquisition_owner_snapshot(ref=ref)
+
+        def resolve_semantic_candidate_denominator(
+            self, *, query, native_membership, candidate=None
+        ):
+            self.semantic_calls += 1
+            raise AssertionError("rejected owner graph reached semantic projection")
+
+        def verify_semantic_projection(self, **kwargs):
+            self.projection_calls += 1
+            raise AssertionError("rejected owner graph reached projection verification")
+
+    retagged = RetaggedOwner()
+    empty_store = FileSystemCAS(tmp_path / "empty-cas")
+    adapter = semantic_epoch_native_helper.epoch.CatalogAcquisitionEpochBoundaryOwnerAdapter(
+        owner=retagged, artifacts=empty_store
+    )
+    registration = next(
+        row
+        for row in scenario.service._boundary_registry.registrations
+        if row.owner_kind == "catalog_acquisition"
+    )
+    with pytest.raises(ValueError, match="owner artifact role mismatch"):
+        adapter.resolve_complete_batch(registration=registration, owner_query=owner_query)
+
+    assert wrong_ref.artifact_id == original_ref.artifact_id
+    assert wrong_ref.media_type == original_ref.media_type
+    assert wrong_ref.manifest_profile_sha256 == original_ref.manifest_profile_sha256
+    assert wrong_ref.kind == wrong_kind
+    assert forged_receipt.native_membership_hash != genuine.native_membership_hash
+    assert retagged.semantic_calls == 0
+    assert retagged.projection_calls == 0
+    assert not empty_store.has(forged_receipt.owner_source_snapshot_ref.artifact_id)
+    assert not empty_store.has(wrong_ref.artifact_id)
+
+
+def _forge_catalog_owner_snapshot(
+    scenario,
+    *,
+    mutate_row,
+    passport_hash: str | None = None,
+    mutate_assessment: Callable[[dict[str, object]], None] | None = None,
+):
+    """Recompute owner snapshot/member/receipt hashes around one controlled mutation."""
+    owner_query = scenario.service.acquisition_owner_query(query=scenario.query)
+    genuine = scenario.overlay.resolve_native_membership(query=owner_query)
+    original_payload = scenario.overlay.load_acquisition_owner_snapshot(
+        ref=genuine.owner_source_snapshot_ref
+    )
+    record = semantic_epoch_native_helper.epoch.chronology_contract._split_framed_records(
+        original_payload
+    )[0]
+    snapshot = json.loads(record)
+    rows = snapshot["rows"]
+    assert rows
+    mutate_row(rows[0])
+    for source_row in rows:
+        if passport_hash is not None:
+            source_row["observed_passport_content_hash"] = passport_hash
+            source_row["passport_content_hash"] = passport_hash
+
+    epoch = semantic_epoch_native_helper.epoch
+    canonical_snapshot = contracts.epoch.canonical_epoch_bytes(snapshot)
+    forged_payload = len(canonical_snapshot).to_bytes(8, "big") + canonical_snapshot
+    forged_snapshot_ref = overlay_module.ArtifactRef(
+        artifact_id=overlay_module.ArtifactID(
+            f"sha256:{hashlib.sha256(forged_payload).hexdigest()}"
+        ),
+        kind="epoch.acquisition_owner_snapshot",
+        media_type="application/vnd.polisyos.epoch+json",
+    )
+    forged_assessments = []
+    for source_row in rows:
+        original_canonical = contracts.epoch.canonical_epoch_bytes(source_row)
+        framed_member = epoch.chronology_contract._frame_record(original_canonical)
+        member_id = epoch._raw_cas_hash(framed_member)
+        # The mutation changes the member identity, so locate the original assessment by
+        # row position when the new bytes no longer have their original id.
+        original = next(
+            (
+                candidate
+                for candidate in genuine.assessments
+                if candidate.operational_epoch_id == source_row["epoch_id"]
+            ),
+            None,
+        )
+        if original is None:
+            raise ValueError("native assessment does not match its original owner row")
+        native_ref = overlay_module.ArtifactRef(
+            artifact_id=overlay_module.ArtifactID(member_id),
+            kind="epoch.acquisition_native_member",
+            media_type="application/vnd.polisyos.epoch+json",
+        )
+        values = original.model_dump(mode="python")
+        if mutate_assessment is not None:
+            mutate_assessment(values)
+        values["native_member_ref"] = native_ref
+        values["native_member_content_hash"] = epoch._model_hash(
+            b"polisyos.epoch.acquisition-native-member.v1\0", source_row
+        )
+        if passport_hash is not None:
+            values["passport_content_hash"] = passport_hash
+        forged_assessments.append(
+            contracts.epoch.AcquisitionNativeMemberAssessment.model_validate(values)
+        )
+    snapshot_hash = epoch._model_hash(b"polisyos.epoch.acquisition-owner-snapshot.v1\0", snapshot)
+    receipt_values = genuine.model_dump(mode="python")
+    receipt_values["owner_source_snapshot_ref"] = forged_snapshot_ref
+    receipt_values["owner_source_snapshot_content_hash"] = snapshot_hash
+    receipt_values["assessments"] = tuple(forged_assessments)
+    receipt_values["native_membership_hash"] = epoch._model_hash(
+        b"polisyos.epoch.acquisition-native-membership.v1\0",
+        {
+            "query": genuine.query.model_dump(mode="json"),
+            "owner_source_snapshot_content_hash": snapshot_hash,
+            "assessments": [row.model_dump(mode="json") for row in forged_assessments],
+        },
+    )
+    forged_receipt = contracts.epoch.AcquisitionNativeMembershipReceipt.model_validate(
+        receipt_values
+    )
+    return owner_query, forged_receipt, forged_payload
+
+
+def _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+    tmp_path: Path,
+    scenario,
+    *,
+    mutate_row,
+    passport_hash: str | None = None,
+    mutate_assessment: Callable[[dict[str, object]], None] | None = None,
+) -> None:
+    owner_query, receipt, payload = _forge_catalog_owner_snapshot(
+        scenario,
+        mutate_row=mutate_row,
+        passport_hash=passport_hash,
+        mutate_assessment=mutate_assessment,
+    )
+
+    class ForgedCatalogOwner:
+        def __init__(self) -> None:
+            self.semantic_calls = 0
+            self.projection_calls = 0
+
+        def resolve_native_membership(self, *, query, candidate=None):
+            assert query == owner_query
+            return receipt
+
+        def load_acquisition_owner_snapshot(self, *, ref):
+            assert ref == receipt.owner_source_snapshot_ref
+            return payload
+
+        def resolve_semantic_candidate_denominator(
+            self, *, query, native_membership, candidate=None
+        ):
+            self.semantic_calls += 1
+            raise AssertionError("invalid owner snapshot reached semantic projection")
+
+        def verify_semantic_projection(self, **kwargs):
+            self.projection_calls += 1
+            raise AssertionError("invalid owner snapshot reached projection verification")
+
+    owner = ForgedCatalogOwner()
+    empty_store = FileSystemCAS(tmp_path / "preflight-empty-cas")
+    adapter = semantic_epoch_runtime.CatalogAcquisitionEpochBoundaryOwnerAdapter(
+        owner=owner, artifacts=empty_store
+    )
+    registration = next(
+        row
+        for row in scenario.service._boundary_registry.registrations
+        if row.owner_kind == "catalog_acquisition"
+    )
+    with pytest.raises(ValueError):
+        adapter.resolve_complete_batch(registration=registration, owner_query=owner_query)
+
+    assert owner.semantic_calls == 0
+    assert owner.projection_calls == 0
+    assert not empty_store.has(receipt.owner_source_snapshot_ref.artifact_id)
+    for assessment in receipt.assessments:
+        assert not empty_store.has(assessment.native_member_ref.artifact_id)
+
+
+def test_catalog_snapshot_partial_registered_stamp_ref_refuses_before_cas(tmp_path: Path) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+
+    def remove_artifact_id(row: dict[str, object]) -> None:
+        stamp = row["semantic_epoch_stamp"]
+        assert isinstance(stamp, dict)
+        ref = stamp["semantic_manifest_ref"]
+        assert isinstance(ref, dict)
+        ref.pop("artifact_id")
+
+    _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+        tmp_path, scenario, mutate_row=remove_artifact_id
+    )
+
+
+def test_catalog_snapshot_row_stamp_must_match_embedded_passport_stamp(tmp_path: Path) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+
+    def change_duplicate_stamp(row: dict[str, object]) -> None:
+        stamp = row["semantic_epoch_stamp"]
+        assert isinstance(stamp, dict)
+        # Keep row-local epoch identity and digest coherent; only the passport
+        # comparison should distinguish this mutation.
+        stamp["requested_query_context_ref"] = "sha256:" + "0" * 64
+        row["semantic_epoch_stamp_sha256"] = contracts.epoch.semantic_epoch_stamp_content_hash(
+            contracts.epoch.SemanticEpochStamp.model_validate(stamp)
+        )
+
+    _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+        tmp_path, scenario, mutate_row=change_duplicate_stamp
+    )
+
+
+def test_catalog_bound_v2_row_requires_duplicate_stamp_before_cas(tmp_path: Path) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+
+    def remove_bound_v2_stamp(row: dict[str, object]) -> None:
+        passport_json = row["observed_passport_json"]
+        assert isinstance(passport_json, str)
+        passport = json.loads(passport_json)
+        assert passport["schema_version"] == "polisyos.runtime.acquisition_admission_passport.v2"
+        row["semantic_epoch_stamp"] = None
+
+    _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+        tmp_path, scenario, mutate_row=remove_bound_v2_stamp
+    )
+
+
+@pytest.mark.parametrize(
+    ("row_field", "row_value", "change_operational_epoch"),
+    [
+        ("epoch_row_present", False, False),
+        ("passport_row_present", False, False),
+        ("epoch_activation_state", "legacy_not_established", False),
+        (None, None, True),
+    ],
+)
+def test_catalog_bound_v2_decision_rejects_source_fact_drift_before_cas(
+    tmp_path: Path,
+    row_field: str | None,
+    row_value: object,
+    change_operational_epoch: bool,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+
+    def mutate_row(row: dict[str, object]) -> None:
+        if row_field is not None:
+            row[row_field] = row_value
+
+    def mutate_assessment(assessment: dict[str, object]) -> None:
+        if change_operational_epoch:
+            assessment["operational_epoch_id"] = int(assessment["operational_epoch_id"]) + 1
+
+    _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+        tmp_path,
+        scenario,
+        mutate_row=mutate_row,
+        mutate_assessment=mutate_assessment if change_operational_epoch else None,
+    )
+
+
+def test_catalog_snapshot_recomputes_passport_hash_when_owner_hashes_agree(tmp_path: Path) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    forged_hash = "sha256:" + "f" * 64
+    _assert_catalog_snapshot_preflight_refuses_without_cas_write(
+        tmp_path,
+        scenario,
+        mutate_row=lambda _row: None,
+        passport_hash=forged_hash,
     )

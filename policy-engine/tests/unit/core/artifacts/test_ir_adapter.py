@@ -6,10 +6,12 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from hashlib import sha256
 from types import MappingProxyType
+from typing import get_args, get_origin
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field
 
+import polisyos.ir.model_layer.canon as ir_canon
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
 )
@@ -629,6 +631,369 @@ def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(
     assert selected_manifest.same_input_closure == options.same_input_closure
     assert selected_manifest.authority == options.authority
     assert selected_manifest.warnings == options.warnings
+
+
+def _invalid_canon_field_value(annotation: object, value: object) -> object:
+    """Derive a strictly invalid representative from a live canon field declaration."""
+    if annotation is bool:
+        return "false"
+    if annotation is int:
+        return float(str(value))
+    if annotation is str:
+        return b"not-a-string"
+    if get_origin(annotation) is tuple and get_args(annotation) == (str, str):
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            raise AssertionError("Canon separators must be a two-item sequence")
+        return (value[0], 1) if isinstance(value, tuple) else [value[0], 1]
+    raise AssertionError(f"Add an explicit malformed value for canon field type {annotation!r}")
+
+
+def _registered_ir_tag_cases() -> dict[str, tuple[object, IRCanonSpec, dict[str, object]]]:
+    """Build one actual typed value and encoded map for every registered IR tag."""
+    values: dict[str, object] = {
+        "datetime": datetime(2026, 10, 14, 12, 0, tzinfo=UTC),
+        "date": date(2026, 10, 14),
+        "decimal": Decimal("12.30"),
+        "bytes": b"\x00\xff",
+        "float": 1.5,
+    }
+    cases: dict[str, tuple[object, IRCanonSpec, dict[str, object]]] = {}
+    for tag, value in values.items():
+        spec = IRCanonSpec(forbid_floats=tag != "float")
+        encoded_tag = json.loads(to_ir_canonical_bytes(value, spec))
+        assert encoded_tag.get("_type") == tag
+        cases[tag] = (value, spec, encoded_tag)
+    assert set(cases) == ir_canon._CANONICAL_TYPES
+    return cases
+
+
+def test_ir_adapter_strictly_validates_every_canon_mapping_field_before_persisting(
+    tmp_path,
+) -> None:
+    """Every supplied canon field rejects lax Pydantic coercion before CAS writes."""
+    core_fields = CoreCanonInfo.model_fields
+    assert set(core_fields) == set(IRCanonInfo.model_fields)
+    assert {name: field.annotation for name, field in core_fields.items()} == {
+        name: field.annotation for name, field in IRCanonInfo.model_fields.items()
+    }
+
+    for field_name, field in core_fields.items():
+        malformed_profile = CoreCanonInfo().model_dump(mode="json")
+        malformed_profile[field_name] = _invalid_canon_field_value(
+            field.annotation,
+            malformed_profile[field_name],
+        )
+        store = FileSystemCAS(tmp_path / f"invalid-canon-{field_name}")
+        options = {
+            "kind": f"test.invalid-canon-{field_name}",
+            "media_type": "application/json",
+            "canon": malformed_profile,
+        }
+
+        with pytest.raises(TypeError, match="Invalid adapter option 'canon'"):
+            ensure_ir_artifact_store(store).put_json(
+                {"value": "must-not-be-persisted"},
+                options,
+                canon_spec=IRCanonSpec(),
+            )
+
+        assert store.iter_artifact_ids() == []
+
+
+def test_ir_adapter_strictly_revalidates_every_typed_canon_option_form(tmp_path) -> None:
+    """Every live CanonInfo field rejects compromised instances through each carrier."""
+    core_fields = CoreCanonInfo.model_fields
+    ir_fields = IRCanonInfo.model_fields
+    assert set(core_fields) == set(ir_fields)
+    assert {name: field.annotation for name, field in core_fields.items()} == {
+        name: field.annotation for name, field in ir_fields.items()
+    }
+
+    for model_type in (CoreCanonInfo, IRCanonInfo):
+        for field_name, field in model_type.model_fields.items():
+            valid_payload = model_type().model_dump(mode="python")
+            malformed = _invalid_canon_field_value(field.annotation, valid_payload[field_name])
+            for constructor in ("model_copy", "model_construct"):
+                if constructor == "model_copy":
+                    canon = model_type().model_copy(update={field_name: malformed})
+                else:
+                    malformed_payload = dict(valid_payload)
+                    malformed_payload[field_name] = malformed
+                    canon = model_type.model_construct(**malformed_payload)
+
+                for carrier in ("mapping", "ir_typed", "core_typed"):
+                    case_id = f"{model_type.__name__}-{field_name}-{constructor}-{carrier}"
+                    if carrier == "mapping":
+                        options = {
+                            "kind": f"test.invalid-typed-canon-{case_id}",
+                            "media_type": "application/json",
+                            "canon": canon,
+                        }
+                    elif carrier == "ir_typed":
+                        options = StorePutOptions(
+                            kind=f"test.invalid-typed-canon-{case_id}",
+                            media_type="application/json",
+                            canon=canon,
+                        )
+                    else:
+                        options = ArtifactWriteOptions(
+                            kind=f"test.invalid-typed-canon-{case_id}",
+                            media_type="application/json",
+                            canon=canon,
+                        )
+
+                    store = FileSystemCAS(tmp_path / case_id)
+                    with pytest.raises(TypeError, match="Invalid adapter option 'canon'"):
+                        ensure_ir_artifact_store(store).put_json(
+                            {"value": "must-not-be-persisted"},
+                            options,
+                            canon_spec=IRCanonSpec(),
+                        )
+                    assert store.iter_artifact_ids() == [], case_id
+
+    for carrier in ("mapping", "ir_typed", "core_typed"):
+        canon = CoreCanonInfo().model_copy(update={"unmodeled_field": "must-be-refused"})
+        case_id = f"typed-canon-unmodeled-{carrier}"
+        if carrier == "mapping":
+            options = {
+                "kind": f"test.invalid-typed-canon-{case_id}",
+                "media_type": "application/json",
+                "canon": canon,
+            }
+        elif carrier == "ir_typed":
+            options = StorePutOptions(
+                kind=f"test.invalid-typed-canon-{case_id}",
+                media_type="application/json",
+                canon=canon,
+            )
+        else:
+            options = ArtifactWriteOptions(
+                kind=f"test.invalid-typed-canon-{case_id}",
+                media_type="application/json",
+                canon=canon,
+            )
+        store = FileSystemCAS(tmp_path / case_id)
+        with pytest.raises(TypeError, match="unexpected field"):
+            ensure_ir_artifact_store(store).put_json(
+                {"value": "must-not-be-persisted"},
+                options,
+                canon_spec=IRCanonSpec(),
+            )
+        assert store.iter_artifact_ids() == [], case_id
+
+
+def test_ir_adapter_accepts_absent_canon_for_each_typed_write_option_form(tmp_path) -> None:
+    """A legally absent canon option still selects the explicit profile without coercion."""
+    spec = IRCanonSpec(forbid_floats=False, exclude_none=False)
+    options_by_carrier = {
+        "mapping-absent": {
+            "kind": "test.ir-canon-absent-mapping",
+            "media_type": "application/json",
+        },
+        "mapping-none": {
+            "kind": "test.ir-canon-none-mapping",
+            "media_type": "application/json",
+            "canon": None,
+        },
+        "ir-typed-none": StorePutOptions(
+            kind="test.ir-canon-none-ir-typed",
+            media_type="application/json",
+            canon=None,
+        ),
+        "core-typed-none": ArtifactWriteOptions(
+            kind="test.ir-canon-none-core-typed",
+            media_type="application/json",
+            canon=None,
+        ),
+    }
+
+    for carrier, options in options_by_carrier.items():
+        store = FileSystemCAS(tmp_path / carrier)
+        selected = ensure_ir_artifact_store(store).put_json(
+            {"present": None, "number": 1.5}, options, canon_spec=spec
+        )
+        assert store.get_manifest(selected).canon == CoreCanonInfo.from_spec(spec)
+        assert get_json_artifact(
+            ensure_ir_artifact_store(FileSystemCAS(tmp_path / carrier)), selected
+        ) == {
+            "present": None,
+            "number": 1.5,
+        }
+
+
+def test_ir_adapter_accepts_non_none_core_typed_write_options_and_fresh_reader(tmp_path) -> None:
+    """A valid Core typed profile persists and reopens with exact selected IR bytes."""
+    root = tmp_path / ".polisyos"
+    store = FileSystemCAS(root)
+    adapter = ensure_ir_artifact_store(store)
+    spec = IRCanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=False,
+        exclude_none=False,
+        sort_keys=False,
+        separators=(", ", ": "),
+        ensure_ascii=True,
+    )
+    selected_profile = CoreCanonInfo.from_spec(spec)
+    options = ArtifactWriteOptions(
+        kind="test.ir-core-typed-profile-positive",
+        media_type="application/json",
+        canon=selected_profile,
+    )
+    payload = {
+        "amount": Decimal("12.30"),
+        "present": None,
+        "unicode": "é",
+        "float": 1.5,
+    }
+
+    selected_ref = adapter.put_json(
+        payload,
+        options,
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+    exact_bytes = store.get_bytes(selected_ref)
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(selected_ref).canon == selected_profile
+    assert exact_bytes == to_ir_canonical_bytes(payload, spec)
+
+    fresh_reader = ensure_ir_artifact_store(FileSystemCAS(root))
+    decoded = get_json_artifact(fresh_reader, selected_ref)
+    assert decoded == payload
+    assert to_ir_canonical_bytes(decoded, spec) == exact_bytes
+
+
+def test_ir_adapter_accepts_exact_json_mode_canon_mapping_and_fresh_reader(tmp_path) -> None:
+    """The shared separator normalization preserves the exact accepted JSON mapping form."""
+    root = tmp_path / ".polisyos"
+    store = FileSystemCAS(root)
+    adapter = ensure_ir_artifact_store(store)
+    spec = IRCanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=False,
+        exclude_none=False,
+        sort_keys=False,
+        separators=(", ", ": "),
+        ensure_ascii=True,
+    )
+    profile_mapping = IRCanonInfo.from_spec(spec).model_dump(mode="json")
+    assert profile_mapping["separators"] == [", ", ": "]
+
+    selected_ref = adapter.put_json(
+        {"amount": Decimal("12.30"), "present": None, "unicode": "é", "float": 1.5},
+        {
+            "kind": "test.ir-json-mode-canon-option",
+            "media_type": "application/json",
+            "canon": profile_mapping,
+        },
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+    assert store.get_manifest(selected_ref).canon == CoreCanonInfo.from_spec(spec)
+    fresh_reader = ensure_ir_artifact_store(FileSystemCAS(root))
+    assert get_json_artifact(fresh_reader, selected_ref) == {
+        "amount": Decimal("12.30"),
+        "present": None,
+        "unicode": "é",
+        "float": 1.5,
+    }
+
+
+def test_ir_adapter_round_trips_every_registered_ir_tag_through_fresh_cas_reader(tmp_path) -> None:
+    """Every registered IR typed tag survives the actual writer and fresh selected reader."""
+    root = tmp_path / ".polisyos"
+    store = FileSystemCAS(root)
+    adapter = ensure_ir_artifact_store(store)
+    cases = _registered_ir_tag_cases()
+    payload = {tag: case[0] for tag, case in cases.items()}
+    spec = IRCanonSpec(forbid_floats=False)
+    selected_ref = adapter.put_json(
+        payload,
+        StorePutOptions(
+            kind="test.ir-all-registered-canon-tags",
+            media_type="application/json",
+            canon=IRCanonInfo.from_spec(spec),
+        ),
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+    encoded = json.loads(store.get_bytes(selected_ref))
+    assert {value.get("_type") for value in encoded.values()} == ir_canon._CANONICAL_TYPES
+    fresh_reader = ensure_ir_artifact_store(FileSystemCAS(root))
+    assert get_json_artifact(fresh_reader, selected_ref) == payload
+
+
+def test_ir_adapter_rejects_nonconformant_registered_ir_tag_mappings_before_persisting(
+    tmp_path,
+) -> None:
+    """Malformed recognized tags and unknown tag members never cross the CAS boundary."""
+    cases = _registered_ir_tag_cases()
+    case_number = 0
+    for tag, (_value, spec, tag_payload) in cases.items():
+        malformed_tags: list[tuple[str, dict[str, object]]] = []
+        for field_name, field_value in tag_payload.items():
+            if field_name == "_type":
+                continue
+            if not isinstance(field_value, str):
+                raise AssertionError(
+                    f"Add a source-aware mutation for {tag}.{field_name}: {field_value!r}"
+                )
+            malformed = json.loads(json.dumps(tag_payload))
+            malformed[field_name] = field_value + "~noncanonical"
+            malformed_tags.append((field_name, malformed))
+        if not malformed_tags:
+            raise AssertionError(f"Registered IR tag {tag!r} has no exercised payload fields")
+
+        unknown_member = json.loads(json.dumps(tag_payload))
+        unknown_member["unmodeled_member"] = "retained-by-encoder-only"
+        malformed_tags.append(("unmodeled-member", unknown_member))
+
+        for mutation, malformed_tag in malformed_tags:
+            for nested in (False, True):
+                payload = {"nested": malformed_tag} if nested else malformed_tag
+                store = FileSystemCAS(tmp_path / f"malformed-ir-tag-{case_number}")
+                options = StorePutOptions(
+                    kind=f"test.ir-malformed-tag-{tag}-{mutation}-{nested}",
+                    media_type="application/json",
+                    canon=IRCanonInfo.from_spec(spec),
+                )
+
+                with pytest.raises(
+                    IRCanonViolation,
+                    match="canon_profile_payload_nonconformant",
+                ):
+                    ensure_ir_artifact_store(store).put_json(
+                        payload,
+                        options,
+                        canon_spec=spec,
+                    )
+
+                assert store.iter_artifact_ids() == []
+                case_number += 1
+
+
+def test_ir_adapter_refuses_float_tag_mapping_when_profile_forbids_floats(tmp_path) -> None:
+    """A recognized float mapping cannot bypass the selected forbid-floats rule."""
+    float_tag = _registered_ir_tag_cases()["float"][2]
+    for nested in (False, True):
+        root = tmp_path / f"forbidden-float-tag-{nested}"
+        store = FileSystemCAS(root)
+        payload = {"nested": float_tag} if nested else float_tag
+        spec = IRCanonSpec()
+        options = StorePutOptions(
+            kind=f"test.ir-forbidden-float-tag-{nested}",
+            media_type="application/json",
+            canon=IRCanonInfo.from_spec(spec),
+        )
+
+        with pytest.raises(IRCanonViolation, match="canon_profile_payload_nonconformant"):
+            ensure_ir_artifact_store(store).put_json(payload, options, canon_spec=spec)
+
+        assert store.iter_artifact_ids() == []
 
 
 @pytest.mark.parametrize(

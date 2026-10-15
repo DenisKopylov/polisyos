@@ -538,7 +538,7 @@ validate_metadata
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 - Export resolution incomplete: Unresolved export binding consumer: src/polisyos/core/contracts/__init__.py:_CHRONOLOGY_EXPORTS.
 
-<details><summary>Source-declared candidates (660; native exports unproved)</summary>
+<details><summary>Source-declared candidates (666; native exports unproved)</summary>
 
 ```text
 AcceptanceNonReceipt
@@ -680,6 +680,7 @@ VerifiedPolicyOwnerProvenance
 VerifiedPredicatePolicyOwnerRelation
 VerifiedRetentionOutcome
 chronology_bundle_content_hash
+AcquisitionArtifactCodec
 BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
 C4_PERSISTED_PROFILE_SPECS
 CAPABILITY_DISCOVERY_SCHEMA_VERSION
@@ -1180,6 +1181,8 @@ ValuePromotionDecisionReason
 WarningsBundle
 WarningsRef
 WorkflowRunRequest
+acquisition_artifact_canon_info
+acquisition_artifact_codec
 bounded_liveness_config_from_mapping
 build_producer_spine_binding_fields
 build_scope_adjudication_candidate
@@ -1189,6 +1192,7 @@ c4_canonical_mapping
 c4_profile
 c4_profile_manifest_is_exact
 c4_semantic_digest
+canonical_external_epoch_statement_bytes
 chronology
 classify_optional_analytic_node
 construct_for_legacy_family
@@ -1196,9 +1200,11 @@ deserialize_skip_blocker_record
 epoch
 epoch_staleness_semantic_hash
 evaluate_skip_blocker_policy
+external_epoch_statement_canon_info
 legacy_family_for_construct
 require_production_approval_currentness_receipt
 scope_adjudication_candidate_digest
+scoped_schema_regime_projection_content_hash
 serialize_skip_blocker_record
 verify_scope_adjudication_candidate
 ```

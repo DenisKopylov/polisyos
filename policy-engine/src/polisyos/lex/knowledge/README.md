@@ -86,3 +86,16 @@ comparison, content-bound CAS readback, empty-holder refusal and append-only inv
 is produced. `locale_census.py` measures catalogue structure only and has an independently allocated
 tool-side parser; exact agreement cannot establish translation quality. Named RTL source-content
 pack `IL-Hebr` retains every WP-12 evidence slot empty and admits no locale or jurisdiction.
+
+The semantic-epoch bridge persists each verified amendment row as canonical owner JSON with a
+selected CAS profile. `amended_doc_ref` remains a typed hash of the owner-held document ID string;
+it is checked against the row and never materialized or treated as document content. Missing
+external legal-source bytes remain a limitation of that evidence chain.
+
+The semantic-epoch adapter validates an amendment ref as `lex.amendment` from its canonical source
+row before codec dispatch. A same-ID `l5.schema_regime` ref is refused before CAS admission. The
+document identifier stays an identity token, not document content.
+
+Every `ArtifactRef` field in the typed amendment receipt is checked against its source-row role;
+the snapshot graph rejects unregistered ref paths. The document ref is still only an identity token,
+so this bridge establishes no document-byte evidence or legal authority.

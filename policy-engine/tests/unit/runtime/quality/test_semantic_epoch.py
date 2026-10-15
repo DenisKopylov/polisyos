@@ -2,20 +2,22 @@ from __future__ import annotations
 
 import json
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core import contracts
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CatalogAcquisitionOverlay,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
-from polisyos.runtime.quality import chronology_qualification
+from polisyos.runtime.quality import chronology_qualification, substrate_registry
 from polisyos.runtime.quality import semantic_epoch as epoch
 from polisyos.runtime.quality.acquisition_executor import (
     admit_acquisition_with_semantic_epoch,
@@ -587,7 +589,7 @@ def test_native_receipt_subset_with_self_consistent_count_fails_source_snapshot(
     )
 
     with pytest.raises(ValueError, match="not complete over its snapshot"):
-        epoch._verify_l5_snapshot(payload=snapshot, receipt=receipt)
+        epoch._verify_l5_snapshot(payload=snapshot, receipt=receipt, expected_query=query)
 
 
 def test_service_collects_every_registered_provider_without_caller_batches(
@@ -1084,3 +1086,440 @@ def test_query_only_semantic_epoch_service_cannot_resolve_owner_history(
         match="epoch_resolution_owner_components_not_established",
     ):
         service.resolve_and_persist_epoch(query=_query(store))
+
+
+def test_selected_epoch_reference_graph_resolves_manifest_profile_and_owner_view(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "selected-reference-graph-cas")
+    kind = "epoch.acquisition_semantic_boundary_candidate"
+    value = {"candidate": "controlled"}
+    canonical = epoch_contract.canonical_epoch_bytes(value)
+    payload = len(canonical).to_bytes(8, "big") + canonical
+    selected = store.put_bytes(
+        payload,
+        PutOptions(
+            kind=kind,
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    owner_ref = ArtifactRef.model_validate(
+        selected.model_dump(mode="json") | {"manifest_profile_sha256": None}
+    )
+    selected_graph = {"candidate_ref": selected}
+    owner_projection = {"candidate_ref": owner_ref}
+
+    selected_profiles = epoch._resolve_selected_reference_graph(store, selected_graph)
+    assert selected_profiles is not None
+    assert contracts.acquisition_artifact_canon_info(kind) == epoch_contract.epoch_canon_info()
+    assert epoch._owner_reference_graph_matches_selected(
+        selected_profiles, owner_projection, store=store
+    )
+    assert epoch._selected_ref_graph_matches_owner_projection(selected_graph, owner_projection)
+
+    profileless_selection = {"candidate_ref": owner_ref}
+    assert epoch._resolve_selected_reference_graph(store, profileless_selection) is None
+    assert not epoch._selected_ref_graph_matches_owner_projection(
+        profileless_selection, owner_projection
+    )
+
+    alternate = store.put_bytes(
+        payload,
+        PutOptions(
+            kind=kind,
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.external_epoch_statement_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate.artifact_id == selected.artifact_id
+    assert alternate.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert epoch._raw_cas_hash(store.get_bytes(alternate)) == str(selected.artifact_id)
+    assert (str(alternate.artifact_id), alternate.kind, alternate.media_type) == (
+        str(selected.artifact_id),
+        selected.kind,
+        selected.media_type,
+    )
+    assert epoch._resolve_selected_reference_graph(store, {"candidate_ref": alternate}) is None
+    assert not epoch._selected_ref_graph_matches_owner_projection(
+        selected_graph, {"candidate_ref": alternate}
+    )
+
+    forged_profile = ArtifactRef.model_validate(
+        selected.model_dump(mode="json") | {"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    assert epoch._resolve_selected_reference_graph(store, {"candidate_ref": forged_profile}) is None
+    assert not epoch._owner_reference_graph_matches_selected(
+        selected_profiles, {"candidate_ref": forged_profile}, store=store
+    )
+
+
+def test_selected_epoch_reference_graph_resolves_transitive_owner_projections_and_refuses_gaps(
+    tmp_path: Path,
+) -> None:
+    """Resolve every nested ref to a verified current CAS view or refuse the graph."""
+    store = FileSystemCAS(tmp_path / "transitive-reference-graph-cas")
+    media_type = "application/vnd.polisyos.epoch+json"
+
+    def put_mapping(kind: str, value: dict[str, object], *, canon=None) -> ArtifactRef:
+        canonical = epoch_contract.canonical_epoch_bytes(value)
+        payload = len(canonical).to_bytes(8, "big") + canonical
+        return store.put_bytes(
+            payload,
+            PutOptions(
+                kind=kind,
+                media_type=media_type,
+                canon=canon or epoch_contract.epoch_canon_info(),
+            ),
+            return_selected_profile=True,
+        )
+
+    def profileless(ref: ArtifactRef) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+        )
+
+    deep_snapshot = put_mapping("epoch.acquisition_owner_snapshot", {"owner": "deep"})
+    nested_snapshot = put_mapping(
+        "epoch.acquisition_owner_snapshot",
+        {
+            "owner": "nested",
+            "source_snapshot_ref": profileless(deep_snapshot).model_dump(mode="json"),
+        },
+    )
+    root_ref = put_mapping(
+        "epoch.acquisition_semantic_boundary_candidate",
+        {"owner_source_snapshot_ref": profileless(nested_snapshot).model_dump(mode="json")},
+    )
+    selected_graph = {"candidate_ref": root_ref}
+    selected_profiles = epoch._resolve_selected_reference_graph(store, selected_graph)
+    assert selected_profiles is not None
+    for ref in (nested_snapshot, deep_snapshot):
+        identity = (str(ref.artifact_id), ref.kind, ref.media_type)
+        assert selected_profiles[identity] == ref.manifest_profile_sha256
+    assert epoch._owner_reference_graph_matches_selected(
+        selected_profiles,
+        {"owner_source_snapshot_ref": profileless(nested_snapshot)},
+        store=store,
+    )
+
+    # An owner-only profileless leaf may resolve to a real default manifest, but
+    # cannot pass merely because its identifier and kind are well-shaped.
+    owner_only_snapshot = put_mapping(
+        "epoch.acquisition_owner_snapshot", {"owner": "outside-selected-root"}
+    )
+    assert epoch._owner_reference_graph_matches_selected(
+        selected_profiles,
+        {"owner_source_snapshot_ref": profileless(owner_only_snapshot)},
+        store=store,
+    )
+    absent = ArtifactRef(
+        artifact_id=epoch.ArtifactID.model_validate(epoch._raw_cas_hash(b"absent snapshot")),
+        kind="epoch.acquisition_owner_snapshot",
+        media_type=media_type,
+    )
+    assert not epoch._owner_reference_graph_matches_selected(
+        selected_profiles, {"owner_source_snapshot_ref": absent}, store=store
+    )
+    unknown_kind = ArtifactRef(
+        artifact_id=owner_only_snapshot.artifact_id,
+        kind="epoch.unregistered_owner_snapshot",
+        media_type=media_type,
+    )
+    assert not epoch._owner_reference_graph_matches_selected(
+        selected_profiles,
+        {"owner_source_snapshot_ref": unknown_kind},
+        store=store,
+    )
+
+    wrong_profile = ArtifactRef.model_validate(
+        owner_only_snapshot.model_dump(mode="json")
+        | {"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    assert not epoch._owner_reference_graph_matches_selected(
+        selected_profiles,
+        {"owner_source_snapshot_ref": wrong_profile},
+        store=store,
+    )
+
+    other_canon = put_mapping(
+        "epoch.acquisition_owner_snapshot",
+        {"owner": "wrong-canon"},
+        canon=epoch_contract.external_epoch_statement_canon_info(),
+    )
+    assert not epoch._owner_reference_graph_matches_selected(
+        selected_profiles,
+        {"owner_source_snapshot_ref": other_canon},
+        store=store,
+    )
+
+    missing_nested = ArtifactRef(
+        artifact_id=epoch.ArtifactID.model_validate(epoch._raw_cas_hash(b"missing nested")),
+        kind="epoch.acquisition_owner_snapshot",
+        media_type=media_type,
+        manifest_profile_sha256="sha256:" + "1" * 64,
+    )
+    selected_with_missing_nested = put_mapping(
+        "epoch.acquisition_semantic_boundary_candidate",
+        {"owner_source_snapshot_ref": missing_nested.model_dump(mode="json")},
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            store, {"candidate_ref": selected_with_missing_nested}
+        )
+        is None
+    )
+
+    alternate_canon = put_mapping(
+        "epoch.acquisition_owner_snapshot",
+        {"owner": "same bytes, another canon"},
+        canon=epoch_contract.external_epoch_statement_canon_info(),
+    )
+    selected_with_alternate_canon = put_mapping(
+        "epoch.acquisition_semantic_boundary_candidate",
+        {"owner_source_snapshot_ref": alternate_canon.model_dump(mode="json")},
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            store, {"candidate_ref": selected_with_alternate_canon}
+        )
+        is None
+    )
+
+    malformed_nested = put_mapping(
+        "epoch.acquisition_semantic_boundary_candidate",
+        {
+            "owner_source_snapshot_ref": {
+                "artifact_id": str(owner_only_snapshot.artifact_id),
+                "kind": owner_only_snapshot.kind,
+                "media_type": owner_only_snapshot.media_type,
+                "manifest_profile_sha256": "not-a-profile",
+            }
+        },
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(store, {"candidate_ref": malformed_nested}) is None
+    )
+
+    class CorruptingStore:
+        def __init__(self, delegate: FileSystemCAS, corrupted_id: str) -> None:
+            self._delegate = delegate
+            self._corrupted_id = corrupted_id
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self._delegate, name)
+
+        def get_bytes(self, selector: ArtifactID | ArtifactRef) -> bytes:
+            payload = self._delegate.get_bytes(selector)
+            if str(getattr(selector, "artifact_id", selector)) == self._corrupted_id:
+                return payload + b"corruption"
+            return payload
+
+    corrupting_store = CorruptingStore(store, str(root_ref.artifact_id))
+    assert epoch._resolve_selected_reference_graph(corrupting_store, selected_graph) is None
+
+
+def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    identity_ref = ArtifactRef(
+        artifact_id=epoch.ArtifactID.model_validate(epoch._raw_cas_hash(b"doc-1")),
+        kind="lex.document",
+        media_type="text/plain",
+    )
+    assert (
+        epoch_contract.acquisition_artifact_codec("lex.amendment").payload_format
+        == "canonical_json"
+    )
+    assert (
+        epoch_contract.acquisition_artifact_codec("lex.document").payload_format == "identity_token"
+    )
+    assert (
+        epoch_contract.acquisition_artifact_codec("l5.schema_regime_scope_relation").payload_format
+        == "unresolved_reference"
+    )
+    row_bytes = epoch_contract.canonical_epoch_bytes(
+        {"amendment_id": "a-1", "amended_doc_id": "doc-1"}
+    )
+    row_ref = store.put_bytes(
+        row_bytes,
+        PutOptions(
+            kind="lex.amendment",
+            media_type="application/json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    profiles = epoch._resolve_selected_reference_graph(
+        store, {"amendment": row_ref, "document_identity": identity_ref}
+    )
+    assert profiles == {epoch._selected_ref_identity(row_ref): row_ref.manifest_profile_sha256}
+    assert not store.has(identity_ref.artifact_id)
+
+    alternate_canon_ref = store.put_bytes(
+        row_bytes,
+        PutOptions(
+            kind="lex.amendment",
+            media_type="application/json",
+            canon=epoch_contract.external_epoch_statement_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate_canon_ref.artifact_id == row_ref.artifact_id
+    assert alternate_canon_ref.manifest_profile_sha256 != row_ref.manifest_profile_sha256
+    assert (
+        epoch._resolve_selected_reference_graph(store, {"amendment": alternate_canon_ref}) is None
+    )
+
+    raw = chronology_contract._frame_record(
+        epoch_contract.canonical_epoch_bytes(
+            {
+                "relation_provenance_ref": {
+                    "artifact_id": "sha256:" + "7" * 64,
+                    "kind": "l5.schema_regime_scope_relation",
+                    "media_type": "application/json",
+                }
+            }
+        )
+    )
+    root_ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="epoch.acquisition_owner_snapshot",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
+    assert epoch._resolve_selected_reference_graph(store, {"snapshot": root_ref}) is None
+
+
+def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    owner = substrate_registry.load_l5_catalog_authority(
+        substrate_registry.default_substrate_catalog_paths(repo_root)
+    )
+    receipt, _ = substrate_registry.resolve_l5_schema_regime_projection(
+        owner,
+        scope_identity_ref=owner.schema_regime_scope_relations[0].scope_identity_refs[0],
+        valid_effect_value=date(2025, 1, 1),
+        authority_purpose="publication",
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    adapter = epoch.L5EpochBoundaryOwnerAdapter(owner=owner, artifacts=store)
+    registration = epoch.EpochBoundarySourceRegistration(
+        registration_id="current-l5-owner",
+        owner_kind="l5_schema_regime",
+        owner_source_ref=_digest("l5-owner"),
+        opaque_scope_binding_ref=_digest("l5-scope"),
+    )
+    batch = adapter.resolve_complete_batch(registration=registration, owner_query=receipt.query)
+    snapshot_ref, snapshot = epoch._load_owner_projection_mapping(
+        store, receipt.owner_source_snapshot_ref
+    )
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(snapshot_ref).canon == epoch_contract.epoch_canon_info()
+    assert snapshot["regimes"] == {
+        key: dict(value) for key, value in sorted(owner.schema_regime_rows.items())
+    }
+    assert batch.declared_member_count == len(receipt.assessments)
+    for source_ref, source_hash in (
+        (receipt.regime_registry_ref, receipt.regime_registry_content_hash),
+        (receipt.scope_registry_ref, receipt.scope_registry_content_hash),
+    ):
+        payload = owner.load_schema_regime_source_artifact_bytes(ref=source_ref)
+        selected, _ = epoch._load_owner_projection_mapping(store, source_ref)
+        assert str(source_ref.artifact_id) == source_hash == epoch._raw_cas_hash(payload)
+        assert selected.manifest_profile_sha256 is not None
+        assert store.get_bytes(selected) == payload
+        assert store.get_manifest(selected).canon is None
+    for assessment in receipt.assessments:
+        selected, mapping = epoch._load_owner_projection_mapping(
+            store, assessment.regime_source_ref
+        )
+        assert selected.manifest_profile_sha256 is not None
+        assert mapping == dict(owner.schema_regime_rows[assessment.schema_regime_id])
+        assert store.get_manifest(selected).canon == epoch_contract.epoch_canon_info()
+    relation_ref = next(
+        row.scope_relation.relation_provenance_ref
+        for row in receipt.assessments
+        if row.scope_relation is not None
+    )
+    with pytest.raises(ValueError, match="no registered content resolver"):
+        epoch._load_owner_projection_mapping(store, relation_ref)
+
+
+def test_l5_owner_row_role_is_checked_before_cas_or_projection(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    owner = substrate_registry.load_l5_catalog_authority(
+        substrate_registry.default_substrate_catalog_paths(repo_root)
+    )
+    seed, _ = substrate_registry.resolve_l5_schema_regime_projection(
+        owner,
+        scope_identity_ref=owner.schema_regime_scope_relations[0].scope_identity_refs[0],
+        valid_effect_value=date(2025, 1, 1),
+        authority_purpose="publication",
+    )
+
+    class RetaggedL5Owner:
+        def __init__(self, source: Any) -> None:
+            self.source = source
+            self.receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt | None = None
+            self.project_calls = 0
+
+        def resolve_schema_regime_denominator(self, *, query: Any) -> Any:
+            receipt = self.source.resolve_schema_regime_denominator(query=query)
+            first = receipt.assessments[0]
+            wrong_ref = first.regime_source_ref.model_copy(update={"kind": "lex.amendment"})
+            changed = list(receipt.assessments)
+            changed[0] = first.model_copy(update={"regime_source_ref": wrong_ref})
+            values = receipt.model_dump(mode="python")
+            values["assessments"] = tuple(changed)
+            denominator = epoch_contract.canonical_epoch_bytes(
+                {
+                    "query": receipt.query.model_dump(mode="json"),
+                    "owner_source_snapshot_content_hash": receipt.owner_source_snapshot_content_hash,
+                    "assessments": [row.model_dump(mode="json") for row in changed],
+                }
+            )
+            values["denominator_hash"] = epoch._raw_cas_hash(denominator)
+            self.receipt = epoch_contract.L5SchemaRegimeDenominatorReceipt.model_validate(values)
+            return self.receipt
+
+        def load_schema_regime_owner_snapshot(self, *, ref: ArtifactRef) -> bytes:
+            return self.source.load_schema_regime_owner_snapshot(ref=ref)
+
+        def load_schema_regime_source_artifact_bytes(self, *, ref: ArtifactRef) -> bytes:
+            return self.source.load_schema_regime_source_artifact_bytes(ref=ref)
+
+        def project_scoped_schema_regimes(self, *, receipt: Any) -> Any:
+            self.project_calls += 1
+            return self.source.project_scoped_schema_regimes(receipt=receipt)
+
+    retagged = RetaggedL5Owner(owner)
+    store = FileSystemCAS(tmp_path / "cas")
+    adapter = epoch.L5EpochBoundaryOwnerAdapter(owner=retagged, artifacts=store)
+    registration = epoch.EpochBoundarySourceRegistration(
+        registration_id="retagged-l5-owner",
+        owner_kind="l5_schema_regime",
+        owner_source_ref=_digest("l5-owner"),
+        opaque_scope_binding_ref=_digest("l5-scope"),
+    )
+    with pytest.raises(ValueError, match="owner artifact role mismatch"):
+        adapter.resolve_complete_batch(registration=registration, owner_query=seed.query)
+
+    assert retagged.receipt is not None
+    original_ref = (
+        owner.resolve_schema_regime_denominator(query=seed.query).assessments[0].regime_source_ref
+    )
+    wrong_ref = retagged.receipt.assessments[0].regime_source_ref
+    assert wrong_ref.artifact_id == original_ref.artifact_id
+    assert wrong_ref.media_type == original_ref.media_type
+    assert wrong_ref.manifest_profile_sha256 == original_ref.manifest_profile_sha256
+    assert wrong_ref.kind == "lex.amendment"
+    assert retagged.project_calls == 0
+    assert not store.has(retagged.receipt.owner_source_snapshot_ref.artifact_id)
+    assert not store.has(wrong_ref.artifact_id)

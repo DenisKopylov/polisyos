@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping as MappingABC
+from collections.abc import Sequence as SequenceABC
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, NoReturn, Protocol, Self
+from typing import TYPE_CHECKING, Literal, NoReturn, Protocol, Self, get_args, get_origin
 
 from pydantic import (
     BaseModel,
@@ -22,6 +24,7 @@ from pydantic import (
 )
 
 from polisyos.core import artifacts, canon, contracts
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.runtime.quality.chronology_qualification import (
     NativeChronologyAuthorityAdapter,
     QualificationConsumer,
@@ -29,6 +32,8 @@ from polisyos.runtime.quality.chronology_qualification import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -71,16 +76,317 @@ def _raw_cas_hash(payload: bytes) -> Digest:
 
 def _selected_cas_ref_matches_owner_projection(
     selected: ArtifactRef,
-    owner: ArtifactRef,
+    owner: ArtifactRef | MappingABC[str, object] | object,
 ) -> bool:
-    """Reconcile a selected CAS view with its profileless or equally selected owner ref."""
-    selected_identity = artifacts.artifact_ref_identity_key(selected)
-    owner_identity = artifacts.artifact_ref_identity_key(owner)
+    """Reconcile one selected CAS view with its typed owner projection."""
+    try:
+        owner_ref = owner if isinstance(owner, ArtifactRef) else ArtifactRef.model_validate(owner)
+    except TypeError, ValueError:
+        return False
+    selected_identity = (str(selected.artifact_id), selected.kind, selected.media_type)
+    owner_identity = (str(owner_ref.artifact_id), owner_ref.kind, owner_ref.media_type)
     return (
-        selected_identity[:3] == owner_identity[:3]
-        and selected_identity[3] is not None
-        and owner_identity[3] in (None, selected_identity[3])
+        selected_identity == owner_identity
+        and selected.manifest_profile_sha256 is not None
+        and owner_ref.manifest_profile_sha256 in (None, selected.manifest_profile_sha256)
     )
+
+
+def _artifact_ref_graph(value: object) -> tuple[ArtifactRef, ...]:
+    """Walk every typed reference in a model or persisted owner projection."""
+    found: list[ArtifactRef] = []
+
+    def visit(item: object) -> None:
+        if isinstance(item, ArtifactRef):
+            found.append(item)
+            return
+        if isinstance(item, BaseModel):
+            for name in item.__class__.model_fields:
+                visit(getattr(item, name))
+            return
+        if isinstance(item, MappingABC):
+            if {"artifact_id", "kind", "media_type"}.issubset(item):
+                try:
+                    found.append(ArtifactRef.model_validate(item))
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("selected reference graph contains a malformed ref") from exc
+                return
+            for nested in item.values():
+                visit(nested)
+            return
+        if isinstance(item, SequenceABC) and not isinstance(item, str | bytes | bytearray):
+            for nested in item:
+                visit(nested)
+
+    visit(value)
+    return tuple(found)
+
+
+def _selected_ref_identity(ref: ArtifactRef) -> tuple[str, str, str]:
+    return (str(ref.artifact_id), ref.kind, ref.media_type)
+
+
+def _selected_ref_graph_profiles(value: object) -> dict[tuple[str, str, str], str] | None:
+    """Require one explicit selected profile for every ref in the typed graph."""
+    try:
+        refs = _artifact_ref_graph(value)
+    except TypeError, ValueError:
+        return None
+    if not refs:
+        return None
+    profiles: dict[tuple[str, str, str], str] = {}
+    for ref in refs:
+        codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+        if codec is not None and codec.payload_format == "identity_token":
+            if codec.media_type != ref.media_type or ref.manifest_profile_sha256 is not None:
+                return None
+            continue
+        profile = ref.manifest_profile_sha256
+        if profile is None:
+            return None
+        identity = _selected_ref_identity(ref)
+        prior = profiles.setdefault(identity, profile)
+        if prior != profile:
+            return None
+    return profiles or None
+
+
+def _load_selected_acquisition_mapping(
+    store: ArtifactStore, ref: ArtifactRef, *, expected_kind: str
+) -> dict[str, object]:
+    """Resolve one selected acquisition payload through its registered byte codec."""
+    codec = epoch_contract.acquisition_artifact_codec(expected_kind)
+    if (
+        codec is None
+        or ref.manifest_profile_sha256 is None
+        or ref.kind != expected_kind
+        or ref.media_type != codec.media_type
+    ):
+        raise ValueError("selected acquisition artifact selector is not established")
+    if codec.payload_format in {"identity_token", "unresolved_reference"}:
+        raise ValueError("selected reference has no evidence-byte resolver")
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
+    payload = store.get_bytes(ref)
+    if (
+        not bool(getattr(report, "ok", False))
+        or _raw_cas_hash(payload) != str(ref.artifact_id)
+        or getattr(manifest, "artifact_id", None) != ref.artifact_id
+        or getattr(manifest, "kind", None) != expected_kind
+        or getattr(manifest, "media_type", None) != codec.media_type
+        or getattr(manifest, "canon", None) != codec.canon
+        or artifacts.artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+    ):
+        raise ValueError("selected acquisition artifact manifest or bytes differ")
+    if codec.payload_format == "epoch_frame":
+        from polisyos.core.artifacts import load_core_json_frame_records
+
+        frames = chronology_contract._split_framed_records(payload)
+        if len(frames) != 1:
+            raise ValueError("selected acquisition frame denominator differs")
+        records = load_core_json_frame_records(store, ref, raw_payload_bytes=payload)
+        if len(records) != 1 or not isinstance(records[0], dict):
+            raise ValueError("selected acquisition artifact is not one mapping")
+        return dict(records[0])
+    try:
+        mapping = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("selected owner JSON bytes are malformed") from exc
+    if not isinstance(mapping, dict):
+        raise ValueError("selected owner JSON artifact is not a mapping")
+    if (
+        codec.payload_format == "canonical_json"
+        and epoch_contract.canonical_epoch_bytes(mapping) != payload
+    ):
+        raise ValueError("selected owner JSON differs from its declared canonical bytes")
+    if codec.payload_format not in {"canonical_json", "raw_json"}:
+        raise ValueError("selected acquisition payload format is unsupported")
+    return {str(key): value for key, value in mapping.items()}
+
+
+def _load_owner_projection_mapping(
+    store: ArtifactStore, ref: ArtifactRef
+) -> tuple[ArtifactRef, dict[str, object]]:
+    """Resolve a profileless owner projection through its actual default manifest."""
+    codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+    if (
+        codec is None
+        or codec.payload_format not in {"epoch_frame", "canonical_json", "raw_json"}
+        or codec.media_type != ref.media_type
+    ):
+        raise ValueError("owner reference has no registered content resolver")
+    if ref.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(ref)
+        if (
+            getattr(manifest, "artifact_id", None) != ref.artifact_id
+            or getattr(manifest, "kind", None) != ref.kind
+            or getattr(manifest, "media_type", None) != codec.media_type
+            or getattr(manifest, "canon", None) != codec.canon
+        ):
+            raise ValueError("owner default manifest differs from its registered codec")
+        profile = artifacts.artifact_manifest_profile_sha256(manifest)
+        if not profile:
+            raise ValueError("owner projection default manifest profile is not established")
+        selected_ref = ArtifactRef.model_validate(
+            ref.model_dump(mode="json") | {"manifest_profile_sha256": profile}
+        )
+    else:
+        selected_ref = ref
+    mapping = _load_selected_acquisition_mapping(
+        store, selected_ref, expected_kind=selected_ref.kind
+    )
+    return selected_ref, mapping
+
+
+def _walk_verified_reference_graph(
+    store: ArtifactStore,
+    value: object,
+    profiles: dict[tuple[str, str, str], str],
+    *,
+    allow_profileless_roots: bool,
+) -> dict[tuple[str, str, str], str] | None:
+    """Resolve every ref leaf and recursively walk each verified CAS payload."""
+    pending = [(ref, allow_profileless_roots) for ref in _artifact_ref_graph(value)]
+    resolved: set[tuple[tuple[str, str, str], str]] = set()
+    try:
+        while pending:
+            ref, allow_profileless = pending.pop()
+            codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+            if codec is None or codec.media_type != ref.media_type:
+                return None
+            if codec.payload_format == "identity_token":
+                if ref.manifest_profile_sha256 is not None:
+                    return None
+                continue
+            if codec.payload_format == "unresolved_reference":
+                return None
+            identity = _selected_ref_identity(ref)
+            expected_profile = profiles.get(identity)
+            if expected_profile is not None:
+                if ref.manifest_profile_sha256 not in (None, expected_profile):
+                    return None
+                selected_ref = ArtifactRef.model_validate(
+                    ref.model_dump(mode="json") | {"manifest_profile_sha256": expected_profile}
+                )
+                profile = expected_profile
+                resolved_key = (identity, profile)
+                if resolved_key in resolved:
+                    continue
+                mapping = _load_selected_acquisition_mapping(
+                    store, selected_ref, expected_kind=selected_ref.kind
+                )
+            elif ref.manifest_profile_sha256 is None:
+                if not allow_profileless:
+                    return None
+                selected_ref, mapping = _load_owner_projection_mapping(store, ref)
+                profile = selected_ref.manifest_profile_sha256
+            else:
+                selected_ref = ref
+                mapping = _load_selected_acquisition_mapping(
+                    store, selected_ref, expected_kind=selected_ref.kind
+                )
+                profile = selected_ref.manifest_profile_sha256
+            if profile is None:
+                return None
+            previous = profiles.setdefault(identity, profile)
+            if previous != profile:
+                return None
+            resolved_key = (identity, profile)
+            if resolved_key in resolved:
+                continue
+            resolved.add(resolved_key)
+            pending.extend((nested, True) for nested in _artifact_ref_graph(mapping))
+    except Exception:
+        return None
+    return profiles
+
+
+def _resolve_selected_reference_graph(
+    store: ArtifactStore, value: object
+) -> dict[tuple[str, str, str], str] | None:
+    """Resolve the complete selected CAS graph, including nested owner refs.
+
+    The caller's root graph must select every root view explicitly. References
+    serialized inside those verified artifacts may be profileless owner
+    projections; each is resolved from the store's actual default manifest and
+    checked against the registered producer canon before its content is walked.
+    """
+    root_profiles = _selected_ref_graph_profiles(value)
+    if root_profiles is None:
+        return None
+    return _walk_verified_reference_graph(
+        store,
+        value,
+        dict(root_profiles),
+        allow_profileless_roots=False,
+    )
+
+
+def _owner_reference_graph_matches_selected(
+    selected_profiles: dict[tuple[str, str, str], str],
+    owner: object,
+    *,
+    store: ArtifactStore,
+) -> bool:
+    """Resolve every owner ref leaf and reconcile it with the verified CAS graph.
+
+    A profileless owner projection is accepted only when its identity is already
+    in the selected graph or its default manifest resolves to a real, producer-
+    canon-bound CAS view. Every resolved payload is walked recursively; a missing,
+    malformed, wrong-profile, or unknown-kind leaf fails closed.
+    """
+    return (
+        _walk_verified_reference_graph(
+            store,
+            owner,
+            dict(selected_profiles),
+            allow_profileless_roots=True,
+        )
+        is not None
+    )
+
+
+def _selected_ref_graph_matches_owner_projection(selected: object, owner: object) -> bool:
+    """Compare a complete owner projection, allowing only profileless owner refs."""
+
+    def normalize(value: object) -> object:
+        if isinstance(value, BaseModel):
+            return value.model_dump(mode="json")
+        return value
+
+    def compare(left: object, right: object) -> bool:
+        if isinstance(left, ArtifactRef):
+            return _selected_cas_ref_matches_owner_projection(left, right)
+        if isinstance(right, ArtifactRef):
+            return _selected_cas_ref_matches_owner_projection(right, left)
+        left = normalize(left)
+        right = normalize(right)
+        if isinstance(left, MappingABC) and isinstance(right, MappingABC):
+            left_is_ref = {"artifact_id", "kind", "media_type"}.issubset(left)
+            right_is_ref = {"artifact_id", "kind", "media_type"}.issubset(right)
+            if left_is_ref or right_is_ref:
+                if not left_is_ref or not right_is_ref:
+                    return False
+                try:
+                    return _selected_cas_ref_matches_owner_projection(
+                        ArtifactRef.model_validate(left), right
+                    )
+                except TypeError, ValueError:
+                    return False
+            return left.keys() == right.keys() and all(
+                compare(left[key], right[key]) for key in left
+            )
+        if isinstance(left, SequenceABC) and isinstance(right, SequenceABC):
+            if isinstance(left, str | bytes | bytearray) or isinstance(
+                right, str | bytes | bytearray
+            ):
+                return type(left) is type(right) and left == right
+            return len(left) == len(right) and all(
+                compare(first, second) for first, second in zip(left, right, strict=True)
+            )
+        return type(left) is type(right) and left == right
+
+    return compare(selected, owner)
 
 
 def _artifact_ref_for_bytes(*, payload: bytes, kind: str, media_type: str) -> ArtifactRef:
@@ -1509,6 +1815,8 @@ class L5SchemaRegimeOwner(Protocol):
 
     def load_schema_regime_owner_snapshot(self, *, ref: ArtifactRef) -> bytes: ...
 
+    def load_schema_regime_source_artifact_bytes(self, *, ref: ArtifactRef) -> bytes: ...
+
 
 class LegalAmendmentWindowOwner(Protocol):
     def resolve_amendment_window_denominator(
@@ -1552,51 +1860,739 @@ class CatalogAcquisitionBoundaryOwner(Protocol):
     def load_acquisition_owner_snapshot(self, *, ref: ArtifactRef) -> bytes: ...
 
 
-def _admit_owner_snapshot(*, artifacts: ArtifactStore, ref: ArtifactRef, payload: bytes) -> None:
-    """Copy exact owner bytes into the task CAS and prove the appointed profile."""
-
-    if _raw_cas_hash(payload) != str(ref.artifact_id):
-        raise ValueError("owner snapshot bytes differ from their content address")
-    admitted = artifacts.put_bytes(
-        payload,
-        ArtifactWriteOptions(kind=ref.kind, media_type=ref.media_type),
-    )
-    report = artifacts.verify(admitted)
-    manifest = artifacts.get_manifest(admitted)
-    if (
-        admitted != ref
-        or not report.ok
-        or artifacts.get_bytes(admitted) != payload
-        or manifest.artifact_id != ref.artifact_id
-        or manifest.kind != ref.kind
-        or manifest.media_type != ref.media_type
+def _require_owner_reference_role(
+    ref: ArtifactRef, *, expected_kind: str
+) -> epoch_contract.AcquisitionArtifactCodec:
+    codec = epoch_contract.acquisition_artifact_codec(expected_kind)
+    if codec is None or ref.kind != expected_kind or ref.media_type != codec.media_type:
+        raise ValueError("owner artifact role mismatch")
+    if codec.payload_format in {"identity_token", "unresolved_reference"} and (
+        ref.manifest_profile_sha256 is not None
     ):
-        raise ValueError("owner snapshot CAS admission/profile mismatch")
+        raise ValueError("non-content owner reference cannot select a CAS profile")
+    return codec
+
+
+def _require_owner_reference_payload(
+    ref: ArtifactRef, payload: bytes, *, expected_kind: str
+) -> epoch_contract.AcquisitionArtifactCodec:
+    codec = _require_owner_reference_role(ref, expected_kind=expected_kind)
+    if codec.payload_format in {"identity_token", "unresolved_reference"}:
+        raise ValueError("owner reference role has no content payload")
+    if str(ref.artifact_id) != _raw_cas_hash(payload):
+        raise ValueError("owner artifact role bytes differ from their source ref")
+    try:
+        if codec.payload_format == "epoch_frame":
+            records = chronology_contract._split_framed_records(payload)
+            if len(records) != 1 or not isinstance(json.loads(records[0]), dict):
+                raise ValueError("owner frame does not match its registered format")
+        elif codec.payload_format in {"canonical_json", "raw_json"}:
+            mapping = json.loads(payload)
+            if not isinstance(mapping, dict):
+                raise ValueError("owner JSON does not match its registered format")
+            if (
+                codec.payload_format == "canonical_json"
+                and epoch_contract.canonical_epoch_bytes(mapping) != payload
+            ):
+                raise ValueError("owner JSON bytes differ from the registered canonical format")
+        else:
+            raise ValueError("owner payload format has no content verifier")
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("owner bytes do not match their registered payload format") from exc
+    return codec
+
+
+def _require_owner_identity_reference(
+    ref: ArtifactRef, identity: str, *, expected_kind: str
+) -> None:
+    codec = _require_owner_reference_role(ref, expected_kind=expected_kind)
+    if codec.payload_format != "identity_token":
+        raise ValueError("owner identity role is not an identity-token codec")
+    if ref.manifest_profile_sha256 is not None or str(ref.artifact_id) != _raw_cas_hash(
+        identity.encode("utf-8")
+    ):
+        raise ValueError("owner identity ref differs from its source row")
+
+
+_OWNER_RECEIPT_REFERENCE_ROLES: dict[type[BaseModel], dict[tuple[str, ...], str]] = {
+    epoch_contract.L5SchemaRegimeDenominatorReceipt: {
+        ("owner_source_snapshot_ref",): "l5.schema_regime_owner_snapshot",
+        ("regime_registry_ref",): "l5.schema_regime_registry",
+        ("scope_registry_ref",): "l5.schema_regime_scope_registry",
+        ("assessments", "*", "regime_source_ref"): "l5.schema_regime",
+        (
+            "assessments",
+            "*",
+            "scope_relation",
+            "relation_provenance_ref",
+        ): "l5.schema_regime_scope_relation",
+    },
+    epoch_contract.ScopedSchemaRegimeProjection: {
+        ("owner_source_snapshot_ref",): "l5.schema_regime_owner_snapshot",
+        ("denominator_receipt_ref",): "l5.schema_regime_denominator_receipt",
+    },
+    epoch_contract.LegalAmendmentWindowDenominatorReceipt: {
+        ("owner_source_snapshot_ref",): "lex.amendment_owner_snapshot",
+        ("assessments", "*", "amendment_ref"): "lex.amendment",
+        ("assessments", "*", "amended_doc_ref"): "lex.document",
+    },
+    epoch_contract.AcquisitionNativeMembershipReceipt: {
+        ("owner_source_snapshot_ref",): "epoch.acquisition_owner_snapshot",
+        ("assessments", "*", "native_member_ref"): "epoch.acquisition_native_member",
+        ("assessments", "*", "passport_ref"): "epoch.acquisition_passport_snapshot",
+        (
+            "assessments",
+            "*",
+            "semantic_candidate_ref",
+        ): "epoch.acquisition_semantic_boundary_candidate",
+    },
+    epoch_contract.AcquisitionSemanticCandidateDenominatorReceipt: {
+        (
+            "assessments",
+            "*",
+            "semantic_candidate_ref",
+        ): "epoch.acquisition_semantic_boundary_candidate",
+    },
+    epoch_contract.AcquisitionSemanticProjectionVerificationReceipt: {
+        ("native_membership_receipt_ref",): "epoch.acquisition_native_membership",
+        ("semantic_denominator_receipt_ref",): "epoch.acquisition_semantic_denominator_receipt",
+        ("prospective_candidate_ref",): "epoch.acquisition_semantic_boundary_candidate",
+        ("verifier_provenance_ref",): "epoch.acquisition_projection_verifier_provenance",
+    },
+}
+
+_OWNER_SNAPSHOT_REFERENCE_ROLES: dict[str, dict[tuple[str, ...], str]] = {
+    "l5_schema_regime": {
+        ("scope_relations", "*", "relation_provenance_ref"): "l5.schema_regime_scope_relation",
+    },
+    "lex_amendment_window": {},
+    "catalog_acquisition": {
+        ("rows", "*", "passport_ref"): "epoch.acquisition_passport_snapshot",
+        ("rows", "*", "prepared_semantic_epoch_ref"): "epoch.prepared",
+        ("rows", "*", "semantic_epoch_production_receipt_ref"): "epoch.production_receipt",
+        ("rows", "*", "semantic_epoch_stamp", "semantic_manifest_ref"): "epoch.semantic_manifest",
+        (
+            "rows",
+            "*",
+            "semantic_epoch_stamp",
+            "boundary_denominator_receipt_ref",
+        ): "epoch.boundary_denominator_receipt",
+        (
+            "rows",
+            "*",
+            "semantic_epoch_stamp",
+            "facet_denominator_receipt_ref",
+        ): "epoch.facet_denominator_receipt",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "semantic_boundary_candidate_ref",
+        ): "epoch.acquisition_semantic_boundary_candidate",
+        ("rows", "*", "observed_passport_json", "prepared_semantic_epoch_ref"): "epoch.prepared",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "semantic_epoch_stamp",
+            "semantic_manifest_ref",
+        ): "epoch.semantic_manifest",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "semantic_epoch_stamp",
+            "boundary_denominator_receipt_ref",
+        ): "epoch.boundary_denominator_receipt",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "semantic_epoch_stamp",
+            "facet_denominator_receipt_ref",
+        ): "epoch.facet_denominator_receipt",
+    },
+}
+
+
+def _declared_artifact_ref_paths(
+    annotation: object,
+    prefix: tuple[str, ...] = (),
+    active_models: frozenset[type[BaseModel]] = frozenset(),
+) -> set[tuple[str, ...]]:
+    """Derive ArtifactRef leaves from a complete typed owner output schema."""
+    if annotation is ArtifactRef:
+        return {prefix}
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is not None:
+        if getattr(origin, "__name__", "") == "Annotated":
+            return _declared_artifact_ref_paths(args[0], prefix, active_models) if args else set()
+        if origin in (list, tuple, set, frozenset, SequenceABC):
+            return (
+                set().union(
+                    *(
+                        _declared_artifact_ref_paths(arg, (*prefix, "*"), active_models)
+                        for arg in args
+                        if arg is not Ellipsis
+                    )
+                )
+                if args
+                else set()
+            )
+        if origin in (dict, MappingABC):
+            return (
+                _declared_artifact_ref_paths(args[-1], (*prefix, "*"), active_models)
+                if args
+                else set()
+            )
+        return (
+            set().union(
+                *(
+                    _declared_artifact_ref_paths(arg, prefix, active_models)
+                    for arg in args
+                    if arg is not type(None) and arg is not Ellipsis
+                )
+            )
+            if args
+            else set()
+        )
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        if annotation in active_models:
+            return set()
+        next_active = active_models | {annotation}
+        paths: set[tuple[str, ...]] = set()
+        for name, field in annotation.model_fields.items():
+            paths.update(
+                _declared_artifact_ref_paths(field.annotation, (*prefix, name), next_active)
+            )
+        return paths
+    return set()
+
+
+def _owner_receipt_ref_values(value: BaseModel) -> tuple[tuple[tuple[str, ...], ArtifactRef], ...]:
+    found: list[tuple[tuple[str, ...], ArtifactRef]] = []
+
+    def visit(item: object, path: tuple[str, ...]) -> None:
+        if isinstance(item, ArtifactRef):
+            found.append((path, item))
+            return
+        if isinstance(item, BaseModel):
+            for name in item.__class__.model_fields:
+                if not path and name == "query":
+                    continue
+                visit(getattr(item, name), (*path, name))
+            return
+        if isinstance(item, MappingABC):
+            if "artifact_id" in item:
+                try:
+                    found.append((path, ArtifactRef.model_validate(item)))
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("owner reference graph contains a malformed ref") from exc
+                return
+            for key, nested in item.items():
+                visit(nested, (*path, str(key)))
+            return
+        if isinstance(item, SequenceABC) and not isinstance(item, str | bytes | bytearray):
+            for nested in item:
+                visit(nested, (*path, "*"))
+
+    visit(value, ())
+    return tuple(found)
+
+
+def _validate_owner_receipt_reference_graph(
+    value: BaseModel, *, expected_query: BaseModel | None = None
+) -> None:
+    """Check every typed reference leaf, rejecting schema additions without role rules."""
+    roles = _OWNER_RECEIPT_REFERENCE_ROLES.get(type(value))
+    if roles is None:
+        raise ValueError("owner receipt reference schema has no role contract")
+    if expected_query is not None and getattr(value, "query", None) != expected_query:
+        raise ValueError("owner receipt query differs from the selected request")
+    declared: set[tuple[str, ...]] = set()
+    for name, field in value.__class__.model_fields.items():
+        if name == "query":
+            continue
+        declared.update(_declared_artifact_ref_paths(field.annotation, (name,)))
+    if declared != set(roles):
+        raise ValueError("owner receipt reference schema role table is incomplete")
+    for path, ref in _owner_receipt_ref_values(value):
+        expected_kind = roles.get(path)
+        if expected_kind is None:
+            raise ValueError("owner receipt contains an unregistered reference path")
+        _require_owner_reference_role(ref, expected_kind=expected_kind)
+
+
+class _L5OwnerSnapshot(_EpochModel):
+    """Strict source-row schema for the L5 owner snapshot."""
+
+    regimes: dict[str, dict[str, object]]
+    scope_relations: tuple[epoch_contract.L5SchemaRegimeScopeRelation, ...]
+    changepoints: tuple[dict[str, object], ...]
+
+
+class _LexOwnerSnapshotRow(_EpochModel):
+    """Strict source-row schema for the Lex amendment snapshot."""
+
+    amendment_id: str
+    amended_doc_id: str
+    target_anchor: str
+    effective_from: str
+    effective_to: str | None
+    created_at: str | None
+    scope_values: tuple[tuple[str, str], ...]
+
+
+class _LexOwnerSnapshot(_EpochModel):
+    """Strict outer schema for the Lex amendment snapshot."""
+
+    owner_failure_code: str | None
+    rows: tuple[_LexOwnerSnapshotRow, ...]
+
+
+class _CatalogAcquisitionOwnerMember(_EpochModel):
+    """One exact native membership row in the Catalog owner snapshot."""
+
+    table_name: str
+    canonical_primary_key_bytes: str
+    canonical_primary_key_hash: Digest
+
+
+class _CatalogAcquisitionOwnerRow(_EpochModel):
+    """Typed Catalog owner row, including every declared reference slot."""
+
+    epoch_id: int
+    passport_id: str
+    admission_content_sha256: str | None
+    baseline_content_sha256: str | None
+    admitted_observation_count: int | None
+    observation_class: str | None
+    semantic_epoch_ref: str | None
+    semantic_epoch_stamp_sha256: str | None
+    semantic_epoch_stamp: epoch_contract.SemanticEpochStamp | None
+    prepared_semantic_epoch_ref: ArtifactRef | None
+    semantic_epoch_production_receipt_ref: ArtifactRef | None
+    epoch_activation_state: str | None
+    epoch_row_present: bool
+    passport_row_present: bool
+    observed_passport_content_hash: Digest | None
+    observed_passport_json: str | None
+    passport_ref: ArtifactRef | None
+    passport_content_hash: Digest | None
+    members: tuple[_CatalogAcquisitionOwnerMember, ...]
+
+
+class _BoundV2CatalogAcquisitionOwnerRow(_CatalogAcquisitionOwnerRow):
+    """Required duplicate binding carriers for a currently bound v2 passport."""
+
+    semantic_epoch_ref: Digest
+    semantic_epoch_stamp_sha256: Digest
+    semantic_epoch_stamp: epoch_contract.SemanticEpochStamp
+    prepared_semantic_epoch_ref: ArtifactRef
+
+
+class _CatalogAcquisitionOwnerSnapshot(_EpochModel):
+    """Strict typed envelope for the complete Catalog owner snapshot."""
+
+    schema_version: Literal["polisyos.data_forge.acquisition_overlay.v2"]
+    rows: tuple[_CatalogAcquisitionOwnerRow, ...]
+
+
+def _model_artifact_ref_paths(
+    model_type: type[BaseModel], *, prefix: tuple[str, ...] = ()
+) -> set[tuple[str, ...]]:
+    """Derive every declared ArtifactRef path from one strict source model."""
+    paths: set[tuple[str, ...]] = set()
+    for name, field in model_type.model_fields.items():
+        paths.update(_declared_artifact_ref_paths(field.annotation, (*prefix, name)))
+    return paths
+
+
+def _owner_snapshot_ref_values(
+    value: object, *, prefix: tuple[str, ...] = ()
+) -> tuple[tuple[tuple[str, ...], ArtifactRef], ...]:
+    """Collect references only from validated typed source models and sequences."""
+    found: list[tuple[tuple[str, ...], ArtifactRef]] = []
+
+    def visit(item: object, path: tuple[str, ...]) -> None:
+        if isinstance(item, ArtifactRef):
+            found.append((path, item))
+            return
+        if isinstance(item, BaseModel):
+            for name in item.__class__.model_fields:
+                visit(getattr(item, name), (*path, name))
+            return
+        if isinstance(item, SequenceABC) and not isinstance(item, str | bytes | bytearray):
+            for nested in item:
+                visit(nested, (*path, "*"))
+
+    visit(value, prefix)
+    return tuple(found)
+
+
+def _catalog_passport_models(
+    snapshot: _CatalogAcquisitionOwnerSnapshot,
+) -> tuple[tuple[BaseModel, tuple[str, ...], dict[str, object], _CatalogAcquisitionOwnerRow], ...]:
+    """Decode each current or historical passport with its owning strict schema."""
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        _LEGACY_PASSPORT_SCHEMA_VERSION,
+        _LegacyAdmissionPassport,
+    )
+    from polisyos.runtime.quality.acquisition_executor import (
+        PASSPORT_SCHEMA_VERSION,
+        AdmissionPassport,
+    )
+
+    decoded: list[
+        tuple[BaseModel, tuple[str, ...], dict[str, object], _CatalogAcquisitionOwnerRow]
+    ] = []
+    for row in snapshot.rows:
+        raw = row.observed_passport_json
+        if raw is None:
+            continue
+        try:
+            value = json.loads(raw)
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("acquisition owner passport JSON is malformed") from exc
+        if not isinstance(value, dict):
+            raise ValueError("acquisition owner passport is not a mapping")
+        version = value.get("schema_version")
+        if version == PASSPORT_SCHEMA_VERSION:
+            passport = AdmissionPassport.model_validate(value)
+        elif version == _LEGACY_PASSPORT_SCHEMA_VERSION:
+            passport = _LegacyAdmissionPassport.model_validate(value)
+        else:
+            raise ValueError("acquisition owner passport schema is not registered")
+        decoded.append((passport, ("rows", "*", "observed_passport_json"), value, row))
+    return tuple(decoded)
+
+
+def _catalog_bound_v2_producer_decision_matches(
+    *,
+    row: _BoundV2CatalogAcquisitionOwnerRow,
+    passport: AdmissionPassport,
+    receipt: epoch_contract.AcquisitionNativeMembershipReceipt,
+    assessment: epoch_contract.AcquisitionNativeMemberAssessment,
+    expected_query: epoch_contract.AcquisitionBoundaryResolutionQuery,
+    expected_member_id: Digest,
+    expected_member_content_hash: Digest,
+    passport_content_hash: str,
+) -> bool:
+    """Recompute the producer's bound-v2 decision against its complete receipt."""
+    matching_assessments = tuple(
+        item
+        for item in receipt.assessments
+        if str(item.native_member_ref.artifact_id) == expected_member_id
+    )
+    return (
+        receipt.query == expected_query
+        and receipt.declared_native_member_count == len(receipt.assessments)
+        and matching_assessments == (assessment,)
+        and assessment.native_member_content_hash == expected_member_content_hash
+        and assessment.native_member_ref.kind == "epoch.acquisition_native_member"
+        and assessment.native_member_ref.media_type == "application/vnd.polisyos.epoch+json"
+        and row.epoch_row_present
+        and row.passport_row_present
+        and row.epoch_activation_state in {"pending_epoch_activation", "active"}
+        and row.epoch_id == passport.epoch_id
+        and row.passport_id == passport.passport_id
+        and row.semantic_epoch_ref == passport.semantic_epoch_ref
+        and row.semantic_epoch_ref == passport.semantic_epoch_stamp.epoch_ref
+        and row.semantic_epoch_stamp_sha256 == passport.semantic_epoch_stamp_sha256
+        and row.semantic_epoch_stamp_sha256
+        == epoch_contract.semantic_epoch_stamp_content_hash(passport.semantic_epoch_stamp)
+        and row.semantic_epoch_stamp == passport.semantic_epoch_stamp
+        and row.prepared_semantic_epoch_ref == passport.prepared_semantic_epoch_ref
+        and row.passport_ref is not None
+        and assessment.binding_status == "bound"
+        and assessment.operational_epoch_id == row.epoch_id
+        and assessment.passport_ref == row.passport_ref
+        and row.passport_content_hash == passport_content_hash
+        and row.observed_passport_content_hash == passport_content_hash
+        and assessment.passport_content_hash == passport_content_hash
+        and assessment.semantic_candidate_ref == passport.semantic_boundary_candidate_ref
+        and assessment.semantic_candidate_content_hash
+        == passport.semantic_boundary_candidate_content_hash
+    )
+
+
+def _validate_bound_v2_catalog_row_passport(
+    *,
+    source_row: dict[str, object],
+    passport_mapping: dict[str, object],
+    receipt: epoch_contract.AcquisitionNativeMembershipReceipt,
+    assessment: epoch_contract.AcquisitionNativeMemberAssessment,
+    expected_query: epoch_contract.AcquisitionBoundaryResolutionQuery,
+    expected_member_id: Digest,
+    expected_member_content_hash: Digest,
+    passport_content_hash: str,
+) -> None:
+    """Require the producer-defined bound-v2 relation before owner writes."""
+    if assessment.binding_status != "bound":
+        return
+
+    from polisyos.runtime.quality.acquisition_executor import (
+        PASSPORT_SCHEMA_VERSION,
+        AdmissionPassport,
+    )
+
+    if passport_mapping.get("schema_version") != PASSPORT_SCHEMA_VERSION:
+        raise ValueError("bound acquisition passport is not current v2")
+    row = _BoundV2CatalogAcquisitionOwnerRow.model_validate(source_row)
+    passport = AdmissionPassport.model_validate(passport_mapping)
+    if not _catalog_bound_v2_producer_decision_matches(
+        row=row,
+        passport=passport,
+        receipt=receipt,
+        assessment=assessment,
+        expected_query=expected_query,
+        expected_member_id=expected_member_id,
+        expected_member_content_hash=expected_member_content_hash,
+        passport_content_hash=passport_content_hash,
+    ):
+        raise ValueError(
+            "bound v2 producer decision differs across owner row, passport, and receipt"
+        )
+
+
+def _validate_owner_snapshot_reference_graph(value: object, *, owner_kind: str) -> None:
+    """Validate registered reference slots from strict owner schemas, then roles."""
+    roles = _OWNER_SNAPSHOT_REFERENCE_ROLES.get(owner_kind)
+    if roles is None:
+        raise ValueError("owner snapshot reference schema has no role contract")
+
+    model_nodes: list[tuple[BaseModel, tuple[str, ...]]] = []
+    if owner_kind == "l5_schema_regime":
+        snapshot = _L5OwnerSnapshot.model_validate(value)
+        declared = _model_artifact_ref_paths(_L5OwnerSnapshot)
+        if declared != set(roles):
+            raise ValueError("L5 owner snapshot schema reference roles are incomplete")
+        model_nodes.append((snapshot, ()))
+    elif owner_kind == "lex_amendment_window":
+        snapshot = _LexOwnerSnapshot.model_validate(value)
+        declared = _model_artifact_ref_paths(_LexOwnerSnapshot)
+        if declared != set(roles):
+            raise ValueError("Lex owner snapshot schema reference roles are incomplete")
+        model_nodes.append((snapshot, ()))
+    elif owner_kind == "catalog_acquisition":
+        snapshot = _CatalogAcquisitionOwnerSnapshot.model_validate(value)
+        passport_prefix = ("rows", "*", "observed_passport_json")
+        row_roles = {
+            path: role
+            for path, role in roles.items()
+            if path[: len(passport_prefix)] != passport_prefix
+        }
+        if _model_artifact_ref_paths(_CatalogAcquisitionOwnerSnapshot) != set(row_roles):
+            raise ValueError("Catalog owner row schema reference roles are incomplete")
+        model_nodes.append((snapshot, ()))
+        passports = _catalog_passport_models(snapshot)
+        embedded_roles = {
+            path[len(passport_prefix) :]: role
+            for path, role in roles.items()
+            if path[: len(passport_prefix)] == passport_prefix
+        }
+        for passport, prefix, _mapping, row in passports:
+            declared = _model_artifact_ref_paths(type(passport))
+            if declared != set(embedded_roles):
+                if declared:
+                    raise ValueError("Catalog passport schema reference roles are incomplete")
+                if embedded_roles and getattr(passport, "schema_version", None) == (
+                    "polisyos.runtime.acquisition_admission_passport.v2"
+                ):
+                    raise ValueError("Catalog v2 passport reference schema is incomplete")
+            model_nodes.append((passport, prefix))
+            top_stamp = row.semantic_epoch_stamp
+            passport_stamp = getattr(passport, "semantic_epoch_stamp", None)
+            if top_stamp is not None and passport_stamp is not None and top_stamp != passport_stamp:
+                raise ValueError("acquisition owner row stamp differs from passport")
+            if top_stamp is not None:
+                if row.semantic_epoch_ref != top_stamp.epoch_ref:
+                    raise ValueError("acquisition owner row epoch ref differs from stamp")
+                if row.semantic_epoch_stamp_sha256 != (
+                    epoch_contract.semantic_epoch_stamp_content_hash(top_stamp)
+                ):
+                    raise ValueError("acquisition owner row stamp hash differs from stamp")
+    else:
+        raise ValueError("owner snapshot kind has no source schema")
+
+    for model, prefix in model_nodes:
+        for path, ref in _owner_snapshot_ref_values(model, prefix=prefix):
+            expected_kind = roles.get(path)
+            if expected_kind is None:
+                raise ValueError("owner snapshot contains an unregistered typed reference path")
+            _require_owner_reference_role(ref, expected_kind=expected_kind)
+
+
+def _preflight_acquisition_owner_snapshot(
+    *,
+    payload: bytes,
+    receipt: epoch_contract.AcquisitionNativeMembershipReceipt,
+    expected_query: epoch_contract.AcquisitionBoundaryResolutionQuery,
+) -> dict[str, object]:
+    """Recompute typed source rows and passport hashes before any snapshot CAS write."""
+    _validate_owner_receipt_reference_graph(receipt, expected_query=expected_query)
+    records = chronology_contract._split_framed_records(payload)
+    if len(records) != 1:
+        raise ValueError("acquisition owner snapshot frame denominator differs from one")
+    value = json.loads(records[0])
+    if not isinstance(value, dict):
+        raise ValueError("acquisition owner snapshot is not a mapping")
+    _validate_owner_snapshot_reference_graph(value, owner_kind="catalog_acquisition")
+    if receipt.owner_source_snapshot_content_hash != _model_hash(
+        b"polisyos.epoch.acquisition-owner-snapshot.v1\0", value
+    ):
+        raise ValueError("acquisition owner snapshot semantic hash differs")
+    rows = value.get("rows")
+    if not isinstance(rows, list) or len(rows) != receipt.declared_native_member_count:
+        raise ValueError("acquisition receipt is not complete over its owner snapshot")
+    assessments = {str(row.native_member_ref.artifact_id): row for row in receipt.assessments}
+    if len(assessments) != len(receipt.assessments):
+        raise ValueError("acquisition receipt repeats a native member")
+    from polisyos.fabric.data_plane import content_sha256
+
+    for source_row in rows:
+        canonical = epoch_contract.canonical_epoch_bytes(source_row)
+        framed = chronology_contract._frame_record(canonical)
+        ref_id = _raw_cas_hash(framed)
+        assessment = assessments.get(ref_id)
+        if assessment is None:
+            raise ValueError("acquisition owner row has no matching native assessment")
+        passport_json = source_row.get("observed_passport_json")
+        if passport_json is None:
+            if assessment.binding_status == "bound":
+                raise ValueError("bound acquisition passport source is absent")
+            continue
+        try:
+            passport_mapping = json.loads(passport_json)
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("acquisition owner passport JSON is malformed") from exc
+        if not isinstance(passport_mapping, dict):
+            raise ValueError("acquisition owner passport is not a mapping")
+        recomputed_hash = content_sha256(passport_mapping)
+        expected_member_content_hash = _model_hash(
+            b"polisyos.epoch.acquisition-native-member.v1\0", source_row
+        )
+        _validate_bound_v2_catalog_row_passport(
+            source_row=source_row,
+            passport_mapping=passport_mapping,
+            receipt=receipt,
+            assessment=assessment,
+            expected_query=expected_query,
+            expected_member_id=ref_id,
+            expected_member_content_hash=expected_member_content_hash,
+            passport_content_hash=recomputed_hash,
+        )
+        owner_hashes = (
+            source_row.get("observed_passport_content_hash"),
+            source_row.get("passport_content_hash"),
+            assessment.passport_content_hash,
+        )
+        if any(value is not None and value != recomputed_hash for value in owner_hashes):
+            raise ValueError("acquisition passport content hash differs from frozen JSON")
+        if assessment.binding_status == "bound" and any(
+            value != recomputed_hash for value in owner_hashes
+        ):
+            raise ValueError("bound acquisition passport content hash is incomplete")
+    return value
+
+
+def _load_owner_candidate_statement(
+    store: ArtifactStore, ref: ArtifactRef, *, expected_content_hash: Digest
+) -> tuple[ArtifactRef, epoch_contract.AcquisitionSemanticBoundaryCandidateStatement]:
+    """Resolve a candidate owner ref from its actual selected/default CAS view."""
+    _require_owner_reference_role(
+        ref, expected_kind="epoch.acquisition_semantic_boundary_candidate"
+    )
+    selected_ref, mapping = _load_owner_projection_mapping(store, ref)
+    statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(mapping)
+    if (
+        epoch_contract.acquisition_semantic_candidate_content_hash(statement)
+        != expected_content_hash
+    ):
+        raise ValueError("owner candidate content hash differs from its verified statement")
+    return selected_ref, statement
+
+
+def _persist_owner_artifact_bytes(
+    *, artifacts: ArtifactStore, ref: ArtifactRef, payload: bytes, expected_kind: str
+) -> ArtifactRef:
+    codec = _require_owner_reference_payload(ref, payload, expected_kind=expected_kind)
+    if codec.payload_format in {"identity_token", "unresolved_reference"}:
+        raise ValueError("non-content owner role cannot be persisted")
+    selected = artifacts.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind=expected_kind, media_type=codec.media_type, canon=codec.canon),
+        return_selected_profile=True,
+    )
+    _require_owner_reference_role(selected, expected_kind=expected_kind)
+    report = artifacts.verify(selected)
+    manifest = artifacts.get_manifest(selected)
+    readback = artifacts.get_bytes(selected)
+    if (
+        not _selected_cas_ref_matches_owner_projection(selected, ref)
+        or selected.manifest_profile_sha256 is None
+        or not bool(getattr(report, "ok", False))
+        or readback != payload
+        or _raw_cas_hash(readback) != str(selected.artifact_id)
+        or getattr(manifest, "artifact_id", None) != selected.artifact_id
+        or getattr(manifest, "kind", None) != expected_kind
+        or getattr(manifest, "media_type", None) != codec.media_type
+        or getattr(manifest, "canon", None) != codec.canon
+        or artifact_manifest_profile_sha256(manifest) != selected.manifest_profile_sha256
+    ):
+        raise ValueError("owner source CAS admission/profile mismatch")
+    _load_selected_acquisition_mapping(artifacts, selected, expected_kind=expected_kind)
+    return selected
+
+
+def _admit_owner_snapshot(
+    *, artifacts: ArtifactStore, ref: ArtifactRef, payload: bytes, expected_kind: str
+) -> ArtifactRef:
+    return _persist_owner_artifact_bytes(
+        artifacts=artifacts, ref=ref, payload=payload, expected_kind=expected_kind
+    )
 
 
 def _verify_l5_snapshot(
-    *, payload: bytes, receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt
+    *,
+    payload: bytes,
+    receipt: epoch_contract.L5SchemaRegimeDenominatorReceipt,
+    expected_query: epoch_contract.L5SchemaRegimeResolutionQuery,
 ) -> None:
+    _validate_owner_receipt_reference_graph(receipt, expected_query=expected_query)
+    _require_owner_reference_payload(
+        receipt.owner_source_snapshot_ref,
+        payload,
+        expected_kind="l5.schema_regime_owner_snapshot",
+    )
     value = json.loads(payload)
-    if not isinstance(value, dict) or set(value) != {
-        "regimes",
-        "scope_relations",
-        "changepoints",
-    }:
+    if not isinstance(value, dict) or set(value) != {"regimes", "scope_relations", "changepoints"}:
         raise ValueError("L5 owner snapshot has an unexpected shape")
+    _validate_owner_snapshot_reference_graph(value, owner_kind="l5_schema_regime")
     regimes = value["regimes"]
-    if not isinstance(regimes, dict):
-        raise ValueError("L5 owner snapshot regimes are not a mapping")
+    relations = value["scope_relations"]
+    if not isinstance(regimes, dict) or not isinstance(relations, list):
+        raise ValueError("L5 owner snapshot rows are not typed mappings")
+    relation_models: dict[bytes, epoch_contract.L5SchemaRegimeScopeRelation] = {}
+    for relation in relations:
+        if not isinstance(relation, dict):
+            raise ValueError("L5 owner scope relation is malformed")
+        model = epoch_contract.L5SchemaRegimeScopeRelation.model_validate(relation)
+        relation_models[epoch_contract.canonical_epoch_bytes(model)] = model
     if tuple(sorted(regimes)) != tuple(row.schema_regime_id for row in receipt.assessments):
         raise ValueError("L5 owner receipt is not complete over its snapshot")
     for row in receipt.assessments:
         native = epoch_contract.canonical_epoch_bytes(regimes[row.schema_regime_id])
-        native_hash = _raw_cas_hash(native)
-        if (
-            row.regime_content_hash != native_hash
-            or str(row.regime_source_ref.artifact_id) != native_hash
-        ):
+        _require_owner_reference_payload(
+            row.regime_source_ref, native, expected_kind="l5.schema_regime"
+        )
+        if row.regime_content_hash != _raw_cas_hash(native):
             raise ValueError("L5 assessment differs from frozen owner bytes")
+        if row.scope_relation is not None:
+            relation_bytes = epoch_contract.canonical_epoch_bytes(row.scope_relation)
+            if relation_bytes not in relation_models:
+                raise ValueError("L5 assessment relation is absent from the owner snapshot")
     denominator = epoch_contract.canonical_epoch_bytes(
         {
             "query": receipt.query.model_dump(mode="json"),
@@ -1613,8 +2609,16 @@ def _verify_lex_snapshot(
     owner: LegalAmendmentWindowOwner,
     payload: bytes,
     receipt: epoch_contract.LegalAmendmentWindowDenominatorReceipt,
+    expected_query: epoch_contract.LegalAmendmentWindowResolutionQuery,
 ) -> None:
+    _validate_owner_receipt_reference_graph(receipt, expected_query=expected_query)
+    _require_owner_reference_payload(
+        receipt.owner_source_snapshot_ref,
+        payload,
+        expected_kind="lex.amendment_owner_snapshot",
+    )
     value = json.loads(payload)
+    _validate_owner_snapshot_reference_graph(value, owner_kind="lex_amendment_window")
     rows = value.get("rows") if isinstance(value, dict) else None
     owner_failure_code = value.get("owner_failure_code") if isinstance(value, dict) else None
     if (
@@ -1625,13 +2629,24 @@ def _verify_lex_snapshot(
     ):
         raise ValueError("Lex owner receipt is not complete over its snapshot")
     by_ref = {_raw_cas_hash(epoch_contract.canonical_epoch_bytes(row)): row for row in rows}
-    if set(by_ref) != {
+    if len(by_ref) != len(rows) or set(by_ref) != {
         str(assessment.amendment_ref.artifact_id) for assessment in receipt.assessments
     }:
         raise ValueError("Lex assessment set differs from frozen owner bytes")
     for assessment in receipt.assessments:
         if assessment.amendment_content_hash != str(assessment.amendment_ref.artifact_id):
             raise ValueError("Lex assessment content hash differs from its native ref")
+        row = by_ref[str(assessment.amendment_ref.artifact_id)]
+        row_payload = epoch_contract.canonical_epoch_bytes(row)
+        _require_owner_reference_payload(
+            assessment.amendment_ref, row_payload, expected_kind="lex.amendment"
+        )
+        document_id = row.get("amended_doc_id")
+        if not isinstance(document_id, str):
+            raise ValueError("Lex owner document identity is not a string")
+        _require_owner_identity_reference(
+            assessment.amended_doc_ref, document_id, expected_kind="lex.document"
+        )
     owner.verify_amendment_window_snapshot(source_rows=rows, receipt=receipt)
     denominator = epoch_contract.canonical_epoch_bytes(
         {
@@ -1645,28 +2660,153 @@ def _verify_lex_snapshot(
 
 
 def _verify_acquisition_snapshot(
-    *, payload: bytes, receipt: epoch_contract.AcquisitionNativeMembershipReceipt
+    *,
+    store: ArtifactStore,
+    payload: bytes,
+    receipt: epoch_contract.AcquisitionNativeMembershipReceipt,
+    expected_query: epoch_contract.AcquisitionBoundaryResolutionQuery,
 ) -> None:
+    _preflight_acquisition_owner_snapshot(
+        payload=payload, receipt=receipt, expected_query=expected_query
+    )
+    _validate_owner_receipt_reference_graph(receipt, expected_query=expected_query)
+    _require_owner_reference_payload(
+        receipt.owner_source_snapshot_ref,
+        payload,
+        expected_kind="epoch.acquisition_owner_snapshot",
+    )
     records = chronology_contract._split_framed_records(payload)
     if len(records) != 1:
         raise ValueError("acquisition owner snapshot frame denominator differs from one")
     value = json.loads(records[0])
+    _validate_owner_snapshot_reference_graph(value, owner_kind="catalog_acquisition")
     rows = value.get("rows") if isinstance(value, dict) else None
     if not isinstance(rows, list) or len(rows) != receipt.declared_native_member_count:
         raise ValueError("acquisition receipt is not complete over its owner snapshot")
     expected: dict[str, Digest] = {}
+    expected_payloads: dict[str, bytes] = {}
+    source_rows: dict[str, dict[str, object]] = {}
     for row in rows:
-        canonical = epoch_contract.canonical_epoch_bytes(row)
-        framed = chronology_contract._frame_record(canonical)
-        expected[_raw_cas_hash(framed)] = _model_hash(
-            b"polisyos.epoch.acquisition-native-member.v1\0", row
+        if not isinstance(row, dict):
+            raise ValueError("acquisition owner source row is malformed")
+        framed = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(row))
+        native_ref = _artifact_ref_for_bytes(
+            payload=framed,
+            kind="epoch.acquisition_native_member",
+            media_type="application/vnd.polisyos.epoch+json",
         )
+        ref_id = str(native_ref.artifact_id)
+        if ref_id in expected:
+            raise ValueError("acquisition owner snapshot repeats a native member")
+        expected[ref_id] = _model_hash(b"polisyos.epoch.acquisition-native-member.v1\0", row)
+        expected_payloads[ref_id] = framed
+        source_rows[ref_id] = row
     observed = {
         str(row.native_member_ref.artifact_id): row.native_member_content_hash
         for row in receipt.assessments
     }
     if expected != observed:
         raise ValueError("acquisition native assessments differ from frozen owner bytes")
+    assessment_by_member = {
+        str(row.native_member_ref.artifact_id): row for row in receipt.assessments
+    }
+    for ref_id, source_row in source_rows.items():
+        assessment = assessment_by_member[ref_id]
+        _require_owner_reference_payload(
+            assessment.native_member_ref,
+            expected_payloads[ref_id],
+            expected_kind="epoch.acquisition_native_member",
+        )
+        raw_passport = source_row.get("passport_ref")
+        if raw_passport is None:
+            if assessment.passport_ref is not None or assessment.semantic_candidate_ref is not None:
+                raise ValueError("acquisition receipt refs are absent from its owner row")
+            continue
+        try:
+            passport_ref = ArtifactRef.model_validate(raw_passport)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("acquisition owner passport ref is malformed") from exc
+        _require_owner_reference_role(
+            passport_ref, expected_kind="epoch.acquisition_passport_snapshot"
+        )
+        if assessment.passport_ref != passport_ref:
+            raise ValueError("acquisition passport ref differs from its frozen owner row")
+        passport_json = source_row.get("observed_passport_json")
+        passport_hash = source_row.get("observed_passport_content_hash")
+        if not isinstance(passport_json, str):
+            if assessment.binding_status == "bound":
+                raise ValueError("bound acquisition passport source is absent")
+            if assessment.semantic_candidate_ref is not None:
+                raise ValueError("unresolved passport cannot carry a candidate ref")
+            continue
+        try:
+            passport_mapping = json.loads(passport_json)
+        except json.JSONDecodeError as exc:
+            if (
+                assessment.binding_status == "bound"
+                or assessment.semantic_candidate_ref is not None
+            ):
+                raise ValueError("malformed acquisition passport cannot carry a binding") from exc
+            continue
+        if not isinstance(passport_mapping, dict):
+            if (
+                assessment.binding_status == "bound"
+                or assessment.semantic_candidate_ref is not None
+            ):
+                raise ValueError("non-mapping acquisition passport cannot carry a binding")
+            continue
+        external_bytes = epoch_contract.canonical_external_epoch_statement_bytes(passport_mapping)
+        passport_payload = chronology_contract._frame_record(external_bytes)
+        expected_passport_ref = _artifact_ref_for_bytes(
+            payload=passport_payload,
+            kind="epoch.acquisition_passport_snapshot",
+            media_type="application/vnd.polisyos.epoch+json",
+        )
+        if passport_ref != expected_passport_ref:
+            raise ValueError("acquisition passport ref differs from its frozen JSON")
+        if assessment.passport_content_hash != passport_hash:
+            raise ValueError("acquisition passport hash differs from its frozen owner row")
+        raw_candidate = passport_mapping.get("semantic_boundary_candidate_ref")
+        raw_candidate_hash = passport_mapping.get("semantic_boundary_candidate_content_hash")
+        if raw_candidate is None:
+            if (
+                assessment.semantic_candidate_ref is not None
+                or assessment.semantic_candidate_content_hash is not None
+            ):
+                raise ValueError("owner receipt candidate is absent from its passport")
+            continue
+        try:
+            candidate_ref = ArtifactRef.model_validate(raw_candidate)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("acquisition passport candidate ref is malformed") from exc
+        _require_owner_reference_role(
+            candidate_ref,
+            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+        )
+        if (
+            assessment.semantic_candidate_ref != candidate_ref
+            or assessment.semantic_candidate_content_hash != raw_candidate_hash
+            or not isinstance(raw_candidate_hash, str)
+        ):
+            raise ValueError("acquisition candidate ref/hash differs from its passport")
+        _load_owner_candidate_statement(
+            store, candidate_ref, expected_content_hash=raw_candidate_hash
+        )
+        if assessment.binding_status == "bound":
+            stamp = epoch_contract.SemanticEpochStamp.model_validate(
+                passport_mapping.get("semantic_epoch_stamp")
+            )
+            prepared_ref = ArtifactRef.model_validate(
+                passport_mapping.get("prepared_semantic_epoch_ref")
+            )
+            for ref, expected_kind in (
+                (prepared_ref, "epoch.prepared"),
+                (stamp.semantic_manifest_ref, "epoch.semantic_manifest"),
+                (stamp.boundary_denominator_receipt_ref, "epoch.boundary_denominator_receipt"),
+                (stamp.facet_denominator_receipt_ref, "epoch.facet_denominator_receipt"),
+            ):
+                _require_owner_reference_role(ref, expected_kind=expected_kind)
+                _load_owner_projection_mapping(store, ref)
     membership_hash = _model_hash(
         b"polisyos.epoch.acquisition-native-membership.v1\0",
         {
@@ -1676,7 +2816,7 @@ def _verify_acquisition_snapshot(
         },
     )
     if receipt.native_membership_hash != membership_hash:
-        raise ValueError("acquisition native membership hash is not recomputed")
+        raise ValueError("native acquisition membership hash is not recomputed")
 
 
 class L5EpochBoundaryOwnerAdapter:
@@ -1707,22 +2847,81 @@ class L5EpochBoundaryOwnerAdapter:
         snapshot = self._owner.load_schema_regime_owner_snapshot(
             ref=receipt.owner_source_snapshot_ref
         )
+        if receipt.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot):
+            raise ValueError("L5 owner snapshot semantic hash differs from its bytes")
+        _verify_l5_snapshot(payload=snapshot, receipt=receipt, expected_query=owner_query)
+        snapshot_mapping = json.loads(snapshot)
+        source_loader = self._owner.load_schema_regime_source_artifact_bytes
+        registry_inputs = []
+        for source_ref, source_hash, expected_kind in (
+            (
+                receipt.regime_registry_ref,
+                receipt.regime_registry_content_hash,
+                "l5.schema_regime_registry",
+            ),
+            (
+                receipt.scope_registry_ref,
+                receipt.scope_registry_content_hash,
+                "l5.schema_regime_scope_registry",
+            ),
+        ):
+            if source_hash != str(source_ref.artifact_id):
+                raise ValueError("L5 registry source hash differs from its owner ref")
+            source_payload = source_loader(ref=source_ref)
+            _require_owner_reference_payload(
+                source_ref, source_payload, expected_kind=expected_kind
+            )
+            registry_inputs.append((source_ref, source_payload, expected_kind))
+        regimes = snapshot_mapping.get("regimes")
+        if not isinstance(regimes, dict):
+            raise ValueError("L5 owner regime source rows are not a mapping")
+        regime_inputs = []
+        for assessment in receipt.assessments:
+            source_row = regimes.get(assessment.schema_regime_id)
+            if not isinstance(source_row, dict):
+                raise ValueError("L5 assessed source row is absent from its snapshot")
+            source_payload = epoch_contract.canonical_epoch_bytes(source_row)
+            _require_owner_reference_payload(
+                assessment.regime_source_ref,
+                source_payload,
+                expected_kind="l5.schema_regime",
+            )
+            regime_inputs.append((assessment.regime_source_ref, source_payload))
         _admit_owner_snapshot(
             artifacts=self._artifacts,
             ref=receipt.owner_source_snapshot_ref,
             payload=snapshot,
+            expected_kind="l5.schema_regime_owner_snapshot",
         )
-        if receipt.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot):
-            raise ValueError("L5 owner snapshot semantic hash differs from its bytes")
-        _verify_l5_snapshot(payload=snapshot, receipt=receipt)
+        for source_ref, source_payload, expected_kind in registry_inputs:
+            _persist_owner_artifact_bytes(
+                artifacts=self._artifacts,
+                ref=source_ref,
+                payload=source_payload,
+                expected_kind=expected_kind,
+            )
+        for source_ref, source_payload in regime_inputs:
+            _persist_owner_artifact_bytes(
+                artifacts=self._artifacts,
+                ref=source_ref,
+                payload=source_payload,
+                expected_kind="l5.schema_regime",
+            )
         receipt_ref, receipt_hash = _persist_model(
             store=self._artifacts,
             value=receipt,
             kind="l5.schema_regime_denominator_receipt",
         )
         projection = self._owner.project_scoped_schema_regimes(receipt=receipt)
+        _validate_owner_receipt_reference_graph(projection)
         if (
-            projection.denominator_receipt_ref != receipt_ref
+            not _selected_cas_ref_matches_owner_projection(
+                receipt_ref, projection.denominator_receipt_ref
+            )
+            or not _selected_cas_ref_matches_owner_projection(
+                receipt.owner_source_snapshot_ref, projection.owner_source_snapshot_ref
+            )
+            or projection.denominator_receipt_ref.kind != "l5.schema_regime_denominator_receipt"
             or projection.owner_source_snapshot_ref != receipt.owner_source_snapshot_ref
             or projection.scope_identity_ref != owner_query.scope_identity_ref
             or projection.valid_effect_coordinate_ref != owner_query.valid_effect_coordinate_ref
@@ -1815,14 +3014,38 @@ class LexEpochBoundaryOwnerAdapter:
             raise ValueError("Lex boundary does not accept acquisition candidates")
         receipt = self._owner.resolve_amendment_window_denominator(query=owner_query)
         snapshot = self._owner.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
+        if receipt.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot):
+            raise ValueError("Lex owner snapshot semantic hash differs from its bytes")
+        _verify_lex_snapshot(
+            owner=self._owner, payload=snapshot, receipt=receipt, expected_query=owner_query
+        )
         _admit_owner_snapshot(
             artifacts=self._artifacts,
             ref=receipt.owner_source_snapshot_ref,
             payload=snapshot,
+            expected_kind="lex.amendment_owner_snapshot",
         )
-        if receipt.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot):
-            raise ValueError("Lex owner snapshot semantic hash differs from its bytes")
-        _verify_lex_snapshot(owner=self._owner, payload=snapshot, receipt=receipt)
+        snapshot_mapping = json.loads(snapshot)
+        rows = snapshot_mapping.get("rows") if isinstance(snapshot_mapping, dict) else None
+        if not isinstance(rows, list):
+            raise ValueError("Lex owner source rows are not a list")
+        assessments_by_ref = {
+            str(row.amendment_ref.artifact_id): row for row in receipt.assessments
+        }
+        for source_row in rows:
+            if not isinstance(source_row, dict):
+                raise ValueError("Lex owner source row is malformed")
+            row_payload = epoch_contract.canonical_epoch_bytes(source_row)
+            row_ref = _raw_cas_hash(row_payload)
+            assessment = assessments_by_ref.get(row_ref)
+            if assessment is None:
+                raise ValueError("Lex owner source row has no matching owner assessment")
+            _persist_owner_artifact_bytes(
+                artifacts=self._artifacts,
+                ref=assessment.amendment_ref,
+                payload=row_payload,
+                expected_kind="lex.amendment",
+            )
         receipt_ref, receipt_hash = _persist_model(
             store=self._artifacts,
             value=receipt,
@@ -1920,17 +3143,54 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
         snapshot = self._owner.load_acquisition_owner_snapshot(
             ref=receipt.owner_source_snapshot_ref
         )
-        _admit_owner_snapshot(
-            artifacts=self._artifacts,
-            ref=receipt.owner_source_snapshot_ref,
-            payload=snapshot,
-        )
         snapshot_mapping = json.loads(chronology_contract._split_framed_records(snapshot)[0])
         if receipt.owner_source_snapshot_content_hash != _model_hash(
             b"polisyos.epoch.acquisition-owner-snapshot.v1\0", snapshot_mapping
         ):
             raise ValueError("acquisition owner snapshot semantic hash differs")
-        _verify_acquisition_snapshot(payload=snapshot, receipt=receipt)
+        _verify_acquisition_snapshot(
+            store=self._artifacts, payload=snapshot, receipt=receipt, expected_query=owner_query
+        )
+        source_rows = snapshot_mapping.get("rows") if isinstance(snapshot_mapping, dict) else None
+        if not isinstance(source_rows, list):
+            raise ValueError("acquisition owner source rows are not a list")
+        assessments_by_ref = {
+            str(row.native_member_ref.artifact_id): row for row in receipt.assessments
+        }
+        source_inputs = []
+        for source_row in source_rows:
+            if not isinstance(source_row, dict):
+                raise ValueError("acquisition owner source row is malformed")
+            source_payload = chronology_contract._frame_record(
+                epoch_contract.canonical_epoch_bytes(source_row)
+            )
+            source_ref = _artifact_ref_for_bytes(
+                payload=source_payload,
+                kind="epoch.acquisition_native_member",
+                media_type="application/vnd.polisyos.epoch+json",
+            )
+            assessment = assessments_by_ref.get(str(source_ref.artifact_id))
+            if assessment is None:
+                raise ValueError("acquisition owner source row has no matching assessment")
+            _require_owner_reference_payload(
+                assessment.native_member_ref,
+                source_payload,
+                expected_kind="epoch.acquisition_native_member",
+            )
+            source_inputs.append((assessment.native_member_ref, source_payload))
+        _admit_owner_snapshot(
+            artifacts=self._artifacts,
+            ref=receipt.owner_source_snapshot_ref,
+            payload=snapshot,
+            expected_kind="epoch.acquisition_owner_snapshot",
+        )
+        for source_ref, source_payload in source_inputs:
+            _persist_owner_artifact_bytes(
+                artifacts=self._artifacts,
+                ref=source_ref,
+                payload=source_payload,
+                expected_kind="epoch.acquisition_native_member",
+            )
         native_ref, native_hash = _persist_model(
             store=self._artifacts,
             value=receipt,
@@ -1942,6 +3202,66 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
             native_membership=receipt,
             candidate=candidate,
         )
+        _validate_owner_receipt_reference_graph(semantic, expected_query=owner_query)
+        expected_candidate_refs: dict[tuple[str, str, str], tuple[ArtifactRef, str]] = {}
+        for native_assessment in receipt.assessments:
+            if native_assessment.semantic_candidate_ref is None:
+                continue
+            if native_assessment.semantic_candidate_content_hash is None:
+                raise ValueError("native candidate ref lacks its content hash")
+            ref, _ = _load_owner_candidate_statement(
+                self._artifacts,
+                native_assessment.semantic_candidate_ref,
+                expected_content_hash=native_assessment.semantic_candidate_content_hash,
+            )
+            key = (str(ref.artifact_id), ref.kind, ref.media_type)
+            prior = expected_candidate_refs.get(key)
+            if prior is not None and prior != (
+                ref,
+                native_assessment.semantic_candidate_content_hash,
+            ):
+                raise ValueError("native candidate refs disagree on selected profile or content")
+            expected_candidate_refs[key] = (ref, native_assessment.semantic_candidate_content_hash)
+        if candidate is not None:
+            selected_candidate, _ = _load_owner_candidate_statement(
+                self._artifacts,
+                candidate.candidate_ref,
+                expected_content_hash=candidate.candidate_content_hash,
+            )
+            key = (
+                str(selected_candidate.artifact_id),
+                selected_candidate.kind,
+                selected_candidate.media_type,
+            )
+            prior = expected_candidate_refs.get(key)
+            if prior is not None and prior != (
+                selected_candidate,
+                candidate.candidate_content_hash,
+            ):
+                raise ValueError("prospective candidate differs from native owner profile")
+            expected_candidate_refs[key] = (selected_candidate, candidate.candidate_content_hash)
+        observed_candidate_refs: dict[tuple[str, str, str], tuple[ArtifactRef, str]] = {}
+        for semantic_assessment in semantic.assessments:
+            selected_candidate, _ = _load_owner_candidate_statement(
+                self._artifacts,
+                semantic_assessment.semantic_candidate_ref,
+                expected_content_hash=semantic_assessment.semantic_candidate_content_hash,
+            )
+            key = (
+                str(selected_candidate.artifact_id),
+                selected_candidate.kind,
+                selected_candidate.media_type,
+            )
+            if key in observed_candidate_refs:
+                raise ValueError("semantic owner denominator duplicates a selected candidate")
+            observed_candidate_refs[key] = (
+                selected_candidate,
+                semantic_assessment.semantic_candidate_content_hash,
+            )
+        if observed_candidate_refs != expected_candidate_refs:
+            raise ValueError(
+                "semantic candidate set differs from the complete native owner projection"
+            )
         semantic_ref, semantic_hash = _persist_model(
             store=self._artifacts,
             value=semantic,
@@ -1953,6 +3273,20 @@ class CatalogAcquisitionEpochBoundaryOwnerAdapter:
             semantic_denominator_ref=semantic_ref,
             prospective_candidate=candidate,
         )
+        _validate_owner_receipt_reference_graph(projection)
+        if not _selected_cas_ref_matches_owner_projection(
+            native_ref, projection.native_membership_receipt_ref
+        ) or not _selected_cas_ref_matches_owner_projection(
+            semantic_ref, projection.semantic_denominator_receipt_ref
+        ):
+            raise ValueError("semantic projection refs differ from selected owner receipts")
+        if candidate is None:
+            if projection.prospective_candidate_ref is not None:
+                raise ValueError("semantic projection introduced an unrequested candidate")
+        elif not _selected_cas_ref_matches_owner_projection(
+            candidate.candidate_ref, projection.prospective_candidate_ref
+        ):
+            raise ValueError("semantic projection candidate differs from the request")
         projection_ref, projection_hash = _persist_model(
             store=self._artifacts,
             value=projection,
@@ -2050,7 +3384,7 @@ class ArtifactSemanticFacetProvider:
                 raise ValueError("semantic facet source failed CAS verification")
             try:
                 decoded = load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
-            except (UnicodeDecodeError, json.JSONDecodeError):
+            except UnicodeDecodeError, json.JSONDecodeError:
                 decoded = None
             if isinstance(decoded, dict) and "semantic_value" in decoded:
                 semantic_bytes = epoch_contract.canonical_epoch_bytes(
@@ -2545,7 +3879,7 @@ class SemanticEpochService:
                 ),
             )
             return self._append_and_qualify(query=query, result=result, mode="ordinary")
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return self._negative(
                 mode="ordinary",
                 query=query,
@@ -2590,6 +3924,7 @@ class SemanticEpochService:
             store=self._artifact_store,
             value=result.manifest,
             kind="epoch.semantic_manifest",
+            return_selected_profile=True,
         )
         boundary_receipt = EpochBoundaryDenominatorReceipt(
             query=query,
@@ -2604,6 +3939,7 @@ class SemanticEpochService:
             store=self._artifact_store,
             value=boundary_receipt,
             kind="epoch.boundary_denominator_receipt",
+            return_selected_profile=True,
         )
         facet_receipt = SemanticFacetDenominatorReceipt(
             query=query,
@@ -2618,6 +3954,7 @@ class SemanticEpochService:
             store=self._artifact_store,
             value=facet_receipt,
             kind="epoch.facet_denominator_receipt",
+            return_selected_profile=True,
         )
         stamp = epoch_contract.SemanticEpochStamp(
             epoch_ref=result.manifest.epoch_ref,
@@ -2668,6 +4005,7 @@ class SemanticEpochService:
                     artifacts.input_ref_from_artifact_ref(manifest_ref, role="semantic_manifest")
                 ],
             ),
+            return_selected_profile=True,
         )
         prepared_readback = epoch_contract.load_verified_epoch_statement(
             store=self._artifact_store,
@@ -2735,41 +4073,10 @@ class SemanticEpochService:
         prepared_for_failure: PreparedSemanticEpoch | None = None
         try:
 
-            def load_mapping(
-                ref: ArtifactRef,
-                *,
-                kind: str,
-                expected_canon: artifacts.CanonInfo | None = None,
-            ) -> dict[str, object]:
-                from polisyos.core.artifacts import load_core_json_frame_records
-
-                report = self._artifact_store.verify(ref)
-                payload = self._artifact_store.get_bytes(ref)
-                manifest = self._artifact_store.get_manifest(ref)
-                records = chronology_contract._split_framed_records(payload)
-                if (
-                    not report.ok
-                    or _raw_cas_hash(payload) != str(ref.artifact_id)
-                    or manifest.artifact_id != ref.artifact_id
-                    or manifest.kind != kind
-                    or manifest.media_type != "application/vnd.polisyos.epoch+json"
-                    or ref.kind != kind
-                    or ref.media_type != "application/vnd.polisyos.epoch+json"
-                    or (
-                        expected_canon is not None
-                        and (
-                            ref.manifest_profile_sha256 is None or manifest.canon != expected_canon
-                        )
-                    )
-                    or len(records) != 1
-                ):
-                    raise ValueError("admitted acquisition artifact readback differs")
-                mapping = load_core_json_frame_records(
-                    self._artifact_store, ref, raw_payload_bytes=payload
-                )[0]
-                if not isinstance(mapping, dict):
-                    raise ValueError("admitted acquisition artifact is not a mapping")
-                return mapping
+            def load_mapping(ref: ArtifactRef, *, kind: str) -> dict[str, object]:
+                return _load_selected_acquisition_mapping(
+                    self._artifact_store, ref, expected_kind=kind
+                )
 
             prepared_mapping = load_mapping(prepared_epoch_ref, kind="epoch.prepared")
             prepared = PreparedSemanticEpoch.model_validate(
@@ -2788,6 +4095,11 @@ class SemanticEpochService:
                     kind="epoch.admitted_acquisition_boundary_evidence",
                 )
             )
+            selected_ref_profiles = _resolve_selected_reference_graph(
+                self._artifact_store, admitted
+            )
+            if selected_ref_profiles is None:
+                raise ValueError("admitted acquisition selected reference graph is unresolved")
             if (
                 admitted.prepared_epoch_ref != prepared_epoch_ref
                 or admitted.semantic_epoch_stamp != prepared.stamp
@@ -2849,11 +4161,33 @@ class SemanticEpochService:
                 load_mapping(
                     admitted.verifier_provenance_ref,
                     kind="epoch.acquisition_projection_verifier_provenance",
-                    expected_canon=epoch_contract.epoch_canon_info(),
                 )
             )
+            owner_reference_graphs = (
+                prepared,
+                candidate_statement,
+                native_mapping,
+                passport_mapping,
+                pending,
+                native_receipt,
+                semantic_receipt,
+                projection_receipt,
+                provenance,
+            )
+            if any(
+                not _owner_reference_graph_matches_selected(
+                    selected_ref_profiles, owner_graph, store=self._artifact_store
+                )
+                for owner_graph in owner_reference_graphs
+            ):
+                raise ValueError("admitted acquisition owner reference graph differs")
             if (
-                admitted.semantic_candidate_ref not in prepared.boundary_candidate_refs
+                not any(
+                    _selected_cas_ref_matches_owner_projection(
+                        admitted.semantic_candidate_ref, owner_ref
+                    )
+                    for owner_ref in prepared.boundary_candidate_refs
+                )
                 or candidate.statement.requested_query_context_ref
                 != native_receipt.query.requested_query_context_ref
                 or candidate.statement.scope_identity_ref != native_receipt.query.scope_identity_ref
@@ -2866,27 +4200,42 @@ class SemanticEpochService:
                 != native_receipt.query.purpose_admission_cutoff_ref
                 or str(passport_mapping.get("passport_id")) != pending.passport_id
                 or int(passport_mapping.get("epoch_id", 0)) != admitted.epoch_id
-                or passport_mapping.get("semantic_boundary_candidate_ref")
-                != admitted.semantic_candidate_ref.model_dump(mode="json")
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.semantic_candidate_ref,
+                    passport_mapping.get("semantic_boundary_candidate_ref"),
+                )
                 or passport_mapping.get("semantic_boundary_candidate_content_hash")
                 != admitted.semantic_candidate_content_hash
-                or passport_mapping.get("semantic_epoch_stamp")
-                != admitted.semantic_epoch_stamp.model_dump(mode="json")
-                or passport_mapping.get("prepared_semantic_epoch_ref")
-                != prepared_epoch_ref.model_dump(mode="json")
+                or not _selected_ref_graph_matches_owner_projection(
+                    admitted.semantic_epoch_stamp, passport_mapping.get("semantic_epoch_stamp")
+                )
+                or not _selected_cas_ref_matches_owner_projection(
+                    prepared_epoch_ref, passport_mapping.get("prepared_semantic_epoch_ref")
+                )
                 or int(native_mapping.get("epoch_id", 0)) != admitted.epoch_id
                 or native_mapping.get("passport_id") != pending.passport_id
-                or native_mapping.get("passport_ref")
-                != admitted.passport_ref.model_dump(mode="json")
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.passport_ref, native_mapping.get("passport_ref")
+                )
                 or native_mapping.get("passport_content_hash") != admitted.passport_content_hash
-                or pending.prepared_semantic_epoch_ref != prepared_epoch_ref
-                or pending.boundary_candidate_ref != admitted.semantic_candidate_ref
-                or pending.semantic_epoch_stamp != prepared.stamp
+                or not _selected_cas_ref_matches_owner_projection(
+                    prepared_epoch_ref, pending.prepared_semantic_epoch_ref
+                )
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.semantic_candidate_ref, pending.boundary_candidate_ref
+                )
+                or not _selected_ref_graph_matches_owner_projection(
+                    prepared.stamp, pending.semantic_epoch_stamp
+                )
                 or projection_receipt.status != "verified"
-                or projection_receipt.native_membership_receipt_ref
-                != admitted.native_membership_receipt_ref
-                or projection_receipt.semantic_denominator_receipt_ref
-                != admitted.semantic_denominator_receipt_ref
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.native_membership_receipt_ref,
+                    projection_receipt.native_membership_receipt_ref,
+                )
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.semantic_denominator_receipt_ref,
+                    projection_receipt.semantic_denominator_receipt_ref,
+                )
                 or not _selected_cas_ref_matches_owner_projection(
                     admitted.verifier_provenance_ref,
                     projection_receipt.verifier_provenance_ref,
@@ -2952,17 +4301,30 @@ class SemanticEpochService:
                 row.role: row.artifact_ref for row in catalog_batch.supporting_evidence
             }
             if (
-                catalog_batch.denominator_receipt_ref != admitted.semantic_denominator_receipt_ref
-                or evidence_by_role.get("native_membership")
-                != admitted.native_membership_receipt_ref
-                or evidence_by_role.get("semantic_projection_verification")
-                != admitted.semantic_projection_verification_receipt_ref
+                not _selected_cas_ref_matches_owner_projection(
+                    admitted.semantic_denominator_receipt_ref,
+                    catalog_batch.denominator_receipt_ref,
+                )
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.native_membership_receipt_ref,
+                    evidence_by_role.get("native_membership"),
+                )
+                or not _selected_cas_ref_matches_owner_projection(
+                    admitted.semantic_projection_verification_receipt_ref,
+                    evidence_by_role.get("semantic_projection_verification"),
+                )
                 or semantic_receipt.query != native_receipt.query
                 or not any(
                     row.operational_epoch_id == admitted.epoch_id
-                    and row.native_member_ref == admitted.native_member_ref
-                    and row.passport_ref == admitted.passport_ref
-                    and row.semantic_candidate_ref == admitted.semantic_candidate_ref
+                    and _selected_cas_ref_matches_owner_projection(
+                        admitted.native_member_ref, row.native_member_ref
+                    )
+                    and _selected_cas_ref_matches_owner_projection(
+                        admitted.passport_ref, row.passport_ref
+                    )
+                    and _selected_cas_ref_matches_owner_projection(
+                        admitted.semantic_candidate_ref, row.semantic_candidate_ref
+                    )
                     and row.binding_status == "bound"
                     for row in native_receipt.assessments
                 )
@@ -2994,7 +4356,7 @@ class SemanticEpochService:
                 prepared_ref=prepared_epoch_ref,
                 admitted_ref=admitted_boundary_evidence_ref,
             )
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             if prepared_for_failure is not None:
                 return self._negative(
                     mode="acquisition_finalization",

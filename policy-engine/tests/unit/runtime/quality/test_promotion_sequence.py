@@ -4920,6 +4920,53 @@ def test_historical_v2_owner_context_is_refused_before_n9_ledger_open(
     assert ledger_opened is False
 
 
+def test_n9_consumer_surfaces_typed_prior_scope_refusal_without_receipts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"n9_scope_journal_refusal_{uuid4().hex}")
+    summary = _summary()
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    port = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+    monkeypatch.setattr(port, "deployment_identity_refusal", lambda _identity: None)
+
+    def reject_journal(
+        _binding: N9DesignProblemBinding,
+    ) -> ConfidenceLedgerSession:
+        raise ConfidenceLedgerError("prior_scope_membership_not_established")
+
+    monkeypatch.setattr(port, "_open_confidence_ledger_session", reject_journal)
+    observation = port(
+        admitted_batch=admitted,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
+
+    assert observation.status == "not_promoted"
+    assert observation.reason == "confidence_ledger_refused:prior_scope_membership_not_established"
+    assert observation.certified_candidate_ids == ()
+    assert observation.receipts == ()
+
+
 def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
     fabric_measurement_owner,
     monkeypatch: pytest.MonkeyPatch,

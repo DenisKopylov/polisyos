@@ -14,6 +14,7 @@ from .designs import (
     _build_salib_problem,
     _derive_backend_seed,
 )
+from .morris_geometry import _declared_morris_num_levels
 
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
@@ -22,12 +23,13 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
     backend_seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
 
     if plan.method == SensitivityMethod.MORRIS:
+        num_levels = _declared_morris_num_levels(plan)
         from SALib.sample import morris as morris_sampler  # type: ignore[import-not-found]
 
         return morris_sampler.sample(
             problem,
             N=plan.n_trajectories,
-            num_levels=plan.parameter_specs[0].num_levels,
+            num_levels=num_levels,
             seed=backend_seed,
         )
 

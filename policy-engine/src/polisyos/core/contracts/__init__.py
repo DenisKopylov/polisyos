@@ -820,6 +820,7 @@ _CHRONOLOGY_EXPORTS = (
 _MODULE_SYMBOLS[".chronology"] = _CHRONOLOGY_EXPORTS
 
 _MODULE_SYMBOLS[".epoch"] = (
+    "AcquisitionArtifactCodec",
     "AcquisitionBoundaryResolutionQuery",
     "AcquisitionNativeMemberAssessment",
     "AcquisitionNativeMembershipReceipt",
@@ -844,14 +845,19 @@ _MODULE_SYMBOLS[".epoch"] = (
     "ScopedSchemaRegimeProjection",
     "SemanticEpochProductionReceiptStatement",
     "SemanticEpochStamp",
+    "acquisition_artifact_canon_info",
+    "acquisition_artifact_codec",
     "acquisition_semantic_candidate_bytes",
     "acquisition_semantic_candidate_content_hash",
     "canonical_epoch_bytes",
+    "canonical_external_epoch_statement_bytes",
     "epoch_canon_info",
     "epoch_query_context_ref",
     "epoch_semantic_content_hash",
+    "external_epoch_statement_canon_info",
     "load_verified_epoch_statement",
     "native_coordinate_ref",
+    "scoped_schema_regime_projection_content_hash",
 )
 
 _SUBMODULES = frozenset({"chronology", "epoch"})
@@ -1014,6 +1020,14 @@ if TYPE_CHECKING:
         DistributionalProofArtifactRef,
         DistributionalReportRef,
         OrdinalPovertyReportRef,
+    )
+    from .epoch import (
+        AcquisitionArtifactCodec,
+        acquisition_artifact_canon_info,
+        acquisition_artifact_codec,
+        canonical_external_epoch_statement_bytes,
+        external_epoch_statement_canon_info,
+        scoped_schema_regime_projection_content_hash,
     )
     from .execution_plan import (
         BudgetSpec,
@@ -1459,6 +1473,7 @@ def __dir__() -> list[str]:
 
 __all__ = [
     *_CHRONOLOGY_EXPORTS,
+    "AcquisitionArtifactCodec",
     "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
     "C4_PERSISTED_PROFILE_SPECS",
     "CAPABILITY_DISCOVERY_SCHEMA_VERSION",
@@ -1959,6 +1974,8 @@ __all__ = [
     "WarningsBundle",
     "WarningsRef",
     "WorkflowRunRequest",
+    "acquisition_artifact_canon_info",
+    "acquisition_artifact_codec",
     "bounded_liveness_config_from_mapping",
     "build_producer_spine_binding_fields",
     "build_scope_adjudication_candidate",
@@ -1968,6 +1985,7 @@ __all__ = [
     "c4_profile",
     "c4_profile_manifest_is_exact",
     "c4_semantic_digest",
+    "canonical_external_epoch_statement_bytes",
     "chronology",
     "classify_optional_analytic_node",
     "construct_for_legacy_family",
@@ -1975,9 +1993,11 @@ __all__ = [
     "epoch",
     "epoch_staleness_semantic_hash",
     "evaluate_skip_blocker_policy",
+    "external_epoch_statement_canon_info",
     "legacy_family_for_construct",
     "require_production_approval_currentness_receipt",
     "scope_adjudication_candidate_digest",
+    "scoped_schema_regime_projection_content_hash",
     "serialize_skip_blocker_record",
     "verify_scope_adjudication_candidate",
 ]

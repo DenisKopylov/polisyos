@@ -8,6 +8,10 @@ from typing import TYPE_CHECKING, Any, cast, overload
 
 from pydantic import BaseModel
 
+from polisyos.common.canonical_profile import (
+    _normalize_canonical_profile_mapping,
+)
+
 from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
 from .manifest import (
@@ -71,23 +75,58 @@ def _coerce_model(value: Any | None, model_type: type[Any], field_name: str) -> 
         raise TypeError(f"Invalid adapter option {field_name!r}") from exc
 
 
+def _pydantic_option_payload(value: BaseModel, field_name: str) -> dict[str, Any]:
+    """Read stored model values without trusting a Pydantic instance's prior validation."""
+    try:
+        raw_fields = object.__getattribute__(value, "__dict__")
+        model_fields = getattr(type(value), "model_fields", None)
+        fields_set = object.__getattribute__(value, "__pydantic_fields_set__")
+        extras = object.__getattribute__(value, "__pydantic_extra__")
+    except AttributeError as exc:
+        raise TypeError(f"Invalid adapter option {field_name!r}") from exc
+    if (
+        not isinstance(raw_fields, Mapping)
+        or not isinstance(model_fields, Mapping)
+        or not isinstance(fields_set, (set, frozenset))
+        or not all(isinstance(name, str) for name in fields_set)
+    ):
+        raise TypeError(f"Invalid adapter option {field_name!r}")
+
+    payload = dict(raw_fields)
+    declared_fields = set(model_fields)
+    if isinstance(extras, Mapping):
+        payload.update(extras)
+    elif extras is not None:
+        raise TypeError(f"Invalid adapter option {field_name!r}")
+    if not all(isinstance(name, str) for name in payload):
+        raise TypeError(f"Invalid adapter option {field_name!r}")
+    unexpected_fields = (set(payload) | set(fields_set)) - declared_fields
+    if unexpected_fields:
+        unexpected = ", ".join(sorted(unexpected_fields))
+        raise TypeError(f"Invalid adapter option {field_name!r}: unexpected field(s) {unexpected}")
+    return payload
+
+
 def _coerce_canon_option(value: Any | None, field_name: str) -> CanonInfo | None:
-    """Refuse incomplete supplied profiles before model defaults apply."""
-    if value is None or isinstance(value, CanonInfo):
-        return value
-    if isinstance(value, BaseModel):
-        payload = value.model_dump(mode="python")
-        if not isinstance(payload, Mapping):
-            raise TypeError(f"Invalid adapter option {field_name!r}")
-    else:
-        payload = _coerce_payload(value)
+    """Strictly revalidate every canon carrier before comparing or persisting it."""
+    if value is None:
+        return None
+    payload = (
+        _pydantic_option_payload(value, field_name)
+        if isinstance(value, BaseModel)
+        else _coerce_payload(value)
+    )
     missing_fields = set(CanonInfo.model_fields) - set(payload)
     if missing_fields:
         missing = ", ".join(sorted(missing_fields))
         raise TypeError(
             f"Invalid adapter option {field_name!r}: incomplete canon profile ({missing})"
         )
-    return _coerce_model(payload, CanonInfo, field_name)
+    payload = _normalize_canonical_profile_mapping(payload)
+    try:
+        return CanonInfo.model_validate(payload, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise TypeError(f"Invalid adapter option {field_name!r}") from exc
 
 
 def _coerce_model_list(
@@ -129,8 +168,6 @@ _WRITE_OPTION_NORMALIZERS: dict[str, Any] = {
 def _coerce_write_options(
     opts: ArtifactWriteOptions | StorePutOptions | Mapping[str, Any],
 ) -> ArtifactWriteOptions:
-    if isinstance(opts, ArtifactWriteOptions):
-        return opts
     payload = _coerce_payload(opts)
     allowed_fields = set(_WRITE_OPTION_NORMALIZERS)
     if allowed_fields != set(ArtifactWriteOptions.__dataclass_fields__):

@@ -17,6 +17,10 @@ from polisyos.common.canonical import (
 from polisyos.common.canonical import (
     to_canonical_bytes as _to_canonical_bytes,
 )
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    _decode_and_reencode_profiled_bytes,
+)
 from polisyos.common.hashing import (
     DeprecatedHashAlgorithm,
     HashAlgorithm,
@@ -32,19 +36,39 @@ class CanonViolation(ValueError):  # noqa: N818 - ADR-0104 preserves public API 
     """Canon violation public type."""
 
 
+class _IRCanonicalProfileError(CanonViolation, CanonicalProfileRefusalError):
+    """Preserve IR and profile-refusal catches for nonconformant encoded output."""
+
+    def __init__(self, code: str) -> None:
+        """Expose the stable profile refusal code through both exception contracts."""
+        self.code = code
+        ValueError.__init__(self, code)
+
+
 @dataclass(frozen=True)
 class CanonSpec(_SharedCanonSpec):
     """Canon spec data model for the IR profile."""
 
 
-def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
-    """Convert to canonical bytes using IR's strict historical tag profile."""
+def _encode_ir_canonical_bytes_raw(obj: Any, spec: CanonSpec) -> bytes:
+    """Encode with IR's selected typed-tag set without public admission or re-entry."""
     return _to_canonical_bytes(
         obj,
         spec,
         violation_type=CanonViolation,
         canonical_types=_CANONICAL_TYPES,
     )
+
+
+def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
+    """Emit bytes that round-trip under IR's selected canonical profile."""
+    selected_spec = CanonSpec() if spec is None else spec
+    data = _encode_ir_canonical_bytes_raw(obj, selected_spec)
+    try:
+        _validate_ir_json_payload_conformance(data, selected_spec)
+    except CanonicalProfileRefusalError as exc:
+        raise _IRCanonicalProfileError(exc.code) from exc
+    return data
 
 
 def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> Any:
@@ -65,6 +89,17 @@ def from_canonical_bytes(data: bytes, *, max_depth: int = 128) -> Any:
         max_depth=max_depth,
         violation_type=CanonViolation,
         canonical_types=_CANONICAL_TYPES,
+    )
+
+
+def _validate_ir_json_payload_conformance(data: bytes, spec: CanonSpec) -> None:
+    """Require IR bytes to round-trip under the exact selected profile and tag set."""
+    _decode_and_reencode_profiled_bytes(
+        data,
+        max_depth=spec.max_depth,
+        spec=spec,
+        decode=lambda payload, max_depth: from_canonical_bytes(payload, max_depth=max_depth),
+        encode=lambda value, _selected_spec: _encode_ir_canonical_bytes_raw(value, spec),
     )
 
 

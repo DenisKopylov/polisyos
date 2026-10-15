@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "slice": "source56",
+  "author_role": "local candidate author; independent G code acceptance and formal adjudication remain reserved",
+  "slice_base": "c6dcc7c1d08dad0cdcb485442d1f2e662360f740",
+  "candidate": "fe4fb7c5274931552eb5e3f5961e5da10e3b133f",
+  "candidate_tree": "83e6cbcb1a9d57da3c88887ba826e92a4d18ba21",
+  "candidate_parents": [
+    "c6dcc7c1d08dad0cdcb485442d1f2e662360f740"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2226-source56-implementation-commit-root-20261015/committed-readback.json",
+    "sha256": "ebe3a261edeea212b2fd73d971e90db8f88039cbab378a69aa5e9e82d64b2ef5"
+  },
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "final_source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "property": "Current Python Ruff role/config selection and owned descriptor report/timing output helpers; whole native recorder remains verification_missing.",
+  "footprint": [
+    ".github/workflows/abi.yml",
+    "policy-engine/.pre-commit-config.yaml",
+    "policy-engine/CONTRIBUTING.md",
+    "policy-engine/architecture/atlas_surfaces/check_atlas_enforcement.py",
+    "policy-engine/architecture/atlas_surfaces/check_frontend_disposition_register.py",
+    "policy-engine/architecture/atlas_surfaces/check_status_retirement_inventory.py",
+    "policy-engine/architecture/atlas_surfaces/test_atlas_enforcement.py",
+    "policy-engine/architecture/atlas_surfaces/test_decision_time_semantics_scan.py",
+    "policy-engine/architecture/atlas_surfaces/test_ds18_execution_outcome_consumer.py",
+    "policy-engine/architecture/atlas_surfaces/test_ds18_time_semantics_lineage.py",
+    "policy-engine/architecture/atlas_surfaces/test_frontend_baseline_debt_manifest.py",
+    "policy-engine/architecture/atlas_surfaces/test_frontend_disposition_register.py",
+    "policy-engine/architecture/atlas_surfaces/test_generated_client_receipt_census.py",
+    "policy-engine/architecture/atlas_surfaces/test_status_retirement_inventory.py",
+    "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+    "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+    "policy-engine/architecture/tooling/static_analysis_overrides.toml",
+    "policy-engine/architecture/tooling/tool_config_split.toml",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/qa/test_verifier_controls.py",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/verify_plan.py",
+    "policy-engine/docs/reference/repository-hygiene.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/full-run/e02_observer.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_full_occurrence_proposals.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1270-source-census.py",
+    "policy-engine/ruff.generated.toml",
+    "policy-engine/ruff.toml",
+    "policy-engine/tests/repo_quality/tools/test_e02_local_evidence_ruff_role.py",
+    "policy-engine/tests/repo_quality/tools/test_native_output_scope.py",
+    "policy-engine/tests/repo_quality/tools/test_tool_config_split.py",
+    "policy-engine/tests/repo_quality/tools/test_workspace_lint_fast_source_scope.py",
+    "policy-engine/tools/devx/workspace/README.md",
+    "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+    "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+    "policy-engine/tools/devx/workspace/format_check.py",
+    "policy-engine/tools/devx/workspace/lint_fast.py",
+    "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+    "policy-engine/tools/lib/fs.py",
+    "policy-engine/tools/lib/runner.py",
+    "policy-engine/tools/lib/timing.py",
+    "policy-engine/workers/dowhy-014/pyproject.toml"
+  ],
+  "source_publication_at_receipt_creation": "candidate local only at receipt creation; last verified own remote c6dcc7c1d08dad0cdcb485442d1f2e662360f740",
+  "G_checkpoint_at_receipt_creation": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "real_chain": [
+    "Git index plus authored worktree and explicit active ignored Q2 inputs",
+    "canonical source-fragment renderer and product/workspace Ruff settings",
+    "native Ruff --show-files selection plus removal controls and lint diagnostics",
+    "SecureOutputRoot concurrent owned-leaf lock/write API",
+    "16 thread and 16 real child-process timing appends",
+    "read_timing_records consumer verifies complete records"
+  ],
+  "selected_input_profile_backend": {
+    "host": "Darwin native existing isolated candidate venv",
+    "python": "3.14.3",
+    "numeric_threads": 1,
+    "heavy_jobs_during_bounded_replay": 1,
+    "current_source_inputs": 6493,
+    "all_before_after_sha256_equal": true,
+    "Ruff_config": "product-root ruff.toml -> ruff.generated.toml; Git-root generated workspace_root.toml",
+    "authored_lint_files": 6249,
+    "evidence_lint_files": 39,
+    "changed_python_formatter_files": 33,
+    "full_authored_format_role_before_followup": 6427,
+    "backends_exercised": [
+      "local filesystem descriptor output API",
+      "thread and subprocess timing append",
+      "native Ruff role and config resolution"
+    ],
+    "not_exercised": [
+      "Linux LA-029/C7",
+      "installed wheels and rebuilt sdist",
+      "S3/GCS receipt bridge",
+      "real production serving currentness"
+    ]
+  },
+  "native_evidence": {
+    "command_and_complete_output_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2225-source56-final-bounded-verification-root-20261015/command.json",
+        "sha256": "43b6b409455bbcd6f3fafb58949a22c38d73888fc64d1e14c63386a5df367c46"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2225-source56-final-bounded-verification-root-20261015/stdout.txt",
+        "sha256": "28caa0563fab179b7a975843babb220e3d1ea2003f9713012a2f2574f59f9d2c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2225-source56-final-bounded-verification-root-20261015/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2225-source56-final-bounded-verification-root-20261015/junit.xml",
+        "sha256": "c7227b2bcb23c5542a2e28f50e28b2a0f23b43f212e227d9917dc59c54927055"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2225-source56-final-bounded-verification-root-20261015/module-origins.json",
+        "sha256": "39b426982654ad7d86bad5def759fd046a818e2eaecd6ca1d0a994c2ba490f24"
+      }
+    ],
+    "outcome": {
+      "tests_passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "wall_seconds": 8.38660504098516,
+      "authored_Ruff": "PASS 6249",
+      "evidence_Ruff": "PASS 39",
+      "changed_Python_format": "PASS 33"
+    },
+    "adversarial_controls": [
+      "S101 allowances distinguish evidence tests from producer siblings",
+      "generic worker-test allowance distinguishes worker production file",
+      "independent complete Git sets match actual Ruff-selected sets",
+      "remove architecture/research/results inputs while keeping route declarations and observe exact missing sets",
+      "empty Python role fails closed",
+      "both caller roots compare effective exclusions and diagnostic signatures",
+      "concurrent thread/process record preservation"
+    ]
+  },
+  "closure_proposals": {
+    "task_routes": [
+      "DX0",
+      "Q0",
+      "Q2"
+    ],
+    "ids_closed": [],
+    "formal_adjudication": "G only",
+    "whole_E02_closeout": "not_proposed"
+  },
+  "admission": {
+    "ordered_source_composition": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2212-source56-v10-ruff-r5-composition-root-20261015/composition.json",
+        "sha256": "a477d2abb3b6be9055d19810cf0c23598446ccc853c014d8a28a65d03299128a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2212-source56-v10-ruff-r5-composition-root-20261015/application-readback.json",
+        "sha256": "f2ab0010fb59d7caa0fa14ed6c4408119a41f13026b3132f3c394a23be48ba3c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2212-source56-v10-ruff-r5-composition-root-20261015/staging-readback.json",
+        "sha256": "d74d8d2b939b0b842616e2b3a9b00ef935264e4ee2a52f6154109d07ce4ee7f7"
+      }
+    ],
+    "post_composition_companion_deltas": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2216-source56-native-companion-fixes-root-20261015/manifest.json",
+        "sha256": "69f9bf3d0a48350635d668d2e85482b7cd14cde6c91b131b3c088a4ea999d20f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2218-source56-exclusion-policy-companion-root-20261015/readback.json",
+        "sha256": "73d29b028d1f235ad9d2bcd71c624fde690b9bed54d6a05d28215475b8ada2b0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2221-source56-indexed-evidence-selector-companion-root-20261015/readback.json",
+        "sha256": "c448cda8e155a723a7745c8757ae2377c96bf026f3c895b4f5bf7fd85f33d823"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2224-source56-final-format-companion-root-20261015/readback.json",
+        "sha256": "54c4611de5a9078eb28b8b129943e06a49f53bdd71060e612aee6b1701779979"
+      }
+    ],
+    "applied_paths": 46,
+    "changed_committed_paths": 45,
+    "unchanged_vs_slice_base": [
+      "policy-engine/tools/devx/workspace/tool_configs.py"
+    ],
+    "index_and_worktree_clean_after_commit": true,
+    "no_force_add_reset_stash_rebase_or_branch_move": true,
+    "preserved_untracked_historical_probe_scripts": 11
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r5-canonical-ruff-independent-review-leaf-acq-20261015/review.md",
+      "sha256": "699be2a965ee09b3c12b4ccf8571ccba46ee192e4c55f3b137f3de6a7851b8b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2216-source56-native-companion-fixes-root-20261015/independent-review-r2216.json",
+      "sha256": "030b90ab84a96964cc00d7e318f5b762d7cd13926025fb3e379821e652617a48"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2221-source56-indexed-evidence-selector-companion-root-20261015/independent-review-r2221.json",
+      "sha256": "0b7c1673508c111717fa689851e167fa7d139d0df3c26168b15e2864b388f1f3"
+    }
+  ],
+  "prior_failures_retained": {
+    "first_native_wave": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/lint/command.json",
+        "sha256": "71106f64d74c7e58c8479a7f25ce68135c1a9d051226529b012cb52f54d41d4e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/lint/stdout.txt",
+        "sha256": "972b0e479059cfaf3b4652d6328a13d44996c30a086f12e7770beaad6cea39fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/lint/stderr.txt",
+        "sha256": "7c65e07daeb9c744a8d283172964090572bc146a038364a0c41491072ac871c4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/format/command.json",
+        "sha256": "101e127a9f03b2885e512413dfb19d714d61014057214f5474aa8cbdf74f6a15"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/format/stdout.txt",
+        "sha256": "cc2418bccee0ece780da05536c7dd6e20b8fbe14107007ec88f283a246648a7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/format/stderr.txt",
+        "sha256": "7f81a9b77df12b8cc85f8cea40e1af0f6c755f2425cdef58502b67e6b42fddf3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/pytest/command.json",
+        "sha256": "0b0b01a9bd176062c48cf44478dc00663bb287927f30f2e7170853c6a9e96a71"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/pytest/stdout.txt",
+        "sha256": "442e0b8d60aaa82f283c8f939fcaaa941b5c0ce2cea285e2466a905f32538e17"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2213-source56-native-actual-root-20261015/pytest/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "four_failure_discriminator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2215-source56-four-native-failures-root-20261015/command.json",
+      "sha256": "eb8c8090b104b196b3d737ea9dc2aecee0d45a29d970cef811b8d57f10a62a7e"
+    },
+    "intermediate_replay_timeout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2217-source56-native-companion-replay-root-20261015/command.json",
+      "sha256": "776276b3cc51e7650b98740dab330d5090056208c36731ff12ae8b43fbe468b0"
+    },
+    "indexed_role_oracle_failure": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2220-source56-bounded-native-companions-root-20261015/command.json",
+      "sha256": "85db2b65aa312a334253fba1546bcbf2e69679311b620a33f0d00ef4d4f0313a"
+    },
+    "precommit_check_stopped_before_commit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2223-source56-implementation-boundary-root-20261015/changed_format.stdout.txt",
+      "sha256": "ae5ae7985e1bd9531e318eee77de1e753a43e89b844052ab520556a8c61a2736"
+    }
+  },
+  "limitations": {
+    "capability_label": "verification_missing",
+    "full_authored_formatter": "FAIL at source56 first wave: 1641 files needed formatting. Three affected files were subsequently formatted; no complete-role rerun or inherited claim. Final mechanical pass must occur after substantive source composition to avoid invalidating pending patches.",
+    "whole_selected_65_tests": "UNRUN to completion; first wave timed out after241.1s. Dead-override glob over historical RAW is a reproduced source-owned boundary, replacement under review.",
+    "whole_native_86": "UNRUN. V19 product report-writer routing patch is not part of this source commit. Six RAW phase streams need a fresh driver using actual current SecureOutputRoot API.",
+    "release_literal_scope": "Current release workflow still has16 missing literal paths; bounded repair and G broader-scope proposal pending.",
+    "P41": "not_established; no inherited whole-gate classification",
+    "source_qualified_other_slices": "These checks do not rebind prior scientific/producer/runtime/wheel/authority receipts to this slice."
+  },
+  "next_checks": [
+    "apply independently reviewed dead-override current-input liveness companion and rerun complete native quality test set",
+    "compose reviewed Fabric/IR/consumer companions plus required B61/backend fixes before final canonical formatting",
+    "review report-writer v19 and fresh runner, freeze source/input/backend, run actual native13 rows plus support outputs",
+    "complete exact installed wheel/rebuilt-sdist consumers and final291-occurrence individual proposal report"
+  ]
+}

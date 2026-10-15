@@ -9,6 +9,7 @@ from typing import ClassVar
 
 import pytest
 
+from polisyos.fabric.connectors import resolve_async_iterator
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -21,6 +22,7 @@ from polisyos.fabric.connectors.capabilities import (
     REQUIRED_ATTRIBUTES,
     REQUIRED_METHODS,
     describe_capabilities,
+    requires_any_capability,
     requires_capability,
     validate_protocol_compliance,
 )
@@ -48,6 +50,11 @@ from polisyos.ir.connectors import (
     capabilities_from_flags,
     flags_from_capabilities,
 )
+
+
+def _set_dynamic_attribute(target: object, name: str, value: object) -> None:
+    """Exercise runtime assignment through a model's normal attribute path."""
+    setattr(target, name, value)
 
 
 @pytest.fixture
@@ -88,7 +95,7 @@ def sample_version() -> DataVersion:
     )
 
 
-class CompliantConnector(BaseConnector[list[dict]]):
+class CompliantConnector(BaseConnector[list[dict[str, object]]]):
     connector_id: ClassVar[str] = "test.compliant"
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.FULL_FETCH
@@ -125,7 +132,7 @@ class CompliantConnector(BaseConnector[list[dict]]):
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> FetchResult[list[dict]]:
+    ) -> FetchResult[list[dict[str, object]]]:
         return FetchResult(
             data=[{"test": "data"}],
             row_count=1,
@@ -151,7 +158,7 @@ class CompliantConnector(BaseConnector[list[dict]]):
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> AsyncIterator[DataChunk[list[dict]]]:
+    ) -> AsyncIterator[DataChunk[list[dict[str, object]]]]:
         yield DataChunk(
             data=[{"chunk": 1}],
             chunk_index=0,
@@ -219,7 +226,7 @@ class StreamingCapabilityNoMethodConnector:
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> FetchResult[list[dict]]:
+    ) -> FetchResult[list[dict[str, object]]]:
         return FetchResult(
             data=[],
             row_count=0,
@@ -235,7 +242,7 @@ class StreamingCapabilityNoMethodConnector:
         )
 
 
-class BaseConnectorNoOverride(BaseConnector[list[dict]]):
+class BaseConnectorNoOverride(BaseConnector[list[dict[str, object]]]):
     connector_id: ClassVar[str] = "test.base_default"
     capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.STREAMING
     metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
@@ -260,7 +267,7 @@ class BaseConnectorNoOverride(BaseConnector[list[dict]]):
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> FetchResult[list[dict]]:
+    ) -> FetchResult[list[dict[str, object]]]:
         return FetchResult(
             data=[],
             row_count=0,
@@ -301,7 +308,7 @@ class SyncMethodsConnector:
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> FetchResult[list[dict]]:  # Not async!
+    ) -> FetchResult[list[dict[str, object]]]:  # Not async!
         return FetchResult(
             data=[],
             row_count=0,
@@ -344,11 +351,11 @@ class TestProtocolCompliance:
 
     def test_protocol_stub_method_fails(self) -> None:
         class ProtocolStubConnector(CompliantConnector):
-            async def fetch_stream(  # type: ignore[override]
+            def fetch_stream(
                 self,
                 handle: ConnectionHandle,
                 request: FetchRequest,
-            ) -> AsyncIterator[DataChunk[list[dict]]]: ...
+            ) -> AsyncIterator[DataChunk[list[dict[str, object]]]]: ...
 
         violations = validate_protocol_compliance(ProtocolStubConnector)
         assert any(
@@ -367,6 +374,21 @@ class TestProtocolCompliance:
         assert not any("must be async" in v for v in violations)
 
 
+@pytest.mark.asyncio
+async def test_async_iterator_resolver_preserves_both_supported_producer_forms() -> None:
+    async def chunks():
+        yield "chunk"
+
+    direct = chunks()
+    assert await resolve_async_iterator(direct) is direct
+
+    async def produce_iterator() -> AsyncIterator[str]:
+        return chunks()
+
+    resolved = await resolve_async_iterator(produce_iterator())
+    assert [value async for value in resolved] == ["chunk"]
+
+
 class TestCapabilityValidation:
     def test_requires_capability_passes_when_present(self) -> None:
         class TestConnector:
@@ -380,6 +402,48 @@ class TestCapabilityValidation:
         connector = TestConnector()
         result = asyncio.run(connector.fetch_stream())
         assert result == "success"
+
+    def test_requires_capability_preserves_sync_method_signature(self) -> None:
+        class TestConnector:
+            connector_id = "test.sync_capability"
+            capabilities = ConnectorCapability.STREAMING
+
+            @requires_capability(ConnectorCapability.STREAMING)
+            def describe(self, dataset_id: str, *, prefix: str) -> str:
+                return f"{prefix}:{dataset_id}"
+
+        result = TestConnector().describe("dataset-1", prefix="source")
+        assert result == "source:dataset-1"
+
+    def test_requires_any_capability_accepts_any_declared_capability(self) -> None:
+        class TestConnector:
+            connector_id = "test.any_capability"
+            capabilities = ConnectorCapability.STREAMING
+
+            @requires_any_capability(
+                ConnectorCapability.CATALOG_BROWSE,
+                ConnectorCapability.STREAMING,
+            )
+            async def describe(self, dataset_id: str) -> str:
+                return dataset_id
+
+        result = asyncio.run(TestConnector().describe("dataset-1"))
+        assert result == "dataset-1"
+
+    def test_requires_any_capability_blocks_when_none_are_declared(self) -> None:
+        class TestConnector:
+            connector_id = "test.no_any_capability"
+            capabilities = ConnectorCapability.FULL_FETCH
+
+            @requires_any_capability(
+                ConnectorCapability.CATALOG_BROWSE,
+                ConnectorCapability.STREAMING,
+            )
+            def describe(self) -> str:
+                return "must not run"
+
+        with pytest.raises(CapabilityError, match="requires one of"):
+            TestConnector().describe()
 
     def test_requires_capability_raises_when_missing(self) -> None:
         class TestConnector:
@@ -509,7 +573,7 @@ class TestFetchRequestHashing:
     def test_request_immutability(self) -> None:
         request = FetchRequest(dataset_id="test")
         with pytest.raises(AttributeError):
-            request.dataset_id = "modified"  # type: ignore[misc]
+            _set_dynamic_attribute(request, "dataset_id", "modified")
 
     def test_with_pagination_creates_new_request(self) -> None:
         original = FetchRequest(dataset_id="test", page_size=10)
@@ -651,6 +715,12 @@ class TestFetchResult:
         assert result.schema is result.schema
         assert result.provenance is result.provenance
 
+    def test_class_schema_api_remains_available(self) -> None:
+        assert FetchResult.schema() == FetchResult.model_json_schema(
+            ref_template="#/definitions/{model}"
+        )
+        assert "schema" not in FetchResult.model_fields
+
 
 class TestConnectionConfig:
     def test_redacted_hides_credentials(self, sample_config: ConnectionConfig) -> None:
@@ -669,7 +739,7 @@ class TestConnectionConfig:
 
     def test_config_immutability(self, sample_config: ConnectionConfig) -> None:
         with pytest.raises(AttributeError):
-            sample_config.url = "modified"  # type: ignore[misc]
+            _set_dynamic_attribute(sample_config, "url", "modified")
 
 
 class TestDataVersion:

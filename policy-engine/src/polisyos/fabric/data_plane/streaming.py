@@ -10,7 +10,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, runtime_checkable
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.artifacts.async_store import (
@@ -19,6 +19,7 @@ from polisyos.core.artifacts.async_store import (
     ensure_async_artifact_store,
     is_async_artifact_store,
 )
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
@@ -29,6 +30,7 @@ from polisyos.core.contracts.cursor import (
     WatermarkType,
     WindowStrategy,
 )
+from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.pool import BackpressureLevel, ConnectionPool, PoolConfig
 from polisyos.fabric.data_plane.cursor_store import (
@@ -39,6 +41,7 @@ from polisyos.fabric.data_plane.cursor_store import (
     _cursor_id,
 )
 from polisyos.fabric.data_plane.quarantine import (
+    IndexedArtifactStore,
     QuarantineRecord,
     persist_quarantine_record,
 )
@@ -59,8 +62,10 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, Iterator
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnectorValue
     from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, DataSchema
     from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.connectors.registry_core_parts import _StreamOwnerStartup
     from polisyos.fabric.connectors.types import DataChunk
 else:
     AsyncIterator = Any
@@ -70,6 +75,61 @@ else:
 
 if TYPE_CHECKING:
     ConnectorRegistryProvider = Callable[[], ConnectorRegistry]
+
+
+@runtime_checkable
+class _StreamSubscriber(Protocol):
+    """Optional connector surface for opening resumable subscriptions."""
+
+    async def subscribe_stream(self, handle: ConnectionHandle, request: FetchRequest) -> object: ...
+
+
+@runtime_checkable
+class _StreamPoller(Protocol):
+    """Optional connector surface for polling a resumable subscription."""
+
+    async def poll_stream(
+        self, handle: ConnectionHandle, subscription: object
+    ) -> DataChunk[Any]: ...
+
+
+@runtime_checkable
+class _StreamCommitter(Protocol):
+    """Optional connector surface for committing stream checkpoints."""
+
+    async def commit_stream(
+        self, handle: ConnectionHandle, checkpoint: StreamCheckpoint
+    ) -> None: ...
+
+
+@runtime_checkable
+class _StreamRewinder(Protocol):
+    """Optional connector surface for rewinding stream checkpoints."""
+
+    async def rewind_stream(
+        self, handle: ConnectionHandle, checkpoint: StreamCheckpoint
+    ) -> None: ...
+
+
+@runtime_checkable
+class _StreamPauser(Protocol):
+    """Optional connector surface for pausing a stream."""
+
+    async def pause_stream(self, handle: ConnectionHandle, *, reason: str) -> None: ...
+
+
+@runtime_checkable
+class _StreamResumer(Protocol):
+    """Optional connector surface for resuming a stream."""
+
+    async def resume_stream(self, handle: ConnectionHandle) -> None: ...
+
+
+@runtime_checkable
+class _StreamCloser(Protocol):
+    """Optional connector surface for closing stream-specific resources."""
+
+    async def close_stream(self, handle: ConnectionHandle) -> None: ...
 
 
 class StreamCapacityError(RuntimeError):
@@ -100,6 +160,19 @@ class StreamCapacityError(RuntimeError):
             f"stream capacity unsupported at {stage}: rows={rows}/{max_rows} "
             f"bytes={bytes_size}/{max_bytes}; {strategy} cannot enlarge the "
             "budget without a staged spill reader"
+        )
+
+
+class StreamOwnerConflictError(RuntimeError):
+    """Refuse a second owner while the same logical stream is active or closing."""
+
+    def __init__(self, *, connector_id: str, dataset_id: str, partition_key: str) -> None:
+        self.connector_id = connector_id
+        self.dataset_id = dataset_id
+        self.partition_key = partition_key
+        super().__init__(
+            "stream owner is active or cleanup is pending for "
+            f"{connector_id!r}/{dataset_id!r}/{partition_key!r}"
         )
 
 
@@ -342,19 +415,25 @@ class StreamingSourceSession:
         *,
         connector_id: str,
         dataset_id: str,
-        pool: ConnectionPool[Any],
+        pool: ConnectionPool[SourceConnectorValue[Any]],
         request: FetchRequest,
         partition_key: str = "default",
         registry: ConnectorRegistry | None = None,
     ) -> None:
+        """Create a caller-owned session and claim registry scope when provided.
+
+        Without a registry, this legacy constructor coordinates ownership only
+        through the supplied pool. With a registry, it reserves the logical key
+        and exact pool before ``subscribe`` can acquire a physical handle.
+        """
         self.connector_id = connector_id
         self.dataset_id = dataset_id
         self.partition_key = partition_key
         self.pool = pool
         self.request = request
         self._registry = registry
-        self.connector: Any | None = None
-        self.handle: Any | None = None
+        self.connector: SourceConnectorValue[Any] | None = None
+        self.handle: ConnectionHandle | None = None
         self._generator: AsyncIterator[DataChunk[Any]] | None = None
         self._subscription: Any = None
         self._paused = False
@@ -362,8 +441,27 @@ class StreamingSourceSession:
         self._cleanup_pending = False
         self._stream_close_complete = False
         self._close_lock = asyncio.Lock()
+        self._subscribe_lock = asyncio.Lock()
+        self._subscribe_task: asyncio.Task[Any] | None = None
         self._last_chunk: DataChunk[Any] | None = None
         self._prefetched_chunk: DataChunk[Any] | None = None
+        owner_lease = (
+            registry.claim_stream_owner(
+                connector_id,
+                dataset_id,
+                partition_key,
+                pool,
+            )
+            if registry is not None
+            else None
+        )
+        if registry is not None and owner_lease is None:
+            raise StreamOwnerConflictError(
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+                partition_key=partition_key,
+            )
+        self._owner_lease = owner_lease
 
     @classmethod
     async def create(
@@ -402,6 +500,12 @@ class StreamingSourceSession:
         try:
             await session.subscribe()
         except BaseException as exc:
+            if session._registry is not None and session._registry.stream_owner_is_invalidated(
+                session._owner_lease
+            ):
+                # Lifecycle teardown has the exact pool and is waiting for the
+                # startup ticket. A second session-level close would race it.
+                raise
             try:
                 await session.close()
             except BaseException as cleanup_exc:
@@ -419,52 +523,121 @@ class StreamingSourceSession:
 
     async def subscribe(self) -> None:
         """Open the stream subscription and prepare polling."""
-        connector, handle = await self.pool.acquire_with_connector()
-        self.connector = connector
-        self.handle = handle
-        try:
-            if hasattr(connector, "subscribe_stream"):
-                self._subscription = await cast(
-                    "Any",
-                    connector,
-                ).subscribe_stream(handle, self.request)
-            else:
-                stream = cast("Any", connector).fetch_stream(handle, self.request)
-                if hasattr(stream, "__await__"):
-                    stream = await stream
-                self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
-        except BaseException as exc:
-            cleanup_complete = False
+        async with self._subscribe_lock:
+            task = asyncio.current_task()
+            if task is None:
+                raise RuntimeError("stream subscription requires an asyncio task")
+            self._subscribe_task = task
+            startup: _StreamOwnerStartup | None = None
+            release_owner_after_start = False
             try:
-                await self.pool.close_all()
-            except BaseException as cleanup_exc:
-                exc.add_note(f"stream subscription pool close failed: {cleanup_exc!r}")
-                # close_all() deliberately retains the acquired permit when
-                # disconnect cannot be confirmed.  Retry through release so a
-                # transient physical failure can still complete startup
-                # cleanup without making the owner unreachable.
-                try:
-                    await self.pool.release(handle)
-                except BaseException as release_exc:
-                    exc.add_note(f"stream subscription release failed: {release_exc!r}")
-                else:
-                    cleanup_complete = True
-            else:
-                cleanup_complete = True
+                if self._registry is not None:
+                    if not self._registry.owns_stream_owner(
+                        self._owner_lease,
+                        connector_id=self.connector_id,
+                        dataset_id=self.dataset_id,
+                        partition_key=self.partition_key,
+                        pool=self.pool,
+                    ):
+                        raise StreamOwnerConflictError(
+                            connector_id=self.connector_id,
+                            dataset_id=self.dataset_id,
+                            partition_key=self.partition_key,
+                        )
+                    startup = self._registry.begin_stream_owner_start(self._owner_lease)
+                    if startup is None:
+                        raise StreamOwnerConflictError(
+                            connector_id=self.connector_id,
+                            dataset_id=self.dataset_id,
+                            partition_key=self.partition_key,
+                        )
 
-            if cleanup_complete:
-                self.connector = None
-                self.handle = None
-                self._closed = True
-                self._cleanup_pending = False
-            else:
-                # Keep the physical handle attached to this session. ``close()`` can
-                # retry the pool-owned transition after the primary subscription error.
-                self._closed = False
-                self._cleanup_pending = True
-            self._generator = None
-            self._subscription = None
-            raise
+                connector: SourceConnectorValue[Any] | None = None
+                handle: ConnectionHandle | None = None
+                try:
+                    connector, handle = await self.pool.acquire_with_connector()
+                    self.connector = connector
+                    self.handle = handle
+                    if isinstance(connector, _StreamSubscriber):
+                        self._subscription = await connector.subscribe_stream(
+                            handle,
+                            self.request,
+                        )
+                    else:
+                        self._generator = await resolve_async_iterator(
+                            connector.fetch_stream(handle, self.request)
+                        )
+
+                    if startup is not None:
+                        registry = self._registry
+                        if registry is None or not registry.commit_stream_owner_ready(
+                            self._owner_lease,
+                            startup,
+                        ):
+                            raise StreamOwnerConflictError(
+                                connector_id=self.connector_id,
+                                dataset_id=self.dataset_id,
+                                partition_key=self.partition_key,
+                            )
+                except BaseException as exc:
+                    cleanup_is_local = (
+                        self._registry is None
+                        or self._registry.claim_stream_owner_cleanup(
+                            self._owner_lease,
+                            startup,
+                        )
+                    )
+                    if not cleanup_is_local:
+                        # Teardown invalidated this ticket and will close this
+                        # exact pool only after this callback has stopped.
+                        self.connector = None
+                        self.handle = None
+                        self._closed = True
+                        self._cleanup_pending = False
+                        self._generator = None
+                        self._subscription = None
+                        raise
+
+                    cleanup_complete = False
+                    try:
+                        await self.pool.close_all()
+                    except BaseException as cleanup_exc:
+                        exc.add_note(f"stream subscription pool close failed: {cleanup_exc!r}")
+                        # close_all() retains an unconfirmed physical owner. Retry
+                        # release against the same handle, if acquire completed.
+                        if handle is not None:
+                            try:
+                                await self.pool.release(handle)
+                            except BaseException as release_exc:
+                                exc.add_note(f"stream subscription release failed: {release_exc!r}")
+                            else:
+                                cleanup_complete = True
+                    else:
+                        cleanup_complete = True
+
+                    if cleanup_complete:
+                        self.connector = None
+                        self.handle = None
+                        self._closed = True
+                        self._cleanup_pending = False
+                        release_owner_after_start = True
+                    else:
+                        # Keep the exact pool/handle under an owner so close() can
+                        # retry after the primary startup error has propagated.
+                        self.connector = connector
+                        self.handle = handle
+                        self._closed = False
+                        self._cleanup_pending = True
+                    self._generator = None
+                    self._subscription = None
+                    raise
+            finally:
+                if self._registry is not None and startup is not None:
+                    self._registry.finish_stream_owner_start(self._owner_lease, startup)
+                if release_owner_after_start:
+                    self._release_stream_owner()
+                if self._subscribe_task is task:
+                    self._subscribe_task = None
 
     async def poll(self) -> DataChunk[Any] | None:
         """Read the next stream chunk."""
@@ -479,11 +652,11 @@ class StreamingSourceSession:
             return chunk
         if self.connector is None or self.handle is None:
             raise RuntimeError("stream session is not subscribed")
-        if hasattr(self.connector, "poll_stream"):
+        if isinstance(self.connector, _StreamPoller):
             chunk = await self.connector.poll_stream(self.handle, self._subscription)
         else:
             if self._generator is None:
-                raise RuntimeError("stream generator not initialized")
+                raise RuntimeError("connector with subscribe_stream must provide poll_stream")
             try:
                 chunk = await anext(self._generator)
             except StopAsyncIteration:
@@ -528,26 +701,12 @@ class StreamingSourceSession:
 
     async def commit(self, checkpoint: StreamCheckpoint) -> None:
         """Commit one checkpoint to the source if the connector supports it."""
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "commit_stream",
-            )
-        ):
+        if self.handle is not None and isinstance(self.connector, _StreamCommitter):
             await self.connector.commit_stream(self.handle, checkpoint)
 
     async def rewind(self, checkpoint: StreamCheckpoint) -> None:
         """Rewind the stream to one earlier checkpoint."""
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "rewind_stream",
-            )
-        ):
+        if self.handle is not None and isinstance(self.connector, _StreamRewinder):
             await self.connector.rewind_stream(self.handle, checkpoint)
             return
 
@@ -575,14 +734,7 @@ class StreamingSourceSession:
             level=BackpressureLevel.PAUSED,
             reason=reason or "stream paused",
         )
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "pause_stream",
-            )
-        ):
+        if self.handle is not None and isinstance(self.connector, _StreamPauser):
             await self.connector.pause_stream(self.handle, reason=reason)
 
     async def resume(self) -> None:
@@ -591,14 +743,7 @@ class StreamingSourceSession:
         self.pool.clear_backpressure(
             source=f"{self.connector_id}:{self.dataset_id}:{self.partition_key}",
         )
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "resume_stream",
-            )
-        ):
+        if self.handle is not None and isinstance(self.connector, _StreamResumer):
             await self.connector.resume_stream(self.handle)
 
     def _retain_cleanup_owner(self, error: BaseException) -> None:
@@ -607,45 +752,70 @@ class StreamingSourceSession:
             # Directly constructed sessions retain their caller-owned pool.
             return
         try:
-            self._registry._retain_pending_startup_cleanup(self.connector_id, self.pool)
+            self._registry.retain_pending_startup_cleanup(self.connector_id, self.pool)
         except BaseException as transfer_exc:
             error.add_note(f"stream session cleanup owner transfer failed: {transfer_exc!r}")
 
+    def _release_stream_owner(self) -> None:
+        """Release the registry lease after confirmed physical pool closure."""
+        if self._registry is None or self._owner_lease is None:
+            return
+        self._registry.release_stream_owner(self._owner_lease)
+        self._owner_lease = None
+
     async def close(self) -> None:
         """Close owned resources or retain them for production cleanup retry."""
+        current_task = asyncio.current_task()
+        startup_task = self._subscribe_task
+        if startup_task is current_task and startup_task is not None:
+            raise RuntimeError("stream session cannot close itself from its subscription callback")
+        if (
+            startup_task is not None
+            and not startup_task.done()
+            and not (
+                self._registry is not None
+                and self._registry.stream_owner_is_invalidated(self._owner_lease)
+            )
+        ):
+            startup_task.cancel()
         async with self._close_lock:
-            if self._closed and not self._cleanup_pending:
-                return
-            try:
-                if (
-                    self.connector is not None
-                    and self.handle is not None
-                    and hasattr(self.connector, "close_stream")
-                    and not self._stream_close_complete
-                    and not self._cleanup_pending
+            async with self._subscribe_lock:
+                if self._registry is not None and self._registry.stream_owner_is_invalidated(
+                    self._owner_lease
                 ):
-                    await self.connector.close_stream(self.handle)
-                    self._stream_close_complete = True
+                    return
+                if self._closed and not self._cleanup_pending:
+                    self._release_stream_owner()
+                    return
+                try:
+                    if (
+                        self.handle is not None
+                        and isinstance(self.connector, _StreamCloser)
+                        and not self._stream_close_complete
+                        and not self._cleanup_pending
+                    ):
+                        await self.connector.close_stream(self.handle)
+                        self._stream_close_complete = True
 
-                if self.handle is not None:
-                    await self.pool.release(self.handle)
-                    self.connector = None
-                    self.handle = None
-                await self.pool.close_all()
-            except BaseException as exc:
-                # Failure and cancellation must leave the same pool/handle under
-                # an owner after the process consumer has unwound. No replacement
-                # handle, permit release or observer rescue completes this cleanup.
-                self._closed = False
-                self._cleanup_pending = True
-                self._retain_cleanup_owner(exc)
-                raise
-            self._closed = True
-            self._cleanup_pending = False
-            self.connector = None
-            self.handle = None
-            self._generator = None
-            self._subscription = None
+                    if self.handle is not None:
+                        await self.pool.release(self.handle)
+                        self.connector = None
+                        self.handle = None
+                    await self.pool.close_all()
+                except BaseException as exc:
+                    # Failure and cancellation leave this exact pool under an
+                    # owner so cleanup can retry after the consumer unwinds.
+                    self._closed = False
+                    self._cleanup_pending = True
+                    self._retain_cleanup_owner(exc)
+                    raise
+                self._closed = True
+                self._cleanup_pending = False
+                self.connector = None
+                self.handle = None
+                self._generator = None
+                self._subscription = None
+                self._release_stream_owner()
 
     async def _reconnect(self) -> None:
         if self.handle is not None:
@@ -749,7 +919,7 @@ class StreamWindowAccumulator:
         contributor_refs: tuple[str, ...],
     ) -> Iterator[_WindowEmission]:
         """Emit each window before retaining the next input row's windows."""
-        refs = self._validate_refs(contributor_refs)
+        refs = _validate_stream_refs(contributor_refs)
         for row in rows:
             self._set_row_refs(row, refs)
             for assignment in self._add_row(row):
@@ -900,7 +1070,7 @@ class StreamWindowAccumulator:
                 if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
                     raise TypeError("invalid sliding-time row entry")
                 row = dict(entry["row"])
-                refs = self._validate_refs(entry.get("refs"))
+                refs = _validate_stream_refs(entry.get("refs"))
                 self._set_row_refs(row, refs)
                 timestamp = self._parse_state_timestamp(entry.get("timestamp"))
                 if timestamp is None:
@@ -933,17 +1103,9 @@ class StreamWindowAccumulator:
             if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
                 raise TypeError("invalid row entry")
             row = dict(entry["row"])
-            self._set_row_refs(row, self._validate_refs(entry.get("refs")))
+            self._set_row_refs(row, _validate_stream_refs(entry.get("refs")))
             rows.append(row)
         return rows
-
-    @staticmethod
-    def _validate_refs(refs: Any) -> tuple[str, ...]:
-        if not isinstance(refs, list | tuple):
-            raise TypeError("row contributor refs must be a list")
-        if any(not isinstance(ref, str) or not ref for ref in refs):
-            raise ValueError("row contributor refs cannot be empty")
-        return tuple(dict.fromkeys(refs))
 
     @staticmethod
     def _parse_state_timestamp(value: Any) -> datetime | None:
@@ -1196,6 +1358,14 @@ class StreamWindowAccumulator:
 
 def _estimate_row_bytes(row: object) -> int:
     return len(json.dumps(row, sort_keys=True, default=str).encode("utf-8"))
+
+
+def _validate_stream_refs(refs: Any) -> tuple[str, ...]:
+    if not isinstance(refs, list | tuple):
+        raise TypeError("row contributor refs must be a list")
+    if any(not isinstance(ref, str) or not ref for ref in refs):
+        raise ValueError("row contributor refs cannot be empty")
+    return tuple(dict.fromkeys(refs))
 
 
 def _ensure_async_store(
@@ -1955,7 +2125,7 @@ def _admit_restored_operator_state(
                 raise ValueError("corrupt stream operator state")
             rows += 1
             bytes_size += _estimate_row_bytes(entry["row"])
-            refs.update(StreamWindowAccumulator._validate_refs(entry.get("refs")))
+            refs.update(_validate_stream_refs(entry.get("refs")))
             _admit_stream_capacity(
                 stage="restore",
                 rows=rows,
@@ -2075,6 +2245,10 @@ async def process_stream_dataset(
         registry=registry,
         registry_provider=registry_provider,
     )
+    result: StreamDatasetRunResult | None = None
+    committed_checkpoint: StreamCheckpoint | None = None
+    committed_cursor: CursorState | None = None
+    pending_frontier: StreamCheckpoint | None = None
     try:
         result = StreamDatasetRunResult(
             connector_id=connector_id,
@@ -2096,13 +2270,10 @@ async def process_stream_dataset(
         )
         previous_schema: tuple[str, ...] | None = None
         visible_schema: tuple[str, ...] | None = None
-        committed_checkpoint: StreamCheckpoint | None = None
-        committed_cursor: CursorState | None = None
         empty_frontier = _empty_stream_frontier_checkpoint(
             session,
             operator_state=_empty_stream_operator_state(options.window_policy),
         )
-        pending_frontier: StreamCheckpoint | None = None
         latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
             connector_id,
             dataset_id,
@@ -2345,6 +2516,14 @@ async def process_stream_dataset(
                     compatibility,
                     processing_contract,
                 )
+                quarantine_cdc_change = _should_quarantine_cdc_schema_change(
+                    compatibility,
+                    handling_action,
+                )
+                if quarantine_cdc_change and not isinstance(sync_store, IndexedArtifactStore):
+                    raise TypeError(
+                        "CDC quarantine requires an artifact store with a rooted mutable index"
+                    )
                 _admit_output_ref(result, options)
                 cdc_ref = await _persist_cdc_schema_change_event_async(
                     store=async_store,
@@ -2374,10 +2553,11 @@ async def process_stream_dataset(
                         "CDC schema change failed closed for "
                         f"{connector_id}:{dataset_id}: {compatibility.value}"
                     )
-                if _should_quarantine_cdc_schema_change(
-                    compatibility,
-                    handling_action,
-                ):
+                if quarantine_cdc_change:
+                    if not isinstance(sync_store, IndexedArtifactStore):
+                        raise TypeError(
+                            "CDC quarantine requires an artifact store with a rooted mutable index"
+                        )
                     result.quarantined_rows += len(clean_rows)
                     result.warnings.append("CDC incompatible breaking change quarantined")
                     persist_quarantine_record(
@@ -2602,7 +2782,7 @@ async def process_stream_dataset(
             raise
         if pending_frontier is not None:
             raise
-        if session.last_chunk is not None:
+        if session.last_chunk is not None and result is not None:
             if committed_checkpoint is not None:
                 checkpoint = committed_checkpoint.model_copy(
                     update={
@@ -2656,8 +2836,9 @@ async def process_stream_dataset(
                 }
             )
             checkpoint_ref = await async_cursor_store.save_stream_checkpoint(checkpoint)
-            result.final_checkpoint = checkpoint
-            result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
+            if result is not None:
+                result.final_checkpoint = checkpoint
+                result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
         raise
     finally:
         primary_exc = sys.exc_info()[1]
@@ -2730,15 +2911,15 @@ async def _persist_stream_window_async(
     resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
         (input_ref,) if input_ref is not None else ()
     )
+    unique_artifact_ids: dict[str, ArtifactID] = {}
+    for ref in resolved_refs:
+        artifact_id = (
+            ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
+        )
+        unique_artifact_ids.setdefault(str(artifact_id), artifact_id)
     inputs = [
-        InputRef(
-            artifact_id=(ref.artifact_id if isinstance(ref, ArtifactRef) else ref),
-            role="stream_chunk",
-        )
-        for ref in dict.fromkeys(
-            str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
-            for ref in resolved_refs
-        )
+        InputRef(artifact_id=artifact_id, role="stream_chunk")
+        for artifact_id in unique_artifact_ids.values()
     ] or None
     payload = {
         "connector_id": connector_id,
@@ -2864,13 +3045,17 @@ def persist_stream_window(
     resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
         (input_ref,) if input_ref is not None else ()
     )
-    unique_refs = tuple(
-        dict.fromkeys(
-            str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
-            for ref in resolved_refs
+    unique_artifact_ids: dict[str, ArtifactID] = {}
+    for ref in resolved_refs:
+        artifact_id = (
+            ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
         )
-    )
-    inputs = [InputRef(artifact_id=ref, role="stream_chunk") for ref in unique_refs] or None
+        unique_artifact_ids.setdefault(str(artifact_id), artifact_id)
+    unique_refs = tuple(unique_artifact_ids)
+    inputs = [
+        InputRef(artifact_id=artifact_id, role="stream_chunk")
+        for artifact_id in unique_artifact_ids.values()
+    ] or None
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -3033,6 +3218,7 @@ __all__ = [
     "StreamCapacityError",
     "StreamDatasetRunResult",
     "StreamDedupeUnsupported",
+    "StreamOwnerConflictError",
     "StreamRuntimeOptions",
     "StreamingSourceSession",
     "iter_record_batches",

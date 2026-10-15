@@ -7,7 +7,7 @@ import threading
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from datetime import UTC, datetime
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import pytest
 
@@ -18,6 +18,8 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    SourceConnectorInstance,
+    SourceConnectorValue,
 )
 from polisyos.fabric.connectors.discovery import ConnectorDiscovery
 from polisyos.fabric.connectors.pool import (
@@ -35,6 +37,7 @@ from polisyos.fabric.connectors.registry import (
     ConnectorRegistry,
 )
 from polisyos.fabric.connectors.types import (
+    DataChunk,
     DatasetDescriptor,
     FreshnessResult,
     FreshnessStatus,
@@ -104,8 +107,9 @@ class MockConnectorA(BaseConnector[list[dict]]):
 
     async def fetch_stream(
         self, handle: ConnectionHandle, request: FetchRequest
-    ) -> AsyncIterator[list[dict]]:
-        yield [{"mock": "stream"}]
+    ) -> AsyncIterator[DataChunk[list[dict]]]:
+        del handle, request
+        yield DataChunk(data=[{"mock": "stream"}], chunk_index=0, row_count=1)
 
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
@@ -319,12 +323,14 @@ class MockConnectorC(BaseConnector[list[dict]]):
     async def check_freshness(
         self, handle: ConnectionHandle, dataset_id: str, cached_version: DataVersion
     ) -> FreshnessResult:
-        return FreshnessResult(status=FreshnessStatus.FRESH, current_version=cached_version)
+        del handle, dataset_id, cached_version
+        return FreshnessResult(status=FreshnessStatus.FRESH)
 
     async def fetch_stream(
         self, handle: ConnectionHandle, request: FetchRequest
-    ) -> AsyncIterator[list[dict]]:
-        yield []
+    ) -> AsyncIterator[DataChunk[list[dict]]]:
+        del handle, request
+        yield DataChunk(data=[], chunk_index=0, row_count=0)
 
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
@@ -533,6 +539,7 @@ class TestRegistryLookup:
         connector = registry.get("test.mock.mock_a@1.0.0")
 
         assert isinstance(connector, MockConnectorA)
+        assert isinstance(connector, SourceConnectorInstance)
 
     def test_get_by_short_id(self, registry: ConnectorRegistry) -> None:
         """Get connector by short ID (fuzzy match)."""
@@ -1333,14 +1340,16 @@ class TestConnectorDiscovery:
         registry: ConnectorRegistry,
     ) -> None:
         registry.register(MockConnectorA)
-        connectors: list[object] = []
+        connectors: list[SourceConnectorInstance[object]] = []
         errors: list[BaseException] = []
         gate = threading.Barrier(8)
 
         def _get_connector() -> None:
             try:
                 gate.wait()
-                connectors.append(registry.get("mock_a"))
+                connector = registry.get("mock_a")
+                assert isinstance(connector, SourceConnectorInstance)
+                connectors.append(connector)
             except BaseException as exc:  # pragma: no cover - test helper
                 errors.append(exc)
 
@@ -1416,7 +1425,7 @@ class TestRegistryIntegration:
 
         async def _run() -> None:
             connector = _Net01LifecycleConnector(disconnect_failures=2)
-            pool = ConnectionPool(
+            pool = ConnectionPool[SourceConnectorValue[Any]](
                 connector_factory=lambda: connector,
                 config=sample_config,
                 pool_config=PoolConfig(
@@ -1430,7 +1439,7 @@ class TestRegistryIntegration:
             with pytest.raises(RuntimeError):
                 await pool.release(handle)
 
-            registry._retain_pending_startup_cleanup("mock_a", pool)
+            registry.retain_pending_startup_cleanup("mock_a", pool)
             assert id(pool) in registry._pending_startup_cleanup
             assert pool not in registry._connection_pools.values()
 
@@ -1459,7 +1468,7 @@ class TestRegistryIntegration:
                 config=sample_config,
                 factory=lambda: connector,
             )
-            pool = ConnectionPool(
+            pool = ConnectionPool[SourceConnectorValue[Any]](
                 connector_factory=lambda: connector,
                 config=sample_config,
                 pool_config=PoolConfig(
@@ -1472,7 +1481,7 @@ class TestRegistryIntegration:
             handle = await pool.acquire()
             with pytest.raises(RuntimeError):
                 await pool.release(handle)
-            registry._retain_pending_startup_cleanup("mock_a", pool)
+            registry.retain_pending_startup_cleanup("mock_a", pool)
 
             with pytest.raises(RuntimeError):
                 await registry.unregister_async("mock_a")

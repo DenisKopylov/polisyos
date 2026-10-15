@@ -47,12 +47,14 @@ class PredicateRegistry(KernelModel):
 
     @model_validator(mode="after")
     def validate_predicates(self) -> PredicateRegistry:
-        for key, spec in self.scalars.items():
-            if key != spec.predicate_id:
-                raise ValueError(f"predicate_id mismatch: '{key}' != '{spec.predicate_id}'")
-        for key, spec in self.edges.items():
-            if key != spec.predicate_id:
-                raise ValueError(f"edge predicate_id mismatch: '{key}' != '{spec.predicate_id}'")
+        for key, scalar_spec in self.scalars.items():
+            if key != scalar_spec.predicate_id:
+                raise ValueError(f"predicate_id mismatch: '{key}' != '{scalar_spec.predicate_id}'")
+        for key, edge_spec in self.edges.items():
+            if key != edge_spec.predicate_id:
+                raise ValueError(
+                    f"edge predicate_id mismatch: '{key}' != '{edge_spec.predicate_id}'"
+                )
         return self
 
 

@@ -8,6 +8,8 @@ import threading
 import weakref
 from collections import OrderedDict
 from collections.abc import Iterator
+from concurrent.futures import Future
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
@@ -23,7 +25,18 @@ from polisyos.fabric.connectors._registry_errors import (
     ConnectorNotFoundError,
     RegistryError,
 )
-from polisyos.fabric.connectors._registry_lifecycle import RegistryLifecycleMixin
+from polisyos.fabric.connectors._registry_lifecycle import (
+    RegistryLifecycleMixin,
+)
+from polisyos.fabric.connectors._registry_lifecycle import (
+    _StreamOwnerLease as StreamOwnerLeaseState,
+)
+from polisyos.fabric.connectors._registry_lifecycle import (
+    _StreamOwnerStartup as StreamOwnerStartupState,
+)
+from polisyos.fabric.connectors._registry_lifecycle import (
+    _StreamStartupTask as StreamStartupTaskState,
+)
 from polisyos.fabric.connectors._registry_models import (
     ConnectorEntry,
     ConnectorPreferences,
@@ -50,14 +63,42 @@ if TYPE_CHECKING:
         ConnectionConfig,
         ConnectionHandle,
         HealthStatus,
-        SourceConnector,
+        SourceConnectorInstance,
+        SourceConnectorValue,
     )
+    from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
     from polisyos.fabric.connectors.contracts import ContractRegistry
     from polisyos.fabric.connectors.pool import ConnectionPool
 
 logger = get_logger(__name__)
 MAX_CONNECTION_POOLS = 512
 _POOL_KEY_STATE_KEY = "__polisyos_connector_pool_key"
+
+
+@dataclass(eq=False)
+class _StreamOwnerStartup:
+    """One in-flight startup, settled independently of its asyncio loop."""
+
+    task: StreamStartupTaskState
+    loop: asyncio.AbstractEventLoop
+    completed: Future[None] = field(default_factory=Future)
+    cleanup_started: bool = False
+
+
+@dataclass(eq=False)
+class _StreamOwnerLease:
+    """Registry-local ownership of one logical stream and its private pool."""
+
+    fqid: str
+    dataset_id: str
+    partition_key: str
+    pool: ConnectionPool[SourceConnectorValue[Any]] | None = None
+    startup: StreamOwnerStartupState | None = None
+    invalidated: bool = False
+
+    @property
+    def key(self) -> tuple[str, str, str]:
+        return self.fqid, self.dataset_id, self.partition_key
 
 
 class ConnectorRegistry(RegistryLifecycleMixin):
@@ -98,14 +139,22 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         # Connection pool management is scoped by event loop because pools own
         # asyncio primitives; fresh-loop callers must not share those objects.
-        self._connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool] = (
-            OrderedDict()
-        )
+        self._connection_pools: OrderedDict[
+            tuple[str, str, int], ConnectionPool[SourceConnectorValue[Any]]
+        ] = OrderedDict()
         # Pools whose first cleanup attempt cannot confirm physical disconnect
         # are retained here.  This includes startup-created stream pools and
         # normal owners evicted by LRU/shutdown; it stays separate from the
         # LRU so an unresolved physical owner remains registry-reachable.
-        self._pending_startup_cleanup: dict[int, tuple[str, ConnectionPool]] = {}
+        self._pending_startup_cleanup: dict[
+            int, tuple[str, ConnectionPool[SourceConnectorValue[Any]]]
+        ] = {}
+        # A private stream pool is deliberately not in the general connection
+        # pool cache. This registry-local lease prevents a second private pool
+        # from owning the same logical dataset/partition while its first pool is
+        # active or awaiting confirmed physical cleanup.
+        self._stream_owner_leases: dict[tuple[str, str, str], StreamOwnerLeaseState] = {}
+        self._stream_owner_admissions_closed = False
         self._max_connection_pools = MAX_CONNECTION_POOLS
         self._loop_scope_ids: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, int] = (
             weakref.WeakKeyDictionary()
@@ -124,12 +173,12 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self._bootstrapped = False
 
         # Optional caching integration
-        self._cache_store = None
+        self._cache_store: ConnectorCacheStore | None = None
         self._enable_caching = True
-        self._cache_wrappers: dict[str, Any] = {}
+        self._cache_wrappers: dict[str, SourceConnectorInstance[Any]] = {}
         self._contract_registry: ContractRegistry | None = None
         self._contract_validation_mode: Literal["strict", "warn", "disabled"] = "warn"
-        self._contract_wrappers: dict[str, Any] = {}
+        self._contract_wrappers: dict[str, SourceConnectorInstance[Any]] = {}
         self._schema_invalidation_callback_registered = False
         self._bootstrap_contract_registry()
 
@@ -173,9 +222,11 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         for pool_key, pool in instance._connection_pools.items():
             instance._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
             pools_to_close.append(pool)
-        pools_to_close.extend(
-            pool for _fqid, pool in instance._pending_startup_cleanup.values()
-        )
+        for lease in instance._stream_owner_leases.values():
+            if lease.pool is not None:
+                instance._pending_startup_cleanup[id(lease.pool)] = (lease.fqid, lease.pool)
+                pools_to_close.append(lease.pool)
+        pools_to_close.extend(pool for _fqid, pool in instance._pending_startup_cleanup.values())
         if pools_to_close and instance._has_running_loop():
             with cls._lock:
                 cls._instance = instance
@@ -203,7 +254,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         version: str | None = None,
         *,
         enable_cache: bool = True,
-    ) -> SourceConnector:
+    ) -> SourceConnectorValue[Any]:
         """
         Get connector instance by ID.
 
@@ -694,7 +745,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self,
         connector_id: str,
         config: ConnectionConfig | None,
-    ) -> tuple[ConnectionPool, tuple[str, str, int]]:
+    ) -> tuple[ConnectionPool[SourceConnectorValue[Any]], tuple[str, str, int]]:
         """Resolve or create the one pool owned for this connector/config/loop."""
 
         from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
@@ -757,7 +808,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 pool_id=f"pool-{fqid}-{fingerprint[:8]}-loop{pool_scope}",
                 circuit_breaker=breaker,
             )
-            evicted_pools: list[ConnectionPool] = []
+            evicted_pools: list[ConnectionPool[SourceConnectorValue[Any]]] = []
             with self._instance_lock:
                 pool = self._get_connection_pool_locked(pool_key)
                 if pool is None:
@@ -794,7 +845,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         if pool is not None:
             await pool.release(handle)
-            evicted_pools: list[ConnectionPool] = []
+            evicted_pools: list[ConnectionPool[SourceConnectorValue[Any]]] = []
             with self._instance_lock:
                 evicted_pools = self._trim_connection_pools_locked()
             for evicted_pool in evicted_pools:
@@ -811,6 +862,147 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         payload = config.to_dict(redact=False)
         payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
         return content_hash(payload_json, prefix=True)
+
+    def claim_stream_owner(
+        self,
+        connector_id: str,
+        dataset_id: str,
+        partition_key: str,
+        pool: ConnectionPool[SourceConnectorValue[Any]],
+    ) -> _StreamOwnerLease | None:
+        """Atomically reserve one logical key and bind its private pool."""
+        fqid = self._resolve_id(connector_id)
+        with self._instance_lock:
+            if self._connectors.get(fqid) is None:
+                raise ConnectorNotFoundError(
+                    connector_id,
+                    available=list(self._connectors.keys()),
+                )
+            if self._stream_owner_admissions_closed:
+                return None
+            key = (fqid, dataset_id, partition_key)
+            if key in self._stream_owner_leases:
+                return None
+            lease = _StreamOwnerLease(
+                fqid=fqid,
+                dataset_id=dataset_id,
+                partition_key=partition_key,
+                pool=pool,
+            )
+            self._stream_owner_leases[key] = lease
+            return lease
+
+    def begin_stream_owner_start(
+        self,
+        lease: _StreamOwnerLease | None,
+    ) -> _StreamOwnerStartup | None:
+        """Fence a subscribe transition before it reaches its first await."""
+        task = asyncio.current_task()
+        if task is None or lease is None:
+            return None
+        with self._instance_lock:
+            if (
+                lease.invalidated
+                or self._stream_owner_admissions_closed
+                or self._stream_owner_leases.get(lease.key) is not lease
+                or lease.startup is not None
+            ):
+                return None
+            startup = _StreamOwnerStartup(task=task, loop=task.get_loop())
+            lease.startup = startup
+            return startup
+
+    def claim_stream_owner_cleanup(
+        self,
+        lease: _StreamOwnerLease | None,
+        startup: _StreamOwnerStartup | None,
+    ) -> bool:
+        """Choose whether startup or registry lifecycle owns failed-start cleanup."""
+        if lease is None or startup is None:
+            return True
+        with self._instance_lock:
+            if (
+                lease.invalidated
+                or self._stream_owner_leases.get(lease.key) is not lease
+                or lease.startup is not startup
+            ):
+                return False
+            startup.cleanup_started = True
+            return True
+
+    def stream_owner_is_invalidated(self, lease: _StreamOwnerLease | None) -> bool:
+        """Return whether registry teardown owns this exact stream pool."""
+        if lease is None:
+            return False
+        with self._instance_lock:
+            return lease.invalidated
+
+    def finish_stream_owner_start(
+        self,
+        lease: _StreamOwnerLease | None,
+        startup: _StreamOwnerStartup | None,
+    ) -> None:
+        """Settle a start ticket only after its callback stopped touching the pool."""
+        if lease is None or startup is None:
+            return
+        with self._instance_lock:
+            if lease.startup is startup:
+                lease.startup = None
+            if not startup.completed.done():
+                startup.completed.set_result(None)
+
+    def commit_stream_owner_ready(
+        self,
+        lease: _StreamOwnerLease | None,
+        startup: _StreamOwnerStartup | None,
+    ) -> bool:
+        """Commit a ready session only while the same registry lease is active."""
+        if lease is None or startup is None:
+            return lease is None
+        with self._instance_lock:
+            return (
+                not lease.invalidated
+                and not self._stream_owner_admissions_closed
+                and self._stream_owner_leases.get(lease.key) is lease
+                and lease.startup is startup
+            )
+
+    def owns_stream_owner(
+        self,
+        lease: _StreamOwnerLease | None,
+        *,
+        connector_id: str,
+        dataset_id: str,
+        partition_key: str,
+        pool: ConnectionPool[SourceConnectorValue[Any]],
+    ) -> bool:
+        """Verify this registry still owns the exact key, lease, and pool."""
+        if lease is None:
+            return False
+        try:
+            fqid = self._resolve_id(connector_id)
+        except ConnectorNotFoundError:
+            return False
+        key = (fqid, dataset_id, partition_key)
+        with self._instance_lock:
+            return (
+                not lease.invalidated
+                and not self._stream_owner_admissions_closed
+                and lease.key == key
+                and lease.pool is pool
+                and self._stream_owner_leases.get(key) is lease
+            )
+
+    def release_stream_owner(self, lease: _StreamOwnerLease) -> None:
+        """Release a logical owner only after its pool close has succeeded."""
+        with self._instance_lock:
+            if self._stream_owner_leases.get(lease.key) is not lease:
+                return
+            self._stream_owner_leases.pop(lease.key)
+            if lease.pool is not None:
+                pending = self._pending_startup_cleanup.get(id(lease.pool))
+                if pending is not None and pending[1] is lease.pool:
+                    self._pending_startup_cleanup.pop(id(lease.pool), None)
 
     def _current_pool_scope_locked(self) -> int:
         """Return the current event-loop pool scope.
@@ -831,7 +1023,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def _get_connection_pool_locked(
         self,
         pool_key: tuple[str, str, int],
-    ) -> ConnectionPool | None:
+    ) -> ConnectionPool[SourceConnectorValue[Any]] | None:
         pool = self._connection_pools.get(pool_key)
         if pool is not None:
             self._connection_pools.move_to_end(pool_key)
@@ -840,14 +1032,16 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def _store_connection_pool_locked(
         self,
         pool_key: tuple[str, str, int],
-        pool: ConnectionPool,
-    ) -> list[ConnectionPool]:
+        pool: ConnectionPool[SourceConnectorValue[Any]],
+    ) -> list[ConnectionPool[SourceConnectorValue[Any]]]:
         self._connection_pools[pool_key] = pool
         self._connection_pools.move_to_end(pool_key)
         return self._trim_connection_pools_locked()
 
-    def _trim_connection_pools_locked(self) -> list[ConnectionPool]:
-        evicted: list[ConnectionPool] = []
+    def _trim_connection_pools_locked(
+        self,
+    ) -> list[ConnectionPool[SourceConnectorValue[Any]]]:
+        evicted: list[ConnectionPool[SourceConnectorValue[Any]]] = []
         attempts = len(self._connection_pools)
         while len(self._connection_pools) > self._max_connection_pools and attempts > 0:
             attempts -= 1
@@ -907,7 +1101,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         cap_dist: dict[str, int] = {}
         for cap in ConnectorCapability:
             count = len({entry.fqid for entry in self._connectors.find("capability", cap)})
-            if count > 0:
+            if count > 0 and cap.name is not None:
                 cap_dist[cap.name] = count
 
         loaded_count = sum(1 for e in self._connectors.values() if e.loaded)

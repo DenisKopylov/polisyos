@@ -121,8 +121,7 @@ class MetricTaxonomyValidationError(ValueError):
     ) -> None:
         self.unknown_metrics = [str(item) for item in unknown_metrics]
         self.suggestions = {
-            str(metric): [str(item) for item in values]
-            for metric, values in suggestions.items()
+            str(metric): [str(item) for item in values] for metric, values in suggestions.items()
         }
         self.diagnostics = [dict(item) for item in diagnostics or []]
         suggestion_parts = []
@@ -314,6 +313,7 @@ def build_production_metric_taxonomy(
     }
 
     def _merge_source(source_metrics: Mapping[str, str] | Sequence[str], *, source: str) -> None:
+        items: Iterable[tuple[str, str | None]]
         if isinstance(source_metrics, Mapping):
             items = source_metrics.items()
         else:

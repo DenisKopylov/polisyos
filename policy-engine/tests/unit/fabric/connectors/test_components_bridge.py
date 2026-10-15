@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import ClassVar
 
 import pytest
 
@@ -13,7 +15,9 @@ from polisyos.core.components import (
     ComponentMetadata,
     ComponentRegistry,
 )
+from polisyos.core.components import bootstrap as components_bootstrap
 from polisyos.core.components.discovery import DiscoverySourceInfo
+from polisyos.fabric.connectors import components_bridge
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -27,7 +31,7 @@ from polisyos.fabric.connectors.components_bridge import (
     bootstrap_connector_registry_from_components,
 )
 from polisyos.fabric.connectors.discovery import ConnectorDiscovery
-from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.registry import ConnectorAlreadyRegisteredError, ConnectorRegistry
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -40,11 +44,11 @@ from polisyos.ir.connectors import (
 
 
 class _TestConnector(BaseConnector[dict[str, str]]):
-    namespace = "test"
-    short_id = "bridge"
-    connector_id = f"{namespace}.{short_id}"
-    capabilities = ConnectorCapability.FULL_FETCH
-    metadata = ConnectorMetadataSpec(
+    namespace: ClassVar[str] = "test"
+    short_id: ClassVar[str] = "bridge"
+    connector_id: ClassVar[str] = f"{namespace}.{short_id}"
+    capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
         connector_id=short_id,
         version="1.0.0",
         namespace=namespace,
@@ -106,7 +110,7 @@ class _ComponentWithoutConnectorMetadata:
 
 
 @pytest.fixture
-def _clean_registry() -> None:
+def _clean_registry() -> Generator[None]:
     ConnectorRegistry.reset_instance()
     ConnectorDiscovery.reset()
     yield
@@ -137,6 +141,34 @@ def test_connector_components_bridge_registers_component_connector(_clean_regist
     assert registry.get("test.bridge@1.0.0") is not None
 
 
+def test_connector_components_bridge_preserves_public_api_and_default_registry(
+    _clean_registry,
+) -> None:
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=component.metadata,
+            component=component,
+            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+        )
+    )
+
+    report = bootstrap_connector_registry_from_components(index)
+
+    assert report.errors == []
+    assert report.registered == ["test.bridge@1.0.0"]
+    assert ConnectorRegistry.get_instance(bootstrap=False).get("test.bridge@1.0.0") is not None
+    assert components_bridge.__all__ == [
+        "ComponentsBridgeError",
+        "ComponentsBridgeReport",
+        "bootstrap_connector_registry_from_components",
+    ]
+    assert components_bridge.ComponentsBridgeError.__module__ == components_bridge.__name__
+    assert components_bridge.ComponentsBridgeReport.__module__ == components_bridge.__name__
+    assert components_bridge.ConnectorAlreadyRegisteredError is ConnectorAlreadyRegisteredError
+
+
 def test_connector_components_bridge_reports_missing_connector_metadata(
     _clean_registry,
 ) -> None:
@@ -163,9 +195,7 @@ def test_connector_components_bridge_reports_missing_connector_metadata(
     report = bootstrap_connector_registry_from_components(index, registry)
 
     assert report.registered == []
-    assert report.errors == [
-        "test.missing_metadata@1.0.0: connector class must declare metadata"
-    ]
+    assert report.errors == ["test.missing_metadata@1.0.0: connector class must declare metadata"]
 
 
 def test_connector_components_bridge_reports_duplicates_on_second_bootstrap(
@@ -219,4 +249,43 @@ def test_connector_components_bridge_uses_injected_registry_without_default_sing
 
     assert report.errors == []
     assert report.registered == ["test.bridge@1.0.0"]
+    assert registry.get("test.bridge@1.0.0") is not None
+
+
+def test_registry_lifecycle_bootstraps_without_importing_public_bridge(
+    _clean_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=component.metadata,
+            component=component,
+            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+        )
+    )
+    discovery_report = type(
+        "DiscoveryReport",
+        (),
+        {"errors": [], "sources_processed": 1},
+    )()
+    monkeypatch.setattr(
+        components_bootstrap,
+        "build_components_index",
+        lambda **_: (index, discovery_report),
+    )
+    monkeypatch.setattr(registry, "_bootstrap_builtin_connectors_direct", lambda: 0)
+    monkeypatch.setattr(registry, "_bootstrap_default_configs", lambda: None)
+    monkeypatch.setattr(
+        components_bridge,
+        "bootstrap_connector_registry_from_components",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("registry lifecycle must use the registry-independent bootstrap")
+        ),
+    )
+
+    registry._bootstrap()
+
     assert registry.get("test.bridge@1.0.0") is not None

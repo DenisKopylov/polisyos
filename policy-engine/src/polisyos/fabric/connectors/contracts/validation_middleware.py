@@ -14,17 +14,20 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.connectors.base import (
+    AsyncFetchLease,
     ConnectionConfig,
     ConnectionHandle,
+    DatasetCapabilitySnapshot,
     FetchRequest,
     FetchResult,
     HealthStatus,
-    SourceConnector,
+    SourceConnectorValue,
 )
-from polisyos.fabric.connectors.types import SchemaError
+from polisyos.fabric.connectors.types import SchemaError, ValidationResult
 from polisyos.fabric.data_plane.temporal import FutureTimestampError, ensure_aware_utc, utc_age
-from polisyos.ir.connectors import ConnectorCapability
+from polisyos.ir.connectors import ConnectorCapability, DataVersion
 
 from .contract import ConnectorSchemaContract
 from .contract_registry import ContractRegistry
@@ -73,7 +76,7 @@ class ContractValidatingProxy(Generic[DataT]):
 
     def __init__(
         self,
-        connector: SourceConnector[DataT],
+        connector: SourceConnectorValue[DataT],
         contract_registry: ContractRegistry,
         *,
         mode: ValidationMode = SchemaValidationMode.STRICT,
@@ -114,8 +117,33 @@ class ContractValidatingProxy(Generic[DataT]):
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         return await self._connector.health_check(handle)
 
+    def validate_config(self, config: ConnectionConfig) -> ValidationResult:
+        return self._connector.validate_config(config)
+
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot | None:
+        return await self._connector.describe_dataset(handle, dataset_id)
+
+    async def fetch_async(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncFetchLease:
+        return await self._connector.fetch_async(handle, request)
+
+    async def poll_async_fetch(
+        self,
+        handle: ConnectionHandle,
+        lease: AsyncFetchLease,
+    ) -> AsyncFetchLease | FetchResult[DataT]:
+        return await self._connector.poll_async_fetch(handle, lease)
+
     async def list_datasets(self, handle: ConnectionHandle):  # AsyncIterator[DatasetDescriptor]
-        async for dataset in self._connector.list_datasets(handle):
+        datasets = await resolve_async_iterator(self._connector.list_datasets(handle))
+        async for dataset in datasets:
             yield dataset
 
     async def fetch_stream(
@@ -123,7 +151,8 @@ class ContractValidatingProxy(Generic[DataT]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ):  # AsyncIterator[DataChunk[DataT]]
-        async for chunk in self._connector.fetch_stream(handle, request):
+        chunks = await resolve_async_iterator(self._connector.fetch_stream(handle, request))
+        async for chunk in chunks:
             yield chunk
 
     async def check_freshness(

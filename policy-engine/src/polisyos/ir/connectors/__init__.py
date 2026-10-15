@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum, Flag, IntEnum, auto
 from functools import cached_property
-from typing import Any, TypeVar
+from typing import Any, ClassVar, Protocol, TypeVar, overload
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
 
 from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import EvidenceBundleRef
@@ -325,6 +325,86 @@ class FetchSchemaDescriptor(BaseModel):
 
     schema_id: str
     schema_version: str
+    _model_type: type[BaseModel] = PrivateAttr(default=BaseModel)
+
+    def __call__(
+        self,
+        by_alias: bool = True,
+        ref_template: str = "#/definitions/{model}",
+    ) -> dict[str, object]:
+        """Return the fetched result model's JSON schema."""
+        return self._model_type.model_json_schema(
+            by_alias=by_alias,
+            ref_template=ref_template,
+        )
+
+
+class _FetchSchemaMethod(Protocol):
+    """Preserve Pydantic's callable schema interface on class and instance access."""
+
+    def __call__(
+        self,
+        by_alias: bool = True,
+        ref_template: str = "#/definitions/{model}",
+    ) -> dict[str, object]: ...
+
+
+class _FetchSchemaClassAccessor:
+    """Bound Pydantic schema method returned on ``FetchResult`` class access."""
+
+    def __init__(self, model_type: type[BaseModel]) -> None:
+        self._model_type = model_type
+
+    def __call__(
+        self,
+        by_alias: bool = True,
+        ref_template: str = "#/definitions/{model}",
+    ) -> dict[str, object]:
+        return self._model_type.model_json_schema(
+            by_alias=by_alias,
+            ref_template=ref_template,
+        )
+
+
+class _FetchSchemaAccessor:
+    """Expose both Pydantic's class schema method and a fetch's schema descriptor."""
+
+    @overload
+    def __get__(
+        self,
+        instance: None,
+        owner: type[BaseModel],
+    ) -> _FetchSchemaMethod: ...
+
+    @overload
+    def __get__(
+        self,
+        instance: BaseModel,
+        owner: type[BaseModel] | None = None,
+    ) -> FetchSchemaDescriptor: ...
+
+    def __get__(
+        self,
+        instance: BaseModel | None,
+        owner: type[BaseModel] | None = None,
+    ) -> _FetchSchemaMethod | FetchSchemaDescriptor:
+        if instance is None:
+            if owner is None:
+                raise TypeError("Fetch schema class access requires its model type")
+            return _FetchSchemaClassAccessor(owner)
+
+        cached = instance.__dict__.get("schema")
+        if isinstance(cached, FetchSchemaDescriptor):
+            return cached
+
+        model_type = owner or type(instance)
+        descriptor = FetchSchemaDescriptor(
+            schema_id=str(instance.__dict__["schema_id"]),
+            schema_version=str(instance.__dict__["schema_version"]),
+        )
+        descriptor._model_type = model_type
+        instance.__dict__["schema"] = descriptor
+        return descriptor
 
 
 class FetchProvenanceEnvelope(BaseModel):
@@ -378,6 +458,8 @@ class FetchResult[DataT](BaseModel):
         extra="forbid",
         arbitrary_types_allowed=True,
     )
+
+    schema: ClassVar[_FetchSchemaAccessor] = _FetchSchemaAccessor()
 
     # Data payload
     data: DataT = Field(description="The fetched data (type depends on connector)")
@@ -479,14 +561,6 @@ class FetchResult[DataT](BaseModel):
             self.quality_tier >= QualityTier.SILVER
             and self.completeness >= 0.95
             and len(self.quality_flags) == 0
-        )
-
-    @cached_property
-    def schema(self) -> FetchSchemaDescriptor:
-        """Structured schema boundary view for the fetched payload."""
-        return FetchSchemaDescriptor(
-            schema_id=self.schema_id,
-            schema_version=self.schema_version,
         )
 
     @cached_property

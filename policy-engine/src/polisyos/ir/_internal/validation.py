@@ -8,8 +8,18 @@ common invariant categories.
 from __future__ import annotations
 
 import math
+from collections.abc import Buffer, Hashable
 from decimal import Decimal, InvalidOperation
-from typing import TYPE_CHECKING, Protocol, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Protocol,
+    SupportsFloat,
+    SupportsIndex,
+    TypeGuard,
+    TypeVar,
+    cast,
+    runtime_checkable,
+)
 
 from polisyos.ir.model_layer.types import SelectorOperator
 
@@ -17,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Sequence
 
 T = TypeVar("T")
-K = TypeVar("K", str, int, float, bool, Decimal, tuple)
+K = TypeVar("K", bound=Hashable)
 
 MAX_SELECTOR_FIELD_DEPTH = 8
 MAX_SELECTOR_COLLECTION_ITEMS = 64
@@ -47,6 +57,16 @@ class _SelectorCompoundStatsNode(_SelectorStatsNode, Protocol):
     clauses: Sequence[_SelectorStatsNode]
 
 
+@runtime_checkable
+class _SupportsLessThan(Protocol):
+    """Expose Python's dynamic less-than operation for untrusted endpoints."""
+
+    def __lt__(self, other: object, /) -> object: ...
+
+
+type _FloatConvertible = str | Buffer | SupportsFloat | SupportsIndex
+
+
 def ensure_unique_ids(
     items: Iterable[T],
     key_fn: Callable[[T], K],
@@ -65,13 +85,28 @@ def ensure_unique_ids(
 def ensure_finite_numeric(value: object, *, field_name: str) -> object:
     """Raise when ``value`` cannot be interpreted as a finite numeric scalar."""
 
+    _finite_numeric_value(value, field_name=field_name)
+    return value
+
+
+def _finite_numeric_value(value: object, *, field_name: str) -> float:
+    """Return a finite float for values accepted by Python's ``float`` constructor."""
+
+    if not _is_float_convertible(value):
+        raise ValueError(f"{field_name} must be finite")
     try:
         numeric = float(value)
     except (TypeError, ValueError) as exc:  # pragma: no cover - defensive
         raise ValueError(f"{field_name} must be finite") from exc
     if not math.isfinite(numeric):
         raise ValueError(f"{field_name} must be finite")
-    return value
+    return numeric
+
+
+def _is_float_convertible(value: object) -> TypeGuard[_FloatConvertible]:
+    """Narrow dynamic input to the values accepted by Python's ``float`` constructor."""
+
+    return isinstance(value, (str, Buffer, SupportsFloat, SupportsIndex))
 
 
 def ensure_interval_monotonicity(
@@ -86,6 +121,8 @@ def ensure_interval_monotonicity(
 
     if start is None or end is None:
         return
+    if not isinstance(end, _SupportsLessThan):
+        raise ValueError(f"{label} endpoints must be comparable")
     try:
         inverted = end < start
     except TypeError as exc:
@@ -106,14 +143,13 @@ def ensure_confidence_interval(
     """Validate finite, monotone confidence/bounds intervals."""
 
     lower, upper = bounds
-    ensure_finite_numeric(lower, field_name=f"{label} lower bound")
-    ensure_finite_numeric(upper, field_name=f"{label} upper bound")
+    lower_numeric = _finite_numeric_value(lower, field_name=f"{label} lower bound")
+    upper_numeric = _finite_numeric_value(upper, field_name=f"{label} upper bound")
     ensure_interval_monotonicity(lower, upper, label=label)
     if point_estimate is None:
         return
-    ensure_finite_numeric(point_estimate, field_name=point_label)
-    point = float(point_estimate)
-    if not (float(lower) <= point <= float(upper)):
+    point = _finite_numeric_value(point_estimate, field_name=point_label)
+    if not (lower_numeric <= point <= upper_numeric):
         raise ValueError(f"{point_label} must lie inside {label}")
 
 
@@ -154,7 +190,7 @@ def ensure_non_empty_dotted_path(
     return ".".join(segments)
 
 
-def ensure_pairwise_disjoint[K: (str, int, float, bool, Decimal, tuple)](
+def ensure_pairwise_disjoint[K: Hashable](
     groups: Sequence[tuple[str, Collection[K]]],
     *,
     label: str,

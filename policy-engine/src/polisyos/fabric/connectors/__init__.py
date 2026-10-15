@@ -2,6 +2,7 @@
 
 # IR-level contracts
 # Protocol and core types
+from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.connectors.base import (
     AsyncFetchLease,
     BaseConnector,
@@ -12,6 +13,8 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
     SourceConnector,
+    SourceConnectorInstance,
+    SourceConnectorValue,
 )
 
 # Caching layer (Phase 2.7)
@@ -276,6 +279,8 @@ __all__ = [
     "SmartExpiryPolicy",
     # === Protocol & Core Types ===
     "SourceConnector",
+    "SourceConnectorInstance",
+    "SourceConnectorValue",
     "SourceProfileRegistry",
     "StaticDataPolicy",
     "TTLPolicy",
@@ -304,6 +309,7 @@ __all__ = [
     "requires_any_capability",
     # === Capability Utilities ===
     "requires_capability",
+    "resolve_async_iterator",
     "resolve_connection_config",
     "resolve_execution_policy",
     "resolve_resilience_config",

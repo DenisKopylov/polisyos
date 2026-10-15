@@ -6,7 +6,7 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
 
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
         ConnectionConfig,
         HealthStatus,
         SourceConnector,
+        SourceConnectorValue,
     )
     from polisyos.fabric.connectors.types import DatasetDescriptor
 
@@ -37,12 +38,12 @@ class ConnectorEntry:
 
     metadata: ConnectorMetadataSpec
     capabilities: ConnectorCapability
-    connector_class: type[SourceConnector]
-    factory: Callable[[], SourceConnector]
+    connector_class: type[SourceConnector[Any]]
+    factory: Callable[[], SourceConnectorValue[Any]]
     default_config: ConnectionConfig | None = None
 
     # Runtime state (updated by registry operations)
-    instance: SourceConnector | None = None
+    instance: SourceConnectorValue[Any] | None = None
     loaded: bool = False
     known_datasets: frozenset[str] = field(default_factory=frozenset)
     dataset_descriptors: tuple[DatasetDescriptor, ...] = field(default_factory=tuple)

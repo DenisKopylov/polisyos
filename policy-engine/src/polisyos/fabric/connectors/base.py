@@ -8,7 +8,7 @@ profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` obj
 from __future__ import annotations
 
 import threading
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from types import MappingProxyType
@@ -171,6 +171,16 @@ class ConnectionConfig:
                 "connection config redaction UNRUN: incomplete scanner output shape; "
                 "credentials and headers have no complete redaction verdict"
             )
+        validated_headers = {
+            key: value
+            for key, value in redacted_headers.items()
+            if isinstance(key, str) and isinstance(value, str)
+        }
+        if len(validated_headers) != len(redacted_headers):
+            raise ValueError(
+                "connection config redaction UNRUN: incomplete scanner output shape; "
+                "credentials and headers have no complete redaction verdict"
+            )
         redacted_creds = {
             key: field["credential"]
             for key, field in zip(self.auth_credentials, redacted_fields, strict=True)
@@ -178,7 +188,7 @@ class ConnectionConfig:
 
         return ConnectionConfig(
             url=self.url,
-            headers=redacted_headers,
+            headers=validated_headers,
             auth_method=self.auth_method,
             auth_credentials=redacted_creds,
             timeout_seconds=self.timeout_seconds,
@@ -343,9 +353,11 @@ class DatasetCapabilitySnapshot(BaseModel):
             return MappingProxyType({})
         if not isinstance(value, Mapping):
             raise TypeError("allowed_positions must be a mapping")
-        normalized = {
-            str(key): tuple(str(item) for item in values) for key, values in value.items()
-        }
+        normalized: dict[str, tuple[str, ...]] = {}
+        for key, values in value.items():
+            if not isinstance(values, Iterable):
+                raise TypeError("allowed_positions values must be iterable")
+            normalized[str(key)] = tuple(str(item) for item in values)
         return MappingProxyType(normalized)
 
 
@@ -382,16 +394,8 @@ class AsyncFetchLease(BaseModel):
 
 
 @runtime_checkable
-class SourceConnector(Protocol[DataT]):
-    """Protocol implemented by connector families such as SDMX, CKAN, REST, and Socrata.
-
-    ``capabilities`` is the hard contract planners should inspect before calling optional methods:
-    unsupported async, streaming, or schema operations may raise ``CapabilityError``.
-    """
-
-    connector_id: ClassVar[str]
-    capabilities: ClassVar[ConnectorCapability]
-    metadata: ClassVar[ConnectorMetadataSpec]
+class _SourceConnectorOperations(Protocol[DataT]):
+    """Operations shared by registered connector classes and their instances."""
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle: ...
 
@@ -400,16 +404,20 @@ class SourceConnector(Protocol[DataT]):
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus: ...
 
     async def fetch(
-        self, handle: ConnectionHandle, request: FetchRequest
-    ) -> FetchResult[DataT]: ...
-
-    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]: ...
-
-    async def fetch_stream(
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> AsyncIterator[DataChunk[DataT]]: ...
+    ) -> FetchResult[DataT]: ...
+
+    # Plain defs describe the iterator returned by async generators; fetch_stream also permits
+    # coroutine-based producers that resolve to that same iterator surface.
+    def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]: ...
+
+    def fetch_stream(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncIterator[DataChunk[DataT]] | Awaitable[AsyncIterator[DataChunk[DataT]]]: ...
 
     async def check_freshness(
         self,
@@ -442,8 +450,40 @@ class SourceConnector(Protocol[DataT]):
         lease: AsyncFetchLease,
     ) -> AsyncFetchLease | FetchResult[DataT]: ...
 
+
+@runtime_checkable
+class SourceConnectorInstance(_SourceConnectorOperations[DataT], Protocol[DataT]):
+    """Property-backed connector API implemented by bound runtime wrappers."""
+
+    @property
+    def connector_id(self) -> str: ...
+
+    @property
+    def capabilities(self) -> ConnectorCapability: ...
+
+    @property
+    def metadata(self) -> ConnectorMetadataSpec: ...
+
+    def validate_config(self, config: ConnectionConfig) -> ValidationResult: ...
+
+
+@runtime_checkable
+class SourceConnector(_SourceConnectorOperations[DataT], Protocol[DataT]):
+    """Class/factory contract for connector families registered with Fabric.
+
+    ``capabilities`` is the hard contract planners should inspect before calling optional methods:
+    unsupported async, streaming, or schema operations may raise ``CapabilityError``.
+    """
+
+    connector_id: ClassVar[str]
+    capabilities: ClassVar[ConnectorCapability]
+    metadata: ClassVar[ConnectorMetadataSpec]
+
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult: ...
+
+
+type SourceConnectorValue[DataT] = SourceConnector[DataT] | SourceConnectorInstance[DataT]
 
 
 # ============================================================================

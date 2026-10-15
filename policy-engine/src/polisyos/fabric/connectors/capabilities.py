@@ -6,9 +6,18 @@ import ast
 import dis
 import inspect
 import textwrap
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable, Coroutine
 from functools import wraps
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Concatenate,
+    ParamSpec,
+    Protocol,
+    TypeGuard,
+    TypeVar,
+    overload,
+)
 
 from polisyos.ir.connectors import ConnectorCapability
 
@@ -18,6 +27,46 @@ if TYPE_CHECKING:
 
 P = ParamSpec("P")
 R = TypeVar("R")
+ConnectorT = TypeVar("ConnectorT", bound="_CapabilitySubject")
+ConnectorDataT = TypeVar("ConnectorDataT")
+
+
+class _CapabilitySubject(Protocol):
+    """Instance shape needed by capability-guarded methods."""
+
+    @property
+    def connector_id(self) -> str: ...
+
+    @property
+    def capabilities(self) -> ConnectorCapability: ...
+
+
+class _CapabilityDecorator(Protocol):
+    """Callable contract that preserves decorated method signatures."""
+
+    @overload
+    def __call__(
+        self,
+        func: Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]],
+    ) -> Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]]: ...
+
+    @overload
+    def __call__(
+        self,
+        func: Callable[Concatenate[ConnectorT, P], R],
+    ) -> Callable[Concatenate[ConnectorT, P], R]: ...
+
+
+def _is_async_method(
+    func: Callable[..., object],
+) -> TypeGuard[Callable[..., Awaitable[object]]]:
+    """Narrow methods recognized by Python as coroutine callables."""
+    return inspect.iscoroutinefunction(func)
+
+
+def _read_dynamic_attribute(receiver: object, attribute_name: str) -> object:
+    """Read an attribute from an object undergoing runtime protocol inspection."""
+    return getattr(receiver, attribute_name)
 
 
 # ============================================================================
@@ -25,57 +74,70 @@ R = TypeVar("R")
 # ============================================================================
 
 
+def _wrap_capability_method(
+    func: Callable[..., object],
+    validate: Callable[[_CapabilitySubject], None],
+) -> object:
+    """Wrap a typed method while preserving its sync or coroutine execution form."""
+    if _is_async_method(func):
+
+        @wraps(func)
+        async def async_wrapper(
+            self: _CapabilitySubject,
+            *args: object,
+            **kwargs: object,
+        ) -> object:
+            validate(self)
+            return await func(self, *args, **kwargs)
+
+        return async_wrapper
+
+    @wraps(func)
+    def sync_wrapper(
+        self: _CapabilitySubject,
+        *args: object,
+        **kwargs: object,
+    ) -> object:
+        validate(self)
+        return func(self, *args, **kwargs)
+
+    return sync_wrapper
+
+
 def requires_capability(
     cap: ConnectorCapability,
     *,
     error_message: str | None = None,
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+) -> _CapabilityDecorator:
     """Decorator that validates connector has required capability before execution."""
 
-    def decorator(func: Callable[P, R]) -> Callable[P, R]:
-        if inspect.iscoroutinefunction(func):
+    def validate(self: _CapabilitySubject) -> None:
+        from polisyos.fabric.connectors.types import CapabilityError
 
-            @wraps(func)
-            async def async_wrapper(
-                self: SourceConnector,
-                *args: P.args,
-                **kwargs: P.kwargs,
-            ) -> R:
-                from polisyos.fabric.connectors.types import CapabilityError
+        connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
+        connector_id = getattr(self, "connector_id", "unknown")
 
-                connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
-                connector_id = getattr(self, "connector_id", "unknown")
+        if not (connector_caps & cap):
+            msg = error_message or f"Method requires capability: {cap.name}"
+            raise CapabilityError(
+                connector_id=connector_id,
+                required=cap,
+                available=connector_caps,
+                message=msg,
+            )
 
-                if not (connector_caps & cap):
-                    msg = error_message or f"Method requires capability: {cap.name}"
-                    raise CapabilityError(
-                        connector_id=connector_id,
-                        required=cap,
-                        available=connector_caps,
-                        message=msg,
-                    )
-                return await func(self, *args, **kwargs)  # type: ignore[misc]
+    @overload
+    def decorator(
+        func: Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]],
+    ) -> Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]]: ...
 
-            return async_wrapper  # type: ignore[return-value]
+    @overload
+    def decorator(
+        func: Callable[Concatenate[ConnectorT, P], R],
+    ) -> Callable[Concatenate[ConnectorT, P], R]: ...
 
-        @wraps(func)
-        def sync_wrapper(self: SourceConnector, *args: P.args, **kwargs: P.kwargs) -> R:
-            from polisyos.fabric.connectors.types import CapabilityError
-
-            connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
-            connector_id = getattr(self, "connector_id", "unknown")
-
-            if not (connector_caps & cap):
-                msg = error_message or f"Method requires capability: {cap.name}"
-                raise CapabilityError(
-                    connector_id=connector_id,
-                    required=cap,
-                    available=connector_caps,
-                    message=msg,
-                )
-            return func(self, *args, **kwargs)  # type: ignore[misc]
-
-        return sync_wrapper  # type: ignore[return-value]
+    def decorator(func: Callable[..., object]) -> object:
+        return _wrap_capability_method(func, validate)
 
     return decorator
 
@@ -83,53 +145,36 @@ def requires_capability(
 def requires_any_capability(
     *caps: ConnectorCapability,
     error_message: str | None = None,
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+) -> _CapabilityDecorator:
     """Decorator that validates connector has at least one of the required capabilities."""
 
-    def decorator(func: Callable[P, R]) -> Callable[P, R]:
-        if inspect.iscoroutinefunction(func):
+    def validate(self: _CapabilitySubject) -> None:
+        from polisyos.fabric.connectors.types import CapabilityError
 
-            @wraps(func)
-            async def async_wrapper(
-                self: SourceConnector,
-                *args: P.args,
-                **kwargs: P.kwargs,
-            ) -> R:
-                from polisyos.fabric.connectors.types import CapabilityError
+        connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
+        connector_id = getattr(self, "connector_id", "unknown")
 
-                connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
-                connector_id = getattr(self, "connector_id", "unknown")
+        if not any(connector_caps & cap for cap in caps):
+            cap_names = ", ".join(cap.name or str(cap) for cap in caps)
+            raise CapabilityError(
+                connector_id=connector_id,
+                required=caps[0],
+                available=connector_caps,
+                message=error_message or f"Method requires one of: {cap_names}",
+            )
 
-                if not any(connector_caps & cap for cap in caps):
-                    cap_names = ", ".join(cap.name for cap in caps)
-                    raise CapabilityError(
-                        connector_id=connector_id,
-                        required=caps[0],
-                        available=connector_caps,
-                        message=error_message or f"Method requires one of: {cap_names}",
-                    )
-                return await func(self, *args, **kwargs)  # type: ignore[misc]
+    @overload
+    def decorator(
+        func: Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]],
+    ) -> Callable[Concatenate[ConnectorT, P], Coroutine[object, object, R]]: ...
 
-            return async_wrapper  # type: ignore[return-value]
+    @overload
+    def decorator(
+        func: Callable[Concatenate[ConnectorT, P], R],
+    ) -> Callable[Concatenate[ConnectorT, P], R]: ...
 
-        @wraps(func)
-        def sync_wrapper(self: SourceConnector, *args: P.args, **kwargs: P.kwargs) -> R:
-            from polisyos.fabric.connectors.types import CapabilityError
-
-            connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
-            connector_id = getattr(self, "connector_id", "unknown")
-
-            if not any(connector_caps & cap for cap in caps):
-                cap_names = ", ".join(cap.name for cap in caps)
-                raise CapabilityError(
-                    connector_id=connector_id,
-                    required=caps[0],
-                    available=connector_caps,
-                    message=error_message or f"Method requires one of: {cap_names}",
-                )
-            return func(self, *args, **kwargs)  # type: ignore[misc]
-
-        return sync_wrapper  # type: ignore[return-value]
+    def decorator(func: Callable[..., object]) -> object:
+        return _wrap_capability_method(func, validate)
 
     return decorator
 
@@ -161,7 +206,7 @@ REQUIRED_ATTRIBUTES = (
 
 
 def validate_protocol_compliance(
-    connector_class: type[SourceConnector],
+    connector_class: type[object],
     *,
     strict: bool = True,
 ) -> list[str]:
@@ -214,10 +259,10 @@ def validate_protocol_compliance(
                     violations.append(f"Method '{method}' for capability {cap.name} must be async")
 
     if hasattr(connector_class, "metadata") and hasattr(connector_class, "capabilities"):
-        metadata = connector_class.metadata
-        declared_caps = connector_class.capabilities
+        metadata = _read_dynamic_attribute(connector_class, "metadata")
+        declared_caps = _read_dynamic_attribute(connector_class, "capabilities")
         if hasattr(metadata, "capabilities"):
-            metadata_caps = ConnectorCapability(metadata.capabilities)
+            metadata_caps = ConnectorCapability(_read_dynamic_attribute(metadata, "capabilities"))
             if metadata_caps != declared_caps:
                 violations.append(
                     f"Metadata capabilities ({metadata_caps}) don't match "
@@ -316,7 +361,7 @@ def _is_empty_return_stub(method: Any) -> bool:
     )
 
 
-def _is_baseconnector_default(connector_class: type[SourceConnector], method_name: str) -> bool:
+def _is_baseconnector_default(connector_class: type[object], method_name: str) -> bool:
     try:
         from polisyos.fabric.connectors.base import BaseConnector
     except ImportError:
@@ -330,7 +375,7 @@ def _is_baseconnector_default(connector_class: type[SourceConnector], method_nam
 
 
 def check_capability_at_runtime(
-    connector: SourceConnector,
+    connector: SourceConnector[ConnectorDataT],
     required: ConnectorCapability,
 ) -> bool:
     """Check if a connector instance has a required capability at runtime."""
@@ -339,7 +384,7 @@ def check_capability_at_runtime(
 
 
 def get_missing_capabilities(
-    connector: SourceConnector,
+    connector: SourceConnector[ConnectorDataT],
     required: ConnectorCapability,
 ) -> list[ConnectorCapability]:
     """Get list of missing capabilities from a required set."""
@@ -389,7 +434,7 @@ def describe_capabilities(caps: ConnectorCapability) -> dict[str, list[str]]:
 
     result: dict[str, list[str]] = {}
     for category, category_caps in categories.items():
-        present = [cap.name for cap in category_caps if caps & cap]
+        present = [cap.name or str(cap) for cap in category_caps if caps & cap]
         if present:
             result[category] = present
 
@@ -398,5 +443,5 @@ def describe_capabilities(caps: ConnectorCapability) -> dict[str, list[str]]:
 
 def capabilities_summary(caps: ConnectorCapability) -> str:
     """Generate a one-line summary of capabilities."""
-    present = [cap.name for cap in ConnectorCapability if caps & cap]
+    present = [cap.name or str(cap) for cap in ConnectorCapability if caps & cap]
     return ", ".join(present) if present else "none"

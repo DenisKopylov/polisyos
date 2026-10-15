@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
+from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
@@ -838,13 +839,20 @@ def _bind_stream_sanitizer(
 
     def _bound(
         rows: object,
-        **kwargs: object,
+        *,
+        connector_id: str,
+        dataset_id: str,
+        store: ArtifactStore,
+        chunk_index: int,
     ) -> tuple[list[dict[str, Any]], list[str], int]:
         return _sanitize_stream_rows(
             rows,
             schema=schema,
             schema_binding=schema_binding,
-            **kwargs,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            store=store,
+            chunk_index=chunk_index,
         )
 
     return _bound
@@ -1368,7 +1376,8 @@ async def _fetch_stream_for_dataset_async(
 
             request = FetchRequest(dataset_id=dataset_id)
             chunks: list[dict[str, Any]] = []
-            async for chunk in connector.fetch_stream(handle, request):
+            stream = await resolve_async_iterator(connector.fetch_stream(handle, request))
+            async for chunk in stream:
                 data = chunk.data
                 rows: list[Any] = []
                 if hasattr(data, "to_dict"):

@@ -4,7 +4,6 @@ import asyncio
 import gc
 import json
 from datetime import UTC, datetime
-from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
@@ -14,7 +13,12 @@ from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamCheckpoint, StreamLifecycleState, WindowStrategy
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    HealthStatus,
+    SourceConnectorValue,
+)
 from polisyos.fabric.connectors.contracts import (
     ConnectorSchemaContract,
     ContractRegistry,
@@ -59,7 +63,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class _Net01StreamingConnector:
+class _Net01StreamingConnector(EventStreamConnector):
     """Controlled stream connector for acquisition and close ownership probes."""
 
     def __init__(
@@ -83,9 +87,9 @@ class _Net01StreamingConnector:
             self.disconnect_failures -= 1
             raise RuntimeError("controlled disconnect failure")
 
-    async def health_check(self, handle: ConnectionHandle) -> Any:
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         del handle
-        return type("Health", (), {"healthy": True})()
+        return HealthStatus(healthy=True, message="controlled")
 
     async def subscribe_stream(self, handle: ConnectionHandle, request: Any) -> object:
         del handle, request
@@ -158,7 +162,7 @@ async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
     """A failed subscription must hand its acquired permit back to the pool."""
 
     connector = _Net01StreamingConnector(fail_subscribe=True)
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(
@@ -189,7 +193,7 @@ async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
     """A stream close failure must not make a later close a no-op."""
 
     connector = _Net01StreamingConnector(close_failures=1)
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
@@ -223,7 +227,7 @@ async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails
         fail_subscribe=True,
         disconnect_failures=2,
     )
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(
@@ -265,24 +269,23 @@ async def test_net01_create_failure_retries_session_cleanup_before_reraising() -
         fail_subscribe=True,
         disconnect_failures=1,
     )
-    entry = SimpleNamespace(
-        factory=lambda: connector,
-        default_config=ConnectionConfig(
-            url="https://stream.example",
-            max_connections=1,
-        ),
+    config = ConnectionConfig(
+        url="https://stream.example",
+        max_connections=1,
     )
-    registry = SimpleNamespace(get_entry=lambda _connector_id: entry)
+    registry = ConnectorRegistry()
+    registry.register(EventStreamConnector, config=config, factory=lambda: connector)
 
     with pytest.raises(RuntimeError, match="controlled subscribe failure"):
         await StreamingSourceSession.create(
-            connector_id="net01-stream",
+            connector_id="stream.jsonl",
             dataset_id="create-cleanup-retry",
             registry=registry,
         )
 
     assert len(connector.disconnect_calls) == 2
     assert len(set(connector.disconnect_calls)) == 1
+    assert registry._stream_owner_leases == {}
 
 
 @pytest.mark.asyncio
@@ -340,7 +343,7 @@ async def test_net01_checkpoint_lookup_failure_closes_owned_session(
     """Checkpoint preparation errors still finalize an acquired stream session."""
 
     connector = _Net01StreamingConnector()
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
@@ -391,7 +394,7 @@ async def test_net01_rewind_failure_closes_owned_session(
     """Rewind preparation errors cannot bypass the session finalizer."""
 
     connector = _Net01StreamingConnector()
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
@@ -454,7 +457,7 @@ async def test_net01_stream_cleanup_does_not_mask_primary_failure(
     """A finalizer failure is evidence on, not a replacement for, the run error."""
 
     connector = _Net01StreamingConnector()
-    pool = ConnectionPool(
+    pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
         pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
@@ -695,6 +698,7 @@ async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
     )
     store = FileSystemCAS(tmp_path / "index")
     cursor_store = CursorStore(store)
+    predecessor = None
     for _ in range(2):
         with pytest.raises(StreamDedupeUnsupported, match="before eviction"):
             await process_stream_dataset(
@@ -719,6 +723,7 @@ async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
         if _ == 0:
             predecessor = saved.model_dump(mode="json")
         else:
+            assert predecessor is not None
             assert saved.model_dump(mode="json") == predecessor
         store = FileSystemCAS(tmp_path / "index")
         cursor_store = CursorStore(store)

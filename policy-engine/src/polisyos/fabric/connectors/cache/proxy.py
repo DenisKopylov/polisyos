@@ -3,26 +3,32 @@
 from __future__ import annotations
 
 import time
-from inspect import isawaitable
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Awaitable, Callable
+    from collections.abc import AsyncIterator, Callable
 
     from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.base import (
+        AsyncFetchLease,
         ConnectionConfig,
         ConnectionHandle,
+        DatasetCapabilitySnapshot,
         DatasetDescriptor,
         FetchRequest,
         FetchResult,
         HealthStatus,
-        SourceConnector,
+        SourceConnectorValue,
     )
-    from polisyos.fabric.connectors.types import DataChunk, FreshnessResult
+    from polisyos.fabric.connectors.types import (
+        DataChunk,
+        FreshnessResult,
+        ValidationResult,
+    )
     from polisyos.ir.connectors import ConnectorCapability
 
     from .store import ConnectorCacheStore
@@ -36,19 +42,12 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
-async def _resolve_async_iterator[T](
-    candidate: AsyncIterator[T] | Awaitable[AsyncIterator[T]],
-) -> AsyncIterator[T]:
-    resolved = await candidate if isawaitable(candidate) else candidate
-    return resolved
-
-
 class CachingConnectorProxy[DataT]:
     """Transparent caching wrapper for any SourceConnector."""
 
     def __init__(
         self,
-        connector: SourceConnector[DataT],
+        connector: SourceConnectorValue[DataT],
         cache: ConnectorCacheStore,
         enable_prefetch: bool = True,
         schema_hash_provider: Callable[[FetchRequest, FetchResult[DataT]], str | None]
@@ -86,8 +85,32 @@ class CachingConnectorProxy[DataT]:
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         return await self._connector.health_check(handle)
 
+    def validate_config(self, config: ConnectionConfig) -> ValidationResult:
+        return self._connector.validate_config(config)
+
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot | None:
+        return await self._connector.describe_dataset(handle, dataset_id)
+
+    async def fetch_async(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncFetchLease:
+        return await self._connector.fetch_async(handle, request)
+
+    async def poll_async_fetch(
+        self,
+        handle: ConnectionHandle,
+        lease: AsyncFetchLease,
+    ) -> AsyncFetchLease | FetchResult[DataT]:
+        return await self._connector.poll_async_fetch(handle, lease)
+
     async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
-        datasets = await _resolve_async_iterator(self._connector.list_datasets(handle))
+        datasets = await resolve_async_iterator(self._connector.list_datasets(handle))
         async for dataset in datasets:
             yield dataset
 
@@ -96,7 +119,7 @@ class CachingConnectorProxy[DataT]:
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> AsyncIterator[DataChunk[DataT]]:
-        chunks = await _resolve_async_iterator(self._connector.fetch_stream(handle, request))
+        chunks = await resolve_async_iterator(self._connector.fetch_stream(handle, request))
         async for chunk in chunks:
             yield chunk
 

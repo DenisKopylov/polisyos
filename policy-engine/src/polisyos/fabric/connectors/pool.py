@@ -19,7 +19,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
@@ -29,13 +29,13 @@ if TYPE_CHECKING:
         ConnectionConfig,
         ConnectionHandle,
         HealthStatus,
-        SourceConnector,
+        _SourceConnectorOperations,
     )
     from polisyos.fabric.connectors.resilience import CircuitBreaker
 
 logger = get_logger(__name__)
 
-ConnectorT = TypeVar("ConnectorT", bound="SourceConnector")
+ConnectorT = TypeVar("ConnectorT", bound="_SourceConnectorOperations[Any]")
 SettlementT = TypeVar("SettlementT")
 
 
@@ -60,7 +60,7 @@ class PoolClosedError(Exception):
 
 
 @dataclass
-class PooledConnection:
+class PooledConnection(Generic[ConnectorT]):
     """
     Wrapper around ConnectionHandle with pool metadata.
 
@@ -68,7 +68,7 @@ class PooledConnection:
     for intelligent connection reuse decisions.
     """
 
-    connector: SourceConnector
+    connector: ConnectorT
     handle: ConnectionHandle
     pool_id: str
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -247,9 +247,9 @@ class ConnectionPool(Generic[ConnectorT]):
         self._circuit_breaker = circuit_breaker
 
         # Connection storage
-        self._idle: deque[PooledConnection] = deque()
-        self._in_use: dict[str, PooledConnection] = {}
-        self._pending_cleanup: dict[str, PooledConnection] = {}
+        self._idle: deque[PooledConnection[ConnectorT]] = deque()
+        self._in_use: dict[str, PooledConnection[ConnectorT]] = {}
+        self._pending_cleanup: dict[str, PooledConnection[ConnectorT]] = {}
         self._released_session_ids: OrderedDict[str, None] = OrderedDict()
         self._closed_session_ids: OrderedDict[str, None] = OrderedDict()
 
@@ -310,7 +310,7 @@ class ConnectionPool(Generic[ConnectorT]):
         _connector, handle = await self._acquire_owned()
         return handle
 
-    async def acquire_with_connector(self) -> tuple[SourceConnector, ConnectionHandle]:
+    async def acquire_with_connector(self) -> tuple[ConnectorT, ConnectionHandle]:
         """Acquire a connection and return both connector instance and handle."""
         self._raise_if_circuit_open()
         return await self._acquire_owned()
@@ -321,7 +321,7 @@ class ConnectionPool(Generic[ConnectorT]):
         *,
         connector_id: str,
         dataset_id: str,
-    ) -> tuple[SourceConnector, ConnectionHandle]:
+    ) -> tuple[ConnectorT, ConnectionHandle]:
         """Acquire one governed live handle after consuming its journal permit."""
 
         return await self._acquire_owned(
@@ -357,7 +357,7 @@ class ConnectionPool(Generic[ConnectorT]):
         live_acquire_permit: object | None = None,
         live_connector_id: str | None = None,
         live_dataset_id: str | None = None,
-    ) -> tuple[SourceConnector, ConnectionHandle]:
+    ) -> tuple[ConnectorT, ConnectionHandle]:
         """Use one monotonic budget through final handle publication."""
         deadline = asyncio.get_running_loop().time() + self._config.acquire_timeout_seconds
         task = asyncio.current_task()
@@ -386,7 +386,7 @@ class ConnectionPool(Generic[ConnectorT]):
         live_acquire_permit: object | None = None,
         live_connector_id: str | None = None,
         live_dataset_id: str | None = None,
-    ) -> tuple[SourceConnector, ConnectionHandle]:
+    ) -> tuple[ConnectorT, ConnectionHandle]:
         """Acquire and publish one handle while retaining ownership through failures."""
         if live_acquire_permit is not None:
             if live_connector_id is None or live_dataset_id is None:
@@ -409,7 +409,7 @@ class ConnectionPool(Generic[ConnectorT]):
         permit_release = False
         published = False
         cleanup_attempted = False
-        pooled: PooledConnection | None = None
+        pooled: PooledConnection[ConnectorT] | None = None
 
         try:
             async with self._lock:
@@ -544,7 +544,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 await self._wait_owned_settlement(retirement)
 
     async def _settle_failed_acquire(
-        self, pooled: PooledConnection, cleanup_attempted: bool, primary: BaseException
+        self, pooled: PooledConnection[ConnectorT], cleanup_attempted: bool, primary: BaseException
     ) -> bool:
         async with self._lock:
             self._register_pending_cleanup(pooled, pending_permit=True)
@@ -589,8 +589,8 @@ class ConnectionPool(Generic[ConnectorT]):
         Args:
             handle: ConnectionHandle to release
         """
-        pooled: PooledConnection | None = None
-        release_owner: PooledConnection | None = None
+        pooled: PooledConnection[ConnectorT] | None = None
+        release_owner: PooledConnection[ConnectorT] | None = None
         permit_owned = False
         permit_release = False
         cleanup_attempted = False
@@ -695,7 +695,7 @@ class ConnectionPool(Generic[ConnectorT]):
             if permit_release:
                 self._semaphore.release()
 
-    async def _claim_permit(self, pooled: PooledConnection, owned: bool) -> bool:
+    async def _claim_permit(self, pooled: PooledConnection[ConnectorT], owned: bool) -> bool:
         """Return a semaphore permit exactly once for one physical owner."""
         if not owned:
             return False
@@ -705,7 +705,9 @@ class ConnectionPool(Generic[ConnectorT]):
             pooled.pending_permit = False
             return True
 
-    def _register_pending_cleanup(self, pooled: PooledConnection, *, pending_permit: bool) -> None:
+    def _register_pending_cleanup(
+        self, pooled: PooledConnection[ConnectorT], *, pending_permit: bool
+    ) -> None:
         """Publish a physical owner before connector cleanup or close can await."""
         session_id = pooled.handle.session_id
         existing = self._pending_cleanup.get(session_id)
@@ -713,11 +715,11 @@ class ConnectionPool(Generic[ConnectorT]):
             self._pending_cleanup[session_id] = pooled
         pooled.pending_permit = pooled.pending_permit or pending_permit
 
-    def _clear_pending_cleanup(self, pooled: PooledConnection) -> None:
+    def _clear_pending_cleanup(self, pooled: PooledConnection[ConnectorT]) -> None:
         """Forget an owner only after its physical disconnect succeeds."""
         self._pending_cleanup.pop(pooled.handle.session_id, None)
 
-    async def _cleanup_pooled(self, pooled: PooledConnection) -> bool:
+    async def _cleanup_pooled(self, pooled: PooledConnection[ConnectorT]) -> bool:
         """Run one shared cleanup task and retain the owner when it remains unresolved."""
         async with self._lock:
             self._register_pending_cleanup(pooled, pending_permit=pooled.pending_permit)
@@ -752,7 +754,7 @@ class ConnectionPool(Generic[ConnectorT]):
             raise asyncio.CancelledError
         return cleaned
 
-    async def _get_idle_connection(self) -> PooledConnection | None:
+    async def _get_idle_connection(self) -> PooledConnection[ConnectorT] | None:
         """
         Get a valid idle connection from the pool.
 
@@ -781,7 +783,7 @@ class ConnectionPool(Generic[ConnectorT]):
 
         return None
 
-    async def _create_connection(self) -> PooledConnection:
+    async def _create_connection(self) -> PooledConnection[ConnectorT]:
         """Create a new connection via the connector factory."""
         connector = self._connector_factory()
 
@@ -807,7 +809,7 @@ class ConnectionPool(Generic[ConnectorT]):
 
         return pooled
 
-    async def _validate_connection(self, pooled: PooledConnection) -> bool:
+    async def _validate_connection(self, pooled: PooledConnection[ConnectorT]) -> bool:
         """
         Validate connection health.
 
@@ -848,7 +850,7 @@ class ConnectionPool(Generic[ConnectorT]):
             )
             return False
 
-    def _should_retire(self, pooled: PooledConnection) -> bool:
+    def _should_retire(self, pooled: PooledConnection[ConnectorT]) -> bool:
         """Determine if a connection should be retired."""
         # Age exceeded
         if pooled.age_seconds > self._config.max_connection_age_seconds:
@@ -865,7 +867,7 @@ class ConnectionPool(Generic[ConnectorT]):
         # Too many failures
         return pooled.consecutive_failures >= self._config.max_consecutive_failures
 
-    async def _retire_connection(self, pooled: PooledConnection) -> None:
+    async def _retire_connection(self, pooled: PooledConnection[ConnectorT]) -> None:
         """Retire a connection (close and don't return to pool)."""
         logger.debug(
             "Retiring connection",
@@ -880,7 +882,7 @@ class ConnectionPool(Generic[ConnectorT]):
         if not await self._cleanup_pooled(pooled):
             raise RuntimeError("Connection cleanup is pending for the retired owner")
 
-    async def _close_connection(self, pooled: PooledConnection) -> bool:
+    async def _close_connection(self, pooled: PooledConnection[ConnectorT]) -> bool:
         """Close one physical handle after its disconnect succeeds."""
         async with self._lock:
             if pooled.closed or pooled.handle.session_id in self._closed_session_ids:
@@ -1009,7 +1011,7 @@ class ConnectionPool(Generic[ConnectorT]):
     class _ConnectionContext:
         """Context manager for a single connection."""
 
-        def __init__(self, pool: ConnectionPool, handle: ConnectionHandle) -> None:
+        def __init__(self, pool: ConnectionPool[ConnectorT], handle: ConnectionHandle) -> None:
             self._pool = pool
             self._handle = handle
 

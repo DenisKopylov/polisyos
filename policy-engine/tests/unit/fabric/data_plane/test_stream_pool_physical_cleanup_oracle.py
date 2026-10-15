@@ -1,8 +1,4 @@
-"""Physical file ownership through the actual pool and stream cleanup consumer.
-
-The POSIX fixture owns and reads a persistent FD. It proves a finite same-pool
-refusal/retry path, not a capacity law across separately created private pools.
-"""
+"""Physical file ownership through pool cleanup and stream admission consumers."""
 
 from __future__ import annotations
 
@@ -30,6 +26,7 @@ from polisyos.fabric.connectors.types import DataChunk
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
+    StreamOwnerConflictError,
     StreamRuntimeOptions,
     process_stream_dataset,
 )
@@ -212,6 +209,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
         fqid = registry.get_entry("stream.jsonl").fqid
         owners = tuple(registry._pending_startup_cleanup.values())
         assert owners == ((fqid, old_pool),)
+        assert len(registry._stream_owner_leases) == 1
         pending = old_pool._pending_cleanup[old_handle.session_id]
         assert pending.handle is old_handle
         assert pending.closed is False
@@ -240,6 +238,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
         assert connector.disconnect_attempts == [old_handle, old_handle]
         assert connector.successful_disconnects == []
         assert tuple(registry._pending_startup_cleanup.values()) == ((fqid, old_pool),)
+        assert len(registry._stream_owner_leases) == 1
         assert old_pool._pending_cleanup[old_handle.session_id].handle is old_handle
         assert connector._resource(old_handle) == old_fd
         assert os.pread(old_fd, old_stat.st_size, 0) == old_source.read_bytes()
@@ -260,6 +259,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
         assert connector.successful_disconnects == [old_handle]
         assert old_pool._pending_cleanup == {}
         assert registry._pending_startup_cleanup == {}
+        assert registry._stream_owner_leases == {}
         assert old_pool._semaphore._value == 1
         _assert_closed_fd(old_fd)
         assert connector.live_fds == set()
@@ -272,11 +272,11 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
             "actual_close_confirmations": 1,
         }
 
-        # Fresh private-pool creation is deliberately sequenced after the actual
-        # close above. This does not assert automatic fencing across private pools.
+        # The same logical stream key remains fenced after cleanup retries and is
+        # reusable only after the actual descriptor close above.
         fresh_result = await process_stream_dataset(
             connector_id="stream.jsonl",
-            dataset_id="fresh-fd-owner",
+            dataset_id="old-fd-owner",
             store=FileSystemCAS(cas_root),
             cursor_store=CursorStore(FileSystemCAS(cas_root)),
             sanitize_rows=_accept_rows,
@@ -311,7 +311,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
         assert store.get_manifest(fresh_ref).kind == "fabric.stream_chunk"
         assert from_canonical_bytes(store.get_bytes(fresh_ref))["data"] == [fresh_row]
         assert fresh_result.final_checkpoint is not None
-        latest = CursorStore(store).find_latest_stream_checkpoint("stream.jsonl", "fresh-fd-owner")
+        latest = CursorStore(store).find_latest_stream_checkpoint("stream.jsonl", "old-fd-owner")
         assert latest is not None
         assert latest.model_dump(mode="json") == fresh_result.final_checkpoint.model_dump(
             mode="json"
@@ -336,3 +336,128 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
         finally:
             # This is emergency test teardown, never deciding production evidence.
             connector.emergency_fixture_cleanup()
+
+
+@pytest.mark.asyncio
+async def test_same_stream_key_refuses_second_private_pool_until_physical_close(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A cleanup-pending physical owner fences a fresh pool for the same stream key."""
+    dataset_id = "same-stream-key"
+    source_path = tmp_path / "events.jsonl"
+    source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+    config = ConnectionConfig(url=source_path.as_uri(), max_connections=1)
+    connector = _FileDescriptorEventStream({config.url: source_path})
+    connector.disconnect_failures = 2
+    registry = ConnectorRegistry()
+    registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+    sessions: list[StreamingSourceSession] = []
+    original_create = StreamingSourceSession.create
+
+    async def capture_session(
+        cls: type[StreamingSourceSession],
+        **kwargs: Any,
+    ) -> StreamingSourceSession:
+        del cls
+        session = await original_create(**kwargs)
+        sessions.append(session)
+        return session
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(capture_session))
+
+    def fail_sanitization(batch: Any, **kwargs: Any) -> Any:
+        del batch, kwargs
+        raise RuntimeError("leave the source owner pending")
+
+    try:
+        with pytest.raises(RuntimeError, match="leave the source owner pending"):
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                store=FileSystemCAS(tmp_path / "cas"),
+                cursor_store=CursorStore(FileSystemCAS(tmp_path / "cas")),
+                sanitize_rows=fail_sanitization,
+                runtime_options=StreamRuntimeOptions(batch_size=1),
+                connection_config=config,
+                registry=registry,
+            )
+
+        old_handle = connector.connect_handles[0]
+        old_fd = connector.resources[old_handle.session_id][1]
+        assert os.pread(old_fd, 1, 0)
+        assert len(registry._pending_startup_cleanup) == 1
+        assert len(registry._stream_owner_leases) == 1
+
+        with pytest.raises(StreamOwnerConflictError) as caught:
+            await StreamingSourceSession.create(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                connection_config=config,
+                registry=registry,
+            )
+        assert caught.value.connector_id == "stream.jsonl"
+        assert caught.value.dataset_id == dataset_id
+        assert caught.value.partition_key == "default"
+        assert connector.connect_handles == [old_handle]
+        assert connector.resources[old_handle.session_id][1] == old_fd
+        assert os.pread(old_fd, 1, 0)
+
+        # A different partition is an independent logical owner even while the
+        # default partition's physical handle is retained for cleanup retry.
+        sibling = await StreamingSourceSession.create(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            connection_config=config,
+            partition_key="another-partition",
+            registry=registry,
+        )
+        sibling_handle = sibling.handle
+        assert sibling_handle is not None and sibling_handle is not old_handle
+        connector.disconnect_failures = 0
+        await sibling.close()
+        assert len(connector.connect_handles) == 2
+        assert connector.successful_disconnects == [sibling_handle]
+        assert os.pread(old_fd, 1, 0)
+
+        await registry.shutdown_async()
+        _assert_closed_fd(old_fd)
+        assert registry._pending_startup_cleanup == {}
+        assert registry._stream_owner_leases == {}
+
+        fresh = await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=FileSystemCAS(tmp_path / "cas"),
+            cursor_store=CursorStore(FileSystemCAS(tmp_path / "cas")),
+            sanitize_rows=_accept_rows,
+            runtime_options=StreamRuntimeOptions(batch_size=1),
+            connection_config=config,
+            registry=registry,
+        )
+        assert fresh.rows_emitted == 1
+        assert len(connector.connect_handles) == 3
+        assert connector.connect_handles[2] is not old_handle
+        assert connector.stream_reads[-1][0] is connector.connect_handles[2]
+        latest = CursorStore(FileSystemCAS(tmp_path / "cas")).find_latest_stream_checkpoint(
+            "stream.jsonl", dataset_id
+        )
+        assert latest is not None
+        final_checkpoint = fresh.final_checkpoint
+        assert final_checkpoint is not None
+        assert latest.model_dump(mode="json") == final_checkpoint.model_dump(mode="json")
+        assert connector.events.index(
+            ("closed", old_handle.session_id, old_fd)
+        ) < connector.events.index(
+            (
+                "connect",
+                connector.connect_handles[2].session_id,
+                connector.resources[connector.connect_handles[2].session_id][1],
+            )
+        )
+    finally:
+        connector.disconnect_failures = 0
+        for session in sessions:
+            await session.pool.close_all()
+        await registry.shutdown_async()
+        connector.emergency_fixture_cleanup()

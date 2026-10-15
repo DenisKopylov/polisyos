@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+from _thread import RLock as RLockType
+from collections import OrderedDict
+from collections.abc import Callable, Sequence
+from concurrent.futures import Future
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.fabric.connectors._registry_errors import (
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,
@@ -22,10 +26,14 @@ if TYPE_CHECKING:
         ConnectionConfig,
         FetchResult,
         SourceConnector,
+        SourceConnectorInstance,
+        SourceConnectorValue,
     )
+    from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
     from polisyos.fabric.connectors.contracts import (
         ConnectorSchemaContract,
         ContractRegistry,
+        EvolutionReport,
         FetchResultContractValidation,
     )
     from polisyos.fabric.connectors.pool import ConnectionPool
@@ -35,6 +43,119 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 __all__ = ["RegistryLifecycleMixin"]
+
+
+def _set_dynamic_attribute(target: object, name: str, value: object) -> None:
+    """Set a runtime-only wrapper attribute without widening connector types."""
+    setattr(target, name, value)
+
+
+class _CloseablePool(Protocol):
+    """Pool surface needed by registry lifecycle cleanup."""
+
+    async def close_all(self) -> None: ...
+
+
+class _StreamStartupTask(Protocol):
+    """Task operations used to cancel and join an in-flight stream startup."""
+
+    def cancel(self, msg: str | None = None) -> bool: ...
+
+    def done(self) -> bool: ...
+
+    def get_loop(self) -> asyncio.AbstractEventLoop: ...
+
+
+class _StreamOwnerStartup(Protocol):
+    """Startup ticket fields shared with the concrete registry lease record."""
+
+    task: _StreamStartupTask
+    loop: asyncio.AbstractEventLoop
+    completed: Future[None]
+    cleanup_started: bool
+
+
+class _StreamOwnerLease(Protocol):
+    """Registry-local logical owner fields needed by lifecycle cleanup."""
+
+    fqid: str
+    dataset_id: str
+    partition_key: str
+    pool: ConnectionPool[SourceConnectorValue[Any]] | None
+    startup: _StreamOwnerStartup | None
+    invalidated: bool
+
+    @property
+    def key(self) -> tuple[str, str, str]: ...
+
+
+class _RegistryLifecycleState(Protocol):
+    """Concrete registry state read and mutated by the lifecycle mixin."""
+
+    _instance_lock: RLockType
+    _connectors: GenericRegistry[str, ConnectorEntry]
+    _connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool[SourceConnectorValue[Any]]]
+    _pending_startup_cleanup: dict[int, tuple[str, ConnectionPool[SourceConnectorValue[Any]]]]
+    _stream_owner_leases: dict[tuple[str, str, str], _StreamOwnerLease]
+    _stream_owner_admissions_closed: bool
+    _registration_count: int
+    _bootstrapped: bool
+    _cache_store: ConnectorCacheStore | None
+    _enable_caching: bool
+    _cache_wrappers: dict[str, SourceConnectorInstance[Any]]
+    _contract_registry: ContractRegistry | None
+    _contract_validation_mode: Literal["strict", "warn", "disabled"]
+    _contract_wrappers: dict[str, SourceConnectorInstance[Any]]
+    _schema_invalidation_callback_registered: bool
+
+    def _resolve_id(self, connector_id: str, version: str | None = None) -> str: ...
+
+    @staticmethod
+    def _has_running_loop() -> bool: ...
+
+    def _bootstrap_builtin_connectors_direct(self) -> int: ...
+
+    def _bootstrap_default_configs(self) -> None: ...
+
+    async def _close_pools_async(self, pools: Sequence[_CloseablePool]) -> None: ...
+
+    def _close_pools_sync(self, pools: Sequence[_CloseablePool]) -> None: ...
+
+    def _invalidate_stream_startups_for_pools(
+        self,
+        pools: Sequence[_CloseablePool],
+    ) -> list[_StreamOwnerStartup]: ...
+
+    @staticmethod
+    def _cancel_stream_startup(task: _StreamStartupTask) -> None: ...
+
+    @staticmethod
+    async def _wait_stream_startup(ticket: _StreamOwnerStartup) -> None: ...
+
+    def _pending_connector_id_locked(self, connector_id: str) -> str | None: ...
+
+    def _pending_pools_for_connector_locked(
+        self,
+        fqid: str,
+    ) -> list[ConnectionPool[SourceConnectorValue[Any]]]: ...
+
+    def _pop_registered_connector_and_pools(
+        self,
+        connector_id: str,
+    ) -> tuple[str | None, list[ConnectionPool[SourceConnectorValue[Any]]]]: ...
+
+    def _release_stream_owner_for_pool(self, pool: _CloseablePool) -> None: ...
+
+    def _ensure_schema_invalidation_callback(self) -> None: ...
+
+    def register(
+        self,
+        connector_class: type[SourceConnector[Any]],
+        config: ConnectionConfig | None = None,
+        *,
+        override: bool = False,
+        factory: Callable[[], SourceConnector[Any]] | None = None,
+    ) -> str: ...
 
 
 def _default_source_profile_registry() -> SourceProfileRegistry:
@@ -47,46 +168,77 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
+def _configure_cache_state(
+    state: _RegistryLifecycleState,
+    cache_store: ConnectorCacheStore | None,
+    enable_caching: bool,
+) -> None:
+    state._cache_store = cache_store
+    state._enable_caching = enable_caching
+
+
+def _configure_contract_state(
+    state: _RegistryLifecycleState,
+    contract_registry: ContractRegistry | None,
+    validation_mode: Literal["strict", "warn", "disabled"],
+) -> None:
+    state._contract_registry = contract_registry
+    state._contract_validation_mode = validation_mode
+
+
+def _set_contract_registry(
+    state: _RegistryLifecycleState,
+    contract_registry: ContractRegistry,
+) -> None:
+    state._contract_registry = contract_registry
+
+
+def _set_schema_callback_registered(
+    state: _RegistryLifecycleState,
+    registered: bool,
+) -> None:
+    state._schema_invalidation_callback_registered = registered
+
+
+def _set_bootstrapped(state: _RegistryLifecycleState, bootstrapped: bool) -> None:
+    state._bootstrapped = bootstrapped
+
+
+def _set_stream_owner_admissions_closed(
+    state: _RegistryLifecycleState,
+    closed: bool,
+) -> None:
+    state._stream_owner_admissions_closed = closed
+
+
+def _increment_registration_count(state: _RegistryLifecycleState) -> None:
+    state._registration_count += 1
+
+
 class RegistryLifecycleMixin:
     """Mixin providing bootstrap, registration, unregistration, and wrapper methods."""
-
-    # These attributes are provided by the concrete ConnectorRegistry class.
-    _instance_lock: Any
-    _connectors: Any
-    _connection_pools: dict
-    _pending_startup_cleanup: dict[int, tuple[str, ConnectionPool]]
-    _registration_count: int
-    _bootstrapped: bool
-    _cache_store: Any
-    _enable_caching: bool
-    _cache_wrappers: dict[str, Any]
-    _contract_registry: ContractRegistry | None
-    _contract_validation_mode: Literal["strict", "warn", "disabled"]
-    _contract_wrappers: dict[str, Any]
-    _schema_invalidation_callback_registered: bool
 
     # =========================================================================
     # Configuration
     # =========================================================================
 
     def configure_cache(
-        self,
-        cache_store: Any | None,
+        self: _RegistryLifecycleState,
+        cache_store: ConnectorCacheStore | None,
         *,
         enable_caching: bool = True,
         reset_wrappers: bool = True,
     ) -> None:
         """Configure optional connector caching behavior."""
         with self._instance_lock:
-            self._cache_store = cache_store
-            self._enable_caching = enable_caching
+            _configure_cache_state(self, cache_store, enable_caching)
             if reset_wrappers:
                 self._cache_wrappers.clear()
             if cache_store is not None:
                 self._ensure_schema_invalidation_callback()
 
     def configure_contracts(
-        self,
+        self: _RegistryLifecycleState,
         contract_registry: ContractRegistry | None,
         *,
         validation_mode: Literal["strict", "warn", "disabled"] = "strict",
@@ -94,16 +246,15 @@ class RegistryLifecycleMixin:
     ) -> None:
         """Configure optional contract validation and schema-aware caching."""
         with self._instance_lock:
-            self._contract_registry = contract_registry
-            self._contract_validation_mode = validation_mode
+            _configure_contract_state(self, contract_registry, validation_mode)
             if reset_wrappers:
                 self._contract_wrappers.clear()
                 self._cache_wrappers.clear()
-            self._schema_invalidation_callback_registered = False
+            _set_schema_callback_registered(self, False)
             self._ensure_schema_invalidation_callback()
 
     def validate_fetch_result(
-        self,
+        self: _RegistryLifecycleState,
         *,
         connector_id: str,
         dataset_id: str,
@@ -144,7 +295,7 @@ class RegistryLifecycleMixin:
             )
 
     def resolve_schema_contract(
-        self,
+        self: _RegistryLifecycleState,
         *,
         connector_id: str,
         dataset_id: str,
@@ -167,13 +318,13 @@ class RegistryLifecycleMixin:
                 return None, revision
             return selected.model_copy(deep=True), revision
 
-    def _bootstrap_contract_registry(self) -> None:
+    def _bootstrap_contract_registry(self: _RegistryLifecycleState) -> None:
         try:
             from polisyos.fabric.connectors.sources._contracts import (
                 build_builtin_contract_registry,
             )
 
-            self._contract_registry = build_builtin_contract_registry()
+            _set_contract_registry(self, build_builtin_contract_registry())
         except Exception as exc:
             logger.debug(
                 "Connector contract bootstrap skipped",
@@ -181,7 +332,7 @@ class RegistryLifecycleMixin:
                 error_type=type(exc).__name__,
             )
 
-    def _ensure_schema_invalidation_callback(self) -> None:
+    def _ensure_schema_invalidation_callback(self: _RegistryLifecycleState) -> None:
         if (
             self._schema_invalidation_callback_registered
             or self._contract_registry is None
@@ -192,8 +343,15 @@ class RegistryLifecycleMixin:
             from polisyos.fabric.connectors.cache import SchemaChangeInvalidationTrigger
 
             trigger = SchemaChangeInvalidationTrigger(self._cache_store)
-            self._contract_registry.register_callback(trigger.on_contract_registered)
-            self._schema_invalidation_callback_registered = True
+
+            def invalidate_contract_cache(
+                contract: ConnectorSchemaContract,
+                report: EvolutionReport | None,
+            ) -> None:
+                trigger.on_contract_registered(contract, report)
+
+            self._contract_registry.register_callback(invalidate_contract_cache)
+            _set_schema_callback_registered(self, True)
         except Exception as exc:
             logger.warning(
                 "Failed to configure schema-aware cache invalidation callback",
@@ -205,7 +363,7 @@ class RegistryLifecycleMixin:
     # Bootstrap
     # =========================================================================
 
-    def _bootstrap(self) -> None:
+    def _bootstrap(self: _RegistryLifecycleState) -> None:
         """
         Initialize registry with discovered connectors.
 
@@ -218,8 +376,8 @@ class RegistryLifecycleMixin:
 
         from polisyos.core.components import ENTRY_POINT_GROUP_FABRIC_CONNECTORS
         from polisyos.core.components.bootstrap import build_components_index
-        from polisyos.fabric.connectors.components_bridge import (
-            bootstrap_connector_registry_from_components,
+        from polisyos.fabric.connectors._components_bootstrap import (
+            bootstrap_components_into_registry,
         )
 
         components_index, discovery_report = build_components_index(
@@ -228,7 +386,7 @@ class RegistryLifecycleMixin:
             include_legacy_group=False,
         )
 
-        bridge_report = bootstrap_connector_registry_from_components(
+        bridge_report = bootstrap_components_into_registry(
             components_index,
             self,
         )
@@ -241,7 +399,7 @@ class RegistryLifecycleMixin:
         # the local workspace while still allowing entry-point discovery to win.
         discovered_count += self._bootstrap_builtin_connectors_direct()
 
-        self._bootstrapped = True
+        _set_bootstrapped(self, True)
         logger.info(
             "ConnectorRegistry bootstrapped",
             discovered=discovered_count,
@@ -253,7 +411,7 @@ class RegistryLifecycleMixin:
 
         self._bootstrap_default_configs()
 
-    def _bootstrap_builtin_connectors_direct(self) -> int:
+    def _bootstrap_builtin_connectors_direct(self: _RegistryLifecycleState) -> int:
         """Direct-import fallback for registering builtin connectors.
 
         Used when the component discovery system finds no connectors
@@ -285,7 +443,7 @@ class RegistryLifecycleMixin:
             )
         return registered
 
-    def _bootstrap_default_configs(self) -> None:
+    def _bootstrap_default_configs(self: _RegistryLifecycleState) -> None:
         """Wire SourceProfile defaults to matching connector entries.
 
         For each registered profile whose ``connector_family`` matches a
@@ -335,7 +493,7 @@ class RegistryLifecycleMixin:
         except RuntimeError:
             return False
 
-    def _close_pools_sync(self, pools: list[ConnectionPool]) -> None:
+    def _close_pools_sync(self: _RegistryLifecycleState, pools: Sequence[_CloseablePool]) -> None:
         if not pools:
             return
         if RegistryLifecycleMixin._has_running_loop():
@@ -349,11 +507,16 @@ class RegistryLifecycleMixin:
 
         asyncio.run(_close_all())
 
-    async def _close_pools_async(self, pools: list[ConnectionPool]) -> None:
+    async def _close_pools_async(
+        self: _RegistryLifecycleState, pools: Sequence[_CloseablePool]
+    ) -> None:
         if not pools:
+            with self._instance_lock:
+                if not self._pending_startup_cleanup and not self._stream_owner_leases:
+                    _set_stream_owner_admissions_closed(self, False)
             return
 
-        unique_pools: list[ConnectionPool] = []
+        unique_pools: list[_CloseablePool] = []
         seen: set[int] = set()
         for pool in pools:
             pool_identity = id(pool)
@@ -362,9 +525,29 @@ class RegistryLifecycleMixin:
             seen.add(pool_identity)
             unique_pools.append(pool)
 
+        startup_tickets = self._invalidate_stream_startups_for_pools(unique_pools)
+        current_task = asyncio.current_task()
+        if any(ticket.task is current_task for ticket in startup_tickets):
+            raise RuntimeError(
+                "ConnectorRegistry lifecycle cannot wait for the stream startup "
+                "that invoked it; the pool remains pending for a later retry."
+            )
+
+        for ticket in startup_tickets:
+            if ticket.cleanup_started or ticket.task.done():
+                continue
+            try:
+                ticket.loop.call_soon_threadsafe(self._cancel_stream_startup, ticket.task)
+            except RuntimeError:
+                if not ticket.task.done():
+                    raise
+
+        if startup_tickets:
+            await asyncio.gather(*(self._wait_stream_startup(ticket) for ticket in startup_tickets))
+
         failures: list[BaseException] = []
 
-        async def _close_one(pool: ConnectionPool) -> None:
+        async def _close_one(pool: _CloseablePool) -> None:
             try:
                 await pool.close_all()
             except BaseException as exc:
@@ -374,15 +557,54 @@ class RegistryLifecycleMixin:
                 pending = self._pending_startup_cleanup.get(id(pool))
                 if pending is not None and pending[1] is pool:
                     self._pending_startup_cleanup.pop(id(pool), None)
+                self._release_stream_owner_for_pool(pool)
 
         await asyncio.gather(*(_close_one(pool) for pool in unique_pools))
         if failures:
             raise failures[0]
+        with self._instance_lock:
+            if not self._pending_startup_cleanup and not self._stream_owner_leases:
+                _set_stream_owner_admissions_closed(self, False)
 
-    def _retain_pending_startup_cleanup(
-        self,
+    @staticmethod
+    def _cancel_stream_startup(task: _StreamStartupTask) -> None:
+        """Cancel a startup task on the loop that owns it."""
+        if not task.done():
+            task.cancel()
+
+    @staticmethod
+    async def _wait_stream_startup(ticket: _StreamOwnerStartup) -> None:
+        """Wait for a ticket from any event loop without transferring cancellation."""
+        wrapped = asyncio.wrap_future(ticket.completed)
+        while not wrapped.done():
+            try:
+                await asyncio.shield(wrapped)
+            except asyncio.CancelledError:
+                # Teardown remains the owner until startup has stopped touching
+                # the pool. The caller can retry lifecycle cleanup if cancelled.
+                raise
+
+    def _invalidate_stream_startups_for_pools(
+        self: _RegistryLifecycleState,
+        pools: Sequence[_CloseablePool],
+    ) -> list[_StreamOwnerStartup]:
+        """Invalidate owners atomically and return active startup tickets to drain."""
+        pool_ids = {id(pool) for pool in pools}
+        tickets: list[_StreamOwnerStartup] = []
+        with self._instance_lock:
+            for lease in self._stream_owner_leases.values():
+                pool = lease.pool
+                if pool is None or id(pool) not in pool_ids:
+                    continue
+                lease.invalidated = True
+                if lease.startup is not None:
+                    tickets.append(lease.startup)
+        return tickets
+
+    def retain_pending_startup_cleanup(
+        self: _RegistryLifecycleState,
         connector_id: str,
-        pool: ConnectionPool,
+        pool: ConnectionPool[SourceConnectorValue[Any]],
     ) -> None:
         """Retain an unresolved startup pool outside the ordinary LRU cache."""
         try:
@@ -394,7 +616,19 @@ class RegistryLifecycleMixin:
         with self._instance_lock:
             self._pending_startup_cleanup[id(pool)] = (fqid, pool)
 
-    def _pending_connector_id_locked(self, connector_id: str) -> str | None:
+    def _release_stream_owner_for_pool(self: _RegistryLifecycleState, pool: _CloseablePool) -> None:
+        """Release any stream lease after this exact pool is confirmed closed."""
+        with self._instance_lock:
+            for key, lease in tuple(self._stream_owner_leases.items()):
+                if lease.pool is pool:
+                    self._stream_owner_leases.pop(key, None)
+            pending = self._pending_startup_cleanup.get(id(pool))
+            if pending is not None and pending[1] is pool:
+                self._pending_startup_cleanup.pop(id(pool), None)
+
+    def _pending_connector_id_locked(
+        self: _RegistryLifecycleState, connector_id: str
+    ) -> str | None:
         """Resolve a connector ID from retained startup owners after removal."""
         for fqid, _pool in self._pending_startup_cleanup.values():
             if fqid == connector_id:
@@ -404,7 +638,10 @@ class RegistryLifecycleMixin:
                 return fqid
         return None
 
-    def _pending_pools_for_connector_locked(self, fqid: str) -> list[ConnectionPool]:
+    def _pending_pools_for_connector_locked(
+        self: _RegistryLifecycleState,
+        fqid: str,
+    ) -> list[ConnectionPool[SourceConnectorValue[Any]]]:
         """Return retained startup owners for one connector without removing them."""
         return [
             pool
@@ -413,15 +650,15 @@ class RegistryLifecycleMixin:
         ]
 
     def _pop_registered_connector_and_pools(
-        self,
+        self: _RegistryLifecycleState,
         connector_id: str,
-    ) -> tuple[str | None, list[ConnectionPool]]:
+    ) -> tuple[str | None, list[ConnectionPool[SourceConnectorValue[Any]]]]:
         try:
             fqid = self._resolve_id(connector_id)
         except ConnectorNotFoundError:
             return None, []
 
-        pools_to_close: list[ConnectionPool] = []
+        pools_to_close: list[ConnectionPool[SourceConnectorValue[Any]]] = []
 
         with self._instance_lock:
             entry = self._connectors.unregister(fqid)
@@ -434,6 +671,12 @@ class RegistryLifecycleMixin:
                 self._pending_startup_cleanup[id(pool)] = (fqid, pool)
                 pools_to_close.append(pool)
 
+            for lease in self._stream_owner_leases.values():
+                if lease.fqid == fqid and lease.pool is not None:
+                    lease.invalidated = True
+                    self._pending_startup_cleanup[id(lease.pool)] = (fqid, lease.pool)
+                    pools_to_close.append(lease.pool)
+
             entry.instance = None
             entry.loaded = False
             self._cache_wrappers.pop(fqid, None)
@@ -443,12 +686,12 @@ class RegistryLifecycleMixin:
         return fqid, pools_to_close
 
     def register(
-        self,
-        connector_class: type[SourceConnector],
+        self: _RegistryLifecycleState,
+        connector_class: type[SourceConnector[Any]],
         config: ConnectionConfig | None = None,
         *,
         override: bool = False,
-        factory: Callable[[], SourceConnector] | None = None,
+        factory: Callable[[], SourceConnector[Any]] | None = None,
     ) -> str:
         """
         Register a connector class with optional default config.
@@ -516,7 +759,7 @@ class RegistryLifecycleMixin:
             )
 
             self._connectors.register(entry, override=override)
-            self._registration_count += 1
+            _increment_registration_count(self)
 
             logger.info(
                 "Registered connector",
@@ -529,7 +772,7 @@ class RegistryLifecycleMixin:
 
             return fqid
 
-    def unregister(self, connector_id: str) -> bool:
+    def unregister(self: _RegistryLifecycleState, connector_id: str) -> bool:
         """
         Unregister a connector.
 
@@ -547,7 +790,10 @@ class RegistryLifecycleMixin:
             with self._instance_lock:
                 has_pools = any(key[0] == fqid for key in self._connection_pools)
                 has_pending = bool(self._pending_pools_for_connector_locked(fqid))
-            if has_pools or has_pending:
+                has_stream_owners = any(
+                    lease.fqid == fqid for lease in self._stream_owner_leases.values()
+                )
+            if has_pools or has_pending or has_stream_owners:
                 raise RuntimeError(
                     "ConnectorRegistry.unregister() cannot close pools while an "
                     "event loop is running; use unregister_async()."
@@ -558,9 +804,7 @@ class RegistryLifecycleMixin:
             with self._instance_lock:
                 fqid = self._pending_connector_id_locked(connector_id)
                 pools_to_close = (
-                    self._pending_pools_for_connector_locked(fqid)
-                    if fqid is not None
-                    else []
+                    self._pending_pools_for_connector_locked(fqid) if fqid is not None else []
                 )
             if fqid is None:
                 return False
@@ -570,16 +814,14 @@ class RegistryLifecycleMixin:
         self._close_pools_sync(pools_to_close)
         return True
 
-    async def unregister_async(self, connector_id: str) -> bool:
+    async def unregister_async(self: _RegistryLifecycleState, connector_id: str) -> bool:
         """Async variant of unregister that deterministically drains owned pools."""
         fqid, pools_to_close = self._pop_registered_connector_and_pools(connector_id)
         if fqid is None:
             with self._instance_lock:
                 fqid = self._pending_connector_id_locked(connector_id)
                 pools_to_close = (
-                    self._pending_pools_for_connector_locked(fqid)
-                    if fqid is not None
-                    else []
+                    self._pending_pools_for_connector_locked(fqid) if fqid is not None else []
                 )
             if fqid is None:
                 return False
@@ -589,41 +831,50 @@ class RegistryLifecycleMixin:
         await self._close_pools_async(pools_to_close)
         return True
 
-    async def shutdown_async(self) -> None:
+    async def shutdown_async(self: _RegistryLifecycleState) -> None:
         """Unregister runtime wrappers and close all connection pools deterministically."""
         with self._instance_lock:
+            _set_stream_owner_admissions_closed(self, True)
             pools_to_close = []
             for pool_key, pool in self._connection_pools.items():
                 self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
                 pools_to_close.append(pool)
+            for lease in self._stream_owner_leases.values():
+                lease.invalidated = True
+                if lease.pool is not None:
+                    self._pending_startup_cleanup[id(lease.pool)] = (lease.fqid, lease.pool)
+                    pools_to_close.append(lease.pool)
             self._connection_pools.clear()
-            pools_to_close.extend(
-                pool for _fqid, pool in self._pending_startup_cleanup.values()
-            )
+            pools_to_close.extend(pool for _fqid, pool in self._pending_startup_cleanup.values())
             self._cache_wrappers.clear()
             self._contract_wrappers.clear()
-            self._schema_invalidation_callback_registered = False
+            _set_schema_callback_registered(self, False)
         await self._close_pools_async(pools_to_close)
 
-    def shutdown(self) -> None:
+    def shutdown(self: _RegistryLifecycleState) -> None:
         """Synchronous shutdown bridge for contexts without a running event loop."""
         with self._instance_lock:
             pools_to_close = []
             for pool_key, pool in self._connection_pools.items():
                 self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
                 pools_to_close.append(pool)
-            pools_to_close.extend(
-                pool for _fqid, pool in self._pending_startup_cleanup.values()
-            )
+            for lease in self._stream_owner_leases.values():
+                if lease.pool is not None:
+                    self._pending_startup_cleanup[id(lease.pool)] = (lease.fqid, lease.pool)
+                    pools_to_close.append(lease.pool)
+            pools_to_close.extend(pool for _fqid, pool in self._pending_startup_cleanup.values())
             if pools_to_close and self._has_running_loop():
                 raise RuntimeError(
                     "ConnectorRegistry.shutdown() cannot close pools while an event "
                     "loop is running; use shutdown_async()."
                 )
+            _set_stream_owner_admissions_closed(self, True)
+            for lease in self._stream_owner_leases.values():
+                lease.invalidated = True
             self._connection_pools.clear()
             self._cache_wrappers.clear()
             self._contract_wrappers.clear()
-            self._schema_invalidation_callback_registered = False
+            _set_schema_callback_registered(self, False)
         self._close_pools_sync(pools_to_close)
 
     # =========================================================================
@@ -631,10 +882,10 @@ class RegistryLifecycleMixin:
     # =========================================================================
 
     def _apply_resilience_if_configured(
-        self,
-        connector: SourceConnector,
+        self: _RegistryLifecycleState,
+        connector: SourceConnectorValue[Any],
         entry: ConnectorEntry,
-    ) -> SourceConnector:
+    ) -> SourceConnectorValue[Any]:
         """
         Apply resilience wrappers to connector fetch if configured.
 
@@ -653,12 +904,16 @@ class RegistryLifecycleMixin:
             with self._instance_lock:
                 if getattr(connector, "_resilience_wrapped", False):
                     return connector
-                connector.fetch = apply_resilience(  # type: ignore[method-assign]
-                    connector.fetch,
-                    config=config,
-                    cache_store=self._cache_store,
+                _set_dynamic_attribute(
+                    connector,
+                    "fetch",
+                    apply_resilience(
+                        connector.fetch,
+                        config=config,
+                        cache_store=self._cache_store,
+                    ),
                 )
-                connector._resilience_wrapped = True
+                _set_dynamic_attribute(connector, "_resilience_wrapped", True)
         except Exception as exc:
             logger.warning(
                 "Failed to apply resilience wrappers",
@@ -670,11 +925,11 @@ class RegistryLifecycleMixin:
         return connector
 
     def _apply_slo_metrics_wrapper(
-        self,
-        connector: SourceConnector,
+        self: _RegistryLifecycleState,
+        connector: SourceConnectorValue[Any],
         *,
         connector_id: str,
-    ) -> SourceConnector:
+    ) -> SourceConnectorValue[Any]:
         metrics = _default_metrics()
         try:
             with self._instance_lock:
@@ -692,8 +947,8 @@ class RegistryLifecycleMixin:
                     metrics.record_slo_connector_request("ok", connector_id=connector_id)
                     return result
 
-                connector.fetch = _wrapped_fetch  # type: ignore[method-assign]
-                connector._slo_request_wrapped = True
+                _set_dynamic_attribute(connector, "fetch", _wrapped_fetch)
+                _set_dynamic_attribute(connector, "_slo_request_wrapped", True)
         except Exception as exc:
             logger.warning(
                 "Failed to wrap connector fetch with SLO metrics",
@@ -704,11 +959,11 @@ class RegistryLifecycleMixin:
         return connector
 
     def _apply_contract_validation_wrapper(
-        self,
-        connector: SourceConnector,
+        self: _RegistryLifecycleState,
+        connector: SourceConnectorValue[Any],
         *,
         fqid: str,
-    ) -> SourceConnector:
+    ) -> SourceConnectorValue[Any]:
         if self._contract_registry is None or self._contract_validation_mode == "disabled":
             return connector
         try:
@@ -740,7 +995,7 @@ class RegistryLifecycleMixin:
             return connector
 
     def _build_schema_hash_provider(
-        self,
+        self: _RegistryLifecycleState,
         *,
         connector_short_id: str,
     ) -> Callable[[Any, Any], str | None] | None:

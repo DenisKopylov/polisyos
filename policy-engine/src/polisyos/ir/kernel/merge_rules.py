@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, TypedDict
 
 from pydantic import Field, model_validator
 
@@ -31,7 +31,16 @@ class ConflictResolution(str, Enum):
     AGGREGATE = "aggregate"
 
 
-EXPECTED_ALGEBRA_PROPERTIES = {
+class _AlgebraProperties(TypedDict):
+    """Algebraic laws declared for a merge rule kind."""
+
+    commutativity: bool
+    associativity: bool
+    idempotency: bool
+    allowed_types: list[Literal["int", "decimal", "array"]] | None
+
+
+EXPECTED_ALGEBRA_PROPERTIES: dict[MergeRuleKind, _AlgebraProperties] = {
     MergeRuleKind.SUM: {
         "commutativity": True,
         "associativity": True,

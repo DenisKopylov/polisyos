@@ -21,6 +21,7 @@ __all__ = [
     "QuarantineReport",
     "QuarantineReprocessResult",
     "StreamDatasetRunResult",
+    "StreamOwnerConflictError",
     "StreamRuntimeOptions",
     "StreamingSourceSession",
     "benchmark_partitioned_ingestion",
@@ -228,6 +229,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "StreamDatasetRunResult": (
         "polisyos.fabric.data_plane.streaming",
         "StreamDatasetRunResult",
+    ),
+    "StreamOwnerConflictError": (
+        "polisyos.fabric.data_plane.streaming",
+        "StreamOwnerConflictError",
     ),
     "StreamingSourceSession": (
         "polisyos.fabric.data_plane.streaming",

@@ -46,13 +46,13 @@ def test_fabric_ingestion_group_keeps_manifest_shape_behavior() -> None:
     manifest = ConnectorManifestSpec.from_mapping(
         {
             "datasets": [
-                    {
-                        "connector_id": "worldbank.wdi",
-                        "dataset_id": "ny.gdp.mktp.cd",
-                        "filters": {"country": ["ua", "pl"]},
-                        "page_size": "250",
-                    }
-                ],
+                {
+                    "connector_id": "worldbank.wdi",
+                    "dataset_id": "ny.gdp.mktp.cd",
+                    "filters": {"country": ["ua", "pl"]},
+                    "page_size": "250",
+                }
+            ],
             "allow_local_transform_dag": "false",
         }
     )
@@ -185,10 +185,28 @@ def test_fabric_data_plane_group_preserves_tabular_and_temporal_semantics() -> N
     assert timestamp.tzinfo is UTC
 
 
+def test_stream_owner_conflict_uses_the_data_plane_facade_owner() -> None:
+    from polisyos.fabric.data_plane import StreamOwnerConflictError
+    from polisyos.fabric.data_plane.streaming import StreamOwnerConflictError as OwnerError
+
+    assert StreamOwnerConflictError is OwnerError
+    assert (
+        "StreamOwnerConflictError" in importlib.import_module("polisyos.fabric.data_plane").__all__
+    )
+
+
 def test_fabric_config_group_normalizes_path_values() -> None:
     from polisyos.fabric.config.config import FabricConfig
 
-    config = FabricConfig(curated_dir="curated", staging_dir="staging", raw_dir="raw")
+    config = FabricConfig()
+    raw_path_values = {
+        "curated_dir": "curated",
+        "staging_dir": "staging",
+        "raw_dir": "raw",
+    }
+    for field_name, raw_value in raw_path_values.items():
+        setattr(config, field_name, raw_value)
+    config.__post_init__()
 
     assert config.curated_dir == Path("curated")
     assert config.staging_dir == Path("staging")
@@ -264,16 +282,12 @@ def test_identity_facade_exports_bind_all_manifest_owners() -> None:
 
     manifest_exports = getattr(manifest, "__all__", None)
     if manifest_exports is None:
-        manifest_exports = tuple(
-            name for name in vars(manifest) if not name.startswith("_")
-        )
+        manifest_exports = tuple(name for name in vars(manifest) if not name.startswith("_"))
 
     for name in manifest_exports:
         assert getattr(identity, name) is getattr(manifest, name)
 
     for name in identity.__all__:
-        owners = [
-            module for module in (manifest, segment_manifest) if hasattr(module, name)
-        ]
+        owners = [module for module in (manifest, segment_manifest) if hasattr(module, name)]
         assert len(owners) == 1
         assert getattr(identity, name) is getattr(owners[0], name)

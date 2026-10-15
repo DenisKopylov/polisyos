@@ -10,8 +10,14 @@ from typing import Any
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactRef, InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    InputRef,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
@@ -53,7 +59,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.ir.analytics.literature import LiteratureCausalPrior
+from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
 from polisyos.ir.registry.refs import (
     AlignmentReportRef,
@@ -186,6 +192,7 @@ def _selected_ref(ref: Any, *, kind: str) -> ArtifactRef:
 
 def _resolve_typed_source(ctx: ExecutionContext, ref: Any, *, kind: str, model: Any) -> Any:
     from polisyos.core.artifacts import load_core_json_artifact
+
     typed_ref = _selected_ref(ref, kind=kind)
     manifest = ctx.store.get_manifest(typed_ref)
     if (
@@ -213,6 +220,7 @@ def _load_data_graph(
     ctx: ExecutionContext, state: ExperimentState
 ) -> tuple[CausalGraphModel | None, Any | None]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     supplied = "data_causal_graph" in state.params
     graph = _extract_graph(state.params["data_causal_graph"]) if supplied else None
     method_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_METHOD_RESULT_REF)
@@ -426,7 +434,9 @@ def _persist_query_preservation_artifacts(
             projection_ref = projection_ref_by_signature.get(signature)
             if projection_ref is None:
                 persisted_projection = persist_causal_graph_model(
-                    _ensure_ir_artifact_store(ctx.store), projection_graph
+                    _ensure_ir_artifact_store(ctx.store),
+                    projection_graph,
+                    return_selected_profile=True,
                 )
                 projection_ref = str(persisted_projection.artifact_id)
                 projection_ref_by_signature[signature] = projection_ref
@@ -680,6 +690,7 @@ class ReconcileCausalGraphNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         from polisyos.core.artifacts import load_core_json_artifact
+
         query_preservation_queries = _parse_query_preservation_queries(
             state.params.get("query_preservation_queries")
         )
@@ -837,7 +848,9 @@ class ReconcileCausalGraphNode:
             # downstream nodes cannot accidentally use an invalid composition.
             if composed_graph is not None and certificate.status != "broken":
                 graph_ref = persist_causal_graph_model(
-                    _ensure_ir_artifact_store(ctx.store), composed_graph
+                    _ensure_ir_artifact_store(ctx.store),
+                    composed_graph,
+                    return_selected_profile=True,
                 )
                 artifacts.append(graph_ref)
 
@@ -996,11 +1009,8 @@ class ReconcileCausalGraphNode:
         literature_prior = None
         if literature_prior_ref is not None:
             try:
-                manifest = ctx.store.get_manifest(literature_prior_ref)
-                if manifest.kind != "ir.literature_causal_prior":
-                    raise ValueError("Supplied literature prior has incompatible actual manifest")
-                literature_prior = LiteratureCausalPrior.model_validate(
-                    load_core_json_artifact(ctx.store, literature_prior_ref)
+                literature_prior = load_literature_causal_prior(
+                    _ensure_ir_artifact_store(ctx.store), literature_prior_ref
                 )
             except _RECONCILE_LOAD_ERRORS as exc:
                 return NodeOutcome(
@@ -1060,20 +1070,10 @@ class ReconcileCausalGraphNode:
 
         inputs: list[InputRef] = []
         if data_graph_ref is not None:
-            inputs.append(
-                InputRef(
-                    artifact_id=str(data_graph_ref.artifact_id),
-                    role="data_graph",
-                    manifest_profile_sha256=data_graph_ref.manifest_profile_sha256,
-                )
-            )
+            inputs.append(input_ref_from_artifact_ref(data_graph_ref, role="data_graph"))
         if literature_prior_ref is not None:
             inputs.append(
-                InputRef(
-                    artifact_id=str(literature_prior_ref.artifact_id),
-                    role="literature_prior",
-                    manifest_profile_sha256=literature_prior_ref.manifest_profile_sha256,
-                )
+                input_ref_from_artifact_ref(literature_prior_ref, role="literature_prior")
             )
         try:
             # The digest describes the actual typed request, not a caller-supplied seal.
@@ -1100,7 +1100,10 @@ class ReconcileCausalGraphNode:
                 cached_ref
                 if reuse
                 else persist_causal_graph_model(
-                    _ensure_ir_artifact_store(ctx.store), reconciled_graph, inputs=inputs
+                    _ensure_ir_artifact_store(ctx.store),
+                    reconciled_graph,
+                    inputs=inputs,
+                    return_selected_profile=True,
                 )
             )
         except _RECONCILE_LOAD_ERRORS as exc:

@@ -917,8 +917,9 @@ def persist_causal_graph_model(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_graph_model",
     schema_version: str = "1.0",
+    return_selected_profile: bool = False,
 ) -> CausalGraphModelRef:
-    """Persist causal graph model helper."""
+    """Persist a graph and optionally return the exact profile selected by this write."""
     ref = put_json_artifact(
         store,
         graph.model_dump(mode="json"),
@@ -927,6 +928,7 @@ def persist_causal_graph_model(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return CausalGraphModelRef.model_validate(ref)
 

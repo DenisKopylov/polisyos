@@ -1085,8 +1085,9 @@ def persist_cross_graph_evidence_profile(
     inputs: list[InputRef] | None = None,
     schema_name: str = _SCHEMA_NAME,
     schema_version: str = _SCHEMA_VERSION,
+    return_selected_profile: bool = False,
 ) -> CrossGraphEvidenceProfileRef:
-    """Persist cross graph evidence profile helper."""
+    """Persist a profile and optionally return the exact profile selected by this write."""
     ref = put_json_artifact(
         store,
         profile.model_dump(mode="json"),
@@ -1095,6 +1096,7 @@ def persist_cross_graph_evidence_profile(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return CrossGraphEvidenceProfileRef.model_validate(ref)
 

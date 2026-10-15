@@ -5,7 +5,8 @@ import logging
 import duckdb
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.literature import load_literature_causal_prior
@@ -15,6 +16,7 @@ from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
+    INPUT_KNOWLEDGE_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -60,10 +62,35 @@ def _seed_skg_db(path) -> None:
 
 def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
     ctx = _build_ctx(tmp_path)
+    knowledge_bundle = {"kind": "knowledge-bundle", "items": ["selected-view-witness"]}
+    selected_knowledge_bundle_ref = ctx.store.put_json(
+        knowledge_bundle,
+        PutOptions(
+            kind="test.knowledge_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.knowledge_bundle", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    sibling_knowledge_bundle_ref = ctx.store.put_json(
+        knowledge_bundle,
+        PutOptions(
+            kind="test.knowledge_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.knowledge_bundle.sibling", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert selected_knowledge_bundle_ref.artifact_id == sibling_knowledge_bundle_ref.artifact_id
+    assert (
+        selected_knowledge_bundle_ref.manifest_profile_sha256
+        != sibling_knowledge_bundle_ref.manifest_profile_sha256
+    )
     db_path = tmp_path / "skg.duckdb"
     _seed_skg_db(db_path)
     state = ExperimentState(
         run_id="R_phase9_lit",
+        inputs={INPUT_KNOWLEDGE_BUNDLE_REF: selected_knowledge_bundle_ref},
         params={
             "causal_variables": ["tax", "employment"],
             "skg_db_path": str(db_path),
@@ -81,6 +108,32 @@ def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
     assert ARTIFACT_LITERATURE_PRIOR_GRAPH_REF in outcome.state.artifacts_index
     prior_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF]
     prior = load_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior_ref)
+    graph_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_GRAPH_REF]
+    assert prior_ref.manifest_profile_sha256 is not None
+    assert graph_ref.manifest_profile_sha256 is not None
+    reopened_store = FileSystemCAS(ctx.store.root)
+
+    def _input_edges(manifest):
+        return [
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in manifest.inputs
+        ]
+
+    selected_knowledge_bundle_edge = (
+        str(selected_knowledge_bundle_ref.artifact_id),
+        "knowledge_bundle",
+        selected_knowledge_bundle_ref.manifest_profile_sha256,
+    )
+    literature_prior_edge = (
+        str(prior_ref.artifact_id),
+        "literature_prior",
+        prior_ref.manifest_profile_sha256,
+    )
+    assert _input_edges(reopened_store.get_manifest(prior_ref)) == [selected_knowledge_bundle_edge]
+    assert _input_edges(reopened_store.get_manifest(graph_ref)) == [
+        selected_knowledge_bundle_edge,
+        literature_prior_edge,
+    ]
     assert len(prior.edges) == 1
     assert prior.skg_version_id == 7
     assert prior.environment_audit is not None

@@ -555,6 +555,57 @@ def test_causal_graph_artifact_roundtrip(tmp_path) -> None:
     assert loaded == graph
 
 
+def test_causal_graph_writer_returns_exact_selected_profile_on_same_bytes(tmp_path) -> None:
+    cas_root = tmp_path / "cas"
+    store = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    graph = _minimal_dag()
+
+    legacy_ref = persist_causal_graph_model(store, graph)
+    selected_ref = persist_causal_graph_model(
+        store,
+        graph,
+        schema_version="1.1",
+        return_selected_profile=True,
+    )
+
+    assert legacy_ref.artifact_id == selected_ref.artifact_id
+    assert legacy_ref.manifest_profile_sha256 is None
+    assert selected_ref.manifest_profile_sha256 is not None
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    selected_manifest = fresh_reader.get_manifest(selected_ref)
+    legacy_manifest = fresh_reader.get_manifest(legacy_ref)
+    assert selected_manifest.artifact_schema is not None
+    assert selected_manifest.artifact_schema.version == "1.1"
+    assert legacy_manifest.artifact_schema is not None
+    assert legacy_manifest.artifact_schema.version == "1.0"
+
+
+def test_causal_graph_writer_refuses_selected_profile_when_store_cannot_return_it() -> None:
+    class LegacyWriter:
+        def put_json(self, payload, opts=None, canon_spec=None):
+            raise AssertionError("unsupported writer must not be called")
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        persist_causal_graph_model(
+            LegacyWriter(),  # type: ignore[arg-type]
+            _minimal_dag(),
+            return_selected_profile=True,
+        )
+
+
+def test_causal_graph_writer_refuses_malformed_selected_profile_option(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        persist_causal_graph_model(
+            store,
+            _minimal_dag(),
+            return_selected_profile=1,  # type: ignore[arg-type]
+        )
+
+
 def test_causal_graph_pag_policy_defaults_to_conservative() -> None:
     graph = _minimal_dag()
     assert graph.pag_identification_policy is PAGIdentificationPolicy.CONSERVATIVE

@@ -8,8 +8,13 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.data_forge.read_api.academic import SKGQuery
@@ -272,8 +277,8 @@ class BuildLiteraturePriorNode:
         input_refs: list[InputRef] = []
         if INPUT_KNOWLEDGE_BUNDLE_REF in state.inputs:
             input_refs.append(
-                InputRef(
-                    artifact_id=state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF].artifact_id,
+                input_ref_from_artifact_ref(
+                    state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF],
                     role="knowledge_bundle",
                 )
             )
@@ -283,10 +288,16 @@ class BuildLiteraturePriorNode:
         )
         graph_inputs = [
             *input_refs,
-            InputRef(artifact_id=str(prior_ref.artifact_id), role="literature_prior"),
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(prior_ref.model_dump(mode="json")),
+                role="literature_prior",
+            ),
         ]
         graph_ref = persist_causal_graph_model(
-            _ensure_ir_artifact_store(ctx.store), graph, inputs=graph_inputs
+            _ensure_ir_artifact_store(ctx.store),
+            graph,
+            inputs=graph_inputs,
+            return_selected_profile=True,
         )
 
         new_state = branch_state(

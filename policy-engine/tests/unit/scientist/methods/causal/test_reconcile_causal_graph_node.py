@@ -6,7 +6,8 @@ import pytest
 
 import polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph as reconcile_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
@@ -58,6 +59,7 @@ from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     load_negative_certificate,
 )
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import LatentBridgeHypothesisRef, NegativeCertificateRef
 from polisyos.scientist.methods.search.lessons import lesson_from_failure_card
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
@@ -156,8 +158,61 @@ def test_reconcile_causal_graph_node_persists_graph_and_params(tmp_path) -> None
     assert outcome.state.params["needs_expert_review"] is True
     assert "reconciliation_diagnostics" in outcome.state.params
     graph_ref = outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+    assert graph_ref.manifest_profile_sha256 is not None
     graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
     assert graph.metadata["needs_expert_review"] is True
+    reopened_store = FileSystemCAS(ctx.store.root)
+    graph_manifest = reopened_store.get_manifest(graph_ref)
+    assert [
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in graph_manifest.inputs
+    ] == [
+        (
+            str(prior_ref.artifact_id),
+            "literature_prior",
+            prior_ref.manifest_profile_sha256,
+        )
+    ]
+
+
+def test_reconcile_rejects_literature_prior_with_same_bytes_wrong_schema(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    prior = LiteratureCausalPrior(
+        edges=[LiteratureEdgePrior(src="tax", dst="employment", confidence=0.7)],
+        skg_version_id=2,
+    )
+    expected_ref = persist_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior)
+    wrong_schema_ref = ctx.store.put_json(
+        prior.model_dump(mode="json"),
+        PutOptions(
+            kind="ir.literature_causal_prior",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.invalid.LiteratureCausalPrior", version="9.9"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert str(wrong_schema_ref.artifact_id) == str(expected_ref.artifact_id)
+    assert wrong_schema_ref.manifest_profile_sha256 is not None
+    assert wrong_schema_ref.manifest_profile_sha256 != expected_ref.manifest_profile_sha256
+
+    state = ExperimentState(
+        run_id="R_phase9_recon_wrong_literature_schema",
+        artifacts_index={ARTIFACT_LITERATURE_PRIOR_REF: wrong_schema_ref},
+        params={
+            "data_causal_graph": {
+                "graph_type": "dag",
+                "nodes": ["tax", "employment"],
+                "edges": [{"src": "tax", "dst": "employment"}],
+            },
+        },
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "failed to load supplied literature prior" in outcome.error.message
 
 
 def test_reconcile_causal_graph_node_skips_without_data_graph(tmp_path) -> None:
@@ -241,9 +296,11 @@ def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(t
     assert ARTIFACT_ALIGNMENT_REPORT_REF in outcome.state.artifacts_index
     assert ARTIFACT_INTERFACE_MAPPING_REF in outcome.state.artifacts_index
     assert ARTIFACT_COMPOSITION_CERTIFICATE_REF in outcome.state.artifacts_index
+    composed_graph_ref = outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+    assert composed_graph_ref.manifest_profile_sha256 is not None
     composed_graph = load_causal_graph_model(
         _ensure_ir_artifact_store(ctx.store),
-        outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF],
+        composed_graph_ref,
     )
     mapping = load_interface_mapping(
         _ensure_ir_artifact_store(ctx.store),
@@ -629,6 +686,12 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
     assert record.theorem_family == "frontdoor_exact"
     assert record.latent_projection_ref is not None
     assert record.negative_certificate_ref is None
+    projection_ref = next(
+        artifact
+        for artifact in outcome.artifacts
+        if str(artifact.artifact_id) == record.latent_projection_ref
+    )
+    assert projection_ref.manifest_profile_sha256 is not None
     diagnostics = outcome.state.params["reconciliation_diagnostics"]
     trace_payload = next(iter(diagnostics["query_preservation_traces"].values()))
     assert trace_payload["theorem_family"] == "frontdoor_exact"

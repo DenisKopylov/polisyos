@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Protocol
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,7 +16,7 @@ from polisyos.core.artifacts.ownership import (
     ArtifactOwnershipError,
     ArtifactPublicReadClosureUnavailableError,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.protocol import ArtifactStore, matches_runtime_protocol
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.tenant_context import tenant_scope
 
@@ -61,6 +62,60 @@ class TestArtifactStoreProtocol:
         # Protocol members (exclude dunder / internal)
         members = {name for name in dir(ArtifactStore) if not name.startswith("_")}
         assert expected.issubset(members)
+
+
+def test_runtime_protocol_matcher_uses_inherited_members_on_the_same_dynamic_handle() -> None:
+    class ParentSurface(Protocol):
+        root: Path
+
+        @property
+        def ready(self) -> bool: ...
+
+        def read(self) -> bytes: ...
+
+    class CompleteSurface(ParentSurface, Protocol):
+        revision: int
+
+        def write(self, data: bytes) -> None: ...
+
+    class DynamicHandle:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def __getattr__(self, name: str):
+            if name == "root":
+                return Path("/guarded/root")
+            if name == "ready":
+                return True
+            if name == "revision":
+                return 3
+            if name in {"read", "write"}:
+
+                def call(*_args: object) -> object:
+                    self.calls.append(name)
+                    return b"payload" if name == "read" else None
+
+                return call
+            raise AttributeError(name)
+
+    class MissingInheritedMember(DynamicHandle):
+        def __getattr__(self, name: str):
+            if name == "ready":
+                raise AttributeError(name)
+            return super().__getattr__(name)
+
+    class NonCallableMethod(DynamicHandle):
+        def __getattr__(self, name: str):
+            if name == "write":
+                return "present but not callable"
+            return super().__getattr__(name)
+
+    handle = DynamicHandle()
+    assert matches_runtime_protocol(handle, CompleteSurface)
+    handle.read()
+    assert handle.calls == ["read"]
+    assert not matches_runtime_protocol(MissingInheritedMember(), CompleteSurface)
+    assert not matches_runtime_protocol(NonCallableMethod(), CompleteSurface)
 
 
 class _NoopSpan:

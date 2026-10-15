@@ -18,7 +18,8 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes as from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
@@ -160,7 +161,7 @@ def _has_complete_artifact_owner(model_cls: type[BaseModel]) -> bool:
 
 
 def load_model(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | ArtifactID | str,
     model_cls: type[_ModelT],
 ) -> _ModelT:
@@ -174,7 +175,10 @@ def load_model(
     return model_cls.model_validate(payload)
 
 
-def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
+def load_payload(
+    store: CoreJSONArtifactStore,
+    ref: ArtifactRef | ArtifactID | str,
+) -> dict[str, Any]:
     """Load payload."""
     from polisyos.core.artifacts import load_core_json_artifact
 
@@ -186,7 +190,7 @@ def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> d
     raise ValueError("Invalid intervention payload")
 
 
-def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
+def put_tensor(store: ArtifactStore, value: Any) -> ArtifactRef:
     """Persist an array-like value as a NumPy tensor artifact."""
     array = np.asarray(value)
     buf = BytesIO()
@@ -198,7 +202,7 @@ def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
     )
 
 
-def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
+def load_tensor(store: ArtifactStore, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
     """Load tensor."""
     data = store.get_bytes(ref)
     loaded = np.load(BytesIO(data), allow_pickle=False)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any, cast, overload
+from typing import TYPE_CHECKING, Any, TypeGuard, cast, overload
 
 from pydantic import BaseModel
 
@@ -31,6 +31,7 @@ from .manifest import (
 from .manifest import (
     ArtifactRef as CoreArtifactRef,
 )
+from .protocol import matches_runtime_protocol, runtime_protocol_requirements
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
@@ -511,32 +512,37 @@ def ensure_ir_artifact_store(
         ArtifactStore as RuntimeCoreArtifactStore,
     )
 
-    if isinstance(store, RuntimeCoreArtifactStore) or _matches_core_store_protocol(store):
+    if isinstance(store, RuntimeCoreArtifactStore) or matches_artifact_store_protocol(
+        store, RuntimeCoreArtifactStore
+    ):
         return CoreToIRArtifactStoreAdapter(cast("CoreArtifactStore", store))
-    return store
+    return cast("IRArtifactStore", store)
 
 
-def _matches_core_store_protocol(store: Any) -> bool:
-    """Recognize Core stores behind dynamic facades that hide members from ``isinstance``.
+def matches_artifact_store_protocol[ProtocolT](
+    value: object,
+    protocol: type[ProtocolT],
+) -> TypeGuard[ProtocolT]:
+    """Resolve a store Protocol through dynamic facades and adapter owners.
 
-    Timeout attempts wrap the shared store in a delegating facade. Python's
-    runtime Protocol check inspects declared attributes statically, so it does
-    not see that facade's ``__getattr__`` delegation and would otherwise pass
-    the raw Core store into IR readers. Derive the required call surface from
-    the Core protocol itself, then resolve those members dynamically.
+    ``GuardedDependencyProxy`` exposes methods dynamically through
+    ``__getattr__``. Runtime ``isinstance`` checks inspect statically declared
+    attributes and therefore reject that exact guarded handle. This resolver
+    discovers every public requirement on the Protocol MRO, then resolves each
+    member on the same object without unwrapping or replacing the facade.
+
+    The Core-to-IR adapter has a stronger raw-manifest method of its own that
+    delegates lazily. When the source Protocol requires that raw-reader method,
+    inspect the adapter's real owner too; the adapter must not create a stronger
+    capability merely by declaring a forwarding method.
     """
-    from polisyos.core.artifacts.protocol import (
-        ArtifactStore as RuntimeCoreArtifactStore,
-    )
-
-    required_methods = tuple(
-        name
-        for name, member in vars(RuntimeCoreArtifactStore).items()
-        if not name.startswith("_") and callable(member)
-    )
-    return bool(required_methods) and all(
-        callable(getattr(store, name, None)) for name in required_methods
-    )
+    candidate = value
+    if (
+        isinstance(value, CoreToIRArtifactStoreAdapter)
+        and runtime_protocol_requirements(protocol).get("get_raw_manifest_bytes") is True
+    ):
+        candidate = value.store
+    return matches_runtime_protocol(candidate, protocol)
 
 
 def build_ir_artifact_store(

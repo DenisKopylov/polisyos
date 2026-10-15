@@ -19,7 +19,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -28,6 +28,7 @@ import polisyos.core as core
 from polisyos.pdc import SubstrateLayer, gy_content_hash
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
         ResolvedMeasurementRootEvidence,
@@ -77,34 +78,6 @@ class _StrictModel(BaseModel):
     """Strict immutable base for registry contracts."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
-
-
-class _SubstrateRegistryStore(Protocol):
-    """Minimal CAS store facade used without importing core internals directly."""
-
-    def put_json(
-        self,
-        payload: object,
-        opts: object,
-        canon_spec: object | None = None,
-        return_selected_profile: bool = False,
-    ) -> ArtifactRef:
-        """Persist JSON and return an artifact ref."""
-        ...
-
-    def get_bytes(self, artifact_id: object) -> bytes:
-        """Load artifact bytes by id."""
-        ...
-
-    def get_manifest(
-        self, artifact_id: ArtifactID | ArtifactRef
-    ) -> core.artifacts.ArtifactManifest:
-        """Load the manifest needed for lineage verification."""
-        ...
-
-    def verify(self, artifact_id: object) -> core.artifacts.VerificationReport:
-        """Verify one selected artifact and manifest before persistence."""
-        ...
 
 
 class SubstrateCoverage(_StrictModel):
@@ -1238,7 +1211,7 @@ def register_substrate_entry(
 
 
 def persist_measurement_root_substrate_registry(
-    store: _SubstrateRegistryStore,
+    store: CoreJSONArtifactStore,
     *,
     baseline_registry: SubstrateRegistry,
     registration: SubstrateRegistration,
@@ -1286,7 +1259,7 @@ def persist_measurement_root_substrate_registry(
 
 
 def _persist_measurement_root_substrate_registry(
-    store: _SubstrateRegistryStore,
+    store: CoreJSONArtifactStore,
     *,
     baseline_registry: SubstrateRegistry,
     registration: SubstrateRegistration,
@@ -1427,7 +1400,7 @@ def _measurement_root_registry_input_refs(
 
 
 def persist_substrate_registry(
-    store: _SubstrateRegistryStore,
+    store: ArtifactStore,
     registry: SubstrateRegistry,
     *,
     inputs: Sequence[object] | None = None,
@@ -1460,7 +1433,7 @@ def persist_substrate_registry(
 
 
 def load_substrate_registry(
-    store: _SubstrateRegistryStore,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | ArtifactID | str,
     *,
     expected_inputs: Sequence[object] | None = None,

@@ -324,48 +324,54 @@ def test_state_snapshot_2_2_readback_rejects_manifest_lineage_mismatch(tmp_path)
         InputRef(artifact_id=ArtifactID.from_sha256_hex("7" * 64), role="base_state"),
     ]
     snapshot_ref = put_state_snapshot(store, state=state, step=7, inputs=inputs)
-    manifest = store.get_manifest(snapshot_ref.artifact_id)
-    _blob_path, manifest_path = store._paths(snapshot_ref.artifact_id)
-    manifest_path.write_bytes(
-        ManifestLifecycle.to_bytes(
-            manifest.model_copy(
-                update={
-                    "inputs": [
-                        InputRef(
-                            artifact_id=ArtifactID.from_sha256_hex("8" * 64),
-                            role="different_context",
-                        ),
-                        *manifest.inputs[1:],
-                    ]
-                }
-            )
-        )
+    manifest = store.get_manifest(snapshot_ref)
+    assert manifest.canon is not None
+    selected_manifest_ref = store.put_bytes(
+        store.get_bytes(snapshot_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[
+                InputRef(
+                    artifact_id=ArtifactID.from_sha256_hex("8" * 64),
+                    role="different_context",
+                ),
+                *manifest.inputs[1:],
+            ],
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
     )
+    assert selected_manifest_ref.artifact_id == snapshot_ref.artifact_id
+    assert selected_manifest_ref.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
 
     with pytest.raises(ValueError, match="lineage.*manifest"):
-        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+        load_state_snapshot(store, snapshot_ref=selected_manifest_ref)
 
 
 def test_state_snapshot_2_2_readback_rejects_manifest_schema_mismatch(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     state = GlobalState.empty(n_agents=1, n_firms=1)
     snapshot_ref = put_state_snapshot(store, state=state, step=7)
-    manifest = store.get_manifest(snapshot_ref.artifact_id)
-    _blob_path, manifest_path = store._paths(snapshot_ref.artifact_id)
-    manifest_path.write_bytes(
-        ManifestLifecycle.to_bytes(
-            manifest.model_copy(
-                update={
-                    "artifact_schema": SchemaInfo(
-                        name="polisyos.core.StateSnapshot", version="2.0.0"
-                    )
-                }
-            )
-        )
+    manifest = store.get_manifest(snapshot_ref)
+    assert manifest.canon is not None
+    selected_manifest_ref = store.put_bytes(
+        store.get_bytes(snapshot_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.0.0"),
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
     )
+    assert selected_manifest_ref.artifact_id == snapshot_ref.artifact_id
+    assert selected_manifest_ref.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
 
     with pytest.raises(ValueError, match="manifest schema"):
-        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+        load_state_snapshot(store, snapshot_ref=selected_manifest_ref)
 
 
 def test_legacy_state_snapshot_2_0_without_lineage_remains_readable(tmp_path) -> None:
@@ -630,10 +636,19 @@ def test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view(
             prewrite_foreign_manifest_reads.append(path)
         return original_manifest_read(path)
 
-    def _record_put_bytes(data: bytes, options: PutOptions) -> ArtifactRef:
+    def _record_put_bytes(
+        data: bytes,
+        options: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         nonlocal write_started
         write_started = True
-        return original_put_bytes(data, options)
+        return original_put_bytes(
+            data,
+            options,
+            return_selected_profile=return_selected_profile,
+        )
 
     def _record_has(ref: ArtifactRef | ArtifactID | str) -> bool:
         observed_has_refs.append(ref)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -13,6 +14,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 import pytest_asyncio
 
+from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import (
@@ -31,8 +33,17 @@ from polisyos.fabric.connectors.contracts import (
     SchemaVersion,
 )
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+)
 from polisyos.fabric.data_plane.cursor_store import CursorStore
-from polisyos.fabric.data_plane.quarantine import list_quarantine_records, load_quarantine_payload
+from polisyos.fabric.data_plane.quarantine import (
+    IndexedArtifactStore,
+    list_quarantine_records,
+    load_quarantine_payload,
+    quarantine_index_path,
+)
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
     StreamRuntimeOptions,
@@ -40,6 +51,7 @@ from polisyos.fabric.data_plane.streaming import (
     process_stream_dataset,
 )
 from polisyos.fabric.data_plane.watermark import WindowPolicy
+from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
 
 
 class _ProcessDeath(BaseException):
@@ -1154,6 +1166,116 @@ async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
     non_finite_records = [record for _, record in records if record.reason == "non_finite_metric"]
     assert len(non_finite_records) == 1
     assert result.quarantined_rows == 4
+
+
+@pytest.mark.asyncio
+async def test_guarded_cas_runs_cdc_quarantine_on_exact_root_and_refuses_rootless_proxy(
+    tmp_path: Path,
+    stream_registry: ConnectorRegistry,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    """Dynamic guarded CAS remains usable, while missing rooted capability fails closed."""
+    store = FileSystemCAS(tmp_path / "guarded-cdc-cas")
+    cursor_store = CursorStore(store)
+    guard = BlockingDependencyGuard(
+        dependency_name="test-guarded-cdc-cas",
+        timeout_seconds=5.0,
+        breaker=CircuitBreaker(
+            "test-guarded-cdc-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+    )
+    request.addfinalizer(guard.close)
+    guard_calls: list[str] = []
+    guarded_run = guard.run
+
+    def record_guard_call(
+        function: Callable[..., object], *args: object, **kwargs: object
+    ) -> object:
+        guard_calls.append(function.__name__)
+        return guarded_run(function, *args, **kwargs)
+
+    monkeypatch.setattr(guard, "run", record_guard_call)
+    guarded_store = GuardedDependencyProxy(target=store, guard=guard)
+    assert matches_runtime_protocol(guarded_store, IndexedArtifactStore)
+
+    options = StreamRuntimeOptions(
+        batch_size=1,
+        checkpoint_every_chunks=1,
+        max_dedupe_keys=16,
+        window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=32),
+    )
+    guarded_path = tmp_path / "guarded-cdc.jsonl"
+    guarded_path.write_text(
+        "\n".join(
+            (
+                json.dumps({"event_id": "before", "value": 1, "note": "baseline"}),
+                json.dumps({"event_id": "after", "value": 2}),
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    _configure_stream_registry(stream_registry, guarded_path, chunk_size=1)
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="guarded-cdc",
+        store=guarded_store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=options,
+        registry=stream_registry,
+    )
+
+    assert result.quarantined_rows == 1
+    assert len(result.cdc_event_refs) == 1
+    assert "put_json" in guard_calls
+    assert store.root == quarantine_index_path(guarded_store).parents[1]
+    assert quarantine_index_path(store).is_file()
+    records = list_quarantine_records(store, source="stream:stream.jsonl:guarded-cdc")
+    assert len(records) == 1
+    assert load_quarantine_payload(store, records[0][1].raw_payload_ref) == [
+        {"_message_id": "guarded-cdc:1", "event_id": "after", "value": 2}
+    ]
+
+    class RootlessGuardedProxy(GuardedDependencyProxy):
+        def __getattr__(self, name: str) -> Any:
+            if name == "root":
+                raise AttributeError(name)
+            return super().__getattr__(name)
+
+    rootless_store = RootlessGuardedProxy(target=store, guard=guard)
+    assert not matches_runtime_protocol(rootless_store, IndexedArtifactStore)
+    rootless_path = tmp_path / "rootless-cdc.jsonl"
+    rootless_path.write_text(
+        "\n".join(
+            (
+                json.dumps({"event_id": "before", "value": 1, "note": "baseline"}),
+                json.dumps({"event_id": "after", "value": 2}),
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    _configure_stream_registry(stream_registry, rootless_path, chunk_size=1)
+    before_refusal = set(map(str, store.iter_artifact_ids()))
+    with pytest.raises(TypeError, match="rooted mutable index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="rootless-cdc",
+            store=rootless_store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=options,
+            registry=stream_registry,
+        )
+    after_refusal = set(map(str, store.iter_artifact_ids()))
+    new_kinds = {
+        store.get_manifest(artifact_id).kind for artifact_id in after_refusal - before_refusal
+    }
+    assert "fabric.cdc_schema_change" not in new_kinds
+    assert list_quarantine_records(store, source="stream:stream.jsonl:rootless-cdc") == []
 
 
 def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(

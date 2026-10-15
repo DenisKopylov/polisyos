@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
 from typing import NoReturn
@@ -9,7 +10,8 @@ import duckdb
 import pytest
 
 from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
-from polisyos.core.artifacts.manifest import SchemaInfo, WarningRecord
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
+from polisyos.core.artifacts.manifest import InputRef, SchemaInfo, WarningRecord
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -17,6 +19,10 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
 from polisyos.data_forge.kernel.snapshot import finalize_snapshot
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+)
 from polisyos.fabric.world import (
     WorldSnapshotFactWrite,
     WorldSnapshotNodeWrite,
@@ -50,6 +56,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
 from polisyos.runtime.quality.intervention_atom_binding import (
     build_intervention_atom_binding,
     intervention_atom_target_selector_ref,
@@ -343,14 +350,21 @@ def _write_fabric_world_snapshot(
 
 def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
     payload_ref = _put_json(store, FABRIC_PAYLOAD, kind="fabric.world_payload")
-    return _put_json(
-        store,
+    return store.put_json(
         DataSnapshot(
             data_ref=payload_ref,
             stats={"snapshot_id": snapshot_id},
             notes=[f"snapshot_id:{snapshot_id}"],
         ),
-        kind="fabric.data_snapshot",
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
 
 
@@ -1029,6 +1043,68 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
     )
 
 
+def test_world_model_record_build_and_readback_use_guarded_core_json_handle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """WMR admission and readback keep every selected CAS operation behind the guard."""
+    store = FileSystemCAS(tmp_path / "guarded-world-model-cas")
+    _write_fabric_world_snapshot(tmp_path)
+    data_snapshot_ref = _data_snapshot_ref(store)
+    registry_bundle = build_default_registry_bundle(store)
+    model_spec = _model_spec(data_snapshot_ref, registry_bundle.bundle_ref)
+    persisted_registry_ref = persist_substrate_registry(store, _substrate_registry())
+
+    guard = BlockingDependencyGuard(
+        dependency_name="test-guarded-world-model-cas",
+        timeout_seconds=2.0,
+        breaker=CircuitBreaker(
+            "test-guarded-world-model-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+    )
+    request.addfinalizer(guard.close)
+    guard_calls: list[str] = []
+    guarded_run = guard.run
+
+    def record_guard_call(
+        function: Callable[..., object], *args: object, **kwargs: object
+    ) -> object:
+        guard_calls.append(function.__name__)
+        return guarded_run(function, *args, **kwargs)
+
+    monkeypatch.setattr(guard, "run", record_guard_call)
+    guarded_store = GuardedDependencyProxy(target=store, guard=guard)
+    assert matches_artifact_store_protocol(guarded_store, CoreJSONArtifactStore)
+
+    built = build_world_model_record(
+        guarded_store,
+        fabric_world_ref=_fabric_ref(tmp_path),
+        data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
+        data_snapshot_ref=data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=_skg_ref(tmp_path),
+        substrate_registry=_substrate_registry(),
+        region_or_jurisdiction="UA-30",
+        population_scope="wartime_msme",
+        policy_domain="fiscal_credit",
+        valid_time_scope="2026-05-24/2026-12-31",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="firm_month",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.world_model_record_builder",
+        required_substrate_families=("firm_fundamentals",),
+        substrate_registry_artifact_ref=persisted_registry_ref,
+    )
+    loaded = load_world_model_record(guarded_store, built.record_ref)
+
+    assert loaded == built.record
+    assert guarded_store._target is store
+    assert "get_raw_manifest_bytes" in guard_calls
+    assert "get_bytes" in guard_calls
+    assert "put_json" in guard_calls or "put_bytes" in guard_calls
+
+
 def test_wmr_builder_refuses_store_without_raw_manifest_reader_before_io(
     tmp_path: Path,
 ) -> None:
@@ -1112,6 +1188,7 @@ def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
     assert selected_registry_view.manifest_profile_sha256 is not None
 
     manifest = store.get_manifest(selected_registry_ref)
+    assert manifest.canon is not None
     sibling_ref = store.put_bytes(
         store.get_bytes(selected_registry_ref),
         PutOptions(
@@ -1119,6 +1196,7 @@ def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
             media_type=manifest.media_type,
             schema=manifest.artifact_schema,
             inputs=manifest.inputs,
+            canon=manifest.canon,
             warnings=[
                 WarningRecord(
                     code="fixture.sibling_substrate_registry_view",
@@ -1126,6 +1204,7 @@ def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
                 )
             ],
         ),
+        return_selected_profile=True,
     )
     assert sibling_ref.artifact_id == selected_registry_ref.artifact_id
     assert sibling_ref.manifest_profile_sha256 is not None
@@ -1496,9 +1575,40 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
 
     store = FileSystemCAS(tmp_path / "cas")
     _write_fabric_world_snapshot(tmp_path)
-    default_data_snapshot_ref = _data_snapshot_ref(store)
+    selected_payload_ref = store.put_json(
+        FABRIC_PAYLOAD,
+        PutOptions(kind="fabric.world_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert selected_payload_ref.manifest_profile_sha256 is not None
+    data_snapshot = DataSnapshot(
+        data_ref=selected_payload_ref,
+        stats={"snapshot_id": SNAPSHOT_ID},
+        notes=[f"snapshot_id:{SNAPSHOT_ID}"],
+    )
+    default_data_snapshot_ref = store.put_json(
+        data_snapshot,
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=selected_payload_ref.artifact_id,
+                    role="data_ref",
+                    manifest_profile_sha256=selected_payload_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
     registry_bundle = build_default_registry_bundle(store)
     manifest = store.get_manifest(default_data_snapshot_ref)
+    assert manifest.canon is not None
     selected_data_snapshot_ref = store.put_bytes(
         store.get_bytes(default_data_snapshot_ref),
         PutOptions(
@@ -1506,6 +1616,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
             media_type=manifest.media_type,
             schema=manifest.artifact_schema,
             inputs=manifest.inputs,
+            canon=manifest.canon,
             warnings=[
                 WarningRecord(
                     code="fixture.selected_data_snapshot_view",
@@ -1513,6 +1624,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
                 )
             ],
         ),
+        return_selected_profile=True,
     )
     assert selected_data_snapshot_ref.manifest_profile_sha256 is not None
 
@@ -1531,6 +1643,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
             default_wrapper_ref = original_put_state_snapshot(*args, **kwargs)
             wrapper_bytes = store.get_bytes(default_wrapper_ref)
             wrapper_manifest = store.get_manifest(default_wrapper_ref)
+            assert wrapper_manifest.canon is not None
             selected_wrapper_ref = store.put_bytes(
                 wrapper_bytes,
                 PutOptions(
@@ -1538,6 +1651,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
                     media_type=wrapper_manifest.media_type,
                     schema=wrapper_manifest.artifact_schema,
                     inputs=wrapper_manifest.inputs,
+                    canon=wrapper_manifest.canon,
                     warnings=[
                         WarningRecord(
                             code="fixture.selected_snapshot_wrapper_view",
@@ -1545,6 +1659,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
                         )
                     ],
                 ),
+                return_selected_profile=True,
             )
             selected_wrapper_refs.append(selected_wrapper_ref)
             return selected_wrapper_ref

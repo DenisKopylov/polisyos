@@ -34,13 +34,20 @@ from polisyos.core.artifacts import (
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     MetricsRef,
     ProgramGraph,
     SimulationResult,
+)
+from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import (
@@ -63,6 +70,8 @@ from polisyos.ir.kernel.units import (
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
 
 
 class _Payload(BaseModel):
@@ -118,6 +127,117 @@ def test_core_json_facade_returns_only_profile_conformant_selected_values(tmp_pa
     assert read_core_json_artifact_bytes(store, ref) == raw
     assert load_core_json_artifact(store, ref) == {"value": 7}
     assert validate_core_model_json_artifact(_Payload, store, ref) == _Payload(value=7)
+
+
+def test_registry_consumer_reads_selected_cas_views_through_guarded_proxy(
+    tmp_path, monkeypatch, request
+) -> None:
+    """The public registry reader resolves all CAS bytes through the exact guard."""
+    store = FileSystemCAS(tmp_path / "guarded-registry-cas")
+    bundle = build_default_registry_bundle(store)
+    guard = BlockingDependencyGuard(
+        dependency_name="test-guarded-registry-cas",
+        timeout_seconds=2.0,
+        breaker=CircuitBreaker(
+            "test-guarded-registry-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+    )
+    request.addfinalizer(guard.close)
+    guard_calls: list[tuple[str, tuple[object, ...], dict[str, object]]] = []
+    guarded_run = guard.run
+
+    def record_guard_call(function, *args, **kwargs):
+        guard_calls.append((function.__name__, args, kwargs))
+        return guarded_run(function, *args, **kwargs)
+
+    monkeypatch.setattr(guard, "run", record_guard_call)
+    guarded_store = GuardedDependencyProxy(target=store, guard=guard)
+
+    content = load_registry_bundle_content(guarded_store, bundle.bundle_ref)
+
+    assert content.bundle_ref == bundle.bundle_ref
+    assert content.slot_registry.slots
+    assert guarded_store._target is store
+    assert [name for name, _args, _kwargs in guard_calls[:3]] == [
+        "get_raw_manifest_bytes",
+        "get_manifest",
+        "get_bytes",
+    ]
+    assert guard_calls[0][1][0] == bundle.bundle_ref
+
+
+def test_ir_adapter_cannot_make_base_only_store_a_core_json_reader(tmp_path) -> None:
+    """A static adapter facade does not substitute for its owner's raw-reader method."""
+
+    class BaseOnlyFacade:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self.target = target
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str):
+            if name == "get_raw_manifest_bytes":
+                raise AttributeError(name)
+            if name == "get_bytes":
+                return self._get_bytes
+            return getattr(self.target, name)
+
+        def _get_bytes(self, *args, **kwargs):
+            self.payload_reads += 1
+            return self.target.get_bytes(*args, **kwargs)
+
+    backing_store = FileSystemCAS(tmp_path / "base-only-registry-cas")
+    bundle = build_default_registry_bundle(backing_store)
+    weak_owner = BaseOnlyFacade(backing_store)
+    adapter = CoreToIRArtifactStoreAdapter(weak_owner)
+
+    assert not isinstance(weak_owner, CoreJSONArtifactStore)
+    assert isinstance(adapter, CoreJSONArtifactStore)
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_raw_manifest_unavailable",
+    ):
+        load_registry_bundle_content(adapter, bundle.bundle_ref)
+    assert weak_owner.payload_reads == 0
+
+
+def test_guarded_raw_reader_denial_is_not_reclassified_as_missing_capability(
+    tmp_path, monkeypatch, request
+) -> None:
+    """Operational guard denial remains visible and prevents all later CAS reads."""
+    store = FileSystemCAS(tmp_path / "denied-raw-reader-cas")
+    bundle = build_default_registry_bundle(store)
+
+    def deny_raw_manifest(*args, **kwargs):
+        raise PermissionError("test raw-manifest guard denial")
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", deny_raw_manifest)
+    guard = BlockingDependencyGuard(
+        dependency_name="test-denied-raw-reader-cas",
+        timeout_seconds=2.0,
+        breaker=CircuitBreaker(
+            "test-denied-raw-reader-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+        unavailable_exception_types=(PermissionError,),
+    )
+    request.addfinalizer(guard.close)
+    guard_calls: list[str] = []
+    guarded_run = guard.run
+
+    def record_guard_call(function, *args, **kwargs):
+        guard_calls.append(function.__name__)
+        return guarded_run(function, *args, **kwargs)
+
+    monkeypatch.setattr(guard, "run", record_guard_call)
+
+    with pytest.raises(RuntimeDependencyUnavailableError):
+        load_registry_bundle_content(
+            GuardedDependencyProxy(target=store, guard=guard),
+            bundle.bundle_ref,
+        )
+
+    assert guard_calls == ["deny_raw_manifest"]
 
 
 def test_typed_core_reader_reifies_empty_nested_variadic_tuples(tmp_path) -> None:

@@ -18,10 +18,12 @@ from pydantic import BaseModel
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
     _require_return_selected_profile_writer,
     _validate_return_selected_profile,
 )
-from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
@@ -58,7 +60,7 @@ class _SnapshotScalar:
 
 
 def load_state_snapshot(
-    store: FileSystemCAS, *, snapshot_ref: ArtifactRef | ArtifactID | str
+    store: CoreJSONArtifactStore, *, snapshot_ref: ArtifactRef | ArtifactID | str
 ) -> GlobalState:
     """Load state snapshot."""
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
@@ -92,7 +94,7 @@ def load_state_snapshot(
 
 
 def _validate_snapshot_lineage(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     snapshot_ref: ArtifactRef | ArtifactID | str,
     snapshot: StateSnapshot,
@@ -138,7 +140,7 @@ def _validate_snapshot_lineage(
 
 
 def put_state_snapshot(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     state: Any,
     step: int | None = None,
@@ -414,7 +416,7 @@ def _validate_snapshot_blob(snapshot: StateSnapshot, data: bytes) -> None:
 
 
 def _put_snapshot_blob_two_phase(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     data: bytes,
     options: PutOptions,
     *,

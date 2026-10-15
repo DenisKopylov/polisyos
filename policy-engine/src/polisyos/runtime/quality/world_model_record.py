@@ -26,13 +26,13 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
     CoreJSONArtifactStore,
-    FileSystemCAS,
     InputRef,
     PutOptions,
     SchemaInfo,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     ExecPlanRef,
@@ -537,7 +537,7 @@ def build_world_model_record(
             "model_spec_registry_bundle_missing",
             "ModelSpec must name the registry bundle used by Foundry binding",
         )
-    if not isinstance(store, CoreJSONArtifactStore):
+    if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
         raise WorldModelRecordError(
             "world_model_store_core_json_reader_unsupported",
             "WMR construction requires the selected raw-manifest reader capability",
@@ -930,7 +930,9 @@ def persist_world_model_record(
     )
 
 
-def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> WorldModelRecord:
+def load_world_model_record(
+    store: CoreJSONArtifactStore, ref: ArtifactRef | str
+) -> WorldModelRecord:
     """Load and verify one WMR through its selected manifest and lineage."""
     from polisyos.core.artifacts import load_core_json_artifact
 
@@ -1033,7 +1035,7 @@ def _iter_world_model_view_refs(record: WorldModelRecord) -> tuple[ArtifactRef, 
     return tuple(refs)
 
 
-def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:
+def _load_data_snapshot(store: CoreJSONArtifactStore, ref: ArtifactRef) -> DataSnapshot:
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.contracts import DataSnapshot
 
@@ -1331,7 +1333,7 @@ def _resolve_skg_causal_prior_ref(skg_causal_prior_ref: SkgCausalPriorRef) -> No
 
 
 def _load_substrate_registry_artifact_ref(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | str,
     *,
     loaded_registry: SubstrateRegistry | None = None,
@@ -1408,7 +1410,7 @@ def _resolved_substrate_entry_ref_from_registry_entry(
 
 
 def _resolve_substrate_registry_ref(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     substrate_registry: SubstrateRegistry,
     *,
     required_sources: Sequence[str],

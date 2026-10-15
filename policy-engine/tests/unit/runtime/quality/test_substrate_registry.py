@@ -753,6 +753,7 @@ def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Pa
     store = FileSystemCAS(tmp_path / "cas")
     default_ref = persist_substrate_registry(store, registry)
     manifest = store.get_manifest(default_ref)
+    assert manifest.canon is not None
     selected_ref = store.put_bytes(
         store.get_bytes(default_ref),
         PutOptions(
@@ -760,6 +761,7 @@ def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Pa
             media_type=manifest.media_type,
             schema=manifest.artifact_schema,
             inputs=manifest.inputs,
+            canon=manifest.canon,
             warnings=[
                 WarningRecord(
                     code="fixture.selected_registry_view",
@@ -767,6 +769,7 @@ def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Pa
                 )
             ],
         ),
+        return_selected_profile=True,
     )
     assert selected_ref.manifest_profile_sha256 is not None
 

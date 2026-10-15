@@ -7,8 +7,12 @@ from typing import TYPE_CHECKING
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
+)
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.ir.kernel import (
     ConstraintRegistry,
@@ -27,7 +31,7 @@ if TYPE_CHECKING:
 
 def _require_core_json_reader(store: ArtifactStore) -> CoreJSONArtifactStore:
     """Narrow the minimal store ABI before any semantic registry read."""
-    if not isinstance(store, CoreJSONArtifactStore):
+    if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
     return store
 

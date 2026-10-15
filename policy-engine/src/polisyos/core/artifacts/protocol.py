@@ -16,7 +16,7 @@ import inspect
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, runtime_checkable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -34,6 +34,67 @@ if TYPE_CHECKING:
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_NAME = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_VERSION = "1.0.0"
+
+
+def runtime_protocol_requirements(protocol: type[Any]) -> dict[str, bool]:
+    """Derive public member requirements from a Protocol and all its bases.
+
+    Values are true for callable methods and false for annotated data or
+    properties. Walking the Protocol MRO keeps the runtime check aligned with
+    its source contract rather than a separately maintained member list.
+    """
+    if getattr(protocol, "_is_protocol", False) is not True:
+        return {}
+
+    requirements: dict[str, bool] = {}
+    for owner in reversed(protocol.__mro__):
+        if owner is object:
+            continue
+        namespace = vars(owner)
+        annotations = namespace.get("__annotations__", {})
+        if isinstance(annotations, dict):
+            for name in annotations:
+                if isinstance(name, str) and not name.startswith("_"):
+                    requirements[name] = False
+        for name, member in namespace.items():
+            if not isinstance(name, str) or name.startswith("_"):
+                continue
+            if isinstance(member, (classmethod, staticmethod)) or callable(member):
+                requirements[name] = True
+            elif isinstance(member, property):
+                requirements[name] = False
+    return requirements
+
+
+def matches_runtime_protocol[ProtocolT](
+    value: object,
+    protocol: type[ProtocolT],
+) -> TypeGuard[ProtocolT]:
+    """Check a Protocol's source-declared surface on the same runtime object.
+
+    Dynamic facades such as dependency-guard proxies expose methods through
+    ``__getattr__``; the standard ``isinstance`` Protocol check may inspect
+    only statically declared attributes and reject those handles. This check
+    resolves each public inherited requirement on the exact object, requires
+    declared methods to be callable, and preserves operational exceptions from
+    a present member. It never unwraps or substitutes the facade.
+
+    This is a structural presence check, matching Python's runtime Protocol
+    semantics. Consumers still execute the guarded operations and validate
+    their results at the point of use.
+    """
+    requirements = runtime_protocol_requirements(protocol)
+    if not requirements:
+        return False
+
+    for name, must_be_callable in requirements.items():
+        try:
+            member = getattr(value, name)
+        except AttributeError:
+            return False
+        if must_be_callable and not callable(member):
+            return False
+    return True
 
 
 @dataclass(frozen=True, slots=True)

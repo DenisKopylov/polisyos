@@ -21,6 +21,7 @@ from polisyos.core.artifacts.async_store import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.cursor import (
@@ -2520,7 +2521,9 @@ async def process_stream_dataset(
                     compatibility,
                     handling_action,
                 )
-                if quarantine_cdc_change and not isinstance(sync_store, IndexedArtifactStore):
+                if quarantine_cdc_change and not matches_runtime_protocol(
+                    sync_store, IndexedArtifactStore
+                ):
                     raise TypeError(
                         "CDC quarantine requires an artifact store with a rooted mutable index"
                     )
@@ -2554,7 +2557,7 @@ async def process_stream_dataset(
                         f"{connector_id}:{dataset_id}: {compatibility.value}"
                     )
                 if quarantine_cdc_change:
-                    if not isinstance(sync_store, IndexedArtifactStore):
+                    if not matches_runtime_protocol(sync_store, IndexedArtifactStore):
                         raise TypeError(
                             "CDC quarantine requires an artifact store with a rooted mutable index"
                         )

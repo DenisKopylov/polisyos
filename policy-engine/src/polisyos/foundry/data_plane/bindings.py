@@ -28,10 +28,16 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.fabric import (
+    DataSnapshot,
+    DataSnapshotRef,
+    data_snapshot_reference_fields,
+    data_snapshot_reference_input_roles,
+)
 from polisyos.core.contracts.foundry import (
     FeedbackConfig,
     FeedbackStateSnapshot,
@@ -610,7 +616,7 @@ def _load_verified_json_output(
 
 
 def build_input_bindings(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     data_snapshot_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef,
@@ -816,7 +822,7 @@ def build_input_bindings(
 
 
 def load_input_bindings(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> FoundryInputBindings:
     """Load a persisted `FoundryInputBindings` boundary artifact from CAS.
@@ -835,7 +841,7 @@ def load_input_bindings(
 
 
 def resolve_bound_state_snapshot_ref(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> StateSnapshotRef:
     """Resolve the bound `StateSnapshotRef` and validate referenced artifacts.
@@ -968,18 +974,87 @@ def inject_feedback_state(
     return updated_state.replace(feedback_state=feedback_state), overrides
 
 
-def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
+def _load_data_snapshot(
+    store: CoreJSONArtifactStore, data_snapshot_ref: ArtifactRef
+) -> DataSnapshot:
     from polisyos.core.artifacts import validate_core_model_json_artifact
 
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
-    _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
-    return validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
+    selected_parent_manifest = _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
+    snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
+    if selected_parent_manifest is None:
+        return snapshot
+
+    selected_nested_refs: dict[str, BaseModel] = {}
+    for field_name in data_snapshot_reference_fields():
+        nested_ref = getattr(snapshot, field_name)
+        if nested_ref is None:
+            continue
+        allowed_roles = data_snapshot_reference_input_roles(field_name)
+        if not allowed_roles:
+            raise ValueError(
+                f"DataSnapshot selected nested reference lineage role is not established: {field_name}"
+            )
+        try:
+            normalized_ref = ArtifactRef.model_validate(nested_ref.model_dump(mode="python"))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError(
+                f"DataSnapshot selected nested reference is invalid: {field_name}"
+            ) from exc
+        parent_edges = [
+            edge
+            for edge in selected_parent_manifest.inputs
+            if edge.role in allowed_roles and edge.artifact_id == normalized_ref.artifact_id
+        ]
+        if len(parent_edges) != 1 or parent_edges[0].manifest_profile_sha256 is None:
+            raise ValueError(
+                f"DataSnapshot selected nested reference lineage is not established: {field_name}"
+            )
+        selected_profile = parent_edges[0].manifest_profile_sha256
+        if (
+            normalized_ref.manifest_profile_sha256 is not None
+            and normalized_ref.manifest_profile_sha256 != selected_profile
+        ):
+            raise ValueError(
+                f"DataSnapshot selected nested reference profile differs from its parent: {field_name}"
+            )
+        selected_ref = normalized_ref.model_copy(
+            update={"manifest_profile_sha256": selected_profile}
+        )
+        try:
+            child_manifest = resolve_manifest_by_profile(
+                store,
+                selected_ref.artifact_id,
+                selected_profile,
+            )
+        except (FileNotFoundError, ValueError) as exc:
+            raise ValueError(
+                f"DataSnapshot selected nested reference profile does not resolve: {field_name}"
+            ) from exc
+        if (
+            child_manifest.kind != selected_ref.kind
+            or child_manifest.media_type != selected_ref.media_type
+            or not store.verify(selected_ref).ok
+        ):
+            raise ValueError(
+                f"DataSnapshot selected nested reference differs from its manifest: {field_name}"
+            )
+        selected_nested_refs[field_name] = type(nested_ref).model_validate(
+            {
+                **nested_ref.model_dump(mode="python"),
+                "manifest_profile_sha256": selected_profile,
+            }
+        )
+    return snapshot.model_copy(update=selected_nested_refs)
 
 
-def _verify_selected_data_snapshot_schema(store: FileSystemCAS, ref: ArtifactRef) -> None:
+def _verify_selected_data_snapshot_schema(
+    store: CoreJSONArtifactStore,
+    ref: ArtifactRef,
+) -> ArtifactManifest | None:
     """Require an exact owner schema only when a selected DataSnapshot view is supplied."""
     if ref.manifest_profile_sha256 is None:
-        return
+        return None
     try:
         manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
     except (FileNotFoundError, ValueError) as exc:
@@ -994,6 +1069,7 @@ def _verify_selected_data_snapshot_schema(store: FileSystemCAS, ref: ArtifactRef
     )
     if manifest.artifact_schema != expected_schema:
         raise ValueError("DataSnapshot selected manifest schema differs from its model owner")
+    return manifest
 
 
 def _snapshot_binding_notes(snapshot: DataSnapshot) -> list[str]:
@@ -1081,7 +1157,7 @@ def _coerce_feedback_target(value: float, target: Any) -> Any:
 
 
 def _reconcile_artifact_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
     *,
     label: str,
@@ -1108,7 +1184,7 @@ def _decode_arrow_binding_payload(payload: bytes) -> dict[str, Any]:
         raise ValueError("invalid Arrow IPC payload") from exc
 
 
-def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
+def _load_binding_payload(store: CoreJSONArtifactStore, snapshot: DataSnapshot) -> Any:
     from polisyos.core.artifacts import load_core_json_artifact
 
     data_ref = snapshot.data_ref
@@ -1181,7 +1257,7 @@ def _validate_rules(rules: list[FoundryInputBindingRule], slot_registry: SlotReg
 
 def _build_base_state(
     *,
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     snapshot: DataSnapshot,
     payload: Any,
     slot_registry: SlotRegistry,
@@ -1549,5 +1625,5 @@ def _path_exists(payload: Any, path: str) -> bool:
     return _resolve_source_path(payload, path, missing=_MISSING) is not _MISSING
 
 
-def _ensure_artifact_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
+def _ensure_artifact_readable(store: ArtifactStore, ref: ArtifactRef) -> None:
     store.get_manifest(ref)

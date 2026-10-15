@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import CoreJSONArtifactStore
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
@@ -36,7 +37,7 @@ DEFAULT_PIPELINE = build_default_pipeline()
 
 def _build_store(cas_root: Path) -> CoreJSONArtifactStore:
     store = build_artifact_store(ArtifactStoreConfig(root=str(cas_root)))
-    if not isinstance(store, CoreJSONArtifactStore):
+    if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
         raise TypeError("artifact_store_core_json_manifest_reader_unsupported")
     return store
 

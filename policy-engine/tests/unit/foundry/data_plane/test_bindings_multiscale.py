@@ -102,10 +102,22 @@ SYNTHETIC_MULTISCALE_PAYLOAD = {
 }
 
 
-def _put_json(store: FileSystemCAS, payload, *, kind: str, schema: SchemaInfo | None = None):
+def _put_json(
+    store: FileSystemCAS,
+    payload,
+    *,
+    kind: str,
+    schema: SchemaInfo | None = None,
+    inputs: list[InputRef] | None = None,
+):
+    if kind == "fabric.data_snapshot" and schema is None:
+        schema = SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        )
     return store.put_json(
         payload,
-        PutOptions(kind=kind, media_type="application/json", schema=schema),
+        PutOptions(kind=kind, media_type="application/json", schema=schema, inputs=inputs),
         canon_spec=CanonSpec(forbid_floats=False),
     )
 
@@ -207,10 +219,11 @@ def test_load_ukraine_foundry_intake_preserves_the_selected_snapshot_profile(
     tmp_path: Path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "profiled-cas")
-    payload_ref = _put_json(
-        store,
+    payload_ref = store.put_json(
         SYNTHETIC_MULTISCALE_PAYLOAD,
-        kind="fabric.synthetic_multiscale_payload",
+        PutOptions(kind="fabric.synthetic_multiscale_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     raw_snapshot_ref = store.put_json(
         DataSnapshot(data_ref=payload_ref),
@@ -221,6 +234,7 @@ def test_load_ukraine_foundry_intake_preserves_the_selected_snapshot_profile(
                 name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
@@ -422,10 +436,11 @@ def test_load_ukraine_foundry_intake_preserves_but_binding_rejects_a_foreign_pro
     tmp_path: Path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "foreign-profile-cas")
-    payload_ref = _put_json(
-        store,
+    payload_ref = store.put_json(
         SYNTHETIC_MULTISCALE_PAYLOAD,
-        kind="fabric.synthetic_multiscale_payload",
+        PutOptions(kind="fabric.synthetic_multiscale_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     selected_raw_ref = store.put_json(
         DataSnapshot(data_ref=payload_ref),
@@ -436,26 +451,24 @@ def test_load_ukraine_foundry_intake_preserves_but_binding_rejects_a_foreign_pro
                 name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    foreign_payload_ref = _put_json(
-        store,
-        {"agents": {"age": [22]}},
-        kind="fabric.synthetic_multiscale_payload",
-    )
-    foreign_raw_ref = store.put_json(
-        DataSnapshot(data_ref=foreign_payload_ref),
+    selected_manifest = store.get_manifest(selected_raw_ref)
+    foreign_raw_ref = store.put_bytes(
+        store.get_bytes(selected_raw_ref),
         PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
+            kind=selected_manifest.kind,
+            media_type=selected_manifest.media_type,
             schema=SchemaInfo(
-                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                name=f"alias.{DataSnapshot.ARTIFACT_SCHEMA_NAME}",
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=selected_manifest.inputs,
+            canon=selected_manifest.canon,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     selected_ref = DataSnapshotRef.model_validate(selected_raw_ref.model_dump(mode="python"))
@@ -596,6 +609,10 @@ def test_build_input_bindings_preserves_selected_inner_state_blob_view(
         store,
         DataSnapshot(data_ref=payload_ref),
         kind="fabric.data_snapshot",
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
     original_put_state_snapshot = bindings_module.put_state_snapshot
@@ -688,6 +705,10 @@ def test_build_input_bindings_preserves_selected_snapshot_wrapper_view(
         store,
         DataSnapshot(data_ref=payload_ref),
         kind="fabric.data_snapshot",
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
     original_put_state_snapshot = bindings_module.put_state_snapshot
@@ -697,13 +718,20 @@ def test_build_input_bindings_preserves_selected_snapshot_wrapper_view(
         default_wrapper_ref = original_put_state_snapshot(*args, **kwargs)
         wrapper_bytes = store.get_bytes(default_wrapper_ref)
         manifest = store.get_manifest(default_wrapper_ref)
-        selected_wrapper_ref = store.put_bytes(
-            wrapper_bytes,
+        selected_wrapper_ref = store.put_json(
+            json.loads(wrapper_bytes),
             PutOptions(
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                env=manifest.env,
                 inputs=manifest.inputs,
+                canon=manifest.canon,
+                governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
                 warnings=[
                     WarningRecord(
                         code="fixture.selected_manifest_view",
@@ -711,6 +739,8 @@ def test_build_input_bindings_preserves_selected_snapshot_wrapper_view(
                     )
                 ],
             ),
+            canon_spec=CanonSpec(**manifest.canon.model_dump()),
+            return_selected_profile=True,
         )
         assert selected_wrapper_ref.manifest_profile_sha256 is not None
         selected_wrapper_refs.append(selected_wrapper_ref)
@@ -906,7 +936,9 @@ def test_build_input_bindings_rejects_snapshot_media_mismatch_before_output_cas_
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
 
-    with pytest.raises(ValueError, match="media type"):
+    with pytest.raises(
+        ValueError, match="Artifact reference type does not match selected manifest"
+    ):
         _assert_no_binding_outputs_written(
             store,
             monkeypatch,
@@ -940,7 +972,9 @@ def test_build_input_bindings_rejects_json_manifest_when_snapshot_ref_claims_arr
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
 
-    with pytest.raises(ValueError, match="media type"):
+    with pytest.raises(
+        ValueError, match="Artifact reference type does not match selected manifest"
+    ):
         _assert_no_binding_outputs_written(
             store,
             monkeypatch,
@@ -960,10 +994,11 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
     from polisyos.foundry.data_plane.bindings import load_input_bindings
 
     store = FileSystemCAS(tmp_path / "cas")
-    payload_ref = _put_json(
-        store,
+    payload_ref = store.put_json(
         SYNTHETIC_MULTISCALE_PAYLOAD,
-        kind="fabric.synthetic_multiscale_payload",
+        PutOptions(kind="fabric.synthetic_multiscale_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     data_snapshot_ref = _put_json(
         store,
@@ -973,18 +1008,26 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
             name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
             version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
         ),
+        inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
     )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
 
     def _selected_view(ref, *, warning_code: str):
         manifest = store.get_manifest(ref)
-        return store.put_bytes(
-            store.get_bytes(ref),
+        return store.put_json(
+            json.loads(store.get_bytes(ref)),
             PutOptions(
                 kind=manifest.kind,
                 media_type=manifest.media_type,
                 schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                env=manifest.env,
                 inputs=manifest.inputs,
+                canon=manifest.canon,
+                governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
                 warnings=[
                     WarningRecord(
                         code=warning_code,
@@ -992,6 +1035,8 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
                     )
                 ],
             ),
+            canon_spec=CanonSpec(**manifest.canon.model_dump()),
+            return_selected_profile=True,
         )
 
     selected_data_snapshot_ref = _selected_view(
@@ -1037,6 +1082,198 @@ def test_build_input_bindings_preserves_selected_data_and_registry_views(
     assert report["registry_bundle_ref"]["manifest_profile_sha256"] == (
         selected_registry_bundle_ref.manifest_profile_sha256
     )
+
+
+def test_selected_data_snapshot_nested_payload_must_match_parent_lineage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Foundry cannot consume a nested payload view absent from its selected parent edge."""
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_a = store.put_json(
+        {"agents": {"income": [1000]}},
+        PutOptions(kind="fabric.data_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    payload_b = store.put_json(
+        {"agents": {"income": [9000]}},
+        PutOptions(kind="fabric.data_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert payload_a.artifact_id != payload_b.artifact_id
+    parent_ref = store.put_json(
+        DataSnapshot(data_ref=payload_b),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(payload_a, role="data_ref")],
+        ),
+        return_selected_profile=True,
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    with pytest.raises(ValueError, match="DataSnapshot selected nested reference lineage"):
+        _assert_no_binding_outputs_written(
+            store,
+            monkeypatch,
+            lambda: build_input_bindings(
+                store,
+                data_snapshot_ref=parent_ref,
+                registry_bundle_ref=registry_bundle_ref,
+                rules=[],
+            ),
+        )
+
+
+def test_selected_data_snapshot_resolves_every_supported_nested_reference_profile(
+    tmp_path: Path,
+) -> None:
+    """Every schema-derived selected nested view is rebound to its exact producer edge."""
+    from typing import get_args
+
+    from pydantic import BaseModel
+    from pydantic_core import PydanticUndefined
+
+    from polisyos.core.contracts.fabric import (
+        data_snapshot_reference_fields,
+        data_snapshot_reference_input_roles,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    nested_refs = {}
+    inputs = []
+    supported_fields = [
+        name
+        for name in data_snapshot_reference_fields()
+        if data_snapshot_reference_input_roles(name)
+    ]
+    for field_name in supported_fields:
+        field = DataSnapshot.model_fields[field_name]
+        ref_model = next(
+            candidate
+            for candidate in (field.annotation, *get_args(field.annotation))
+            if isinstance(candidate, type)
+            and issubclass(candidate, BaseModel)
+            and {"artifact_id", "kind", "media_type"}.issubset(candidate.model_fields)
+        )
+        kind_field = ref_model.model_fields["kind"]
+        media_field = ref_model.model_fields["media_type"]
+        kind = (
+            f"fixture.{field_name}"
+            if kind_field.default is PydanticUndefined
+            else kind_field.default
+        )
+        media_type = (
+            "application/json" if media_field.default is PydanticUndefined else media_field.default
+        )
+        selected_ref = store.put_json(
+            {"field": field_name},
+            PutOptions(kind=kind, media_type=media_type),
+            return_selected_profile=True,
+        )
+        nested_refs[field_name] = ref_model.model_validate(selected_ref.model_dump(mode="python"))
+        inputs.append(
+            input_ref_from_artifact_ref(
+                selected_ref,
+                role=sorted(data_snapshot_reference_input_roles(field_name))[0],
+            )
+        )
+
+    parent_ref = store.put_json(
+        DataSnapshot(**nested_refs),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=inputs,
+        ),
+        return_selected_profile=True,
+    )
+
+    loaded = _load_data_snapshot(store, parent_ref)
+    assert len(data_snapshot_reference_fields()) == 8
+    assert set(supported_fields).issubset(data_snapshot_reference_fields())
+    for field_name, original_ref in nested_refs.items():
+        resolved_ref = getattr(loaded, field_name)
+        assert resolved_ref.artifact_id == original_ref.artifact_id
+        assert resolved_ref.manifest_profile_sha256 == original_ref.manifest_profile_sha256
+
+
+def test_selected_data_snapshot_fails_closed_for_unbound_optional_reference_fields(
+    tmp_path: Path,
+) -> None:
+    from typing import get_args
+
+    from pydantic import BaseModel
+    from pydantic_core import PydanticUndefined
+
+    from polisyos.core.contracts.fabric import (
+        data_snapshot_reference_fields,
+        data_snapshot_reference_input_roles,
+    )
+
+    unbound_fields = [
+        name
+        for name in data_snapshot_reference_fields()
+        if not data_snapshot_reference_input_roles(name)
+    ]
+    assert unbound_fields
+    for field_name in unbound_fields:
+        store = FileSystemCAS(tmp_path / field_name)
+        data_ref = store.put_json(
+            {"agents": {}},
+            PutOptions(kind="fabric.data_payload", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        field = DataSnapshot.model_fields[field_name]
+        ref_model = next(
+            candidate
+            for candidate in (field.annotation, *get_args(field.annotation))
+            if isinstance(candidate, type)
+            and issubclass(candidate, BaseModel)
+            and {"artifact_id", "kind", "media_type"}.issubset(candidate.model_fields)
+        )
+        kind_field = ref_model.model_fields["kind"]
+        media_field = ref_model.model_fields["media_type"]
+        kind = (
+            f"fixture.{field_name}"
+            if kind_field.default is PydanticUndefined
+            else kind_field.default
+        )
+        media_type = (
+            "application/json" if media_field.default is PydanticUndefined else media_field.default
+        )
+        nested_ref = store.put_json(
+            {"field": field_name},
+            PutOptions(kind=kind, media_type=media_type),
+            return_selected_profile=True,
+        )
+        parent_ref = store.put_json(
+            DataSnapshot(
+                data_ref=data_ref,
+                **{field_name: ref_model.model_validate(nested_ref.model_dump(mode="python"))},
+            ),
+            PutOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+            ),
+            return_selected_profile=True,
+        )
+
+        with pytest.raises(ValueError, match="role is not established"):
+            _load_data_snapshot(store, parent_ref)
 
 
 def test_load_input_bindings_rejects_payload_version_drift(tmp_path: Path) -> None:

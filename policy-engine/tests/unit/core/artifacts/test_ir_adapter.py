@@ -6,7 +6,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from hashlib import sha256
 from types import MappingProxyType
-from typing import get_args, get_origin
+from typing import Protocol, get_args, get_origin
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,6 +23,7 @@ from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
 from polisyos.core.artifacts.ir_adapter import (
     CoreToIRArtifactStoreAdapter,
     ensure_ir_artifact_store,
+    matches_artifact_store_protocol,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
@@ -48,7 +49,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.manifest import (
     SchemaInfo as CoreSchemaInfo,
 )
-from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
+from polisyos.core.artifacts.protocol import CoreJSONArtifactStore, resolve_manifest_by_profile
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
@@ -318,6 +319,54 @@ def test_ensure_ir_artifact_store_adapts_dynamic_core_facade_selected_view(
     assert len(observed_selectors) == 1
     assert isinstance(observed_selectors[0], CoreArtifactRef)
     assert observed_selectors[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+
+def test_runtime_protocol_bridge_derives_inherited_and_annotated_members() -> None:
+    """Dynamic facades satisfy the complete inherited source Protocol, not a local list."""
+
+    class ParentSurface(Protocol):
+        label: str
+
+        def parent_call(self) -> None: ...
+
+    class CompleteSurface(ParentSurface, Protocol):
+        def child_call(self) -> None: ...
+
+    class DynamicFacade:
+        label = "present"
+
+        def __getattr__(self, name: str):
+            if name in {"parent_call", "child_call"}:
+                return lambda: None
+            raise AttributeError(name)
+
+    class MissingInheritedCall(DynamicFacade):
+        def __getattr__(self, name: str):
+            if name == "parent_call":
+                raise AttributeError(name)
+            return super().__getattr__(name)
+
+    assert matches_artifact_store_protocol(DynamicFacade(), CompleteSurface)
+    assert not matches_artifact_store_protocol(MissingInheritedCall(), CompleteSurface)
+
+
+def test_static_ir_adapter_cannot_launder_missing_core_json_reader(tmp_path) -> None:
+    """A Core-shaped IR adapter does not invent its owner's raw-manifest capability."""
+
+    class BaseOnlyFacade:
+        def __init__(self, target: object) -> None:
+            self._target = target
+
+        def __getattr__(self, name: str):
+            if name == "get_raw_manifest_bytes":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+    adapter = CoreToIRArtifactStoreAdapter(
+        BaseOnlyFacade(FileSystemCAS(tmp_path / "base-only-adapter"))
+    )
+
+    assert not matches_artifact_store_protocol(adapter, CoreJSONArtifactStore)
 
 
 def test_ir_adapter_selected_core_methods_keep_bytes_options_and_exact_profile(tmp_path) -> None:

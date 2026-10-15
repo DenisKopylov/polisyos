@@ -8720,7 +8720,9 @@ def _assert_ledger_artifact_contracts_current(
             raise ValueError("pinned ledger contract snapshot was rebound")
         if runtime.get("_IMPORT_TIME_LEDGER_CANON_SPEC") is not expected_canon_spec:
             raise ValueError("pinned ledger canonical specification was rebound")
-        source_hash = _bytes_hash(source_path.read_bytes())
+        source_bytes = source_path.read_bytes()
+        source_hash = _bytes_hash(source_bytes)
+        source_contract_projection = _source_ledger_contract_projection(source_bytes)
         contract_projection = _runtime_ledger_contract_projection()
         model_projection = _ledger_model_projection(_LEDGER_ARTIFACT_CONTRACTS)
         snapshot_projection = _runtime_ledger_snapshot_projection(
@@ -8732,6 +8734,8 @@ def _assert_ledger_artifact_contracts_current(
         pinned_canon_projection = _canonical_json(
             _normalize_runtime_binding_value(_IMPORT_TIME_LEDGER_CANON_SPEC, seen=set())
         )
+        if source_contract_projection != contract_projection:
+            raise ValueError("runtime ledger contract differs from its source declaration")
         if (
             source_hash != expected_source_hash
             or contract_projection != expected_contract_projection
@@ -8757,7 +8761,7 @@ def _assert_ledger_artifact_contracts_current(
             or _IMPORT_TIME_LOADED_CODE_CONSISTENT is not False
         ):
             raise ValueError("loaded authority identity snapshot is incomplete")
-    except (OSError, TypeError, ValueError, AttributeError) as exc:
+    except (OSError, TypeError, ValueError, AttributeError, SyntaxError) as exc:
         if isinstance(exc, ConfidenceLedgerError):
             raise
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", str(exc)) from exc

@@ -3064,7 +3064,7 @@ def test_post_admission_rebased_contract_baseline_fails_before_prior_membership(
         factory(scope=changed_scope)
 
     assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
-    assert exc_info.value.detail == "loaded authority code differs from its import-time identity"
+    assert exc_info.value.detail == "runtime ledger contract differs from its source declaration"
     assert not target._head_path.exists()
     assert not target._scope_tombstone_path.exists()
     _assert_scope_event_cas_witnesses_unchanged(target, event_witnesses)
@@ -5452,6 +5452,49 @@ def test_loaded_deployment_identity_absence_is_a_typed_verdict(
     assert observation.reason_code == "canonical_loaded_runtime_mismatch"
 
 
+def test_canonical_from_repo_rejects_runtime_contract_mutation_before_cas(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The canonical consumer refuses source divergence before constructing CAS."""
+    changed = dict(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+    changed["registry"] = dataclasses.replace(
+        changed["registry"],
+        kind=changed["registry"].kind + ".forged",
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_LEDGER_ARTIFACT_CONTRACTS",
+        types.MappingProxyType(changed),
+    )
+    store_builder_calls: list[ledger_module.ArtifactStoreConfig] = []
+
+    def unexpected_store_builder(
+        config: ledger_module.ArtifactStoreConfig,
+    ) -> ledger_module.artifacts.ArtifactStore:
+        store_builder_calls.append(config)
+        raise AssertionError("source mismatch must be refused before CAS construction")
+
+    monkeypatch.setattr(ledger_module, "build_artifact_store", unexpected_store_builder)
+    risk_scope = _scope(
+        owner_scope_key=f"design-problem:source-derived-canonical-admission:{time.time_ns()}"
+    )
+    scope_hex = risk_scope.scope_id.rsplit(":", 1)[-1]
+    state_root = REPO_ROOT / ".polisyos/runtime/confidence_ledger"
+    head_path = state_root / f"{scope_hex}.head.json"
+    tombstone_path = state_root / f"{scope_hex}.scope.json"
+    assert not head_path.exists()
+    assert not tombstone_path.exists()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        ConfidenceLedgerSession.from_repo(REPO_ROOT, risk_scope=risk_scope)
+
+    assert exc_info.value.code == "canonical_loaded_runtime_mismatch"
+    assert exc_info.value.detail == "runtime ledger contract differs from its source declaration"
+    assert store_builder_calls == []
+    assert not head_path.exists()
+    assert not tombstone_path.exists()
+
+
 def test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -5574,10 +5617,59 @@ def test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fres
 
     assert not target._head_path.exists()
     assert not target._scope_tombstone_path.exists()
-    assert admission_error.code in {
-        "canonical_loaded_runtime_mismatch",
-        "ledger_head_reset_detected",
-    }
+    assert admission_error.code == "canonical_loaded_runtime_mismatch"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["non_event_kind", "schema_binding", "added_row", "removed_row", "schema_version"],
+)
+def test_source_projection_covers_complete_registry_and_schema_quantity(
+    mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The source projection detects table and semantic changes beyond one event flag."""
+    source_bytes = ledger_module._LEDGER_MODULE_SOURCE_PATH.read_bytes()
+    source_projection = ledger_module._source_ledger_contract_projection(source_bytes)
+    assert source_projection == ledger_module._runtime_ledger_contract_projection()
+    changed = dict(ledger_module._LEDGER_ARTIFACT_CONTRACTS)
+
+    if mutation == "non_event_kind":
+        changed["registry"] = dataclasses.replace(
+            changed["registry"],
+            kind=changed["registry"].kind + ".forged",
+        )
+    elif mutation == "schema_binding":
+        contract_id = "registry"
+        contract = changed[contract_id]
+        binding_name = next(
+            name
+            for name, value in vars(ledger_module).items()
+            if name.endswith("_SCHEMA") and value is contract.schema
+        )
+        rebound_schema = ledger_module.artifacts.SchemaInfo(
+            name=contract.schema.name,
+            version=contract.schema.version + ".forged",
+        )
+        monkeypatch.setattr(ledger_module, binding_name, rebound_schema)
+        changed[contract_id] = dataclasses.replace(contract, schema=rebound_schema)
+    elif mutation == "added_row":
+        changed["unmodeled_source_row"] = changed["registry"]
+    elif mutation == "removed_row":
+        del changed["registry"]
+    else:
+        monkeypatch.setattr(
+            ledger_module,
+            "CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION",
+            ledger_module.CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION + ".forged",
+        )
+
+    monkeypatch.setattr(
+        ledger_module,
+        "_LEDGER_ARTIFACT_CONTRACTS",
+        types.MappingProxyType(changed),
+    )
+    assert source_projection != ledger_module._runtime_ledger_contract_projection()
 
 
 def test_source_literal_contract_mode_and_existing_unknown_mode_are_distinct() -> None:

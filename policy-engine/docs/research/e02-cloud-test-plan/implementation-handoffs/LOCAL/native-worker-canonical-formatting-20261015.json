@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "native-worker-canonical-formatting",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "7148c4cc59c66e4a66dd65a38401cbe931f6715e",
+  "implementation_commits": [
+    "433548705981d06c104005e5b089018aaa239bb3"
+  ],
+  "candidate_tree_sha": "7e76baff75d91380de89bb080bf385128e0cb680",
+  "parents": [
+    "7148c4cc59c66e4a66dd65a38401cbe931f6715e"
+  ],
+  "closure_ids": [],
+  "proposals": [],
+  "footprint": [
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d"
+    }
+  ],
+  "property": "Canonical Ruff formatting of the existing interval-admission predicate; exact AST remains unchanged.",
+  "selected_profile_backend": "Local locked CPython/Ruff formatter; no new scientific backend or production input.",
+  "source_bound_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/result.json",
+    "sha256": "856fad670102d321979d2172a6ee75cbcff4438a8ae5707bca998d71b3455683"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-independent-20261015/review.json",
+    "sha256": "a731e81413874a72b2379182449192fcdb3e0c345ccf4d3961369bf1bd8f6523"
+  },
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/format.stdout.txt",
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/format---check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-worker-format-root-20261015/format---check.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    }
+  ],
+  "limitations": [
+    "Formatting only; no new scientific or capability claim.",
+    "Previous Linux 25-pass runtime receipt exercised pre-format bytes and is historical, qualified only by demonstrated AST identity.",
+    "Full native SOTA and installed-wheel/rebuilt-sdist closeout remain unrun on final composition."
+  ],
+  "next_check": "Run actual native gates against final source/input/backend freeze; G retains independent acceptance."
+}

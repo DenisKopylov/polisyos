@@ -1,0 +1,98 @@
+{
+  "slice": "JAX3",
+  "title": "Preserve typed JAX trajectory and PPO skip branches",
+  "status": "source_committed_handoff_ready",
+  "authorship": "local candidate source author; independent acceptance and finding adjudication remain with G",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": {
+      "commit": "bd14c3d492e12719945b43ab3b7b77178c90efe1",
+      "tree": "a62460b5c3c18cf18572dd5308080e01b2f031b7",
+      "parents": [
+        "db51beb76163cfce795645d9b2be0ae8805228b0"
+      ]
+    },
+    "source_commit_status": "committed_and_read_back",
+    "commit_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+        "sha256": "6730c202d77ba15d2107b79d88b0a9a31149effa7eb25b3da8c9835cd0c30927"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/agent_sim/test_jit_training.py",
+        "sha256": "38dcd8918b66ef2de6cb83bff6daaadb70a7bdc0636cdf148b48f23f7a22c4ab"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+        "sha256": "5d5f9d52c1314e5f94b3e71d750cfcbf980f5e5d5e017c86fbbc15a0133a4556"
+      }
+    ],
+    "authoring_checkout_head": {
+      "commit": "db51beb76163cfce795645d9b2be0ae8805228b0",
+      "tree": "439226c5ca24ea2a84d7dc5004e22c2cc7a3fdc2",
+      "role": "candidate working-tree checkpoint pinned by the format-only handoff before root authored the source commit"
+    },
+    "source_commit": {
+      "commit": "7148c4cc59c66e4a66dd65a38401cbe931f6715e",
+      "tree": "3d6fec8f283b8a9b90f888e7bd564cec8ee5842e",
+      "parent": "bd14c3d492e12719945b43ab3b7b77178c90efe1",
+      "subject": "fix(foundry): preserve executed branch types in masked JAX training",
+      "footprint_verified": "Exactly the three source/test paths listed below; committed blobs SHA-256 match the post-format candidate and final 9-test receipt."
+    },
+    "comparison_note": {
+      "range": "db51beb76163cfce795645d9b2be0ae8805228b0..bd14c3d492e12719945b43ab3b7b77178c90efe1",
+      "delta": "Two documentation-only LOCAL handoff additions; zero intersection with the three JAX source/test paths.",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n9-integrity-observed-drift-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-c3-worker-selector-retirement-20261015.json"
+      ]
+    }
+  },
+  "mechanism": {
+    "property": "Each JAX lax.cond branch must return the same pytree structure, leaf shapes, and dtypes.",
+    "repair": [
+      "Build terminal trajectory values from the real _run_step abstract result; zero each leaf at its returned shape/dtype and preserve the live active mask and false support signal.",
+      "Build metric-skip zeros from the full abstract PPO update result so loss, metrics, and training stats retain their own output dtypes while current params and optimizer state remain selected.",
+      "Perform trajectory abstract-shape tracing only when active-wealth tracking is enabled."
+    ],
+    "x32_x64": "The precision regression exercises both x32 and x64 execution for both plain and metrics-enabled factories; output loss dtype remains float32 or float64 respectively."
+  },
+  "verification": {
+    "final_postformat_runtime": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "tests/unit/foundry/agent_sim/test_jit_training.py",
+        "tests/unit/remediation/test_plg_03.py",
+        "-k",
+        "active_wealth_terminal_branch_matches_actor_output_precision or native_monitor_observes_negative_public_step_even_when_final_step_recovers or native_jit_factory_preserves_typed_validation_cause or native_jit_factory_preserves_unclassified_jax_failure"
+      ],
+      "cwd": "policy-engine",
+      "result": "9 passed, 32 deselected, 21 warnings in 12.24s; exit 0; source hashes before/after unchanged.",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-postformat-root-20261015/result.json@f7d6c77c1146083267a654c83eee462072cd9cc57b03e8ad63c54e036074831b",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-postformat-root-20261015/stdout.txt@c48c6bdd4bdc5232b32df231f0eed667babe84121f0c6955076bc05d85db4f47",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-postformat-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-postformat-root-20261015/junit.xml@0eae361e64bdff8568bfa4f2701ad02f94ebbf743dfc65d09ba5592da57cc6d2"
+    },
+    "full_affected_tests": {
+      "result": "63 passed, 90 warnings in 121.31s before format-only changes; AST parity proves formatting did not alter parsed behavior.",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-trajectory-dtype-repair-20261015/full-affected-tests.log@54c818371f97a661470b9fa9d74a7afb4e7cc8ffba19e4d51d8afe97d07545d1"
+    },
+    "canonical_checks": "Scoped Ruff check and diff check passed; canonical Ruff format check reports all three files already formatted. Exact pre/post hashes, AST hashes/node counts, source-patch snapshots, and outputs are in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-trajectory-dtype-repair-20261015/format-only-canonicalization.json@13ece6ad4f993932cb7b1a9074f0f9cb6e97046fa6ffea28f217c53639ceddd0.",
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-trajectory-independent-20261015/assessment.md@864ce9b08916d2a47526dc938a785fd8a0629025028e8313650441bdfd069e9e",
+    "callback_effect_probe": "Both factories: 0 callbacks at trainer construction, exactly 2 actual rollout callbacks [0,1]. Script policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-jax-trajectory-independent-20261015/callback-effect-probe.py@4f2e7174721cde7cae394e2627f49469a364cce29105b955a9b799b4cb01aa47; output SHA 4f9b13174775604563752d7d56301b54964ea2056675a6cafe7b9749771f0ad9."
+  },
+  "finding_boundary": {
+    "related_criterion": "LA-023 / PLG-03",
+    "claim": "This slice repairs and verifies numerical control-flow typing and preserves typed execution failure behavior.",
+    "formal_closure_proposal": "none",
+    "limitation": "This does not adjudicate LA-023 authority/coupling or close the broader criterion. No full backend/native gate or composed E02 replay was run in this slice."
+  },
+  "closure_ids": []
+}

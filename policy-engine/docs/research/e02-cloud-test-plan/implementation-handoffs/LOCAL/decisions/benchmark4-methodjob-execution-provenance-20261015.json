@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.decision_research.v1",
+  "decision_id": "benchmark4-methodjob-execution-provenance-custody-20261015",
+  "created_at": "2026-10-15",
+  "decision_status": "author-proposed bounded contract and G choice; no formal G adjudication",
+  "supersedes_and_preserves": {
+    "prior_source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-dispatch-source-freeze-r9-20261015.json",
+      "sha256": "a69ab41db09ec1a5446633d41b5592fcd1728c1baa56f29d4bb488f33a2ca2ff",
+      "freeze_id": "sha256:d41c08b33f46cbf2220fe5a11803e017a89d8d322c7c542dd2e3b990cc76aa68"
+    },
+    "prior_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-dispatch-handoff-r9-20261015.json",
+      "sha256": "ad6232780a51d17005163525f71f33eb4fa2d920d8f1b36a15d0b78158b3c653"
+    },
+    "prior_bounded_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-benchmark4-independent-review-20261015/independent-review.json",
+        "sha256": "072e77e9b98e32c1b14cba4830a78c62f47a7406bc57f70f2405be25c927d136",
+        "disposition": "Retain its bounded GO for MethodJob request/result recomputation only; it did not establish trusted dispatch identity."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-benchmark4-independent-review-20261015/fresh-cas-followup-review.json",
+        "sha256": "11a3bafc07d865221d57516d66b4ce22bfbb0000bc8756c60ac2101b425458c1",
+        "disposition": "Retain its bounded HOLD for candidate/suite source-profile admission; this packet addresses the deeper execution-provenance gap."
+      }
+    ],
+    "new_independent_falsifier": {
+      "script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-v5-methodjob-review-20261015/forged-runner-evidence-probe.py@sha256:6e98428c630e405c78d49997d8df12a4e0b95b22342ad050353c680a3ac94e67",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-v5-methodjob-review-20261015/forged-runner-evidence-probe.stdout.txt@sha256:482460586154dbd02c04e338e6a096f1727064699863968cde1f08d2077843c8",
+      "deciding_observation": "The registered method's pure_step raises if invoked. The probe writes a selected-profile candidate, suite, result, method-evidence and evaluation graph directly through FileSystemCAS, including a matching MethodDispatchBinding and `method_dispatch_binding_status=recomputed`. The actual method call count is zero, yet ChampionRegistry returns promoted=true and reason=promoted."
+    },
+    "old_positive_claim_disposition": "Keep the r9 implementation, tests, and receipt as historical evidence of a controlled actual run_job → SearchLoopRunner → ChampionRegistry route and content/slot recomputation. Retract their use as proof that protected admission establishes the actual producer or invocation. The independent forged-CAS counterfactual invalidates that stronger claim. Do not delete or rewrite prior history; current status is HOLD for protected execution-provenance admission. No B116 closure is asserted."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "observed_head": "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9",
+    "observed_tree": "3f7c0686e75266372865ca5a930cde5f0b739a92",
+    "observed_parent": "74ea317ab55da4f1a9ae124a6fa40310ce87e56d",
+    "source_state": "The eight listed method-job paths still match the r9 uncommitted content snapshot at readback. The shared worktree contains other lanes; this packet makes no whole-tree freeze or cleanliness claim. No product source was edited for this decision."
+  },
+  "pattern_and_property": {
+    "pattern_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P12",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "p40_bucket": "SAME_METHODJOB_EXECUTION_PROVENANCE_CLASS_ONE_LEVEL_DEEPER",
+    "p40_rule": "Root classified this as the same execution-provenance class, deeper than binding source values and selected profiles. Stop the ladder: do not add a per-field, per-Method, or per-registry patch. Widen the producer→receipt→fresh consumer boundary once, or retain the bounded protected-admission limitation and run the declared falsifier.",
+    "property": "ChampionRegistry may authorize protected promotion only when a trusted execution producer actually dispatched the exact resolved method/version and immutable JobSpec against its selected source refs, then persisted the exact result and evidence later consumed by the registry.",
+    "current_implementation": "The runner invokes the registered backend and writes selected-profile MethodResult and MethodExecutionEvidence CAS artifacts. The evidence payload records a MethodDispatchBinding. ChampionRegistry reloads and recomputes content, selected profile, input edges, request values, metrics, and evaluation lineage. The protected consumer does not verify who wrote the evidence or independently establish that the registered method invocation produced it.",
+    "p37_gate_basis": "Result/evidence producer identity and actual invocation are not_established by the current gate: the JSON status string, dispatch binding, JobSpec, producer metadata, and CAS graph are writable by the same caller being checked. They are consumer_asserted unless a distinct trusted execution custody boundary signs the complete receipt. A configured signing identity/key appointment is also not established for MethodJob execution.",
+    "p38_divergence": "The property is actual execution by a trusted MethodJob runner. Current code tests that the supplied artifacts and dispatch fields are internally consistent. The divergent case is a self-authored selected-profile CAS graph with exact matching fields and a registered method that deliberately raises; it still promotes.",
+    "capability_labels": "Candidate-grade execution, selected-profile CAS persistence, and content/lineage recomputation are implemented and exercised. Protected execution provenance remains producer_missing and verification_missing; promotion consumer must refuse while its trusted receipt is absent. Existing historical and candidate reads can remain available."
+  },
+  "existing_mechanism_research": {
+    "generic_cas_signature_support": {
+      "signing_contract": "policy-engine/src/polisyos/core/artifacts/signing.py@sha256:5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "store_contract": "policy-engine/src/polisyos/core/artifacts/store.py@sha256:f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+      "store_protocol": "policy-engine/src/polisyos/core/artifacts/protocol.py@sha256:06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3",
+      "available_operations": "Ed25519Signer, Ed25519Verifier, FileSystemCAS.sign_artifact/verify_signature, trusted-key/revocation directories, identity bindings, and optional sign-on-put exist. A selected ArtifactRef can be passed to signing and verification so the signed statement covers the selected blob and exact selected manifest bytes.",
+      "limitation": "SigningConfig defaults signing and sign_on_put off. Generic sign-on-put is not bound to an actual MethodBackend invocation and can sign arbitrary CAS writes made through that configured store. A signer_identity string is metadata, not an appointment. The current MethodJob runner does not call sign_artifact, and the current ChampionRegistry does not call verify_signature. Generic CAS signatures alone do not close the producer identity gap."
+    },
+    "adjacent_custody_patterns": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/deployment_security.py@sha256:429535be7adaff7d6fdf3f0a957b4560d9d20e97bfb98f60fd79ccf397041ed8",
+        "finding": "HumanDecisionCustody is assembled from a strict deployment-owned config with a signer, verifier, identity, verifier epoch, and source provenance. It is explicitly a separate HumanDecision purpose and does not appoint or authorize MethodJob execution. Do not reuse its identity or trust grant."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/human_decisions.py@sha256:74a82acb1ee0bba85113db79b18fb33b0621a24b24b608c9ff756e035dc616d0",
+        "finding": "HumanDecision consumers bind configured signer identities and verify signed selected artifacts for their own custody workflow; no MethodJob execution role is wired here."
+      }
+    ],
+    "role_search": "A bounded search of scientist/compute, scientist/methods/autotune, generic CAS signing, and deployment custody found no MethodJob-specific trusted executor identity, signer injection, or signature-verifying ChampionRegistry route. The repository has a generic mechanism and separate purpose-specific custody examples, not an appointed MethodJob execution issuer.",
+    "methodjob_source_readback": [
+      "policy-engine/src/polisyos/scientist/compute/runner.py@sha256:c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84",
+      "policy-engine/src/polisyos/scientist/methods/autotune/registry.py@sha256:f81874450489fdbcbc88dfdcc9e3ac8cd8165c39f5ebb7503dccd03894cde663"
+    ],
+    "time_limit": "The detached signature statement binds artifact ID, blob hash, manifest hash, and key ID. The DetachedSignature.signed_at field is not part of the signed statement; it cannot establish trusted execution time or currentness. Existing key revocation can be checked against configured state, but no MethodJob signer identity, validity interval, rotation/renewal policy, or trusted clock is configured. Do not infer currentness from signed_at or invent a TTL."
+  },
+  "alternatives": [
+    {
+      "option": "Reuse existing Ed25519 CAS signing and explicit deployment custody for a trusted MethodJob executor",
+      "assessment": "Recommended engineering path if an authorized source owner appoints the actual executor identity/key and custody boundary. The execution path may emit one typed receipt only after backend.run returns successfully; the receipt binds exact resolved JobSpec, selected source refs and profiles, actual result/evidence refs and profiles, and the method execution binding. It is signed through a signer capability available only at the trusted executor composition. ChampionRegistry fresh-reads the receipt and selected view, verifies the exact signature against a configured trusted executor identity and current revocation state, then recomputes every ref/edge/value before protected promotion.",
+      "advantages": [
+        "reuses existing Ed25519 signature, selected-profile CAS, trust, and revocation primitives",
+        "binds producer output and the full source/result/evidence graph without trusting a producer label",
+        "preserves existing numerical, candidate, and promotion qualification rules"
+      ],
+      "risks_and_limits": "This works only if the signer is custodied by a trusted execution composition and is not a generic key available to arbitrary CAS writers. Signature validity proves the named custody key signed the receipt; it does not prove scientific adequacy, external data truth, causal calibration, hidden-holdout qualification, institutional appointment beyond the configured trust grant, or production currentness.",
+      "status": "recommended conditional repair; deployment identity/key appointment remains external and not_established"
+    },
+    {
+      "option": "Enable generic sign_on_put or accept caller-provided signer_identity",
+      "assessment": "Rejected. Generic sign-on-put signs writes by any caller using the configured store. An identity string and a valid signature without a narrowly custodied signer do not establish that the MethodBackend invoked the method. This recreates the demonstrated escape under a different marker."
+    },
+    {
+      "option": "Retain producer labels, registry membership, code fingerprints, or method-dispatch fields as the execution proof",
+      "assessment": "Rejected. These may bind content or declare an intended producer, but a caller can write the exact matching values without invoking the registered method. The reviewer probe is the direct counterexample."
+    },
+    {
+      "option": "Build a new remote runner, TEE, or sovereign execution identity service",
+      "assessment": "Deferred/rejected for this slice. It adds a new infrastructure authority and custody subsystem without an appointed owner or requirement that local trusted execution be insufficient. Consider only if the responsible deployment owner requires that isolation boundary and supplies its identity, provenance, lifecycle, and time contract."
+    },
+    {
+      "option": "Keep unsigned executions usable only as candidate/history evidence and hold protected promotion",
+      "assessment": "Recommended default until the execution identity/key appointment is supplied. Existing evaluation metrics, diagnostics, history, and replay remain readable as candidate-grade. Fresh protected promotion refuses missing, unsigned, untrusted, revoked, malformed, profile-mismatched, or incomplete receipt evidence. No historical artifact is retroactively blessed by a current reader."
+    }
+  ],
+  "proposed_contract_and_migration": {
+    "narrow_contract": [
+      "At the trusted MethodBackend/run_job boundary, after successful actual dispatch and persistence, produce a typed MethodExecutionReceipt that includes the exact resolved MethodSignature identity/version, immutable JobSpec and JobKey, exact selected refs and profiles for every source input, and the exact selected MethodResult and MethodExecutionEvidence refs/profiles.",
+      "The receipt manifest has complete typed InputRef edges to those selected objects. A custody-controlled executor signer signs the receipt blob and selected manifest. A caller cannot set `attested`, choose an issuer identity, or upgrade a profileless historical ref.",
+      "ChampionRegistry resolves the selected receipt from a fresh receiving CAS, verifies the signature using an explicitly appointed trusted executor identity and revocation state, and independently reconciles the receipt against the exact current candidate, suite/data sources, JobSpec, result, evidence, and evaluation. Missing signer/trust or any mismatch produces a typed refusal and leaves the measurement candidate-grade.",
+      "The signature and receipt establish computational producer provenance only. They do not qualify the scientific benchmark, prove external source truth, appoint a hidden holdout, establish causal calibration, or create public production currentness."
+    ],
+    "compatibility_and_migration": "No backfill or reader-side signing. Existing unsigned/profileless records remain available for history and candidate analysis, but cannot enter protected promotion until a genuinely trusted execution source emits a selected receipt. New producer orchestration must receive a signer capability from the appointed runtime custody composition and preserve the selected refs end to end. Deployments without that capability remain held at protected promotion; they do not silently fall back to metadata-only admission.",
+    "status_and_time": "Before appointment and trusted key configuration, execution provenance is not_established and protected promotion is held. After verified receipt, the verifier may report the configured key as trusted at admission; no timestamp-derived expiry or stale-run window is claimed. A separate authoritative time/currentness rule is needed if the criterion requires one.",
+    "impact": "The controlled candidate SearchLoop and diagnostic/history paths remain useful. Protected ChampionRegistry promotions without a custody-controlled receipt become refusals, including existing test fixtures unless they explicitly compose a test-only signer and verifier. This may hold deployments until the owner provisions the exact identity and key.",
+    "remaining_authority_inputs": [
+      "Which deployment/runtime owner appoints the trusted MethodJob executor identity and public key?",
+      "Which process boundary exclusively holds the signing capability, and what source-bound provenance proves that custody configuration?",
+      "Which key rotation and revocation lifecycle is authoritative for a receipt at admission?",
+      "Does the required claim need only local execution provenance, or does it require an external worker/TEE attestation and independently trusted execution time?"
+    ],
+    "time_and_migration_owner": "G should assign the source/deployment owner and required key lifecycle/epoch before protected deployment can be enabled. No issuer, key, expiry, currentness interval, migration date, or production environment is invented by this author."
+  },
+  "prototype_and_falsifiers": {
+    "prototype_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/benchmark4-execution-attestation-20261015/attestation-prototype.py@sha256:45a95eb1dfd9dcb647df557dd56251b0c5fd6201ed532e71dd288ab1908d9c27",
+    "prototype_command": "cd policy-engine && OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/benchmark4-execution-attestation-20261015/attestation-prototype.py",
+    "prototype_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/benchmark4-execution-attestation-20261015/attestation-prototype.stdout.txt@sha256:e653b543c451de4ac8b587299f2729bb194a3cb6c4940f4b9942d2b1f47fc5c8",
+    "prototype_result": "PASS: actual run_job invoked the registered method once and produced selected source, result, evidence, and receipt refs. Existing CAS Ed25519 API verified a receipt signed with a controlled test key as VALID; a receipt signed by a foreign self-generated key verified UNTRUSTED; an unsigned receipt verified UNSIGNED. The prototype signer is manually created by this caller, so the positive proves API feasibility only and explicitly does not prove executor custody or runner ownership.",
+    "required_implementation_positive": "Run the actual SearchLoop/MethodJob producer through the trusted executor composition, write the receipt only after actual method invocation, then pass exact selected refs to a fresh CAS ChampionRegistry consumer with the independently configured test executor key; consumer admits the protected mechanical fixture and surfaces its numeric result. Test-only key and policy must be clearly isolated from deployment identity.",
+    "negative_controls": [
+      "The reviewer forged-CAS graph with a raising pure_step and matching content/profile/dispatch fields is refused because it has no trusted execution receipt.",
+      "A self-signed receipt from an untrusted key is refused even when the key's claimed signer_identity string matches the expected label.",
+      "An actual trusted receipt with changed JobSpec, method version, source profile, source input edge, result/evidence ref, evaluation metric, or selected receipt profile is refused.",
+      "Missing, unsigned, malformed, revoked, or profileless receipt evidence yields typed held/refused protected status while candidate/history remains readable.",
+      "Removal probe: remove the consumer's signature/trusted-identity requirement while leaving receipt fields, producer labels, selected-profile markers, and registry membership intact; the raising-method forged-CAS probe must promote and the negative test must fail."
+    ],
+    "bounded_claim": "This packet and local prototype do not establish a deployment executor appointment, trusted key custody, external workload, or protected-promotion closure."
+  },
+  "g_choice": {
+    "recommended_choice": "Accept the reuse-first receipt/verifier contract as the only eligible protected MethodJob admission path, but keep it held until the responsible deployment owner supplies the actual executor identity/key/custody and any required time/currentness policy. Continue independent E02 work on other routes.",
+    "choices_for_g": [
+      "Confirm whether the required trust boundary is a custody-controlled local MethodBackend runtime signer or an independently attested external worker/TEE.",
+      "Name the owner/issuer authorized to appoint and revoke the MethodJob execution key, or explicitly leave protected promotion unavailable until one exists.",
+      "State whether execution receipt evidence is only computational provenance or requires a separately sourced trusted execution time/currentness interval."
+    ],
+    "decision_impact": "This decision affects the boundary between measured candidate work and protected ChampionRegistry promotion. It does not change the scientific scoring or qualification rubric, public signer identity, or formal B116 finding status.",
+    "author_boundary": "The local author proposes a technical reuse path and fail-closed status. G independently accepts or rejects the criterion interpretation, determines any external trust requirements, and adjudicates findings."
+  },
+  "formal_closure_ids": [],
+  "author_proposals": [
+    {
+      "finding": "B116 MethodJob execution provenance for protected ChampionRegistry promotion",
+      "proposal": "HOLD until an actual trusted execution receipt producer and independent fresh-CAS verifier are wired; r9's controlled producer and content-binding positives remain candidate-grade only.",
+      "status": "author proposal for G review; not a formal closure or finding adjudication"
+    }
+  ],
+  "next_check": "After G/deployment owner supplies the exact signer identity, trust source, custody boundary, and time policy if required, lease the narrow actual producer and ChampionRegistry verifier companions; preserve r9 source history, add the forgery/removal negatives, run one fresh-CAS actual-producer replay, and obtain an independent review against that exact freeze before composed E02 replay. If no authorized identity is supplied, record the protected route as held and continue the rest of E02."
+}

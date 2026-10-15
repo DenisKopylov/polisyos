@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "74ea317ab55da4f1a9ae124a6fa40310ce87e56d",
-    "tree": "f7c90af844484394293f302626e090122f7d3313",
+    "head": "9ba4d7bc5512d08c08101244ada5a6644b396963",
+    "tree": "55cf680311a45a67adca48fcfb4e16c6a7f6828b",
     "parents": [
-      "b3b0b8a371ccbf62100d1ea04adba135e717bed8"
+      "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -127,6 +127,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/guarded-store-capability-bridge-20261015.json",
       "sha256": "fda760838f168c45add5bd0d8dd6c123983514f032733726947b264bf175fb27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/selected-acquisition-composition-checkpoint-delivery-20261015.json",
+      "sha256": "ce449a9824ce04ed6a6af987d91691db822329268ad383e6d8ba5d9b3b8a535f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r4-runtime-resource-budget-and-deadline-20261015.json",
+      "sha256": "ecd93b91979acde7b70da7547d5700303c02932e940a7006bee5a9db31d86f29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/benchmark4-methodjob-execution-provenance-20261015.json",
+      "sha256": "1881d2bf740fdce91b727f6565f94d4d062e368394d5d3dcc3e2c2fc1131b926"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -147,15 +159,16 @@
   },
   "known_current_composition_limits": [
     "Chronology/test_value_gate and decision builder receipts refer to their exact historical source frames; later deltas are not silently covered.",
-    "Q2 has135primary+6supplemental/15sourcepins/11assets but remains prepared_not_launchable; freeze/prepare/check/source manifest fields unset. Three bad locators were repaired, eight stale source pins and two stale resource pins require final rebind.",
+    "Q2 has135primary+6supplemental/15sourcepins/11assets but remains prepared_not_launchable. Its last readiness audit found eight stale source and two stale resource pins at that historical audit frame; current full rebind, freeze, source manifest and prepare/check remain pending.",
     "Public-surface runtime checks are bounded to67declaredentrypoints and5300declarednames; static inventory grammar remains unresolved, canonical inventory/docs/deep-import outputs currently drift. No gate waiver or complete symbol-inventory claim.",
-    "Full release gate most recent255TOMLs exits1 with16contract errors. Additional source changes and local row attestations remain outside this index.",
+    "Canonical release gate latest local row rebinding:254TOMLs/221structuredrows,4errors,exit1. This is not native green and no waiver is issued.",
     "R3N8 normal scientific candidate route still refuses soundness/estimand relationship; RAW-only bypass is not productPASS.",
-    "C05generic92+6 tests pass but actual selection-vs-L4 replay-subject join is held pending producer reissue.",
-    "LA038108tests pass in prior scope; actual four dependency-class resolver bypasses remain under repair.",
+    "C05 selected PBE/reissue source exists but is not delivered: missing-intent defaults, malformed-present rotation refs, optional stress and rooted-store consumers require the current typed/semantic repair before independent review.",
+    "LA038 batch2 author freeze has17paths and125passing cases. Independent review of the new immutable binding-map implementation is pending; BasedPyright196errors/33warnings is red and P41 inheritance is not established.",
     "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
     "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
-    "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts."
+    "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",
+    "Selected acquisition source checkpoint9ba4d7 is delivered with a later independent R3 active profileless-admission HOLD. No whole-profile or formal closure; targeted whole-admission repair is next."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."

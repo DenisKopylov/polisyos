@@ -1,0 +1,271 @@
+{
+  "record_type": "local_source_checkpoint_delivery",
+  "title": "Selected acquisition composition checkpoint; active profile admission remains held",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": {
+      "commit": "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9",
+      "tree": "3f7c0686e75266372865ca5a930cde5f0b739a92",
+      "parents": [
+        "74ea317ab55da4f1a9ae124a6fa40310ce87e56d"
+      ]
+    },
+    "candidate": {
+      "commit": "9ba4d7bc5512d08c08101244ada5a6644b396963",
+      "tree": "55cf680311a45a67adca48fcfb4e16c6a7f6828b",
+      "parents": [
+        "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9"
+      ]
+    },
+    "readback_verified": true,
+    "global_source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_changed_footprint": [
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "6c79b025835515b6ef0a1e7af9181523a2f50d8a9b5d61b523642313ecda18d0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "sha256": "64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "sha256": "73cc21fa3bbe601c4cf15809d053a9a78b940fd60f81c5ab428417c456c61279"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/_quickstart.py",
+      "sha256": "6166246bdfb4e3882d41e86d5fba5b8dd342e5caef26f11ebe2fc3f072ef2dc8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "sha256": "c8354713610e2aa705cec9dc4c9b1809a0ad541f4ef84dc4bef128edae3066b4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "sha256": "075b2fef6020f13d932b1dd737291ce21286dde1d29c8d9b3f71d432c7d4f087"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "sha256": "85b4ef6d740edad25853fbe9f1b62a9e84efe727056aa2e5ea0b095efc1eab7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "sha256": "b160f9bc49a3dc414b3e7c51f77230193d0bb0394c5d731057ef689156b918a2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/pii_check_pass.py",
+      "sha256": "510bd0316e072fffdd95e61120d86ab53c8d7c0798c4eb290c579b651a1d7785"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/report.py",
+      "sha256": "e34721bb2409e478c7fb364ea5f1b34485ee732e99b82fa4b04a21961cf43643"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+      "sha256": "a7e3e82910ac9a670ad50ca0336dbc3c6d8ccf787cdb44748aee200a9586879f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+      "sha256": "bfa3791bf71b056bb133ed9a290867ea126be67ae429c70ddb5fffdf60df20e3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+      "sha256": "8786d99c98d9d5838ae2c8d60f9c131b599e9e05e5b73291b4f01bfe945b1237"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+      "sha256": "909c2e6715cec4e5329842f1f9e02b93b428a1f5ce9146413caf83a7ce7b7d84"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+      "sha256": "494c239b1425dcb21b146caf2440e6c98900b0a9c8db523f324b110761c6dc46"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py",
+      "sha256": "4e81a5babdcf974480360d6dea2b9477c0a1e79dd9487e7752c69de3dfdd5e81"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+      "sha256": "cae6de92e22d8d187b38e143e669a9bf656a98db3c4fd78708ba0a60199d7e23"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "sha256": "405d5e30aaf711c4d60ee3500bae68099b001b1db1a6f4f781ee0868c6c1ab14"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "sha256": "1f08874cfa529dc3155e99961e375ba0b7f2ff91033021f4c2c29b18403a86cd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "sha256": "4e52d6f0def437e06a843c20bea45b5dc0c89d03c82477dc6fc2986037391abc"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "sha256": "6b7818b0484f5342ce1ea3e482e5913b10bdeeaf512a382d3c856d85d5860e77"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_e02_installed_composition.py",
+      "sha256": "2516ae0589e7ba492a30018244aae7e54f9fe1b6e06dd693ba1bce2110101ab1"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py",
+      "sha256": "1c93ed65ca7685b9f68d194422b8325fd46e3c0656f5c608054b8466d26a18e6"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/facade/test_quickstart.py",
+      "sha256": "c734c6456df4bc1cd2b94bb2d241fd741924d6e74f2bc794b9e939bd3f474ca2"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "sha256": "03dc65b582b939e11fbf3961d3b09f42fbb2d8c59d03ce7f83ff55874bae8ab8"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "sha256": "62d98443e6876ed4720faba77c0f2f26b2f03ec860227d42d6a6605672a3ecb4"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "sha256": "392994818a004f5460dff81052dc5b927146d6ca7c7ce8e752d59ff0aee25d81"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+      "sha256": "7573216c0182fbc5e0d7476f38e535bf389565491eabe0c27e3b2b042464f5bb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_governance_report_owner_admission.py",
+      "sha256": "4166451ba2a5c516d27a9e9646616d9a54662ac10e82d0859f2a2beb75da99c9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py",
+      "sha256": "c6bdc8d0392d060929a1e24d15b8364c116473781119578c5dbed68f038fd118"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py",
+      "sha256": "5b317dbfb35a12e8ff90f6154b32a6020b4dfd633fa37c7958d70501d0d46f63"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py",
+      "sha256": "f9c712c9bf45149a7f912ba61c8d7e1e312cc69cd0e4073a655584a3a86a4dc4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py",
+      "sha256": "b3de0d2ea2923612ad65380778f0e5bba5c6c5e7122eccd730a1ae74ac020f93"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/governance/test_run_governance_claims.py",
+      "sha256": "e5580c76447da2c0725bf6e90c4ea078c13c437a29c4f0d3224bddba20f4de1a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+      "sha256": "d7dcb3c4ea8e126af884c1f043a35475d5465eca34d14f6eeaae45601557ee22"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "sha256": "b9e4dab640976fe932dc5494e306cad87b2d59fcdd29375a296e48662a1e7296"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py",
+      "sha256": "afb3a692ce191c6fd0a8a914219510f35c99bada29d387323b8b0d5d6c5d5787"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/test_c6c_runtime_support.py",
+      "sha256": "cf8470e0e7cce47bc4edcdf60e084810f3b59f34876129acaaf7d81baa9bf3b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_bind_foundry_inputs_node.py",
+      "sha256": "7be3e7a68b573b85abc23c88ca8cdb7ba6e8beb8450395e959e37514937ada91"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_data_plane_gate_node.py",
+      "sha256": "d3ed3898850fe6172e095f4c84dfda9d65eba7d8340d7133f24b00e1eb27a1e9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_selected_owner_intake_profiles.py",
+      "sha256": "ab4c9a908b1df0ba83dda3155394dff4a8f967d96a21bb9f256914c97d383ad7"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_search.py",
+      "sha256": "7e507e198654c71cdfca22a816ba2cfb5ba4077cf659be857edf0c428ab20f1f"
+    }
+  ],
+  "reviewed_input_accounting": {
+    "code_and_config": 52,
+    "changed_paths": 44,
+    "already_committed_inputs": {
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f",
+      "policy-engine/src/polisyos/core/artifacts/protocol.py": "06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3",
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py": "f850487c34d7e9fcfe3b0b2807d3b33ac979ed96b08c640a84f2e5bcc5c296de",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py": "3bc1fafd2e85bc8d0304d4e343287b210a04c2d528dfbc33f88fe2ad4bae0c3f",
+      "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py": "937945eb58fbfbd698c83b8c78075570833b27cc7780af6d11f22b70c944eda9",
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb",
+      "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py": "c04ec676dab5cd7b7057902131a858af49ab1e6fdca9bfa8bf71bb01c7ce17d2",
+      "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py": "5432396562d4aa421d5e44ebdfb2d48e9092e86556b5800d782a9882d19f346a"
+    },
+    "deferred_generated_companions": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md"
+    ],
+    "reason": "Known static inventory/doc drift; final canonical generation and G static-purity decision remain pending, not claimed green by this source boundary."
+  },
+  "selected_input_profile_backend": "Own .venv, tenant-scoped Core/IR FileSystemCAS, controlled selected DataSnapshot/source and epoch fixtures; no production-currentness claim.",
+  "real_chain": "NL/source acquisition and Fabric producer -> persisted selected DataSnapshot and immutable upstream basis -> Foundry/Scientist epoch and governance bridges -> selected child debug/API and Monte Carlo consumers. Publication-clock reuse reads persisted AuthorityEnvelope; changed explicit as-of refuses instead of bypassing the shared writer.",
+  "bounded_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v3-publication-clock-20261015/independent-review-final/review.json",
+    "sha256": "a220a5f0e84478407cc6367c16e395f4f2c0324bf6d7f28f647eca36c41995f4"
+  },
+  "complete_source_command_and_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v3-publication-clock-20261015/root-composed-commit-plan/plan.json",
+    "sha256": "cf17026d6bf4a8294d45959aba7eab9c3304cc2a14b59ae7595184fa63df551f"
+  },
+  "exact_commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/selected-acquisition-source-44-readback.json",
+    "sha256": "23a6ddd0f5048dcc5ca52f5f9a7c095aafbc636c39c704b660fe4c3a5b3a44b8"
+  },
+  "blocking_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-summary-consumer-repair-20261015/independent-r3-review-r2.json",
+    "sha256": "f9de12528595cbaa1841012322e42071263b79b58c2d52df319404c778860af9"
+  },
+  "status": "HOLD for whole active-admission property; checkpoint preserves reviewable work and does not claim the blocker is repaired.",
+  "blocking_property": {
+    "bucket": "same selected-profile binding class one level deeper; P40 requires whole active-admission invariant, not another single-field patch",
+    "property": "Every active DataSnapshot owner and each present typed reference/direct parent-manifest input must bind the actual selected profile.",
+    "divergence": "Current semantic epoch comparison accepts None == None for owner/edge profiles in an otherwise genuine data/evidence/quality live graph. The retained adversarial probe returns true.",
+    "next_check": "Repair selected owner/parent/all schema-derived typed-reference admission while preserving explicitly historical or candidate profileless reads outside the authority band; remove both owner and edge profiles while retaining bytes/kind/schema/markers and require refusal, then replay genuine selected producers and independent review."
+  },
+  "verification": {
+    "selected_normal_routes": "Independent bounded GO only: 33 NL/Foundry cases, 2 Fabric producer cases, 3 debug child/reference cases, 2 installed-composition/legacy Monte Carlo cases; full outputs are linked by independent review.",
+    "ruff": "51 Python inputs checked with canonical root config; complete outputs in command manifest. A format-only delta is separately reviewed under the publication-clock RAW package.",
+    "native_gates": "UNRUN",
+    "final_installed_wheel_rebuilt_sdist": "UNRUN",
+    "ordinary_full_V1_V2_and_same_candidate_V3": "UNRUN for the full composed capability"
+  },
+  "proposals": [
+    {
+      "outcome": "limited",
+      "property": "Selected producer and reviewed consumers in the bounded independent frame."
+    },
+    {
+      "outcome": "held",
+      "property": "Whole active profile admission until the recorded profileless falsifier is closed."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "limits": [
+    "The bounded normal-route review does not override the later R3 counterexample.",
+    "Inventory/public-surface docs remain deferred pending canonical regeneration and the tracked static-purity decision.",
+    "No whole capability, live serving currentness, external issuer/custody, native gate or final installed consumer closure."
+  ],
+  "next_check": "Complete R3 repair and other disjoint companion repairs, independent delta reviews, then explicit source/input/backend freeze and one composed/native/installed replay; G retains acceptance, publication and formal finding adjudication."
+}

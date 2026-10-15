@@ -1,0 +1,613 @@
+{
+  "schema": "polisyos.e02.r4-runtime-resource-budget-and-deadline-decision.v1",
+  "title": "R4/B56 shared resource unit, pending-work bound, and unchanged Runtime deadline",
+  "created_at_utc": "2026-10-15",
+  "decision_status": "proposed_for_independent_G_adjudication",
+  "author_role": "local candidate author; not G acceptance, integration publication, or formal finding adjudication",
+  "formal_closure_ids": [],
+  "closure_ids": [],
+  "candidate_or_receipt_commit_sha": null,
+  "decision_question": "For B56, is the shared cap a method/fold compute budget, or does it include all Runtime blocking CAS/control-store workers; and does admitted work include pending submissions or only active workers?",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9",
+    "tree": "3f7c0686e75266372865ca5a930cde5f0b739a92",
+    "parents": [
+      "74ea317ab55da4f1a9ae124a6fa40310ce87e56d"
+    ],
+    "captured_by_raw_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-practical-run-contract-20261015/packet.json@616b0aa874f8d57126cbc320582d971ca2f8b34acd6f7ae04f46f0b5d3b86765",
+    "captured_source_freeze_status": "NOT_FROZEN",
+    "why_not_frozen": "scientist/compute/runner.py differs from HEAD (captured worktree SHA); this is a preflight source frame, not the whole-composition freeze. The R4 driver file is byte-identical to its reviewed candidate, but one-file driver freeze is not final source freeze.",
+    "r4_driver_commit": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "r4_driver_is_ancestor": true,
+    "worktree_status_counts_at_capture": {
+      "tracked_dirty_paths": 138,
+      "untracked_paths": 2401,
+      "interpretation": "Shared checkout contains unrelated active work; no cleanup or source mutation was performed."
+    },
+    "current_20_path_manifest": [
+      {
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "worktree_sha256": "9620d5610fdc2a49a2f4f40f62d49f55e1f2e00cefc6f48826a08f94ff076280",
+        "worktree_bytes": 17398,
+        "head_git_blob": "f0153b9284d9c692ca874c20f45f620d51b2d419",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "9620d5610fdc2a49a2f4f40f62d49f55e1f2e00cefc6f48826a08f94ff076280",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "worktree_sha256": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+        "worktree_bytes": 81644,
+        "head_git_blob": "3cb536a2e12ec11d6cc2f29b38303c31e924853d",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "cbf513c546f19a0e03ee13b1f244a5d785b661a5253a199cf24df74d0d7503dc",
+        "matches_prior_cas_diagnostic_worktree_sha256": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+        "worktree_sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+        "worktree_bytes": 39376,
+        "head_git_blob": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "worktree_sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "worktree_bytes": 59964,
+        "head_git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "worktree_sha256": "83c101402001d6eb4890b8a5740c6fba2d8fde10905f143ae1416760352133dc",
+        "worktree_bytes": 39263,
+        "head_git_blob": "18dfda08673f322a021d0d2313f97c00112b33bb",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "dc0355b60c61c5873c27378e7c387bcddb607a72ed89c6b6f7627d0923b47ac3",
+        "matches_prior_cas_diagnostic_worktree_sha256": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "worktree_sha256": "1e2902b6f12de0e6211640f0725bdfff1a2b20a8e031c2ef83d416c30961d220",
+        "worktree_bytes": 252026,
+        "head_git_blob": "5427572d0003769bff859f1ea5cd8c3f9d3a228d",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "1e2902b6f12de0e6211640f0725bdfff1a2b20a8e031c2ef83d416c30961d220",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+        "worktree_sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+        "worktree_bytes": 13613,
+        "head_git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/api.py",
+        "worktree_sha256": "fa3aa4cdc268f268f773ccbb4c5a4b4655ce0130aad0816203ce2f1049e59b7f",
+        "worktree_bytes": 13138,
+        "head_git_blob": "404f995393e7c8836bcc1046de555ee4c3b5e7b1",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "fa3aa4cdc268f268f773ccbb4c5a4b4655ce0130aad0816203ce2f1049e59b7f",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "worktree_sha256": "c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84",
+        "worktree_bytes": 35340,
+        "head_git_blob": "76b331a313cee77ca0a89f9e852fef86c40099bb",
+        "git_status": "M",
+        "prior_cas_diagnostic_sha256": "098f407bd507cf80e6c4ef0423a2dacb0781ac68fce8ffa387bfe5aab96e6cee",
+        "matches_prior_cas_diagnostic_worktree_sha256": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "worktree_sha256": "9515bf2ba5f0ec8db05941d578cafdc0a2a6f264e7016a0c27cfd7fc5eacefb6",
+        "worktree_bytes": 72285,
+        "head_git_blob": "557544fb816c30847cc76275f76d53dca63edc0d",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "9515bf2ba5f0ec8db05941d578cafdc0a2a6f264e7016a0c27cfd7fc5eacefb6",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+        "worktree_sha256": "94b01884db70fd3b50377dfb8944d71182dc2e4d79deac825742fdb0c45b3245",
+        "worktree_bytes": 12684,
+        "head_git_blob": "82b06d99f892efe7474cd441284c25a36be138f6",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "94b01884db70fd3b50377dfb8944d71182dc2e4d79deac825742fdb0c45b3245",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+        "worktree_sha256": "6e3ae8b0e45863b2696bbf99d1a2da297ffc6f134690b6bf7fb78b6bfe0e59b6",
+        "worktree_bytes": 44771,
+        "head_git_blob": "b63815ada8a99594b0ed4cf045ffdb987c4a4726",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "6e3ae8b0e45863b2696bbf99d1a2da297ffc6f134690b6bf7fb78b6bfe0e59b6",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "worktree_sha256": "77a5e5822074e81c2ee74d69044589c86daa8a97c2bb743be77a1b5d7eb9913a",
+        "worktree_bytes": 86676,
+        "head_git_blob": "9029f34b50de338ac5d339286b7da14778139ecf",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "77a5e5822074e81c2ee74d69044589c86daa8a97c2bb743be77a1b5d7eb9913a",
+        "matches_prior_cas_diagnostic_worktree_sha256": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "worktree_sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+        "worktree_bytes": 96245,
+        "head_git_blob": "ee02736108c5b62f0c4fba954a1e64677742f0e9",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": "5ac0d552ec873a487162d0021cb57ba1f4918f1629bb0c116bc40b46d1cca538",
+        "matches_prior_cas_diagnostic_worktree_sha256": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/container.py",
+        "worktree_sha256": "1273736761e203060ba8055e1fbfa6112e27e6ce007970f4c608ae733391b424",
+        "worktree_bytes": 57139,
+        "head_git_blob": "6bf698e073c8ff0b3fca568b52368cae20a4afaa",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+        "worktree_sha256": "4f2791d3fd6fbb698e65f4e3fff437959fc3c22a2acea4a196de225014cf8ea8",
+        "worktree_bytes": 15073,
+        "head_git_blob": "4df996c2b72b8cde0654b84768d8fd270ade1df6",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "worktree_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+        "worktree_bytes": 217661,
+        "head_git_blob": "f0cc88d010c9ff17adbcbb84ee5f6526941bdff8",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "worktree_sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da",
+        "worktree_bytes": 3447,
+        "head_git_blob": "32d3ac9d9e4722e697d8b20498d4cdfb0d9a18ea",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "worktree_sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+        "worktree_bytes": 11141,
+        "head_git_blob": "01e0674b3dd647863d7a14ffadd305c4f25980f5",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "worktree_sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+        "worktree_bytes": 788441,
+        "head_git_blob": "fe546f91f1d30676e7609cee113e744ddec5fba3",
+        "git_status": "clean",
+        "prior_cas_diagnostic_sha256": null,
+        "matches_prior_cas_diagnostic_worktree_sha256": null
+      }
+    ],
+    "historical_route_comparison": {
+      "prior_route_files": 14,
+      "same_sha_count": 10,
+      "different_sha_count": 4,
+      "differences": [
+        {
+          "path": "policy-engine/src/polisyos/core/run/context.py",
+          "prior_sha256": "cbf513c546f19a0e03ee13b1f244a5d785b661a5253a199cf24df74d0d7503dc",
+          "current_worktree_sha256": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+          "git_status": "clean"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+          "prior_sha256": "dc0355b60c61c5873c27378e7c387bcddb607a72ed89c6b6f7627d0923b47ac3",
+          "current_worktree_sha256": "83c101402001d6eb4890b8a5740c6fba2d8fde10905f143ae1416760352133dc",
+          "git_status": "clean"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "prior_sha256": "098f407bd507cf80e6c4ef0423a2dacb0781ac68fce8ffa387bfe5aab96e6cee",
+          "current_worktree_sha256": "c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84",
+          "git_status": "M"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "prior_sha256": "5ac0d552ec873a487162d0021cb57ba1f4918f1629bb0c116bc40b46d1cca538",
+          "current_worktree_sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+          "git_status": "clean"
+        }
+      ],
+      "classification": "Historical cap-1 is a real bounded failure for its exact run. The prior test overlay was uncommitted and unavailable byte-for-byte; four of fourteen route hashes differ on this captured source frame. P41 current-composition ownership is not_established; it is neither a current passing nor current failing receipt."
+    }
+  },
+  "original_criterion": {
+    "task_id": "R4",
+    "finding_id": "B56",
+    "source": "Pinned B_r19 source SHA-256 5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b, lines 1409–1424; local exact card and F35 interpretation are evidence refs.",
+    "task_definition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "bytes": 27989,
+      "availability": "present_local"
+    },
+    "criterion": "For a specified shared study resource, bound admitted work; waiting must preserve all folds, repeats, results, and provenance; outputs should agree across parallelism. Measure elapsed time, peak memory, active workers, and waiting. B56 recommends existing max_parallel_folds from the actual study resource and rejects treating 15 per fit / 60 across four fits as measured CPU load or a production workload.",
+    "denominator_boundary": "B56’s max_parallel_folds language supports a compute/fold reading, but does not expressly include every Runtime CAS or control-store worker. The all-blocking-I/O denominator is not established by the card or current wiring and is a G contract choice.",
+    "historical_finding_status": "not_adjudicated; no proposal here closes B56. Appendix C bounded status does not transfer to B56."
+  },
+  "source_bound_native_witness": {
+    "authority_band": "candidate portable synthetic fixture only; production workload, institutionally supplied capacity, safety/admissibility, and live currentness are not_established",
+    "profile_input_roster": {
+      "authority": "portable synthetic-only; no production input, currentness, or production capacity claim",
+      "process_model": "Each profile is a fresh child process containing two real local Runtime API environments/ControlWorkers that share one process-wide executor profile. Outer driver executes profiles sequentially.",
+      "concurrent_producers": 2,
+      "studies": [
+        {
+          "study_index": 0,
+          "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "cell_id": "cell-a",
+          "role": "analyst",
+          "numpy_rng_seed": 811,
+          "method_seeds": [
+            18,
+            1015
+          ]
+        },
+        {
+          "study_index": 1,
+          "tenant_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          "cell_id": "cell-b",
+          "role": "analyst",
+          "numpy_rng_seed": 812,
+          "method_seeds": [
+            19,
+            1016
+          ]
+        }
+      ],
+      "observations_per_study": 240,
+      "synthetic_data": "Two normal covariates; Bernoulli(0.5) treatment; outcome=0.45*treatment+0.25*x0-0.15*x1+Normal(0,0.7); sample IDs 0..239.",
+      "method": "TMLE; logistic propensity; linear outcome; calibration none; raw scaling; Wald interval; regular_iid inference; coverage guard off; parallel_folds=false/max_parallel_folds=1; 3 folds x 2 repeats per study (6/study, 12 total).",
+      "runtime_chain": "Persisted synthetic input/state → two Runtime ControlWorkers dispatch typed control jobs → RunLifecycle/ControlPlaneService → Scientist run_experiment → workflow builder → causal-evaluation node → scientist.compute.runner.run_job → MethodBackend → MethodDispatcher/TMLE fold fitter → local FileSystemCAS writes → fresh owner-enforced CAS GET plus terminal-state readback.",
+      "candidate_only_limit": "Causal-evaluation safety blocker is bypassed only to isolate resource admission. No admissibility, policy safety/promotion, external issuer, or source-owner claim follows."
+    },
+    "runtime_chain": "Persisted synthetic input/state → two Runtime ControlWorkers dispatch typed control jobs → RunLifecycle/ControlPlaneService → Scientist run_experiment → workflow builder → causal-evaluation node → scientist.compute.runner.run_job → MethodBackend → MethodDispatcher/TMLE fold fitter → local FileSystemCAS writes → fresh owner-enforced CAS GET plus terminal-state readback.",
+    "completion_property": "Both concurrent producer studies must reach terminal state, retain the exact 12-fold/repeat/seed roster and complete numerical/provenance outputs, and be read back through fresh owner-enforced CAS GETs. Cap-1 and cap-2 outputs must agree; removing only the shared MethodBackend bridge must expose the negative-control overlap.",
+    "metric_scope": {
+      "host_snapshot": {
+        "logical_cpu": 8,
+        "physical_cpu": 8,
+        "memory_total_bytes": 17179869184,
+        "page_size_bytes": 16384,
+        "free_pages": 119555,
+        "inactive_pages": 281786,
+        "active_pages": 283877,
+        "wired_pages": 171318,
+        "meaning": "Transient Mac snapshot only; not a workload budget or used to increase slots."
+      },
+      "cpu": "R4 active dispatch/physical worker counts are concurrency units, not CPU cores, utilization or CPU-time. BLAS/OpenMP env pins are 1. No CPU utilization/seconds sample is recorded.",
+      "memory": "Child records resource.getrusage(RUSAGE_SELF).ru_maxrss; Darwin unit is bytes. One high-water mark per fresh child includes interpreter/pytest, fixtures and both local Runtime+CAS environments through result prep; excludes outer runner/siblings. No explicit memory cap or production memory denominator is established.",
+      "active": "Configured SharedExecutor.max_workers is a candidate process-wide physical worker limit; current composition shares that owner across MethodBackend dispatch, Runtime CAS, ControlPlaneStore guards and other common-pool uses.",
+      "pending": "External ThreadPoolExecutor submissions can queue beyond max_workers. The worker/callback saturated nested-submit guard refuses reentrant work, but no total pending cap exists. Test records queue depth and outstanding at each insertion, per-item queue waits, and pending items at diagnostic end; it does not enforce a maximum backlog. End snapshot is not peak history.",
+      "timeout": "Runtime CAS and ControlPlaneStore guards explicitly use get_shared_executor() with fixed default 1.5s Future.result timeout; the budget covers submit+queue+service. Cancel cannot stop an already-running operation, so late writes can finish after caller timeout. Per-guard *_EXECUTOR_MAX_WORKERS values do not create pools when an executor is explicitly passed.",
+      "elapsed": "Child captures measured profile elapsed after setup through readback and Runtime teardown plus full child process elapsed including interpreter/pytest. Existing 180s per-child timeout is not newly calibrated from a successful full native run; retain it as current harness bound and record actual walltime.",
+      "dispatch_observation_scope": "The reported physical_active_workers_peak is incremented around actual MethodDispatcher.dispatch only. Guard operation rows record each operation interval and executor snapshots at call/start/end, but the current test does not derive/assert a single peak of simultaneous shared-pool workers across both method dispatch and blocking-I/O intervals. If G selects aggregate compute+I/O capacity, add that generic interval/high-water check before treating a passing method-only peak as the aggregate property."
+    },
+    "three_profiles": [
+      {
+        "case_id": "cap-1-configured",
+        "capacity": 1,
+        "bypass": false,
+        "profile_revision": "r4-native-method-cap-1-v1",
+        "expected": "Both producers submit concurrently; active shared dispatch peak 1; queued dispatch resumes; all 12 folds, results, evidence, and fresh reads retained.",
+        "run_status": "UNRUN",
+        "reason": "Waits for whole composed source freeze, independent review, and the reserved single Mac compute wave."
+      },
+      {
+        "case_id": "cap-2-configured",
+        "capacity": 2,
+        "bypass": false,
+        "profile_revision": "r4-native-method-cap-2-v1",
+        "expected": "True two-dispatch overlap reaches peak 2 and preserves same fold/output evidence as cap 1.",
+        "run_status": "UNRUN",
+        "reason": "Waits for whole composed source freeze, independent review, and the reserved single Mac compute wave."
+      },
+      {
+        "case_id": "cap-1-bridge-removal",
+        "capacity": 1,
+        "bypass": true,
+        "profile_revision": "r4-native-method-cap-1-v1",
+        "expected": "Remove only MethodBackend.run_shared_executor_sync bridge in test body; dispatches should overlap off shared workers (peak 2), proving the bridge matters.",
+        "run_status": "UNRUN",
+        "reason": "Waits for whole composed source freeze, independent review, and the reserved single Mac compute wave."
+      }
+    ],
+    "commands": {
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "outer_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-practical-run-contract-20261015/.pytest_cache",
+        "-q",
+        "-s",
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_shared_method_admission_and_removal_probe"
+      ],
+      "outer_environment": {
+        "POLISYOS_R4_RECEIPT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-practical-run-contract-20261015/r4-native-after-freeze-20261015",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_EXECUTION_PROFILE": "dev",
+        "POLISYOS_RUNNER_BACKEND": "local",
+        "LOG_LEVEL": "WARNING"
+      },
+      "child_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_r4_native_child"
+      ],
+      "child_environment": {
+        "common": {
+          "POLISYOS_R4_CHILD": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "POLISYOS_EXECUTION_PROFILE": "dev",
+          "POLISYOS_RUNNER_BACKEND": "local",
+          "LOG_LEVEL": "WARNING"
+        },
+        "capacity": "POLISYOS_R4_CAPACITY=1|2 per case",
+        "bridge": "POLISYOS_R4_BYPASS=0 for cap1/cap2; 1 for removal",
+        "receipt": "POLISYOS_R4_RECEIPT_DIR=<outer RAW root>/<case_id>"
+      },
+      "execution_order": "Sequential fresh child processes: cap-1-configured, cap-2-configured, cap-1-bridge-removal. Do not parallelize these profiles.",
+      "timeouts": {
+        "per_child_seconds": 180,
+        "three_child_max_seconds": 540,
+        "note": "Harness bound only; not a calibrated performance promise."
+      },
+      "full_output_rule": "Retain complete stdout/stderr per child and outer process, exact argv/cwd/source manifest, exit status, and elapsed time under the ignored RAW root. No payload dumps."
+    },
+    "selected_profile": {
+      "python": "Existing policy-engine/.venv; Python 3.14.3; polisyos import origin is this candidate checkout policy-engine/src/polisyos.",
+      "versions": {
+        "numpy": "2.3.5",
+        "pandas": "2.3.3",
+        "scipy": "1.16.3",
+        "statsmodels": "0.14.6",
+        "scikit-learn": "1.8.0",
+        "lifelines": "0.30.3",
+        "mapie": "1.3.0",
+        "pydantic": "2.12.5",
+        "fastapi": "0.128.6",
+        "httpx": "0.28.1",
+        "pytest": "9.0.2"
+      },
+      "pyproject_sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+      "uv_lock_sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+      "dependency_check": "uv pip check --python .venv/bin/python: PASS; 252 packages checked, all compatible. No install required.",
+      "provisioning": "No install, clone, VM, or backend setup is needed for this native TMLE witness; EconML is conditionally absent on Python 3.14 and is not on this selected execution path."
+    }
+  },
+  "observed_historical_cap1_failure": {
+    "run_identity": "Historical run HEAD db51beb76163cfce795645d9b2be0ae8805228b0; test overlay 5ac0d552ec873a487162d0021cb57ba1f4918f1629bb0c116bc40b46d1cca538 was uncommitted and exact bytes unavailable.",
+    "deadline_seconds": 1.5,
+    "deadline_semantics": "BlockingDependencyGuard Future.result(timeout=1.5) covers submit, queue, and service. Cancellation cannot stop already-running I/O; a caller timeout can precede a late successful durable write.",
+    "callers": [
+      "1507.126 ms caller = 841.537 ms queue + 863.966 ms service; underlying put_json later completed ok",
+      "1507.808 ms caller = 855.283 ms queue + 869.012 ms service; underlying put_json later completed ok"
+    ],
+    "control_jobs": "Both callers failed with content_addressed_storage timed out.",
+    "operation_failures": 0,
+    "nested_guard_attempts": 0,
+    "folds_and_fresh_reads": "not_established: the child failed before terminal result/readback assembly; successful late CAS writes do not prove full fold completion.",
+    "complete_deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/assessment.json",
+        "sha256": "9a88471d0b018448e0477168d81c8634adde229a8d09515f161d3e48a01e274e",
+        "bytes": 13449,
+        "availability": "present_local"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/postfreeze-cas-diagnostic-20261015/cap-1-configured.stdout.txt",
+        "sha256": "8e4a5acefd83241a539ee545e932a4b686d09320d988052dcb25a0965517d108",
+        "bytes": 2719591,
+        "availability": "present_local"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/postfreeze-cas-diagnostic-20261015/outer.stdout.txt",
+        "sha256": "a41ddeefa5f80ce68d314dcbbc0863d647571424390145ab8bc02929bd035e11",
+        "bytes": 4365,
+        "availability": "present_local"
+      }
+    ],
+    "P41": "Prior evidence proves the exact historical cap-1 red. Because the run used an unavailable uncommitted test overlay and the current 14-route comparison has four hash changes, current-composition replay and zero-intersection cannot be claimed; status is not_established."
+  },
+  "engineering_options_before_G_choice": [
+    {
+      "id": "reuse_one_aggregate_pool",
+      "sequence": "reuse",
+      "semantics": "One process SharedExecutor capacity covers MethodBackend work and blocking Runtime CAS/control-store workers. Keep the 1.5-second end-to-end guard deadline unchanged.",
+      "evidence": "Current Runtime CAS and ControlPlaneStore guards explicitly share get_shared_executor(); ordinary external submissions may wait in ThreadPoolExecutor’s pending queue. The existing executor caps physical active workers, but does not bound total pending submissions.",
+      "benefit": "One active-worker resource cap and existing owner; no extra pool lifecycle.",
+      "cost_or_gap": "A cap-1 caller can wait behind compute or other I/O. The measured two historical CAS calls each exceeded 1.5 seconds including queue+service; exact failed payloads were not retained. A 42KB no-contention write profile saved about 9ms under cProfile and cannot explain the observed 198–216ms caller overrun.",
+      "falsifier": "After exact freeze, run all three profiles; if aggregate capacity is chosen, derive one interval-based high-water across actual dispatch and blocking-guard worker intervals, not only the method-dispatch counter. Profile exact concurrent payload metadata without retaining bytes. Reject the optimization as sufficient if both callers still exceed 1.5s or any output/readback is lost.",
+      "queue_choice_required": "Specify whether the cap means active workers only or admitted work including pending submissions. If pending is part of the admitted-work bound, add one generic bounded-queue/typed-overload invariant; no current pending cap exists."
+    },
+    {
+      "id": "compute_cap_plus_bounded_process_io_vector",
+      "sequence": "extend",
+      "semantics": "Read B56 as method/fold compute capacity and give Runtime blocking I/O a separate, explicitly bounded process-scoped capacity shared by all relevant guards. Preserve the 1.5-second submit-through-service deadline.",
+      "evidence": "B56 specifically recommends max_parallel_folds from the study resource. An actual guard+FileSystemCAS prototype with a separate one-worker pool completed one delayed write in about 0.89s, but a single worker cannot establish two concurrent ~0.86s writes under 1.5s; two I/O slots are only a minimum experiment for that observed pair, never a default or production recommendation.",
+      "benefit": "Separates fold compute admission from blocking persistence and avoids compute occupancy starving CAS/control-store progress.",
+      "cost_or_gap": "This is an explicit resource-vector semantic decision. Requires a single process owner across 2+ Runtime instances and all CAS/control-store guards; positive bounded active I/O and pending work; profile conflict handling; context/tenant propagation; cancellation versus late writes; reentrancy; shutdown where closing one Runtime cannot close a sibling owner; and overload behavior.",
+      "prototype_evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-executor-options-20261015/prototype.stdout.txt",
+        "sha256": "77bec9ecbad0941021aeb4711f122ebf3161fb3020ecc95807dc703ba2db1567",
+        "bytes": 2427,
+        "availability": "present_local"
+      },
+      "falsifier": "Run the exact frozen cap-1/cap-2/removal profiles plus multi-Runtime sibling-close, shared-guard, profile-conflict, timeout/late-completion, and bounded-pending probes. Compare complete output/readback equality; do not infer production capacity."
+    },
+    {
+      "id": "consolidate_through_existing_admission_owner",
+      "sequence": "consolidate",
+      "semantics": "Evaluate wiring existing LocalWorkerPool/TaskRouter or a single typed application-scoped MethodComputeAdmission through the current RunLifecycle→run_experiment→MethodBackend route.",
+      "evidence": "LocalWorkerPool/TaskRouter exists but does not own the inspected direct Runtime route; no shared typed MethodComputeAdmission was found there.",
+      "benefit": "Could place compute admission at the study/workflow owner rather than a generic executor seam.",
+      "cost_or_gap": "Requires a wider Runtime-to-Scientist bridge and still leaves blocking-I/O capacity and pending semantics to define; not a stand-alone B56 fix.",
+      "falsifier": "Prove every real route and sibling consumer goes through one owner; remove the bridge while preserving declarations and require the competing workload to exceed the configured compute cap."
+    },
+    {
+      "id": "new_scheduler_or_deadline_change",
+      "sequence": "build_or_change_contract",
+      "semantics": "A new scheduler/cluster, one pool per guard or Runtime, raising/splitting the timeout, or staggering producer start.",
+      "disposition": "Not justified by current evidence. Per-guard pools multiply capacity; changing the 1.5s deadline changes caller behavior and may mask a resource problem; staggering removes the competing workload being tested. No blanket waiver, clock shift, or deadline green-by-declaration is proposed.",
+      "reconsideration": "Only an explicit G contract decision can change deadline semantics; it must name impacted call/status lifecycle and the reason the present deadline is wrong. No such issuer or evidence is present in this packet."
+    }
+  ],
+  "minimum_G_decision": {
+    "required_questions": [
+      "Does B56 capacity count only active method/fold compute, or compute plus every Runtime blocking-I/O worker?",
+      "Does “admitted work” count only active workers or also queued/pending submissions, and what bounded-overload behavior is required?",
+      "If the denominator is compute-only, may one process-scoped bounded Runtime-I/O vector be introduced while preserving the existing 1.5-second total guard deadlines?"
+    ],
+    "locally_best_supported_interpretation": "Treat B56 as method/fold compute capacity and make blocking Runtime I/O an explicit bounded process resource vector, keeping the 1.5-second deadline. This is a proposal, not accepted architecture or formal finding closure. It follows B56’s concrete max_parallel_folds route while avoiding silent unbounded I/O, but only G can set the denominator and pending-work semantics.",
+    "not_a_claim": "The candidate author cannot infer production qualifying workload, capacity budget, or external authority from portable synthetic fixtures, CPU/RSS snapshots, or historical arithmetic."
+  },
+  "source_and_runtime_decisions_still_pending": {
+    "whole_composition_freeze": "Required before the expensive wave; the current captured 20-path manifest includes an unfrozen dirty runner.py and is a preflight, not a release frame.",
+    "independent_review": "Required after final path/profile/source freeze.",
+    "three_profiles": "UNRUN pending both prerequisites and the reserved single compute slot.",
+    "post_run_adjudication": "Compare queue waits, active peaks, pending roster, elapsed time, per-process RSS, all 12 fold/repeat/seed identities, terminal jobs, fresh owner-enforced results/evidence reads, final-state links, cap1/cap2 exact output equality, and bridge-removal falsifier. Retain CPU utilization/CPU-seconds as unmeasured if no approved metric is added.",
+    "B148_boundary": "B148 concerns CAS import/transfer report semantics (checked, published/no-op, refused); it does not adjudicate R4/B56 resource capacity, queue or timeout. No status transfer."
+  },
+  "evidence_refs": {
+    "full_preflight_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-practical-run-contract-20261015/packet.json",
+      "sha256": "616b0aa874f8d57126cbc320582d971ca2f8b34acd6f7ae04f46f0b5d3b86765",
+      "availability": "present_local_ignored_raw; complete 20-path manifest, environment/profile commands and resource analysis"
+    },
+    "B56_card": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B56.md",
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "bytes": 4524,
+      "availability": "present_local"
+    },
+    "B56_findings_interpretation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B56.md",
+      "sha256": "f65d8b03c3b4b35bf9fee8baebae8ae416b44adc072b26591fb1d77908b4963e",
+      "bytes": 14805,
+      "availability": "present_local"
+    },
+    "R4_task": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "bytes": 27989,
+      "availability": "present_local"
+    },
+    "R4_driver_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-shared-workload-diagnostic-driver-20261015.json",
+      "sha256": "be6e838be80be42734463263a33680ee3324517d57548220fed663bc1c78e5cc",
+      "bytes": 13210,
+      "availability": "present_local"
+    },
+    "R4_test_source": {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+      "bytes": 96245,
+      "availability": "present_local"
+    },
+    "prior_CAS_assessment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/assessment.json",
+      "sha256": "9a88471d0b018448e0477168d81c8634adde229a8d09515f161d3e48a01e274e",
+      "bytes": 13449,
+      "availability": "present_local"
+    },
+    "prior_CAS_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-putjson-profile-20261015/profile.stdout.txt",
+      "sha256": "6847db9e1bd00af0107eaf31d75fef02039e08aab33b500edb6ee303cae9b73f",
+      "bytes": 9869,
+      "availability": "present_local"
+    },
+    "lower_level_method_workload_prototype": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/probe_shared_executor_methodjobs.stdout.txt",
+      "sha256": "7847ff631576381a94cff149df72b170bcba32c559a72ed0f4e1574a79473973",
+      "bytes": 9404,
+      "availability": "present_local"
+    },
+    "separate_IO_prototype": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-executor-options-20261015/prototype.stdout.txt",
+      "sha256": "77bec9ecbad0941021aeb4711f122ebf3161fb3020ecc95807dc703ba2db1567",
+      "bytes": 2427,
+      "availability": "present_local"
+    },
+    "prior_resource_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r4-blocking-io-capacity-contract-20261015.json",
+      "sha256": "cc8608435375bbaa5b4342360acd7147b98a19682e2f7548323e907b264538a3",
+      "bytes": 23654,
+      "availability": "present_local"
+    },
+    "B148_distinct_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1-t2-intake/b148-report-surface-decision.md",
+      "sha256": "94ba080f17feb3a21395c0d9dee742508e628ce7c039bbd6e4fd408d4d01d7ca",
+      "bytes": 5504,
+      "availability": "present_local"
+    }
+  },
+  "pattern_pass": {
+    "register_source": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "relevant_ids": [
+      "P02",
+      "P13",
+      "P29",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P02": "The witness must traverse Runtime ControlWorker→RunLifecycle→Scientist execution→CAS persistence→fresh readback, not infer orchestration from component coexistence.",
+    "P13": "No new scheduler is justified before the existing executor/worker owners and measured marginal cost are evaluated.",
+    "P29": "Full behavior and removal probes must run from a whole-composition source freeze; a declaration, source manifest, profile command, or historical lower-level prototype is not a capability receipt.",
+    "P37": "The decisive workload provenance and production capacity are not_established; the portable fixture is candidate-grade only.",
+    "P38": "Property: bounded admitted resource use. Current implementation: caps active worker threads but allows external pending submissions to queue. Divergent case: arbitrarily many external submissions can remain pending while active peak stays at the configured cap. Whether pending is in B56’s denominator is the open choice.",
+    "P40": "SAME_CLASS_DEEPER: active compute, blocking I/O, then pending-work quantity are one resource-admission class. Widen the whole resource vector/owner or state a bounded residual and falsifier; do not add per-operation exceptions.",
+    "P41": "Use exact source frame plus complete 20-path denominator. Historical cap-1 ownership on current composition is not_established because the old test overlay is unavailable and 4/14 route hashes differ."
+  },
+  "current_owner_and_reentrancy": {
+    "compute": "MethodBackend uses common_async_tools.run_shared_executor_sync around actual MethodDispatcher dispatch; test removal bypasses that exact seam.",
+    "guards": "Runtime CAS and ControlPlaneStore proxies both receive get_shared_executor(); TaskRunner and sync/async bridges can also use this common process pool.",
+    "reentrancy": "Worker-thread synchronous call can inline; saturated nested worker/callback submit fails fast; external producer submits queue. Runtime guards cancel queued futures on timeout, but running I/O is cooperative.",
+    "alternate": "LocalWorkerPool/TaskRouter exists but is not the owner on this RunLifecycle→run_experiment route. No shared typed MethodComputeAdmission class exists in inspected Runtime/Scientist code.",
+    "minimum_G_choice": "Define if B56 shared capacity counts only active method/fold compute or compute plus every Runtime blocking-I/O worker; separately say whether pending submitted work counts as admitted and define its bound. If compute-only, authorize one bounded process I/O vector. Do not change 1.5s.",
+    "lifecycle_boundary": "The available prototype is a standalone bounded I/O executor passed to actual BlockingDependencyGuard+FileSystemCAS. It is not yet a process owner shared across all production Runtime CAS/control-store guards; therefore it proves a small mechanism behavior only, not an installed profile or API contract."
+  }
+}

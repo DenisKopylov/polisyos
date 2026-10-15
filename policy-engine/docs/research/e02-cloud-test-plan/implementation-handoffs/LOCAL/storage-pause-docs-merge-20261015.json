@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "slice": "storage-pause-docs-merge-20261015",
+  "author_role": "local author and storage operator; no G adjudication",
+  "created_utc": "2026-10-15T06:11:33.197915+00:00",
+  "user_instruction": "Temporarily pause E02 and address disk space; merge the documentation-refresh branch into this candidate, then move its checkout to native Trash.",
+  "slice_base": "10c2ed2eeacb0a9fbac86e155b139e52831a0cb7",
+  "candidate": "faf1486cf1cbd6fdef3042c78bcd405c87bf3e78",
+  "tree": "9187da30023cbc911feb1beda707b7f1ee5e9570",
+  "parents": [
+    "ad01224b0cf14b2279c3be78573b5154ab50bf83",
+    "534223b694e66cd522cf678f957c11949ee9be6d"
+  ],
+  "implementation_commits": [
+    {
+      "candidate": "ad01224b0cf14b2279c3be78573b5154ab50bf83",
+      "tree": "6b369777768beccc52a634a64c1761b30a7e76b9",
+      "parents": [
+        "10c2ed2eeacb0a9fbac86e155b139e52831a0cb7"
+      ],
+      "footprint_command": [
+        "git",
+        "diff",
+        "--name-only",
+        "ad01224b0cf14b2279c3be78573b5154ab50bf83^1",
+        "ad01224b0cf14b2279c3be78573b5154ab50bf83"
+      ]
+    },
+    {
+      "candidate": "faf1486cf1cbd6fdef3042c78bcd405c87bf3e78",
+      "tree": "9187da30023cbc911feb1beda707b7f1ee5e9570",
+      "parents": [
+        "ad01224b0cf14b2279c3be78573b5154ab50bf83",
+        "534223b694e66cd522cf678f957c11949ee9be6d"
+      ],
+      "footprint_command": [
+        "git",
+        "diff",
+        "--name-only",
+        "faf1486cf1cbd6fdef3042c78bcd405c87bf3e78^1",
+        "faf1486cf1cbd6fdef3042c78bcd405c87bf3e78"
+      ]
+    }
+  ],
+  "receipt_commit_identity": null,
+  "source_freeze": false,
+  "E02_state": "paused by explicit user request; no implementation queue or expensive verification resumed",
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "closure_proposals": [],
+  "implementation": {
+    "WIP_preservation": "Three exact IR candidate paths committed before pause; test and static failures remain pending.",
+    "documentation_branch": "codex/docs-refresh-e02-20261014",
+    "documentation_tip": "534223b694e66cd522cf678f957c11949ee9be6d",
+    "documentation_tree": "399923a7df4bd98aa0735071a3bc1f1a249e44a0",
+    "documentation_base": "bafca83bff9ff49eef1466bc491a8420b5cd1dbb",
+    "documentation_incoming_paths": 484,
+    "manual_resolution_paths": [
+      "policy-engine/docs/reference/api/index.md",
+      "policy-engine/src/polisyos/berl/README.md",
+      "policy-engine/src/polisyos/data_forge/README.md",
+      "policy-engine/src/polisyos/lex/knowledge/README.md"
+    ],
+    "complete_own_premerge_tracked_denominator": 25089,
+    "all_24658_paths_outside_incoming_delta_preserved_exact_mode_blob": true,
+    "all484_changed_committed_blobs_readback": true,
+    "two_product_python_executable_AST_comparisons": "Both equal after excluding docstrings; exact two paths in merge-verification.json.",
+    "push": "Not performed; local append-only merge only.",
+    "source_test_config_companion_footprint": "Complete commit diffs in implementation_commits; independent full484 path inventory in RAW/disk-doc-refresh-merge-independent-20261015/path-inventory.tsv."
+  },
+  "verification": {
+    "WIP_native_before_docs_merge": {
+      "governance_tests": "20 PASS",
+      "Ruff": "FAIL:12 TC006",
+      "Ruff_format": "PASS",
+      "unsuppressed_IR_MyPy": "FAIL:223 errors/53files, checked192sources",
+      "complete6497_source_inputs_stable": true,
+      "current_after_docs_merge": "not replayed; evidence belongs to exact pre-docs source bytes; final composed source freeze remains pending"
+    },
+    "documentation_branch_original_overall_check": "FAIL and UNRUN limits retained; no inherited-green claim.",
+    "merge": "All484 changed committed blobs match working files; all24658 paths outside incoming delta preserved;28incomingPython files parse.",
+    "commit_hooks": "Contrast/reduced-motion/4frontend Markdown Prettier pass; these are not native E02 proof.",
+    "git_diff_check": "Nonzero for incoming Markdown hard-break trailing spaces; output retained; no blanket exception added.",
+    "retirement": "Same directory inode/device and exact per-path metadata reconciled, complete156032regular files/4068symlinks/18030directories retained.",
+    "metadata_harness_control": "Initial ordered hash mismatch was caused by199absolute symlinks changing directory/file grouping after move. Replaying original target classification exactly matches the pre-move hash. No source repair performed.",
+    "dependency_availability": "Own MkDocs1.6.1,pytest9.0.2,Ruff0.14.10 real module invocations exit0; full environment-equivalence review is separate."
+  },
+  "storage": {
+    "native_trash_path": "/Users/deniskopylov/.Trash/PolicyOS-docs-refresh-20261015",
+    "restore_command": [
+      "git",
+      "worktree",
+      "move",
+      "/Users/deniskopylov/.Trash/PolicyOS-docs-refresh-20261015",
+      "/Users/deniskopylov/.codex/worktrees/fe13/polisyos"
+    ],
+    "retired_checkout_allocated_bytes_by_full_metadata_count": 4087607296,
+    "same_volume_move_physical_reclaim_claim": "none",
+    "unique_material_backups": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/saved-documentation-proofs-20261015.tar.gz",
+        "sha256": "28446e0b1e2761ff28d885fdc195465bbe85caaabdc3317f320e2183c913a28e",
+        "bytes": 73480555,
+        "source_regular_bytes": 429078805
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/saved-documentation-site-and-other-material-20261015.tar.gz",
+        "sha256": "f9f081e53df5946e524687e26d5c411188369706495fced30da36c61df0da527",
+        "bytes": 16302835,
+        "source_regular_bytes": 135754233
+      }
+    ],
+    "backup_verification": "All archive members content/mode/uid/gid/link-target read back against source; originals remain intact.",
+    "ignored_file_inventory_denominator": 134692,
+    "permanent_deletion": false,
+    "Trash_emptied": false,
+    "APFS_deduplication": false,
+    "old_MyPy_13139_path_proposal": "obsolete: its exact Trash cache root is absent on current readback; no deletion/deduplication command was executed by this task.",
+    "global_app_services_stopped": false
+  },
+  "evidence": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/e02-pause-precommit.json",
+      "sha256": "5d40650cfe28d38eaa20f528952c90fdfe444fd9606b547a64ae510803fab3b8",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/e02-pause-source-commit.txt",
+      "sha256": "d3b09ae9532fa4b014fa3f659af375bde292fa772874d4a5b50a069c8a6aa9bd",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/e02-pause-source-readback.json",
+      "sha256": "28abfa8c4e06f636c3655521e1fa94571425abc1c0a933708d7c7930b99d569f",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-admission.json",
+      "sha256": "a78b78acb4804c832629a0d1761b393647ac3fad1106e782701e70e3d9fa7b6d",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-preview.txt",
+      "sha256": "f344aeb73a30791a7f99af8d1d9ea49d1d581421044bb23aa336df548cd3bda7",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-application.txt",
+      "sha256": "cd21fef7aafebd0d25d574707e4fdfb749c168961e3d13815215906701a8f1f2",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/conflict-resolution.json",
+      "sha256": "c94f086aa103d24069b1f1270c93354eed9e0e25a385d139976d318b4163edba",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-verification.json",
+      "sha256": "45b025a4ee584e9d45238c347d634f5e2286b06495d52af8aebf58f2b20f672c",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-diff-check.txt",
+      "sha256": "ea1dab1a4ebfdce5dfaccb9e73dafae6bfc9ad17cebab4ba9273ef6136f58545",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-commit-output.txt",
+      "sha256": "f57e780c56c0f7c3c57ba9cbb1c2d08a16bbe783bf20aef7048d6c26c089b434",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/merge-commit-readback.json",
+      "sha256": "a34bb11989509d059a019010d774a7b467e37924b40a7ccc8566111a79240e17",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-before.json",
+      "sha256": "3f4f34ba873aaa891f6c045cf5a057623c6888e762e2f36a6a810b37e49c10f1",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-final-open-handles.json",
+      "sha256": "104705a634364fd95a133f5e016e46059214c904b04e23368455292cffbd18a7",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-move-command.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-discriminating-readback.json",
+      "sha256": "7db5fbec4c97010ff8910df5be6be9906b78a6e0991df67836344ff3c4e1495c",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-merkle-order-discriminator.json",
+      "sha256": "fdeea74b5fab3f287e64a74c7b1b5e082eb37f646b10b6a8b6d36ee2d58a7059",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retirement-readback.json",
+      "sha256": "48650d14fa34f764ccd6e746e35e13ca63d212aeccfb68caf895b4e834e0230d",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/documentation-proof-archive-verification.json",
+      "sha256": "56bffdf74a907ce3106a05c8dc015dd9afc8213327d7dac7ed4b827725eab06c",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/documentation-supplemental-archive-verification.json",
+      "sha256": "948b2aa5476553ec23d980cb7e9889eca28caa4c2af54cf11a7461fdaa036165",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/retired-ignored-material-classification.json",
+      "sha256": "3b27e2796fff7ceeb3c5b5ce7484e1f473415a0bb784aef34d04f2ac3580a9c1",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-retirement-root-20261015/own-documentation-dependency-availability.json",
+      "sha256": "2dc317422177a9c2ebb284695c1ee5620efd4358abaeaa567c915c7d4bc0ef96",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/native/command.json",
+      "sha256": "3401fa79e33ee1488c8e7037607569b15467726b7a86743721842c69ddaa27c7",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/pytest.stdout.txt",
+      "sha256": "a8cf2b3f36602be9c0424be7e3c631164ec0d99c05d45dc087de8456faa7cf83",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/mypy.stdout.txt",
+      "sha256": "8386d1f62b02463b02b6fa585e7402e593fd239253b7d9369b82fb1086537dd3",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/mypy.stderr.txt",
+      "sha256": "4039c96d601f7ed5986bf4fba05632f3ddf09e34135ab8b9614f936f26dd6231",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/ruff-check.stdout.txt",
+      "sha256": "77a0a2a8d816edcb358ced5c980ef53ab9f4e58cfe35f4196921bc2a14dff45d",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2229-ir-typed-walkers-application-root-20261015/module-origins.json",
+      "sha256": "9e9c9356db86060cfe7dc230188c6d1536cb77db7476b9334acc4747ff1007db",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-merge-independent-20261015/path-inventory.tsv",
+      "sha256": "aa807d61e7fbfb2c1cfcad96fabd19fda2e3f2f0c930170deea1eec2e432017f",
+      "availability": "local ignored RAW; retained on this machine"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/disk-doc-refresh-retirement-independent-20261015/report.json",
+      "sha256": "2bd05cde45109e840ce57aee796d78316962274657e95991f2735ef31eaae7cd",
+      "availability": "local ignored RAW; retained on this machine"
+    }
+  ],
+  "limitations": [
+    "E02 is paused with known WIP failures. This source merge is not independent G acceptance or integration publication.",
+    "The native Trash move retains data on the same volume; physical disk pressure needs a separately authorized action or external storage.",
+    "Absolute paths inside the retired environment/fixture symlinks reference its former location. Exact restoration command is recorded; no dependency reinstall was performed.",
+    "No production input, manifest, authority/custody fact, G branch, main branch, or historical closure was changed."
+  ],
+  "next_check": [
+    "Continue storage-only work until the user resumes E02.",
+    "Read the independent dependency comparison before proposing removal of any redundant copied environment.",
+    "Require explicit exception to the user permanent-deletion prohibition before removing bytes from native Trash.",
+    "On E02 resume: read r2229 full failures, complete the interrupted temporal R4 candidate and independent review, then rebind all affected input/source proofs to the composed tree."
+  ],
+  "review_output_custody_note": "Retirement reviewer issued an initial report at SHA b9cc87981a3060f3522cdbca5f003b4b4d1ba219ca929d31f4ecac0d5db70285, then replaced that locator with current SHA2bd05cde45109e840ce57aee796d78316962274657e95991f2735ef31eaae7cd. The initial bytes are not available at that locator and are not relied on; this packet binds only the current readback bytes."
+}
